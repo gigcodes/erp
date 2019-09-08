@@ -130,7 +130,15 @@
                   </div>
               </td>
                 <td>{{ $supplier->source }}</td>
-                <td>{{ $supplier->suppliercategory }}</td>
+                <td>
+                <select name="supplier_category_id" class="form-control suppliercategory">
+                  <option value="">Select Category</option>
+                  @foreach($suppliercategory as $category)
+                    <option value="{{$category->id}}" {{ $category->id == $supplier->supplier_category_id ? 'selected' : '' }}>{{$category->name}}</option>
+                  @endforeach
+                </select>
+              </td>
+               
                 <td class="expand-row">
                     @if(strlen($supplier->brands) > 4)
                         @php
@@ -208,7 +216,12 @@
                 @endif
               </td>
                 <td>
-                    {{ $supplier->supplierstatus }}
+                    <select name="supplier_status_id" class="form-control supplierstatus">
+                    <option value="">Select Status</option>
+                    @foreach($supplierstatus as $status)
+                      <option value="{{$status->id}}" {{ $status->id == $supplier->supplier_status_id ? 'selected' : '' }}>{{$status->name}}</option>
+                    @endforeach
+                  </select>
                 </td>
               <td>
                   <div style="min-width: 100px;">
@@ -626,7 +639,89 @@
         var supplier_category_id = $('#supplier_category_id2').val();
         var supplier_status_id = $('#supplier_status_id2').val();
         getSuppliers(supplier_category_id, supplier_status_id);
-      });       
+      }); 
+
+          
+
+      $(".supplierstatus").change(function () {
+        var id = $(this).val();
+        var supplier_id = $(this).parent().siblings(":first").text();
+        $.ajax({
+          type: 'POST',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('supplier.supplierupdate') }}',
+          data: {
+            supplier_id:supplier_id,
+            id:id,
+            type: 'status'
+          },
+        }).done(response => {
+            $(".successmsg").hide();
+            $(this).after("<div class='successmsg'></div>");
+            $('.successmsg').html("Updated")
+            .hide()
+            .fadeIn(1000, function() { $('.successmsg'); });
+           setTimeout(resetAll,3000);
+
+        }).fail(function(response) {
+          console.log(response);
+
+          alert('Could not updated');
+        });
+      }); 
+
+      $(".suppliercategory").change(function () {
+        var id = $(this).val();
+        var supplier_id = $(this).parent().siblings(":first").text();
+        $.ajax({
+          type: 'POST',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('supplier.supplierupdate') }}',
+          data: {
+            supplier_id:supplier_id,
+            id:id,
+            type: 'category'
+          },
+        }).done(response => {
+            $(".successmsg").hide();
+            $(this).after("<div class='successmsg'></div>");
+            $('.successmsg').html("Updated")
+            .hide()
+            .fadeIn(1000, function() { $('.successmsg'); });
+           setTimeout(resetAll,3000);
+
+
+            /*$(this).after("<div id='divSuccessMsg'></div>");
+            $('#divSuccessMsg').html("Success")
+            .hide()
+            .fadeIn(1500, function() { $('#divSuccessMsg'); });*/
+
+           //$(this).after( "<div >Success</div>" ), 100);
+         
+
+          
+            //$('#add-remark').find('textarea[name="remark"]').val('');
+
+            //var html =' <p> '+ remark +' <br> <small>By You updated on '+ moment().format('DD-M H:mm') +' </small></p>';
+
+            //$("#makeRemarkModal").find('#remark-list').append(html);
+        }).fail(function(response) {
+          console.log(response);
+
+          alert('Could not updated');
+        });
+
+        
+      }); 
+
+      function resetAll(){
+          $('.successmsg').remove(); // Removing it as with next form submit you will be adding the div again in your code. 
+
+        } 
   });
   </script>
 @endsection

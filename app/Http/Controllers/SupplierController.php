@@ -73,7 +73,7 @@ class SupplierController extends Controller
       }
 
       $suppliers = DB::select('
-									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, suppliers.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.name as suppliercategory, ss.name as supplierstatus, 
+									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, suppliers.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -96,8 +96,6 @@ class SupplierController extends Controller
                   ON suppliers.id = emails.email_model_id)
 
                   AS suppliers
-                  LEFT JOIN supplier_category sc on sc.id = suppliers.supplier_category_id
-                  LEFT JOIN supplier_status ss on ss.id = suppliers.supplier_status_id
                   WHERE (source LIKE "%'.$source.'%" AND (supplier LIKE "%' . $term . '%" OR 
                   phone LIKE "%' . $term . '%" OR 
                   email LIKE "%' . $term . '%" OR 
@@ -421,6 +419,23 @@ class SupplierController extends Controller
         return response()->json([
             'status' => 'success'
         ]);
+    }
+    public function supplierupdate(Request $request) {
+     $supplier = Supplier::find($request->get('supplier_id'));
+     $supplier->frequency = $request->get('id');
+     $type = $request->get('type');
+     if($type == 'category')
+     {
+       $supplier->supplier_category_id = $request->get('id');
+     }
+     if($type == 'status')
+     {
+       $supplier->supplier_status_id = $request->get('id');
+     }
+     $supplier->save();
+      return response()->json([
+          'success'
+      ]);
     }
 
     public function getsuppliers(Request $request)

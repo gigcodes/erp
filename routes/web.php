@@ -614,6 +614,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get( 'supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages' );
     Route::post( 'supplier/flag', 'SupplierController@flag' )->name( 'supplier.flag' );
     Route::post( 'supplier/getsuppliers', 'SupplierController@getsuppliers' )->name( 'supplier.getsuppliers' );
+    Route::post( 'supplier/supplierupdate', 'SupplierController@supplierupdate' )->name( 'supplier.supplierupdate' );
     Route::resource( 'supplier', 'SupplierController' );
     Route::resource( 'supplier-category', 'SupplierCategoryController' );
     Route::resource( 'supplier-status', 'SupplierStatusController' );
