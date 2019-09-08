@@ -688,9 +688,7 @@ class TwilioController extends FindByNumberController {
         }
         // Saving the data in CallBusyMessage
         $insertData = CallBusyMessage::bulkInsert($data);
-        echo "<pre>";
-        print_r($data);
-        die('This data inserted in db..Now, you can check missed calls screen');
+        exit('This data inserted in db..Now, you can check missed calls screen');
     }
 
 }
