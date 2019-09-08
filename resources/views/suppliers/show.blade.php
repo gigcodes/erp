@@ -84,12 +84,18 @@
         <div class="row">
           <div class="col-xs-12">
             <div class="form-group">
-              <select name="supplier_category_id" id="supplier_category_id" class="form-control">
-                <option value="">Select Category</option>
-                @foreach($suppliercategory as $category)
-                  <option value="{{$category->id}}" {{ $category->id == $supplier->supplier_category_id ? 'selected' : '' }}>{{$category->name}}</option>
-                @endforeach
-              </select>
+              <div style="float: left;width: 63%;">   
+                <select name="supplier_category_id" id="supplier_category_id" class="form-control">
+                  <option value="">Select Category</option>
+                  @foreach($suppliercategory as $category)
+                    <option value="{{$category->id}}" {{ $category->id == $supplier->supplier_category_id ? 'selected' : '' }}>{{$category->name}}</option>
+                  @endforeach
+                </select>
+                </div>
+                <div style=" float: left;">&nbsp;&nbsp;
+                  <a href="{{ action('SupplierCategoryController@index') }}"> Supplier Category</a>
+                </div>
+                <div style="clear: both;"></div>
             </div>
             <div class="form-group form-inline">
               <input type="text" name="supplier" id="supplier_supplier" class="form-control input-sm" placeholder="Supplier" value="{{ $supplier->supplier }}">
@@ -185,13 +191,19 @@
             <div class="form-group">
               <input type="text" name="gst" id="supplier_gst" class="form-control input-sm" placeholder="GST" value="{{ $supplier->gst }}">
             </div>
-            <div class="form-group">              
-              <select name="supplier_status_id" id="supplier_status_id" class="form-control">
-                <option value="">Select Status</option>
-                @foreach($supplierstatus as $status)
-                  <option value="{{$status->id}}" {{ $status->id == $supplier->supplier_status_id ? 'selected' : '' }}>{{$status->name}}</option>
-                @endforeach
-              </select>
+            <div class="form-group">
+              <div style="float: left;width: 68%;">              
+                <select name="supplier_status_id" id="supplier_status_id" class="form-control">
+                  <option value="">Select Status</option>
+                  @foreach($supplierstatus as $status)
+                    <option value="{{$status->id}}" {{ $status->id == $supplier->supplier_status_id ? 'selected' : '' }}>{{$status->name}}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div style=" float: left;">&nbsp;&nbsp;
+                <a href="{{ action('SupplierStatusController@index') }}">Supplier Status</a>
+              </div>
+              <div style="clear: both;"></div>
             </div>
             <!-- <div class="form-group">
               <select name="status" id="status" class="form-control form-control-sm">
