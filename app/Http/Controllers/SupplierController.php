@@ -116,12 +116,16 @@ class SupplierController extends Controller
   		$perPage = Setting::get('pagination');
   		$currentItems = array_slice($suppliers, $perPage * ($currentPage - 1), $perPage);
 
+      $supplierscnt = count($suppliers);
   		$suppliers = new LengthAwarePaginator($currentItems, count($suppliers), $perPage, $currentPage, [
   			'path'	=> LengthAwarePaginator::resolveCurrentPath()
   		]);
 
       $suppliercategory = SupplierCategory::get();
       $supplierstatus = SupplierStatus::get();
+
+      //SELECT supplier_status_id, COUNT(*) AS number_of_products FROM suppliers WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id
+      $statistics = DB::select('SELECT supplier_status_id, ss.name, COUNT(*) AS number_of_products FROM suppliers s LEFT join supplier_status ss on ss.id = s.supplier_status_id WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id');
 
       return view('suppliers.index', [
         'suppliers'     => $suppliers,
@@ -133,7 +137,10 @@ class SupplierController extends Controller
         'suppliercategory' => $suppliercategory,
         'supplierstatus' => $supplierstatus,
         'supplier_category_id' =>$supplier_category_id,
-        'supplier_status_id' => $supplier_status_id
+        'supplier_status_id' => $supplier_status_id,
+        'count' => $supplierscnt,
+        'statistics' => $statistics,
+        'total' => 0
       ]);
     }
 

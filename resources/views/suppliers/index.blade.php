@@ -10,6 +10,36 @@
 @section('content')
 
     <div class="row">
+        <h2 class="page-heading">Statistics</h2>
+        <div class="mt-3 col-md-12">
+          <table class="table table-bordered table-striped" style="width: 35%;">
+            <thead>
+              <tr>                
+                <th width="25%">Status</th>
+                <th width="10%">Total</th> 
+              </tr>
+            </thead>
+            <tbody>                
+                @foreach($statistics as $statistic)
+                  @php
+                  $total = $total + $statistic->number_of_products;
+                  @endphp
+                <tr>                 
+                  <td>{{$statistic->name}}</td>
+                  <td>{{$statistic->number_of_products}}</td>
+                </tr>
+                @endforeach               
+                <tr>                 
+                  <td>No Status</td>
+                  <td>{{ $count- $total}}</td>
+                </tr> 
+                <tr>                 
+                  <td>Suppliers</td>
+                  <td>{{$count}}</td>
+                </tr>            
+            </tbody>
+          </table>
+        </div>
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Suppliers List</h2>
             <div class="pull-left">
