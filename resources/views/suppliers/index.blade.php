@@ -51,7 +51,7 @@
                 </div>
 
                   <div class="form-group ml-3">
-                      <input type="text" name="source" id="source" placeholder="Source..">
+                      <input type="text" class="form-control" name="source" id="source" placeholder="Source..">
                   </div>
 
                 <div class="form-group ml-3">
@@ -77,15 +77,7 @@
                       <option value="{{$status->id}}" {{ $status->id == $supplier_status_id ? 'selected' : '' }}>{{$status->name}}</option>
                     @endforeach
                   </select>
-                </div>   
-                 <!--  <div class="form-group ml-3">
-                      <input type="checkbox" name="status" id="status" value="1"> Active
-                  </div> -->
-
-{{--                  <div class="form-group ml-3">--}}
-{{--                      <select name="status" id=""></select>--}}
-{{--                  </div>--}}
-
+                </div>
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
               </form>
             </div>
@@ -102,25 +94,18 @@
     @include('purchase.partials.modal-email')
     @include('suppliers.partials.modal-emailToAll')
 
-    <div class="mt-3 col-md-12">
+    <div class="mt-3">
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
             <th width="5%">ID</th>
-            <th width="10%">Name</th>
-            <th width="10%">Address</th>
-            <th>Source</th>
-            <th>Category</th>           
-            <th>Designers</th>
-            <th width="10%">Social handle</th>
-            <th>Scraper Name</th>
-            {{-- <th>Agents</th> --}}
-            {{-- <th width="5%">GST</th> --}}
-            <th width="20%">Order</th>
-            {{-- <th width="20%">Emails</th> --}}
-            <th width="25%">Communication</th>
-            <th>Status</th>
-            <th width="15%">Action</th>
+            <th width="23%">Name</th>
+            <th width="18%">Category</th>           
+            <th width="10%">Designers</th>
+            <th width="10%">Social handle</th>                    
+            <th width="15%">Communication</th>
+            <th width="15%">Status</th>
+            <th width="5%">Action</th>
           </tr>
         </thead>
 
@@ -128,7 +113,7 @@
           @foreach ($suppliers as $supplier)
             <tr>
               <td>{{ $supplier->id }}</td>
-              <td>
+              <td class="expand-row">
                 {{ $supplier->supplier }}
 
                 @if ($supplier->is_flagged == 1)
@@ -141,25 +126,23 @@
                       <img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
                   </button>
 
-                <br>
+                
                 <span class="text-muted">
                   {{ $supplier->phone }}
-                  <br>
+                 
                   <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
                   @if ($supplier->has_error == 1)
                     <span class="text-danger">!!!</span>
                   @endif
                 </span>
-              </td>
-              <td class="expand-row">
-                  <div class="td-mini-container">
+                 <div class="td-mini-container">
                       {{ strlen($supplier->address) > 10 ? substr($supplier->address, 0, 10).'...' : $supplier->address }}
                   </div>
                   <div class="td-full-container hidden">
                       {{ $supplier->address }}
                   </div>
-              </td>
-                <td>{{ $supplier->source }}</td>
+              </td>             
+                
                 <td>
                 <select name="supplier_category_id" class="form-control suppliercategory">
                   <option value="">Select Category</option>
@@ -194,34 +177,7 @@
                   <div class="td-full-container hidden">
                       {{ $supplier->social_handle }}
                   </div>
-              </td>
-              <td>{{ $supplier->scraper_name }}</td>
-              {{-- <td>
-                @if ($supplier->agents)
-                  <ul>
-                    @foreach ($supplier->agents as $agent)
-                      <li>
-                        <strong>{{ $agent->name }}</strong> <br>
-                        {{ $agent->phone }} - {{ $agent->email }} <br>
-                        <span class="text-muted">{{ $agent->address }}</span> <br>
-                        <button type="button" class="btn btn-xs btn-secondary edit-agent-button" data-toggle="modal" data-target="#editAgentModal" data-agent="{{ $agent }}">Edit</button>
-                      </li>
-                    @endforeach
-                  </ul>
-                @endif
-              </td> --}}
-
-              {{-- <td>{{ $supplier->gst }}</td> --}}
-              <td>
-                @if ($supplier->purchase_id != '')
-                  <a href="{{ route('purchase.show', $supplier->purchase_id) }}" target="_blank">Purchase ID {{ $supplier->purchase_id }}</a>
-                  <br>
-                  {{ \Carbon\Carbon::parse($supplier->purchase_created_at)->format('H:m d-m') }}
-                @endif
-              </td>
-              {{-- <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}"  style="word-break: break-all;">
-                {{ strlen(strip_tags($supplier->email_message)) > 0 ? 'Email' : '' }}
-              </td> --}}
+              </td>                        
               <td class="expand-row {{ $supplier->last_type == "email" && $supplier->email_seen == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
                   @if($supplier->phone)
                       <input type="text" name="message" id="message_{{$supplier->id}}" placeholder="whatsapp message..." class="form-control send-message" data-id="{{$supplier->id}}">

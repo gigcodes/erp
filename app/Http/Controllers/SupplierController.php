@@ -102,6 +102,7 @@ class SupplierController extends Controller
                   address LIKE "%' . $term . '%" OR 
                   social_handle LIKE "%' . $term . '%" OR
                   scraper_name LIKE "%' . $term . '%" OR
+                  brands LIKE "%' . $term . '%" OR
                    suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
                   ORDER BY last_communicated_at DESC, status DESC
 							');
