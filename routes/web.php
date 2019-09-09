@@ -635,7 +635,6 @@ Route::post( 'twilio/outgoing', 'TwilioController@outgoingCall' );
 Route::get( 'twilio/getLeadByNumber', 'TwilioController@getLeadByNumber' );
 Route::post( 'twilio/recordingStatusCallback', 'TwilioController@recordingStatusCallback' );
 Route::post( 'twilio/handleDialCallStatus', 'TwilioController@handleDialCallStatus' );
-Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
 Route::post( 'twilio/handleOutgoingDialCallStatus', 'TwilioController@handleOutgoingDialCallStatus' );
 Route::post( 'twilio/storerecording', 'TwilioController@storeRecording' );
 Route::post( 'twilio/storetranscript', 'TwilioController@storetranscript' );

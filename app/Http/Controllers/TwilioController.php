@@ -603,22 +603,6 @@ class TwilioController extends FindByNumberController {
         $response->hangup();
 
         return $response;
-    }
-
-    /**
-     * Getting call records
-     * @return void
-     * @Rest\Post("twilio/missedCallStatus")
-     *
-     * @uses Config
-     * @uses Twilio
-     * @uses Customer
-     * @uses CallBusyMessage
-     */
-    public function missedCallStatus() {
-        $twilio = new Twilio();
-        $twilio->missedCallStatus();
-        exit('This data inserted in db..Now, you can check missed calls screen');
-    }
+    }   
 
 }
