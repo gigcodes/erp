@@ -26,16 +26,16 @@
                   @endphp
                 <tr>                 
                   <td>{{$statistic->name}}</td>
-                  <td>{{$statistic->number_of_products}}</td>
+                  <td align="right">{{$statistic->number_of_products}}</td>
                 </tr>
                 @endforeach               
                 <tr>                 
                   <td>No Status</td>
-                  <td>{{ $count- $total}}</td>
+                  <td align="right">{{ $count- $total}}</td>
                 </tr> 
                 <tr>                 
                   <td>Suppliers</td>
-                  <td>{{$count}}</td>
+                  <td align="right">{{$count}}</td>
                 </tr>            
             </tbody>
           </table>
