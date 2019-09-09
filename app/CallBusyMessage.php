@@ -18,5 +18,13 @@ class CallBusyMessage extends Model {
     public static function bulkInsert($data) {
         CallBusyMessage::insert($data);
     }
+    
+    /**
+     * Function to check Twilio Sid 
+     * @param string $sId twilio sid
+     */
+     public static function checkSidAlreadyExist($sId){
+         return CallBusyMessage::where('caller_sid', '=', $sId)->first();
+     }
 
 }
