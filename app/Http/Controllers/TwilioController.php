@@ -37,7 +37,6 @@ use Illuminate\Support\Facades\Log;
 use App\Helpers;
 use App\Recording;
 use Carbon\Carbon;
-use App\Voip\Twilio;
 
 /**
  * Class TwilioController - active record
