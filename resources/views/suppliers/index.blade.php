@@ -10,6 +10,36 @@
 @section('content')
 
     <div class="row">
+        <h2 class="page-heading">Statistics</h2>
+        <div class="mt-3 col-md-12">
+          <table class="table table-bordered table-striped" style="width: 35%;">
+            <thead>
+              <tr>                
+                <th width="25%">Status</th>
+                <th width="10%">Total</th> 
+              </tr>
+            </thead>
+            <tbody>                
+                @foreach($statistics as $statistic)
+                  @php
+                  $total = $total + $statistic->number_of_products;
+                  @endphp
+                <tr>                 
+                  <td>{{$statistic->name}}</td>
+                  <td align="right">{{$statistic->number_of_products}}</td>
+                </tr>
+                @endforeach               
+                <tr>                 
+                  <td>No Status</td>
+                  <td align="right">{{ $count- $total}}</td>
+                </tr> 
+                <tr>                 
+                  <td>Suppliers</td>
+                  <td align="right">{{$count}}</td>
+                </tr>            
+            </tbody>
+          </table>
+        </div>
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Suppliers List</h2>
             <div class="pull-left">
@@ -32,10 +62,25 @@
                     <option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
                   </select>
                 </div>
-
-                  <div class="form-group ml-3">
+                  <div class="form-group ml-3">              
+                    <select name="supplier_category_id" class="form-control">
+                      <option value="">Select Category</option>
+                      @foreach($suppliercategory as $category)
+                        <option value="{{$category->id}}" {{ $category->id == $supplier_category_id ? 'selected' : '' }}>{{$category->name}}</option>
+                      @endforeach
+                    </select>
+                </div>
+                <div class="form-group ml-3">                  
+                  <select name="supplier_status_id" class="form-control">
+                    <option value="">Select Status</option>
+                    @foreach($supplierstatus as $status)
+                      <option value="{{$status->id}}" {{ $status->id == $supplier_status_id ? 'selected' : '' }}>{{$status->name}}</option>
+                    @endforeach
+                  </select>
+                </div>   
+                 <!--  <div class="form-group ml-3">
                       <input type="checkbox" name="status" id="status" value="1"> Active
-                  </div>
+                  </div> -->
 
 {{--                  <div class="form-group ml-3">--}}
 {{--                      <select name="status" id=""></select>--}}
@@ -64,9 +109,11 @@
             <th width="5%">ID</th>
             <th width="10%">Name</th>
             <th width="10%">Address</th>
-              <th>Source</th>
-              <th>Designers</th>
+            <th>Source</th>
+            <th>Category</th>           
+            <th>Designers</th>
             <th width="10%">Social handle</th>
+            <th>Scraper Name</th>
             {{-- <th>Agents</th> --}}
             {{-- <th width="5%">GST</th> --}}
             <th width="20%">Order</th>
@@ -113,6 +160,15 @@
                   </div>
               </td>
                 <td>{{ $supplier->source }}</td>
+                <td>
+                <select name="supplier_category_id" class="form-control suppliercategory">
+                  <option value="">Select Category</option>
+                  @foreach($suppliercategory as $category)
+                    <option value="{{$category->id}}" {{ $category->id == $supplier->supplier_category_id ? 'selected' : '' }}>{{$category->name}}</option>
+                  @endforeach
+                </select>
+              </td>
+               
                 <td class="expand-row">
                     @if(strlen($supplier->brands) > 4)
                         @php
@@ -139,6 +195,7 @@
                       {{ $supplier->social_handle }}
                   </div>
               </td>
+              <td>{{ $supplier->scraper_name }}</td>
               {{-- <td>
                 @if ($supplier->agents)
                   <ul>
@@ -189,7 +246,12 @@
                 @endif
               </td>
                 <td>
-                    {{ $supplier->status ? 'Active' : 'Inactive' }}
+                    <select name="supplier_status_id" class="form-control supplierstatus">
+                    <option value="">Select Status</option>
+                    @foreach($supplierstatus as $status)
+                      <option value="{{$status->id}}" {{ $status->id == $supplier->supplier_status_id ? 'selected' : '' }}>{{$status->name}}</option>
+                    @endforeach
+                  </select>
                 </td>
               <td>
                   <div style="min-width: 100px;">
@@ -393,13 +455,16 @@
       var url = "{{ url('supplier') }}/" + supplier.id;
 
       $('#supplierEditModal form').attr('action', url);
+      $('#supplier_category_id').val(supplier.supplier_category_id);
       $('#supplier_supplier').val(supplier.supplier);
       $('#supplier_address').val(supplier.address);
       $('#supplier_phone').val(supplier.phone);
       $('#supplier_email').val(supplier.email);
       $('#supplier_social_handle').val(supplier.social_handle);
+      $('#supplier_scraper_name').val(supplier.scraper_name);
       $('#supplier_gst').val(supplier.gst);
-      $('#status').val(supplier.status);
+      //$('#status').val(supplier.status);
+      $('#supplier_status_id').val(supplier.supplier_status_id);
     });
 
     $(document).on('click', '.send-supplier-email', function() {
@@ -593,5 +658,100 @@
         });
 
     });
+
+    $(document).ready(function() {
+      $('#supplier_category_id2').on('change', function(){
+        var supplier_category_id = $('#supplier_category_id2').val();
+        var supplier_status_id = $('#supplier_status_id2').val();      
+        getSuppliers(supplier_category_id, supplier_status_id);  
+      });
+      $('#supplier_status_id2').on('change', function(){
+        var supplier_category_id = $('#supplier_category_id2').val();
+        var supplier_status_id = $('#supplier_status_id2').val();
+        getSuppliers(supplier_category_id, supplier_status_id);
+      }); 
+
+          
+
+      $(".supplierstatus").change(function () {
+        var id = $(this).val();
+        var supplier_id = $(this).parent().siblings(":first").text();
+        $.ajax({
+          type: 'POST',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('supplier.supplierupdate') }}',
+          data: {
+            supplier_id:supplier_id,
+            id:id,
+            type: 'status'
+          },
+        }).done(response => {
+            $(".successmsg").hide();
+            $(this).after("<div class='successmsg'></div>");
+            $('.successmsg').html("Updated")
+            .hide()
+            .fadeIn(1000, function() { $('.successmsg'); });
+           setTimeout(resetAll,3000);
+
+        }).fail(function(response) {
+          console.log(response);
+
+          alert('Could not updated');
+        });
+      }); 
+
+      $(".suppliercategory").change(function () {
+        var id = $(this).val();
+        var supplier_id = $(this).parent().siblings(":first").text();
+        $.ajax({
+          type: 'POST',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('supplier.supplierupdate') }}',
+          data: {
+            supplier_id:supplier_id,
+            id:id,
+            type: 'category'
+          },
+        }).done(response => {
+            $(".successmsg").hide();
+            $(this).after("<div class='successmsg'></div>");
+            $('.successmsg').html("Updated")
+            .hide()
+            .fadeIn(1000, function() { $('.successmsg'); });
+           setTimeout(resetAll,3000);
+
+
+            /*$(this).after("<div id='divSuccessMsg'></div>");
+            $('#divSuccessMsg').html("Success")
+            .hide()
+            .fadeIn(1500, function() { $('#divSuccessMsg'); });*/
+
+           //$(this).after( "<div >Success</div>" ), 100);
+         
+
+          
+            //$('#add-remark').find('textarea[name="remark"]').val('');
+
+            //var html =' <p> '+ remark +' <br> <small>By You updated on '+ moment().format('DD-M H:mm') +' </small></p>';
+
+            //$("#makeRemarkModal").find('#remark-list').append(html);
+        }).fail(function(response) {
+          console.log(response);
+
+          alert('Could not updated');
+        });
+
+        
+      }); 
+
+      function resetAll(){
+          $('.successmsg').remove(); // Removing it as with next form submit you will be adding the div again in your code. 
+
+        } 
+  });
   </script>
 @endsection
