@@ -647,7 +647,15 @@ function getSuppliers(supplier_category_id, supplier_status_id)
             data:{supplier_category_id: supplier_category_id, supplier_status_id:supplier_status_id},
             url:'/supplier/getsuppliers',
             success: function (data) {
-              $("#suppliers").append(data);   
+              if(data == '')
+              {
+                $('#suppliers-selection').hide();
+              }
+              else
+              {
+                $('#suppliers-selection').show();
+                $("#suppliers").append(data);   
+              }            
              // alert(data);     
               //$('#suppliers').multiselect('refresh');   
               //$('#example').multiselect('refresh');  

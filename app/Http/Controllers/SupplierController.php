@@ -457,11 +457,12 @@ class SupplierController extends Controller
       
       $data = '';
       $typeWhereClause = '';
+      $suppliers_all = array();
       if($supplier_category_id == '' && $supplier_status_id == '')
       {
-          $suppliers_all = Supplier::where(function ($query) {
+         /* $suppliers_all = Supplier::where(function ($query) {
           $query->whereNotNull('email')->orWhereNotNull('default_email');
-        })->get();
+        })->get();*/
       }
       else
       {

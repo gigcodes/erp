@@ -30,14 +30,10 @@
               @endforeach
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="display: none;" id="suppliers-selection">
             <strong>Suppliers</strong>
-            <select class="form-control" id="suppliers" name="suppliers[]" multiple>
-              {{-- <option value="">Select Suppliers</option> --}}      
-              @foreach ($suppliers_all as $supplier)
-                <option value="{{ $supplier->id }}">{{ $supplier->supplier }} - {{ $supplier->default_email }} / {{ $supplier->email }}</option>
-              @endforeach
-            </select>
+            <select class="form-control" id="suppliers" name="suppliers[]" multiple>                  
+             </select>
           </div>
 
             <div class="form-group text-right">

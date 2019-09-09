@@ -10,38 +10,34 @@
 @section('content')
 
     <div class="row">
-        <h2 class="page-heading">Statistics</h2>
-        <div class="mt-3 col-md-12">
-          <table class="table table-bordered table-striped" style="width: 35%;">
-            <thead>
-              <tr>                
-                <th width="25%">Status</th>
-                <th width="10%">Total</th> 
-              </tr>
-            </thead>
-            <tbody>                
-                @foreach($statistics as $statistic)
-                  @php
-                  $total = $total + $statistic->number_of_products;
-                  @endphp
-                <tr>                 
-                  <td>{{$statistic->name}}</td>
-                  <td align="right">{{$statistic->number_of_products}}</td>
-                </tr>
-                @endforeach               
-                <tr>                 
-                  <td>No Status</td>
-                  <td align="right">{{ $count- $total}}</td>
-                </tr> 
-                <tr>                 
-                  <td>Suppliers</td>
-                  <td align="right">{{$count}}</td>
-                </tr>            
-            </tbody>
-          </table>
-        </div>
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Suppliers List</h2>
+
+            <div class="mt-3">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>                
+                    <th>No Status</th>
+                    @foreach($statistics as $statistic)
+                    @php
+                      $total = $total + $statistic->number_of_products;
+                      @endphp                                  
+                      <th>{{$statistic->name}}</th>
+                    @endforeach
+                    <th>Total</th> 
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>                 
+                    <td align="right">{{ $count- $total}}</td>               
+                    @foreach($statistics as $statistic)                      
+                    <td align="right">{{$statistic->number_of_products}}</td>                  
+                    @endforeach 
+                    <td align="right">{{$count}}</td>
+                  </tr>            
+                </tbody>
+              </table>
+            </div>
             <div class="pull-left">
               <form class="form-inline" action="{{ route('supplier.index') }}" method="GET">
                 <div class="form-group">
@@ -114,6 +110,7 @@
             <tr>
               <td>{{ $supplier->id }}</td>
               <td class="expand-row">
+                <div class="td-mini-container">
                 {{ $supplier->supplier }}
 
                 @if ($supplier->is_flagged == 1)
@@ -125,22 +122,32 @@
                   <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
                       <img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
                   </button>
+                </div>
+                 <div class="td-full-container hidden">
+                    {{ $supplier->supplier }}
 
-                
-                <span class="text-muted">
-                  {{ $supplier->phone }}
-                 
-                  <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
-                  @if ($supplier->has_error == 1)
-                    <span class="text-danger">!!!</span>
-                  @endif
+                    @if ($supplier->is_flagged == 1)
+                      <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
+                    @else
+                      <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
+                    @endif
+
+                    <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
+                        <img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
+                    </button>
+                    <span class="text-muted">
+                    {{ $supplier->phone }}
+                   
+                    <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
+                    @if ($supplier->has_error == 1)
+                      <span class="text-danger">!!!</span>
+                    @endif
                 </span>
-                 <div class="td-mini-container">
-                      {{ strlen($supplier->address) > 10 ? substr($supplier->address, 0, 10).'...' : $supplier->address }}
-                  </div>
-                  <div class="td-full-container hidden">
                       {{ $supplier->address }}
                   </div>
+                
+                
+                  
               </td>             
                 
                 <td>
