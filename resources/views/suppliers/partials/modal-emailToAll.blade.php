@@ -31,7 +31,7 @@
             </select>
           </div>
           <div class="form-group" style="display: none;" id="suppliers-selection">
-            <strong>Suppliers</strong>
+            <strong>Suppliers</strong> &nbsp;&nbsp;<a href="javascript:void(0);" id="select_all">Select All</a> &nbsp;&nbsp;<a href="javascript:void(0);" id="select_no">Unselect All</a> 
             <select class="form-control" id="suppliers" name="suppliers[]" multiple>                  
              </select>
           </div>

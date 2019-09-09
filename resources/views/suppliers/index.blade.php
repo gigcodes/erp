@@ -712,9 +712,15 @@
       }); 
 
       function resetAll(){
-          $('.successmsg').remove(); // Removing it as with next form submit you will be adding the div again in your code. 
+        $('.successmsg').remove(); // Removing it as with next form submit you will be adding the div again in your code. 
 
-        } 
+      }
+      $('#select_all').click(function() {
+          $('#suppliers option').prop('selected', true);
+      });
+      $('#select_no').click(function() {
+          $('#suppliers option').prop('selected', false);
+      });
   });
   </script>
 @endsection

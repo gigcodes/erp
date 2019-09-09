@@ -639,27 +639,27 @@ function getSuppliers(supplier_category_id, supplier_status_id)
 */
   $('#suppliers').empty();
 
-        jQuery.ajax({
-            headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            type:'POST',
-            data:{supplier_category_id: supplier_category_id, supplier_status_id:supplier_status_id},
-            url:'/supplier/getsuppliers',
-            success: function (data) {
-              if(data == '')
-              {
-                $('#suppliers-selection').hide();
-              }
-              else
-              {
-                $('#suppliers-selection').show();
-                $("#suppliers").append(data);   
-              }            
-             // alert(data);     
-              //$('#suppliers').multiselect('refresh');   
-              //$('#example').multiselect('refresh');  
-            }
-        });
+  jQuery.ajax({
+      headers: {
+      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
+      type:'POST',
+      data:{supplier_category_id: supplier_category_id, supplier_status_id:supplier_status_id},
+      url:'/supplier/getsuppliers',
+      success: function (data) {
+        if(data == '')
+        {
+          $('#suppliers-selection').hide();
+        }
+        else
+        {
+          $('#suppliers-selection').show();
+          $("#suppliers").append(data);   
+        }            
+       // alert(data);     
+        //$('#suppliers').multiselect('refresh');   
+        //$('#example').multiselect('refresh');  
+      }
+  });
 
 }
