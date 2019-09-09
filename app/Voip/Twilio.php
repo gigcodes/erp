@@ -34,8 +34,12 @@ class Twilio extends Model
         $sid = \Config::get("twilio.account_sid");
         $token = \Config::get("twilio.auth_token");
         $twilio = new Client($sid, $token);
+        //Get the total number of records from CallBusyMessage which already saved
+        $totalSavedCallLogs = CallBusyMessage::count();
+        // Set the number of records need to fetch. Total record + 100
+        $noOfRecords = $totalSavedCallLogs + 50;
         // Getting all the call records
-        $calls = $twilio->calls->read(array(), 100);
+        $calls = $twilio->calls->read(array(), $noOfRecords);
         $data = [];
         $i = 0;
         foreach ($calls as $record) {
