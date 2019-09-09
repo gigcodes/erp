@@ -630,7 +630,7 @@ class CustomerController extends Controller
         // }
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
+        $perPage = empty(Setting::get('pagination')) ? 25 : Setting::get('pagination');
         $currentItems = array_slice($customers, $perPage * ($currentPage - 1), $perPage);
 
         $customers = new LengthAwarePaginator($currentItems, count($customers), $perPage, $currentPage, [

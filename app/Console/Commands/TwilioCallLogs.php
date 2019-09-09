@@ -32,8 +32,8 @@ class TwilioCallLogs extends Command
     }
 
     /**
-     * Execute the console command.
-     *
+     * Execute the console command for twilio call logs to save in CallBusyMessage.
+     * @uses Twilio Model class
      * @return mixed
      */
     public function handle()

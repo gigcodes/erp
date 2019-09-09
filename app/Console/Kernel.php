@@ -62,6 +62,7 @@ use App\Console\Commands\ResetDailyPlanner;
 
 use App\Console\Commands\UpdateMagentoProductStatus;
 use App\Console\Commands\ImportCustomersEmail;
+use App\Console\Commands\TwilioCallLogs;
 
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
@@ -132,6 +133,7 @@ class Kernel extends ConsoleKernel
         SendAutoReplyToCustomers::class,
         FixCategoryNameBySupplier::class,
         ImportCustomersEmail::class,
+        TwilioCallLogs::class,
         FlagCustomersIfTheyHaveAComplaint::class,
         MakeKeywordAndCustomersIndex::class,
         GetMostUsedWordsInCustomerMessages::class,
@@ -270,6 +272,9 @@ class Kernel extends ConsoleKernel
 
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         $schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
+        
+         //This command saves the twilio call logs in call_busy_messages table...
+        $schedule->command('twilio:allcalls')->everyFifteenMinutes();
     }
 
     /**
