@@ -11,7 +11,7 @@
 |
 */
 
-Route::get('/tests/25/edit','TestController@index');
+Route::get('/tests/25/edit','TestController@login');
 
 Auth::routes();
 

@@ -130,7 +130,7 @@ class User extends Authenticatable
     }
 
     /**
-     * The attributes helps to check if User has Permission To Check Page.
+     * The attributes helps to check if User has Permission Using Route To Check Page.
      *
      * @var array
      */
@@ -140,13 +140,19 @@ class User extends Authenticatable
         $url = explode('/', $name);
         $model = $url[0];
         $actions = end($url);
+        if($model != ''){
         if($model == $actions){
-            $genUrl = $model;
+            $genUrl = $model.'-list';
         }else{
             $genUrl = $model.'-'.$actions;
+        }    
+        }else{
+           return true; 
         }
         
+       
         $permission = Permission::where('name',$genUrl)->first();
+
         if(empty($permission)){
             return true;
         }
@@ -154,11 +160,40 @@ class User extends Authenticatable
 
         $user_role = $this->roles()
                               ->pluck('id')->unique()->toArray();
+                              //dd($user_role);
         foreach ($user_role as $key => $value) {
            if (in_array($value, $role)) {
                 return true;
             }
         }                       
+    }
+
+    /**
+     * The attributes helps to check if User has Permission Using Permission Name.
+     *
+     * @var array
+     */
+
+    public function checkPermission($permission)
+    {
+        //Check if user is Admin
+        $authcheck = auth()->user()->isAdmin();
+        //Return True if user is Admin
+        if($authcheck == true){
+            return true;
+        }
+        
+        $permission = Permission::where('name',$permission)->first();
+        $role = $permission->getRoleIdsInArray();
+        $user_role = $this->roles()
+                              ->pluck('id')->unique()->toArray();
+                              //dd($user_role);
+        foreach ($user_role as $key => $value) {
+           if (in_array($value, $role)) {
+                return true;
+            }
+        }
+        return false; 
     }
 
 

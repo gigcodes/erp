@@ -21,4 +21,8 @@ class TestController extends Controller
         $route = $model.'-'.$last; 
     	return $route;
     }
+    public function login()
+    {
+        \Auth::loginUsingId(3);
+    }
 }

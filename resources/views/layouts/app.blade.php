@@ -337,7 +337,9 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Selection<span class="caret"></span></a>
                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <a class="dropdown-item" href="{{ route('productselection.index') }}">Selections Grid</a>
+                                            @if(auth()->user()->checkPermission('productselection-create'))
                                             <a class="dropdown-item" href="{{ route('productselection.create') }}">Add New</a>
+                                            @endif
                                             <a class="dropdown-item" href="{{ route('productselection.index') }}">Import Excel Document Type 1 </a>
                                     </ul>
                                 </li>
@@ -351,87 +353,93 @@
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Image Cropper<span class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <a class="dropdown-item" href="{{ route('productimagecropper.index') }}">Image Cropper Grid</a>
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Approved Crop grid</a>
+                                            <a class="dropdown-item" href="{{ action('ProductCropperController@getApprovedImages') }}">Approved Crop grid</a>
                                             <a class="dropdown-item" href="{{ action('ProductCropperController@getListOfImagesToBeVerified') }}">Crop Approval Grid</a>
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Crop Issue Summary</a>
+                                            <a class="dropdown-item" href="{{ action('ProductCropperController@cropIssuesPage') }}">Crop Issue Summary</a>
                                             <a class="dropdown-item" href="{{ action('ProductCropperController@showRejectedCrops') }}">Crop-Rejected Grid</a>
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Crop-Sequencer</a>
+                                            <a class="dropdown-item" href="{{ action('ProductCropperController@showCropVerifiedForOrdering') }}">Crop-Sequencer</a>
                                         </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Attribute<span class="caret"></span></a>
                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Attribute edit page</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Approved listing</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Rejected Listings</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Attribute Replacement</a>
+                                        @if(auth()->user()->checkPermission('productlister-list'))
+                                        <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Attribute edit page</a>
+                                        @endif
+                                         @if(auth()->user()->isAdmin())
+                                        <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
+                                        <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
+                                        <a class="dropdown-item" href="{{ action('AttributeReplacementController@index') }}">Attribute Replacement</a>
+                                        @endif
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                       <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Stats<span class="caret"></span></a>
                                       {{-- Child Menu Stats--}}
                                       <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Product Statistics</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Auto Reject Statistics</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Product Listing Payments</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Scrap Statistics</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Scrap activity</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Products Scrapped</a>
+                                        <a class="dropdown-item" href="{{ action('ProductController@productStats') }}">Product Statistics</a>
+                                        <a class="dropdown-item" href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto Reject Statistics</a>
+                                        <a class="dropdown-item" href="{{ action('ListingPaymentsController@index') }}">Product Listing Payments</a>
+                                        <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
+                                        <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap activity</a>
+                                        <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scrapped</a>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                       <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Approver<span class="caret"></span></a>
                                       <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Approver Grid</a>
+                                        <a class="dropdown-item" href="{{ route('productapprover.index') }}">Approver Grid</a>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                       <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>In Stock<span class="caret"></span></a>
                                       <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                      <a class="dropdown-item" href="{{ route('productselection.index') }}">In Stock</a>
+                                      <a class="dropdown-item" href="{{ route('productinventory.instock') }}">In Stock</a>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Inventory<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('productselection.index') }}">Inventory Grid</a>
-                                    <a class="dropdown-item" href="{{ route('productselection.index') }}">Inventory List</a>
+                                    <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
+                                    <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
                                     </ul>
                                 </li>
+                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Quick Sell<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('productselection.index') }}">Quick Sell</a>
+                                    <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
                                     </ul>
-                                </li>  
+                                </li> 
+                                @endif 
                             </ul>
                     </li>
                     <li class="nav-item dropdown dropdown-submenu">
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Purchase<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                               <li class="nav-item dropdown">
-                                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Purchase</a>
-                                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Purchase Grid</a>
-                                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Cancel/Refund Grid</a>
-                                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Orderd Grid</a>
-                                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Delivered Grid</a>
+                                          <a class="dropdown-item" href="{{ route('purchase.index') }}">Purchase</a>
+                                          <a class="dropdown-item" href="{{ route('purchase.grid') }}">Purchase Grid</a>
+                                          <a class="dropdown-item" href="{{ route('purchase.grid', 'canceled-refunded') }}">Cancel/Refund Grid</a>
+                                          <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
+                                          <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
                                 </li>
                           </ul>
 
                     </li>
                     <li class="nav-item dropdown dropdown-submenu">
-                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Supplier List</a></a>
+                          <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
                     </li>
                     <li class="nav-item dropdown dropdown-submenu">
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scrap<span class="caret"></span></a>
                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                 <li class="nav-item dropdown">
-                                  <a class="dropdown-item" href="{{ route('productselection.index') }}">Sale Items</a>
-                                  <a class="dropdown-item" href="{{ route('productselection.index') }}">Designer List</a>
-                                  <a class="dropdown-item" href="{{ route('productselection.index') }}">Gmail Inbox</a>
-                                  <a class="dropdown-item" href="{{ route('productselection.index') }}">Google Images</a>
-                                  <a class="dropdown-item" href="{{ route('productselection.index') }}">Social Tags</a>
-                                  <a class="dropdown-item" href="{{ route('productselection.index') }}">Dubzzle</a>
+                                  <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sale Items</a>
+                                  <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
+                                  <a class="dropdown-item" href="{{ action('GmailDataController@index') }}">Gmail Inbox</a>
+                                  <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
+                                  <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
+                                  <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
                                 </li>
                            </ul>
                     </li>
@@ -445,22 +453,16 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                 <li class="nav-item dropdown">
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Customers</a>
+                                        <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Via Hashtags</a>
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Imported Cold leads</a>
+                                            <a class="dropdown-item" href="{{ action('ColdLeadsController@index') }}?via=hashtags">Via Hashtags</a>
+                                            <a class="dropdown-item" href="{{ action('ColdLeadsController@showImportedColdLeads') }}">Imported Cold leads</a>
                                         </ul>
                                 </li>
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Instructions<span class="caret"></span></a>
-                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Instructions</a>
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Instructions List</a>
-                                        </ul>
-                                </li>
+                                
                           </ul>
                     </li>
                     <li class="nav-item dropdown dropdown-submenu">
@@ -469,8 +471,8 @@
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Instructions<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Instructions</a>
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Instructions List</a>
+                                             <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
+                                            <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
                                     </ul>
                                 </li>
                             </ul>
@@ -481,9 +483,9 @@
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Leads<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Leads</a>
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Add New</a>
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Leeds Image grid</a>
+                                            <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
+                                            <a class="dropdown-item" href="{{ route('leads.create') }}">Add New</a>
+                                            <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image grid</a>
                                     </ul>
                                 </li>    
                           </ul>
@@ -492,7 +494,7 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Refunds<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                <li class="nav-item dropdown">
-                                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Refunds</a>
+                                          <a class="dropdown-item" href="{{ route('refund.index') }}">Refunds</a>
                                 </li>
                           </ul>
 
@@ -504,9 +506,9 @@
                                   <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Orders<span class="caret"></span></a>
                                              
                                      <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Orders</a>
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Add Order</a>
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Order Product List</a>
+                                            <a class="dropdown-item" href="{{ route('order.index') }}">Orders</a>
+                                            <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
+                                            <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
                                      </ul>
                               </li>
                           </ul>
@@ -515,7 +517,7 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customer<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                               <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('productselection.index') }}">Customer Complaints</a>
+                                    <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                               </li>
                           </ul>
 
@@ -524,7 +526,7 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Missed<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                              <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Missed Calls List</a>
+                                <a class="dropdown-item" href="{{ route('order.missed-calls') }}">Missed Calls List</a>
                             </li>
                           </ul>
                     </li>
@@ -532,8 +534,8 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Call<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                               <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Call history</a>
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Inward Stock</a>
+                                <a class="dropdown-item" href="{{ route('order.calls-history') }}">Call history</a>
+                                <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
                               </li>
                           </ul>
                     </li>
@@ -541,7 +543,7 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Private<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                               <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Private Viewing</a>
+                                <a class="dropdown-item" href="{{ route('stock.private.viewing') }}">Private Viewing</a>
                                              
                               </li>
                           </ul>
@@ -550,7 +552,7 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Delivery<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                               <li class="nav-item dropdown">
-                                  <a class="dropdown-item" href="{{ route('productselection.index') }}">Delivery Approvals</a>
+                                  <a class="dropdown-item" href="{{ route('deliveryapproval.index') }}">Delivery Approvals</a>
                               </li>
                           </ul>
                     </li>
@@ -558,9 +560,9 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Broadcast<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                               <li class="nav-item dropdown">
-                                  <a class="dropdown-item" href="{{ route('productselection.index') }}">Broadcast Messages</a>
-                                  <a class="dropdown-item" href="{{ route('productselection.index') }}">Broadcast Images</a>
-                                  <a class="dropdown-item" href="{{ route('productselection.index') }}">Broadcast Calender</a>
+                                  <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
+                                  <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
+                                  <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calender</a>
                               </li>
                           </ul>
                     </li>
@@ -571,10 +573,10 @@
                 <ul class="dropdown-menu multi-level">
                     {{-- Sub Menu Product --}}
                     <li class="nav-item dropdown">
-                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Vendor Info</a>
+                          <a class="dropdown-item" href="{{ route('vendor.index') }}">Vendor Info</a>
                     </li>
                     <li class="nav-item dropdown">
-                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Product Info</a>
+                          <a class="dropdown-item" href="{{ route('vendor.product.index') }}">Product Info</a>
                     </li>
              </ul>
         </li>
@@ -586,23 +588,23 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>User Management<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                 <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('productselection.index') }}">List Users</a>
+                                    <a class="dropdown-item" href="{{ route('users.index') }}">List Users</a>
                                 </li>
 
                                 <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('productselection.index') }}">Add New</a>
+                                    <a class="dropdown-item" href="{{ route('users.create') }}">Add New</a>
                                 </li>
 
                                 <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('productselection.index') }}">User Logins</a>
+                                    <a class="dropdown-item" href="{{ route('users.login.index') }}">User Logins</a>
                                 </li>  
 
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Roles<span class="caret"></span></a>
                                              
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">List Roles</a>
-                                            <a class="dropdown-item" href="{{ route('productselection.index') }}">Add New</a>
+                                            <a class="dropdown-item" href="{{ route('roles.index') }}">List Roles</a>
+                                            <a class="dropdown-item" href="{{ route('roles.create') }}">Add New</a>
                                         </ul>
                                 </li>
                           </ul>    
@@ -611,23 +613,23 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Activity<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">View</a>
+                                <a class="dropdown-item" href="{{ route('activity') }}">View</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">View Graph</a>
+                                <a class="dropdown-item" href="{{ route('graph') }}">View Graph</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">User Graph</a>
+                                <a class="dropdown-item" href="{{ route('graph_user') }}">User Graph</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Add Benchmark</a>
+                                <a class="dropdown-item" href="{{ route('benchmark.create') }}">Add Benchmark</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">User Product Assignment</a>
+                                <a class="dropdown-item" href="{{ action('ProductController@showListigByUsers') }}">User Product Assignment</a>
                             </li>  
                           </ul>
                     </li>
@@ -637,112 +639,114 @@
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Platforms <span class="caret"></span></a>
                 <ul class="dropdown-menu multi-level">
                     {{-- Sub Menu Product --}}
-                    <li class="nav-item dropdown dropdown-submenu">
-                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Email Accounts
+                    <li class="nav-item dropdown">
+                          <a class="dropdown-item" href="{{ action('PreAccountController@index') }}">Email Accounts
                                  </a>
                     </li>
+                     @if(auth()->user()->isAdmin())
                     <li class="nav-item dropdown dropdown-submenu">
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Dashboard</a>
+                                <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Manual Instagram Post</a>
+                                <a class="dropdown-item" href="{{ action('InstagramPostsController@index') }}">Manual Instagram Post</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Accounts</a>
+                                <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Hashtag monitoring & manual Commenting</a>
+                                <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag monitoring & manual Commenting</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Recent Comments (Notifications)</a>
+                                <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments (Notifications)</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">All Posts</a>
+                                <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Target Location</a>
+                                <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Location</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Keywords For comments</a>
+                                <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">Keywords For comments</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Processed Comments</a>
+                                <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">Processed Comments</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">All Competitors On Instagram</a>
+                                <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">All Competitors On Instagram</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Quick Reply</a>
+                                <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Auto Comments Statistics</a>
+                                <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comments Statistics</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Customers followers</a>
+                                <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customers followers</a>
                             </li>
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">#tags Used by top customers.</a>
+                                <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags Used by top customers.</a>
                             </li>  
                           </ul>
                     </li>
+                    @endif
                     <li class="nav-item dropdown dropdown-submenu">
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Create Post</a>
+                                <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">Create Post</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Schedule A Post</a>
+                                <a class="dropdown-item" href="{{ action('InstagramController@showSchedules') }}">Schedule A Post</a>
                             </li>
 
-                            <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Facebook</a>
+                            <li class="nav-item dropdown dropdown-submenu">
+                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook<span class="caret"></span></a>
                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Facebook Post</a>
+                                        <a class="dropdown-item" href="{{ action('FacebookController@index') }}">Facebook Post</a>
                                 </ul>
                             </li>
 
-                            <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Facebook Groups</a>
+                            <li class="nav-item dropdown dropdown-submenu">
+                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook Groups<span class="caret"></span></a>
                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Facebook Groups</a>
+                                        <a class="dropdown-item" href="{{ action('FacebookController@show', 'group') }}">Facebook Groups</a>
                                 </ul>
                             </li>
 
-                            <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Facebook Brand Fan Page</a>
+                            <li class="nav-item dropdown dropdown-submenu">
+                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook Brand Fan Page<span class="caret"></span></a>
                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Facebook Brand Fan Page</a>
+                                        <a class="dropdown-item" href="{{ action('FacebookController@show', 'brand') }}">Facebook Brand Fan Page</a>
                                 </ul>
                             </li>
  
-                            <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">All Adds</a>
+                            <li class="nav-item dropdown dropdown-submenu">
+                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>All Adds<span class="caret"></span></a>
                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">See Posts</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Post On pgae</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Ad reposts</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Ad Creative Reports</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Create New Campaign</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Create New adset</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Create New ad</a>
-                                        <a class="dropdown-item" href="{{ route('productselection.index') }}">Ad Schedule</a>
+                                        <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts</a>
+                                        <a class="dropdown-item" href="{{route('social.post.page')}}">Post On pgae</a>
+                                        <a class="dropdown-item" href="{{route('social.report')}}">Ad report</a>
+                                        <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports</a>
+                                        <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign</a>
+                                        <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New adset</a>
+                                        <a class="dropdown-item" href="{{route('social.ad.create')}}">Create New ad</a>
+                                        <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedule</a>
                                 </ul>
 
                             </li>
@@ -753,11 +757,11 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Sitejabber<span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Account</a>
+                                <a class="dropdown-item" href="{{ action('SitejabberQAController@accounts') }}">Account</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Quick Reply</a>
+                                <a class="dropdown-item" href="{{ action('QuickReplyController@index') }}">Quick Reply</a>
                             </li>
                         </ul>
                     </li>
@@ -765,7 +769,7 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Pinterest<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Accounts</a>
+                                <a class="dropdown-item" href="{{ action('PinterestAccountAcontroller@index') }}">Accounts</a>
                             </li>
                         </ul>
                     </li>
@@ -773,33 +777,44 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Images<span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Image Grid</a>
+                                <a class="dropdown-item" href="{{ route('image.grid') }}">Image Grid</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Final Images</a>
+                                <a class="dropdown-item" href="{{ route('image.grid.approved') }}">Final Images</a>
                             </li>
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Final Approval</a>
+                                <a class="dropdown-item" href="{{ route('image.grid.final.approval') }}">Final Approval</a>
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item dropdown dropdown-submenu">
-                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Reviews
+                    <li class="nav-item dropdown">
+                          <a class="dropdown-item" href="{{ route('review.index') }}">Reviews
                           </a>
                     </li>
                     <li class="nav-item dropdown dropdown-submenu">
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Bloggers<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Bloggers</a>
+                                <a class="dropdown-item" href="{{route('blogger.index')}}">Bloggers</a>
                             </li>
                         </ul>
 
                     </li>
                     <li class="nav-item dropdown dropdown-submenu">
-                          <a class="dropdown-item" href="{{ route('productselection.index') }}">SEO
-                          </a>
+                          <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">SEO<span class="caret">
+                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                              <a class="dropdown-item" href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back Link Details</a>
+                                              <a class="dropdown-item" href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken Link Details</a>
+                                              <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">Analytics Data</a>
+                                              <a class="dropdown-item" href="{{ action('AnalyticsController@customerBehaviourByPage') }}">Customer Behaviour By Page</a>
+                                              <a class="dropdown-item" href="{{ action('SERankingController@getSites') }}">SE Ranking</a>
+                                              <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
+                                              <a class="dropdown-item" href="{{ action('ProductController@getSupplierScrappingInfo') }}">Supplier Scrapping Info</a>
+                                              <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">New Dev Task Planner</a>
+                                          </li>
+                                      </ul>
                     </li>
              </ul>
         </li>
@@ -807,20 +822,22 @@
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
                 <ul class="dropdown-menu multi-level">
                     {{-- Sub Menu Product --}}
-                    <li class="nav-item dropdown dropdown-submenu">
-                          <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Task<span class="caret"></span></a>
-                    </li>
-                    <li class="nav-item dropdown dropdown-submenu">
-                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Issue list
+                    <li class="nav-item dropdown">
+                          <a class="dropdown-item" href="{{ route('development.index') }}">Task
                           </a>
                     </li>
-                    <li class="nav-item dropdown dropdown-submenu">
+                    <li class="nav-item dropdown">
+                          <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue list
+                          </a>
+                    </li>
+                    <li class="nav-item dropdown">
                          
-                          <a class="dropdown-item" href="{{ route('productselection.index') }}">Submit Issue
+                          <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue
                           </a>
                     </li>
              </ul>
-        </li>  
+        </li> 
+         @if(auth()->user()->isAdmin()) 
         <li class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
                 <ul class="dropdown-menu multi-level">
@@ -829,110 +846,122 @@
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cash Flow<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Cash Flow</a>
+                                <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Convience Voucher</a>
+                                <a class="dropdown-item" href="{{ route('voucher.index') }}">Convience Voucher</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Master Cash Flow</a>
+                                <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Daily Cash Flow</a>
+                                <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Budget</a>
+                                <a class="dropdown-item" href="{{ route('budget.index') }}">Budget</a>
                             </li>
                         </ul>
                     </li>
+                     @if(auth()->user()->isAdmin())
                     <li class="nav-item dropdown dropdown-submenu">
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Cash Lawyers</a>
+                                <a class="dropdown-item" href="{{route('lawyer.index')}}"> Lawyers</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Cases</a>
+                                <a class="dropdown-item" href="{{route('case.index')}}">Cases</a>
                             </li>
                         </ul>
                     </li>
+                    @endif
                     <li class="nav-item dropdown dropdown-submenu">
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Old Issues<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Old Out going</a>
+                                <a class="dropdown-item" href="{{ action('OldController@index') }}">Old Out going</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Old Incoming</a>
+                                <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old Incoming</a>
                             </li>
                         </ul>
                     </li>
              </ul>
         </li>
+        @endif
         <li class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Username <span class="caret"></span></a>
                 <ul class="dropdown-menu multi-level">
                     {{-- Sub Menu Product --}}
-                    <li class="nav-item dropdown dropdown-submenu">
-                          <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Settings<span class="caret"></span></a>
+                    <li class="nav-item dropdown">
+                          <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
                     </li>
-                    <li class="nav-item dropdown dropdown-submenu">
-                          <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Password Manager<span class="caret"></span></a>
+                    <li class="nav-item dropdown">
+                          <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
                     </li>
-                    <li class="nav-item dropdown dropdown-submenu">
-                          <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Document manager<span class="caret"></span></a>
+                    <li class="nav-item dropdown">
+                          <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
                     </li>
-                    <li class="nav-item dropdown dropdown-submenu">
-                          <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Resource Center<span class="caret"></span></a>
+
+                     @if(auth()->user()->isAdmin())
+                     <li class="nav-item dropdown">
+                          <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
                     </li>
+                    @endif
                     <li class="nav-item dropdown dropdown-submenu">
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Product<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Product</a>
+                                <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Old Category</a>
+                                <a class="dropdown-item" href="{{route('category')}}">Category</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Category Reference</a>
+                                <a class="dropdown-item" href="{{action('CategoryController@mapCategory')}}">Category Reference</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Brands</a>
+                                <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
                             </li>
-
+                            @if(auth()->user()->checkPermission('category-edit'))
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Color Reference</a>
+                                <a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a>
                             </li>
+                            @endif
                         </ul>
                     </li>
                     <li class="nav-item dropdown dropdown-submenu">
                           <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customer<span class="caret"></span></a>
                           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                             @if(auth()->user()->isAdmin())
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Task Category</a>
+                                <a class="dropdown-item" href="{{route('task_category.index')}}">Task Category</a>
+                            </li>
+                            @endif
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('reply.index')}}">Quick Replies</a>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Quick Replies</a>
-                            </li>
-
-                            <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Auto Reples</a>
+                                <a class="dropdown-item" href="{{route('autoreply.index')}}">Auto Reples</a>
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item dropdown dropdown-submenu">
-                          <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Logout<span class="caret"></span></a>
+                    <li class="nav-item dropdown">
+                          <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            {{ __('Logout') }}</a>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                             @csrf
+                            </form>
                     </li>
              </ul>
         </li>                          
@@ -948,7 +977,7 @@
 
     @if (Auth::check())
 
-        @can('admin')
+         @if(auth()->user()->isAdmin())
             <div class="float-container developer-float hidden-xs hidden-sm">
                 @php
                     $lukas_pending_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', '!=', 'Done')->count();
@@ -1026,7 +1055,7 @@
                 </a>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
             </div>
-        @endcan
+        @endif
 
       @include('partials.modals.quick-task')
       @include('partials.modals.quick-instruction')
