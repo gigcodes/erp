@@ -184,6 +184,9 @@ class User extends Authenticatable
         }
         
         $permission = Permission::where('name',$permission)->first();
+        if($permission == null && $permission == ''){
+        return true;
+        }
         $role = $permission->getRoleIdsInArray();
         $user_role = $this->roles()
                               ->pluck('id')->unique()->toArray();
