@@ -9,7 +9,7 @@
             </div>
             <div class="pull-right">
                 @can('role-create')
-                    <a class="btn btn-secondary" href="{{ route('roles.create') }}">+</a>
+                    <a class="btn btn-secondary" href="{{ route('permissions.create') }}">+</a>
                 @endcan
             </div>
         </div>
@@ -29,17 +29,17 @@
             <th>Name</th>
             <th width="280px">Action</th>
         </tr>
-        @foreach ($roles as $key => $role)
+        @foreach ($permissions as $key => $permission)
             <tr>
                 <td>{{ ++$i }}</td>
-                <td>{{ $role->name }}</td>
+                <td>{{ $permission->name }}</td>
                 <td>
-                    <a class="btn btn-image" href="{{ route('roles.show',$role->id) }}"><img src="/images/view.png" /></a>
-                    @can('role-edit')
-                        <a class="btn btn-image" href="{{ route('roles.edit',$role->id) }}"><img src="/images/edit.png" /></a>
+                    <a class="btn btn-image" href="{{ route('permissions.show',$permission->id) }}"><img src="/images/view.png" /></a>
+                    @can('permission-edit')
+                        <a class="btn btn-image" href="{{ route('permissions.edit',$permission->id) }}"><img src="/images/edit.png" /></a>
                     @endcan
                     {{--@can('role-delete')
-                        {!! Form::open(['method' => 'DELETE','route' => ['roles.destroy', $role->id],'style'=>'display:inline']) !!}
+                        {!! Form::open(['method' => 'DELETE','route' => ['permissions.destroy', $role->id],'style'=>'display:inline']) !!}
                         {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
                         {!! Form::close() !!}
                     @endcan--}}
@@ -50,7 +50,7 @@
     </div>
 
 
-    {!! $roles->render() !!}
+    {!! $permissions->render() !!}
 
 
 @endsection

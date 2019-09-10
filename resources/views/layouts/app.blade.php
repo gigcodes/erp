@@ -607,6 +607,15 @@
                                             <a class="dropdown-item" href="{{ route('roles.create') }}">Add New</a>
                                         </ul>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Permissions<span class="caret"></span></a>
+                                             
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <a class="dropdown-item" href="{{ route('permissions.index') }}">List Permissions</a>
+                                            <a class="dropdown-item" href="{{ route('permissions.create') }}">Add New</a>
+                                             <a class="dropdown-item" href="{{ route('permissions.users') }}">Permission To User</a>
+                                        </ul>
+                                </li>
                           </ul>    
                     </li>
                     <li class="nav-item dropdown dropdown-submenu">

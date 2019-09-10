@@ -13,11 +13,11 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $user = User::where('is_active',1)->get();
-        $permission = Permission::all();
-        return view('permission.index',['user' => $user , 'permission' => $permission]);
+        $users = User::where('is_active',1)->get();
+        $permissions = Permission::orderBy('id', 'DESC')->paginate(10);
+        return view('permissions.index',compact('users','permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     /**
@@ -27,7 +27,7 @@ class PermissionController extends Controller
      */
     public function create()
     {
-        //
+        return view('permissions.create');
     }
 
     /**
@@ -38,7 +38,16 @@ class PermissionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required|unique:roles,name',
+            
+        ]);
+        $permission = new Permission();
+        $permission->name = $request->name;
+        $permission->save();
+      
+        return redirect()->route('permissions.index')
+                         ->with('success','Role created successfully');
     }
 
     /**
@@ -49,7 +58,8 @@ class PermissionController extends Controller
      */
     public function show($id)
     {
-        //
+        $permissions = Permission::find($id);
+        return view('permissions.show',compact('permissions'));
     }
 
     /**
@@ -60,7 +70,8 @@ class PermissionController extends Controller
      */
     public function edit($id)
     {
-        //
+        $permissions = Permission::find($id);
+        return view('permissions.edit',compact('permissions'));
     }
 
     /**
@@ -72,7 +83,18 @@ class PermissionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required',
+            
+        ]);
+
+
+        $permission = Permission::find($id);
+        $permission->name = $request->input('name');
+        $permission->save();
+        
+        return redirect()->route('permissions.index')
+                         ->with('success','Role updated successfully');
     }
 
     /**
@@ -83,6 +105,15 @@ class PermissionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Permission::delete($id);
+        return redirect()->route('permissions.index')
+                         ->with('success','Role deleted successfully');
+    }
+
+    public function users(Request $request)
+    {
+       $users = User::where('is_active',1)->paginate(15);
+       $permissions = Permission::orderBy('id','desc')->get();
+       return view('permissions.users',compact('users','permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 }
