@@ -41,11 +41,11 @@
       <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
       {!! Form::close() !!}
 
-      @can('admin')
+      @if(auth()->user()->isAdmin())
       {!! Form::open(['method' => 'DELETE','route' => ['products.destroy', $product->id],'style'=>'display:inline']) !!}
       <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
       {!! Form::close() !!}
-      @endcan
+      @endif
     </a>
   </div>
   @endforeach
