@@ -83,7 +83,7 @@ class ScrapStatisticsController extends Controller
             ORDER BY
                 website
         ';
-        $scrapeData = DB::select($sql);
+        $scrapeData =  DB::select($sql);
 
         // Return view
         return view('scrap.stats', compact('scrapeData'));

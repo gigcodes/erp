@@ -37,13 +37,18 @@
                     <tbody>
                     @foreach($scrapeData as $data)
                         <tr<?= $data->running == 0 ? ' style="background-color: red; color: white;"' : '' ?>>
+                            @php 
+                                $remark = \App\ScrapRemark::select('remark')->where('scrap_id',$data->id)->orderBy('id','desc')->first();
+                            @endphp
                             <td class="p-2">{{ $data->website }}</td>
                             <td class="p-2">{{ date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) }}</td>
                             <td class="p-2 text-right">{{ $data->total - $data->errors }}</td>
                             <td class="p-2 text-right">{{ $data->total }}</td>
                             <td class="p-2 text-right">{{ $data->errors }}</td>
                             <td class="p-2 text-right">{{ $data->warnings }}</td>
-                            <td class="p-2"><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $data->id }}"><img src="/images/remark.png" /></button></td>
+                            <td class="p-2"><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $data->id }}"><img src="/images/remark.png" />@if($remark != ''){{ $remark->remark }}
+                            @endif        
+                            </button></td>
                             <td class="p-2">Unknown</td>
                         </tr>
                     @endforeach
