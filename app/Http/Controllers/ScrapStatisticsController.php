@@ -7,6 +7,8 @@ use App\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use \Carbon\Carbon;
+use App\ScrapRemark;
+use Auth;
 
 class ScrapStatisticsController extends Controller
 {
@@ -62,6 +64,7 @@ class ScrapStatisticsController extends Controller
         // Get scrape data
         $sql = '
             SELECT
+                id,
                 website,
                 COUNT(id) AS total,
                 SUM(IF(validated=0,1,0)) AS failed,
@@ -69,7 +72,7 @@ class ScrapStatisticsController extends Controller
                 SUM(IF(validation_result LIKE "%[error]%",1,0)) AS errors,
                 SUM(IF(validation_result LIKE "%[warning]%",1,0)) AS warnings,
                 MAX(created_at) AS last_scrape_date,
-                IF(MAX(created_at) < DATE_SUB(NOW(), INTERVAL 2 DAY),0,1) AS running
+                IF(MAX(created_at) < DATE_SUB(NOW(), INTERVAL 10 DAY),0,1) AS running
             FROM
                 log_scraper
             WHERE
@@ -173,5 +176,32 @@ class ScrapStatisticsController extends Controller
         $end = Carbon::now()->format('Y-m-d 23:59:00');
         // dd('hello');
         return view('scrap.asset-manager');
+    }
+
+    public function getRemark(Request $request)
+    {
+        $id   = $request->input( 'id' );
+
+       $remark = ScrapRemark::where('scrap_id', $id)->get();
+        
+       return response()->json($remark,200);
+    }
+
+    public function addRemark(Request $request)
+    {
+        $remark = $request->input( 'remark' );
+        $id = $request->input( 'id' );
+        $created_at = date('Y-m-d H:i:s');
+        $update_at = date('Y-m-d H:i:s');
+        if($request->module_type=="scrap"){
+          $remark_entry = ScrapRemark::create([
+            'scrap_id' => $id,
+            'remark'  => $remark,
+            'module_type' => $request->module_type,
+            'scraper_name' => $request->user_name ? $request->user_name : Auth::user()->name
+          ]);
+        }
+
+      return response()->json(['remark' => $remark ],200);
     }
 }

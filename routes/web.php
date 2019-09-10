@@ -775,6 +775,8 @@ Route::prefix( 'comments' )->group( function () {
 
 Route::prefix( 'scrap' )->middleware( 'auth' )->group( function () {
     Route::resource( 'statistics', 'ScrapStatisticsController' );
+    Route::get( 'getremark', 'ScrapStatisticsController@getRemark' )->name( 'scrap.getremark' );
+    Route::post( 'addremark', 'ScrapStatisticsController@addRemark' )->name( 'scrap.addRemark' );
     Route::get( 'facebook/inbox', 'FacebookController@getInbox' );
     Route::resource( 'facebook', 'FacebookController' );
     Route::resource( 'gmail', 'GmailDataController' );
