@@ -72,7 +72,7 @@ class ScrapStatisticsController extends Controller
                 SUM(IF(validation_result LIKE "%[error]%",1,0)) AS errors,
                 SUM(IF(validation_result LIKE "%[warning]%",1,0)) AS warnings,
                 MAX(created_at) AS last_scrape_date,
-                IF(MAX(created_at) < DATE_SUB(NOW(), INTERVAL 10 DAY),0,1) AS running
+                IF(MAX(created_at) < DATE_SUB(NOW(), INTERVAL 2 DAY),0,1) AS running
             FROM
                 log_scraper
             WHERE
