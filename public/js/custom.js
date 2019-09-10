@@ -628,7 +628,7 @@ function copyTextToClipboard(text) {
     }
     document.body.removeChild(textArea);
 }
-function getSuppliers(supplier_category_id, supplier_status_id)
+function getSuppliers(supplier_category_id, supplier_status_id, filter)
 {       
 /*$('#suppliers').multiselect({
     columns: 1,
@@ -644,7 +644,7 @@ function getSuppliers(supplier_category_id, supplier_status_id)
       'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
       type:'POST',
-      data:{supplier_category_id: supplier_category_id, supplier_status_id:supplier_status_id},
+      data:{supplier_category_id: supplier_category_id, supplier_status_id:supplier_status_id, filter:filter},
       url:'/supplier/getsuppliers',
       success: function (data) {
         if(data == '')
@@ -661,5 +661,4 @@ function getSuppliers(supplier_category_id, supplier_status_id)
         //$('#example').multiselect('refresh');  
       }
   });
-
 }

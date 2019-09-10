@@ -454,6 +454,8 @@ class SupplierController extends Controller
       $supplier_category_id = $input['supplier_category_id'];
       
       $supplier_status_id = $input['supplier_status_id'];
+
+      $filter = $input['filter'];
       
       $data = '';
       $typeWhereClause = '';
@@ -471,6 +473,10 @@ class SupplierController extends Controller
         }
         if ( $supplier_status_id != '' ) {
           $typeWhereClause .= ' AND supplier_status_id='.$supplier_status_id;
+        }
+
+        if ( $filter != '' ) {
+          $typeWhereClause .= ' AND supplier like "'.$filter.'%"';
         }
         $suppliers_all = DB::select('SELECT suppliers.id, suppliers.supplier, suppliers.email, suppliers.default_email from suppliers WHERE email != "" '.$typeWhereClause . '');             
       }

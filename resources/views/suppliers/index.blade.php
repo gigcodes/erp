@@ -623,19 +623,6 @@
     });
 
     $(document).ready(function() {
-      $('#supplier_category_id2').on('change', function(){
-        var supplier_category_id = $('#supplier_category_id2').val();
-        var supplier_status_id = $('#supplier_status_id2').val();      
-        getSuppliers(supplier_category_id, supplier_status_id);  
-      });
-      $('#supplier_status_id2').on('change', function(){
-        var supplier_category_id = $('#supplier_category_id2').val();
-        var supplier_status_id = $('#supplier_status_id2').val();
-        getSuppliers(supplier_category_id, supplier_status_id);
-      }); 
-
-          
-
       $(".supplierstatus").change(function () {
         var id = $(this).val();
         var supplier_id = $(this).parent().siblings(":first").text();
@@ -685,42 +672,18 @@
             $('.successmsg').html("Updated")
             .hide()
             .fadeIn(1000, function() { $('.successmsg'); });
-           setTimeout(resetAll,3000);
-
-
-            /*$(this).after("<div id='divSuccessMsg'></div>");
-            $('#divSuccessMsg').html("Success")
-            .hide()
-            .fadeIn(1500, function() { $('#divSuccessMsg'); });*/
-
-           //$(this).after( "<div >Success</div>" ), 100);
-         
-
-          
-            //$('#add-remark').find('textarea[name="remark"]').val('');
-
-            //var html =' <p> '+ remark +' <br> <small>By You updated on '+ moment().format('DD-M H:mm') +' </small></p>';
-
-            //$("#makeRemarkModal").find('#remark-list').append(html);
+           setTimeout(resetAll,3000);            
         }).fail(function(response) {
           console.log(response);
 
           alert('Could not updated');
-        });
-
-        
+        });        
       }); 
 
       function resetAll(){
         $('.successmsg').remove(); // Removing it as with next form submit you will be adding the div again in your code. 
 
-      }
-      $('#select_all').click(function() {
-          $('#suppliers option').prop('selected', true);
-      });
-      $('#select_no').click(function() {
-          $('#suppliers option').prop('selected', false);
-      });
+      }      
   });
   </script>
 @endsection
