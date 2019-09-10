@@ -30,7 +30,7 @@
                             <th>Errors</th>
                             <th>Warnings</th>
                             <th>Remark</th>
-                            <th>Developer</th>
+                            <th>Functions</th>
                         </tr>
                     </thead>
 
@@ -46,10 +46,10 @@
                             <td class="p-2 text-right">{{ $data->total }}</td>
                             <td class="p-2 text-right">{{ $data->errors }}</td>
                             <td class="p-2 text-right">{{ $data->warnings }}</td>
-                            <td class="p-2"><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $data->id }}"><img src="/images/remark.png" />@if($remark != ''){{ $remark->remark }}
-                            @endif        
-                            </button></td>
-                            <td class="p-2">Unknown</td>
+                            <td class="p-2">@if($remark != ''){{ $remark->remark }}
+                            @endif</td>
+                            <td><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $data->id }}"><img src="/images/remark.png" /></button></td>
+                            
                         </tr>
                     @endforeach
 
