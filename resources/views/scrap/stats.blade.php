@@ -29,25 +29,33 @@
                             <th>Total</th>
                             <th>Errors</th>
                             <th>Warnings</th>
-                            <th>Developer</th>
+                            <th>Remark</th>
+                            <th>Functions</th>
                         </tr>
                     </thead>
 
                     <tbody>
                     @foreach($scrapeData as $data)
                         <tr<?= $data->running == 0 ? ' style="background-color: red; color: white;"' : '' ?>>
+                            @php 
+                                $remark = \App\ScrapRemark::select('remark')->where('scrap_id',$data->id)->orderBy('id','desc')->first();
+                            @endphp
                             <td class="p-2">{{ $data->website }}</td>
                             <td class="p-2">{{ date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) }}</td>
                             <td class="p-2 text-right">{{ $data->total - $data->errors }}</td>
                             <td class="p-2 text-right">{{ $data->total }}</td>
                             <td class="p-2 text-right">{{ $data->errors }}</td>
                             <td class="p-2 text-right">{{ $data->warnings }}</td>
-                            <td class="p-2">Unknown</td>
+                            <td class="p-2">@if($remark != ''){{ $remark->remark }}
+                            @endif</td>
+                            <td><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $data->id }}"><img src="/images/remark.png" /></button></td>
+                            
                         </tr>
                     @endforeach
 
                     </tbody>
                 </table>
+                @include('partials.modals.remarks')
             </div>
         </div>
     </div>
@@ -55,4 +63,61 @@
 @endsection
 
 @section('scripts')
+
+<script type="text/javascript">
+     $(document).on('click', '.make-remark', function(e) {
+      e.preventDefault();
+
+      var id = $(this).data('id');
+      $('#add-remark input[name="id"]').val(id);
+
+      $.ajax({
+          type: 'GET',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('scrap.getremark') }}',
+          data: {
+            id:id,
+            module_type: "scrap"
+          },
+      }).done(response => {
+          var html='';
+
+          $.each(response, function( index, value ) {
+            html+=' <p> '+value.remark+' <br> <small>By ' + value.scraper_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+            html+"<hr>";
+          });
+          $("#makeRemarkModal").find('#remark-list').html(html);
+      });
+    });
+
+    $('#addRemarkButton').on('click', function() {
+      var id = $('#add-remark input[name="id"]').val();
+      var remark = $('#add-remark').find('textarea[name="remark"]').val();
+
+      $.ajax({
+          type: 'POST',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('scrap.addRemark') }}',
+          data: {
+            id:id,
+            remark:remark,
+            module_type: 'scrap'
+          },
+      }).done(response => {
+          $('#add-remark').find('textarea[name="remark"]').val('');
+
+          var html =' <p> '+ remark +' <br> <small>By You updated on '+ moment().format('DD-M H:mm') +' </small></p>';
+
+          $("#makeRemarkModal").find('#remark-list').append(html);
+      }).fail(function(response) {
+        console.log(response);
+
+        alert('Could not fetch remarks');
+      });
+    });
+</script>
 @endsection

@@ -6,6 +6,8 @@ namespace App\Loggers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Request;
+use App\ScrapRemark;
+
 
 class LogScraper extends Model
 {
@@ -237,5 +239,10 @@ class LogScraper extends Model
 
         // Return IP
         return $ip;
+    }
+
+    public function remarks()
+    {
+        return $this->hasMany(ScrapRemark::class,'scrap_id');
     }
 }
