@@ -208,6 +208,11 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
     Route::post( 'order/status/store', 'OrderReportController@statusStore' )->name( 'status.store' );
     Route::post( 'order/report/store', 'OrderReportController@store' )->name( 'status.report.store' );
+    
+    // Zoom Meetings
+    //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
+    Route::post( 'meeting/create', 'Meeting\ZoomMeetingController@createMeeting' );
+    Route::get( 'meeting/allmeetings', 'Meeting\ZoomMeetingController@getMeetings' );
 
     Route::get( 'task/list', 'TaskModuleController@list' )->name( 'task.list' );
     Route::post( 'task/flag', 'TaskModuleController@flag' )->name( 'task.flag' );
@@ -620,7 +625,6 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
 
     Route::resource( 'assets-manager', 'AssetsManagerController' );
     Route::post( 'assets-manager/add-note/{id}', 'AssetsManagerController@addNote' );
-
 
     // Agent Routes
     Route::resource( 'agent', 'AgentController' );

@@ -327,6 +327,10 @@
                                 <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $customer->id }}" data-frequency="{{ $customer->frequency }}" data-reminder_message="{{ $customer->reminder_message }}">
                                     <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px;">
                                 </button>
+                                
+                                <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-reminder" data-id="{{ $customer->id }}">
+                                    Meeting
+                                </button>
 
                             </div>
 
@@ -768,7 +772,7 @@
 
         </div>
     </div>
-
+@include('customers.zoomMeeting');
 @endsection
 
 @section('scripts')
