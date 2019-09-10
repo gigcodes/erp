@@ -489,4 +489,25 @@ class SupplierController extends Controller
       }
       return $data;  
     }
+
+    public function cronscrapernotrunning()
+    {
+       $suppliers_all = DB::select('SELECT suppliers.id, l.created_at, suppliers.supplier, suppliers.email, suppliers.whatsapp_number from suppliers INNER JOIN log_scraper l on l.website = suppliers.scraper_name');            
+        if(count($suppliers_all) > 0){       
+       
+          foreach ($suppliers_all as $supplier){
+
+            $start_date = strtotime($supplier->created_at); 
+            $end_date = time();
+            $diff = ($end_date - $start_date)/60/60; 
+            // check date if different more than 48 hours then send notification
+            if($diff >= 48)
+            {
+              $message = 'Scraper not running '.$supplier->scraper_name;
+              app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('00971545889192', $supplier->whatsapp_number, $message); 
+            }
+               
+          }
+        }        
+    } 
 }

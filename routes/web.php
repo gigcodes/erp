@@ -666,7 +666,7 @@ Route::post( 'whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage' )->
 Route::post( 'whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError' );
 Route::post( 'whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage' );
 Route::get( 'message/resend', 'WhatsAppController@resendMessage2' );
-
+Route::get( 'cronscrapernotrunning', 'SupplierController@cronscrapernotrunning' );
 
 /*
  * @date 1/13/2019
