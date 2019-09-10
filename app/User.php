@@ -150,7 +150,6 @@ class User extends Authenticatable
            return true; 
         }
         
-       
         $permission = Permission::where('name',$genUrl)->first();
 
         if(empty($permission)){
@@ -165,7 +164,16 @@ class User extends Authenticatable
            if (in_array($value, $role)) {
                 return true;
             }
-        }                       
+        }
+
+        $permission = $permission->toArray();
+        $permission_role = $this->permissions()
+                              ->pluck('id')->unique()->toArray();
+        foreach ($permission_role as $key => $value) {
+           if (in_array($value, $permission)) {
+                return true;
+            }
+        }                      
     }
 
     /**

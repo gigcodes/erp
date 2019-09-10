@@ -38,11 +38,11 @@ class UserController extends Controller
 	 */
 	function __construct()
 	{
-		$this->middleware('permission:user-list', ['except' => ['assignProducts']]);
-		$this->middleware('permission:user-create', ['only' => ['create','store']]);
-		$this->middleware('permission:user-edit', ['only' => ['edit','update']]);
-		$this->middleware('permission:user-delete', ['only' => ['destroy']]);
-		$this->middleware('permission:product-lister', ['only' => ['assignProducts']]);
+	 	$this->middleware('permission:user-list', ['except' => ['assignProducts']]);
+	 	$this->middleware('permission:user-create', ['only' => ['create','store']]);
+	 	$this->middleware('permission:user-edit', ['only' => ['edit','update']]);
+	 	$this->middleware('permission:user-delete', ['only' => ['destroy']]);
+	 	$this->middleware('permission:product-lister', ['only' => ['assignProducts']]);
 	}
 
 
@@ -161,16 +161,18 @@ class UserController extends Controller
 	public function edit($id)
 	{
 		$user = User::find($id);
-		$roles = Role::pluck('name','name')->all();
+		$roles = Role::pluck('name','id')->all();
+		$permission = Permission::pluck('name','id')->all();
 		$users = User::all();
-		$userRole = $user->roles->pluck('name','name')->all();
+		$userRole = $user->roles->pluck('name','id')->all();
+		$userPermission = $user->permissions->pluck('name','id')->all();
 		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
     	$user_agent_roles = explode(',', $user->agent_role);
 		$api_keys = ApiKey::select('number')->get();
 		$customers_all = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
 
 
-		return view('users.edit',compact('user', 'users', 'roles','userRole' , 'agent_roles' ,'user_agent_roles', 'api_keys', 'customers_all'));
+		return view('users.edit',compact('user', 'users', 'roles','userRole' , 'agent_roles','user_agent_roles', 'api_keys', 'customers_all','permission','userPermission'));
 	}
 
 
@@ -183,6 +185,7 @@ class UserController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
+		//dd($request);
 		$this->validate($request, [
 			'name' => 'required',
 			'email' => 'required|email|unique:users,email,'.$id,
@@ -226,11 +229,8 @@ class UserController extends Controller
 //			$this->assignProducts($requestData, Auth::id());
 //		}
 
-		
-		$role = new Role;
-		$role_id = $role->getIdFromName($request->input('roles'));
-		
-		$user->roles()->sync($role_id);
+		$user->roles()->sync($request->input('roles'));
+		$user->permissions()->sync($request->input('permissions'));
 
 		$user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
 		$user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
