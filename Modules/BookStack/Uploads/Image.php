@@ -6,6 +6,7 @@ use Images;
 
 class Image extends Ownable
 {
+    protected $table = "book_images";
 
     protected $fillable = ['name'];
 

@@ -67,8 +67,13 @@ class AppServiceProvider extends ServiceProvider
             'BookStack\\Page' => Page::class,
         ]);
 
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/setting-defaults.php',
+            'setting-defaults'
+        );
+
         // View Composers
-        View::composer('partials.breadcrumbs', BreadcrumbsViewComposer::class);
+        View::composer('bookstack::partials.breadcrumbs', BreadcrumbsViewComposer::class);
     }
 
     /**

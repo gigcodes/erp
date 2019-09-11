@@ -159,7 +159,7 @@ class EntityRepo
         }
         $entity = $q->first();
         if ($entity === null) {
-            throw new NotFoundException(trans('errors.' . strtolower($type) . '_not_found'));
+            throw new NotFoundException(trans('bookstack::errors.' . strtolower($type) . '_not_found'));
         }
         return $entity;
     }

@@ -448,7 +448,7 @@ class PermissionService
         $explodedAction = explode('-', $action);
         $restrictionAction = end($explodedAction);
 
-        if ($role->system_name === 'admin') {
+        if (strtolower($role->name) === 'admin') {
             return $this->createJointPermissionDataArray($entity, $role, $action, true, true);
         }
 

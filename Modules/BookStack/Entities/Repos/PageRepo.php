@@ -232,7 +232,7 @@ class PageRepo extends EntityRepo
     public function getDraftPage(Book $book, Chapter $chapter = null)
     {
         $page = $this->entityProvider->page->newInstance();
-        $page->name = trans('entities.pages_initial_name');
+        $page->name = trans('bookstack::entities.pages_initial_name');
         $page->created_by = user()->id;
         $page->updated_by = user()->id;
         $page->draft = true;

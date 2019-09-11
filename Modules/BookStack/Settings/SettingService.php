@@ -114,7 +114,7 @@ class SettingService
         // Check the database
         $settingObject = $this->getSettingObjectByKey($key);
         if ($settingObject !== null) {
-            $value = $settingObject->value;
+            $value = $settingObject->val;
             $this->cache->forever($cacheKey, $value);
             return $value;
         }
@@ -190,7 +190,7 @@ class SettingService
         $setting = $this->setting->firstOrNew([
             'name' => $key
         ]);
-        $setting->value = $value;
+        $setting->val = $value;
         $setting->save();
         $this->clearFromCache($key);
         return true;

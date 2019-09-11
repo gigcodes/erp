@@ -112,7 +112,7 @@ class UserRepo
      */
     public function attachSystemRole(User $user, $systemRoleName)
     {
-        $role = $this->role->newQuery()->where('system_name', '=', $systemRoleName)->first();
+        $role = $this->role->newQuery()->where('name', '=', $systemRoleName)->first();
         if ($role === null) {
             throw new NotFoundException("Role '{$systemRoleName}' not found");
         }
@@ -267,7 +267,7 @@ class UserRepo
      */
     public function getRestrictableRoles()
     {
-        return $this->role->where('system_name', '!=', 'admin')->get();
+        return $this->role->where('name', '!=', 'admin')->get();
     }
 
     /**

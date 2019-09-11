@@ -15,6 +15,29 @@
 
 // Authenticated routes...
 Route::group(['middleware' => 'auth'], function () {
+
+    // Secure images routing
+    Route::get('/uploads/images/{path}', 'Images\ImageController@showImage')
+        ->where('path', '.*$');
+
+    // Shelves
+    Route::get('/create-shelf', 'BookshelfController@create');
+    Route::group(['prefix' => 'shelves'], function() {
+        Route::get('/', 'BookshelfController@index');
+        Route::post('/', 'BookshelfController@store');
+        Route::get('/{slug}/edit', 'BookshelfController@edit');
+        Route::get('/{slug}/delete', 'BookshelfController@showDelete');
+        Route::get('/{slug}', 'BookshelfController@show');
+        Route::put('/{slug}', 'BookshelfController@update');
+        Route::delete('/{slug}', 'BookshelfController@destroy');
+        Route::get('/{slug}/permissions', 'BookshelfController@showPermissions');
+        Route::put('/{slug}/permissions', 'BookshelfController@permissions');
+        Route::post('/{slug}/copy-permissions', 'BookshelfController@copyPermissions');
+
+        Route::get('/{shelfSlug}/create-book', 'BookController@create');
+        Route::post('/{shelfSlug}/create-book', 'BookController@store');
+    });
+    
     Route::get('/create-book', 'BookController@create');
 
     Route::group(['prefix' => 'books'], function () {
@@ -83,4 +106,76 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/{bookSlug}/chapter/{chapterSlug}/delete', 'ChapterController@showDelete');
         Route::delete('/{bookSlug}/chapter/{chapterSlug}', 'ChapterController@destroy');
     });
+
+    // Settings
+    Route::group(['prefix' => 'settings'], function() {
+        Route::get('/', 'SettingController@index')->name('settings');
+        Route::post('/', 'SettingController@update');
+
+        // Maintenance
+        Route::get('/maintenance', 'SettingController@showMaintenance');
+        Route::delete('/maintenance/cleanup-images', 'SettingController@cleanupImages');
+
+        // Users
+        Route::get('/users', 'UserController@index');
+        Route::get('/users/create', 'UserController@create');
+        Route::get('/users/{id}/delete', 'UserController@delete');
+        Route::patch('/users/{id}/switch-book-view', 'UserController@switchBookView');
+        Route::patch('/users/{id}/switch-shelf-view', 'UserController@switchShelfView');
+        Route::patch('/users/{id}/change-sort/{type}', 'UserController@changeSort');
+        Route::patch('/users/{id}/update-expansion-preference/{key}', 'UserController@updateExpansionPreference');
+        Route::post('/users/create', 'UserController@store');
+        Route::get('/users/{id}', 'UserController@edit');
+        Route::put('/users/{id}', 'UserController@update');
+        Route::delete('/users/{id}', 'UserController@destroy');
+
+        // Roles
+        Route::get('/roles', 'PermissionController@listRoles');
+        Route::get('/roles/new', 'PermissionController@createRole');
+        Route::post('/roles/new', 'PermissionController@storeRole');
+        Route::get('/roles/delete/{id}', 'PermissionController@showDeleteRole');
+        Route::delete('/roles/delete/{id}', 'PermissionController@deleteRole');
+        Route::get('/roles/{id}', 'PermissionController@editRole');
+        Route::put('/roles/{id}', 'PermissionController@updateRole');
+    });
+
+    // AJAX routes
+    Route::put('/ajax/page/{id}/save-draft', 'PageController@saveDraft');
+    Route::get('/ajax/page/{id}', 'PageController@getPageAjax');
+    Route::delete('/ajax/page/{id}', 'PageController@ajaxDestroy');
+
+    // Tag routes (AJAX)
+    Route::group(['prefix' => 'ajax/tags'], function() {
+        Route::get('/get/{entityType}/{entityId}', 'TagController@getForEntity');
+        Route::get('/suggest/names', 'TagController@getNameSuggestions');
+        Route::get('/suggest/values', 'TagController@getValueSuggestions');
+    });
+
+    Route::get('/ajax/search/entities', 'SearchController@searchEntitiesAjax');
+
+    // Comments
+    Route::post('/ajax/page/{pageId}/comment', 'CommentController@savePageComment');
+    Route::put('/ajax/comment/{id}', 'CommentController@update');
+    Route::delete('/ajax/comment/{id}', 'CommentController@destroy');
+
+    // Attachments routes
+    Route::get('/attachments/{id}', 'AttachmentController@get');
+    Route::post('/attachments/upload', 'AttachmentController@upload');
+    Route::post('/attachments/upload/{id}', 'AttachmentController@uploadUpdate');
+    Route::post('/attachments/link', 'AttachmentController@attachLink');
+    Route::put('/attachments/{id}', 'AttachmentController@update');
+    Route::get('/attachments/get/page/{pageId}', 'AttachmentController@listForPage');
+    Route::put('/attachments/sort/page/{pageId}', 'AttachmentController@sortForPage');
+    Route::delete('/attachments/{id}', 'AttachmentController@delete');
+
+    Route::get('/custom-head-content', 'HomeController@customHeadContent');
+
+    // Search
+    Route::get('/search', 'SearchController@search');
+    Route::get('/search/book/{bookId}', 'SearchController@searchBook');
+    Route::get('/search/chapter/{bookId}', 'SearchController@searchChapter');
+    Route::get('/search/entity/siblings', 'SearchController@searchSiblings');
+
+
+    
 });

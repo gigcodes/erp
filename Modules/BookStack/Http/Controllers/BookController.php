@@ -216,7 +216,7 @@ class BookController extends Controller
         $book = $this->entityRepo->getBySlug('book', $bookSlug);
         $this->checkOwnablePermission('book-delete', $book);
         $this->setPageTitle(trans('entities.books_delete_named', ['bookName'=>$book->getShortName()]));
-        return view('books.delete', ['book' => $book, 'current' => $book]);
+        return view('bookstack::books.delete', ['book' => $book, 'current' => $book]);
     }
 
     /**
@@ -233,7 +233,7 @@ class BookController extends Controller
         $bookChildren = $this->entityRepo->getBookChildren($book, true);
 
         $this->setPageTitle(trans('entities.books_sort_named', ['bookName'=>$book->getShortName()]));
-        return view('books.sort', ['book' => $book, 'current' => $book, 'bookChildren' => $bookChildren]);
+        return view('bookstack::books.sort', ['book' => $book, 'current' => $book, 'bookChildren' => $bookChildren]);
     }
 
     /**
@@ -246,7 +246,7 @@ class BookController extends Controller
     {
         $book = $this->entityRepo->getBySlug('book', $bookSlug);
         $bookChildren = $this->entityRepo->getBookChildren($book);
-        return view('books.sort-box', ['book' => $book, 'bookChildren' => $bookChildren]);
+        return view('bookstack::books.sort-box', ['book' => $book, 'bookChildren' => $bookChildren]);
     }
 
     /**
@@ -349,7 +349,7 @@ class BookController extends Controller
         $book = $this->entityRepo->getBySlug('book', $bookSlug);
         $this->checkOwnablePermission('restrictions-manage', $book);
         $roles = $this->userRepo->getRestrictableRoles();
-        return view('books.permissions', [
+        return view('bookstack::books.permissions', [
             'book' => $book,
             'roles' => $roles
         ]);

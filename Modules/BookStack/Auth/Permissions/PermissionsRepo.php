@@ -88,7 +88,7 @@ class PermissionsRepo
         $role = $this->role->findOrFail($roleId);
 
         $permissions = isset($roleData['permissions']) ? array_keys($roleData['permissions']) : [];
-        if ($role->system_name === 'admin') {
+        if (strtolower($role->name) === 'admin') {
             $permissions = array_merge($permissions, [
                 'users-manage',
                 'user-roles-manage',
@@ -134,10 +134,10 @@ class PermissionsRepo
         $role = $this->role->findOrFail($roleId);
 
         // Prevent deleting admin role or default registration role.
-        if ($role->system_name && in_array($role->system_name, $this->systemRoles)) {
-            throw new PermissionsException(trans('errors.role_system_cannot_be_deleted'));
+        if ($role->name && in_array(strtolower($role->name), $this->systemRoles)) {
+            throw new PermissionsException(trans('bookstack::errors.role_system_cannot_be_deleted'));
         } else if ($role->id == setting('registration-role')) {
-            throw new PermissionsException(trans('errors.role_registration_default_cannot_delete'));
+            throw new PermissionsException(trans('bookstack::errors.role_registration_default_cannot_delete'));
         }
 
         if ($migrateRoleId) {

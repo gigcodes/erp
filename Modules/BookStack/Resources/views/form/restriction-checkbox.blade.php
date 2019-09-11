@@ -5,7 +5,7 @@ $role
 $action
 $model?
 --}}
-@include('components.custom-checkbox', [
+@include('bookstack::components.custom-checkbox', [
     'name' => $name . '[' . $role->id . '][' . $action . ']',
     'label' => $label,
     'value' => 'true',

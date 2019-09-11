@@ -4,6 +4,7 @@ use Modules\BookStack\Ownable;
 
 class Comment extends Ownable
 {
+    protected $table = "book_comments";
     protected $fillable = ['text', 'html', 'parent_id'];
     protected $appends = ['created', 'updated'];
 

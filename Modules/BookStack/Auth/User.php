@@ -59,7 +59,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public static function getDefault()
     {
-        return static::where('system_name', '=', 'public')->first();
+        return static::where('name', '=', 'admin')->first();
     }
 
     /**
@@ -68,7 +68,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function isDefault()
     {
-        return $this->system_name === 'public';
+        return $this->name === 'admin';
     }
 
     /**
@@ -100,7 +100,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function hasSystemRole($role)
     {
-        return $this->roles->pluck('system_name')->contains($role);
+        return $this->roles->pluck('name')->contains($role);
     }
 
     /**

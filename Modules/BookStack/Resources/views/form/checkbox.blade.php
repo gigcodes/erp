@@ -4,7 +4,7 @@ $label
 $errors?
 $model?
 --}}
-@include('components.custom-checkbox', [
+@include('bookstack::components.custom-checkbox', [
     'name' => $name,
     'label' => $label,
     'value' => 'true',

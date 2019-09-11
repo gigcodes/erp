@@ -198,7 +198,7 @@ class Entity extends Ownable
             return null;
         }
 
-        return app('BookStack\\Entities\\' . $className);
+        return app('Modules\BookStack\\Entities\\' . $className);
     }
 
     /**

@@ -85,7 +85,7 @@ class Role extends Model
      */
     public static function getSystemRole($roleName)
     {
-        return static::where('system_name', '=', $roleName)->first();
+        return static::where('name', '=', $roleName)->first();
     }
 
     /**

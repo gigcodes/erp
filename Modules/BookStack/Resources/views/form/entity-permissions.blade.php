@@ -5,7 +5,7 @@
     <p class="mb-none">{{ trans('bookstack::entities.permissions_intro') }}</p>
 
     <div class="form-group">
-        @include('form.checkbox', [
+        @include('bookstack::form.checkbox', [
             'name' => 'restricted',
             'label' => trans('bookstack::entities.permissions_enable'),
         ])
