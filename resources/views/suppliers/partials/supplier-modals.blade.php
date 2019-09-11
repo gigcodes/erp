@@ -77,6 +77,14 @@
             @endif
           </div>
           <div class="form-group">
+            <strong>Inventory Lifetime:</strong>
+            <input type="number" name="inventory_lifetime" class="form-control" value="{{ old('inventory_lifetime') }}" required>
+
+            @if ($errors->has('inventory_lifetime'))
+              <div class="alert alert-danger">{{$errors->first('inventory_lifetime')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
             <strong>GST:</strong>
             <input type="text" name="gst" class="form-control" value="{{ old('gst') }}">
 
@@ -178,6 +186,14 @@
 
             @if ($errors->has('scraper_name'))
               <div class="alert alert-danger">{{$errors->first('scraper_name')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Inventory Lifetime:</strong>
+            <input type="number" name="inventory_lifetime" id="supplier_inventory_lifetime" class="form-control" value="{{ old('inventory_lifetime') }}" required>
+
+            @if ($errors->has('inventory_lifetime'))
+              <div class="alert alert-danger">{{$errors->first('inventory_lifetime')}}</div>
             @endif
           </div>
           <div class="form-group">

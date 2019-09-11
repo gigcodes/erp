@@ -10,38 +10,34 @@
 @section('content')
 
     <div class="row">
-        <h2 class="page-heading">Statistics</h2>
-        <div class="mt-3 col-md-12">
-          <table class="table table-bordered table-striped" style="width: 35%;">
-            <thead>
-              <tr>                
-                <th width="25%">Status</th>
-                <th width="10%">Total</th> 
-              </tr>
-            </thead>
-            <tbody>                
-                @foreach($statistics as $statistic)
-                  @php
-                  $total = $total + $statistic->number_of_products;
-                  @endphp
-                <tr>                 
-                  <td>{{$statistic->name}}</td>
-                  <td align="right">{{$statistic->number_of_products}}</td>
-                </tr>
-                @endforeach               
-                <tr>                 
-                  <td>No Status</td>
-                  <td align="right">{{ $count- $total}}</td>
-                </tr> 
-                <tr>                 
-                  <td>Suppliers</td>
-                  <td align="right">{{$count}}</td>
-                </tr>            
-            </tbody>
-          </table>
-        </div>
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Suppliers List</h2>
+
+            <div class="mt-3">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>                
+                    <th>No Status</th>
+                    @foreach($statistics as $statistic)
+                    @php
+                      $total = $total + $statistic->number_of_products;
+                      @endphp                                  
+                      <th>{{$statistic->name}}</th>
+                    @endforeach
+                    <th>Total</th> 
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>                 
+                    <td align="right">{{ $count- $total}}</td>               
+                    @foreach($statistics as $statistic)                      
+                    <td align="right">{{$statistic->number_of_products}}</td>                  
+                    @endforeach 
+                    <td align="right">{{$count}}</td>
+                  </tr>            
+                </tbody>
+              </table>
+            </div>
             <div class="pull-left">
               <form class="form-inline" action="{{ route('supplier.index') }}" method="GET">
                 <div class="form-group">
@@ -51,7 +47,7 @@
                 </div>
 
                   <div class="form-group ml-3">
-                      <input type="text" name="source" id="source" placeholder="Source..">
+                      <input type="text" class="form-control" name="source" id="source" placeholder="Source..">
                   </div>
 
                 <div class="form-group ml-3">
@@ -77,15 +73,7 @@
                       <option value="{{$status->id}}" {{ $status->id == $supplier_status_id ? 'selected' : '' }}>{{$status->name}}</option>
                     @endforeach
                   </select>
-                </div>   
-                 <!--  <div class="form-group ml-3">
-                      <input type="checkbox" name="status" id="status" value="1"> Active
-                  </div> -->
-
-{{--                  <div class="form-group ml-3">--}}
-{{--                      <select name="status" id=""></select>--}}
-{{--                  </div>--}}
-
+                </div>
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
               </form>
             </div>
@@ -102,25 +90,18 @@
     @include('purchase.partials.modal-email')
     @include('suppliers.partials.modal-emailToAll')
 
-    <div class="mt-3 col-md-12">
+    <div class="mt-3">
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
             <th width="5%">ID</th>
-            <th width="10%">Name</th>
-            <th width="10%">Address</th>
-            <th>Source</th>
-            <th>Category</th>           
-            <th>Designers</th>
-            <th width="10%">Social handle</th>
-            <th>Scraper Name</th>
-            {{-- <th>Agents</th> --}}
-            {{-- <th width="5%">GST</th> --}}
-            <th width="20%">Order</th>
-            {{-- <th width="20%">Emails</th> --}}
-            <th width="25%">Communication</th>
-            <th>Status</th>
-            <th width="15%">Action</th>
+            <th width="23%">Name</th>
+            <th width="18%">Category</th>           
+            <th width="10%">Designers</th>
+            <th width="10%">Social handle</th>                    
+            <th width="15%">Communication</th>
+            <th width="15%">Status</th>
+            <th width="5%">Action</th>
           </tr>
         </thead>
 
@@ -128,7 +109,8 @@
           @foreach ($suppliers as $supplier)
             <tr>
               <td>{{ $supplier->id }}</td>
-              <td>
+              <td class="expand-row">
+                <div class="td-mini-container">
                 {{ $supplier->supplier }}
 
                 @if ($supplier->is_flagged == 1)
@@ -140,26 +122,34 @@
                   <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
                       <img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
                   </button>
+                </div>
+                 <div class="td-full-container hidden">
+                    {{ $supplier->supplier }}
 
-                <br>
-                <span class="text-muted">
-                  {{ $supplier->phone }}
-                  <br>
-                  <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
-                  @if ($supplier->has_error == 1)
-                    <span class="text-danger">!!!</span>
-                  @endif
+                    @if ($supplier->is_flagged == 1)
+                      <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
+                    @else
+                      <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
+                    @endif
+
+                    <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
+                        <img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
+                    </button>
+                    <span class="text-muted">
+                    {{ $supplier->phone }}
+                   
+                    <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
+                    @if ($supplier->has_error == 1)
+                      <span class="text-danger">!!!</span>
+                    @endif
                 </span>
-              </td>
-              <td class="expand-row">
-                  <div class="td-mini-container">
-                      {{ strlen($supplier->address) > 10 ? substr($supplier->address, 0, 10).'...' : $supplier->address }}
-                  </div>
-                  <div class="td-full-container hidden">
                       {{ $supplier->address }}
                   </div>
-              </td>
-                <td>{{ $supplier->source }}</td>
+                
+                
+                  
+              </td>             
+                
                 <td>
                 <select name="supplier_category_id" class="form-control suppliercategory">
                   <option value="">Select Category</option>
@@ -194,34 +184,7 @@
                   <div class="td-full-container hidden">
                       {{ $supplier->social_handle }}
                   </div>
-              </td>
-              <td>{{ $supplier->scraper_name }}</td>
-              {{-- <td>
-                @if ($supplier->agents)
-                  <ul>
-                    @foreach ($supplier->agents as $agent)
-                      <li>
-                        <strong>{{ $agent->name }}</strong> <br>
-                        {{ $agent->phone }} - {{ $agent->email }} <br>
-                        <span class="text-muted">{{ $agent->address }}</span> <br>
-                        <button type="button" class="btn btn-xs btn-secondary edit-agent-button" data-toggle="modal" data-target="#editAgentModal" data-agent="{{ $agent }}">Edit</button>
-                      </li>
-                    @endforeach
-                  </ul>
-                @endif
-              </td> --}}
-
-              {{-- <td>{{ $supplier->gst }}</td> --}}
-              <td>
-                @if ($supplier->purchase_id != '')
-                  <a href="{{ route('purchase.show', $supplier->purchase_id) }}" target="_blank">Purchase ID {{ $supplier->purchase_id }}</a>
-                  <br>
-                  {{ \Carbon\Carbon::parse($supplier->purchase_created_at)->format('H:m d-m') }}
-                @endif
-              </td>
-              {{-- <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}"  style="word-break: break-all;">
-                {{ strlen(strip_tags($supplier->email_message)) > 0 ? 'Email' : '' }}
-              </td> --}}
+              </td>                        
               <td class="expand-row {{ $supplier->last_type == "email" && $supplier->email_seen == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
                   @if($supplier->phone)
                       <input type="text" name="message" id="message_{{$supplier->id}}" placeholder="whatsapp message..." class="form-control send-message" data-id="{{$supplier->id}}">
@@ -452,6 +415,7 @@
 
     $(document).on('click', '.edit-supplier', function() {
       var supplier = $(this).data('supplier');
+      
       var url = "{{ url('supplier') }}/" + supplier.id;
 
       $('#supplierEditModal form').attr('action', url);
@@ -462,6 +426,7 @@
       $('#supplier_email').val(supplier.email);
       $('#supplier_social_handle').val(supplier.social_handle);
       $('#supplier_scraper_name').val(supplier.scraper_name);
+      $('#supplier_inventory_lifetime').val(supplier.inventory_lifetime);
       $('#supplier_gst').val(supplier.gst);
       //$('#status').val(supplier.status);
       $('#supplier_status_id').val(supplier.supplier_status_id);
@@ -660,19 +625,6 @@
     });
 
     $(document).ready(function() {
-      $('#supplier_category_id2').on('change', function(){
-        var supplier_category_id = $('#supplier_category_id2').val();
-        var supplier_status_id = $('#supplier_status_id2').val();      
-        getSuppliers(supplier_category_id, supplier_status_id);  
-      });
-      $('#supplier_status_id2').on('change', function(){
-        var supplier_category_id = $('#supplier_category_id2').val();
-        var supplier_status_id = $('#supplier_status_id2').val();
-        getSuppliers(supplier_category_id, supplier_status_id);
-      }); 
-
-          
-
       $(".supplierstatus").change(function () {
         var id = $(this).val();
         var supplier_id = $(this).parent().siblings(":first").text();
@@ -722,36 +674,18 @@
             $('.successmsg').html("Updated")
             .hide()
             .fadeIn(1000, function() { $('.successmsg'); });
-           setTimeout(resetAll,3000);
-
-
-            /*$(this).after("<div id='divSuccessMsg'></div>");
-            $('#divSuccessMsg').html("Success")
-            .hide()
-            .fadeIn(1500, function() { $('#divSuccessMsg'); });*/
-
-           //$(this).after( "<div >Success</div>" ), 100);
-         
-
-          
-            //$('#add-remark').find('textarea[name="remark"]').val('');
-
-            //var html =' <p> '+ remark +' <br> <small>By You updated on '+ moment().format('DD-M H:mm') +' </small></p>';
-
-            //$("#makeRemarkModal").find('#remark-list').append(html);
+           setTimeout(resetAll,3000);            
         }).fail(function(response) {
           console.log(response);
 
           alert('Could not updated');
-        });
-
-        
+        });        
       }); 
 
       function resetAll(){
-          $('.successmsg').remove(); // Removing it as with next form submit you will be adding the div again in your code. 
+        $('.successmsg').remove(); // Removing it as with next form submit you will be adding the div again in your code. 
 
-        } 
+      }      
   });
   </script>
 @endsection

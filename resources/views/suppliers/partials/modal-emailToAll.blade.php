@@ -31,13 +31,19 @@
             </select>
           </div>
           <div class="form-group">
-            <strong>Suppliers</strong>
-            <select class="form-control" id="suppliers" name="suppliers[]" multiple>
-              {{-- <option value="">Select Suppliers</option> --}}      
-              @foreach ($suppliers_all as $supplier)
-                <option value="{{ $supplier->id }}">{{ $supplier->supplier }} - {{ $supplier->default_email }} / {{ $supplier->email }}</option>
-              @endforeach
-            </select>
+            Filter By:&nbsp;&nbsp;
+            <a href="javascript:void(0)" onclick="filtersupplier('');">All</a>&nbsp;&nbsp;
+            @foreach (range('A', 'Z') as $char) 
+                <a href="javascript:void(0)" onclick="filtersupplier('{{$char}}');">{{$char}}</a>&nbsp;&nbsp;
+            @endforeach
+            @for($i=0; $i<10; $i++)
+            <a href="javascript:void(0)" onclick="filtersupplier('{{$i}}');">{{$i}}</a>&nbsp;&nbsp;
+            @endfor
+          </div>
+          <div class="form-group" style="display: none;" id="suppliers-selection">
+            <strong>Suppliers</strong> &nbsp;&nbsp;<a href="javascript:void(0);" id="select_all">Select All</a> &nbsp;&nbsp;<a href="javascript:void(0);" id="select_no">Unselect All</a> 
+            <select class="form-control select-multiple" id="suppliers" name="suppliers[]" multiple>                  
+             </select>
           </div>
 
             <div class="form-group text-right">
@@ -97,3 +103,31 @@
 
   </div>
 </div>
+@section('scripts')
+<script type="text/javascript">
+ $(document).ready(function() {
+      $('#supplier_category_id2').on('change', function(){
+        var supplier_category_id = $('#supplier_category_id2').val();
+        var supplier_status_id = $('#supplier_status_id2').val();      
+        getSuppliers(supplier_category_id, supplier_status_id,'');  
+      });
+      $('#supplier_status_id2').on('change', function(){
+        var supplier_category_id = $('#supplier_category_id2').val();
+        var supplier_status_id = $('#supplier_status_id2').val();
+        getSuppliers(supplier_category_id, supplier_status_id,'');
+      }); 
+  });
+  function filtersupplier(filter)
+  {
+    var supplier_category_id = $('#supplier_category_id2').val();
+    var supplier_status_id = $('#supplier_status_id2').val();
+    getSuppliers(supplier_category_id, supplier_status_id, filter);
+  }
+  $('#select_all').click(function() {
+      $('#suppliers option').prop('selected', true);
+  });
+  $('#select_no').click(function() {
+      $('#suppliers option').prop('selected', false);
+  });
+</script>
+@endsection
