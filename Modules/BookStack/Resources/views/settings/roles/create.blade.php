@@ -9,7 +9,7 @@
         </div>
 
         <form action="{{ url("/settings/roles/new") }}" method="POST">
-            @include('bookstack::settings.roles.form', ['title' => trans('settings.role_create')])
+            @include('bookstack::settings.roles.form', ['title' => trans('bookstack::settings.role_create')])
         </form>
     </div>
 

@@ -34,12 +34,12 @@
                 <a href="#" permissions-table-toggle-all class="text-small text-primary">{{ trans('bookstack::common.toggle_all') }}</a>
             </div>
             <div class="toggle-switch-list">
-                <div>@include('settings.roles.checkbox', ['permission' => 'users-manage', 'label' => trans('bookstack::settings.role_manage_users')])</div>
-                <div>@include('settings.roles.checkbox', ['permission' => 'user-roles-manage', 'label' => trans('bookstack::ettings.role_manage_roles')])</div>
-                <div>@include('settings.roles.checkbox', ['permission' => 'restrictions-manage-all', 'label' => trans('bookstack::settings.role_manage_entity_permissions')])</div>
-                <div>@include('settings.roles.checkbox', ['permission' => 'restrictions-manage-own', 'label' => trans('bookstack::settings.role_manage_own_entity_permissions')])</div>
-                <div>@include('settings.roles.checkbox', ['permission' => 'templates-manage', 'label' => trans('bookstack::settings.role_manage_page_templates')])</div>
-                <div>@include('settings.roles.checkbox', ['permission' => 'settings-manage', 'label' => trans('bookstack::settings.role_manage_settings')])</div>
+                <div>@include('bookstack::settings.roles.checkbox', ['permission' => 'users-manage', 'label' => trans('bookstack::settings.role_manage_users')])</div>
+                <div>@include('bookstack::settings.roles.checkbox', ['permission' => 'user-roles-manage', 'label' => trans('bookstack::settings.role_manage_roles')])</div>
+                <div>@include('bookstack::settings.roles.checkbox', ['permission' => 'restrictions-manage-all', 'label' => trans('bookstack::settings.role_manage_entity_permissions')])</div>
+                <div>@include('bookstack::settings.roles.checkbox', ['permission' => 'restrictions-manage-own', 'label' => trans('bookstack::settings.role_manage_own_entity_permissions')])</div>
+                <div>@include('bookstack::settings.roles.checkbox', ['permission' => 'templates-manage', 'label' => trans('bookstack::settings.role_manage_page_templates')])</div>
+                <div>@include('bookstack::settings.roles.checkbox', ['permission' => 'settings-manage', 'label' => trans('bookstack::settings.role_manage_settings')])</div>
             </div>
         </div>
 
@@ -63,7 +63,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <div>{{ trans('entities.shelves_long') }}</div>
+                        <div>{{ trans('bookstack::entities.shelves_long') }}</div>
                         <a href="#" permissions-table-toggle-all-in-row class="text-small text-primary">{{ trans('bookstack::common.toggle_all') }}</a>
                     </td>
                     <td>
