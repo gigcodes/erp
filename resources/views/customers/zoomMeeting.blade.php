@@ -1,6 +1,5 @@
 <div id="zoomModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
-
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
@@ -8,6 +7,7 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
+                    <input type="hidden" value="{{ $customer->id }}" class="" id="customer_id" name="customer_id">
                     <div class="form-group">
                         <label for="meeting_topic">Meeting Topic</label>
                         <input type="text" name="meeting_topic" id="meeting_topic" class="form-control"/>
@@ -189,24 +189,5 @@
 
         </div>
     </div>
-@section('scripts')
-console.log('hii');
-$(document).on('click', '.save-meeting', function () {
-            let frequency = $('#frequency').val();
-            let message = $('#reminder_message').val();
-
-            $.ajax({
-                url: "{{action('CustomerController@updateReminder')}}",
-                type: 'POST',
-                success: function () {
-                    toastr['success']('Reminder updated successfully!');
-                },
-                data: {
-                    customer_id: customerIdToRemind,
-                    frequency: frequency,
-                    message: message,
-                    _token: "{{ csrf_token() }}"
-                }
-            });
-        });
-@endsection
+<input type="hidden" value="{{action('Meeting\ZoomMeetingController@createMeeting')}}" class="" id="meetingUrl">
+<input type="hidden" value="{{ csrf_token() }}" class="" id="csrfToken">

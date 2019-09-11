@@ -328,7 +328,7 @@
                                     <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px;">
                                 </button>
                                 
-                                <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-reminder" data-id="{{ $customer->id }}">
+                                <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $customer->id }}">
                                     Meeting
                                 </button>
 
@@ -783,6 +783,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
+    <script src="{{asset('js/zoom-meetings.js')}}"></script>
     <script type="text/javascript">
         var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
 
