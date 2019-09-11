@@ -74,7 +74,7 @@ class TagRepo
             $query = $query->orderBy('count', 'desc')->take(50);
         }
 
-        $query = $this->permissionService->filterRestrictedEntityRelations($query, 'tags', 'entity_id', 'entity_type');
+        $query = $this->permissionService->filterRestrictedEntityRelations($query, 'book_tags', 'entity_id', 'entity_type');
         return $query->get(['name'])->pluck('name');
     }
 
@@ -100,7 +100,7 @@ class TagRepo
             $query = $query->where('name', '=', $tagName);
         }
 
-        $query = $this->permissionService->filterRestrictedEntityRelations($query, 'tags', 'entity_id', 'entity_type');
+        $query = $this->permissionService->filterRestrictedEntityRelations($query, 'book_tags', 'entity_id', 'entity_type');
         return $query->get(['value'])->pluck('value');
     }
 

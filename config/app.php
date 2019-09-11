@@ -171,7 +171,20 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         PragmaRX\Tracker\Vendor\Laravel\ServiceProvider::class,
-        Thujohn\Twitter\TwitterServiceProvider::class
+        Thujohn\Twitter\TwitterServiceProvider::class,
+
+
+        // BookStack replacement service providers (Extends Laravel)
+        Modules\BookStack\Providers\PaginationServiceProvider::class,
+        Modules\BookStack\Providers\TranslationServiceProvider::class,
+
+        // BookStack custom service providers
+        Modules\BookStack\Providers\AuthServiceProvider::class,
+        Modules\BookStack\Providers\AppServiceProvider::class,
+        Modules\BookStack\Providers\BroadcastServiceProvider::class,
+        Modules\BookStack\Providers\EventServiceProvider::class,
+        Modules\BookStack\Providers\RouteServiceProvider::class,
+        Modules\BookStack\Providers\CustomFacadeProvider::class,
     ],
 
     /*
@@ -230,7 +243,12 @@ return [
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Tracker' => PragmaRX\Tracker\Vendor\Laravel\Facade::class,
-        'Twitter' => Thujohn\Twitter\Facades\Twitter::class
+        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
+        // Custom Modules\BookStack
+        'Activity' => Modules\BookStack\Facades\Activity::class,
+        'Setting'  => Modules\BookStack\Facades\Setting::class,
+        'Views'    => Modules\BookStack\Facades\Views::class,
+        'Images'   => Modules\BookStack\Facades\Images::class,
     ],
 
 ];

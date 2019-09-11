@@ -752,7 +752,7 @@ class PermissionService
                 $query->whereExists(function ($permissionQuery) use (&$tableDetails, $pageMorphClass) {
                     $permissionQuery->select('id')->from('joint_permissions')
                         ->whereRaw('joint_permissions.entity_id=' . $tableDetails['tableName'] . '.' . $tableDetails['entityIdColumn'])
-                        ->where('entity_type', '=', $pageMorphClass)
+                        ->where('entity_type', '=', addslashes($pageMorphClass))
                         ->where('action', '=', $this->currentAction)
                         ->whereIn('role_id', $this->getRoles())
                         ->where(function ($query) {

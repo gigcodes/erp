@@ -55,9 +55,9 @@ class BookController extends Controller
         $sort = setting()->getUser($this->currentUser, 'books_sort', 'name');
         $order = setting()->getUser($this->currentUser, 'books_sort_order', 'asc');
         $sortOptions = [
-            'name' => trans('common.sort_name'),
-            'created_at' => trans('common.sort_created_at'),
-            'updated_at' => trans('common.sort_updated_at'),
+            'name' => trans('bookstack::common.sort_name'),
+            'created_at' => trans('bookstack::common.sort_created_at'),
+            'updated_at' => trans('bookstack::common.sort_updated_at'),
         ];
 
         $books = $this->entityRepo->getAllPaginated('book', 18, $sort, $order);
@@ -67,8 +67,8 @@ class BookController extends Controller
 
         $this->entityContextManager->clearShelfContext();
 
-        $this->setPageTitle(trans('entities.books'));
-        return view('books.index', [
+        $this->setPageTitle(trans('bookstack::entities.books'));
+        return view('bookstack::books.index', [
             'books' => $books,
             'recents' => $recents,
             'popular' => $popular,
@@ -97,7 +97,7 @@ class BookController extends Controller
         $this->checkPermission('book-create-all');
         $this->setPageTitle(trans('entities.books_create'));
         
-        return view('books.create', [
+        return view('bookstack::books.create', [
             'bookshelf' => $bookshelf
         ]);
     }
@@ -130,6 +130,7 @@ class BookController extends Controller
         $this->bookUpdateActions($book, $request);
         Activity::add($book, 'book_create', $book->id);
 
+
         if ($bookshelf) {
             $this->entityRepo->appendBookToShelf($bookshelf, $book);
             Activity::add($bookshelf, 'bookshelf_update');
@@ -158,7 +159,7 @@ class BookController extends Controller
         }
 
         $this->setPageTitle($book->getShortName());
-        return view('books.show', [
+        return view('bookstack::books.show', [
             'book' => $book,
             'current' => $book,
             'bookChildren' => $bookChildren,
@@ -176,7 +177,7 @@ class BookController extends Controller
         $book = $this->entityRepo->getBySlug('book', $slug);
         $this->checkOwnablePermission('book-update', $book);
         $this->setPageTitle(trans('entities.books_edit_named', ['bookName'=>$book->getShortName()]));
-        return view('books.edit', ['book' => $book, 'current' => $book]);
+        return view('bookstack::books.edit', ['book' => $book, 'current' => $book]);
     }
 
     /**

@@ -8,6 +8,7 @@ use Modules\BookStack\Model;
  */
 class Tag extends Model
 {
+	protected $table = 'book_tags';    
     protected $fillable = ['name', 'value', 'order'];
 
     /**

@@ -89,7 +89,7 @@ class ActivityService
     public function latest($count = 20, $page = 0)
     {
         $activityList = $this->permissionService
-            ->filterRestrictedEntityRelations($this->activity, 'activities', 'entity_id', 'entity_type')
+            ->filterRestrictedEntityRelations($this->activity, 'book_activities', 'entity_id', 'entity_type')
             ->orderBy('created_at', 'desc')->with('user', 'entity')->skip($count * $page)->take($count)->get();
 
         return $this->filterSimilar($activityList);
@@ -113,7 +113,7 @@ class ActivityService
         }
         
         $activity = $this->permissionService
-            ->filterRestrictedEntityRelations($query, 'activities', 'entity_id', 'entity_type')
+            ->filterRestrictedEntityRelations($query, 'book_activities', 'entity_id', 'entity_type')
             ->orderBy('created_at', 'desc')
             ->with(['entity', 'user.avatar'])
             ->skip($count * ($page - 1))
@@ -134,7 +134,7 @@ class ActivityService
     public function userActivity($user, $count = 20, $page = 0)
     {
         $activityList = $this->permissionService
-            ->filterRestrictedEntityRelations($this->activity, 'activities', 'entity_id', 'entity_type')
+            ->filterRestrictedEntityRelations($this->activity, 'book_activities', 'entity_id', 'entity_type')
             ->orderBy('created_at', 'desc')->where('user_id', '=', $user->id)->skip($count * $page)->take($count)->get();
         return $this->filterSimilar($activityList);
     }
@@ -168,7 +168,7 @@ class ActivityService
      */
     protected function setNotification($activityKey)
     {
-        $notificationTextKey = 'activities.' . $activityKey . '_notification';
+        $notificationTextKey = 'book_activities.' . $activityKey . '_notification';
         if (trans()->has($notificationTextKey)) {
             $message = trans($notificationTextKey);
             Session::flash('success', $message);

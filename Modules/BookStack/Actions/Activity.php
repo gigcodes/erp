@@ -13,6 +13,7 @@ use Modules\BookStack\Model;
  */
 class Activity extends Model
 {
+    protected $table = "book_activities";
 
     /**
      * Get the entity for this activity.

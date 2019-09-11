@@ -4,6 +4,7 @@ namespace Modules\BookStack\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
+use Blade;
 
 class BookStackServiceProvider extends ServiceProvider
 {
@@ -14,11 +15,17 @@ class BookStackServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // Custom blade view directives
+        Blade::directive('icon', function ($expression) {
+            return "<?php echo icon($expression); ?>";
+        });
+
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
         $this->registerFactories();
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+
     }
 
     /**
