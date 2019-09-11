@@ -69,6 +69,7 @@ class ScrapStatisticsController extends Controller
             SELECT
                 
                 website,
+                ip_address,
                 COUNT(id) AS total,
                 SUM(IF(validated=0,1,0)) AS failed,
                 SUM(IF(validated=1,1,0)) AS validated,

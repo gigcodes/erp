@@ -24,6 +24,7 @@
                     <thead>
                     <tr>
                         <th>Supplier</th>
+                        <th>Server</th>
                         <th>Last Scraped</th>
                         <th>Succesfuly</th>
                         <th>Total</th>
@@ -48,6 +49,7 @@
                                 $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->orderBy('created_at','desc')->first();
                             @endphp
                             <td class="p-2">{{ ucwords(strtolower($supplier->supplier)) }}</td>
+                            <td class="p-2">{{ !empty($data) ? $data->ip_address : '' }}</td>
                             <td class="p-2">{{ !empty($data) ? date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) : '' }}</td>
                             <td class="p-2 text-right">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                             <td class="p-2 text-right">{{ !empty($data) ? $data->total : '' }}</td>
@@ -66,6 +68,7 @@
                     <thead>
                     <tr>
                         <th>Supplier</th>
+                        <th>Server</th>
                         <th>Last Scraped</th>
                         <th>Inventory</th>
                         <th>Total</th>
@@ -75,6 +78,7 @@
                         <th>Functions</th>
                     </tr>
                     </thead>
+                    <tbody>
                     @foreach ($scrapeData as $data )
                         @if ( !in_array($data->website, $arMatchedScrapers) )
                             <tr<?= (!empty($data) && $data->running == 0) || $data == NULL ? ' style="background-color: red; color: white;"' : '' ?>>
@@ -82,6 +86,7 @@
                                     $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$data->website)->orderBy('created_at','desc')->first();
                                 @endphp
                                 <td class="p-2">{{ $data->website }}</td>
+                                <td class="p-2">{{ $data->ip_address }}</td>
                                 <td class="p-2">{{ !empty($data) ? date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) : '' }}</td>
                                 <td class="p-2 text-right">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                                 <td class="p-2 text-right">{{ !empty($data) ? $data->total : '' }}</td>
