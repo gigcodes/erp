@@ -25,7 +25,7 @@
                     <tr>
                         <th>Supplier</th>
                         <th>Last Scraped</th>
-                        <th>Inventory</th>
+                        <th>Succesfuly</th>
                         <th>Total</th>
                         <th>Errors</th>
                         <th>Warnings</th>
