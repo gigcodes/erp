@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\DocumentCategory;
+use Storage;
 
 class Document extends Model
 {
@@ -18,6 +19,11 @@ class Document extends Model
 
   public function documentCategory()
     {
-    	return $this->hasOne(DocumentCategory::class,'id','category_id');
+      return $this->hasOne(DocumentCategory::class,'id','category_id');
     }
+  public function getDocumentPathById($id)
+    {
+     $document = $this::find($id);
+     return Storage::disk('files')->url('documents/' . $document->filename);
+    }    
 }

@@ -171,7 +171,8 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         PragmaRX\Tracker\Vendor\Laravel\ServiceProvider::class,
-        Thujohn\Twitter\TwitterServiceProvider::class
+        Thujohn\Twitter\TwitterServiceProvider::class,
+        
     ],
 
     /*
@@ -230,7 +231,8 @@ return [
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Tracker' => PragmaRX\Tracker\Vendor\Laravel\Facade::class,
-        'Twitter' => Thujohn\Twitter\Facades\Twitter::class
+        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
+        
     ],
 
 ];

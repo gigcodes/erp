@@ -20,7 +20,7 @@ class BroadcastMessageController extends Controller
   {
     $date = $request->sending_time ?? Carbon::now()->format('Y-m-d');
     $selected_customer = $request->customer ?? '';
-    $month_back = Carbon::parse($date)->subMonth();
+    $month_back = Carbon::parse($date)->subMonth(3);
 
     $message_queues = MessageQueue::latest()->where('sending_time', 'LIKE', "%$date%");
     $last_set_completed = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->where('sent', 1);
@@ -113,6 +113,11 @@ class BroadcastMessageController extends Controller
         $message_groups_array[$group_id]['stopped'] = $stopped_count;
         $message_groups_array[$group_id]['total'] = $total_count;
         $message_groups_array[$group_id]['expecting_time'] = MessageQueue::where('group_id', $group_id)->orderBy('sending_time', 'DESC')->first()->sending_time;
+       $message_groups_array[$group_id]['message_queues'] = MessageQueue::where('group_id', $group_id)->orderBy('sending_time', 'DESC')->paginate(Setting::get('pagination'));
+       $message_groups_array[$group_id]['total_send'] = MessageQueue::where('group_id', $group_id)->where('status', '1')->count();
+      $date = Carbon::parse($message_groups_array[$group_id]['sending_time']);
+       $message_groups_array[$group_id]['actual_time'] = $date->diffInDays($message_groups_array[$group_id]['expecting_time']);
+         
       }
 
       // dd($message_groups_array[$group_id]);
@@ -136,7 +141,7 @@ class BroadcastMessageController extends Controller
     $broadcast_images = BroadcastImage::paginate(Setting::get('pagination'));
     $cron_job = CronJob::where('signature', 'run:message-queues')->first();
     $pending_messages_count = MessageQueue::where('sent', 0)->where('status', '!=', 1)->where('sending_time', '<', Carbon::now())->count();
-
+    //dd($message_groups);
     return view('customers.broadcast', [
       'message_queues'            => $message_queues,
       'message_groups'            => $new_data,
@@ -151,6 +156,8 @@ class BroadcastMessageController extends Controller
       'broadcast_images'          => $broadcast_images,
       'cron_job'                  => $cron_job,
       'pending_messages_count'    => $pending_messages_count,
+      'start'                     => now(),
+      'end'                       => now(),
     ]);
   }
 

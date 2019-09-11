@@ -244,6 +244,7 @@ class Kernel extends ConsoleKernel
         // Sends Auto messages
         $schedule->command('send:auto-reminder')->hourly();
         $schedule->command('send:auto-messenger')->hourly();
+        $schedule->command('send:cron-scraper-not-running')->hourly();
         // $schedule->command('check:messages-errors')->hourly();
         $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
         $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');

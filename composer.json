@@ -103,6 +103,7 @@
             "url": "git@bitbucket.org:seo2websites/price-comparison-scraper"
         }
     ],
+
     "scripts": {
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""

@@ -75,15 +75,15 @@
               <td>{{ $document->filename }}</td>
               <td>
                 <a href="{{ route('document.download', $document->id) }}" class="btn btn-xs btn-secondary">Download</a>
-                <button type="button" class="btn btn-image"><img src="/images/send.png" /></button>
-                <button type="button" class="btn btn-image"><img src="/images/customer-email.png" /></button>
+                 <button type="button" class="btn btn-image sendWhatsapp" data-id="{{ $document->id }}"><img src="/images/send.png" /></button>
+                <button type="button" class="btn btn-image sendEmail" data-id="{{ $document->id }}"><img src="/images/customer-email.png" /></button>
                  
                 {!! Form::open(['method' => 'DELETE','route' => ['document.destroy', $document->id],'style'=>'display:inline']) !!}
                   
                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                   
                 {!! Form::close() !!}
-                <button type="button" class="btn btn-image"><img src="/images/upload.png" /></button>
+                 <button type="button" class="btn btn-image uploadDocument" data-id="{{ $document->id }}"><img src="/images/upload.png" /></button>
 
                 V: {{ $document->version }}
               </td>
@@ -96,6 +96,10 @@
 
     {!! $documents->appends(Request::except('page'))->links() !!}
        @include('partials.modals.remarks')
+       @include('documents.partials.modal-addCategory')
+       @include('documents.partials.modal-documentWhatsApp')
+       @include('documents.partials.modal-emailToAll')
+       @include('documents.partials.modal-uploadDocument')
 
     <div id="documentCreateModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -203,8 +207,8 @@
 @endsection
 
 @section('scripts')
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
   <script type="text/javascript">
      $(document).ready(function(){
       $(".category").change(function() {
@@ -212,59 +216,65 @@
           
           if(id == 0){
               $("#myModal").modal();
-          }else{
-           var list_id = $(this).find(':selected').data('list');   
-              $.ajax({
-                  url: '{{ route('updateCategoryPost') }}',
-                  type: 'POST',
-                  dataType: 'json',
-                  data: {'_token': '{{ csrf_token() }}','id' : id,'link_id':list_id},
-              })
-              .done(function(message) {
-                  console.log(message);
-              })
-              
-              
           }
-          
-      });
-     
-  });
-  </script>
-
-  <script type="text/javascript">
-       $(".make-remark").on('click', function() {
-                   var id = $(this).data('id');
-                   $('#add-remark input[name="id"]').val(id);
-              });
-          $('#addRemarkButton').on('click', function() {
-
-        var id = $('#add-remark input[name="id"]').val();
-        var remark = $('#add-remark textarea[name="remark"]').val();
-
-        $.ajax({
-            type: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-            },
-            url: '{{ route('task.addRemark') }}',
-            data: {
-              id:id,
-              remark:remark,
-              module_type: 'document'
-            },
-        }).done(response => {
-         
-            alert('Remark Added Success!')
-            window.location.reload();
-        }).fail(function(response) {
-          console.log(response);
         });
       });
 
-  </script>
 
-  <script type="text/javascript">
+      $(document).on('click', '.make-remark', function(e) {
+      e.preventDefault();
+
+      var id = $(this).data('id');
+      $('#add-remark input[name="id"]').val(id);
+
+      $.ajax({
+          type: 'GET',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('document.gettaskremark') }}',
+          data: {
+            id:id,
+            module_type: "document"
+          },
+        }).done(response => {
+          var html='';
+
+          $.each(response, function( index, value ) {
+            html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+            html+"<hr>";
+          });
+          $("#makeRemarkModal").find('#remark-list').html(html);
+      });
+    });
+
+    $('#addRemarkButton').on('click', function() {
+      var id = $('#add-remark input[name="id"]').val();
+      var remark = $('#add-remark').find('textarea[name="remark"]').val();
+      $.ajax({
+          type: 'POST',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('document.addRemark') }}',
+          data: {
+            id:id,
+            remark:remark,
+            module_type: 'document'
+          },
+      }).done(response => {
+          $('#add-remark').find('textarea[name="remark"]').val('');
+
+          var html =' <p> '+ remark +' <br> <small>By You updated on '+ moment().format('DD-M H:mm') +' </small></p>';
+
+          $("#makeRemarkModal").find('#remark-list').append(html);
+      }).fail(function(response) {
+        console.log(response);
+
+        alert('Could not fetch remarks');
+      });
+    });
+ 
     
      $(document).ready(function() {
        $('#categories').on('submit', function(e) {
@@ -284,9 +294,147 @@
         .fail(function() {
               console.log("error");
         })
-      
-    });
-});
+       });
+      });
     
-  </script>
+  
+     $(document).ready(function() {
+          $('.sendWhatsapp').on('click', function(e) {
+           e.preventDefault(e);
+           id = $(this).attr("data-id"); 
+           $('#document_id').val(id);
+          $("#whatsappModal").modal();
+         });
+      });
+    
+     $(document).ready(function() {
+          $('.sendEmail').on('click', function(e) {
+           e.preventDefault(e);
+           id = $(this).attr("data-id"); 
+           $('#document_email_id').val(id);
+           $("#emailToAllModal").modal();
+         });
+      });
+   
+     $(document).ready(function() {
+          $('.uploadDocument').on('click', function(e) {
+           e.preventDefault(e);
+           id = $(this).attr("data-id");
+           $('#document_upload_id').val(id); 
+           $("#uploadDocumentModal").modal();
+         });
+      });
+   
+        $(document).ready(function() {
+           $('.users').multiselect({
+              nonSelectedText:'Select User Type',
+              buttonWidth:'300px',
+              includeSelectAllOption: true,
+              enableFiltering: true,
+              enableCaseInsensitiveFiltering: true,
+
+              onChange:function(option, checked){
+
+               $('.user_select_id').html('');
+               $('.user_select_id').multiselect('rebuild');
+
+               var selected = this.$select.val();
+               if(selected.length > 0)
+               {
+                $.ajax({
+                 url:"{{ url('/api/values-as-per-user') }}",
+                 method:"POST",
+                 data:{selected:selected,'_token':'{{ csrf_token() }}'},
+                 success:function(data)
+                 {
+                  
+                   $('.user_select_id').html(data);
+                   $('.user_select_id').multiselect('rebuild');
+                 }
+              })
+            }
+          }
+        });    
+      });
+       
+        // cc
+
+    $(document).on('click', '.add-cc', function (e) {
+        e.preventDefault();
+
+        if ($('#cc-label').is(':hidden')) {
+            $('#cc-label').fadeIn();
+        }
+
+        var el = `<div class="row cc-input">
+            <div class="col-md-10">
+                <input type="text" name="cc[]" class="form-control mb-3">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image cc-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+        $('#cc-list').append(el);
+    });
+
+    $(document).on('click', '.cc-delete-button', function (e) {
+        e.preventDefault();
+        var parent = $(this).parent().parent();
+
+        parent.hide(300, function () {
+            parent.remove();
+            var n = 0;
+
+            $('.cc-input').each(function () {
+                n++;
+            });
+
+            if (n == 0) {
+                $('#cc-label').fadeOut();
+            }
+        });
+    });
+
+    // bcc
+
+    $(document).on('click', '.add-bcc', function (e) {
+        e.preventDefault();
+
+        if ($('#bcc-label').is(':hidden')) {
+            $('#bcc-label').fadeIn();
+        }
+
+        var el = `<div class="row bcc-input">
+            <div class="col-md-10">
+                <input type="text" name="bcc[]" class="form-control mb-3">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image bcc-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+        $('#bcc-list').append(el);
+    });
+
+    $(document).on('click', '.bcc-delete-button', function (e) {
+        e.preventDefault();
+        var parent = $(this).parent().parent();
+
+        parent.hide(300, function () {
+            parent.remove();
+            var n = 0;
+
+            $('.bcc-input').each(function () {
+                n++;
+            });
+
+            if (n == 0) {
+                $('#bcc-label').fadeOut();
+            }
+        });
+    });
+
+    //
+    </script>
 @endsection
