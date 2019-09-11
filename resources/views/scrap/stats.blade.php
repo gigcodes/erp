@@ -90,7 +90,7 @@
                     @php $i=0; @endphp
                     @foreach ($scrapeData as $data )
                         @if ( !in_array($data->website, $arMatchedScrapers) )
-                            <tr<?= (!empty($data) && $data->running == 0) || $data == NULL ? ' style="background-color: red; color: white;"' : '' ?>>
+                            <tr <?php  $percent = $data->errors*100/$data->total; echo (!empty($percent) && $percent >= 25) ? 'style="background-color: orange; color: white;"' : '' ?>>
                                 @php
                                     $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$data->website)->orderBy('created_at','desc')->first();
                                     $i=0;
