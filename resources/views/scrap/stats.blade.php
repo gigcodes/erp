@@ -35,11 +35,12 @@
                     </thead>
 
                     <tbody>
+                    @php $arMatchedScrapers = []; @endphp
                     @foreach ($activeSuppliers as $supplier)
                         @php $data = null; @endphp
                         @foreach($scrapeData as $tmpData)
                             @if ( !empty($tmpData->website) && $tmpData->website == $supplier->scraper_name )
-                                @php $data = $tmpData; @endphp
+                                @php $data = $tmpData; $arMatchedScrapers[] = $supplier->scraper_name @endphp
                             @endif
                         @endforeach
                         <tr<?= (!empty($data) && $data->running == 0) || $data == NULL ? ' style="background-color: red; color: white;"' : '' ?>>
@@ -61,6 +62,41 @@
                                 <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img src="/images/remark.png"/></button>
                             </td>
                         </tr>
+                    @endforeach
+                    <thead>
+                    <tr>
+                        <th>Supplier</th>
+                        <th>Last Scraped</th>
+                        <th>Inventory</th>
+                        <th>Total</th>
+                        <th>Errors</th>
+                        <th>Warnings</th>
+                        <th>Remark</th>
+                        <th>Functions</th>
+                    </tr>
+                    </thead>
+                    @foreach ($scrapeData as $data )
+                        @if ( !in_array($data->website, $arMatchedScrapers) )
+                            <tr<?= (!empty($data) && $data->running == 0) || $data == NULL ? ' style="background-color: red; color: white;"' : '' ?>>
+                                @php
+                                    $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$data->website)->orderBy('created_at','desc')->first();
+                                @endphp
+                                <td class="p-2">{{ $data->website }}</td>
+                                <td class="p-2">{{ !empty($data) ? date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) : '' }}</td>
+                                <td class="p-2 text-right">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
+                                <td class="p-2 text-right">{{ !empty($data) ? $data->total : '' }}</td>
+                                <td class="p-2 text-right">{{ !empty($data) ? $data->errors : '' }}</td>
+                                <td class="p-2 text-right">{{ !empty($data) ? $data->warnings : '' }}</td>
+                                <td class="p-2">
+                                    @if($remark != '')
+                                        {{ $remark->remark }}
+                                    @endif
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img src="/images/remark.png"/></button>
+                                </td>
+                            </tr>
+                        @endif
                     @endforeach
                     </tbody>
                 </table>
