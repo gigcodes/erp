@@ -23,6 +23,7 @@
                 <table class="table table-bordered table-striped table-sm">
                     <thead>
                     <tr>
+                        <th>No</th>
                         <th>Supplier</th>
                         <th>Server</th>
                         <th>Last Scraped</th>
@@ -36,7 +37,7 @@
                     </thead>
 
                     <tbody>
-                    @php $arMatchedScrapers = []; @endphp
+                    @php $arMatchedScrapers = []; $i=0; @endphp
                     @foreach ($activeSuppliers as $supplier)
                         @php $data = null; @endphp
                         @foreach($scrapeData as $tmpData)
@@ -48,6 +49,7 @@
                             @php
                                 $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->orderBy('created_at','desc')->first();
                             @endphp
+                            <td>{{ ++$i }}</td>
                             <td class="p-2">{{ ucwords(strtolower($supplier->supplier)) }}</td>
                             <td class="p-2">{{ !empty($data) ? $data->ip_address : '' }}</td>
                             <td class="p-2">{{ !empty($data) ? date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) : '' }}</td>
@@ -67,6 +69,7 @@
                     @endforeach
                     <thead>
                     <tr>
+                        <th>No</th>
                         <th>Supplier</th>
                         <th>Server</th>
                         <th>Last Scraped</th>
@@ -78,13 +81,16 @@
                         <th>Functions</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody> 
+                    @php $i=0; @endphp
                     @foreach ($scrapeData as $data )
                         @if ( !in_array($data->website, $arMatchedScrapers) )
                             <tr<?= (!empty($data) && $data->running == 0) || $data == NULL ? ' style="background-color: red; color: white;"' : '' ?>>
                                 @php
                                     $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$data->website)->orderBy('created_at','desc')->first();
+                                    $i=0;
                                 @endphp
+                                <td>{{ ++$i }}</td>
                                 <td class="p-2">{{ $data->website }}</td>
                                 <td class="p-2">{{ $data->ip_address }}</td>
                                 <td class="p-2">{{ !empty($data) ? date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) : '' }}</td>
