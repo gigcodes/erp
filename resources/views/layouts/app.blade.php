@@ -1194,6 +1194,8 @@
 
                               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                   <a class="dropdown-item" href="{{ route('supplier.index') }}">Suppliers List</a>
+                                  <a class="dropdown-item" href="{{ action('SupplierCategoryController@index') }}"> Supplier Category</a>
+                                  <a class="dropdown-item" href="{{ action('SupplierStatusController@index') }}">Supplier Status</a>
                               </div>
 
                           </li>

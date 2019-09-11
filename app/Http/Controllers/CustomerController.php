@@ -336,7 +336,7 @@ class CustomerController extends Controller
                         chat_messages.created_at AS last_communicated_at
                     FROM
                         chat_messages
-                    ' . $messageWhereClause .'
+                    ' . $messageWhereClause . '
                 ) AS chat_messages
             ON 
                 customers.id=chat_messages.customer_id AND 
@@ -630,9 +630,8 @@ class CustomerController extends Controller
         // }
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
+        $perPage = empty(Setting::get('pagination')) ? 25 : Setting::get('pagination');
         $currentItems = array_slice($customers, $perPage * ($currentPage - 1), $perPage);
-
         $customers = new LengthAwarePaginator($currentItems, count($customers), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);

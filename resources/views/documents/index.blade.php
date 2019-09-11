@@ -2,7 +2,6 @@
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" />
 @endsection
 
 @section('content')
@@ -33,11 +32,10 @@
         </div>
     </div>
 
-   
-    @if(session()->has('message'))
-    <div class="alert alert-success">
-        {{ session()->get('message') }}
-    </div>
+    @if ($message = Session::get('success'))
+        <div class="alert alert-success">
+            <p>{{ $message }}</p>
+        </div>
     @endif
 
     @if ($errors->any())
@@ -77,7 +75,7 @@
               <td>{{ $document->filename }}</td>
               <td>
                 <a href="{{ route('document.download', $document->id) }}" class="btn btn-xs btn-secondary">Download</a>
-                <button type="button" class="btn btn-image sendWhatsapp" data-id="{{ $document->id }}"><img src="/images/send.png" /></button>
+                 <button type="button" class="btn btn-image sendWhatsapp" data-id="{{ $document->id }}"><img src="/images/send.png" /></button>
                 <button type="button" class="btn btn-image sendEmail" data-id="{{ $document->id }}"><img src="/images/customer-email.png" /></button>
                  
                 {!! Form::open(['method' => 'DELETE','route' => ['document.destroy', $document->id],'style'=>'display:inline']) !!}
@@ -85,12 +83,11 @@
                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                   
                 {!! Form::close() !!}
-                <button type="button" class="btn btn-image uploadDocument" data-id="{{ $document->id }}"><img src="/images/upload.png" /></button>
+                 <button type="button" class="btn btn-image uploadDocument" data-id="{{ $document->id }}"><img src="/images/upload.png" /></button>
 
                 V: {{ $document->version }}
               </td>
-              <td><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $document->id }}"><img src="/images/remark.png" /></button>
-              </td>
+              <td><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $document->id }}"><img src="/images/remark.png" /></button></td>
             </tr>
           @endforeach
         </tbody>
@@ -103,7 +100,7 @@
        @include('documents.partials.modal-documentWhatsApp')
        @include('documents.partials.modal-emailToAll')
        @include('documents.partials.modal-uploadDocument')
-   
+
     <div id="documentCreateModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
 
@@ -180,8 +177,6 @@
 
       </div>
     </div>
-</div>
-
 
 <!-- Modal To Add Category-->
       <div class="modal fade" id="myModal" role="dialog">
@@ -209,12 +204,11 @@
        </div>
       </div>
       </div>
-
 @endsection
 
 @section('scripts')
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
   <script type="text/javascript">
      $(document).ready(function(){
       $(".category").change(function() {
@@ -223,26 +217,10 @@
           if(id == 0){
               $("#myModal").modal();
           }
+        });
       });
-  });
 
 
-  <script type="text/javascript">
-     $(document).ready(function(){
-      $(".category").change(function() {
-          var id = $(this).find(':selected').val();
-          
-          if(id == 0){
-              $("#myModal").modal();
-          }
-          
-      });
-     
-  });
-
-  </script>
-
-  <script type="text/javascript">
       $(document).on('click', '.make-remark', function(e) {
       e.preventDefault();
 
@@ -259,7 +237,7 @@
             id:id,
             module_type: "document"
           },
-      }).done(response => {
+        }).done(response => {
           var html='';
 
           $.each(response, function( index, value ) {
@@ -296,9 +274,7 @@
         alert('Could not fetch remarks');
       });
     });
-  </script>
-
-  <script type="text/javascript">
+ 
     
      $(document).ready(function() {
        $('#categories').on('submit', function(e) {
@@ -318,15 +294,10 @@
         .fail(function() {
               console.log("error");
         })
-      
-    });
-});
+       });
+      });
     
-  </script>
-
-
-
-    <script>
+  
      $(document).ready(function() {
           $('.sendWhatsapp').on('click', function(e) {
            e.preventDefault(e);
@@ -335,9 +306,7 @@
           $("#whatsappModal").modal();
          });
       });
-    </script>
-
-    <script>
+    
      $(document).ready(function() {
           $('.sendEmail').on('click', function(e) {
            e.preventDefault(e);
@@ -346,9 +315,7 @@
            $("#emailToAllModal").modal();
          });
       });
-    </script>
-
-    <script>
+   
      $(document).ready(function() {
           $('.uploadDocument').on('click', function(e) {
            e.preventDefault(e);
@@ -357,9 +324,7 @@
            $("#uploadDocumentModal").modal();
          });
       });
-    </script>
-
-    <script>
+   
         $(document).ready(function() {
            $('.users').multiselect({
               nonSelectedText:'Select User Type',
@@ -390,8 +355,7 @@
             }
           }
         });    
-
-    });
+      });
        
         // cc
 
@@ -473,5 +437,4 @@
 
     //
     </script>
-
 @endsection

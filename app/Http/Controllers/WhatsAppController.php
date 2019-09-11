@@ -60,6 +60,7 @@ use Validator;
 use Image;
 use GuzzleHttp\Client as GuzzleClient;
 use File;
+use App\Document;
 
 class WhatsAppController extends FindByNumberController
 {
@@ -1790,6 +1791,7 @@ class WhatsAppController extends FindByNumberController
             'lawyer_id' => 'sometimes|nullable|numeric',
             'case_id' => 'sometimes|nullable|numeric',
             'blogger_id' => 'sometimes|nullable|numeric',
+            'document_id' => 'sometimes|nullable|numeric',
         ]);
           
         $data = $request->except('_token');
@@ -1911,9 +1913,9 @@ class WhatsAppController extends FindByNumberController
 
                 return response()->json(['message' => $chat_message]);
 
-            } elseif ($context == 'document') {
-               
-                //Sending Documents To User / Vendor / Contacts
+            }elseif ($context == 'document') {
+
+                 //Sending Documents To User / Vendor / Contacts
                 $data[ 'document_id' ] = $request->document_id;
                 $module_id = $request->document_id;
 
