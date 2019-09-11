@@ -50,7 +50,12 @@
                                 $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->orderBy('created_at','desc')->first();
                             @endphp
                             <td>{{ ++$i }}</td>
-                            <td class="p-2">{{ ucwords(strtolower($supplier->supplier)) }}</td>
+                            <td class="p-2"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}</a>
+                                @if(substr(strtolower($supplier->supplier), 0, 6)  == 'excel_')
+                                  &nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i>
+
+                                @endif 
+                            </td>
                             <td class="p-2">{{ !empty($data) ? $data->ip_address : '' }}</td>
                             <td class="p-2">{{ !empty($data) ? date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) : '' }}</td>
                             <td class="p-2 text-right">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
