@@ -24,7 +24,7 @@ class VendorController extends Controller
      */
 
     public function __construct() {
-      $this->middleware('permission:vendor-all');
+    //  $this->middleware('permission:vendor-all');
     }
 
     public function updateReminder(Request $request) {

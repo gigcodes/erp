@@ -149,8 +149,10 @@ class LogScraper extends Model
         return "";
     }
 
+
     public static function validateSizeSystem($sizeSystem)
     {
+
         // Check if we have a value
         if (empty($sizeSystem)) {
             return "[error] Size system is missing\n";

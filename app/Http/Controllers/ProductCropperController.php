@@ -80,7 +80,7 @@ class ProductCropperController extends Controller
         $data[ 'name' ] = $productimagecropper->name;
         $data[ 'short_description' ] = $productimagecropper->short_description;
         $data[ 'sku' ] = $productimagecropper->sku;
-//		$data['supplier_link'] = $productimagecropper->supplier_link;
+//      $data['supplier_link'] = $productimagecropper->supplier_link;
         $data[ 'description_link' ] = $productimagecropper->description_link;
         $data[ 'location' ] = $productimagecropper->location;
         $data[ 'product_link' ] = $productimagecropper->product_link;
@@ -119,7 +119,7 @@ class ProductCropperController extends Controller
     public function update(Request $request, Guard $auth, Product $productimagecropper, Stage $stage)
     {
 
-//		$productattribute->dnf = $request->input('dnf');
+//      $productattribute->dnf = $request->input('dnf');
         $productimagecropper->stage = $stage->get('ImageCropper');
 
         /*$productimagecropper->measurement_size_type = $request->input('measurement_size_type');
@@ -655,14 +655,14 @@ class ProductCropperController extends Controller
 
 
         $suppliers = DB::select('
-				SELECT id, supplier
-				FROM suppliers
+                SELECT id, supplier
+                FROM suppliers
 
-				INNER JOIN (
-					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-					) as product_suppliers
-				ON suppliers.id = product_suppliers.supplier_id
-		');
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
 
         if ($request->supplier[ 0 ] != null) {
 

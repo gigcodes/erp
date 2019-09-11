@@ -1,732 +1,801 @@
 @extends('layouts.app')
 
+@section('title', 'Broadcast Report')
+
 @section('styles')
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
 
 @section('content')
 
+  <div class="row mb-5">
+      <div class="col-lg-12 margin-tb">
+          <h2 class="page-heading">Broadcast Report </h2>
 
+          <div class="pull-left">
+            <form class="form-inline" action="{{ route('mastercontrol.index') }}" method="GET">
+              
+              <div class="form-group ml-3">
+               <input type='text' class="form-control" name="number" placeholder="Please Enter Number" required />
+              </div>
+
+              <div class="form-group ml-3">
+               <select name="status" class="form-control">
+                  <option>Sucess</option>
+                  <option>Failed</option>
+              </select> 
+              </div>
+
+              <div class="form-group ml-3">
+                <input type="text" value="" name="range_start" hidden/>
+                <input type="text" value="" name="range_end" hidden/>
+                <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                  <i class="fa fa-calendar"></i>&nbsp;
+                  <span></span> <i class="fa fa-caret-down"></i>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-secondary ml-3">Submit</button>
+            </form>
+          </div>
+
+          <div class="pull-right mt-4">
+            <div class="form-group ml-3">
+               <input type='text' class="form-control" name="search" placeholder="Search" required />
+              </div>
+          </div>
+      </div>
+  </div>
+
+  @include('partials.flash_messages')
+
+   <div id="exTab2" class="container">
+      <ul class="nav nav-tabs">
+      
+        <li class="active">
+          <a href="#broadcasts-tab-1" data-toggle="tab" class="btn btn-image">Broadcasts 1</a>
+        </li>
+       <li>
+          <a href="#broadcasts-tab-2" data-toggle="tab" class="btn btn-image">Broadcasts 2</a>
+        </li>
+         <li>
+          <a href="#broadcasts-tab-3" data-toggle="tab" class="btn btn-image">Broadcasts 3</a>
+        </li>
+         <li>
+          <a href="#broadcasts-tab-4" data-toggle="tab" class="btn btn-image">Broadcasts 4</a>
+        </li>
+         <li>
+          <a href="#broadcasts-tab-5" data-toggle="tab" class="btn btn-image">Broadcasts 5</a>
+        </li>
+         <li>
+          <a href="#broadcasts-tab-6" data-toggle="tab" class="btn btn-image">Broadcasts 6</a>
+        </li>
+      </ul>
+    </div>
 
     <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">
-              Broadcast Messages
-
-              @if ($cron_job->last_status == 'error')
-                <span class="badge" data-toggle="tooltip" title="Pending messages {{ $pending_messages_count }}">Cron Job Error</span>
-              @endif
-            </h2>
-
-            {{-- <div class="row mb-3">
+      <div class="col-xs-12">
+        <div class="tab-content">
+       <div class="tab-pane  active mt-3" id="broadcasts-tab-1">
+            <div class="row">
               <div class="col">
-                <h3>Last Set Sent: <span class="font-weight-bold">{{ $last_set_completed_count }}</span></h3>
-              </div>
-              <div class="col">
-                <h3>Last Set Received: <span class="font-weight-bold">{{ $last_set_received_count }}</span></h3>
-              </div>
-            </div> --}}
-
-            <div class="">
-                <form action="/broadcast/" method="GET" class="form-inline">
-                        {{-- <div class="row"> --}}
-                            {{-- <div class="col-md-4"> --}}
-                                {{-- <input name="term" type="text" class="form-control"
-                                       value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="Search"> --}}
-                             <div class="form-group">
-                               <div class='input-group date' id='schedule-datetime'>
-                                 <input type='text' class="form-control" name="sending_time" value="{{ $date }}" required />
-
-                                 <span class="input-group-addon">
-                                   <span class="glyphicon glyphicon-calendar"></span>
-                                 </span>
-                               </div>
-
-                               @if ($errors->has('sending_time'))
-                                   <div class="alert alert-danger">{{$errors->first('sending_time')}}</div>
-                               @endif
-                             </div>
-
-
-                            {{-- </div>
-                            <div class="col-md-4"> --}}
-                             {{-- <div class="form-group ml-3">
-                               <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer" title="Choose a Customer">
-                                 @foreach ($customers_all as $customer)
-                                   <option data-tokens="{{ $customer['name'] }} {{ $customer['email'] }}  {{ $customer['phone'] }} {{ $customer['instahandler'] }}" value="{{ $customer['id'] }}" {{ $selected_customer == $customer['id'] ? 'selected' : '' }}>{{ $customer['id'] }} - {{ $customer['name'] }} - {{ $customer['phone'] }}</option>
-                                 @endforeach
-                               </select>
-
-                               @if ($errors->has('customer'))
-                                   <div class="alert alert-danger">{{$errors->first('customer')}}</div>
-                               @endif
-                             </div> --}}
-
-
-                            {{-- </div>
-                            <div class="col-md-4"> --}}
-                                <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png" /></button>
-                            {{-- </div>
-                        </div> --}}
-
-                        <a href="{{ route('broadcast.index') }}" class="btn btn-xs btn-secondary">Clear</a>
-                </form>
-            </div>
-
-            <div class="pull-right">
-              {{-- @if ($last_stopped)
-                <form action="{{ route('broadcast.restart') }}" method="POST">
-                  @csrf
-
-                  <button type="submit" class="btn btn-secondary">Restart Last Set</button>
-                </form>
-              @endif --}}
-
-              <a href="{{ route('customer.whatsapp.stop.all') }}" class="btn btn-secondary">STOP ALL</a>
-              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendAllModal">Create Broadcast</button>
-            </div>
-        </div>
-    </div>
-
-    @include('partials.flash_messages')
-
-    {{-- <div class="card activity-chart mb-3">
-      <canvas id="horizontalBroadcastBarChart" style="height: 100px;"></canvas>
-    </div> --}}
-
-    <div class="card activity-chart my-3">
-      <canvas id="broadcastChart" style="height: 300px;"></canvas>
-    </div>
-
-    {{-- <div class="row">
-      @foreach ($message_groups as $group_id => $group)
-        <div class="col-md-3 mb-3">
-          <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#groupCollapse{{ $group_id }}">Group ID {{ $group_id }}</button>
-
-          <div class="collapse mt-3" id="groupCollapse{{ $group_id }}">
-            <div class="card card-body">
-              @if ($group['can_be_stopped'])
-                <div class="my-1">
-                  <strong>Preview:</strong>
-                  {{ $group['message'] }}
-                  <div class="my-1">{{ $group['sent'] }} sent of {{ $group['total'] }}</div>
-                </div>
-
-                <form class="my-1" action="{{ route('broadcast.stop.group', $group_id) }}" method="POST">
-                  @csrf
-
-                  <div class="form-group">
-                    <select class="form-control input-sm" name="whatsapp_number">
-                      <option value="">Select Whatsapp Number</option>
-                      @foreach ($api_keys as $api_key)
-                        <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
-                      @endforeach
-                    </select>
-                  </div>
-
-                  <button type="submit" class="btn btn-xs btn-secondary">Stop</button>
-                </form>
-              @else
-                <div class="my-1">
-                  <strong>Preview:</strong>
-                  {{ $group['message'] }}
-                  <div class="my-1">{{ $group['sent'] }} sent of {{$group['total'] }}</div>
-                </div>
-
-                <form class="my-1" action="{{ route('broadcast.restart.group', $group_id) }}" method="POST">
-                  @csrf
-
-                  <div class="form-group">
-                    <select class="form-control input-sm" name="whatsapp_number">
-                      <option value="">Select Whatsapp Number</option>
-                      @foreach ($api_keys as $api_key)
-                        <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
-                      @endforeach
-                    </select>
-                  </div>
-
-                  <button type="submit" class="btn btn-xs btn-secondary">Restart</button>
-                </form>
-
-                <form class="my-1" action="{{ route('broadcast.delete.group', $group_id) }}" method="POST">
-                  @csrf
-
-                  <button type="submit" class="btn btn-xs btn-secondary">Delete</button>
-                </form>
-              @endif
-            </div>
-          </div>
-        </div>
-      @endforeach
-    </div> --}}
-    <div id="exTab2" class="container">
-      <ul class="nav nav-tabs">
-        <li class="active">
-          <a href="#calendar" data-toggle="tab">Calendar</a>
-        </li>
-        <li>
-          <a href="#broadcast-images" data-toggle="tab">Broadcast Images</a>
-        </li>
-      </ul>
-    </div>
-
-    <div class="tab-content">
-      <div class="tab-pane active mt-3" id="calendar">
-        <div class="row">
-          <div class="col-xs-12">
-            @foreach ($message_groups as $date => $data)
-              <div class="card">
-                <div class="card-header">{{ $date }}</div>
-
-                <div class="card-body">
-                  @if (count($data) > 0)
-                    <div class="table-responsive">
-                      <table class="table table-bordered">
-                        <tr>
-                          <th width="10%">Date</th>
-                          <th width="25%">Broadcast</th>
-                          <th width="40%">Data</th>
-                          <th width="15%">Actions</th>
-                          <th width="10%">Phone</th>
-                        </tr>
-
-                      @foreach ($data as $group_id => $group)
-                      <tr>
-                        <td>
-                          <strong>Start:</strong> {{ \Carbon\Carbon::parse($group['sending_time'])->format('H:i d-m') }}
-
-                          <br>
-
-                          <strong>End:</strong> {{ \Carbon\Carbon::parse($group['expecting_time'])->format('H:i d-m') }}
-                        </td>
-                        <td>
-                          <strong>Group ID {{ $group_id }}</strong>
-                          <br>
-
-                          {{ $group['message'] }}
-
-                          @if (count($group['image']) > 0)
-                            @foreach ($group['image'] as $image)
-                              <img src="{{ $image['url'] }}" class="img-responsive" style="width: 50px;" alt="">
-                            @endforeach
-                          @endif
-
-                          @if (count($group['linked_images']) > 0)
-                            @foreach ($group['linked_images'] as $image)
-                              @if (is_array($image) && array_key_exists('url', $image))
-                                <img src="{{ $image['url'] }}" class="img-responsive" style="width: 50px;" alt="">
-                              @endif
-                            @endforeach
-                          @endif
-                        </td>
-                        <td>
-                          <div class="card activity-chart mb-3">
-                            <canvas id="horizontalBroadcastBarChart{{ $date }}{{ $group_id }}" style="height: 120px;"></canvas>
-                          </div>
-                        </td>
-                        <td>
-                          @if ($group['can_be_stopped'])
-                            <form class="my-1" action="{{ route('broadcast.stop.group', $group_id) }}" method="POST">
-                              @csrf
-
-                              <div class="form-group">
-                                <select class="form-control input-sm" name="whatsapp_number">
-                                  <option value="">Select Whatsapp Number</option>
-                                  @foreach ($api_keys as $api_key)
-                                    <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
-                                  @endforeach
-                                </select>
-                              </div>
-
-                              <button type="submit" class="btn btn-xs btn-secondary">Stop</button>
-                            </form>
-                          @else
-                            <form class="my-1" action="{{ route('broadcast.restart.group', $group_id) }}" method="POST">
-                              @csrf
-
-                              <div class="form-group">
-                                <select class="form-control input-sm" name="whatsapp_number">
-                                  <option value="">Select Whatsapp Number</option>
-                                  @foreach ($api_keys as $api_key)
-                                    <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
-                                  @endforeach
-                                </select>
-                              </div>
-
-                              <div class="form-group">
-                                <strong>Frequency</strong>
-                                <input type="number" class="form-control input-sm" name="frequency" value="10" min="1" required>
-                              </div>
-
-                              <button type="submit" class="btn btn-xs btn-secondary">Restart</button>
-                            </form>
-
-                            <form class="my-1" action="{{ route('broadcast.delete.group', $group_id) }}" method="POST">
-                              @csrf
-
-                              <button type="submit" class="btn btn-xs btn-secondary">Delete</button>
-                            </form>
-                          @endif
-                        </td>
-                        <td>
-                          @if ($group['whatsapp_number'])
-                            {{ $group['whatsapp_number'] }}
-                          @else
-                            Sent from every number
-                          @endif
-                        </td>
-                      </tr>
-                    @endforeach
-                    </table>
-                  </div>
-
-                  @else
-                    <div class="table-responsive">
-                      <table class="table table-bordered">
-                        <tr>
-                          <td>Upload New</td>
-                          <td>
-                            <form action="{{ route('broadcast.images.upload') }}" method="POST" enctype="multipart/form-data">
-                              @csrf
-
-                              <input type="hidden" name="sending_time" value="{{ $date }}">
-
-                              <div class="form-group">
-                                <input type="file" name="images[]" value="" required>
-                              </div>
-
-                              <button type="submit" class="btn btn-xs btn-secondary">Upload</button>
-                            </form>
-                          </td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                        </tr>
-                      </table>
-                    </div>
-                  @endif
-                </div>
-              </div>
-            @endforeach
-          </div>
-        </div>
-      </div>
-
-      @include('customers.partials.modal-upload-images')
-      @include('customers.partials.modal-send-to-all')
-
-      <div class="tab-pane mt-3" id="broadcast-images">
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadImagesModal">Upload Images</button>
-        <div class="row">
-          @foreach ($broadcast_images as $image)
-          <div class="col-md-3 col-xs-6 text-center mb-5">
-            <img src="{{ $image->hasMedia(config('constants.media_tags')) ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '#no-image' }}" class="img-responsive grid-image" alt="" />
-
-            {{ $image->sending_time ?? '' }}
-
-            @if ($image->products)
-              <span class="badge">Linked</span>
-            @else
-              {{-- <a href="{{ route('attachImages', ['broadcast-images', $image->id]) }}" class="btn-link">Link</a> --}}
-              <a href="{{ route('attachProducts', ['broadcast-images', $image->id]) }}" class="btn-link">Link Products</a>
-            @endif
-
-            <input type="checkbox" class="form-control image-selection hidden" value="{{ $image->id }}">
-            {{-- <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="/images/view.png" /></a> --}}
-
-            {{-- @can ('social-create') --}}
-              {{-- <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="/images/edit.png" /></a> --}}
-
-            {!! Form::open(['method' => 'DELETE','route' => ['broadcast.images.delete', $image->id],'style'=>'display:inline']) !!}
-              <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-            {!! Form::close() !!}
-            {{-- @endcan --}}
-
-            {{-- <a href="{{ route('image.grid.download', $image->id) }}" class="btn-link">Download</a>
-
-            @if (isset($image->approved_user))
-              <span>Approved by {{ App\User::find($image->approved_user)->name}} on {{ Carbon\Carbon::parse($image->approved_date)->format('d-m') }}</span>
-            @endif --}}
-          </div>
-          @endforeach
-        </div>
-
-        {!! $broadcast_images->appends(Request::except('page'))->links() !!}
-      </div>
-    </div>
-
-
-
-    {{-- <div id="exTab2" class="container">
-      <ul class="nav nav-tabs">
-        <li class="active">
-          <a href="#all-messages" data-toggle="tab">All Messages</a>
-        </li>
-        @if (count($last_set_completed) > 0)
-          <li>
-            <a href="#last-completed-messages" data-toggle="tab">Last Set Completed</a>
-          </li>
-        @endif
-      </ul>
-    </div>
-
-    <div class="tab-content">
-      <div class="tab-pane active mt-3" id="all-messages">
-        <div class="table-responsive mt-3">
-            <table class="table table-bordered">
-                <thead>
-                  <th>Customer Name</th>
-                  <th>Phone</th>
-                  <th>Whatsapp Number</th>
-                  <th>Message</th>
-                  <th>Group ID</th>
-                  <th>Sent</th>
-                  <th>Received</th>
-                  <th>Status</th>
-                  <th>Scheduled Date</th>
-                  <th>Action</th>
-                </thead>
+                <div class="table-responsive">
+                  <table class="table table-bordered">
                 <tbody>
-                @foreach ($message_queues as $key => $message_queue)
-                  <tr>
-                    <td>
-                      @if ($message_queue->customer)
-                        <a href="{{ route('customer.show', $message_queue->customer->id) }}" target="_blank">{{ $message_queue->customer->name }}</a>
-                      @endif
-                    </td>
-                    <td>
-                      @if ($message_queue->customer)
-                        <div class="phone-container">
-                          {{ $message_queue->customer->phone }}
-                        </div>
-
-                        <input type="number" name="phone" class="form-control phone-edit-input hidden" value="{{ $message_queue->customer->phone }}">
-                        <a href="#" class="btn-link quick-edit-phone-button" data-id="{{ $message_queue->customer_id }}">Edit</a>
-                      @else
-                        {{ $message_queue->phone }}
-                      @endif
-                    </td>
-                    <td>
-                      {{ $message_queue->whatsapp_number }}
-                    </td>
-                    <td>{{ json_decode($message_queue->data, true)['message'] }}</td>
-                    <td>{{ $message_queue->group_id }}</td>
-                    <td>
-                      @if ($message_queue->sent == 1)
-                        <img src='/images/1.png' />
-                      @endif
-                    </td>
-                    <td>
-                      @if ($message_queue->customer && $message_queue->sent == 1)
-                        @if ($message_queue->chat_message && $message_queue->chat_message->sent == 1)
-                          <img src='/images/1.png' />
-                        @endif
-                      @endif
-                    </td>
-                    <td>
-                      @if ($message_queue->status == 1)
-                        Stopped
-                      @endif
-                    </td>
-                    <td>{{ \Carbon\Carbon::parse($message_queue->sending_time)->format('H:i d-m') }}</td>
-                    <td>
-                      @if (isset($message_queue->customer) && $message_queue->customer->do_not_disturb == 0)
-                        <form action="{{ route('broadcast.donot.disturb', $message_queue->customer_id) }}" method="POST">
-                          @csrf
-
-                          <button type="submit" class="btn btn-xs btn-secondary">Do Not Disturb</button>
-                        </form>
-                      @elseif (isset($message_queue->customer) && $message_queue->customer->do_not_disturb == 1)
-                        <span class="badge">Do Not Disturb</span>
-                      @endif
-
-
-                    </td>
-                  </tr>
-                @endforeach
+                 <tr>
+                    <td>Frequency</td>
+                    <td>Number Of Images</td>
+                    <td>Start Time</td>
+                    <td>Expected End Time</td>
+                    <td>Actual time of completion</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>10</td>
+                    <td>13:25 26-08 </td>
+                    <td>13:43 26-08</td>
+                    <td>10:00 00-00</td>
+                </tr>
                 </tbody>
-            </table>
-        </div>
-
-        {!! $message_queues->appends(Request::except('page'))->links() !!}
-      </div>
-
-      @if (count($last_set_completed) > 0)
-        <div class="tab-pane mt-3" id="last-completed-messages">
-          <div class="table-responsive mt-3">
-              <table class="table table-bordered">
-                  <thead>
-                    <th>Customer Name</th>
-                    <th>Phone</th>
-                    <th>Message</th>
-                    <th>Group ID</th>
-                    <th>Sent</th>
-                    <th>Received</th>
-                    <th>Status</th>
-                    <th>Scheduled Date</th>
-                    <th>Action</th>
-                  </thead>
-                  <tbody>
-                  @foreach ($last_set_completed as $key => $message_queue)
-                    <tr>
-                      <td>
-                        @if ($message_queue->customer)
-                          <a href="{{ route('customer.show', $message_queue->customer->id) }}" target="_blank">{{ $message_queue->customer->name }}</a>
-                        @endif
-                      </td>
-                      <td>{{ $message_queue->customer ? $message_queue->customer->phone : $message_queue->phone }}</td>
-                      <td>{{ json_decode($message_queue->data, true)['message'] }}</td>
-                      <td>{{ $message_queue->group_id }}</td>
-                      <td>
-                        @if ($message_queue->sent == 1)
-                          <img src='/images/1.png' />
-                        @endif
-                      </td>
-                      <td>
-                        @if ($message_queue->customer && $message_queue->sent == 1)
-                          @if ($message_queue->chat_message && $message_queue->chat_message->sent == 1)
-                            <img src='/images/1.png' />
-                          @endif
-                        @endif
-                      </td>
-                      <td>
-                        @if ($message_queue->status == 1)
-                          Stopped
-                        @endif
-                      </td>
-                      <td>{{ \Carbon\Carbon::parse($message_queue->sending_time)->format('H:i d-m') }}</td>
-                      <td>
-                        @if (isset($message_queue->customer) && $message_queue->customer->do_not_disturb == 0)
-                          <form action="{{ route('broadcast.donot.disturb', $message_queue->customer_id) }}" method="POST">
-                            @csrf
-
-                            <button type="submit" class="btn btn-xs btn-secondary">Do Not Disturb</button>
-                          </form>
-                        @elseif (isset($message_queue->customer) && $message_queue->customer->do_not_disturb == 1)
-                          <span class="badge">Do Not Disturb</span>
-                        @endif
-
-
-                      </td>
-                    </tr>
-                  @endforeach
-                  </tbody>
-              </table>
+                </table>
+                </div>
+                 <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Total Coustmer</td>
+                    <td>Total Send</td>
+                    <td>1st Send</td>
+                    <td>2nd Send</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>0</td>
+                    <td>&nbsp;</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th width="5%">Coustmer ID</th>
+                        <th width="5%">Coustmer Name</th>
+                        <th width="10%" colspan="2">Last Broadcast</th>
+                        <th width="15%">Sucess</th>
+                        <th width="15%">Resent Sucess</th>
+                       </tr>
+                        <tr>
+                        <th width="5%"></th>
+                        <th width="5%"></th>
+                        <th width="10%">Date</th>
+                        <th width="10%">Time</th>
+                        <th width="15%">Yes/No</th>
+                        <th width="15%">Yes/No</th>
+                       </tr>
+                    </thead>
+                    <tbody>
+                     
+                   
+                       <tr>
+                      <td>1</td>
+                      <td>Jame</td>
+                      <td>2019-12-13</td>
+                      <td>10:00:05</td>
+                      <td>Yes</td>
+                         <tr>  
+                 
+                     
+                       
+                       
+                    </tbody>
+                  </table>
+                </div>
+                
+              </div>
+            </div>
           </div>
 
-          {!! $last_set_completed->appends(Request::except('completed-page'))->links() !!}
-        </div>
-      @endif
-    </div> --}}
+       <div class="tab-pane  mt-3" id="broadcasts-tab-2">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Frequency</td>
+                    <td>Number Of Images</td>
+                    <td>Start Time</td>
+                    <td>Expected End Time</td>
+                    <td>Actual time of completion</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>10</td>
+                    <td>13:25 26-08 </td>
+                    <td>13:43 26-08</td>
+                    <td>10:00 00-00</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+                 <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Total Coustmer</td>
+                    <td>Total Send</td>
+                    <td>1st Send</td>
+                    <td>2nd Send</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>0</td>
+                    <td>&nbsp;</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th width="5%">Coustmer ID</th>
+                        <th width="5%">Coustmer Name</th>
+                        <th width="10%" colspan="2">Last Broadcast</th>
+                        <th width="15%">Sucess</th>
+                        <th width="15%">Resent Sucess</th>
+                       </tr>
+                        <tr>
+                        <th width="5%"></th>
+                        <th width="5%"></th>
+                        <th width="10%">Date</th>
+                        <th width="10%">Time</th>
+                        <th width="15%">Yes/No</th>
+                        <th width="15%">Yes/No</th>
+                       </tr>
+                    </thead>
+                    <tbody>
+                     
+                   
+                       <tr>
+                      <td>1</td>
+                      <td>Jame</td>
+                      <td>2019-12-13</td>
+                      <td>10:00:05</td>
+                      <td>Yes</td>
+                         <tr>  
+                 
+                     
+                       
+                       
+                    </tbody>
+                  </table>
+                </div>
+                
+              </div>
+            </div>
+          </div> 
 
-@endsection
+       <div class="tab-pane  mt-3" id="broadcasts-tab-3">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Frequency</td>
+                    <td>Number Of Images</td>
+                    <td>Start Time</td>
+                    <td>Expected End Time</td>
+                    <td>Actual time of completion</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>10</td>
+                    <td>13:25 26-08 </td>
+                    <td>13:43 26-08</td>
+                    <td>10:00 00-00</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+                 <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Total Coustmer</td>
+                    <td>Total Send</td>
+                    <td>1st Send</td>
+                    <td>2nd Send</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>0</td>
+                    <td>&nbsp;</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th width="5%">Coustmer ID</th>
+                        <th width="5%">Coustmer Name</th>
+                        <th width="10%" colspan="2">Last Broadcast</th>
+                        <th width="15%">Sucess</th>
+                        <th width="15%">Resent Sucess</th>
+                       </tr>
+                        <tr>
+                        <th width="5%"></th>
+                        <th width="5%"></th>
+                        <th width="10%">Date</th>
+                        <th width="10%">Time</th>
+                        <th width="15%">Yes/No</th>
+                        <th width="15%">Yes/No</th>
+                       </tr>
+                    </thead>
+                    <tbody>
+                     
+                   
+                       <tr>
+                      <td>1</td>
+                      <td>Jame</td>
+                      <td>2019-12-13</td>
+                      <td>10:00:05</td>
+                      <td>Yes</td>
+                         <tr>  
+                 
+                     
+                       
+                       
+                    </tbody>
+                  </table>
+                </div>
+                
+              </div>
+            </div>
+          </div>      
+       <div class="tab-pane  mt-3" id="broadcasts-tab-4">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Frequency</td>
+                    <td>Number Of Images</td>
+                    <td>Start Time</td>
+                    <td>Expected End Time</td>
+                    <td>Actual time of completion</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>10</td>
+                    <td>13:25 26-08 </td>
+                    <td>13:43 26-08</td>
+                    <td>10:00 00-00</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+                 <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Total Coustmer</td>
+                    <td>Total Send</td>
+                    <td>1st Send</td>
+                    <td>2nd Send</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>0</td>
+                    <td>&nbsp;</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th width="5%">Coustmer ID</th>
+                        <th width="5%">Coustmer Name</th>
+                        <th width="10%" colspan="2">Last Broadcast</th>
+                        <th width="15%">Sucess</th>
+                        <th width="15%">Resent Sucess</th>
+                       </tr>
+                        <tr>
+                        <th width="5%"></th>
+                        <th width="5%"></th>
+                        <th width="10%">Date</th>
+                        <th width="10%">Time</th>
+                        <th width="15%">Yes/No</th>
+                        <th width="15%">Yes/No</th>
+                       </tr>
+                    </thead>
+                    <tbody>
+                     
+                   
+                       <tr>
+                      <td>1</td>
+                      <td>Jame</td>
+                      <td>2019-12-13</td>
+                      <td>10:00:05</td>
+                      <td>Yes</td>
+                         <tr>  
+                 
+                     
+                       
+                       
+                    </tbody>
+                  </table>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+
+       <div class="tab-pane  mt-3" id="broadcasts-tab-5">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Frequency</td>
+                    <td>Number Of Images</td>
+                    <td>Start Time</td>
+                    <td>Expected End Time</td>
+                    <td>Actual time of completion</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>10</td>
+                    <td>13:25 26-08 </td>
+                    <td>13:43 26-08</td>
+                    <td>10:00 00-00</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+                 <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Total Coustmer</td>
+                    <td>Total Send</td>
+                    <td>1st Send</td>
+                    <td>2nd Send</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>0</td>
+                    <td>&nbsp;</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th width="5%">Coustmer ID</th>
+                        <th width="5%">Coustmer Name</th>
+                        <th width="10%" colspan="2">Last Broadcast</th>
+                        <th width="15%">Sucess</th>
+                        <th width="15%">Resent Sucess</th>
+                       </tr>
+                        <tr>
+                        <th width="5%"></th>
+                        <th width="5%"></th>
+                        <th width="10%">Date</th>
+                        <th width="10%">Time</th>
+                        <th width="15%">Yes/No</th>
+                        <th width="15%">Yes/No</th>
+                       </tr>
+                    </thead>
+                    <tbody>
+                     
+                   
+                       <tr>
+                      <td>1</td>
+                      <td>Jame</td>
+                      <td>2019-12-13</td>
+                      <td>10:00:05</td>
+                      <td>Yes</td>
+                         <tr>  
+                 
+                     
+                       
+                       
+                    </tbody>
+                  </table>
+                </div>
+                
+              </div>
+            </div>
+          </div> 
+          
+       <div class="tab-pane  mt-3" id="broadcasts-tab-6">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Frequency</td>
+                    <td>Number Of Images</td>
+                    <td>Start Time</td>
+                    <td>Expected End Time</td>
+                    <td>Actual time of completion</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>10</td>
+                    <td>13:25 26-08 </td>
+                    <td>13:43 26-08</td>
+                    <td>10:00 00-00</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+                 <div class="table-responsive">
+                  <table class="table table-bordered">
+                <tbody>
+                 <tr>
+                    <td>Total Coustmer</td>
+                    <td>Total Send</td>
+                    <td>1st Send</td>
+                    <td>2nd Send</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>0</td>
+                    <td>&nbsp;</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th width="5%">Coustmer ID</th>
+                        <th width="5%">Coustmer Name</th>
+                        <th width="10%" colspan="2">Last Broadcast</th>
+                        <th width="15%">Sucess</th>
+                        <th width="15%">Resent Sucess</th>
+                       </tr>
+                        <tr>
+                        <th width="5%"></th>
+                        <th width="5%"></th>
+                        <th width="10%">Date</th>
+                        <th width="10%">Time</th>
+                        <th width="15%">Yes/No</th>
+                        <th width="15%">Yes/No</th>
+                       </tr>
+                    </thead>
+                    <tbody>
+                     
+                   
+                       <tr>
+                      <td>1</td>
+                      <td>Jame</td>
+                      <td>2019-12-13</td>
+                      <td>10:00:05</td>
+                      <td>Yes</td>
+                         <tr>  
+                 
+                     
+                       
+                       
+                    </tbody>
+                  </table>
+                </div>
+                
+              </div>
+            </div>
+          </div>     
+          
+
+       </div>
+      </div>
+    </div>   
+  
+  @endsection
 
 @section('scripts')
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script type="text/javascript">
-    $('#schedule-datetime').datetimepicker({
-      format: 'YYYY-MM-DD'
+
+
+    let r_s = '{{ $start }}';
+    let r_e = '{{ $end }}';
+
+    let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(1, 'days');
+    let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
+
+    jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
+    jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
+
+    function cb(start, end) {
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    $('#reportrange').daterangepicker({
+        startDate: start,
+        maxYear: 1,
+        endDate: end,
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
     });
 
-    $(document).ready(function() {
-      $("body").tooltip({ selector: '[data-toggle=tooltip]' });
+    cb(start, end);
+
+    $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
+
+        jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+        jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+
+    });
+    var tabs = [];
+    var red_tabs = localStorage['red_tabs'];
+
+    if (red_tabs) {
+      tabs = JSON.parse(red_tabs);
+      tabs.forEach(function(index) {
+        $('a[href="' + index + '"]').addClass('text-danger');
+      });
+    }
+
+    $('#exTab2 li').on('dblclick', function() {
+      var href = $(this).find('a').attr('href');
+
+      if (red_tabs) {
+        tabs = JSON.parse(red_tabs);
+        console.log(red_tabs);
+
+        if (tabs.indexOf(href) < 0) {
+          tabs.push(href);
+        } else {
+          tabs.splice(tabs.indexOf(href), 1);
+        }
+
+        localStorage['red_tabs'] = JSON.stringify(tabs);
+        red_tabs = localStorage['red_tabs'];
+
+      } else {
+        tabs.push(href);
+        localStorage['red_tabs'] = JSON.stringify(tabs);
+        red_tabs = localStorage['red_tabs'];
+      }
+
+      $(this).find('a').toggleClass('text-danger');
     });
 
-    $(document).on('click', '.quick-edit-phone-button', function(e) {
+    $(document).on('change', '.plan-task', function() {
+      var time_slot = $(this).data('timeslot');
+      var id = $(this).val();
+      var thiss = $(this);
+      var target_id = $(this).data('targetid');
+
+      if (id != '') {
+        $.ajax({
+          type: "POST",
+          url: "{{ url('task') }}/" + id + '/plan',
+          data: {
+            _token: "{{ csrf_token() }}",
+            time_slot: time_slot
+          }
+        }).done(function(response) {
+          // var count = $('#' + target_id).find('td').attr('rowspan');
+          // console.log(count, '#' + target_id);
+          // $('#' + target_id).find('td').attr('rowspan', parseInt(count, 10)+ 1);
+          var row = `<tr>
+            <td class="p-2">` + time_slot + `</td>
+            <td class="p-2">
+              <div class="d-flex justify-content-between">
+                <span>
+                ` + response.task.task_subject + `
+                </span>
+                <span>
+                  <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="` + response.task.id + `" data-type="task"><img src="/images/incomplete.png" /></button>
+                </span>
+              </div>
+            </td>
+            <td class="p-2 task-time"></td>
+            <td class="p-2"><button type="button" class="btn btn-image make-remark p-0 m-0" data-toggle="modal" data-target="#makeRemarkModal" data-id="` + response.task.id + `"><img src="/images/remark.png" /></button></td>
+          </tr>`;
+
+          $(thiss).closest('tr').before(row);
+        }).fail(function(response) {
+          console.log(response);
+          alert('Could not plan a task');
+        });
+      }
+    });
+
+    $(document).on('click', '.make-remark', function(e) {
       e.preventDefault();
 
       var id = $(this).data('id');
+      $('#add-remark input[name="id"]').val(id);
 
-      $(this).siblings('.phone-edit-input').removeClass('hidden');
-      $(this).siblings('.phone-container').addClass('hidden');
+      $.ajax({
+          type: 'GET',
+          headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{ route('task.gettaskremark') }}',
+          data: {
+            id:id,
+            module_type: "task"
+          },
+      }).done(response => {
+          var html='';
 
-      $(this).siblings('.phone-edit-input').keypress(function(e) {
-        var key = e.which;
-        var thiss = $(this);
-
-        if (key == 13) {
-          e.preventDefault();
-          var phone = $(thiss).val();
-
-          $.ajax({
-            type: 'POST',
-            url: "{{ url('customer') }}/" + id + '/updatePhone',
-            data: {
-              _token: "{{ csrf_token() }}",
-              phone: phone,
-            }
-          }).done(function() {
-            $(thiss).addClass('hidden');
-            $(thiss).siblings('.phone-container').text(phone);
-            $(thiss).siblings('.phone-container').removeClass('hidden');
-          }).fail(function(response) {
-            console.log(response);
-
-            alert('Could not update phone');
+          $.each(response, function( index, value ) {
+            html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+            html+"<hr>";
           });
-        }
+          $("#makeRemarkModal").find('#remark-list').html(html);
       });
     });
 
-    $(document).ready(function () {
-        // 'use strict';
-        let broadcastChart = $('#broadcastChart');
+  
 
+   
 
-        var barChartExample = new Chart(broadcastChart, {
-            type: 'bar',
-            data: {
-                labels: [
-                  @foreach ($message_groups as $date => $data)
-                    @foreach ($data as $group_id => $group)
-                      'Group {{ $group_id }}',
-                    @endforeach
-                  @endforeach
-                ],
-                datasets: [
-                    {
-                        label: "Sent",
-                        fill: true,
-                        backgroundColor: '#5EBA31',
-                        borderColor: '#5EBA31',
-                        data: [
-                          @foreach ($message_groups as $date => $data)
-                            @foreach ($data as $group_id => $group)
-                            {{ $group['sent'].',' }}
-                            @endforeach
-                          @endforeach
-                        ],
-                    },
-                    {
-                        label: "Received",
-                        fill: true,
-                        backgroundColor: '#5738CA',
-                        borderColor: '#5738CA',
-                        data: [
-                            @foreach ($message_groups as $date => $data)
-                              @foreach ($data as $group_id => $group)
-                              {{ $group['received'].',' }}
-                              @endforeach
-                            @endforeach
-                        ],
-                    },
-                    {
-                        label: "Stopped",
-                        fill: true,
-                        backgroundColor: '#DC143C',
-                        borderColor: '#DC143C',
-                        data: [
-                          @foreach ($message_groups as $date => $data)
-                            @foreach ($data as $group_id => $group)
-                            {{ $group['stopped'].',' }}
-                            @endforeach
-                          @endforeach
-                        ],
-                    }
-                ],
-            },
-            options: {
-                scaleShowValues: true,
-                responsive: true,
-                scales: {
-        					xAxes: [{
-        						display: true,
-        						scaleLabel: {
-        							display: true,
-        							labelString: 'Sets'
-        						}
-        					}],
-        					yAxes: [{
-        						display: true,
-        						scaleLabel: {
-        							display: true,
-        							labelString: 'Count'
-        						}
-        					}]
-        				}
-            }
-        });
-
-        var group_id = '';
-        @foreach ($message_groups as $date => $data)
-          @foreach ($data as $group_id => $group)
-            group_id = "{{ $date }}{{ $group_id }}";
-            console.log(group_id);
-            window['horizontalBroadcastBarChart' + group_id] = $('#horizontalBroadcastBarChart' + group_id);
-            var horizontalBarChart = new Chart(window['horizontalBroadcastBarChart' + group_id], {
-                type: 'horizontalBar',
-                data: {
-                  labels: ['Total'],
-                  datasets: [
-                    {
-                      label: "Sent",
-                      backgroundColor: '#5EBA31',
-                      data: [{{ $group['sent'] }}],
-                    },
-                    {
-                      label: "Received",
-                      backgroundColor: '#5738CA',
-                      data: [{{ $group['received'] }}],
-                    },
-                    {
-                      label: "Stopped",
-                      backgroundColor: '#DC143C',
-                      data: [{{ $group['stopped'] }}],
-                    }
-                  ],
-                },
-                options: {
-                  beginAtZero: true,
-                  elements: {
-        						rectangle: {
-        							borderWidth: 2,
-        						}
-        					},
-        					responsive: true,
-        					legend: {
-        						position: 'right',
-        					},
-                  scales: {
-                    xAxes: [{
-                      ticks: {
-                        beginAtZero: true,
-                        max: {{ $group['total'] }}
-                      }
-                    }]
-                  }
-                }
-            });
-          @endforeach
-        @endforeach
+    $(document).on('click', '.show-tasks', function() {
+      var count = $(this).data('count');
+      // var rowspan = $(this)
+      $('.hiddentask' + count).toggleClass('hidden');
     });
 
-    var images_selection = [];
+   
 
-    $(document).on('click', '.link-images-button', function() {
-      $('.image-selection').removeClass('hidden');
+    $('.quick-plan-input').on('keypress', function(e) {
+      console.log(e);
+      var key = e.which;
+      var thiss = $(this);
+      var time_slot = $(this).data('timeslot');
+      var target_id = $(this).data('targetid');
+      var activity = $(this).val();
 
-      $('#sendAllModal').find('.close').click();
-      $('a[href="#broadcast-images"]').click();
-    });
+      if (key == 13) {
+        e.preventDefault();
 
-    $(document).on('click', '.image-selection', function() {
-      var id = $(this).val();
-
-      if ($(this).prop('checked') == true) {
-        images_selection.push(id);
-      } else {
-        var index = images_selection.indexOf(id);
-        images_selection.splice(index, 1);
+        storeDailyActivity(thiss, activity, time_slot, target_id);
       }
-
-      $('.link-images-button').text('Link Images (' + images_selection.length + ')');
-
-      $('#linked_images').val(JSON.stringify(images_selection));
-      console.log(images_selection);
     });
+
+    $('.quick-plan-button').on('click', function(e) {
+      var thiss = $(this);
+      var time_slot = $(this).data('timeslot');
+      var target_id = $(this).data('targetid');
+      var activity = $(this).siblings('.quick-plan-input').val();
+
+      storeDailyActivity(thiss, activity, time_slot, target_id);
+
+      $(this).siblings('.quick-plan-input').val('');
+    });
+ 
+    
+
   </script>
 @endsection
