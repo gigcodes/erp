@@ -559,7 +559,10 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'document/store', 'DocumentController@store' )->name( 'document.store' );
     Route::get( 'document/{id}/download', 'DocumentController@download' )->name( 'document.download' );
     Route::delete( 'document/{id}/destroy', 'DocumentController@destroy' )->name( 'document.destroy' );
-
+    Route::post( 'document/send/emailBulk', 'DocumentController@sendEmailBulk' )->name( 'document.email.send.bulk' );
+    Route::get( 'document/gettaskremark', 'DocumentController@getTaskRemark' )->name( 'document.gettaskremark' );
+    Route::post( 'document/uploadocument', 'DocumentController@uploadDocument' )->name( 'document.uploadDocument' );
+    Route::post( 'document/addremark', 'DocumentController@addRemark' )->name( 'document.addRemark' );
     //Document Cateogry
     Route::post( 'documentcategory/add' , 'DocuemntCategoryController@addCategory' )->name( 'documentcategory.add' );       
 
