@@ -51,7 +51,7 @@
                             @endphp
                             <td>{{ ++$i }}</td>
                             <td class="p-2"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}</a>
-                                @if(substr(strtolower($supplier->supplier), 0, 6)  == 'excel_')
+                                @if(substr(strtolower($supplier->scraper_name), 0, 6)  == 'excel_')
                                   &nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i>
 
                                 @endif 
