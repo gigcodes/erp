@@ -80,7 +80,8 @@ class ScrapStatisticsController extends Controller
                 log_scraper
             WHERE
                 created_at > "' . $startDate . '" AND
-                created_at < "' . $endDate . '"
+                created_at < "' . $endDate . '" AND
+                website != "internal_scraper"
             GROUP BY
                 website
             ORDER BY
