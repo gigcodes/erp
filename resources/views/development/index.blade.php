@@ -156,6 +156,20 @@
                                             @endcan
 
                                             <div class="form-group">
+                                                <strong>Type:</strong>
+                                                <select class="form-control" name="task_type_id" required>
+                                                    @foreach ($tasksTypes as $id => $taskType)
+                                                        <option value="{{ $taskType->id }}" {{ old('task_type_id') == $taskType->id ? 'selected' : '' }}>{{ $taskType->name }}</option>
+                                                    @endforeach
+                                                </select>
+
+                                                @if ($errors->has('task_type_id'))
+                                                    <div class="alert alert-danger">{{$errors->first('task_type_id')}}</div>
+                                                @endif
+                                            </div>
+
+
+                                            <div class="form-group">
                                                 <strong>Attach files:</strong>
                                                 <input type="file" name="images[]" class="form-control" multiple>
                                                 @if ($errors->has('images'))
