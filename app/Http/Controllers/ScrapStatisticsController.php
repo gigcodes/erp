@@ -61,6 +61,9 @@ class ScrapStatisticsController extends Controller
         $startDate = date('Y-m-d H:i:s', time() - (2 * 86400));
         $endDate = date('Y-m-d H:i:s');
 
+        // Get active suppliers
+        $activeSuppliers = Supplier::where('supplier_status_id', 1)->orderby('supplier')->get();
+
         // Get scrape data
         $sql = '
             SELECT
@@ -86,7 +89,7 @@ class ScrapStatisticsController extends Controller
         $scrapeData =  DB::select($sql);
 
         // Return view
-        return view('scrap.stats', compact('scrapeData'));
+        return view('scrap.stats', compact('activeSuppliers', 'scrapeData'));
     }
 
     /**
@@ -183,7 +186,7 @@ class ScrapStatisticsController extends Controller
         $name   = $request->input( 'name' );
 
        $remark = ScrapRemark::where('scraper_name', $name)->get();
-        
+
        return response()->json($remark,200);
     }
 
@@ -198,7 +201,7 @@ class ScrapStatisticsController extends Controller
             'remark'  => $remark,
             'user_name' => Auth::user()->name
           ]);
-        
+
 
       return response()->json(['remark' => $remark ],200);
     }
