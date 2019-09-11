@@ -559,18 +559,16 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'document/store', 'DocumentController@store' )->name( 'document.store' );
     Route::get( 'document/{id}/download', 'DocumentController@download' )->name( 'document.download' );
     Route::delete( 'document/{id}/destroy', 'DocumentController@destroy' )->name( 'document.destroy' );
-    Route::post( 'document/send/emailBulk', 'DocumentController@sendEmailBulk' )->name( 'document.email.send.bulk' );
-    Route::get( 'document/gettaskremark', 'DocumentController@getTaskRemark' )->name( 'document.gettaskremark' );
-    Route::post( 'document/uploadocument', 'DocumentController@uploadDocument' )->name( 'document.uploadDocument' );
-    Route::post( 'document/addremark', 'DocumentController@addRemark' )->name( 'document.addRemark' );
+
     //Document Cateogry
     Route::post( 'documentcategory/add' , 'DocuemntCategoryController@addCategory' )->name( 'documentcategory.add' );       
-         // Cash Flow Module
+
+    // Cash Flow Module
     Route::get( 'cashflow/{id}/download', 'CashFlowController@download' )->name( 'cashflow.download' );
     Route::get( 'cashflow/mastercashflow', 'CashFlowController@mastercashflow' )->name( 'cashflow.mastercashflow' );
     Route::resource( 'cashflow', 'CashFlowController' );
     Route::resource( 'dailycashflow', 'DailyCashFlowController' );
-    Route::get( '/asset-manager', 'ScrapStatisticsController@assetManager' );
+
     // Reviews Module
     Route::post( 'review/createFromInstagramHashtag', 'ReviewController@createFromInstagramHashtag' );
     Route::get( 'review/instagram/reply', 'ReviewController@replyToPost' );
@@ -840,7 +838,7 @@ Route::get( 'display/broken-link-details', 'BrokenLinkCheckerController@displayB
 Route::middleware( 'auth' )->group( function () {
 //    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails');
     Route::get( 'display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails' )->name( 'filteredResults' );
-    Route::get( 'display/links-to-post', 'AnalyticsController@displayLinksToPostData' )->name( 'linksToPost' );
+
     Route::get( 'old-incomings', 'OldIncomingController@index' )->name( 'oldIncomings' );
     Route::get( 'old-incomings', 'OldIncomingController@index' )->name( 'filteredOldIncomings' );
     Route::post( 'store/old-incomings', 'OldIncomingController@store' )->name( 'storeOldIncomings' );
@@ -856,7 +854,6 @@ Route::middleware( 'auth' )->group( function () {
     Route::get( 'display/analytics-data', 'AnalyticsController@showData' )->name( 'showAnalytics' );
 
     Route::get( 'display/back-link-details', 'BackLinkController@displayBackLinkDetails' )->name( 'backLinkFilteredResults' );
-    Route::get('links-to-post','SEOAnalyticsController@linksToPost');
 //    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
 } );
 

@@ -4,15 +4,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Analytics;
 use App\AnalyticsSummary;
+use App\AnalyticsCustomerBehaviour;
 use Spatie\Analytics\Period;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
 use Carbon\Carbon;
 use DB;
 use function Opis\Closure\unserialize;
-use App\LinksToPost;
-use App\ArticleCategory;
-use Response;
 
 class AnalyticsController extends Controller
 {
@@ -86,35 +84,17 @@ class AnalyticsController extends Controller
 		}
 		return View('analytics.summary', compact('data', 'brands', 'genders'));
 	}
-
-    public function displayLinksToPostData()
-   {
-      $data = LinksToPost::orderBy('id','desc')->paginate(15); 
-      $category = ArticleCategory::all();
-     return View('analytics.linkstopost', compact('data','category'));
-   }
-
-   public function updateCategoryPost(Request $request)
-   {
-
-      $post = LinksToPost::findorfail($request->link_id);
-      $post->category_id = $request->id;
-      $post->save();
-
-      return Response::json(array(
-      'success' => true,
-      'message'   => 'Post Updated'
-      ));
-
-   }
-
-   public function addArticleCategory(Request $request)
-   {
-     $category =  new ArticleCategory;
-     $category->name = $request->name;
-     $category->save();
-
-     return redirect()->back()->with(['message','Category Saved','success','true']); 
-     
-   }
+	/**
+	 * Customer Behaviour By Page
+	 */
+	public function customerBehaviourByPage(Request $request)
+	{
+		$pages = AnalyticsCustomerBehaviour::select('ID', 'pages')->pluck('pages', 'ID')->toArray();
+		if(!empty($request['page'])) {
+			$data = AnalyticsCustomerBehaviour::where('pages', $request['page'])->get()->toArray();
+		} else {
+			include(app_path() . '/Functions/Analytics.php');
+		}
+		return View('analytics.customer-behaviour', compact('data', 'pages'));
+	}
 }

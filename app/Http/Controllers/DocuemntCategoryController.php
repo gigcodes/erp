@@ -32,7 +32,4 @@ class DocuemntCategoryController extends Controller
       
      
     }
-
-
 }
-

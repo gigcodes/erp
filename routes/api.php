@@ -53,10 +53,4 @@ Route::get('broken-link-details', 'BrokenLinkCheckerController@getBrokenLinkDeta
 
 Route::get('products/enhance', 'Products\ProductEnhancementController@index');
 Route::post('products/enhance', 'Products\ProductEnhancementController@store');
-Route::post('values-as-per-user','DocumentController@getDataByUserType')->name('getDataByUserType');
 
-
-Route::post('link-to-post-category-update','AnalyticsController@updateCategoryPost')->name('updateCategoryPost');
-Route::post('add-article-category','AnalyticsController@addArticleCategory')->name('addArticleCategory');
-
-Route::post('values-as-per-user','DocumentController@getDataByUserType')->name('getDataByUserType');

@@ -27,10 +27,8 @@ class StatusHelper extends Model
     public static $isBeingEnhanced = 17;
     public static $cropRejected = 18;
     public static $isBeingSequenced = 19;
-
     public static $isBeingScraped = 20;
     public static $manualCropping = 21;
-
 
     public static function updateStatus(\App\Product $product, $newStatus = 0)
     {
@@ -70,7 +68,6 @@ class StatusHelper extends Model
         // Return array with stats
         return $productStats;
     }
-
 
     public static function getCroppedCount($inStockOnly=1) {
         // Get status
@@ -123,5 +120,4 @@ class StatusHelper extends Model
             (isset($status[self::$unableToScrape]) ? $status[self::$unableToScrape] : 0) -
             (isset($status[self::$unableToScrapeImages]) ? $status[self::$unableToScrapeImages] : 0);
     }
-
 }
