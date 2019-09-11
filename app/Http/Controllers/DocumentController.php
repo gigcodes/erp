@@ -9,7 +9,6 @@ use App\Document;
 use App\User;
 use App\DocumentCategory;
 use Storage;
-use PermissionCheck;
 use App\Email;
 use App\Vendor;
 use App\ApiKey;
@@ -28,22 +27,20 @@ class DocumentController extends Controller
      */
     public function index()
     {
-         $p = PermissionCheck::checkUser('document');
-        if($p == false){
-            return view('errors.401');
-        }
+      if (Auth::id() == 18 || Auth::id() == 6 || Auth::id() == 7 || Auth::id() == 49 || Auth::id() == 56 || Auth::id() == 148) {
         $documents = Document::latest()->paginate(Setting::get('pagination'));
         $users = User::select(['id', 'name', 'email','agent_role'])->get();
         $category = DocumentCategory::select('id','name')->get();
         $api_keys = ApiKey::select('number')->get();
         return view('documents.index', [
           'documents' => $documents,
-          'users'     => $users,
-          'category'  => $category,
-          'api_keys'  => $api_keys
-
+          'users' => $users,
+          'category' => $category,
+          'api_keys' => $api_keys,
         ]);
-      
+      } else {
+        return redirect()->back();
+      }
     }
 
     /**
@@ -142,6 +139,7 @@ class DocumentController extends Controller
 
       return redirect()->route('document.index')->withSuccess('You have successfully deleted document');
     }
+
 
     public function sendEmailBulk(Request $request)
     {

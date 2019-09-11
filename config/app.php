@@ -172,7 +172,7 @@ return [
         Maatwebsite\Excel\ExcelServiceProvider::class,
         PragmaRX\Tracker\Vendor\Laravel\ServiceProvider::class,
         Thujohn\Twitter\TwitterServiceProvider::class,
-        App\Providers\PermissionCheckServiceProvider::class,
+        
     ],
 
     /*
@@ -232,7 +232,7 @@ return [
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Tracker' => PragmaRX\Tracker\Vendor\Laravel\Facade::class,
         'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
-        'PermissionCheck' => App\Facades\PermissionCheckClass::class,
+        
     ],
 
 ];
