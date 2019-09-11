@@ -8,7 +8,7 @@ use App\Loggers\LogScraper;
 class ScrapRemark extends Model
 {
     protected $fillable = [
-    'scrap_id', 'module_type', 'scraper_name', 'remark'
+    'user_name', 'scraper_name', 'remark'
   ];
 
   public function scraps()

@@ -64,7 +64,7 @@ class ScrapStatisticsController extends Controller
         // Get scrape data
         $sql = '
             SELECT
-                id,
+                
                 website,
                 COUNT(id) AS total,
                 SUM(IF(validated=0,1,0)) AS failed,
@@ -180,9 +180,9 @@ class ScrapStatisticsController extends Controller
 
     public function getRemark(Request $request)
     {
-        $id   = $request->input( 'id' );
+        $name   = $request->input( 'name' );
 
-       $remark = ScrapRemark::where('scrap_id', $id)->get();
+       $remark = ScrapRemark::where('scraper_name', $name)->get();
         
        return response()->json($remark,200);
     }
@@ -190,17 +190,15 @@ class ScrapStatisticsController extends Controller
     public function addRemark(Request $request)
     {
         $remark = $request->input( 'remark' );
-        $id = $request->input( 'id' );
+        $name = $request->input( 'id' );
         $created_at = date('Y-m-d H:i:s');
         $update_at = date('Y-m-d H:i:s');
-        if($request->module_type=="scrap"){
-          $remark_entry = ScrapRemark::create([
-            'scrap_id' => $id,
+        $remark_entry = ScrapRemark::create([
+            'scraper_name' => $name,
             'remark'  => $remark,
-            'module_type' => $request->module_type,
-            'scraper_name' => $request->user_name ? $request->user_name : Auth::user()->name
+            'user_name' => Auth::user()->name
           ]);
-        }
+        
 
       return response()->json(['remark' => $remark ],200);
     }

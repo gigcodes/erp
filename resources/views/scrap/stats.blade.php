@@ -38,7 +38,7 @@
                     @foreach($scrapeData as $data)
                         <tr<?= $data->running == 0 ? ' style="background-color: red; color: white;"' : '' ?>>
                             @php 
-                                $remark = \App\ScrapRemark::select('remark')->where('scrap_id',$data->id)->orderBy('id','desc')->first();
+                                $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$data->website)->orderBy('created_at','desc')->first();
                             @endphp
                             <td class="p-2">{{ $data->website }}</td>
                             <td class="p-2">{{ date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) }}</td>
@@ -48,7 +48,7 @@
                             <td class="p-2 text-right">{{ $data->warnings }}</td>
                             <td class="p-2">@if($remark != ''){{ $remark->remark }}
                             @endif</td>
-                            <td><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $data->id }}"><img src="/images/remark.png" /></button></td>
+                            <td><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $data->website }}"><img src="/images/remark.png" /></button></td>
                             
                         </tr>
                     @endforeach
@@ -68,8 +68,9 @@
      $(document).on('click', '.make-remark', function(e) {
       e.preventDefault();
 
-      var id = $(this).data('id');
-      $('#add-remark input[name="id"]').val(id);
+      var name = $(this).data('name');
+
+      $('#add-remark input[name="id"]').val(name);
 
       $.ajax({
           type: 'GET',
@@ -78,14 +79,13 @@
           },
           url: '{{ route('scrap.getremark') }}',
           data: {
-            id:id,
-            module_type: "scrap"
+            name:name
           },
       }).done(response => {
           var html='';
 
           $.each(response, function( index, value ) {
-            html+=' <p> '+value.remark+' <br> <small>By ' + value.scraper_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+            html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
             html+"<hr>";
           });
           $("#makeRemarkModal").find('#remark-list').html(html);
@@ -104,8 +104,7 @@
           url: '{{ route('scrap.addRemark') }}',
           data: {
             id:id,
-            remark:remark,
-            module_type: 'scrap'
+            remark:remark
           },
       }).done(response => {
           $('#add-remark').find('textarea[name="remark"]').val('');
