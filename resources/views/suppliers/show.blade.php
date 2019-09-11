@@ -169,7 +169,10 @@
                 <input type="text" name="social_handle" id="supplier_social_handle" class="form-control input-sm" placeholder="Social Handle" value="{{ $supplier->social_handle }}">
               </div>
               <div class="form-group">
-               <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control" value="{{ $supplier->scraper_name }}">
+               <input type="text" placeholder="Scraper Name" name="scraper_name" id="supplier_scraper_name" class="form-control" value="{{ $supplier->scraper_name }}">
+              </div>
+              <div class="form-group">
+               <input type="number" placeholder="Inventory Lifetime"  name="inventory_lifetime" id="supplier_inventory_lifetime" class="form-control" value="{{ $supplier->inventory_lifetime }}">
               </div>
               {{-- <div class="form-group">
         				<select name="whatsapp_number" class="form-control input-sm" id="whatsapp_change">
@@ -1752,6 +1755,7 @@
         //var status = $('#status').val();
         var supplier_category_id = $('#supplier_category_id').val();
         var scraper_name = $('#supplier_scraper_name').val();
+        var inventory_lifetime = $('#supplier_inventory_lifetime').val();        
         var supplier_status_id = $('#supplier_status_id').val();        
 
         $.ajax({
@@ -1773,6 +1777,7 @@
             gst: gst,
             supplier_category_id: supplier_category_id,
             scraper_name: scraper_name,
+            inventory_lifetime: inventory_lifetime,
             supplier_status_id: supplier_status_id
           },
           beforeSend: function() {

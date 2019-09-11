@@ -73,7 +73,7 @@ class SupplierController extends Controller
       }
 
       $suppliers = DB::select('
-									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, suppliers.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id,
+									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, suppliers.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, suppliers.inventory_lifetime,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -173,6 +173,7 @@ class SupplierController extends Controller
         'email'           => 'sometimes|nullable|email',
         'social_handle'   => 'sometimes|nullable',
         'scraper_name'   => 'sometimes|nullable',
+        'inventory_lifetime' => 'sometimes|nullable',
         'gst'             => 'sometimes|nullable|max:255',
         'supplier_status_id' => 'required'
       ]);
@@ -242,6 +243,7 @@ class SupplierController extends Controller
         'default_email'   => 'sometimes|nullable|email',
         'social_handle'   => 'sometimes|nullable',
         'scraper_name'   => 'sometimes|nullable',
+        'inventory_lifetime' => 'sometimes|nullable',
         'gst'             => 'sometimes|nullable|max:255',
         'supplier_status_id' => 'required'
         //'status' => 'required'
@@ -492,7 +494,7 @@ class SupplierController extends Controller
 
     public function cronscrapernotrunning()
     {
-       $suppliers_all = DB::select('SELECT suppliers.id, l.created_at, suppliers.supplier, suppliers.email, suppliers.whatsapp_number from suppliers INNER JOIN log_scraper l on l.website = suppliers.scraper_name');            
+       $suppliers_all = DB::select('SELECT suppliers.id, l.created_at, suppliers.supplier, suppliers.email, suppliers.whatsapp_number, suppliers.scraper_name, suppliers.inventory_lifetime from suppliers INNER JOIN log_scraper l on l.website = suppliers.scraper_name');            
         if(count($suppliers_all) > 0){       
        
           foreach ($suppliers_all as $supplier){
@@ -500,8 +502,9 @@ class SupplierController extends Controller
             $start_date = strtotime($supplier->created_at); 
             $end_date = time();
             $diff = ($end_date - $start_date)/60/60; 
+            $inventory_lifetime = $supplier->inventory_lifetime * 24;
             // check date if different more than 48 hours then send notification
-            if($diff >= 48)
+            if($diff >= $inventory_lifetime)
             {
               $message = 'Scraper not running '.$supplier->scraper_name;
               app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('00971545889192', $supplier->whatsapp_number, $message); 

@@ -415,6 +415,7 @@
 
     $(document).on('click', '.edit-supplier', function() {
       var supplier = $(this).data('supplier');
+      
       var url = "{{ url('supplier') }}/" + supplier.id;
 
       $('#supplierEditModal form').attr('action', url);
@@ -425,6 +426,7 @@
       $('#supplier_email').val(supplier.email);
       $('#supplier_social_handle').val(supplier.social_handle);
       $('#supplier_scraper_name').val(supplier.scraper_name);
+      $('#supplier_inventory_lifetime').val(supplier.inventory_lifetime);
       $('#supplier_gst').val(supplier.gst);
       //$('#status').val(supplier.status);
       $('#supplier_status_id').val(supplier.supplier_status_id);
