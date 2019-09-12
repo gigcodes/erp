@@ -3,7 +3,7 @@
 
     {{-- Show top level books item --}}
     @if (count($crumbs) > 0 && array_first($crumbs) instanceof  \Modules\BookStack\Entities\Book)
-        <a href="{{  url('/books')  }}" class="text-book icon-list-item outline-hover">
+        <a href="{{  url('/knowledge-base/books')  }}" class="text-book icon-list-item outline-hover">
             <span>@icon('books')</span>
             <span>{{ trans('bookstack::entities.books') }}</span>
         </a>
@@ -12,7 +12,7 @@
 
     {{-- Show top level shelves item --}}
     @if (count($crumbs) > 0 && array_first($crumbs) instanceof  \Modules\BookStack\Entities\Bookshelf)
-        <a href="{{  url('/shelves')  }}" class="text-bookshelf icon-list-item outline-hover">
+        <a href="{{  url('/knowledge-base/shelves')  }}" class="text-bookshelf icon-list-item outline-hover">
             <span>@icon('bookshelf')</span>
             <span>{{ trans('bookstack::entities.shelves') }}</span>
         </a>

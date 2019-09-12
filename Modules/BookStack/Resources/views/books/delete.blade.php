@@ -7,7 +7,7 @@
         <div class="my-s">
             @include('bookstack::partials.breadcrumbs', ['crumbs' => [
                 $book,
-                $book->getUrl('/delete') => [
+                $book->getUrl('/knowledge-base/delete') => [
                     'text' => trans('bookstack::entities.books_delete'),
                     'icon' => 'delete',
                 ]

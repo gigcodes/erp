@@ -220,9 +220,9 @@
     </div>
 
     <div class="form-group text-right">
-        <a href="{{ url("/settings/roles") }}" class="button outline">{{ trans('bookstack::common.cancel') }}</a>
+        <a href="{{ url("/knowledge-base/settings/roles") }}" class="button outline">{{ trans('bookstack::common.cancel') }}</a>
         @if (isset($role) && $role->id)
-            <a href="{{ url("/settings/roles/delete/{$role->id}") }}" class="button outline">{{ trans('bookstack::settings.role_delete') }}</a>
+            <a href="{{ url("/knowledge-base/settings/roles/delete/{$role->id}") }}" class="button outline">{{ trans('bookstack::settings.role_delete') }}</a>
         @endif
         <button type="submit" class="button">{{ trans('bookstack::settings.role_save') }}</button>
     </div>
@@ -240,7 +240,7 @@
                     </div>
                     <div>
                         @if(userCan('users-manage') || $currentUser->id == $user->id)
-                            <a href="{{ url("/settings/users/{$user->id}") }}">
+                            <a href="{{ url("/knowledge-base/settings/users/{$user->id}") }}">
                                 @endif
                                 {{ $user->name }}
                                 @if(userCan('users-manage') || $currentUser->id == $user->id)

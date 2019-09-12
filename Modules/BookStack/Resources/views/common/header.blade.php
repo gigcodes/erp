@@ -28,24 +28,17 @@
             <nav class="header-links" >
                 <div class="links text-center">
                     @if (hasAppAccess())
-                        <a class="hide-over-l" href="{{ url('/search') }}">@icon('search'){{ trans('bookstack::common.search') }}</a>
+                        <a class="hide-over-l" href="{{ url('/knowledge-base/search') }}">@icon('search'){{ trans('bookstack::common.search') }}</a>
                         @if(userCanOnAny('view', \Modules\BookStack\Entities\Bookshelf::class) || userCan('bookshelf-view-all') || userCan('bookshelf-view-own'))
-                            <a href="{{ url('/shelves') }}">@icon('bookshelf'){{ trans('bookstack::entities.shelves') }}</a>
+                            <a href="{{ url('/knowledge-base/shelves') }}">@icon('bookshelf'){{ trans('bookstack::entities.shelves') }}</a>
                         @endif
-                        <a href="{{ url('/books') }}">@icon('books'){{ trans('bookstack::entities.books') }}</a>
+                        <a href="{{ url('/knowledge-base/books') }}">@icon('books'){{ trans('bookstack::entities.books') }}</a>
                         @if(signedInUser() && userCan('settings-manage'))
-                            <a href="{{ url('/settings') }}">@icon('settings'){{ trans('bookstack::settings.settings') }}</a>
+                            <a href="{{ url('/knowledge-base/settings') }}">@icon('settings'){{ trans('bookstack::settings.settings') }}</a>
                         @endif
                         @if(signedInUser() && userCan('users-manage') && !userCan('settings-manage'))
-                            <a href="{{ url('/settings/users') }}">@icon('users'){{ trans('bookstack::settings.users') }}</a>
+                            <a href="{{ url('/knowledge-base/settings/users') }}">@icon('users'){{ trans('bookstack::settings.users') }}</a>
                         @endif
-                    @endif
-
-                    @if(!signedInUser())
-                        @if(setting('registration-enabled', false))
-                            <a href="{{ url('/register') }}">@icon('new-user') {{ trans('bookstack::auth.sign_up') }}</a>
-                        @endif
-                        <a href="{{ url('/login') }}">@icon('login') {{ trans('bookstack::auth.log_in') }}</a>
                     @endif
                 </div>
                 @if(signedInUser())
@@ -58,13 +51,7 @@
                         </span>
                         <ul class="dropdown-menu" role="menu">
                             <li>
-                                <a href="{{ url("/user/{$currentUser->id}") }}">@icon('user'){{ trans('bookstack::common.view_profile') }}</a>
-                            </li>
-                            <li>
-                                <a href="{{ url("/settings/users/{$currentUser->id}") }}">@icon('edit'){{ trans('bookstack::common.edit_profile') }}</a>
-                            </li>
-                            <li>
-                                <a href="{{ url('/logout') }}">@icon('logout'){{ trans('bookstack::auth.logout') }}</a>
+                                <a onclick="event.preventDefault();document.getElementById('logout-form').submit();" href="{{ url('/logout') }}">@icon('logout'){{ trans('bookstack::auth.logout') }}</a>
                             </li>
                         </ul>
                     </div>
@@ -74,3 +61,6 @@
 
     </div>
 </header>
+<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+    @csrf
+</form>

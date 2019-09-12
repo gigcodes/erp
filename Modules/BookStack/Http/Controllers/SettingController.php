@@ -77,7 +77,7 @@ class SettingController extends Controller
         }
 
         session()->flash('success', trans('bookstack::settings.settings_save_success'));
-        return redirect('/settings');
+        return redirect('/knowledge-base/settings');
     }
 
     /**
@@ -111,8 +111,8 @@ class SettingController extends Controller
         $imagesToDelete = $imageService->deleteUnusedImages($checkRevisions, $dryRun);
         $deleteCount = count($imagesToDelete);
         if ($deleteCount === 0) {
-            session()->flash('warning', trans('settings.maint_image_cleanup_nothing_found'));
-            return redirect('/settings/maintenance')->withInput();
+            session()->flash('warning', trans('bookstack::settings.maint_image_cleanup_nothing_found'));
+            return redirect('/knowledge-base/settings/maintenance')->withInput();
         }
 
         if ($dryRun) {
@@ -121,6 +121,6 @@ class SettingController extends Controller
             session()->flash('success', trans('bookstack::settings.maint_image_cleanup_success', ['count' => $deleteCount]));
         }
 
-        return redirect('/settings/maintenance#image-cleanup')->withInput();
+        return redirect('/knowledge-base/settings/maintenance#image-cleanup')->withInput();
     }
 }

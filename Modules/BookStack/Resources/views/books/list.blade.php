@@ -28,7 +28,7 @@
     @else
         <p class="text-muted">{{ trans('bookstack::entities.books_empty') }}</p>
         @if(userCan('books-create-all'))
-            <a href="{{ url("/create-book") }}" class="text-pos">@icon('edit'){{ trans('bookstack::entities.create_now') }}</a>
+            <a href="{{ url("/knowledge-base/create-book") }}" class="text-pos">@icon('edit'){{ trans('bookstack::entities.create_now') }}</a>
         @endif
     @endif
 </main>
