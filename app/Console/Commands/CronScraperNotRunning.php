@@ -46,7 +46,7 @@ class CronScraperNotRunning extends Command
         'start_time'  => Carbon::now()
       ]);
 
-         $suppliers_all = DB::select('SELECT suppliers.id, l.created_at, suppliers.whatsapp_number, suppliers.scraper_name, suppliers.inventory_lifetime from suppliers INNER JOIN log_scraper l on l.website = suppliers.scraper_name group by suppliers.id ');            
+         $suppliers_all = DB::select('SELECT suppliers.id, l.created_at, suppliers.whatsapp_number, suppliers.scraper_name, suppliers.inventory_lifetime from suppliers INNER JOIN log_scraper l on l.website = suppliers.scraper_name group by suppliers.id order by l.created_at desc');            
         if(count($suppliers_all) > 0){       
        
           foreach ($suppliers_all as $supplier){
