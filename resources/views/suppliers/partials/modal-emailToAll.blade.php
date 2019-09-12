@@ -13,37 +13,14 @@
 
         <div class="modal-body">
           <div class="form-group">
-            <strong>Category</strong>
-            <select name="supplier_category_id" id="supplier_category_id2" class="form-control">
-              <option value="">Select Category</option>
-              @foreach($suppliercategory as $category)
-                <option value="{{$category->id}}">{{$category->name}}</option>
+            <strong>Suppliers</strong>
+            <select class="form-control select-multiple" name="suppliers[]" multiple>
+              {{-- <option value="">Select Suppliers</option> --}}
+
+              @foreach ($suppliers_all as $supplier)
+                <option value="{{ $supplier->id }}">{{ $supplier->supplier }} - {{ $supplier->default_email }} / {{ $supplier->email }}</option>
               @endforeach
             </select>
-          </div>
-          <div class="form-group"> 
-            <strong>Status</strong>             
-            <select name="supplier_status_id" id="supplier_status_id2" class="form-control">
-              <option value="">Select Status</option>
-              @foreach($supplierstatus as $status)
-                <option value="{{$status->id}}">{{$status->name}}</option>
-              @endforeach
-            </select>
-          </div>
-          <div class="form-group">
-            Filter By:&nbsp;&nbsp;
-            <a href="javascript:void(0)" onclick="filtersupplier('');">All</a>&nbsp;&nbsp;
-            @foreach (range('A', 'Z') as $char) 
-                <a href="javascript:void(0)" onclick="filtersupplier('{{$char}}');">{{$char}}</a>&nbsp;&nbsp;
-            @endforeach
-            @for($i=0; $i<10; $i++)
-            <a href="javascript:void(0)" onclick="filtersupplier('{{$i}}');">{{$i}}</a>&nbsp;&nbsp;
-            @endfor
-          </div>
-          <div class="form-group" style="display: none;" id="suppliers-selection">
-            <strong>Suppliers</strong> &nbsp;&nbsp;<a href="javascript:void(0);" id="select_all">Select All</a> &nbsp;&nbsp;<a href="javascript:void(0);" id="select_no">Unselect All</a> 
-            <select class="form-control select-multiple" id="suppliers" name="suppliers[]" multiple>                  
-             </select>
           </div>
 
             <div class="form-group text-right">
@@ -103,31 +80,3 @@
 
   </div>
 </div>
-@section('scripts')
-<script type="text/javascript">
- $(document).ready(function() {
-      $('#supplier_category_id2').on('change', function(){
-        var supplier_category_id = $('#supplier_category_id2').val();
-        var supplier_status_id = $('#supplier_status_id2').val();      
-        getSuppliers(supplier_category_id, supplier_status_id,'');  
-      });
-      $('#supplier_status_id2').on('change', function(){
-        var supplier_category_id = $('#supplier_category_id2').val();
-        var supplier_status_id = $('#supplier_status_id2').val();
-        getSuppliers(supplier_category_id, supplier_status_id,'');
-      }); 
-  });
-  function filtersupplier(filter)
-  {
-    var supplier_category_id = $('#supplier_category_id2').val();
-    var supplier_status_id = $('#supplier_status_id2').val();
-    getSuppliers(supplier_category_id, supplier_status_id, filter);
-  }
-  $('#select_all').click(function() {
-      $('#suppliers option').prop('selected', true);
-  });
-  $('#select_no').click(function() {
-      $('#suppliers option').prop('selected', false);
-  });
-</script>
-@endsection

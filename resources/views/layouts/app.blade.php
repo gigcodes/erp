@@ -1194,8 +1194,6 @@
 
                               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                   <a class="dropdown-item" href="{{ route('supplier.index') }}">Suppliers List</a>
-                                  <a class="dropdown-item" href="{{ action('SupplierCategoryController@index') }}"> Supplier Category</a>
-                                  <a class="dropdown-item" href="{{ action('SupplierStatusController@index') }}">Supplier Status</a>
                               </div>
 
                           </li>
@@ -1632,6 +1630,7 @@
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                 @can('developer-tasks')
+                                    <a class="dropdown-item" href="{{ route('taskTypes.index') }}">Task Types</a>
                                     <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                     <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                 @endcan

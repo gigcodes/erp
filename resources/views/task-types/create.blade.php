@@ -5,10 +5,10 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
-                <h2>Edit Category</h2>
+                <h2>Create New Type</h2>
             </div>
             <div class="pull-right">
-                <a class="btn btn-secondary" href="{{ route('supplier-category.index') }}"> Back</a>
+                <a class="btn btn-secondary" href="{{ route('taskTypes.index') }}"> Back</a>
             </div>
         </div>
     </div>
@@ -26,14 +26,18 @@
     @endif
 
 
-    {!! Form::model($category, ['method' => 'PATCH','route' => ['supplier-category.update', $category->id]]) !!}
+
+    {!! Form::open(array('route' => 'taskTypes.store','method'=>'POST')) !!}
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>Name:</strong>
                 {!! Form::text('name', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
             </div>
-        </div>        
+        </div>
+
+
+        
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
             <button type="submit" class="btn btn-secondary">+</button>
         </div>
