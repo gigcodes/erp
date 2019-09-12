@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class ZoomMeetings | app/Meetings/Meeting/ZoomMeetings.php
  * Zoom Meetings integration for video call purpose using LaravelZoom's REST API
@@ -10,9 +11,12 @@
  * @see ZoomMeetings
  * @author   sololux <sololux@gmail.com>
  */
+
 namespace App\Meetings;
+
 use CodeZilla\LaravelZoom\LaravelZoom;
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class ZoomMeetings - active record
  * 
@@ -22,24 +26,88 @@ use Illuminate\Database\Eloquent\Model;
  * @package  LaravelZoom
  * @subpackage Jwt Token
  */
-class ZoomMeetings extends Model
-{
-   protected $fillable = ['meeting_id','meeting_topic','meeting_type', 'meeting_agenda', 'join_meeting_url', 'start_meeting_url', 'start_date_time', 'meeting_duration', 'host_zoom_id', 'zoom_recording', 'customer_id'];
-   public function createMeeting($zoomKey,$zoomSecret,$data)
-    {
-        $zoom = new LaravelZoom($zoomKey,$zoomSecret);
-        $token = $zoom->getJWTToken(time() + 7200); 
+class ZoomMeetings extends Model {
+
+    protected $fillable = ['meeting_id', 'meeting_topic', 'meeting_type', 'meeting_agenda', 'join_meeting_url', 'start_meeting_url', 'start_date_time', 'meeting_duration', 'host_zoom_id', 'zoom_recording', 'user_id', 'user_type', 'timezone'];
+
+    /**
+     * Create a scheduled and instant meeting with zoom based on the params send through form
+     * @param string $zoomKey
+     * @param string $zoomSecret
+     * @param Array $data
+     * @return array $meeting
+     * @Rest\Post("LaravelZoom")
+     * 
+     * @uses LaravelZoom
+     */
+    public function createMeeting($zoomKey, $zoomSecret, $data) {
+        $zoom = new LaravelZoom($zoomKey, $zoomSecret);
+        $token = $zoom->getJWTToken(time() + 7200);
         //$meeting = $zoom->createInstantMeeting($data['user_id'],$data['topic'], '', $data['agenda'], '',$data['settings']);
-        $meeting = $zoom->createScheduledMeeting($data['user_id'], $data['topic'], $data['startTime'], $data['duration'], $data['timezone'], '', '', $data['agenda'], [],$data['settings']);
-        return $meeting;    
+        $meeting = $zoom->createScheduledMeeting($data['user_id'], $data['topic'], $data['startTime'], $data['duration'], $data['timezone'], '', '', $data['agenda'], [], $data['settings']);
+        return $meeting;
+    }
+
+    public function getMeetings($zoomKey, $zoomSecret, $data) {
+        $zoom = new LaravelZoom($zoomKey, $zoomSecret);
+        $meeting1 = $zoom->getJWTToken(time() + 7200);
+        $meetingAll = $zoom->getMeetings($data['user_id'], $data['type'], 10);
+        echo "reach";
+        echo "<pre>";
+        print_r($meetingAll);
+        die;
+    }
+
+    public function upcomingMeetings($type,$date) {
+        switch ($type) {
+            case 'vendor':
+                $meetings = \DB::table('zoom_meetings')
+                            ->where('zoom_meetings.user_type', '=', $type)
+                            ->whereDate('zoom_meetings.start_date_time', '>=', $date )
+                            ->join('vendors', 'zoom_meetings.user_id', '=', 'vendors.id')
+                            ->select('zoom_meetings.*', 'vendors.name', 'vendors.phone', 'vendors.email', 'vendors.whatsapp_number')
+                            ->orderBy('zoom_meetings.start_date_time', 'ASC')
+                            ->get(); 
+                return $meetings;
+                break;
+            case 'customer':
+                $meetings = \DB::table('zoom_meetings')
+                            ->where('zoom_meetings.user_type', '=', $type)
+                            ->whereDate('zoom_meetings.start_date_time', '>=', $date )
+                            ->join('customers', 'zoom_meetings.user_id', '=', 'customers.id')
+                            ->select('zoom_meetings.*', 'customers.name', 'customers.phone', 'customers.email', 'customers.whatsapp_number')
+                            ->orderBy('zoom_meetings.start_date_time', 'ASC')        
+                            ->get();
+                return $meetings;
+                break;
+            default:
+        }
     }
     
-    public function getMeetings($zoomKey,$zoomSecret,$data)
-    {
-        $zoom = new LaravelZoom($zoomKey,$zoomSecret);
-        $meeting1 = $zoom->getJWTToken(time() + 7200);
-        $meetingAll = $zoom->getMeetings($data['user_id'],$data['type'],10);
-        echo "reach"; echo "<pre>"; print_r($meetingAll); die;
-       
+    public function pastMeetings($type,$date) {
+        switch ($type) {
+            case 'vendor':
+                $meetings = \DB::table('zoom_meetings')
+                            ->where('zoom_meetings.user_type', '=', $type)
+                            ->whereDate('zoom_meetings.start_date_time', '<', $date )
+                            ->join('vendors', 'zoom_meetings.user_id', '=', 'vendors.id')
+                            ->select('zoom_meetings.*', 'vendors.name', 'vendors.phone', 'vendors.email', 'vendors.whatsapp_number')
+                            ->orderBy('zoom_meetings.start_date_time', 'ASC')        
+                            ->get(); 
+                return $meetings;
+                break;
+            case 'customer':
+                $meetings = \DB::table('zoom_meetings')
+                            ->where('zoom_meetings.user_type', '=', $type)
+                            ->whereDate('zoom_meetings.start_date_time', '<', $date )
+                            ->join('customers', 'zoom_meetings.user_id', '=', 'customers.id')
+                            ->select('zoom_meetings.*', 'customers.name', 'customers.phone', 'customers.email', 'customers.whatsapp_number')
+                            ->orderBy('zoom_meetings.start_date_time', 'ASC')        
+                            ->get();
+                return $meetings;
+                break;
+            default:
+        }
     }
+
 }

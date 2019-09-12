@@ -327,10 +327,6 @@
                                 <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $customer->id }}" data-frequency="{{ $customer->frequency }}" data-reminder_message="{{ $customer->reminder_message }}">
                                     <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px;">
                                 </button>
-                                
-                                <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $customer->id }}">
-                                    Meeting
-                                </button>
 
                             </div>
 
@@ -709,7 +705,7 @@
                             </form>
 
                             <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}" target="_blank"><img src="/images/edit.png"/></a>
-
+                            <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $customer->id }}" data-type="customer"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
                             {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
                             <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                             {!! Form::close() !!}

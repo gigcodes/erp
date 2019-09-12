@@ -63,6 +63,7 @@ class ZoomMeetingController extends Controller
         ] );
         $input = $request->all(); 
         $userId = $this->zoomuser;
+        // Default settings for zoommeeting
          $settings = [
             'join_before_host' => true,
             'host_video' => true,
@@ -71,6 +72,7 @@ class ZoomMeetingController extends Controller
             'enforce_login' => false,
             'auto_recording' => 'cloud'
         ]; 
+        // gethering all data to pass to model function
         $data = [
             'user_id' => $userId,
             'topic' => $input['meeting_topic'], 
@@ -80,6 +82,7 @@ class ZoomMeetingController extends Controller
             'duration' => $input['meeting_duration'], 
             'timezone' => $input['meeting_timezone'], 
             ];
+        // Calling model calss
         $meetings = new ZoomMeetings();
         $zoomKey =  $this->zoomkey;
         $zoomSecret = $this->zoomsecret;
@@ -90,6 +93,7 @@ class ZoomMeetingController extends Controller
          $input[ 'meeting_type' ] = 'scheduled';
          $input[ 'join_meeting_url' ] = empty( $createMeeting[ 'body' ]['join_url'] ) ? 0 : $createMeeting[ 'body' ]['join_url']; 
          $input[ 'start_meeting_url' ] = empty( $createMeeting[ 'body' ]['start_url'] ) ? 0 : $createMeeting[ 'body' ]['start_url']; 
+         // saving data in db
          ZoomMeetings::create( $input );
          return back()->with( 'success', 'New Meeting added successfully.' );
         }else{
@@ -125,5 +129,17 @@ class ZoomMeetingController extends Controller
         $createMeet = $meetings->createMeeting($zoomKey,$zoomSecret, $data);
         echo "hello"; echo "<pre>"; print_r($createMeet); die; die;
        
+    }
+
+    public function showData($type){ 
+    $meetings = new ZoomMeetings();
+    $curDate = Carbon::now();
+    $upcomingMeetings = $meetings->upcomingMeetings($type, $curDate); 
+    $pastMeetings = $meetings->pastMeetings($type, $curDate);
+    return view('zoom-meetings.showdata', [
+            'upcomingMeetings' => $upcomingMeetings,
+            'pastMeetings' => $pastMeetings,
+            'type' => $type
+        ]);   
     }
 }

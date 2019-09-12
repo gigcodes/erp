@@ -213,6 +213,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
     Route::post( 'meeting/create', 'Meeting\ZoomMeetingController@createMeeting' );
     Route::get( 'meeting/allmeetings', 'Meeting\ZoomMeetingController@getMeetings' );
+    Route::get( 'meetings/{type}/show-data', 'Meeting\ZoomMeetingController@showData' )->name( 'meetings.show.data' );
 
     Route::get( 'task/list', 'TaskModuleController@list' )->name( 'task.list' );
     Route::post( 'task/flag', 'TaskModuleController@flag' )->name( 'task.flag' );

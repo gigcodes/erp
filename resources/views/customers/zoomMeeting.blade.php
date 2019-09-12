@@ -7,7 +7,8 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" value="{{ $customer->id }}" class="" id="customer_id" name="customer_id">
+                    <input type="hidden" value="" class="" id="user__id" name="user_id">
+                    <input type="hidden" value="" class="" id="user__type" name="user_id">
                     <div class="form-group">
                         <label for="meeting_topic">Meeting Topic</label>
                         <input type="text" name="meeting_topic" id="meeting_topic" class="form-control"/>
@@ -23,7 +24,7 @@
                     <div class="form-group">
                         <label for="meeting_duration">Duration</label>
                         <select class="form-control" name="meeting_duration" id="meeting_duration">
-                            <option value="0">Disabled</option>
+                            <option value="">Select</option>
                             <option value="5">5 mins</option>
                             <option value="10">10 mins</option>
                             <option value="15">15 mins</option>
@@ -41,6 +42,7 @@
                     <div class="form-group">
                         <label for="meeting_timezone">Timezone</label>
                         <select id="timezone" name="meeting_timezone" class="form-control">
+                            <option value="">Select</option>
                             <option value="Pacific/Midway">(GMT-11:00) Midway Island, Samoa </option>
                             <option value="Pacific/Pago_Pago">(GMT-11:00) Pago Pago </option>
                             <option value="Pacific/Honolulu">(GMT-10:00) Hawaii </option>
