@@ -34,6 +34,15 @@
                             <input value="" type="text" name="id" id="id" placeholder="Id, subject..." class="form-control">
                         </div>
 
+                        <div class="form-group ml-3">
+                            <select class="form-control" name="task_type" >
+                                <option value="">Please select Type</option>
+                                @foreach ($tasksTypes as $id => $taskType)
+                                    <option value="{{ $taskType->id }}" {{ app('request')->input('task_type') == $taskType->id ? 'selected' : '' }}>{{ $taskType->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <button type="submit" class="btn btn-secondary ml-3">Submit</button>
                     </form>
                 </div>
