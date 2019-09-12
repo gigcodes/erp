@@ -15,7 +15,7 @@ class Supplier extends Model
     ];
 
   protected $fillable = [
-    'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id', 'scraper_name', 'supplier_status_id'
+    'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status'
   ];
 
   public function agents()
@@ -44,16 +44,4 @@ class Supplier extends Model
 	{
 		return $this->hasMany('App\ChatMessage', 'supplier_id')->whereNotIn('status', ['7', '8', '9'])->latest();
 	}
-
-  public function category()
-  {
-    //return $this->belongsToMany('App\SupplierCategory', 'supplier_category', 'supplier_category_id', 'id');
-    return $this->hasMany('App\SupplierCategory');
-  }
-
-  public function status()
-  {
-    return $this->belongsToMany('App\SupplierStatus', 'supplier_status', 'supplier_status_id', 'id');
-    //return $this->hasMany('App\SupplierStatus');
-  }
 }

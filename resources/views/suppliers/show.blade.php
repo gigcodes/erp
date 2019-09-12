@@ -83,20 +83,6 @@
       <div class="tab-pane active mt-3" id="info-tab">
         <div class="row">
           <div class="col-xs-12">
-            <div class="form-group">
-              <div style="float: left;width: 63%;">   
-                <select name="supplier_category_id" id="supplier_category_id" class="form-control">
-                  <option value="">Select Category</option>
-                  @foreach($suppliercategory as $category)
-                    <option value="{{$category->id}}" {{ $category->id == $supplier->supplier_category_id ? 'selected' : '' }}>{{$category->name}}</option>
-                  @endforeach
-                </select>
-                </div>
-                <div style=" float: left;">&nbsp;&nbsp;
-                  <a href="{{ action('SupplierCategoryController@index') }}"> Supplier Category</a>
-                </div>
-                <div style="clear: both;"></div>
-            </div>
             <div class="form-group form-inline">
               <input type="text" name="supplier" id="supplier_supplier" class="form-control input-sm" placeholder="Supplier" value="{{ $supplier->supplier }}">
 
@@ -126,12 +112,12 @@
               </select>
             </div>
 
-            <!-- <div class="form-group">
+            <div class="form-group">
               <select class="form-control form-control-sm" name="status" id="status">
                 <option {{ !$supplier->status ? 'selected' : '' }} value="0">Inactive</option>
                 <option {{ $supplier->status ? 'selected' : '' }} value="1">Active</option>
               </select>
-            </div> -->
+            </div>
 
             {{-- <div class="form-group">
               <input type="number" id="supplier_whatsapp_number" name="whatsapp_number" class="form-control input-sm" placeholder="Whatsapp Number" value="{{ $supplier->whatsapp_number }}">
@@ -168,9 +154,7 @@
               <div class="form-group">
                 <input type="text" name="social_handle" id="supplier_social_handle" class="form-control input-sm" placeholder="Social Handle" value="{{ $supplier->social_handle }}">
               </div>
-              <div class="form-group">
-               <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control" value="{{ $supplier->scraper_name }}">
-              </div>
+
               {{-- <div class="form-group">
         				<select name="whatsapp_number" class="form-control input-sm" id="whatsapp_change">
         					<option value>Whatsapp Number</option>
@@ -191,26 +175,13 @@
             <div class="form-group">
               <input type="text" name="gst" id="supplier_gst" class="form-control input-sm" placeholder="GST" value="{{ $supplier->gst }}">
             </div>
+
             <div class="form-group">
-              <div style="float: left;width: 68%;">              
-                <select name="supplier_status_id" id="supplier_status_id" class="form-control">
-                  <option value="">Select Status</option>
-                  @foreach($supplierstatus as $status)
-                    <option value="{{$status->id}}" {{ $status->id == $supplier->supplier_status_id ? 'selected' : '' }}>{{$status->name}}</option>
-                  @endforeach
-                </select>
-              </div>
-              <div style=" float: left;">&nbsp;&nbsp;
-                <a href="{{ action('SupplierStatusController@index') }}">Supplier Status</a>
-              </div>
-              <div style="clear: both;"></div>
-            </div>
-            <!-- <div class="form-group">
               <select name="status" id="status" class="form-control form-control-sm">
                 <option {{ $supplier->status ? '' : 'selected' }} value="0">Inactive</option>
                 <option {{ $supplier->status ? 'selected' : '' }} value="1">Active</option>
               </select>
-            </div> -->
+            </div>
 
             <div class="form-group">
               <button type="button" id="updateSupplierButton" class="btn btn-xs btn-secondary">Save</button>
@@ -1749,10 +1720,7 @@
         var social_handle = $('#supplier_social_handle').val();
         var website = $('#supplier_website').val();
         var gst = $('#supplier_gst').val();
-        //var status = $('#status').val();
-        var supplier_category_id = $('#supplier_category_id').val();
-        var scraper_name = $('#supplier_scraper_name').val();
-        var supplier_status_id = $('#supplier_status_id').val();        
+        var status = $('#status').val();
 
         $.ajax({
           type: "POST",
@@ -1771,9 +1739,7 @@
             social_handle: social_handle,
             website: website,
             gst: gst,
-            supplier_category_id: supplier_category_id,
-            scraper_name: scraper_name,
-            supplier_status_id: supplier_status_id
+            status: status
           },
           beforeSend: function() {
             $(thiss).text('Saving...');

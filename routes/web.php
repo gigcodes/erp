@@ -616,11 +616,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'supplier/send/emailBulk', 'SupplierController@sendEmailBulk' )->name( 'supplier.email.send.bulk' );
     Route::get( 'supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages' );
     Route::post( 'supplier/flag', 'SupplierController@flag' )->name( 'supplier.flag' );
-    Route::post( 'supplier/getsuppliers', 'SupplierController@getsuppliers' )->name( 'supplier.getsuppliers' );
-    Route::post( 'supplier/supplierupdate', 'SupplierController@supplierupdate' )->name( 'supplier.supplierupdate' );
     Route::resource( 'supplier', 'SupplierController' );
-    Route::resource( 'supplier-category', 'SupplierCategoryController' );
-    Route::resource( 'supplier-status', 'SupplierStatusController' );
 
     Route::resource( 'assets-manager', 'AssetsManagerController' );
     Route::post( 'assets-manager/add-note/{id}', 'AssetsManagerController@addNote' );

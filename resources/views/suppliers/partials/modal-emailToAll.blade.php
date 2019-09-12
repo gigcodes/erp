@@ -13,27 +13,10 @@
 
         <div class="modal-body">
           <div class="form-group">
-            <strong>Category</strong>
-            <select name="supplier_category_id" id="supplier_category_id2" class="form-control">
-              <option value="">Select Category</option>
-              @foreach($suppliercategory as $category)
-                <option value="{{$category->id}}">{{$category->name}}</option>
-              @endforeach
-            </select>
-          </div>
-          <div class="form-group"> 
-            <strong>Status</strong>             
-            <select name="supplier_status_id" id="supplier_status_id2" class="form-control">
-              <option value="">Select Status</option>
-              @foreach($supplierstatus as $status)
-                <option value="{{$status->id}}">{{$status->name}}</option>
-              @endforeach
-            </select>
-          </div>
-          <div class="form-group">
             <strong>Suppliers</strong>
-            <select class="form-control" id="suppliers" name="suppliers[]" multiple>
-              {{-- <option value="">Select Suppliers</option> --}}      
+            <select class="form-control select-multiple" name="suppliers[]" multiple>
+              {{-- <option value="">Select Suppliers</option> --}}
+
               @foreach ($suppliers_all as $supplier)
                 <option value="{{ $supplier->id }}">{{ $supplier->supplier }} - {{ $supplier->default_email }} / {{ $supplier->email }}</option>
               @endforeach

@@ -1194,8 +1194,6 @@
 
                               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                   <a class="dropdown-item" href="{{ route('supplier.index') }}">Suppliers List</a>
-                                  <a class="dropdown-item" href="{{ action('SupplierCategoryController@index') }}"> Supplier Category</a>
-                                  <a class="dropdown-item" href="{{ action('SupplierStatusController@index') }}">Supplier Status</a>
                               </div>
 
                           </li>
@@ -2050,6 +2048,18 @@
       // });
   </script>
 {{--  <script src="{{ asset('js/tracker.js') }}"></script>--}}
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-147736165-1');
+  </script>
+
+
 </body>
 
 </html>

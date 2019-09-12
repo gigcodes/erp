@@ -11,18 +11,6 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-
-          
-          <div class="form-group">
-              <strong>Category:</strong>
-              <select name="supplier_category_id" class="form-control">
-                <option value="">Select Category</option>
-                @foreach($suppliercategory as $category)
-                  <option value="{{$category->id}}" {{ $category->id == old('supplier_category_id') ? 'selected' : '' }}>{{$category->name}}</option>
-                @endforeach
-              </select>
-          </div>        
-
           <div class="form-group">
             <strong>Supplier:</strong>
             <input type="text" name="supplier" class="form-control" value="{{ old('supplier') }}" required>
@@ -69,29 +57,12 @@
           </div>
 
           <div class="form-group">
-            <strong>Scraper Name:</strong>
-            <input type="text" name="scraper_name" class="form-control" value="{{ old('scraper_name') }}" required>
-
-            @if ($errors->has('scraper_name'))
-              <div class="alert alert-danger">{{$errors->first('scraper_name')}}</div>
-            @endif
-          </div>
-          <div class="form-group">
             <strong>GST:</strong>
             <input type="text" name="gst" class="form-control" value="{{ old('gst') }}">
 
             @if ($errors->has('gst'))
               <div class="alert alert-danger">{{$errors->first('gst')}}</div>
             @endif
-          </div>
-          <div class="form-group">
-            <strong>Status:</strong>
-            <select name="supplier_status_id" class="form-control">
-              <option value="">Select Status</option>
-              @foreach($supplierstatus as $status)
-                <option value="{{$status->id}}" {{ $status->id == old('supplier_status_id') ? 'selected' : '' }}>{{$status->name}}</option>
-              @endforeach
-            </select>
           </div>
         </div>
         <div class="modal-footer">
@@ -118,16 +89,6 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-
-          <div class="form-group">
-            <strong>Category:</strong>
-            <select name="supplier_category_id" id="supplier_category_id" class="form-control">
-              <option value="">Select Category</option>
-              @foreach($suppliercategory as $category)
-                <option value="{{$category->id}}" {{ $category->id == old('supplier_category_id') ? 'selected' : '' }}>{{$category->name}}</option>
-              @endforeach
-            </select>
-          </div>
           <div class="form-group">
             <strong>Supplier:</strong>
             <input type="text" name="supplier" class="form-control" value="{{ old('supplier') }}" required id="supplier_supplier">
@@ -172,14 +133,7 @@
               <div class="alert alert-danger">{{$errors->first('social_handle')}}</div>
             @endif
           </div>
-          <div class="form-group">
-            <strong>Scraper Name:</strong>
-            <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control" value="{{ old('scraper_name') }}" required>
 
-            @if ($errors->has('scraper_name'))
-              <div class="alert alert-danger">{{$errors->first('scraper_name')}}</div>
-            @endif
-          </div>
           <div class="form-group">
             <strong>GST:</strong>
             <input type="text" name="gst" class="form-control" value="{{ old('gst') }}" id="supplier_gst">
@@ -189,21 +143,12 @@
             @endif
           </div>
           <div class="form-group">
-            <strong>Status:</strong>
-            <select name="supplier_status_id" id="supplier_status_id" class="form-control">
-              <option value="">Select Status</option>
-              @foreach($supplierstatus as $status)
-                <option value="{{$status->id}}" {{ $status->id == old('supplier_status_id') ? 'selected' : '' }}>{{$status->name}}</option>
-              @endforeach
-            </select>
-          </div>
-          <!-- <div class="form-group">
             <label for="status">Status</label>
             <select name="status" id="status" class="form-control">
               <option {{ old('status') == 0 ? 'selected' : '' }} value="0">Inactive</option>
               <option {{ old('status') == 1 ? 'selected' : '' }} value="1">Active</option>
             </select>
-          </div> -->
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
