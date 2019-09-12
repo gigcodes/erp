@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\DeveloperMessagesAlertSchedules;
-use App\TasksTypes;
 use Illuminate\Http\Request;
 use App\DeveloperTask;
 use App\DeveloperModule;
@@ -82,7 +81,6 @@ class DevelopmentController extends Controller
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray( User::role( 'Developer' )->get() );
         $module_names = [];
-        $tasksTypes = TasksTypes::all();
 
         foreach ( $modules as $module ) {
             $module_names[ $module->id ] = $module->name;
@@ -99,8 +97,7 @@ class DevelopmentController extends Controller
             'module_names' => $module_names,
             'completedTasks' => $completedTasks,
             'plannedTasks' => $plannedTasks,
-            'progressTasks' => $progressTasks,
-            'tasksTypes' => $tasksTypes,
+            'progressTasks' => $progressTasks
         ] );
     }
 
@@ -237,8 +234,8 @@ class DevelopmentController extends Controller
             'status' => 'required'
         ] );
 
-        $data                   = $request->except( '_token' );
-        $data[ 'user_id' ]      = $request->user_id ? $request->user_id : Auth::id();
+        $data = $request->except( '_token' );
+        $data[ 'user_id' ] = $request->user_id ? $request->user_id : Auth::id();
 
         $module = $request->get( 'module_id' );
 
@@ -251,6 +248,7 @@ class DevelopmentController extends Controller
         }
 
         $task = DeveloperTask::create( $data );
+
         if ( $request->hasfile( 'images' ) ) {
             foreach ( $request->file( 'images' ) as $image ) {
                 $media = MediaUploader::fromSource( $image )->upload();
