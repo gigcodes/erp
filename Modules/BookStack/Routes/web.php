@@ -22,7 +22,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['prefix' => 'knowledge-base'], function () {
 
         // Shelves
-        Route::get('/create-book', 'BookController@create'); 
+        Route::get('/create-shelf', 'BookshelfController@create');
         Route::get('/', 'BookshelfController@index');
         Route::group(['prefix' => 'shelves'], function () {
             Route::get('/', 'BookshelfController@index');

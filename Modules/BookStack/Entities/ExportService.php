@@ -30,7 +30,7 @@ class ExportService
     public function pageToContainedHtml(Page $page)
     {
         $this->entityRepo->renderPage($page);
-        $pageHtml = view('pages/export', [
+        $pageHtml = view('bookstack::pages/export', [
             'page' => $page
         ])->render();
         return $this->containHtml($pageHtml);
@@ -48,7 +48,7 @@ class ExportService
         $pages->each(function ($page) {
             $page->html = $this->entityRepo->renderPage($page);
         });
-        $html = view('chapters/export', [
+        $html = view('bookstack::chapters/export', [
             'chapter' => $chapter,
             'pages' => $pages
         ])->render();
@@ -64,7 +64,7 @@ class ExportService
     public function bookToContainedHtml(Book $book)
     {
         $bookTree = $this->entityRepo->getBookChildren($book, true, true);
-        $html = view('books/export', [
+        $html = view('bookstack::books/export', [
             'book' => $book,
             'bookChildren' => $bookTree
         ])->render();
@@ -80,7 +80,7 @@ class ExportService
     public function pageToPdf(Page $page)
     {
         $this->entityRepo->renderPage($page);
-        $html = view('pages/pdf', [
+        $html = view('bookstack::pages/pdf', [
             'page' => $page
         ])->render();
         return $this->htmlToPdf($html);
@@ -98,7 +98,7 @@ class ExportService
         $pages->each(function ($page) {
             $page->html = $this->entityRepo->renderPage($page);
         });
-        $html = view('chapters/export', [
+        $html = view('bookstack::chapters/export', [
             'chapter' => $chapter,
             'pages' => $pages
         ])->render();
@@ -114,7 +114,7 @@ class ExportService
     public function bookToPdf(Book $book)
     {
         $bookTree = $this->entityRepo->getBookChildren($book, true, true);
-        $html = view('books/export', [
+        $html = view('bookstack::books/export', [
             'book' => $book,
             'bookChildren' => $bookTree
         ])->render();

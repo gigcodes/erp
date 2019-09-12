@@ -95,7 +95,7 @@ class BookController extends Controller
         }
 
         $this->checkPermission('book-create-all');
-        $this->setPageTitle(trans('entities.books_create'));
+        $this->setPageTitle(trans('bookstack::entities.books_create'));
         
         return view('bookstack::books.create', [
             'bookshelf' => $bookshelf
@@ -176,7 +176,7 @@ class BookController extends Controller
     {
         $book = $this->entityRepo->getBySlug('book', $slug);
         $this->checkOwnablePermission('book-update', $book);
-        $this->setPageTitle(trans('entities.books_edit_named', ['bookName'=>$book->getShortName()]));
+        $this->setPageTitle(trans('bookstack::entities.books_edit_named', ['bookName'=>$book->getShortName()]));
         return view('bookstack::books.edit', ['book' => $book, 'current' => $book]);
     }
 
@@ -215,7 +215,7 @@ class BookController extends Controller
     {
         $book = $this->entityRepo->getBySlug('book', $bookSlug);
         $this->checkOwnablePermission('book-delete', $book);
-        $this->setPageTitle(trans('entities.books_delete_named', ['bookName'=>$book->getShortName()]));
+        $this->setPageTitle(trans('bookstack::entities.books_delete_named', ['bookName'=>$book->getShortName()]));
         return view('bookstack::books.delete', ['book' => $book, 'current' => $book]);
     }
 
@@ -232,7 +232,7 @@ class BookController extends Controller
 
         $bookChildren = $this->entityRepo->getBookChildren($book, true);
 
-        $this->setPageTitle(trans('entities.books_sort_named', ['bookName'=>$book->getShortName()]));
+        $this->setPageTitle(trans('bookstack::entities.books_sort_named', ['bookName'=>$book->getShortName()]));
         return view('bookstack::books.sort', ['book' => $book, 'current' => $book, 'bookChildren' => $bookChildren]);
     }
 
@@ -368,7 +368,7 @@ class BookController extends Controller
         $book = $this->entityRepo->getBySlug('book', $bookSlug);
         $this->checkOwnablePermission('restrictions-manage', $book);
         $this->entityRepo->updateEntityPermissionsFromRequest($request, $book);
-        session()->flash('success', trans('entities.books_permissions_updated'));
+        session()->flash('success', trans('bookstack::entities.books_permissions_updated'));
         return redirect($book->getUrl());
     }
 

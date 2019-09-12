@@ -8,7 +8,7 @@
             @include('bookstack::partials.breadcrumbs', ['crumbs' => [
                 $book,
                 $book->getUrl('/sort') => [
-                    'text' => trans('entities.books_sort'),
+                    'text' => trans('bookstack::entities.books_sort'),
                     'icon' => 'sort',
                 ]
             ]])

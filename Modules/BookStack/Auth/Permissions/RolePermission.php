@@ -5,6 +5,7 @@ use Modules\BookStack\Model;
 
 class RolePermission extends Model
 {
+    protected $table = "permissions";
     /**
      * The roles that belong to the permission.
      */

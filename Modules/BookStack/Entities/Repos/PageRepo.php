@@ -317,7 +317,7 @@ class PageRepo extends EntityRepo
         $draftPage->revision_count = 1;
 
         $draftPage->save();
-        $this->savePageRevision($draftPage, trans('entities.pages_initial_revision'));
+        $this->savePageRevision($draftPage, trans('bookstack::entities.pages_initial_revision'));
         $this->searchService->indexEntity($draftPage);
         return $draftPage;
     }
@@ -354,11 +354,11 @@ class PageRepo extends EntityRepo
      */
     public function getUserPageDraftMessage(PageRevision $draft)
     {
-        $message = trans('entities.pages_editing_draft_notification', ['timeDiff' => $draft->updated_at->diffForHumans()]);
+        $message = trans('bookstack::entities.pages_editing_draft_notification', ['timeDiff' => $draft->updated_at->diffForHumans()]);
         if ($draft->page->updated_at->timestamp <= $draft->updated_at->timestamp) {
             return $message;
         }
-        return $message . "\n" . trans('entities.pages_draft_edited_notification');
+        return $message . "\n" . trans('bookstack::entities.pages_draft_edited_notification');
     }
 
     /**
@@ -407,8 +407,8 @@ class PageRepo extends EntityRepo
     {
         $pageDraftEdits = $this->activePageEditingQuery($page, $minRange)->get();
 
-        $userMessage = $pageDraftEdits->count() > 1 ? trans('entities.pages_draft_edit_active.start_a', ['count' => $pageDraftEdits->count()]): trans('entities.pages_draft_edit_active.start_b', ['userName' => $pageDraftEdits->first()->createdBy->name]);
-        $timeMessage = $minRange === null ? trans('entities.pages_draft_edit_active.time_a') : trans('entities.pages_draft_edit_active.time_b', ['minCount'=>$minRange]);
+        $userMessage = $pageDraftEdits->count() > 1 ? trans('bookstack::entities.pages_draft_edit_active.start_a', ['count' => $pageDraftEdits->count()]): trans('bookstack::entities.pages_draft_edit_active.start_b', ['userName' => $pageDraftEdits->first()->createdBy->name]);
+        $timeMessage = $minRange === null ? trans('bookstack::entities.pages_draft_edit_active.time_a') : trans('bookstack::entities.pages_draft_edit_active.time_b', ['minCount'=>$minRange]);
         return trans('entities.pages_draft_edit_active.message', ['start' => $userMessage, 'time' => $timeMessage]);
     }
 

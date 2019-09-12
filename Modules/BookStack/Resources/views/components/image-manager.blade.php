@@ -21,8 +21,8 @@
                 <div class="image-manager-content">
                     <div v-if="imageType === 'gallery' || imageType === 'drawio'" class="image-manager-header primary-background-light nav-tabs grid third">
                         <div class="tab-item" title="{{ trans('bookstack::components.image_all_title') }}" :class="{selected: !filter}" @click="setFilterType(null)">@icon('images') {{ trans('bookstack::components.image_all') }}</div>
-                        <div class="tab-item" title="{{ trans('bookstack::components.image_book_title') }}" :class="{selected: (filter=='book')}" @click="setFilterType('book')">@icon('book', ['class' => 'text-book svg-icon']) {{ trans('entities.book') }}</div>
-                        <div class="tab-item" title="{{ trans('bookstack::components.image_page_title') }}" :class="{selected: (filter=='page')}" @click="setFilterType('page')">@icon('page', ['class' => 'text-page svg-icon']) {{ trans('entities.page') }}</div>
+                        <div class="tab-item" title="{{ trans('bookstack::components.image_book_title') }}" :class="{selected: (filter=='book')}" @click="setFilterType('book')">@icon('book', ['class' => 'text-book svg-icon']) {{ trans('bookstack::entities.book') }}</div>
+                        <div class="tab-item" title="{{ trans('bookstack::components.image_page_title') }}" :class="{selected: (filter=='page')}" @click="setFilterType('page')">@icon('page', ['class' => 'text-page svg-icon']) {{ trans('bookstack::entities.page') }}</div>
                     </div>
                     <div>
                         <form @submit.prevent="searchImages" class="contained-search-box">

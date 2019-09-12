@@ -9,7 +9,7 @@
                 $chapter->book,
                 $chapter,
                 $chapter->getUrl('/permissions') => [
-                    'text' => trans('entities.chapters_permissions'),
+                    'text' => trans('bookstack::entities.chapters_permissions'),
                     'icon' => 'lock',
                 ]
             ]])

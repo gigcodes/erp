@@ -9,7 +9,7 @@
                 ($parent->isA('chapter') ? $parent->book : null),
                 $parent,
                 $parent->getUrl('/create-page') => [
-                    'text' => trans('entities.pages_new'),
+                    'text' => trans('bookstack::entities.pages_new'),
                     'icon' => 'add',
                 ]
             ]])

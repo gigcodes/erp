@@ -50,7 +50,7 @@
     @endif
 
     @if (isset($pageNav) && count($pageNav))
-        <nav id="page-navigation" class="mb-xl" aria-label="{{ trans('entities.pages_navigation') }}">
+        <nav id="page-navigation" class="mb-xl" aria-label="{{ trans('bookstack::entities.pages_navigation') }}">
             <h5>{{ trans('bookstack::entities.pages_navigation') }}</h5>
             <div class="body">
                 <div class="sidebar-page-nav menu">

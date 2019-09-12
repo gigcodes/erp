@@ -60,7 +60,7 @@ class PageController extends Controller
         }
 
         // Otherwise show the edit view if they're a guest
-        $this->setPageTitle(trans('entities.pages_new'));
+        $this->setPageTitle(trans('bookstack::entities.pages_new'));
         return view('bookstack::pages.guest-create', ['parent' => $parent]);
     }
 
@@ -107,7 +107,7 @@ class PageController extends Controller
     {
         $draft = $this->pageRepo->getById('page', $pageId, true);
         $this->checkOwnablePermission('page-create', $draft->parent);
-        $this->setPageTitle(trans('entities.pages_edit_draft'));
+        $this->setPageTitle(trans('bookstack::entities.pages_edit_draft'));
 
         $draftsEnabled = $this->signedIn;
         $templates = $this->pageRepo->getPageTemplates(10);
@@ -218,7 +218,7 @@ class PageController extends Controller
     {
         $page = $this->pageRepo->getPageBySlug($pageSlug, $bookSlug);
         $this->checkOwnablePermission('page-update', $page);
-        $this->setPageTitle(trans('entities.pages_editing_named', ['pageName'=>$page->getShortName()]));
+        $this->setPageTitle(trans('bookstack::entities.pages_editing_named', ['pageName'=>$page->getShortName()]));
         $page->isDraft = false;
 
         // Check for active editing

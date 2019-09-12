@@ -9,7 +9,7 @@
                 $page->chapter,
                 $page,
                 $page->getUrl('/revisions') => [
-                    'text' => trans('entities.pages_revisions'),
+                    'text' => trans('bookstack::entities.pages_revisions'),
                     'icon' => 'history',
                 ]
             ]])

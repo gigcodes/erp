@@ -128,6 +128,12 @@ class User extends Authenticatable implements AuthenticatableContract, CanResetP
         }
 
         // this is for testing purpose for now
+        $isAdmin = in_array("Admin", $this->roles->pluck("name")->toArray());
+
+        if($isAdmin) {
+            return true;
+        }
+
         return true;
 
         return $this->permissions()->pluck('name')->contains($permissionName);

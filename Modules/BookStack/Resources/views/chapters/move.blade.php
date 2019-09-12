@@ -9,7 +9,7 @@
                 $chapter->book,
                 $chapter,
                 $chapter->getUrl('/move') => [
-                    'text' => trans('entities.chapters_move'),
+                    'text' => trans('bookstack::entities.chapters_move'),
                     'icon' => 'folder',
                 ]
             ]])

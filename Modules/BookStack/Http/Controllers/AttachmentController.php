@@ -176,7 +176,7 @@ class AttachmentController extends Controller
 
         $attachments = $request->get('files');
         $this->attachmentService->updateFileOrderWithinPage($attachments, $pageId);
-        return response()->json(['message' => trans('entities.attachments_order_updated')]);
+        return response()->json(['message' => trans('bookstack::entities.attachments_order_updated')]);
     }
 
     /**
@@ -215,6 +215,6 @@ class AttachmentController extends Controller
         $attachment = $this->attachment->findOrFail($attachmentId);
         $this->checkOwnablePermission('attachment-delete', $attachment);
         $this->attachmentService->deleteFile($attachment);
-        return response()->json(['message' => trans('entities.attachments_deleted')]);
+        return response()->json(['message' => trans('bookstack::entities.attachments_deleted')]);
     }
 }

@@ -97,7 +97,7 @@ class ChapterController extends Controller
     {
         $chapter = $this->entityRepo->getBySlug('chapter', $chapterSlug, $bookSlug);
         $this->checkOwnablePermission('chapter-update', $chapter);
-        $this->setPageTitle(trans('entities.chapters_edit_named', ['chapterName' => $chapter->getShortName()]));
+        $this->setPageTitle(trans('bookstack::entities.chapters_edit_named', ['chapterName' => $chapter->getShortName()]));
         return view('bookstack::chapters.edit', ['book' => $chapter->book, 'chapter' => $chapter, 'current' => $chapter]);
     }
 
@@ -129,7 +129,7 @@ class ChapterController extends Controller
     {
         $chapter = $this->entityRepo->getBySlug('chapter', $chapterSlug, $bookSlug);
         $this->checkOwnablePermission('chapter-delete', $chapter);
-        $this->setPageTitle(trans('entities.chapters_delete_named', ['chapterName' => $chapter->getShortName()]));
+        $this->setPageTitle(trans('bookstack::entities.chapters_delete_named', ['chapterName' => $chapter->getShortName()]));
         return view('bookstack::chapters.delete', ['book' => $chapter->book, 'chapter' => $chapter, 'current' => $chapter]);
     }
 
@@ -159,7 +159,7 @@ class ChapterController extends Controller
     public function showMove($bookSlug, $chapterSlug)
     {
         $chapter = $this->entityRepo->getBySlug('chapter', $chapterSlug, $bookSlug);
-        $this->setPageTitle(trans('entities.chapters_move_named', ['chapterName' => $chapter->getShortName()]));
+        $this->setPageTitle(trans('bookstack::entities.chapters_move_named', ['chapterName' => $chapter->getShortName()]));
         $this->checkOwnablePermission('chapter-update', $chapter);
         $this->checkOwnablePermission('chapter-delete', $chapter);
         return view('bookstack::chapters.move', [

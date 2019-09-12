@@ -12,7 +12,7 @@ class Chapter extends Entity
      */
     public function getMorphClass()
     {
-        return 'Modules\\BookStack\\Chapter';
+        return '\\Modules\\BookStack\\Chapter';
     }
 
     /**

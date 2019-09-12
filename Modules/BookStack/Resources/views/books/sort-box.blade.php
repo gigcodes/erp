@@ -4,11 +4,11 @@
         <span>{{ $book->name }}</span>
     </h5>
     <div class="sort-box-options pb-sm">
-        <a href="#" data-sort="name" class="button outline small">{{ trans('entities.books_sort_name') }}</a>
-        <a href="#" data-sort="created" class="button outline small">{{ trans('entities.books_sort_created') }}</a>
-        <a href="#" data-sort="updated" class="button outline small">{{ trans('entities.books_sort_updated') }}</a>
-        <a href="#" data-sort="chaptersFirst" class="button outline small">{{ trans('entities.books_sort_chapters_first') }}</a>
-        <a href="#" data-sort="chaptersLast" class="button outline small">{{ trans('entities.books_sort_chapters_last') }}</a>
+        <a href="#" data-sort="name" class="button outline small">{{ trans('bookstack::entities.books_sort_name') }}</a>
+        <a href="#" data-sort="created" class="button outline small">{{ trans('bookstack::entities.books_sort_created') }}</a>
+        <a href="#" data-sort="updated" class="button outline small">{{ trans('bookstack::entities.books_sort_updated') }}</a>
+        <a href="#" data-sort="chaptersFirst" class="button outline small">{{ trans('bookstack::entities.books_sort_chapters_first') }}</a>
+        <a href="#" data-sort="chaptersLast" class="button outline small">{{ trans('bookstack::entities.books_sort_chapters_last') }}</a>
     </div>
     <ul class="sortable-page-list sort-list">
 

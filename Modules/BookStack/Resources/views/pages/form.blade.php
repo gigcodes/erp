@@ -62,7 +62,7 @@
     {{--Title input--}}
     <div class="title-input page-title clearfix" v-pre>
         <div class="input">
-            @include('bookstack::form.text', ['name' => 'name', 'placeholder' => trans('entities.pages_title')])
+            @include('bookstack::form.text', ['name' => 'name', 'placeholder' => trans('bookstack::entities.pages_title')])
         </div>
     </div>
 

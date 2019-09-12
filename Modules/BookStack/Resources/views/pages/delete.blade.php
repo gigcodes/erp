@@ -10,7 +10,7 @@
                 $page->chapter,
                 $page,
                 $page->getUrl('/delete') => [
-                    'text' => trans('entities.pages_delete'),
+                    'text' => trans('bookstack::entities.pages_delete'),
                     'icon' => 'delete',
                 ]
             ]])
