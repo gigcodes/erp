@@ -47,7 +47,7 @@ class TaskTypesController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store( Request $request ) {
-		//
+		// testing
 		$request->merge( array( 'userid' => Auth::id() ) );
 		$task = $this->validate( request(), [
 			'name'          => 'required',
