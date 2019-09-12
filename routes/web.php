@@ -559,18 +559,16 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'document/store', 'DocumentController@store' )->name( 'document.store' );
     Route::get( 'document/{id}/download', 'DocumentController@download' )->name( 'document.download' );
     Route::delete( 'document/{id}/destroy', 'DocumentController@destroy' )->name( 'document.destroy' );
-    Route::post( 'document/send/emailBulk', 'DocumentController@sendEmailBulk' )->name( 'document.email.send.bulk' );
-    Route::get( 'document/gettaskremark', 'DocumentController@getTaskRemark' )->name( 'document.gettaskremark' );
-    Route::post( 'document/uploadocument', 'DocumentController@uploadDocument' )->name( 'document.uploadDocument' );
-    Route::post( 'document/addremark', 'DocumentController@addRemark' )->name( 'document.addRemark' );
+
     //Document Cateogry
     Route::post( 'documentcategory/add' , 'DocuemntCategoryController@addCategory' )->name( 'documentcategory.add' );       
-         // Cash Flow Module
+
+    // Cash Flow Module
     Route::get( 'cashflow/{id}/download', 'CashFlowController@download' )->name( 'cashflow.download' );
     Route::get( 'cashflow/mastercashflow', 'CashFlowController@mastercashflow' )->name( 'cashflow.mastercashflow' );
     Route::resource( 'cashflow', 'CashFlowController' );
     Route::resource( 'dailycashflow', 'DailyCashFlowController' );
-    Route::get( '/asset-manager', 'ScrapStatisticsController@assetManager' );
+
     // Reviews Module
     Route::post( 'review/createFromInstagramHashtag', 'ReviewController@createFromInstagramHashtag' );
     Route::get( 'review/instagram/reply', 'ReviewController@replyToPost' );
@@ -618,11 +616,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'supplier/send/emailBulk', 'SupplierController@sendEmailBulk' )->name( 'supplier.email.send.bulk' );
     Route::get( 'supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages' );
     Route::post( 'supplier/flag', 'SupplierController@flag' )->name( 'supplier.flag' );
-    Route::post( 'supplier/getsuppliers', 'SupplierController@getsuppliers' )->name( 'supplier.getsuppliers' );
-    Route::post( 'supplier/supplierupdate', 'SupplierController@supplierupdate' )->name( 'supplier.supplierupdate' );
     Route::resource( 'supplier', 'SupplierController' );
-    Route::resource( 'supplier-category', 'SupplierCategoryController' );
-    Route::resource( 'supplier-status', 'SupplierStatusController' );
 
     Route::resource( 'assets-manager', 'AssetsManagerController' );
     Route::post( 'assets-manager/add-note/{id}', 'AssetsManagerController@addNote' );
@@ -675,7 +669,7 @@ Route::post( 'whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage' )->
 Route::post( 'whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError' );
 Route::post( 'whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage' );
 Route::get( 'message/resend', 'WhatsAppController@resendMessage2' );
-Route::get( 'cronscrapernotrunning', 'SupplierController@cronscrapernotrunning' );
+
 
 /*
  * @date 1/13/2019
@@ -777,8 +771,6 @@ Route::prefix( 'comments' )->group( function () {
 
 Route::prefix( 'scrap' )->middleware( 'auth' )->group( function () {
     Route::resource( 'statistics', 'ScrapStatisticsController' );
-    Route::get( 'getremark', 'ScrapStatisticsController@getRemark' )->name( 'scrap.getremark' );
-    Route::post( 'addremark', 'ScrapStatisticsController@addRemark' )->name( 'scrap.addRemark' );
     Route::get( 'facebook/inbox', 'FacebookController@getInbox' );
     Route::resource( 'facebook', 'FacebookController' );
     Route::resource( 'gmail', 'GmailDataController' );
@@ -840,7 +832,7 @@ Route::get( 'display/broken-link-details', 'BrokenLinkCheckerController@displayB
 Route::middleware( 'auth' )->group( function () {
 //    Route::get('display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails');
     Route::get( 'display/broken-link-details', 'BrokenLinkCheckerController@displayBrokenLinkDetails' )->name( 'filteredResults' );
-    Route::get( 'display/links-to-post', 'AnalyticsController@displayLinksToPostData' )->name( 'linksToPost' );
+
     Route::get( 'old-incomings', 'OldIncomingController@index' )->name( 'oldIncomings' );
     Route::get( 'old-incomings', 'OldIncomingController@index' )->name( 'filteredOldIncomings' );
     Route::post( 'store/old-incomings', 'OldIncomingController@store' )->name( 'storeOldIncomings' );
@@ -856,7 +848,6 @@ Route::middleware( 'auth' )->group( function () {
     Route::get( 'display/analytics-data', 'AnalyticsController@showData' )->name( 'showAnalytics' );
 
     Route::get( 'display/back-link-details', 'BackLinkController@displayBackLinkDetails' )->name( 'backLinkFilteredResults' );
-    Route::get('links-to-post','SEOAnalyticsController@linksToPost');
 //    Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails');
 } );
 

@@ -7,8 +7,6 @@ use App\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use \Carbon\Carbon;
-use App\ScrapRemark;
-use Auth;
 
 class ScrapStatisticsController extends Controller
 {
@@ -61,15 +59,10 @@ class ScrapStatisticsController extends Controller
         $startDate = date('Y-m-d H:i:s', time() - (2 * 86400));
         $endDate = date('Y-m-d H:i:s');
 
-        // Get active suppliers
-        $activeSuppliers = Supplier::where('supplier_status_id', 1)->orderby('supplier')->get();
-
         // Get scrape data
         $sql = '
             SELECT
-                
                 website,
-                ip_address,
                 COUNT(id) AS total,
                 SUM(IF(validated=0,1,0)) AS failed,
                 SUM(IF(validated=1,1,0)) AS validated,
@@ -81,17 +74,16 @@ class ScrapStatisticsController extends Controller
                 log_scraper
             WHERE
                 created_at > "' . $startDate . '" AND
-                created_at < "' . $endDate . '" AND
-                website != "internal_scraper"
+                created_at < "' . $endDate . '"
             GROUP BY
                 website
             ORDER BY
                 website
         ';
-        $scrapeData =  DB::select($sql);
+        $scrapeData = DB::select($sql);
 
         // Return view
-        return view('scrap.stats', compact('activeSuppliers', 'scrapeData'));
+        return view('scrap.stats', compact('scrapeData'));
     }
 
     /**
@@ -181,30 +173,5 @@ class ScrapStatisticsController extends Controller
         $end = Carbon::now()->format('Y-m-d 23:59:00');
         // dd('hello');
         return view('scrap.asset-manager');
-    }
-
-    public function getRemark(Request $request)
-    {
-        $name   = $request->input( 'name' );
-
-       $remark = ScrapRemark::where('scraper_name', $name)->get();
-
-       return response()->json($remark,200);
-    }
-
-    public function addRemark(Request $request)
-    {
-        $remark = $request->input( 'remark' );
-        $name = $request->input( 'id' );
-        $created_at = date('Y-m-d H:i:s');
-        $update_at = date('Y-m-d H:i:s');
-        $remark_entry = ScrapRemark::create([
-            'scraper_name' => $name,
-            'remark'  => $remark,
-            'user_name' => Auth::user()->name
-          ]);
-
-
-      return response()->json(['remark' => $remark ],200);
     }
 }
