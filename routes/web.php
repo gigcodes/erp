@@ -992,12 +992,6 @@ Route::get('dev-task-planner', 'NewDevTaskController@index')->name('filteredNewD
 //Supplier scrapping info
 Route::get( 'supplier-scrapping-info', 'ProductController@getSupplierScrappingInfo' )->name( 'getSupplierScrappingInfo' );
 
-//Route::get( 'taskTypes', 'TaskTypesController@index' )->name( 'taskTypes.index' );
-
-Route::resources([
-    'taskTypes' => 'TaskTypesController',
-]);
-
 Route::group( [ 'middleware' =>  'auth', 'admin'  ], function () {
     Route::get( 'category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing' );
     Route::post( 'category/brand/update-min-max-pricing', 'CategoryController@updateBrandMinMaxPricing' );

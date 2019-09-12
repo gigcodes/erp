@@ -1630,7 +1630,6 @@
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                 @can('developer-tasks')
-                                    <a class="dropdown-item" href="{{ route('taskTypes.index') }}">Task Types</a>
                                     <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                     <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                 @endcan
