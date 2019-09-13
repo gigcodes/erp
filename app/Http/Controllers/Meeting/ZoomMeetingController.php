@@ -59,7 +59,7 @@ class ZoomMeetingController extends Controller
             'meeting_topic' => 'required|min:3|max:255',
             'start_date_time' => 'required',
             'meeting_duration' => 'required',
-            'meeting_timezone' => 'required'
+            'timezone' => 'required'
         ] );
         $input = $request->all(); 
         $userId = $this->zoomuser;
@@ -80,7 +80,7 @@ class ZoomMeetingController extends Controller
             'settings' => $settings, 
             'startTime' => new Carbon($input['start_date_time']), 
             'duration' => $input['meeting_duration'], 
-            'timezone' => $input['meeting_timezone'], 
+            'timezone' => $input['timezone'], 
             ];
         // Calling model calss
         $meetings = new ZoomMeetings();

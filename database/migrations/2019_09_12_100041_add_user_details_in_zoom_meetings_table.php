@@ -19,6 +19,7 @@ class AddUserDetailsInZoomMeetingsTable extends Migration
              $table->string('user_type')->after('user_id')->nullable();
              $table->string('timezone')->after('meeting_duration')->nullable();
              $table->dateTime('start_date_time')->change();
+             $table->string('zoom_recording')->change()->nullable();
         });
     }
 

@@ -63,6 +63,7 @@ use App\Console\Commands\ResetDailyPlanner;
 use App\Console\Commands\UpdateMagentoProductStatus;
 use App\Console\Commands\ImportCustomersEmail;
 use App\Console\Commands\TwilioCallLogs;
+use App\Console\Commands\ZoomMeetingRecordings;
 
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
@@ -134,6 +135,7 @@ class Kernel extends ConsoleKernel
         FixCategoryNameBySupplier::class,
         ImportCustomersEmail::class,
         TwilioCallLogs::class,
+        ZoomMeetingRecordings::class,
         FlagCustomersIfTheyHaveAComplaint::class,
         MakeKeywordAndCustomersIndex::class,
         GetMostUsedWordsInCustomerMessages::class,
@@ -275,6 +277,8 @@ class Kernel extends ConsoleKernel
         
          //This command saves the twilio call logs in call_busy_messages table...
         $schedule->command('twilio:allcalls')->everyFifteenMinutes();
+        // Saved zoom recordings corresponding to past meetings based on meeting id
+        $schedule->command('meeting:getrecordings')->hourly();
     }
 
     /**

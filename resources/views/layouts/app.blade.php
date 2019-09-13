@@ -1203,6 +1203,7 @@
 
                               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                   <a class="dropdown-item" href="{{ route('supplier.index') }}">Suppliers List</a>
+                                  <a class="dropdown-item" href="{{ route('meetings.show.data','supplier') }}">Suppliers Meetings</a>
                               </div>
 
                           </li>

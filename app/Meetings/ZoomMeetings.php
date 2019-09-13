@@ -80,6 +80,16 @@ class ZoomMeetings extends Model {
                             ->get();
                 return $meetings;
                 break;
+            case 'supplier':
+                $meetings = \DB::table('zoom_meetings')
+                            ->where('zoom_meetings.user_type', '=', $type)
+                            ->whereDate('zoom_meetings.start_date_time', '>=', $date )
+                            ->join('suppliers', 'zoom_meetings.user_id', '=', 'suppliers.id')
+                            ->select('zoom_meetings.*', 'suppliers.supplier as name', 'suppliers.phone', 'suppliers.email', 'suppliers.whatsapp_number')
+                            ->orderBy('zoom_meetings.start_date_time', 'ASC')        
+                            ->get();
+                return $meetings;
+                break;
             default:
         }
     }
@@ -106,8 +116,60 @@ class ZoomMeetings extends Model {
                             ->get();
                 return $meetings;
                 break;
+            case 'supplier':
+                $meetings = \DB::table('zoom_meetings')
+                            ->where('zoom_meetings.user_type', '=', $type)
+                            ->whereDate('zoom_meetings.start_date_time', '<', $date )
+                            ->join('suppliers', 'zoom_meetings.user_id', '=', 'suppliers.id')
+                            ->select('zoom_meetings.*', 'suppliers.supplier as name', 'suppliers.phone', 'suppliers.email', 'suppliers.whatsapp_number')
+                            ->orderBy('zoom_meetings.start_date_time', 'ASC')        
+                            ->get();
+                return $meetings;
+                break;
             default:
         }
+    }
+    /**
+     * Get meeting recordings based on meeting id
+     * 
+     * @return array $meeting
+     * @Rest\Post("LaravelZoom")
+     * 
+     * @uses LaravelZoom
+     */
+    public function getRecordings($zoomKey, $zoomSecret, $date){ 
+       $allMeetingRecords = ZoomMeetings::WhereNull('zoom_recording')->whereNotNull('meeting_id')->whereDate('start_date_time', '<', $date )->get(); 
+       $zoom = new LaravelZoom($zoomKey, $zoomSecret);
+       $token = $zoom->getJWTToken(time() + 36000);
+       if(0!=count($allMeetingRecords)){
+           foreach($allMeetingRecords as $meetings){
+              $meetingId = $meetings->meeting_id;
+              //$recordingAll = $zoom->getRecordings('-ISK-roPRUyC3-3N5-AT_g', 10);
+               $recordingAll = $zoom->getMeetingRecordings($meetingId);
+               if($recordingAll){
+                   if('200' == $recordingAll['status']){
+                     $recordingFiles = $recordingAll['body']['recording_files'];
+                     if($recordingFiles){
+                         foreach($recordingFiles as $recordinds){
+                           if('shared_screen_with_speaker_view' == $recordinds['recording_type']){
+                               $urlOfFile = $recordinds['download_url']; 
+                               $folderPath = public_path()."/zoom/0/".$meetings->id;
+                               $fileName = $meetingId.'.mp4'; 
+                               $filePath = $folderPath.'/'.$fileName;
+                               if (!file_exists($filePath)) {
+                                    mkdir($folderPath, 0777, true);
+                                }
+                                copy($urlOfFile, $filePath);
+                                $meetings->zoom_recording = $fileName;
+                                $meetings->save();
+                           }  
+                         }
+                     }
+                   }
+               }
+           }
+       }
+       return true;
     }
 
 }

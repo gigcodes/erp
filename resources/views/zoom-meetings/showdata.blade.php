@@ -96,6 +96,7 @@
                                       <th width="15%">Meeting Agenda</th>
                                       <th width="25%">Join Meeting URL</th>
                                       <th width="20%">Meeting Duration</th>
+                                      <th width="10%">Recording</th>
                                       <th width="10%">Vendor Name</th>
                                       <th width="10%">Vendor Email</th>
                                       <th width="10%">Vendor Phone</th>
@@ -114,6 +115,12 @@
                                       <td class="p-2">{{ $pastmeetings->meeting_agenda }}</td>
                                       <td class="p-2"><a href="{{ $pastmeetings->join_meeting_url }}" target="_blank">{{ $pastmeetings->join_meeting_url }}</a></td>
                                       <td class="p-2">{{ $pastmeetings->meeting_duration }} mins</td>
+                                       <th width="10%">
+                                      <video width="220" height="220" controls>
+                                        <source src="{{ asset('zoom/0/'.$pastmeetings->id.'/'.$pastmeetings->zoom_recording) }}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                      </video>
+                                      </th>
                                      <td class="p-2">{{ $pastmeetings->name }}</td>
                                      <td class="p-2">{{ $pastmeetings->email }}</td>
                                      <td class="p-2">{{ $pastmeetings->phone }}</td>
