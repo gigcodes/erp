@@ -9,6 +9,8 @@ use App\ReplyCategory;
 use App\User;
 use App\Helpers;
 use App\Email;
+use App\SupplierCategory;
+use App\SupplierStatus;
 use App\Mail\PurchaseEmail;
 use App\ReadOnly\SoloNumbers;
 use Illuminate\Http\Request;
@@ -18,7 +20,9 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class SupplierController extends Controller
 {
-
+    /**
+     * Add/Edit Remainder functionality
+     */
     public function updateReminder(Request $request) {
         $supplier = Supplier::find($request->get('supplier_id'));
         $supplier->frequency = $request->get('frequency');
@@ -38,29 +42,38 @@ class SupplierController extends Controller
     public function index(Request $request)
     {
         // $suppliers = Supplier::with('agents')->paginate(Setting::get('pagination'));
-      $solo_numbers = (new SoloNumbers)->all();
-      $term = $request->term ?? '';
-      $type = $request->type ?? '';
-      $status = $request->status ?? '';
-      $source = $request->get('source') ?? '';
-      $typeWhereClause = '';
+        $solo_numbers = (new SoloNumbers)->all();
+        $term = $request->term ?? '';
+        $type = $request->type ?? '';
+        //$status = $request->status ?? '';
+        $supplier_category_id = $request->supplier_category_id ?? '';
+        $supplier_status_id = $request->supplier_status_id ?? '';
+        $source = $request->get('source') ?? '';
+        $typeWhereClause = '';
 
-      if ($type != '' && $type == 'has_error') {
-        $typeWhereClause = ' AND has_error = 1';
-      }
-      if ($type != '' && $type == 'not_updated') {
-        $typeWhereClause = ' AND is_updated = 0';
-      }
+        if ($type != '' && $type == 'has_error') {
+            $typeWhereClause = ' AND has_error = 1';
+        }
+        if ($type != '' && $type == 'not_updated') {
+            $typeWhereClause = ' AND is_updated = 0';
+        }
         if ($type != '' && $type == 'updated') {
             $typeWhereClause = ' AND is_updated = 1';
         }
 
-        if ( $status != '' ) {
+        /*if ( $status != '' ) {
           $typeWhereClause .= ' AND status=1';
+        }*/
+
+        if ( $supplier_category_id != '' ) {
+            $typeWhereClause .= ' AND supplier_category_id='.$supplier_category_id;
+        }
+        if ( $supplier_status_id != '' ) {
+            $typeWhereClause .= ' AND supplier_status_id='.$supplier_status_id;
         }
 
-      $suppliers = DB::select('
-									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, 
+        $suppliers = DB::select('
+									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, suppliers.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, suppliers.inventory_lifetime,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -83,40 +96,53 @@ class SupplierController extends Controller
                   ON suppliers.id = emails.email_model_id)
 
                   AS suppliers
-
                   WHERE (source LIKE "%'.$source.'%" AND (supplier LIKE "%' . $term . '%" OR 
                   phone LIKE "%' . $term . '%" OR 
                   email LIKE "%' . $term . '%" OR 
                   address LIKE "%' . $term . '%" OR 
                   social_handle LIKE "%' . $term . '%" OR
-                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
+                  scraper_name LIKE "%' . $term . '%" OR
+                  brands LIKE "%' . $term . '%" OR
+                   suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
                   ORDER BY last_communicated_at DESC, status DESC
 							');
 
-      $suppliers_all = Supplier::where(function ($query) {
-        $query->whereNotNull('email')->orWhereNotNull('default_email');
-      })->get();
+        $suppliers_all = Supplier::where(function ($query) {
+            $query->whereNotNull('email')->orWhereNotNull('default_email');
+        })->get();
 
-              // dd($suppliers);
+        // print_r($suppliers_all);
 
-      $currentPage = LengthAwarePaginator::resolveCurrentPage();
-  		$perPage = Setting::get('pagination');
-  		$currentItems = array_slice($suppliers, $perPage * ($currentPage - 1), $perPage);
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = Setting::get('pagination');
+        $currentItems = array_slice($suppliers, $perPage * ($currentPage - 1), $perPage);
 
-  		$suppliers = new LengthAwarePaginator($currentItems, count($suppliers), $perPage, $currentPage, [
-  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
-  		]);
+        $supplierscnt = count($suppliers);
+        $suppliers = new LengthAwarePaginator($currentItems, count($suppliers), $perPage, $currentPage, [
+            'path'	=> LengthAwarePaginator::resolveCurrentPath()
+        ]);
 
+        $suppliercategory = SupplierCategory::get();
+        $supplierstatus = SupplierStatus::get();
 
+        //SELECT supplier_status_id, COUNT(*) AS number_of_products FROM suppliers WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id
+        $statistics = DB::select('SELECT supplier_status_id, ss.name, COUNT(*) AS number_of_products FROM suppliers s LEFT join supplier_status ss on ss.id = s.supplier_status_id WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id');
 
-      return view('suppliers.index', [
-        'suppliers'     => $suppliers,
-        'suppliers_all' => $suppliers_all,
-        'solo_numbers'  => $solo_numbers,
-        'term'          => $term,
-        'type'          => $type,
-          'source' => $source
-      ]);
+        return view('suppliers.index', [
+            'suppliers'     => $suppliers,
+            'suppliers_all' => $suppliers_all,
+            'solo_numbers'  => $solo_numbers,
+            'term'          => $term,
+            'type'          => $type,
+            'source'        => $source,
+            'suppliercategory' => $suppliercategory,
+            'supplierstatus' => $supplierstatus,
+            'supplier_category_id' =>$supplier_category_id,
+            'supplier_status_id' => $supplier_status_id,
+            'count' => $supplierscnt,
+            'statistics' => $statistics,
+            'total' => 0
+        ]);
     }
 
     /**
@@ -137,24 +163,28 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
-      $this->validate($request, [
-        'supplier'        => 'required|string|max:255',
-        'address'         => 'sometimes|nullable|string',
-        'phone'           => 'sometimes|nullable|numeric',
-        'default_phone'   => 'sometimes|nullable|numeric',
-        'whatsapp_number' => 'sometimes|nullable|numeric',
-        'email'           => 'sometimes|nullable|email',
-        'social_handle'   => 'sometimes|nullable',
-        'gst'             => 'sometimes|nullable|max:255'
-      ]);
+        $this->validate($request, [
+            'supplier_category_id' => 'required|string|max:255',
+            'supplier'        => 'required|string|max:255',
+            'address'         => 'sometimes|nullable|string',
+            'phone'           => 'sometimes|nullable|numeric',
+            'default_phone'   => 'sometimes|nullable|numeric',
+            'whatsapp_number' => 'sometimes|nullable|numeric',
+            'email'           => 'sometimes|nullable|email',
+            'social_handle'   => 'sometimes|nullable',
+            'scraper_name'   => 'sometimes|nullable',
+            'inventory_lifetime' => 'sometimes|nullable',
+            'gst'             => 'sometimes|nullable|max:255',
+            'supplier_status_id' => 'required'
+        ]);
 
-      $data = $request->except('_token');
-      $data['default_phone'] = $request->phone ?? '';
-      $data['default_email'] = $request->email ?? '';
+        $data = $request->except('_token');
+        $data['default_phone'] = $request->phone ?? '';
+        $data['default_email'] = $request->email ?? '';
 
-      Supplier::create($data);
+        Supplier::create($data);
 
-      return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier!');
+        return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier!');
     }
 
     /**
@@ -165,17 +195,21 @@ class SupplierController extends Controller
      */
     public function show($id)
     {
-      $supplier = Supplier::find($id);
-      $reply_categories = ReplyCategory::all();
-      $users_array = Helpers::getUserArray(User::all());
-      $emails = [];
+        $supplier = Supplier::find($id);
+        $reply_categories = ReplyCategory::all();
+        $users_array = Helpers::getUserArray(User::all());
+        $emails = [];
+        $suppliercategory = SupplierCategory::get();
+        $supplierstatus = SupplierStatus::get();
 
-      return view('suppliers.show', [
-        'supplier'  => $supplier,
-        'reply_categories'  => $reply_categories,
-        'users_array'  => $users_array,
-        'emails'  => $emails
-      ]);
+        return view('suppliers.show', [
+            'supplier'  => $supplier,
+            'reply_categories'  => $reply_categories,
+            'users_array'  => $users_array,
+            'emails'  => $emails,
+            'suppliercategory' => $suppliercategory,
+            'supplierstatus' => $supplierstatus,
+        ]);
     }
 
     /**
@@ -198,154 +232,166 @@ class SupplierController extends Controller
      */
     public function update(Request $request, $id)
     {
-      $this->validate($request, [
-        'supplier'        => 'required|string|max:255',
-        'address'         => 'sometimes|nullable|string',
-        'phone'           => 'sometimes|nullable|numeric',
-        'default_phone'   => 'sometimes|nullable|numeric',
-        'whatsapp_number' => 'sometimes|nullable|numeric',
-        'email'           => 'sometimes|nullable|email',
-        'default_email'   => 'sometimes|nullable|email',
-        'social_handle'   => 'sometimes|nullable',
-        'gst'             => 'sometimes|nullable|max:255',
-        'status' => 'required'
-      ]);
+        $this->validate($request, [
+            'supplier_category_id'        => 'required|string|max:255',
+            'supplier'        => 'required|string|max:255',
+            'address'         => 'sometimes|nullable|string',
+            'phone'           => 'sometimes|nullable|numeric',
+            'default_phone'   => 'sometimes|nullable|numeric',
+            'whatsapp_number' => 'sometimes|nullable|numeric',
+            'email'           => 'sometimes|nullable|email',
+            'default_email'   => 'sometimes|nullable|email',
+            'social_handle'   => 'sometimes|nullable',
+            'scraper_name'   => 'sometimes|nullable',
+            'inventory_lifetime' => 'sometimes|nullable',
+            'gst'             => 'sometimes|nullable|max:255',
+            'supplier_status_id' => 'required'
+            //'status' => 'required'
+        ]);
 
-      $data = $request->except('_token');
-      $data['default_phone'] = $request->default_phone != '' ? $request->default_phone : $request->phone;
-      $data['default_email'] = $request->default_email != '' ? $request->default_email : $request->email;
-      $data['is_updated'] = 1;
-      Supplier::find($id)->update($data);
+        $data = $request->except('_token');
+        $data['default_phone'] = $request->default_phone != '' ? $request->default_phone : $request->phone;
+        $data['default_email'] = $request->default_email != '' ? $request->default_email : $request->email;
+        $data['is_updated'] = 1;
+        Supplier::find($id)->update($data);
 
-      return redirect()->back()->withSuccess('You have successfully updated a supplier!');
+        return redirect()->back()->withSuccess('You have successfully updated a supplier!');
     }
 
+    /**
+     * Ajax Load More message method
+     */
     public function loadMoreMessages(Request $request, $id)
     {
-      $supplier = Supplier::find($id);
+        $supplier = Supplier::find($id);
 
-      $chat_messages = $supplier->whatsapps()->skip(1)->take(3)->pluck('message');
+        $chat_messages = $supplier->whatsapps()->skip(1)->take(3)->pluck('message');
 
-      return response()->json([
-        'messages'  => $chat_messages
-      ]);
+        return response()->json([
+            'messages'  => $chat_messages
+        ]);
     }
 
+    /**
+     * Ajax Flag Update method
+     */
     public function flag(Request $request)
     {
-      $supplier = Supplier::find($request->supplier_id);
+        $supplier = Supplier::find($request->supplier_id);
 
-      if ($supplier->is_flagged == 0) {
-        $supplier->is_flagged = 1;
-      } else {
-        $supplier->is_flagged = 0;
-      }
+        if ($supplier->is_flagged == 0) {
+            $supplier->is_flagged = 1;
+        } else {
+            $supplier->is_flagged = 0;
+        }
 
-      $supplier->save();
+        $supplier->save();
 
-      return response()->json(['is_flagged' => $supplier->is_flagged]);
+        return response()->json(['is_flagged' => $supplier->is_flagged]);
     }
-
+    /**
+     * Send Bulk email to supplier
+     */
     public function sendEmailBulk(Request $request)
     {
-      $this->validate($request, [
-        'subject' => 'required|min:3|max:255',
-        'message' => 'required',
-        'cc.*' => 'nullable|email',
-        'bcc.*' => 'nullable|email'
-      ]);
+        $this->validate($request, [
+            'subject' => 'required|min:3|max:255',
+            'message' => 'required',
+            'cc.*' => 'nullable|email',
+            'bcc.*' => 'nullable|email'
+        ]);
 
-      if ($request->suppliers) {
-        $suppliers = Supplier::whereIn('id', $request->suppliers)->where(function ($query) {
-          $query->whereNotNull('default_email')->orWhereNotNull('email');
-        })->get();
-      } else {
-        if ($request->not_received != 'on' && $request->received != 'on') {
-          return redirect()->route('supplier.index')->withErrors(['Please select either suppliers or option']);
-        }
-      }
-
-      if ($request->not_received == 'on') {
-        $suppliers = Supplier::doesnthave('emails')->where(function ($query) {
-          $query->whereNotNull('default_email')->orWhereNotNull('email');
-        })->get();
-      }
-
-      if ($request->received == 'on') {
-        $suppliers = Supplier::whereDoesntHave('emails', function ($query) {
-          $query->where('type', 'incoming');
-        })->where(function ($query) {
-          $query->whereNotNull('default_email')->orWhereNotNull('email');
-        })->where('has_error', 0)->get();
-      }
-
-      // foreach ($suppliers as $supplier) {
-      //   if ($supplier->email == '' && $supplier->default_email == '') {
-      //     dump($supplier->id);
-      //   }
-      // }
-      // dd('stop');
-
-      // $first_email = '';
-      // $bcc_emails = [];
-      // foreach ($suppliers as $key => $supplier) {
-      //   if ($key == 0) {
-      //     $first_email = $supplier->default_email ?? $supplier->email;
-      //   } else {
-      //     $bcc_emails[] = $supplier->default_email ?? $supplier->email;
-      //   }
-      // }
-
-      $file_paths = [];
-
-      if ($request->hasFile('file')) {
-        foreach ($request->file('file') as $file) {
-          $filename = $file->getClientOriginalName();
-
-          $file->storeAs("documents", $filename, 'files');
-
-          $file_paths[] = "documents/$filename";
-        }
-      }
-
-      $cc = $bcc = [];
-      if ($request->has('cc')) {
-          $cc = array_values(array_filter($request->cc));
-      }
-      if ($request->has('bcc')) {
-          $bcc = array_values(array_filter($request->bcc));
-      }
-
-      foreach ($suppliers as $supplier) {
-        $mail = Mail::to($supplier->default_email ?? $supplier->email);
-
-        if ($cc) {
-            $mail->cc($cc);
-        }
-        if ($bcc) {
-            $mail->bcc($bcc);
+        if ($request->suppliers) {
+            $suppliers = Supplier::whereIn('id', $request->suppliers)->where(function ($query) {
+                $query->whereNotNull('default_email')->orWhereNotNull('email');
+            })->get();
+        } else {
+            if ($request->not_received != 'on' && $request->received != 'on') {
+                return redirect()->route('supplier.index')->withErrors(['Please select either suppliers or option']);
+            }
         }
 
-        $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+        if ($request->not_received == 'on') {
+            $suppliers = Supplier::doesnthave('emails')->where(function ($query) {
+                $query->whereNotNull('default_email')->orWhereNotNull('email');
+            })->get();
+        }
 
-        $params = [
-          'model_id'        => $supplier->id,
-          'model_type'      => Supplier::class,
-          'from'            => 'buying@amourint.com',
-          'seen'            => 1,
-          'to'              => $supplier->default_email ?? $supplier->email,
-          'subject'         => $request->subject,
-          'message'         => $request->message,
-          'template'		=> 'customer-simple',
-          'additional_data'	=> json_encode(['attachment' => $file_paths]),
-          'cc'              => $cc ?: null,
-          'bcc'             => $bcc ?: null,
-        ];
+        if ($request->received == 'on') {
+            $suppliers = Supplier::whereDoesntHave('emails', function ($query) {
+                $query->where('type', 'incoming');
+            })->where(function ($query) {
+                $query->whereNotNull('default_email')->orWhereNotNull('email');
+            })->where('has_error', 0)->get();
+        }
 
-        Email::create($params);
-      }
+        // foreach ($suppliers as $supplier) {
+        //   if ($supplier->email == '' && $supplier->default_email == '') {
+        //     dump($supplier->id);
+        //   }
+        // }
+        // dd('stop');
 
-      return redirect()->route('supplier.index')->withSuccess('You have successfully sent emails in bulk!');
+        // $first_email = '';
+        // $bcc_emails = [];
+        // foreach ($suppliers as $key => $supplier) {
+        //   if ($key == 0) {
+        //     $first_email = $supplier->default_email ?? $supplier->email;
+        //   } else {
+        //     $bcc_emails[] = $supplier->default_email ?? $supplier->email;
+        //   }
+        // }
+
+        $file_paths = [];
+
+        if ($request->hasFile('file')) {
+            foreach ($request->file('file') as $file) {
+                $filename = $file->getClientOriginalName();
+
+                $file->storeAs("documents", $filename, 'files');
+
+                $file_paths[] = "documents/$filename";
+            }
+        }
+
+        $cc = $bcc = [];
+        if ($request->has('cc')) {
+            $cc = array_values(array_filter($request->cc));
+        }
+        if ($request->has('bcc')) {
+            $bcc = array_values(array_filter($request->bcc));
+        }
+
+        foreach ($suppliers as $supplier) {
+            $mail = Mail::to($supplier->default_email ?? $supplier->email);
+
+            if ($cc) {
+                $mail->cc($cc);
+            }
+            if ($bcc) {
+                $mail->bcc($bcc);
+            }
+
+            $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+
+            $params = [
+                'model_id'        => $supplier->id,
+                'model_type'      => Supplier::class,
+                'from'            => 'buying@amourint.com',
+                'seen'            => 1,
+                'to'              => $supplier->default_email ?? $supplier->email,
+                'subject'         => $request->subject,
+                'message'         => $request->message,
+                'template'		=> 'customer-simple',
+                'additional_data'	=> json_encode(['attachment' => $file_paths]),
+                'cc'              => $cc ?: null,
+                'bcc'             => $bcc ?: null,
+            ];
+
+            Email::create($params);
+        }
+
+        return redirect()->route('supplier.index')->withSuccess('You have successfully sent emails in bulk!');
     }
 
     /**
@@ -356,16 +402,19 @@ class SupplierController extends Controller
      */
     public function destroy($id)
     {
-      $supplier = Supplier::find($id);
+        $supplier = Supplier::find($id);
 
 //      $supplier->agents()->delete();
 //      $supplier->whatsapps()->delete();
 
-      $supplier->delete();
+        $supplier->delete();
 
-      return redirect()->route('supplier.index')->withSuccess('You have successfully deleted a supplier');
+        return redirect()->route('supplier.index')->withSuccess('You have successfully deleted a supplier');
     }
 
+    /**
+     * Add Notes method
+     */
     public function addNote($id, Request $request) {
         $supplier = Supplier::findOrFail($id);
         $notes = $supplier->notes;
@@ -380,5 +429,66 @@ class SupplierController extends Controller
         return response()->json([
             'status' => 'success'
         ]);
+    }
+    public function supplierupdate(Request $request) {
+        $supplier = Supplier::find($request->get('supplier_id'));
+        $supplier->frequency = $request->get('id');
+        $type = $request->get('type');
+        if($type == 'category')
+        {
+            $supplier->supplier_category_id = $request->get('id');
+        }
+        if($type == 'status')
+        {
+            $supplier->supplier_status_id = $request->get('id');
+        }
+        $supplier->save();
+        return response()->json([
+            'success'
+        ]);
+    }
+
+    public function getsuppliers(Request $request)
+    {
+
+        $input = $request->all();
+
+        $supplier_category_id = $input['supplier_category_id'];
+
+        $supplier_status_id = $input['supplier_status_id'];
+
+        $filter = $input['filter'];
+
+        $data = '';
+        $typeWhereClause = '';
+        $suppliers_all = array();
+        if($supplier_category_id == '' && $supplier_status_id == '')
+        {
+            /* $suppliers_all = Supplier::where(function ($query) {
+             $query->whereNotNull('email')->orWhereNotNull('default_email');
+           })->get();*/
+        }
+        else
+        {
+            if ( $supplier_category_id != '' ) {
+                $typeWhereClause .= ' AND supplier_category_id='.$supplier_category_id;
+            }
+            if ( $supplier_status_id != '' ) {
+                $typeWhereClause .= ' AND supplier_status_id='.$supplier_status_id;
+            }
+
+            if ( $filter != '' ) {
+                $typeWhereClause .= ' AND supplier like "'.$filter.'%"';
+            }
+            $suppliers_all = DB::select('SELECT suppliers.id, suppliers.supplier, suppliers.email, suppliers.default_email from suppliers WHERE email != "" '.$typeWhereClause . '');
+        }
+
+        if(count($suppliers_all) > 0){
+
+            foreach ($suppliers_all as $supplier){
+                $data .= '<option value="'.$supplier->id.'">'.$supplier->supplier.' - '.$supplier->default_email.' / '.$supplier->email.'</option>';
+            }
+        }
+        return $data;
     }
 }
