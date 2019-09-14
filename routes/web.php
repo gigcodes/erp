@@ -11,9 +11,7 @@
 |
 */
 
-//Route::get('/', function () {
-//    return view('welcome');
-//});
+//Route::get('/test/test','TestController@test');
 
 Auth::routes();
 
@@ -222,6 +220,8 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'task/{id}/updateCategory', 'TaskModuleController@updateCategory' )->name( 'task.update.category' );
     Route::resource( 'task', 'TaskModuleController' );
     Route::post( 'task_category/{id}/approve', 'TaskCategoryController@approve' );
+    Route::post( 'task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup' )->name( 'task.add.whatsapp.group' );
+    Route::post( 'task/addGroupParticipant', 'TaskModuleController@addGroupParticipant' )->name( 'task.add.whatsapp.participant' );
     Route::resource( 'task_category', 'TaskCategoryController' );
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
@@ -677,6 +677,7 @@ Route::post( 'whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageErro
 Route::post( 'whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage' );
 Route::get( 'message/resend', 'WhatsAppController@resendMessage2' );
 Route::get( 'cronscrapernotrunning', 'SupplierController@cronscrapernotrunning' );
+
 
 /*
  * @date 1/13/2019

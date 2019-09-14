@@ -60,6 +60,7 @@ use Image;
 use GuzzleHttp\Client as GuzzleClient;
 use File;
 use App\Document;
+use App\WhatsAppGroup;
 
 class WhatsAppController extends FindByNumberController
 {
@@ -3816,4 +3817,103 @@ class WhatsAppController extends FindByNumberController
             'resent' => $chat_message->resent
         ]);
     }
+
+
+    public function createGroup($task_id = null, $group_id = null, $number , $message = null , $whatsapp_number)
+    {
+        
+         $encodedText = $message;
+
+        if ($whatsapp_number == '919004780634') { // Indian
+            $instanceId = "43281";
+            $token = "yi841xjhrwyrwrc7";
+        } elseif ($whatsapp_number == '971545889192') { // YM Dubai
+            $instanceId = "62439";
+            $token = "jdcqh3ladeuvwzp4";
+        } else {
+            if ($whatsapp_number == '919152731486') { // Solo 06
+                $instanceId = '55202';
+                $token = '42ndn0qg5om26vzf';
+            } else {
+                if ($whatsapp_number == '919152731483') { // 04
+                    $instanceId = '55211';
+                    $token = '3b92u5cbg215c718';
+                } else { // James
+//                    $instanceId = "43112";
+//                    $token = "vbi9bpkoejv2lvc4";
+                $instanceId = "62439";
+                $token = "jdcqh3ladeuvwzp4";
+                }
+            }
+        }
+
+
+       if($task_id != null){
+            $id = (string) $task_id;
+
+           $array = [
+            'groupName' => $id,
+            'phones' => $number,
+           
+            ];
+           $link = 'group'; 
+
+        }else{
+            $id = (string) $group_id;
+
+            $array = [
+            'groupId' => $id,
+            'participantPhone' => $number,
+           ];
+           $link = 'addGroupParticipant';
+        }
+
+       $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/$link?token=$token",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 300,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode($array),
+            CURLOPT_HTTPHEADER => array(
+                "content-type: application/json",
+                // "token: $wa_token"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+
+        // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        curl_close($curl);
+
+        $result = json_decode($response, true);
+        
+        if ($err) {
+            // DON'T THROW EXCEPTION
+            //throw new \Exception("cURL Error #:" . $err);
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
+            return false;
+        } else {
+            $result = json_decode($response, true);
+            // throw new \Exception("Something was wrong with message: " . $response);
+            if (!is_array($result) || array_key_exists('sent', $result) && !$result[ 'sent' ]) {
+                // DON'T THROW EXCEPTION
+                //throw new \Exception("Something was wrong with message: " . $response);
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $response);
+                return false;
+            } else {
+                // Log successful send
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number ". $response);
+            }
+        }
+         return $result;
+    }
+
+   
 }
