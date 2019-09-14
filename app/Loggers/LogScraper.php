@@ -12,7 +12,7 @@ class LogScraper extends Model
     protected $table = 'log_scraper';
     protected $fillable = ['ip_address', 'website', 'url', 'sku', 'brand', 'title', 'description', 'properties', 'images', 'size_system', 'currency', 'price', 'discounted_price',];
 
-    public static function LogScrapeValidationUsingRequest($request)
+    public static function LogScrapeValidationUsingRequest($request, $isExcel = 0)
     {
         // Set empty log for errors and warnings
         $errorLog = "";
@@ -54,8 +54,27 @@ class LogScraper extends Model
         // Validate discounted price
         $errorLog .= self::validateDiscountedPrice($request->discounted_price);
 
-        // Create new record
-        $logScraper = new LogScraper();
+        // Find existing record
+        $logScraper = LogScraper::where('website', $request->website)->where('sku', $request->sku)->first();
+
+        // Create new record if not found
+        if ($logScraper == null) {
+            $logScraper = new LogScraper();
+        }
+
+        // For excels we only need the SKU
+        if ($isExcel == 1 && isset($request->sku)) {
+            // Replace errors with warnings
+            $errorLog = str_replace('[error]', '[warning]', $errorLog);
+
+            // Update warningLog
+            $warningLog = $errorLog . $warningLog;
+
+            // Empty error log
+            $errorLog = '';
+        }
+
+        // Update values
         $logScraper->ip_address = self::getRealIp();
         $logScraper->website = $request->website ?? null;
         $logScraper->url = $request->url ?? null;
@@ -73,6 +92,9 @@ class LogScraper extends Model
         $logScraper->validated = empty($errorLog) ? 1 : 0;
         $logScraper->validation_result = $errorLog . $warningLog;
         $logScraper->save();
+
+        // Return true or false
+        return $errorLog;
     }
 
     public static function validateWebsite($website)
