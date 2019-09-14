@@ -64,6 +64,7 @@ use App\Console\Commands\UpdateMagentoProductStatus;
 use App\Console\Commands\ImportCustomersEmail;
 use App\Console\Commands\TwilioCallLogs;
 use App\Console\Commands\ZoomMeetingRecordings;
+use App\Console\Commands\ZoomMeetingDeleteRecordings;
 
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
@@ -136,6 +137,7 @@ class Kernel extends ConsoleKernel
         ImportCustomersEmail::class,
         TwilioCallLogs::class,
         ZoomMeetingRecordings::class,
+        ZoomMeetingDeleteRecordings::class,
         FlagCustomersIfTheyHaveAComplaint::class,
         MakeKeywordAndCustomersIndex::class,
         GetMostUsedWordsInCustomerMessages::class,
@@ -279,6 +281,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('twilio:allcalls')->everyFifteenMinutes();
         // Saved zoom recordings corresponding to past meetings based on meeting id
         $schedule->command('meeting:getrecordings')->hourly();
+        $schedule->command('meeting:deleterecordings')->dailyAt('07:00')->timezone('Asia/Kolkata');
     }
 
     /**

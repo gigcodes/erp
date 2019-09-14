@@ -57,7 +57,17 @@ class ZoomMeetings extends Model {
         print_r($meetingAll);
         die;
     }
-
+     /**
+     * Getting future meetings
+     * @param string $type
+     * @param carbon $date
+     * 
+     * @return array $meeting
+     * 
+     * @uses vendors
+     * @uses customers
+     * @uses suppliers
+     */
     public function upcomingMeetings($type,$date) {
         switch ($type) {
             case 'vendor':
@@ -93,7 +103,17 @@ class ZoomMeetings extends Model {
             default:
         }
     }
-    
+    /**
+     * Getting past meetings with recordings
+     * @param string $type
+     * @param carbon $date
+     * 
+     * @return array $meeting
+     * 
+     * @uses vendors
+     * @uses customers
+     * @uses suppliers
+     */
     public function pastMeetings($type,$date) {
         switch ($type) {
             case 'vendor':
@@ -150,11 +170,11 @@ class ZoomMeetings extends Model {
                    if('200' == $recordingAll['status']){
                      $recordingFiles = $recordingAll['body']['recording_files'];
                      if($recordingFiles){
-                         foreach($recordingFiles as $recordinds){
-                           if('shared_screen_with_speaker_view' == $recordinds['recording_type']){
-                               $urlOfFile = $recordinds['download_url']; 
-                               $folderPath = public_path()."/zoom/0/".$meetings->id;
-                               $fileName = $meetingId.'.mp4'; 
+                         $folderPath = public_path()."/zoom/0/".$meetings->id;
+                         foreach($recordingFiles as $recordings){
+                           if('shared_screen_with_speaker_view' == $recordings['recording_type']){
+                               $fileName = $meetingId.'.mp4';
+                               $urlOfFile = $recordings['download_url']; 
                                $filePath = $folderPath.'/'.$fileName;
                                if (!file_exists($filePath)) {
                                     mkdir($folderPath, 0777, true);
@@ -162,14 +182,58 @@ class ZoomMeetings extends Model {
                                 copy($urlOfFile, $filePath);
                                 $meetings->zoom_recording = $fileName;
                                 $meetings->save();
+                           }else if('audio_only' == $recordings['recording_type']){ 
+                            $fileNameAudio = $meetingId.'-audio.mp4'; 
+                            if(!isset($filePath) || empty($filePath)){
+                             $filePath = $folderPath.'/'.$fileNameAudio;   
+                            }
+                            $filePathAudio = $folderPath.'/'.$fileNameAudio;  
+                             $urlOfAudioFile = $recordings['download_url']; 
+                             if (!file_exists($filePath)) {
+                                  mkdir($folderPath, 0777, true);
+                              }
+                              copy($urlOfAudioFile, $filePathAudio);  
+                           }else{
+                              // Not saving any other files currently 
                            }  
-                         }
+                         } 
                      }
                    }
                }
            }
        }
        return true;
+    }
+    /**
+     * Delete meeting recordings based on meeting id
+     * 
+     * @return array $meeting
+     * @Rest\Post("LaravelZoom")
+     * 
+     * @uses LaravelZoom
+     */
+    public function deleteRecordings($zoomKey, $zoomSecret, $date){ 
+       $allMeetingRecords = ZoomMeetings::where('is_deleted_from_zoom' , '!=', 1)->whereNotNull('zoom_recording')->whereNotNull('meeting_id')->whereDate('start_date_time', '<', $date )->get(); 
+       $zoom = new LaravelZoom($zoomKey, $zoomSecret); 
+       $token = $zoom->getJWTToken(time() + 36000);
+       if(0!=count($allMeetingRecords)){
+           foreach($allMeetingRecords as $meetings){
+              $meetingId = $meetings->meeting_id;
+              $folderPath = public_path()."/zoom/0/".$meetings->id;
+              $fileName = $meetingId.'.mp4';
+              $filePath = $folderPath.'/'.$fileName;
+              $fileNameAudio = $meetingId.'-audio.mp4';
+              $filePathAudio = $folderPath.'/'.$fileNameAudio;   
+              if (file_exists($filePath) && file_exists($filePathAudio)) {
+                   $recordingDelete = $zoom->deleteRecordings($meetingId);
+                   if($recordingDelete && '204' == $recordingDelete['status']){
+                    $meetings->is_deleted_from_zoom = 1;
+                    $meetings->save();
+                   }
+                } 
+              
+           }
+       }
     }
 
 }
