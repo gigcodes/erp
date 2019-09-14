@@ -59,34 +59,18 @@ class DevelopmentController extends Controller
             $completedTasks = $completedTasks->whereBetween( 'created_at', [ $start, $end ] );
         }
 
-        if ( $request->get( 'id' ) || $request->get( 'task_type' )) {
+        if ( $request->get( 'id' ) ) {
             $progressTasks = $progressTasks->where( function ( $query ) use ( $request ) {
                 $id = $request->get( 'id' );
-                $task_type = $request->get( 'task_type' );
-                if(!empty($task_type)){
-                    $query->where( 'task_type_id', '=', $task_type );
-                }else{
-                    $query->where( 'id', $id )->orWhere( 'subject', 'LIKE', "%$id%" )->orWhere( 'task_type_id', '=', $task_type );
-                }
+                $query->where( 'id', $id )->orWhere( 'subject', 'LIKE', "%$id%" );
             } );
             $plannedTasks = $plannedTasks->where( function ( $query ) use ( $request ) {
                 $id = $request->get( 'id' );
-                $task_type = $request->get( 'task_type' );
-                if(!empty($task_type)){
-                    $query->where( 'task_type_id', '=', $task_type );
-                }else{
-                    $query->where( 'id', $id )->orWhere( 'subject', 'LIKE', "%$id%" )->orWhere( 'task_type_id', '=', $task_type );
-                }
+                $query->where( 'id', $id )->orWhere( 'subject', 'LIKE', "%$id%" );
             } );
             $completedTasks = $completedTasks->where( function ( $query ) use ( $request ) {
                 $id = $request->get( 'id' );
-                $task_type = $request->get( 'task_type' );
-                if(!empty($task_type)){
-                    $query->where( 'task_type_id', '=', $task_type );
-                }else{
-                    $query->where( 'id', $id )->orWhere( 'subject', 'LIKE', "%$id%" )->orWhere( 'task_type_id', '=', $task_type );
-                }
-
+                $query->where( 'id', $id )->orWhere( 'subject', 'LIKE', "%$id%" );
             } );
         }
 
