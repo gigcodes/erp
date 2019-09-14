@@ -53,7 +53,6 @@
                             <td class="p-2"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}</a>
                                 @if(substr(strtolower($supplier->supplier), 0, 6)  == 'excel_')
                                     &nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i>
-
                                 @endif
                             </td>
                             <td class="p-2">{{ !empty($data) ? $data->ip_address : '' }}</td>
@@ -90,7 +89,7 @@
                     @php $i=0; @endphp
                     @foreach ($scrapeData as $data )
                         @if ( !in_array($data->website, $arMatchedScrapers) )
-                            <tr<?= (!empty($data) && $data->running == 0) || $data == NULL ? ' style="background-color: red; color: white;"' : '' ?>>
+                            <tr <?php  $percent = $data->errors * 100 / $data->total; echo (!empty($percent) && $percent >= 25) ? 'style="background-color: orange; color: white;"' : '' ?>>
                                 @php
                                     $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$data->website)->orderBy('created_at','desc')->first();
                                     $i=0;
