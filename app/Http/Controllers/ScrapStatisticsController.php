@@ -29,25 +29,30 @@ class ScrapStatisticsController extends Controller
         // Get scrape data
         $sql = '
             SELECT
-                website,
-                ip_address,
-                COUNT(id) AS total,
-                SUM(IF(validated=0,1,0)) AS failed,
-                SUM(IF(validated=1,1,0)) AS validated,
-                SUM(IF(validation_result LIKE "%[error]%",1,0)) AS errors,
-                SUM(IF(validation_result LIKE "%[warning]%",1,0)) AS warnings,
-                MAX(created_at) AS last_scrape_date,
-                IF(MAX(created_at) < DATE_SUB(NOW(), INTERVAL 2 DAY),0,1) AS running
+                s.supplier,
+                ls.website,
+                ls.ip_address,
+                COUNT(ls.id) AS total,
+                SUM(IF(ls.validated=0,1,0)) AS failed,
+                SUM(IF(ls.validated=1,1,0)) AS validated,
+                SUM(IF(ls.validation_result LIKE "%[error]%",1,0)) AS errors,
+                SUM(IF(ls.validation_result LIKE "%[warning]%",1,0)) AS warnings,
+                MAX(ls.updated_at) AS last_scrape_date,
+                IF(MAX(ls.updated_at) < DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY),0,1) AS running
             FROM
-                log_scraper
+                suppliers s
+            RIGHT JOIN
+                log_scraper ls 
+            ON  
+                s.scraper_name=ls.website
             WHERE
-                updated_at > "' . $startDate . '" AND
-                updated_at < "' . $endDate . '" AND
-                website != "internal_scraper"
+                ls.updated_at > "' . $startDate . '" AND
+                ls.updated_at < "' . $endDate . '" AND
+                ls.website != "internal_scraper"
             GROUP BY
-                website
+                ls.website
             ORDER BY
-                website
+                s.supplier
         ';
         $scrapeData =  DB::select($sql);
 
