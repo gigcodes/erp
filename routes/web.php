@@ -222,7 +222,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('task', 'TaskModuleController');
     Route::post('task_category/{id}/approve', 'TaskCategoryController@approve');
     Route::resource('task_category', 'TaskCategoryController');
-
+    Route::post( 'task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup' )->name( 'task.add.whatsapp.group' );
+    Route::post( 'task/addGroupParticipant', 'TaskModuleController@addGroupParticipant' )->name( 'task.add.whatsapp.participant' );
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
     Route::get('/', 'MasterControlController@index')->name('home');
