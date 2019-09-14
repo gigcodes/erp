@@ -41,38 +41,60 @@ class CronScraperNotRunning extends Command
      */
     public function handle()
     {
-         $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-      ]);
+        // Create cron job report
+        $report = CronJobReport::create([
+            'signature' => $this->signature,
+            'start_time' => Carbon::now()
+        ]);
 
-         $suppliers_all = DB::select('SELECT suppliers.id, l.created_at, suppliers.whatsapp_number, suppliers.scraper_name, suppliers.inventory_lifetime from suppliers INNER JOIN log_scraper l on l.website = suppliers.scraper_name group by suppliers.id order by l.created_at desc');            
-        if(count($suppliers_all) > 0){       
-       
-          foreach ($suppliers_all as $supplier){
+        // Get all suppliers
+        $sql = "
+            SELECT
+                s.id,
+                s.supplier,
+                MAX(ls.updated_at) AS last_update,
+                s.scraper_name,
+                s.inventory_lifetime 
+            FROM
+                suppliers s
+            LEFT JOIN 
+                log_scraper ls 
+            ON 
+                ls.website=s.scraper_name
+            WHERE
+                s.supplier_status_id=1 
+            GROUP BY 
+                s.id 
+            HAVING
+                last_update < DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) OR 
+                last_update IS NULL
+            ORDER BY 
+                s.supplier
+        ";
+        $allSuppliers = DB::select($sql);
 
-            $start_date = strtotime($supplier->created_at); 
-            $end_date = time();
-            $diff = ($end_date - $start_date)/60/60; 
-            $inventory_lifetime = $supplier->inventory_lifetime * 24;
-            // check date if different more than 48 hours then send notification
-            if($diff >= $inventory_lifetime)
-            {
-              $message = 'Scraper not running '.$supplier->scraper_name;
+        // Do we have results?
+        if (count($allSuppliers) > 0) {
+            // Loop over suppliers
+            foreach ($allSuppliers as $supplier) {
+                // Create message
+                $message = '[' . date('d-m-Y H:i:s') . '] Scraper not running: ' . $supplier->scraper_name;
 
-              dump("Scraper not running $supplier->scraper_name");
+                // Output debug message
+                dump("Scraper not running: " . $supplier->scraper_name);
 
-              try {
-                dump("Sending message");
+                // Try to send message
+                try {
+                    // Output debug message
+                    dump("Sending message");
 
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('00971545889192', $supplier->whatsapp_number, $message); 
-              } catch (\Exception $e) {
-                dump($e->getMessage());
-              }
-             
+                    // Send message
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('00971545889192', $supplier->whatsapp_number, $message);
+                } catch (\Exception $e) {
+                    // Output error
+                    dump($e->getMessage());
+                }
             }
-               
-          }
         }
     }
 }
