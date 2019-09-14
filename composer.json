@@ -41,10 +41,10 @@
         "pragmarx/tracker": "^3.3",
         "pusher/pusher-http-laravel": "^4.2",
         "pusher/pusher-php-server": "v3.0.1",
-        "saineshmamgain/laravel-zoom": "dev-master",
         "seo2websites/erp-excel-importer": "dev-master",
         "seo2websites/erp-pinterest": "dev-master",
         "seo2websites/google-vision": "dev-master",
+        "seo2websites/laravel-zoom": "dev-master",
         "seo2websites/price-comparison-scrapper": "dev-master",
         "skovmand/mailchimp-laravel": "^1.0",
         "spatie/laravel-activitylog": "^2.8",
@@ -103,6 +103,10 @@
         {
             "type": "vcs",
             "url": "git@bitbucket.org:seo2websites/price-comparison-scrapper"
+        },
+        {
+            "type": "vcs", 
+            "url": "git@bitbucket.org:seo2websites/laravel-zoom"
         }
     ],
     "scripts": {
