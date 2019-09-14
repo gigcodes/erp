@@ -23,6 +23,7 @@
                 <table class="table table-bordered table-striped table-sm">
                     <thead>
                     <tr>
+                        <th>No</th>
                         <th>Supplier</th>
                         <th>Server</th>
                         <th>Last Scraped</th>
@@ -36,7 +37,7 @@
                     </thead>
 
                     <tbody>
-                    @php $arMatchedScrapers = []; @endphp
+                    @php $arMatchedScrapers = []; $i=0; @endphp
                     @foreach ($activeSuppliers as $supplier)
                         @php $data = null; @endphp
                         @foreach($scrapeData as $tmpData)
@@ -44,29 +45,50 @@
                                 @php $data = $tmpData; $arMatchedScrapers[] = $supplier->scraper_name @endphp
                             @endif
                         @endforeach
-                        <tr<?= (!empty($data) && $data->running == 0) || $data == NULL ? ' style="background-color: red; color: white;"' : '' ?>>
-                            @php
-                                $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->orderBy('created_at','desc')->first();
-                            @endphp
-                            <td class="p-2">{{ ucwords(strtolower($supplier->supplier)) }}</td>
-                            <td class="p-2">{{ !empty($data) ? $data->ip_address : '' }}</td>
-                            <td class="p-2">{{ !empty($data) ? date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) : '' }}</td>
-                            <td class="p-2 text-right">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
-                            <td class="p-2 text-right">{{ !empty($data) ? $data->total : '' }}</td>
-                            <td class="p-2 text-right">{{ !empty($data) ? $data->errors : '' }}</td>
-                            <td class="p-2 text-right">{{ !empty($data) ? $data->warnings : '' }}</td>
-                            <td class="p-2">
-                                @if($remark != '')
-                                    {{ $remark->remark }}
-                                @endif
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img src="/images/remark.png"/></button>
-                            </td>
+                        @php
+                            // Set percentage
+                            if ( isset($data->errors) && isset($data->total) ) {
+                                $percentage = ($data->errors * 100) / $data->total;
+                            } else {
+                                $percentage = 0;
+                            }
+
+                            // Show correct background color
+                            if ( (!empty($data) && $data->running == 0) || $data == null ) {
+                                echo '<tr style="background-color: red; color: white;">';
+                            } elseif ( $percentage > 25 ) {
+                                echo '<tr style="background-color: orange; color: white;">';
+                            } else {
+                                echo '<tr>';
+                            }
+
+                            $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->orderBy('created_at','desc')->first();
+                        @endphp
+                        <td>{{ ++$i }}</td>
+                        <td class="p-2"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}</a>
+                            @if(substr(strtolower($supplier->supplier), 0, 6)  == 'excel_')
+                                &nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                            @endif
+                        </td>
+                        <td class="p-2">{{ !empty($data) ? $data->ip_address : '' }}</td>
+                        <td class="p-2">{{ !empty($data) ? date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) : '' }}</td>
+                        <td class="p-2 text-right">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
+                        <td class="p-2 text-right">{{ !empty($data) ? $data->total : '' }}</td>
+                        <td class="p-2 text-right">{{ !empty($data) ? $data->errors : '' }}</td>
+                        <td class="p-2 text-right">{{ !empty($data) ? $data->warnings : '' }}</td>
+                        <td class="p-2">
+                            @if($remark != '')
+                                {{ $remark->remark }}
+                            @endif
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img src="/images/remark.png"/></button>
+                        </td>
                         </tr>
                     @endforeach
                     <thead>
                     <tr>
+                        <th>No</th>
                         <th>Supplier</th>
                         <th>Server</th>
                         <th>Last Scraped</th>
@@ -79,12 +101,15 @@
                     </tr>
                     </thead>
                     <tbody>
+                    @php $i=0; @endphp
                     @foreach ($scrapeData as $data )
                         @if ( !in_array($data->website, $arMatchedScrapers) )
-                            <tr<?= (!empty($data) && $data->running == 0) || $data == NULL ? ' style="background-color: red; color: white;"' : '' ?>>
+                            <tr <?php  $percentage = ($data->errors * 100) / $data->total; echo (!empty($percentage) && $percentage >= 25) ? 'style="background-color: orange; color: white;"' : '' ?>>
                                 @php
                                     $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$data->website)->orderBy('created_at','desc')->first();
+                                    $i=0;
                                 @endphp
+                                <td>{{ ++$i }}</td>
                                 <td class="p-2">{{ $data->website }}</td>
                                 <td class="p-2">{{ $data->ip_address }}</td>
                                 <td class="p-2">{{ !empty($data) ? date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) : '' }}</td>

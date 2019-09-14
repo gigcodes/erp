@@ -628,37 +628,3 @@ function copyTextToClipboard(text) {
     }
     document.body.removeChild(textArea);
 }
-function getSuppliers(supplier_category_id, supplier_status_id, filter)
-{       
-/*$('#suppliers').multiselect({
-    columns: 1,
-    placeholder: 'Select Languages',
-    search: true,
-    selectAll: true
-});
-*/
-  $('#suppliers').empty();
-
-  jQuery.ajax({
-      headers: {
-      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-      },
-      type:'POST',
-      data:{supplier_category_id: supplier_category_id, supplier_status_id:supplier_status_id, filter:filter},
-      url:'/supplier/getsuppliers',
-      success: function (data) {
-        if(data == '')
-        {
-          $('#suppliers-selection').hide();
-        }
-        else
-        {
-          $('#suppliers-selection').show();
-          $("#suppliers").append(data);   
-        }            
-       // alert(data);     
-        //$('#suppliers').multiselect('refresh');   
-        //$('#example').multiselect('refresh');  
-      }
-  });
-}
