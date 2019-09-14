@@ -29,7 +29,6 @@ class ScrapStatisticsController extends Controller
         // Get scrape data
         $sql = '
             SELECT
-                
                 website,
                 ip_address,
                 COUNT(id) AS total,
@@ -42,8 +41,8 @@ class ScrapStatisticsController extends Controller
             FROM
                 log_scraper
             WHERE
-                created_at > "' . $startDate . '" AND
-                created_at < "' . $endDate . '" AND
+                updated_at > "' . $startDate . '" AND
+                updated_at < "' . $endDate . '" AND
                 website != "internal_scraper"
             GROUP BY
                 website
