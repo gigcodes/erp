@@ -180,7 +180,8 @@ return [
 
         // BookStack custom service providers
         Modules\BookStack\Providers\AuthServiceProvider::class,
-        Modules\BookStack\Providers\AppServiceProvider::class,
+        Modules\BookStack\Providers\BookStackServiceProvider::class,
+        Modules\BookStack\Providers\CustomFacadeProvider::class,
         Modules\BookStack\Providers\BroadcastServiceProvider::class,
         Modules\BookStack\Providers\EventServiceProvider::class,
         Modules\BookStack\Providers\RouteServiceProvider::class,
