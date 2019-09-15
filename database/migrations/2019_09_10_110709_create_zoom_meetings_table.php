@@ -22,10 +22,9 @@ class CreateZoomMeetingsTable extends Migration
             $table->date('start_date_time');
             $table->string('meeting_duration')->nullable();
             $table->string('host_zoom_id');
-            $table->integer('customer_id')->unsigned();
+            $table->integer('customer_id');
             $table->boolean('zoom_recording');
             $table->timestamps();
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
         });
     }
 
