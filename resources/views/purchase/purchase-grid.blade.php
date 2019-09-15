@@ -133,7 +133,7 @@
                 <td>
                   <ul class="list-unstyled">
                     @foreach ($product['order_products'] as $order_product)
-                      @if ($order_product->order)
+                      @if ($order_product->order) 
                         <li>{{ $order_product->order->advance_detail }}</li>
                       @else
                         <li>No Order</li>
@@ -141,7 +141,27 @@
                     @endforeach
                   </ul>
                 </td>
-                <td>{{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }}</td>
+                <td>{{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }}
+                @php 
+                $data = DB::select('SELECT id, is_excel, if(is_excel=0, DATE_ADD(CURDATE(), INTERVAL - 48 HOUR), DATE_ADD(CURDATE(), INTERVAL - 14 DAY)) as dt, last_inventory_at FROM `scraped_products` WHERE last_inventory_at is NOT null and last_inventory_at < if(is_excel=0, DATE_ADD(CURDATE(), INTERVAL - 48 HOUR), DATE_ADD(CURDATE(), INTERVAL - 14 DAY)) and  sku = :sku', ['sku' =>$product['sku']]);
+                $cnt = count($data);
+                @endphp
+                @if($cnt > 0)
+                   <select name="supplier" id="supplier_{{$product['id']}}" class="form-control">
+                      <option value="">Select Supplier</option>
+                      @if(is_array($suppliers_array) && count($suppliers_array) > 0)
+                        @foreach($suppliers_array as $id=>$sup)
+                          <option value="{{$id}}">{{$sup}}</option>
+                        @endforeach
+                      @endif
+                    </select>
+                    <input type="button" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
+                @endif
+
+                
+
+                
+                </td>
                 <td>{{ $product['supplier_list'] }}</td>
                 <td>{{ $product['brand'] }}</td>
                 <td>
@@ -454,6 +474,32 @@
             alert('Please select atleast one product');
           }
         });
+
+        function sendMSG(id)
+        {
+           var supplier_id = $('#supplier_'+id).val('data-id');
+         
+          $.ajax({
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route('task.sendmsgsupplier') }}',
+                data: {
+                  id:id,
+                  supplier_id: supplier_id
+                },
+            }).done(response => {
+                var html='';
+
+                /*$.each(response, function( index, value ) {
+                  html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+                  html+"<hr>";
+                });
+                $("#viewRemarkModal").find('#remark-list').html(html);*/
+            });
+
+        }
     </script>
 
 @endsection
