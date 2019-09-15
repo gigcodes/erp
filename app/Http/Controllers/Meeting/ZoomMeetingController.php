@@ -19,7 +19,7 @@ use Validator;
 use Storage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use CodeZilla\LaravelZoom\LaravelZoom;
+use seo2websites\LaravelZoom\LaravelZoom;
 use App\Http\Controllers\Controller;
 /**
  * Class ZoomMeetingController - active record

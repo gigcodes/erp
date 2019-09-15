@@ -14,7 +14,7 @@
 
 namespace App\Meetings;
 
-use CodeZilla\LaravelZoom\LaravelZoom;
+use seo2websites\LaravelZoom\LaravelZoom;
 use Illuminate\Database\Eloquent\Model;
 
 /**
