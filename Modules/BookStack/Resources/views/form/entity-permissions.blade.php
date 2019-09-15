@@ -22,7 +22,7 @@
         @foreach($roles as $role)
             <tr>
                 <td width="33%" class="pt-m">
-                    {{ $role->display_name }}
+                    {{ $role->name }}
                     <a href="#" permissions-table-toggle-all-in-row class="text-small float right ml-m text-primary">{{ trans('bookstack::common.toggle_all') }}</a>
                 </td>
                 <td>@include('bookstack::form.restriction-checkbox', ['name'=>'restrictions', 'label' => trans('bookstack::common.view'), 'action' => 'view'])</td>
@@ -30,7 +30,7 @@
                     <td>@include('bookstack::form.restriction-checkbox', ['name'=>'restrictions', 'label' => trans('bookstack::common.create'), 'action' => 'create'])</td>
                 @endif
                 <td>@include('bookstack::form.restriction-checkbox', ['name'=>'restrictions', 'label' => trans('bookstack::common.update'), 'action' => 'update'])</td>
-                <td>@include('bookstack::form.restriction-checkbox', ['name'=>'restrictions', 'label' => trans('bookstack::ommon.delete'), 'action' => 'delete'])</td>
+                <td>@include('bookstack::form.restriction-checkbox', ['name'=>'restrictions', 'label' => trans('bookstack::common.delete'), 'action' => 'delete'])</td>
             </tr>
         @endforeach
     </table>
