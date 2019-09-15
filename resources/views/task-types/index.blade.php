@@ -3,7 +3,7 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Users Management</h2>
+            <h2 class="page-heading">Task Types</h2>
             <div class="pull-left">
             </div>
             <div class="pull-right">
