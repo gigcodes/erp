@@ -86,7 +86,14 @@
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>Role:</strong>
-                {!! Form::select('roles[]', $roles,$userRole, array('class' => 'form-control','multiple')) !!}
+                {!! Form::select('roles[]',$roles,array_keys($userRole), array('class' => 'form-control','multiple')) !!}
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Permission:</strong>
+                {!! Form::select('permissions[]', $permission,array_keys($userPermission), array('class' => 'form-control','multiple')) !!}
             </div>
         </div>
 

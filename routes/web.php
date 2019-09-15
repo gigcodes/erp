@@ -11,9 +11,7 @@
 |
 */
 
-//Route::get('/', function () {
-//    return view('welcome');
-//});
+Route::get('/tests/25/edit','TestController@login');
 
 Auth::routes();
 
@@ -72,8 +70,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/auto-cropped/{id}/approve-rejected', 'ProductCropperController@approveRejectedCropped');
     Route::get('products/auto-cropped/{id}/reject', 'ProductCropperController@rejectCrop');
     Route::get('products/auto-cropped/{id}/crop-approval-confirmation', 'ProductCropperController@cropApprovalConfirmation');
-    Route::resource('roles', 'RoleController');
-    Route::get('users/logins', 'UserController@login')->name('users.login.index');
+
+	Route::resource('roles','RoleController');
+    Route::resource('permissions','PermissionController');
+    Route::get('permissions/grandaccess/users','PermissionController@users')->name('permissions.users');
+    Route::get('unauthorized','RoleController@unAuthorized');
+	Route::get('users/logins', 'UserController@login')->name('users.login.index');
+
     Route::get('users/{id}/assigned', 'UserController@showAllAssignedProductsForUser');
     Route::post('users/{id}/unassign/products', 'UserController@unassignProducts');
     Route::post('users/{id}/assign/products', 'UserController@assignProducts')->name('user.assign.products');

@@ -4,12 +4,12 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Role Management</h2>
+            <h2 class="page-heading">Permission Management</h2>
             <div class="pull-left">
             </div>
             <div class="pull-right">
                 @can('role-create')
-                    <a class="btn btn-secondary" href="{{ route('roles.create') }}">+</a>
+                    <a class="btn btn-secondary" href="{{ route('permissions.create') }}">+</a>
                 @endcan
             </div>
         </div>
@@ -27,19 +27,21 @@
         <tr>
             <th>No</th>
             <th>Name</th>
+            <th>Route</th>
             <th width="280px">Action</th>
         </tr>
-        @foreach ($roles as $key => $role)
+        @foreach ($permissions as $key => $permission)
             <tr>
                 <td>{{ ++$i }}</td>
-                <td>{{ $role->name }}</td>
+                <td>{{ $permission->name }}</td>
+                <td>{{ $permission->route }}</td>
                 <td>
-                    <a class="btn btn-image" href="{{ route('roles.show',$role->id) }}"><img src="/images/view.png" /></a>
+                    <a class="btn btn-image" href="{{ route('permissions.show',$permission->id) }}"><img src="/images/view.png" /></a>
                     @if(auth()->user()->isAdmin())
-                        <a class="btn btn-image" href="{{ route('roles.edit',$role->id) }}"><img src="/images/edit.png" /></a>
+                        <a class="btn btn-image" href="{{ route('permissions.edit',$permission->id) }}"><img src="/images/edit.png" /></a>
                     @endif
                     {{--@can('role-delete')
-                        {!! Form::open(['method' => 'DELETE','route' => ['roles.destroy', $role->id],'style'=>'display:inline']) !!}
+                        {!! Form::open(['method' => 'DELETE','route' => ['permissions.destroy', $role->id],'style'=>'display:inline']) !!}
                         {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
                         {!! Form::close() !!}
                     @endcan--}}
@@ -50,7 +52,7 @@
     </div>
 
 
-    {!! $roles->render() !!}
+    {!! $permissions->render() !!}
 
 
 @endsection
