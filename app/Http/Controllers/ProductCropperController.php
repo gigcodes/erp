@@ -228,7 +228,7 @@ class ProductCropperController extends Controller
                 $stats = UserProductFeedback::where('user_id')->whereIn('action', [
                     'CROP_APPROVAL_REJECTED',
                     'CROP_SEQUENCED_REJECTED'
-                ])->where('stock', '>=', 1)->get();
+                ])->get();
                 $totalApproved = Product::where('crop_approved_by', Auth::id())->where('crop_approved_at', 'LIKE', "%$date%")->count();
                 $totalRejected = Product::where('crop_rejected_by', Auth::id())->where('crop_rejected_at', 'LIKE', "%$date%")->count();
                 $totalSequenced = Product::where('crop_rejected_by', Auth::id())->where('crop_rejected_at', 'LIKE', "%$date%")->count();
@@ -245,7 +245,7 @@ class ProductCropperController extends Controller
                 $stats = UserProductFeedback::where('user_id')->whereIn('action', [
                     'CROP_APPROVAL_REJECTED',
                     'CROP_SEQUENCED_REJECTED'
-                ])->where('stock', '>=', 1)->get();
+                ])->get();
 
                 $totalApproved = Product::where('crop_approved_by', Auth::id());
                 $totalApproved = QueryHelper::approvedListingOrder($totalApproved);
