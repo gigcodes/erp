@@ -28,7 +28,7 @@ class LogScraper extends Model
         $errorLog .= self::validateSku($request->sku);
 
         // Validate brand
-        $errorLog .= self::validateBrand($request->brand);
+        $errorLog .= self::validateBrand($request);
 
         // Validate title
         $errorLog .= self::validateTitle($request->title);
@@ -136,10 +136,10 @@ class LogScraper extends Model
         return "";
     }
 
-    public static function validateBrand($brand)
+    public static function validateBrand($request)
     {
         // Check if we have a value
-        if (empty($brand)) {
+        if (empty($request->brand)) {
             return "[error] Brand cannot be empty\n";
         }
 
