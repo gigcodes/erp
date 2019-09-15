@@ -244,7 +244,7 @@
                             </div>
                         @endif
                     @endforeach
-                    <div style="position: fixed; width: 100px; height: 200px; bottom: 18px; left: 18px;">
+                    <div style="position: fixed; width: 100px; height: 200px; top: 18px; left: 18px;">
                         <button class="btn btn-secondary btn-lg">Update Cropped <br>Images</button>
                     </div>
                 </form>
