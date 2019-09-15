@@ -119,7 +119,10 @@
                                       <video width="220" height="220" controls>
                                         <source src="{{ asset('zoom/0/'.$pastmeetings->id.'/'.$pastmeetings->zoom_recording) }}" type="video/mp4">
                                         Your browser does not support the video tag.
-                                      </video>
+                                      </video><br><br>
+                                        <audio src="{{ asset('zoom/0/'.$pastmeetings->id.'/'.$pastmeetings->meeting_id.'-audio.mp4') }}" controls preload="metadata">
+                                        <p>Alas, your browser doesn't support html5 audio.</p>
+                                      </audio>
                                       </th>
                                      <td class="p-2">{{ $pastmeetings->name }}</td>
                                      <td class="p-2">{{ $pastmeetings->email }}</td>
