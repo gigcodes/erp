@@ -55,8 +55,7 @@ class ScrapedProducts extends Model
             if (
                 !empty($json->title) &&
                 !empty($json->sku) &&
-                !empty($json->brand_id) &&
-                !empty($json->properties[ 'category' ])
+                !empty($json->brand_id)
             ) {
                 // Set possible alternate SKU
                 $sku2 = ProductHelper::getSku($json->sku);
