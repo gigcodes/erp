@@ -68,7 +68,7 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/setting-defaults.php',
+            __DIR__ . '/../Config/setting-defaults.php',
             'setting-defaults'
         );
 
