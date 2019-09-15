@@ -44,7 +44,7 @@ class Product extends Model
     public static function createProductByJson($json, $isExcel = 0)
     {
         // Log before validating
-        LogScraper::LogScrapeValidationUsingRequest($json);
+        LogScraper::LogScrapeValidationUsingRequest($json, $isExcel);
 
         // Check for required values
         if (

@@ -46,6 +46,11 @@ class ScrapedProducts extends Model
 
         // Loop over array
         foreach ($arrBulkJson as $json) {
+            // Excel?
+            if ( $isExcel == 1 ) {
+                $json->title = empty($json->title) ? $json->title : ' ';
+            }
+
             // Check for required values
             if (
                 !empty($json->title) &&
