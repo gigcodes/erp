@@ -369,6 +369,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'purchase/email/forward', 'PurchaseController@emailForward' )->name( 'purchase.email.forward' );
 
      Route::post( 'purchase/sendmsgsupplier', 'PurchaseController@sendmsgsupplier' )->name( 'purchase.sendmsgsupplier' );
+     
     Route::get( 'download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts' );
 
     // Master Plan

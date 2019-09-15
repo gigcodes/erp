@@ -2420,33 +2420,33 @@ class PurchaseController extends Controller
 
     public function sendmsgsupplier(Request $request)
     {
-       $suppliers_all = DB::select('SELECT suppliers.id, suppliers.whatsapp_number, suppliers.supplier from suppliers where supplier.id =:supplier', ['supplier' =>$request->supplier_id]);            
+      $validator = Validator::make($request->all(), [
+            'supplier_id' => 'required',
+            'message' => 'required'
+        ]);
+      $supplier_id = $request->input('supplier_id');
+      $suppliers_all = DB::select('SELECT suppliers.id, suppliers.whatsapp_number, suppliers.supplier from suppliers where suppliers.id =:supplier', ['supplier' =>$supplier_id]);
+                
         if(count($suppliers_all) > 0){       
        
           foreach ($suppliers_all as $supplier){
 
-            $start_date = strtotime($supplier->created_at); 
-            $end_date = time();
-            $diff = ($end_date - $start_date)/60/60; 
-            $inventory_lifetime = $supplier->inventory_lifetime * 24;
-            // check date if different more than 48 hours then send notification
-            if($diff >= $inventory_lifetime)
+            if($supplier->whatsapp_number != '')
             {
-              $message = 'Scraper not running '.$supplier->scraper_name;
+              $message = $request->input('message');
 
-              dump("Scraper not running $supplier->scraper_name");
+              dump($message);
 
               try {
                 dump("Sending message");
 
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('00971545889192', $supplier->whatsapp_number, $message); 
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($supplier->whatsapp_number, NULL, $message); 
               } catch (\Exception $e) {
                 dump($e->getMessage());
               }
-             
-            }
-               
+            }           
           }
+        }
     }
 
 

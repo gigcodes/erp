@@ -141,7 +141,7 @@
                     @endforeach
                   </ul>
                 </td>
-                <td>{{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }}
+                <td><!-- {{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }} -->
                 @php 
                 $data = DB::select('SELECT id, is_excel, if(is_excel=0, DATE_ADD(CURDATE(), INTERVAL - 48 HOUR), DATE_ADD(CURDATE(), INTERVAL - 14 DAY)) as dt, last_inventory_at FROM `scraped_products` WHERE last_inventory_at is NOT null and last_inventory_at < if(is_excel=0, DATE_ADD(CURDATE(), INTERVAL - 48 HOUR), DATE_ADD(CURDATE(), INTERVAL - 14 DAY)) and  sku = :sku', ['sku' =>$product['sku']]);
                 $cnt = count($data);
@@ -155,12 +155,9 @@
                         @endforeach
                       @endif
                     </select>
-                    <input type="button" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
-                @endif
-
-                
-
-                
+                    <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message" >
+                    <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
+                @endif                
                 </td>
                 <td>{{ $product['supplier_list'] }}</td>
                 <td>{{ $product['brand'] }}</td>
@@ -207,8 +204,6 @@
             </div>
           @endforeach
         </div>
-
-
       @endforeach --}}
     </div>
 
@@ -477,26 +472,48 @@
 
         function sendMSG(id)
         {
-           var supplier_id = $('#supplier_'+id).val('data-id');
-         
+          var supplier_id = $('#supplier_'+id).val();
+          var message = $('#message_'+id).val();
+          if(supplier_id == '')          {
+
+            $('#supplier_'+id).css('border', '1px solid red')
+            return false;
+          }          
+          if(message == '')          {
+
+            $('#message_'+id).css('border', '1px solid red')
+            return false;
+          }  
+          $('#btnmsg_'+id).val('Sending...');     
           $.ajax({
-                type: 'GET',
+                type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
-                url: '{{ route('task.sendmsgsupplier') }}',
+                url: '{{ route('purchase.sendmsgsupplier') }}',
                 data: {
                   id:id,
+                  message: message,
                   supplier_id: supplier_id
-                },
+                }
             }).done(response => {
-                var html='';
+                $('#btnmsg_'+id).val('SendSMG');
+                $('#btnmsg_'+id).removeClass('btn-secondary');
+                $('#btnmsg_'+id).addClass('btn-success');
+
+                setTimeout(function () {
+                  $('#btnmsg_'+id).addClass('btn-secondary');
+                  $('#btnmsg_'+id).removeClass('btn-success');
+                }, 2000);
 
                 /*$.each(response, function( index, value ) {
                   html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
                   html+"<hr>";
                 });
                 $("#viewRemarkModal").find('#remark-list').html(html);*/
+            }).fail(function(response) {
+              $('#btnmsg_'+id).val('SendSMG');
+              console.log(response);
             });
 
         }
