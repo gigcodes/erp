@@ -1210,28 +1210,16 @@
                     text: reply.reply
                 }));
             });
-<<<<<<< HEAD
         });
 
         $(document).on('change', '.quickComment', function () {
             $(this).closest('td').find('input').val($(this).val());
         });
-
-=======
-        });
-
-        $(document).on('change', '.quickComment', function () {
-            $(this).closest('td').find('input').val($(this).val());
-        });
-
->>>>>>> remotes/origin/feature/TwilioIntegrationFixes
         $('.change_status').on('change', function () {
             var thiss = $(this);
             var token = "{{ csrf_token() }}";
             var status = $(this).val();
 
-<<<<<<< HEAD
-
             if ($(this).hasClass('order_status')) {
                 var id = $(this).data('orderid');
                 var url = '/order/' + id + '/changestatus';
@@ -1267,44 +1255,6 @@
             var thiss = $(this);
 
             $.ajax({
-=======
-
-            if ($(this).hasClass('order_status')) {
-                var id = $(this).data('orderid');
-                var url = '/order/' + id + '/changestatus';
-            } else {
-                var id = $(this).data('leadid');
-                var url = '/leads/' + id + '/changestatus';
-            }
-
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: {
-                    _token: token,
-                    status: status
-                }
-            }).done(function (response) {
-                if ($(thiss).hasClass('order_status') && status == 'Product shiped to Client') {
-                    $('#tracking-wrapper-' + id).css({'display': 'block'});
-                }
-
-                $(thiss).siblings('.change_status_message').fadeIn(400);
-
-                setTimeout(function () {
-                    $(thiss).siblings('.change_status_message').fadeOut(400);
-                }, 2000);
-            }).fail(function (errObj) {
-                alert("Could not change status");
-            });
-        });
-
-        $(document).on('click', '.block-twilio', function () {
-            var customer_id = $(this).data('id');
-            var thiss = $(this);
-
-            $.ajax({
->>>>>>> remotes/origin/feature/TwilioIntegrationFixes
                 type: "POST",
                 url: "{{ route('customer.block') }}",
                 data: {
