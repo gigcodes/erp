@@ -1955,7 +1955,7 @@
                 </div>
                 <button type="button" class="btn btn-secondary ml-3 save-user-notes">Submit</button>
             </form>
-            <table class="table table-fixed-page-notes page-notes-header-fixed" style="min-width: 400px;">
+            <table class="table table-fixed-page-notes page-notes-header-fixed" style="min-width: 402px;">
               <thead>
                 <tr>
                   <th class="col-xs-1" scope="col">#</th>

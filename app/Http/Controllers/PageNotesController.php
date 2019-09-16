@@ -46,6 +46,7 @@ class PageNotesController extends Controller
     {
     	$pageNotes = \App\PageNotes::join('users', 'users.id', '=', 'page_notes.user_id')
     	->select(["page_notes.*","users.name"])
+        ->where("page_notes.user_id",\Auth::user()->id)
     	->where("url",$request->get("url"))
         ->orderBy("page_notes.id","desc")
     	->get()
@@ -57,12 +58,15 @@ class PageNotesController extends Controller
     public function index(Request $request)
     {
     	return view("pagenotes.index");
-    	//return datatables()->of(\App\PageNotes::query())->toJson();
     }
 
     public function records()
     {
-    	return datatables()->of(\App\PageNotes::join('users', 'users.id', '=', 'page_notes.user_id')->orderBy("page_notes.id","desc")->select(["page_notes.*","users.name"])->get())->make();
+    	return datatables()->of(\App\PageNotes::join('users', 'users.id', '=', 'page_notes.user_id')
+            ->where("page_notes.user_id",\Auth::user()->id)
+            ->orderBy("page_notes.id","desc")
+            ->select(["page_notes.*","users.name"]
+        )->get())->make();
     }
 
 }
