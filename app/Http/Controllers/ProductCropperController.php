@@ -527,6 +527,12 @@ class ProductCropperController extends Controller
                 ->first();
         }
 
+        if (!$secondProduct) {
+            $secondProduct = Product::where('status_id', StatusHelper::$cropApproval);
+            $secondProduct = QueryHelper::approvedListingOrder($secondProduct);
+            $secondProduct = $secondProduct->first();
+        }
+
         return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
     }
 
