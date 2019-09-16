@@ -1148,19 +1148,11 @@
 
                                 </a>
 
-
-                                <<<<<<< HEAD
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('vendor.index') }}">Vendor Info</a>
-                                    <a class="dropdown-item" href="{{ route('vendor.product.index') }}">Product Info</a>
-                                </div>
-                                =======
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('vendor.index') }}">Vendor Info</a>
                                     <a class="dropdown-item" href="{{ route('meetings.show.data','vendor') }}">Vendor Meetings</a>
                                     <a class="dropdown-item" href="{{ route('vendor.product.index') }}">Product Info</a>
                                 </div>
-                                >>>>>>> remotes/origin/feature/TwilioIntegrationFixes
 
                             </li>
                         @endcan
@@ -1175,18 +1167,11 @@
                                     Supplier<span class="caret"></span>
 
                                 </a>
-
-
-                                <<<<<<< HEAD
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('supplier.index') }}">Suppliers List</a>
-                                </div>
-                                =======
+                                
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('supplier.index') }}">Suppliers List</a>
                                     <a class="dropdown-item" href="{{ route('meetings.show.data','supplier') }}">Suppliers Meetings</a>
                                 </div>
-                                >>>>>>> remotes/origin/feature/TwilioIntegrationFixes
 
                             </li>
                         @endcan
