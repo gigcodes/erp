@@ -1008,3 +1008,14 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::get('category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing');
     Route::post('category/brand/update-min-max-pricing', 'CategoryController@updateBrandMinMaxPricing');
 });
+
+// pages notes started from here
+Route::group(['middleware' => 'auth'], function () {
+    Route::prefix('page-notes')->group(function () {
+        Route::post('create', 'PageNotesController@create')->name('createPageNote');
+        Route::get('list', 'PageNotesController@list')->name('listPageNote');
+        Route::get('records', 'PageNotesController@records')->name('pageNotesRecords');
+        Route::get('/', 'PageNotesController@index')->name('pageNotes.viewList');
+
+    });
+});
