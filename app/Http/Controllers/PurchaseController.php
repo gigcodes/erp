@@ -2425,6 +2425,7 @@ class PurchaseController extends Controller
             'message' => 'required'
         ]);
       $supplier_id = $request->input('supplier_id');
+      $id = $request->input('id');
       $suppliers_all = DB::select('SELECT suppliers.id, suppliers.whatsapp_number, suppliers.supplier from suppliers where suppliers.id =:supplier', ['supplier' =>$supplier_id]);
                 
         if(count($suppliers_all) > 0){       
@@ -2441,6 +2442,20 @@ class PurchaseController extends Controller
                 dump("Sending message");
 
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($supplier->whatsapp_number, NULL, $message); 
+
+                $params = [
+                  'number'    => NULL,
+                  'user_id'   => Auth::id(),
+                  'message'   => $message,
+                  'approved'  => 0,
+                  'status'    => 1
+                ];
+
+                $chat_message = ChatMessage::create($params);
+
+                $values = array('product_id' => $id,'supplier_id' => $supplier_id, 'chat_message_id' => $chat_message->id);
+                DB::table('purchase_product_supplier')->insert($values);
+
               } catch (\Exception $e) {
                 dump($e->getMessage());
               }

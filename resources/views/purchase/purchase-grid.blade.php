@@ -143,17 +143,32 @@
                 </td>
                 <td><!-- {{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }} -->
                 @php 
-                $data = DB::select('SELECT id, is_excel, if(is_excel=0, DATE_ADD(CURDATE(), INTERVAL - 48 HOUR), DATE_ADD(CURDATE(), INTERVAL - 14 DAY)) as dt, last_inventory_at FROM `scraped_products` WHERE last_inventory_at is NOT null and last_inventory_at < if(is_excel=0, DATE_ADD(CURDATE(), INTERVAL - 48 HOUR), DATE_ADD(CURDATE(), INTERVAL - 14 DAY)) and  sku = :sku', ['sku' =>$product['sku']]);
+                $data = DB::select('SELECT id FROM `scraped_products` WHERE last_inventory_at is NOT null and last_inventory_at < if(is_excel=0, DATE_ADD(CURDATE(), INTERVAL - 48 HOUR), DATE_ADD(CURDATE(), INTERVAL - 14 DAY)) and  sku = :sku', ['sku' =>$product['sku']]);
                 $cnt = count($data);
                 @endphp
                 @if($cnt > 0)
+
+                @php
+                 $suppliers_array2 = DB::select('SELECT id, supplier, product_id
+                    FROM suppliers
+                    INNER JOIN (
+                      SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                      ) as product_suppliers
+                    ON suppliers.id = product_suppliers.supplier_id
+                    LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and product_id = :product_id', ['product_id' =>$product['id']]);
+                    $cnt2 = count($suppliers_array2);
+                @endphp
                    <select name="supplier" id="supplier_{{$product['id']}}" class="form-control">
                       <option value="">Select Supplier</option>
-                      @if(is_array($suppliers_array) && count($suppliers_array) > 0)
-                        @foreach($suppliers_array as $id=>$sup)
-                          <option value="{{$id}}">{{$sup}}</option>
+                      @if($cnt2 > 0)
+                        @foreach($suppliers_array2 as $sup)
+                          <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
                         @endforeach
                       @endif
+
+
+
+
                     </select>
                     <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message" >
                     <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
