@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DeveloperMessagesAlertSchedules;
+use App\TasksHistory;
 use App\TasksTypes;
 use Illuminate\Http\Request;
 use App\DeveloperTask;
@@ -166,9 +167,17 @@ class DevelopmentController extends Controller
     public function updateAssignee( Request $request )
     {
         $task = DeveloperTask::find( $request->get( 'task_id' ) );
+        $old_assignee = $task->user_id;
         $task->user_id = $request->get( 'user_id' );
         $task->save();
 
+        $task_history                   = new TasksHistory;
+        $task_history->date_time        = date('Y-m-d H:i:s');
+        $task_history->task_id          = $request->get( 'task_id' );
+        $task_history->user_id          = Auth::id();
+        $task_history->old_assignee     = $old_assignee;
+        $task_history->new_assignee     = $request->get( 'user_id' );
+        $task_history->save();
         return response()->json( [
             'success'
         ] );
