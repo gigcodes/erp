@@ -705,11 +705,7 @@
                             </form>
 
                             <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}" target="_blank"><img src="/images/edit.png"/></a>
-<<<<<<< HEAD
-
-=======
-                            <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $customer->id }}" data-type="customer"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
->>>>>>> remotes/origin/feature/TwilioIntegrationFixes
+                           <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $customer->id }}" data-type="customer"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
                             {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
                             <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                             {!! Form::close() !!}
