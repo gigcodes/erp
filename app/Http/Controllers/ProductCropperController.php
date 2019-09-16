@@ -533,7 +533,12 @@ class ProductCropperController extends Controller
             $secondProduct = $secondProduct->first();
         }
 
-        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
+        if ( !$secondProduct || !isset($secondProduct->id) ) {
+            return redirect()->action('ProductCropperController@getListOfImagesToBeVerified');
+        } else {
+            return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
+        }
+
     }
 
     public function cropApprovalConfirmation($id, Request $request)
