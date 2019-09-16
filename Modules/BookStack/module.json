@@ -9,6 +9,6 @@
         "Modules\\BookStack\\Providers\\BookStackServiceProvider"
     ],
     "aliases": {},
-    "files": ["helpers.php"],
+    "files": [],
     "requires": []
 }
