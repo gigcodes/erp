@@ -228,7 +228,7 @@ class ProductCropperController extends Controller
                 $stats = UserProductFeedback::where('user_id')->whereIn('action', [
                     'CROP_APPROVAL_REJECTED',
                     'CROP_SEQUENCED_REJECTED'
-                ])->get();
+                ])->where('stock', '>=', 1)->get();
                 $totalApproved = Product::where('crop_approved_by', Auth::id())->where('crop_approved_at', 'LIKE', "%$date%")->count();
                 $totalRejected = Product::where('crop_rejected_by', Auth::id())->where('crop_rejected_at', 'LIKE', "%$date%")->count();
                 $totalSequenced = Product::where('crop_rejected_by', Auth::id())->where('crop_rejected_at', 'LIKE', "%$date%")->count();
@@ -245,7 +245,7 @@ class ProductCropperController extends Controller
                 $stats = UserProductFeedback::where('user_id')->whereIn('action', [
                     'CROP_APPROVAL_REJECTED',
                     'CROP_SEQUENCED_REJECTED'
-                ])->get();
+                ])->where('stock', '>=', 1)->get();
 
                 $totalApproved = Product::where('crop_approved_by', Auth::id());
                 $totalApproved = QueryHelper::approvedListingOrder($totalApproved);
@@ -611,14 +611,9 @@ class ProductCropperController extends Controller
         }
 
         if (!$secondProduct) {
-            $secondProduct = Product::where('is_image_processed', 1)
-                ->where('id', '!=', $id)
-                ->where('is_crop_rejected', 0)
-                ->where('is_crop_approved', 0)
-                ->where('is_crop_being_verified', 0)
-                ->whereNotIn('id', DB::table('crop_amends')->pluck('product_id')->toArray())
-                ->orderBy('is_on_sale', 'DESC')
-                ->first();
+            $secondProduct = Product::where('status_id', StatusHelper::$cropApproval);
+            $secondProduct = QueryHelper::approvedListingOrder($secondProduct);
+            $secondProduct = $secondProduct->first();
         }
 
         if (!$secondProduct) {
