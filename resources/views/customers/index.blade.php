@@ -779,10 +779,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
-<<<<<<< HEAD
-=======
     <script src="{{asset('js/zoom-meetings.js')}}"></script>
->>>>>>> remotes/origin/feature/TwilioIntegrationFixes
     <script type="text/javascript">
         var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
 
@@ -1049,7 +1046,6 @@
         $(document).on('click', '.create-shortcut', function () {
             var id = $(this).data('id');
             var instruction = $(this).data('instruction');
-<<<<<<< HEAD
 
             $('#customer_id_field').val(id);
             $('#instruction_field').val(instruction);
@@ -1057,17 +1053,6 @@
 
         $(document).on('click', '.complete-call', function (e) {
             e.preventDefault();
-
-=======
-
-            $('#customer_id_field').val(id);
-            $('#instruction_field').val(instruction);
-        });
-
-        $(document).on('click', '.complete-call', function (e) {
-            e.preventDefault();
-
->>>>>>> remotes/origin/feature/TwilioIntegrationFixes
             var thiss = $(this);
             var token = "{{ csrf_token() }}";
             var url = "{{ route('instruction.complete') }}";
