@@ -47,7 +47,7 @@ class PageNotesController extends Controller
     	$pageNotes = \App\PageNotes::join('users', 'users.id', '=', 'page_notes.user_id')
     	->select(["page_notes.*","users.name"])
     	->where("url",$request->get("url"))
-    	->limit(2)
+        ->orderBy("page_notes.id","desc")
     	->get()
     	->toArray();
 
@@ -62,7 +62,7 @@ class PageNotesController extends Controller
 
     public function records()
     {
-    	return datatables()->of(\App\PageNotes::join('users', 'users.id', '=', 'page_notes.user_id')->select(["page_notes.*","users.name"])->get())->make();
+    	return datatables()->of(\App\PageNotes::join('users', 'users.id', '=', 'page_notes.user_id')->orderBy("page_notes.id","desc")->select(["page_notes.*","users.name"])->get())->make();
     }
 
 }

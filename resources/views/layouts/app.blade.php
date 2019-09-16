@@ -1946,7 +1946,7 @@
 </div>
 
 <div class="help-button-wrapper">
-    <div class="col-md-12">
+    <div class="col-md-10">
         <div class="help-list well well-lg">
             <form action="<?php echo route("createPageNote"); ?>">
                 <div class="form-group">
@@ -1955,12 +1955,12 @@
                 </div>
                 <button type="button" class="btn btn-secondary ml-3 save-user-notes">Submit</button>
             </form>
-            <table class="table table-fixed-page-notes">
+            <table class="table table-fixed-page-notes page-notes-header-fixed" style="min-width: 400px;">
               <thead>
                 <tr>
-                  <th class="col-xs-3" scope="col">#</th>
+                  <th class="col-xs-1" scope="col">#</th>
                   <th class="col-xs-3" scope="col">Note</th>
-                  <th class="col-xs-3" scope="col">Created By</th>
+                  <th class="col-xs-2" scope="col">Created By</th>
                   <th class="col-xs-3" scope="col">Created At</th>
                 </tr>
               </thead>
@@ -2045,7 +2045,7 @@
                 if(data.code > 0) {
                     $form.find("#note").val("");
                     var listOfN = "<tr>";
-                        listOfN += "<th scope='row'>"+data.notes.id+"</th>";
+                        listOfN += "<td scope='row'>"+data.notes.id+"</td>";
                         listOfN += "<td>"+data.notes.note+"</td>";
                         listOfN += "<td>"+data.notes.name+"</td>";
                         listOfN += "<td>"+data.notes.created_at+"</td>";
@@ -2071,7 +2071,7 @@
                     var listOfN = "";
                     $.each(data.notes,function(k,v){
                         listOfN += "<tr>";
-                        listOfN += "<th scope='row'>"+v.id+"</th>";
+                        listOfN += "<td scope='row'>"+v.id+"</td>";
                         listOfN += "<td>"+v.note+"</td>";
                         listOfN += "<td>"+v.name+"</td>";
                         listOfN += "<td>"+v.created_at+"</td>";
