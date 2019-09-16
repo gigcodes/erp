@@ -208,6 +208,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
 
+    // Zoom Meetings
+    //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
+    Route::post('meeting/create', 'Meeting\ZoomMeetingController@createMeeting');
+    Route::get('meeting/allmeetings', 'Meeting\ZoomMeetingController@getMeetings');
+    Route::get('meetings/{type}/show-data', 'Meeting\ZoomMeetingController@showData')->name('meetings.show.data');
+
     Route::get('task/list', 'TaskModuleController@list')->name('task.list');
     Route::post('task/flag', 'TaskModuleController@flag')->name('task.flag');
     Route::post('task/{id}/plan', 'TaskModuleController@plan')->name('task.plan');
@@ -222,8 +228,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('task', 'TaskModuleController');
     Route::post('task_category/{id}/approve', 'TaskCategoryController@approve');
     Route::resource('task_category', 'TaskCategoryController');
-    Route::post( 'task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup' )->name( 'task.add.whatsapp.group' );
-    Route::post( 'task/addGroupParticipant', 'TaskModuleController@addGroupParticipant' )->name( 'task.add.whatsapp.participant' );
+    Route::post('task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup')->name('task.add.whatsapp.group');
+    Route::post('task/addGroupParticipant', 'TaskModuleController@addGroupParticipant')->name('task.add.whatsapp.participant');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
     Route::get('/', 'MasterControlController@index')->name('home');
@@ -626,7 +632,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
 
-
     // Agent Routes
     Route::resource('agent', 'AgentController');
 });
@@ -674,7 +679,6 @@ Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->na
 Route::post('whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError');
 Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
-
 
 
 /*

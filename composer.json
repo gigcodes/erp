@@ -31,6 +31,7 @@
         "league/color-extractor": "^0.3.2",
         "league/csv": "^9.2",
         "maatwebsite/excel": "^3.1",
+        "macsidigital/zoom-laravel": "^1.0",
         "mgp25/instagram-php": "^5.0",
         "nunomaduro/laravel-console-dusk": "^1.0",
         "ourcodeworld/name-that-color": "dev-master",
@@ -43,6 +44,7 @@
         "seo2websites/erp-excel-importer": "dev-master",
         "seo2websites/erp-pinterest": "dev-master",
         "seo2websites/google-vision": "dev-master",
+        "seo2websites/laravel-zoom": "dev-master",
         "seo2websites/price-comparison-scraper": "dev-master",
         "skovmand/mailchimp-laravel": "^1.0",
         "spatie/laravel-activitylog": "^2.8",
@@ -100,7 +102,15 @@
         },
         {
             "type": "vcs",
+<<<<<<< HEAD
             "url": "git@bitbucket.org:seo2websites/price-comparison-scraper"
+=======
+            "url": "git@bitbucket.org:seo2websites/price-comparison-scrapper"
+        },
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:seo2websites/laravel-zoom"
+>>>>>>> remotes/origin/feature/TwilioIntegrationFixes
         }
     ],
     "scripts": {

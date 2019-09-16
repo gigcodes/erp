@@ -1000,7 +1000,19 @@
                                 @endcan
 
                                 @can('customer')
-                                    <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers</a>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Customers</a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="coldLeadsMenu">
+
+                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">All Customers</a>
+                                            <a class="dropdown-item" href="{{ route('meetings.show.data','customer') }}">Customer Meetings</a>
+
+                                        </ul>
+                                    </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+
+                                        @can('customer')
+                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers</a>
                                     <li class="nav-item dropdown dropdown-submenu">
 
                                         <a id="categoryMessageMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">
@@ -1137,10 +1149,18 @@
                                 </a>
 
 
+                                <<<<<<< HEAD
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('vendor.index') }}">Vendor Info</a>
                                     <a class="dropdown-item" href="{{ route('vendor.product.index') }}">Product Info</a>
                                 </div>
+                                =======
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor.index') }}">Vendor Info</a>
+                                    <a class="dropdown-item" href="{{ route('meetings.show.data','vendor') }}">Vendor Meetings</a>
+                                    <a class="dropdown-item" href="{{ route('vendor.product.index') }}">Product Info</a>
+                                </div>
+                                >>>>>>> remotes/origin/feature/TwilioIntegrationFixes
 
                             </li>
                         @endcan
@@ -1157,9 +1177,16 @@
                                 </a>
 
 
+                                <<<<<<< HEAD
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('supplier.index') }}">Suppliers List</a>
                                 </div>
+                                =======
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('supplier.index') }}">Suppliers List</a>
+                                    <a class="dropdown-item" href="{{ route('meetings.show.data','supplier') }}">Suppliers Meetings</a>
+                                </div>
+                                >>>>>>> remotes/origin/feature/TwilioIntegrationFixes
 
                             </li>
                         @endcan

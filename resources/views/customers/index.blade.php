@@ -705,7 +705,11 @@
                             </form>
 
                             <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}" target="_blank"><img src="/images/edit.png"/></a>
+<<<<<<< HEAD
 
+=======
+                            <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $customer->id }}" data-type="customer"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
+>>>>>>> remotes/origin/feature/TwilioIntegrationFixes
                             {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
                             <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                             {!! Form::close() !!}
@@ -768,7 +772,7 @@
 
         </div>
     </div>
-
+@include('customers.zoomMeeting');
 @endsection
 
 @section('scripts')
@@ -779,6 +783,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
+<<<<<<< HEAD
+=======
+    <script src="{{asset('js/zoom-meetings.js')}}"></script>
+>>>>>>> remotes/origin/feature/TwilioIntegrationFixes
     <script type="text/javascript">
         var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
 
@@ -1045,6 +1053,7 @@
         $(document).on('click', '.create-shortcut', function () {
             var id = $(this).data('id');
             var instruction = $(this).data('instruction');
+<<<<<<< HEAD
 
             $('#customer_id_field').val(id);
             $('#instruction_field').val(instruction);
@@ -1053,6 +1062,16 @@
         $(document).on('click', '.complete-call', function (e) {
             e.preventDefault();
 
+=======
+
+            $('#customer_id_field').val(id);
+            $('#instruction_field').val(instruction);
+        });
+
+        $(document).on('click', '.complete-call', function (e) {
+            e.preventDefault();
+
+>>>>>>> remotes/origin/feature/TwilioIntegrationFixes
             var thiss = $(this);
             var token = "{{ csrf_token() }}";
             var url = "{{ route('instruction.complete') }}";
@@ -1191,17 +1210,27 @@
                     text: reply.reply
                 }));
             });
+<<<<<<< HEAD
         });
 
         $(document).on('change', '.quickComment', function () {
             $(this).closest('td').find('input').val($(this).val());
         });
 
+=======
+        });
+
+        $(document).on('change', '.quickComment', function () {
+            $(this).closest('td').find('input').val($(this).val());
+        });
+
+>>>>>>> remotes/origin/feature/TwilioIntegrationFixes
         $('.change_status').on('change', function () {
             var thiss = $(this);
             var token = "{{ csrf_token() }}";
             var status = $(this).val();
 
+<<<<<<< HEAD
 
             if ($(this).hasClass('order_status')) {
                 var id = $(this).data('orderid');
@@ -1238,6 +1267,44 @@
             var thiss = $(this);
 
             $.ajax({
+=======
+
+            if ($(this).hasClass('order_status')) {
+                var id = $(this).data('orderid');
+                var url = '/order/' + id + '/changestatus';
+            } else {
+                var id = $(this).data('leadid');
+                var url = '/leads/' + id + '/changestatus';
+            }
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    _token: token,
+                    status: status
+                }
+            }).done(function (response) {
+                if ($(thiss).hasClass('order_status') && status == 'Product shiped to Client') {
+                    $('#tracking-wrapper-' + id).css({'display': 'block'});
+                }
+
+                $(thiss).siblings('.change_status_message').fadeIn(400);
+
+                setTimeout(function () {
+                    $(thiss).siblings('.change_status_message').fadeOut(400);
+                }, 2000);
+            }).fail(function (errObj) {
+                alert("Could not change status");
+            });
+        });
+
+        $(document).on('click', '.block-twilio', function () {
+            var customer_id = $(this).data('id');
+            var thiss = $(this);
+
+            $.ajax({
+>>>>>>> remotes/origin/feature/TwilioIntegrationFixes
                 type: "POST",
                 url: "{{ route('customer.block') }}",
                 data: {
