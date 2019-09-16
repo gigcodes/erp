@@ -11,9 +11,7 @@
 |
 */
 
-//Route::get('/', function () {
-//    return view('welcome');
-//});
+//Route::get('/test/test','TestController@test');
 
 Auth::routes();
 
@@ -175,6 +173,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 //	Route::resource('task','TaskController');
 
     // Instruction
+
     Route::get('instruction/list', 'InstructionController@list')->name('instruction.list');
     Route::resource('instruction', 'InstructionController');
     Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
@@ -223,6 +222,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('task', 'TaskModuleController');
     Route::post('task_category/{id}/approve', 'TaskCategoryController@approve');
     Route::resource('task_category', 'TaskCategoryController');
+    Route::post( 'task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup' )->name( 'task.add.whatsapp.group' );
+    Route::post( 'task/addGroupParticipant', 'TaskModuleController@addGroupParticipant' )->name( 'task.add.whatsapp.participant' );
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
     Route::get('/', 'MasterControlController@index')->name('home');
@@ -673,6 +674,7 @@ Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->na
 Route::post('whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError');
 Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
+
 
 
 /*
