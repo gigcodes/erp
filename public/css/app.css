@@ -10572,3 +10572,7 @@ a.text-dark:focus {
     width: 25%;
     float: left;
 }
+
+.dis-none{
+  display: none;
+}

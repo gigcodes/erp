@@ -1946,7 +1946,7 @@
 </div>
 
 <div class="help-button-wrapper">
-    <div class="col-md-10">
+    <div class="col-md-10 page-notes-list-rt dis-none">
         <div class="help-list well well-lg">
             <form action="<?php echo route("createPageNote"); ?>">
                 <div class="form-group">
@@ -2025,6 +2025,7 @@
     // started for help button
     $('.help-button').on('click', function(){
       $('.help-button-wrapper').toggleClass('expanded');
+      $('.page-notes-list-rt').toggleClass('dis-none');
     });
 
     var notesBtn = $(".save-user-notes");
