@@ -102,15 +102,11 @@
         },
         {
             "type": "vcs",
-<<<<<<< HEAD
             "url": "git@bitbucket.org:seo2websites/price-comparison-scraper"
-=======
-            "url": "git@bitbucket.org:seo2websites/price-comparison-scrapper"
         },
         {
             "type": "vcs",
             "url": "git@bitbucket.org:seo2websites/laravel-zoom"
->>>>>>> remotes/origin/feature/TwilioIntegrationFixes
         }
     ],
     "scripts": {
