@@ -229,6 +229,11 @@
           color: rgba(84, 110, 122,1.0);
 
       }
+
+      #preview-image-modelodal {
+        text-align: center;
+        padding: 2!important;
+      }
   </style>
 @endsection
 
@@ -326,6 +331,13 @@
 
 <div class="row">
   <div class="col-xs-12 col-md-4 border">
+    <!-- The Modal -->
+    <div id="preview-image-model" class="modal col-6" data-backdrop="false">
+      <span class="close">&times;</span>
+      <div class="row">
+        <div class="col-12"><img class="modal-content" id="img01"></div>
+      </div>
+    </div>
     <div class="tab-content">
       <div class="tab-pane active mt-3" id="one">
         <div class="row">
@@ -3453,6 +3465,18 @@
         //   sendWAMessage();
         // } );
         // startPolling();
+        // 
+        
+          $(document).on('mouseover', '.talktext .thumbnail-wrapper', function(e) { 
+              $('#preview-image-model').find(".modal-content").attr("src",$(this).find("img").attr("src"));
+              $('#preview-image-model').modal('show');
+          });
+
+          $(document).on('mouseout', '.talktext .thumbnail-wrapper', function(e) { 
+             $('#preview-image-model').modal('hide');
+          });
+
+        
 
          $(document).on('click', '.send-communication', function(e) {
            e.preventDefault();
