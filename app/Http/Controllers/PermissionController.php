@@ -114,6 +114,13 @@ class PermissionController extends Controller
                          ->with('success','Role deleted successfully');
     }
 
+    public function users(Request $request)
+    {
+        $users = User::where('is_active',1)->orderBy('id','desc')->paginate(15);
+        $permissions = Permission::orderBy('id','desc')->get();
+        return view('permissions.users',compact('users','permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
+    }
+
     
     
 }

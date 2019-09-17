@@ -606,6 +606,7 @@
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <a class="dropdown-item" href="{{ route('permissions.index') }}">List Permissions</a>
                                             <a class="dropdown-item" href="{{ route('permissions.create') }}">Add New</a>
+                                            <a class="dropdown-item" href="{{ route('permissions.users') }}">User Permission List</a>
                                             
 
                                         </ul>
