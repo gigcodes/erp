@@ -1944,36 +1944,37 @@
     </div>
     
 </div>
-
-<div class="help-button-wrapper">
-    <div class="col-md-10 page-notes-list-rt dis-none">
-        <div class="help-list well well-lg">
-            <form action="<?php echo route("createPageNote"); ?>">
-                <div class="form-group">
-                    <label for="note">Notes:</label>
-                    <textarea class="form-control" name="note" id="note"></textarea>
-                </div>
-                <button type="button" class="btn btn-secondary ml-3 save-user-notes">Submit</button>
-            </form>
-            <table class="table table-fixed-page-notes page-notes-header-fixed" style="min-width: 402px;">
-              <thead>
-                <tr>
-                  <th class="col-xs-1" scope="col">#</th>
-                  <th class="col-xs-3" scope="col">Note</th>
-                  <th class="col-xs-2" scope="col">Created By</th>
-                  <th class="col-xs-3" scope="col">Created At</th>
-                </tr>
-              </thead>
-              <tbody class="page-notes-list">
-                
-              </tbody>
-            </table>
-        </div> 
+@if(Auth::check())
+    <div class="help-button-wrapper">
+        <div class="col-md-10 page-notes-list-rt dis-none">
+            <div class="help-list well well-lg">
+                <form action="<?php echo route("createPageNote"); ?>">
+                    <div class="form-group">
+                        <label for="note">Notes:</label>
+                        <textarea class="form-control" name="note" id="note"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-secondary ml-3 save-user-notes">Submit</button>
+                </form>
+                <table class="table table-fixed-page-notes page-notes-header-fixed" style="min-width: 402px;">
+                  <thead>
+                    <tr>
+                      <th class="col-xs-1" scope="col">#</th>
+                      <th class="col-xs-3" scope="col">Note</th>
+                      <th class="col-xs-2" scope="col">Created By</th>
+                      <th class="col-xs-3" scope="col">Created At</th>
+                    </tr>
+                  </thead>
+                  <tbody class="page-notes-list">
+                    
+                  </tbody>
+                </table>
+            </div> 
+        </div>
+        <div class="col-md-3">
+            <button class="help-button"><span>+</span></button>
+        </div>
     </div>
-    <div class="col-md-3">
-        <button class="help-button"><span>+</span></button>
-    </div>
-</div>
+@endif
 
 <!-- Scripts -->
 
@@ -2084,8 +2085,10 @@
               },
             });
         }
-        getNotesList();
 
+        if($(".help-button-wrapper").length > 0) {
+            getNotesList();
+        }
 
 
     // $(document).click(function() {
