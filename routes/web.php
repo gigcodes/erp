@@ -11,11 +11,12 @@
 |
 */
 
-Route::get('/tests/25/edit','TestController@login');
+// Route::get('/tests/25/edit','TestController@index');
 
 Auth::routes();
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
+Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
 

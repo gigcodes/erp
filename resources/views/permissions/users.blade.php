@@ -24,6 +24,11 @@
         table.dataTable thead .sorting_desc_disabled:before {
             bottom: .5em;
         }
+        .but{
+            background-color: lightblue;
+            border-radius: 29px;
+            border: 0;
+        }
     </style>
 
 @endsection
@@ -64,7 +69,15 @@
                                 <td>{{++$i }}</td>
                                 <td><a href="/users/{{ $user->id }}/edit">{{ $user->name }} ({{ count($user->permissions) }})</a></td>
                                 @foreach($permissions as $permission)
-                                    <td><img src='{{ (in_array($permission->name, $user->permissions->pluck('name')->toArray())) ? "/images/icons-checkmark.png" : '/images/icons-delete.png' }}' height="10" width="10"/></td>
+                                    <td>
+                                        @if(in_array($permission->name, $user->permissions->pluck('name')->toArray()))
+                                            <button class="but" onclick="activatePermission({{$permission->id}},{{$user->id}},1)" style="background-color: lightgreen !important;""><img src='/images/icons-checkmark.png' }}' height="10" width="10"/>
+                                            </button>
+                                        @else
+                                            <button class="but" onclick="activatePermission({{$permission->id}},{{$user->id}},0)"><img src='/images/icons-delete.png' }}' height="10" width="10"/>
+                                            </button>
+                                        @endif
+                                    </td>
                                 @endforeach
                             </tr>
                         @endforeach
@@ -89,5 +102,25 @@
             });
             $('.dataTables_length').addClass('bs-select');
         });
+
+        function activatePermission($permission_id , $user_id , $is_Active) {
+            if($permission_id == null && $user_id == null){
+                alert('Failed To Update')
+            }else{
+            $.ajax({
+                type: "POST",
+                url: "/api/users/updatePermission",
+                data: {"_token": "{{ csrf_token() }}","user_id": $user_id , "permission_id" : $permission_id ,"is_active" : $is_Active },
+                dataType: "json",
+                success: function(message) {
+                    alert(message.message);
+                    location.reload(true);
+                }, error: function(){
+                    alert('Failed adding Permission');
+                }
+
+            });
+            }
+        }
     </script>
 @endsection

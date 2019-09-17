@@ -121,6 +121,31 @@ class PermissionController extends Controller
         return view('permissions.users',compact('users','permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
+    public function  updatePermission(Request $request){
+       $user_id =  $request->user_id;
+       $permission_id = $request->permission_id;
+       $is_Active = $request->is_active;
+        $user = User::findorfail($user_id);
+        //ADD PERMISSION
+        if($is_Active == 0){
+            $user->permissions()->attach($permission_id);
+            $message = "Permission added Successfully";
+        }
+        //REMOVE PERMISSION
+        if($is_Active == 1){
+            $user->permissions()->detach($permission_id);
+            $message = "Permission removed Successfully";
+        }
+
+        $data = [
+            'success' => true,
+            'message'=> $message
+        ] ;
+        return response()->json($data);
+
+
+    }
+
     
     
 }

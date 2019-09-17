@@ -27,6 +27,7 @@ class RouteServiceProvider extends ServiceProvider
         //
 
         parent::boot();
+        //dd(auth()->check());
     }
 
     /**
@@ -53,24 +54,9 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes()
     {
         
-        
-        if(auth()->check() == true){
-            $currentPath= Route::getFacadeRoot()->current()->uri();
-            $per = PermissionCheck::checkUser($currentPath);
-          if($per == true){
-                 Route::middleware('web')
+        Route::middleware('web')
              ->namespace($this->namespace)
              ->group(base_path('routes/web.php'));
-          }else{
-             header("Location: \unauthorized");
-            die();
-          }
-        }else{
-            Route::middleware('web')
-             ->namespace($this->namespace)
-             ->group(base_path('routes/web.php'));
-         }
-        
 
     }
 
