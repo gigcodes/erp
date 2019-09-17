@@ -15,6 +15,8 @@
 
 Auth::routes();
 
+Route::get('create-media-image', 'CustomerController@testImage');
+
 Route::get('crop-references', 'CroppedImageReferenceController@index');
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');

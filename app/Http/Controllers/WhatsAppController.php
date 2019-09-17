@@ -2029,7 +2029,7 @@ class WhatsAppController extends FindByNumberController
                 $media = MediaUploader::fromSource($fileName)->upload();
                 $chat_message->attachMedia($media, 'gallery');
             } else {
-                foreach ($imagesDecoded as $image) {
+                foreach (array_unique($imagesDecoded) as $image) {
                     $media = Media::find($image);
                     $chat_message->attachMedia($media, config('constants.media_tags'));
                 }

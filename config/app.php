@@ -173,6 +173,7 @@ return [
         PragmaRX\Tracker\Vendor\Laravel\ServiceProvider::class,
         Thujohn\Twitter\TwitterServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
     ],
 
     /*
@@ -233,6 +234,7 @@ return [
         'Tracker' => PragmaRX\Tracker\Vendor\Laravel\Facade::class,
         'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+        'IImage' => Intervention\Image\Facades\Image::class,
     ],
 
 ];
