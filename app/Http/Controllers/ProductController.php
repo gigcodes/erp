@@ -1433,6 +1433,10 @@ class ProductController extends Controller
         }
 
         $products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier', 'purchase_status']);
+        // assign query to get media records only
+        $products = $products->join("mediables",function($query){
+            $query->on("mediables.mediable_id" , "products.id")->where("mediable_type", "App\Product");
+        });
         $products_count = $products->count();
 
         $products = $products->paginate(Setting::get('pagination'));
@@ -1443,7 +1447,7 @@ class ProductController extends Controller
             return response()->json(['html' => $html]);
         }
 
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat', 'multiple' => 'multiple'])
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'multiple' => 'multiple', 'data-placeholder' => 'Select Category..'])
             ->selected($filtered_category)
             ->renderAsDropdown();
 
