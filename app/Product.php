@@ -50,8 +50,7 @@ class Product extends Model
         if (
             !empty($json->title) &&
             !empty($json->sku) &&
-            !empty($json->brand_id) &&
-            !empty($json->properties[ 'category' ])
+            !empty($json->brand_id)
         ) {
             // Check for unique product
             $data[ 'sku' ] = ProductHelper::getSku($json->sku);

@@ -91,10 +91,6 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@bitbucket.org:seo2websites/erp-pinterest"
-        },
-        {
-            "type": "vcs",
             "url": "git@bitbucket.org:seo2websites/erp-excel-importer"
         },
         {

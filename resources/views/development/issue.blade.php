@@ -138,7 +138,7 @@
                 <th width="5%">Cost</th>
             </tr>
             @foreach ($issues as $key => $issue)
-                @can('admin')
+                 @if(auth()->user()->isAdmin())
                     <tr>
                         <td>{{ $issue->id }}</td>
                         <td>{{ $issue->devModule ? $issue->devModule->name : 'Not Specified' }}</td>
@@ -245,7 +245,7 @@
                             </div>
                         </td>
                     </tr>
-                @elsecan
+                @else
                     @if($issue->submitted_by == Auth::user()->id || $issue->user_id == Auth::user()->id || $issue->responsible_user_id == Auth::user()->id)
                         <tr>
                             <td>{{ $issue->devModule ? $issue->devModule->name : 'Not Specified' }}</td>
@@ -335,7 +335,7 @@
                             </td>
                         </tr>
                     @endif
-                @endcan
+                @endif
             @endforeach
         </table>
     </div>

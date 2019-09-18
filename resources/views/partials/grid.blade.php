@@ -20,7 +20,7 @@
                 </h2>
 
                 <!--pending products count-->
-                @can('admin')
+                 @if(auth()->user()->isAdmin())
                   @if( $roletype != 'Selection' && $roletype != 'Sale' )
                       <div class="pt-2 pb-3">
                           <a href="{{ route('pending',$roletype) }}"><strong>Pending
@@ -37,7 +37,7 @@
                         </form>
                       @endif
                   @endif
-                @endcan
+                @endif
 
                 <!--attach Product-->
                 @if( isset($doSelection) )
