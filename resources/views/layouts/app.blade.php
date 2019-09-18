@@ -1415,10 +1415,10 @@
         }
 
         gtag('js', new Date());
-
         gtag('config', 'UA-147736165-1');
     </script>
 @endif
+
 </body>
 
 </html>
