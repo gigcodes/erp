@@ -82,11 +82,7 @@
             <tr>
               <th>#</th>
               <th>Product</th>
-              <th>SKU</th>
-              <th>Customers</th>
-              <th>Price In Order</th>
-              <th>Order Date</th>
-              <th>Order Advance</th>
+              <th>SKU</th>            
               <th>Supplier</th>
               <th>Suppliers</th>
               <th>Brand</th>
@@ -96,6 +92,8 @@
 
           <tbody>
             @foreach ($products as $product)
+              @php $custcount = count($product['customers']); 
+              @endphp 
               <tr>
                 <td>
                   <input type="checkbox" class="select-product" name="products[]" value="{{ $product['id'] }}" data-supplier="{{ $product['single_supplier'] }}" />
@@ -103,43 +101,7 @@
                 <td>
                   <a href="{{ route('products.show', $product['id']) }}" target="_blank"><img src="{{ $product['image'] }}" class="img-responsive" style="width: 100px !important" alt=""></a>
                 </td>
-                <td>{{ $product['sku'] }}</td>
-                <td>
-                  <ul class="list-unstyled">
-                    @foreach ($product['customers'] as $customer)
-                      <li><a href="{{ route('customer.show', $customer->id) }}" target="_blank">{{ $customer->name }}</a></li>
-                    @endforeach
-                  </ul>
-
-                </td>
-                <td>
-                  <ul class="list-unstyled">
-                    @foreach ($product['order_products'] as $order_product)
-                      <li>{{ $order_product->product_price }}</li>
-                    @endforeach
-                  </ul>
-                </td>
-                <td>
-                  <ul class="list-unstyled">
-                    @foreach ($product['order_products'] as $order_product)
-                      @if ($order_product->order)
-                        <li>{{ \Carbon\Carbon::parse($order_product->order->order_date)->format('d-m') }}</li>
-                      @else
-                        <li>No Order</li>
-                      @endif
-                    @endforeach
-                  </ul>
-                </td>
-                <td>
-                  <ul class="list-unstyled">
-                    @foreach ($product['order_products'] as $order_product)
-                      @if ($order_product->order) 
-                        <li>{{ $order_product->order->advance_detail }}</li>
-                      @else
-                        <li>No Order</li>
-                      @endif
-                    @endforeach
-                  </ul>
+                <td>{{$product['sku'] }}
                 </td>
                 <td><!-- {{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }} -->
                 @php 
@@ -165,10 +127,6 @@
                           <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
                         @endforeach
                       @endif
-
-
-
-
                     </select>
                     <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message" >
                     <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
@@ -180,6 +138,42 @@
                   <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $product['id'] }}">Add</a>
                   <span> | </span>
                   <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $product['id'] }}">View</a>
+                </td>
+              </tr>
+              <tr id="product_cust_{{$product['id']}}">
+                <td colspan="7">
+                    <table class="table table-bordered" width="100%">
+                  <thead>
+                    <tr>
+                      <th>Customers</th>
+                      <th>Price In Order</th>
+                      <th>Order Date</th>
+                      <th>Order Advance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @foreach ($product['order_products'] as $order_product)
+                    <tr>
+                        <td><a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a></td>
+                        <td>{{ $order_product->product_price }}</td>
+                        <td>
+                          @if ($order_product->order)
+                           {{ \Carbon\Carbon::parse($order_product->order->order_date)->format('d-m') }}
+                          @else
+                            No Order
+                          @endif
+                        </td>
+                        <td>                        
+                          @if ($order_product->order) 
+                            {{ $order_product->order->advance_detail }}</li>
+                          @else
+                            No Order
+                          @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                  </tbody>
+                </table>  
                 </td>
               </tr>
             @endforeach
