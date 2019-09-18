@@ -50,8 +50,8 @@ class RunMessageQueue extends Command
         ]);
 
         $time = Carbon::now();
-        $morning = Carbon::create($time->year, $time->month, $time->day, 9, 0, 0);
-        $evening = Carbon::create($time->year, $time->month, $time->day, 18, 00, 0);
+        $morning = Carbon::create($time->year, $time->month, $time->day, 8, 0, 0);
+        $evening = Carbon::create($time->year, $time->month, $time->day, 17, 00, 0);
 
         if ($time->between($morning, $evening, true)) {
             // Get groups

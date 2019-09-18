@@ -459,6 +459,8 @@
                                 <span style="color: #333; font-size: 12px;">
                              {{ print_r($instructions[$customer->id][0]['remarks'] ? $instructions[$customer->id][0]['remarks'][array_key_first($instructions[$customer->id][0]['remarks'])]['remark'] : 'No remark') }}
                         </span>
+                                <br/>
+                                <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png"/></a>
                             </td>
                         @else
                             <td>
@@ -705,7 +707,7 @@
                             </form>
 
                             <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}" target="_blank"><img src="/images/edit.png"/></a>
-                           <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $customer->id }}" data-type="customer"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
+                            <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $customer->id }}" data-type="customer"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
                             {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
                             <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                             {!! Form::close() !!}
@@ -768,7 +770,7 @@
 
         </div>
     </div>
-@include('customers.zoomMeeting');
+    @include('customers.zoomMeeting');
 @endsection
 
 @section('scripts')
