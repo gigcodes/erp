@@ -705,7 +705,7 @@
                             </form>
 
                             <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}" target="_blank"><img src="/images/edit.png"/></a>
-
+                           <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $customer->id }}" data-type="customer"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
                             {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
                             <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                             {!! Form::close() !!}
@@ -768,7 +768,7 @@
 
         </div>
     </div>
-
+@include('customers.zoomMeeting');
 @endsection
 
 @section('scripts')
@@ -779,6 +779,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
+    <script src="{{asset('js/zoom-meetings.js')}}"></script>
     <script type="text/javascript">
         var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
 
@@ -1052,7 +1053,6 @@
 
         $(document).on('click', '.complete-call', function (e) {
             e.preventDefault();
-
             var thiss = $(this);
             var token = "{{ csrf_token() }}";
             var url = "{{ route('instruction.complete') }}";
@@ -1196,12 +1196,10 @@
         $(document).on('change', '.quickComment', function () {
             $(this).closest('td').find('input').val($(this).val());
         });
-
         $('.change_status').on('change', function () {
             var thiss = $(this);
             var token = "{{ csrf_token() }}";
             var status = $(this).val();
-
 
             if ($(this).hasClass('order_status')) {
                 var id = $(this).data('orderid');

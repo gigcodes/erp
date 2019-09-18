@@ -24,11 +24,12 @@
         <h2 class="page-heading">Task & Activity</h2>
       </div>
     </div>
-
+    <!--- Pre Loader -->
+    <img src="/images/pre-loader.gif" id="Preloader" style="display:none;" />
     @include('task-module.partials.modal-contact')
     @include('task-module.partials.modal-task-category')
     @include('task-module.partials.modal-task-view')
-
+    @include('task-module.partials.modal-whatsapp-group')
     @include('partials.flash_messages')
 
     <div class="row mb-4">
@@ -501,6 +502,9 @@
 
                                       <td class="p-2">
                                         <div class="d-flex">
+                                          @can('admin')
+                                          <button type="button" class='btn btn-image whatsapp-group' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src='/images/whatsapp.png' /></button>
+                                          @endcan
                                           @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
                                             @if ($task->is_completed == '')
                                               <button type="button" class="btn btn-image task-complete" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></button>
@@ -2194,5 +2198,27 @@
             });
           }
         });
+
+
+        $(document).on('click', '.whatsapp-group', function(e) {
+          e.preventDefault();
+          var id = $(this).attr('data-id');
+          $("#task_id").val(id);
+          $("#Preloader").show();
+          $.ajax({
+              type: "POST",
+              async: false,
+              url: "{{ route('task.add.whatsapp.group') }}",
+               data: {
+                 _token: "{{ csrf_token() }}",
+                 id : id,
+               }
+             }).done(function(response) {
+              console.log(response);
+                 $("#group_id").val(response.group_id);
+                  $("#Preloader").hide();
+
+             })
+          });
   </script>
 @endsection

@@ -11,8 +11,6 @@
 |
 */
 
-// Route::get('/tests/25/edit','TestController@index');
-
 Auth::routes();
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -180,6 +178,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 //	Route::resource('task','TaskController');
 
     // Instruction
+
     Route::get('instruction/list', 'InstructionController@list')->name('instruction.list');
     Route::resource('instruction', 'InstructionController');
     Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
@@ -214,6 +213,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
 
+    // Zoom Meetings
+    //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
+    Route::post('meeting/create', 'Meeting\ZoomMeetingController@createMeeting');
+    Route::get('meeting/allmeetings', 'Meeting\ZoomMeetingController@getMeetings');
+    Route::get('meetings/{type}/show-data', 'Meeting\ZoomMeetingController@showData')->name('meetings.show.data');
+
     Route::get('task/list', 'TaskModuleController@list')->name('task.list');
     Route::post('task/flag', 'TaskModuleController@flag')->name('task.flag');
     Route::post('task/{id}/plan', 'TaskModuleController@plan')->name('task.plan');
@@ -228,6 +233,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('task', 'TaskModuleController');
     Route::post('task_category/{id}/approve', 'TaskCategoryController@approve');
     Route::resource('task_category', 'TaskCategoryController');
+    Route::post('task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup')->name('task.add.whatsapp.group');
+    Route::post('task/addGroupParticipant', 'TaskModuleController@addGroupParticipant')->name('task.add.whatsapp.participant');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
     Route::get('/', 'MasterControlController@index')->name('home');
@@ -630,7 +637,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
 
-
     // Agent Routes
     Route::resource('agent', 'AgentController');
 });
@@ -1006,4 +1012,15 @@ Route::get('supplier-scrapping-info', 'ProductController@getSupplierScrappingInf
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::get('category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing');
     Route::post('category/brand/update-min-max-pricing', 'CategoryController@updateBrandMinMaxPricing');
+});
+
+// pages notes started from here
+Route::group(['middleware' => 'auth'], function () {
+    Route::prefix('page-notes')->group(function () {
+        Route::post('create', 'PageNotesController@create')->name('createPageNote');
+        Route::get('list', 'PageNotesController@list')->name('listPageNote');
+        Route::get('records', 'PageNotesController@records')->name('pageNotesRecords');
+        Route::get('/', 'PageNotesController@index')->name('pageNotes.viewList');
+
+    });
 });
