@@ -2,6 +2,17 @@
 
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <style type="text/css">
+      .select-multiple-cat-list .select2-container {
+          position: relative;
+          z-index: 2;
+          float: left;
+          width: 100%;
+          margin-bottom: 0;
+          display: table;
+          table-layout: fixed;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -183,12 +194,12 @@
        $('.lazy').Lazy({
          effect: 'fadeIn'
        });
-       $(".select-multiple-cat-list").select2({width: '100%'});
+       $(".select-multiple-cat-list").select2();
        $('.select-multiple-cat-list').on('select2:close', function (evt) {
         var uldiv = $(this).siblings('span.select2').find('ul')
         var count = uldiv.find('li').length - 1;
           if(count == 0) {
-            uldiv.html('<li class="select2-selection__choice">Select Category..</li>');
+            
           }else{
             uldiv.html('<li class="select2-selection__choice">'+count+' item selected</li>');
           }
