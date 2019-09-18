@@ -1752,6 +1752,7 @@
 
                                     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 65 || Auth::id() == 90)
                                         <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
+                                        <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
                                         <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
                                     @endif
 

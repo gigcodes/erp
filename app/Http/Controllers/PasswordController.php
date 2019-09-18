@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\ChatMessage;
+use App\User;
 use Illuminate\Http\Request;
 use Auth;
 use Crypt;
 use App\Password;
 use App\Setting;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\View;
+use App\Http\Controllers\WhatsAppController;
 
 class PasswordController extends Controller
 {
@@ -105,4 +110,72 @@ class PasswordController extends Controller
     {
         //
     }
+
+    public function manage()
+    {
+        $users = User::where('is_active',1)->orderBy('id','desc')->get();
+        return view('passwords.change-password',compact('users'));
+    }
+
+    public function changePassword(Request $request){
+
+        $users = $request->users;
+        $data = array();
+        foreach ($users as $key) {
+            // Generate new password
+            $newPassword = str_random(12);
+
+            // Set hash password
+            $hashPassword = Hash::make($newPassword);
+
+            // Update password
+            $user = User::findorfail($key);
+            $user->password = $hashPassword;
+            $user->save();
+            $data[$key] = $newPassword;
+            // Output new ones
+            //echo $user->name . "\t" . $user->email . "\t" . $newPassword . "\n";
+        }
+
+        return view("passwords.send-whatsapp", ['data' => $data]);
+    }
+
+    public function sendWhatsApp(Request $request){
+        if(isset($request->single) && $request->single == 1) {
+            $user_id = $request->user_id;
+            $password = $request->password;
+            $user = User::findorfail($user_id);
+            $number = $user->phone;
+            $message = 'Your New Password For ERP desk is Username : ' . $user->email . ' Password : ' . $password;
+
+            $whatsappmessage = new WhatsAppController();
+            $whatsappmessage->sendWithThirdApi($number, null, $message);
+            $params['user_id'] = $user_id;
+            $params['message'] = $message;
+            $chat_message = ChatMessage::create($params);
+            $msg = 'WhatsApp send';
+            $data = [
+                'success' => true,
+                'message' => $msg
+            ];
+            return response()->json($data);
+        }else{
+            $user_id = $request->user_id;
+            $password = $request->password;
+                for ($i=0;$i<count($user_id);$i++){
+                    $user = User::findorfail($user_id[$i]);
+                    $number = $user->phone;
+                    $message = 'Your New Password For ERP desk is Username : ' . $user->email . ' Password : ' . $password[$i];
+
+                    $whatsappmessage = new WhatsAppController();
+                    $whatsappmessage->sendWithThirdApi($number, null, $message);
+                    $params['user_id'] = $user->id;
+                    $params['message'] = $message[$i];
+                    $chat_message = ChatMessage::create($params);
+                }
+            return redirect()->route('password.manage')->with('message', 'SuccessFully Messages Send !');
+
+        }
+    }
+
 }
