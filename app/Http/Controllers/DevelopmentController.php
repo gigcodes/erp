@@ -27,7 +27,7 @@ class DevelopmentController extends Controller
 
     public function __construct()
     {
-        $this->middleware( 'permission:developer-tasks', [ 'except' => [ 'issueCreate', 'issueStore', 'moduleStore' ] ] );
+      //  $this->middleware( 'permission:developer-tasks', [ 'except' => [ 'issueCreate', 'issueStore', 'moduleStore' ] ] );
     }
 
     public function index( Request $request )

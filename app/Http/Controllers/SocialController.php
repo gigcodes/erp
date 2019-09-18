@@ -28,7 +28,7 @@ class SocialController extends Controller
 		$this->page_id= '507935072915757';
 		$this->ad_acc_id= 'act_128125721296439';
 
-		$this->middleware('permission:social-view');
+		//$this->middleware('permission:social-view');
 	}
 
 	public function getSchedules(Request $request) {
