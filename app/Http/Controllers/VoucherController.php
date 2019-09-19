@@ -19,7 +19,7 @@ class VoucherController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:voucher');
+        //$this->middleware('permission:voucher');
     }
 
     public function index(Request $request)

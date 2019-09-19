@@ -11,13 +11,12 @@
 |
 */
 
-//Route::get('/test/test','TestController@test');
-
 Auth::routes();
 
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
+Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
 
@@ -72,8 +71,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/auto-cropped/{id}/approve-rejected', 'ProductCropperController@approveRejectedCropped');
     Route::get('products/auto-cropped/{id}/reject', 'ProductCropperController@rejectCrop');
     Route::get('products/auto-cropped/{id}/crop-approval-confirmation', 'ProductCropperController@cropApprovalConfirmation');
-    Route::resource('roles', 'RoleController');
-    Route::get('users/logins', 'UserController@login')->name('users.login.index');
+
+	Route::resource('roles','RoleController');
+    Route::resource('permissions','PermissionController');
+    Route::get('permissions/grandaccess/users','PermissionController@users')->name('permissions.users');
+    Route::get('unauthorized','RoleController@unAuthorized');
+	Route::get('users/logins', 'UserController@login')->name('users.login.index');
+    Route::get('permissions/grandaccess/users','PermissionController@users')->name('permissions.users');
+
     Route::get('users/{id}/assigned', 'UserController@showAllAssignedProductsForUser');
     Route::post('users/{id}/unassign/products', 'UserController@unassignProducts');
     Route::post('users/{id}/assign/products', 'UserController@assignProducts')->name('user.assign.products');

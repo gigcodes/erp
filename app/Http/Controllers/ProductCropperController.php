@@ -37,12 +37,12 @@ class ProductCropperController extends Controller
 
         $this->middleware('auth');
 
-        $this->middleware('permission:imagecropper-list', ['only' => ['sList', 'index']]);
-        $this->middleware('permission:imagecropper-create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:imagecropper-edit', ['only' => ['edit', 'update']]);
-
-
-        $this->middleware('permission:imagecropper-delete', ['only' => ['destroy']]);
+//        $this->middleware('permission:imagecropper-list', ['only' => ['sList', 'index']]);
+//        $this->middleware('permission:imagecropper-create', ['only' => ['create', 'store']]);
+//        $this->middleware('permission:imagecropper-edit', ['only' => ['edit', 'update']]);
+//
+//
+//        $this->middleware('permission:imagecropper-delete', ['only' => ['destroy']]);
     }
 
     public function index(Stage $stage)
