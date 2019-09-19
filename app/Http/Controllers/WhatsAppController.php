@@ -450,7 +450,7 @@ class WhatsAppController extends FindByNumberController
         return response("");
     }
 
-    public function sendRealTime($message, $model_id, $client)
+    public function sendRealTime($message, $model_id, $client, $customFile = null)
     {
         $realtime_params = [
             'realtime_id' => $model_id,
@@ -467,10 +467,15 @@ class WhatsAppController extends FindByNumberController
             'error_status' => $message->error_status ?? 0,
         ];
 
-        if ($message->media_url) {
-            $realtime_params[ 'media_url' ] = $message->media_url;
-            $headers = get_headers($message->media_url, 1);
-            $realtime_params[ 'content_type' ] = $headers[ "Content-Type" ][ 1 ];
+        // attach custom image or file here if not want to send original
+        $mediaUrl = ($customFile && !empty($customFile)) ? $customFile : $message->media_url;
+
+        if ($mediaUrl) {
+            
+            $realtime_params[ 'media_url' ] = $mediaUrl;
+            $headers = get_headers($mediaUrl, 1);
+            $realtime_params[ 'content_type' ] = is_string($headers[ "Content-Type" ]) ? $headers[ "Content-Type" ] : $headers[ "Content-Type" ][ 1 ];
+            
         }
 
         if ($message->message) {
