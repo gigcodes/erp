@@ -45,7 +45,7 @@
             {!! $task_categories_dropdown !!}
           </div>
 
-          @can('view-activity')
+          @if(auth()->user()->checkPermission('activity-list'))
             <div class="form-group ml-3">
               <select class="form-control input-sm" name="selected_user">
                 <option value="">Select a User</option>
@@ -54,7 +54,7 @@
                 @endforeach
               </select>
             </div>
-          @endcan
+          @endif
 
             <div class="form-group ml-3">
                 <select name="is_statutory_query" id="is_statutory_query" class="form-control">
@@ -502,9 +502,9 @@
 
                                       <td class="p-2">
                                         <div class="d-flex">
-                                          @can('admin')
+                                           @if(auth()->user()->isAdmin())
                                           <button type="button" class='btn btn-image whatsapp-group' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src='/images/whatsapp.png' /></button>
-                                          @endcan
+                                          @endif
                                           @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
                                             @if ($task->is_completed == '')
                                               <button type="button" class="btn btn-image task-complete" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></button>

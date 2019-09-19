@@ -31,7 +31,7 @@
       <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
     </form>
 
-    @can('social-create')
+     @if(auth()->user()->checkPermission('social-create'))
       <div class="pull-right">
         {{-- <a href class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload Templates</a> --}}
         <a href class="btn btn-secondary" id="toggleButton" data-toggle="modal" data-target="#imageModal" style="display: none;">Upload Templates</a>
@@ -71,7 +71,7 @@
 
         </div>
       </div>
-    @endcan
+    @endif
   </div>
 </div>
 
@@ -100,13 +100,13 @@
     <input type="checkbox" class="form-control image-selection" value="{{ $image->id }}" style="display: none;">
     <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="/images/view.png" /></a>
 
-    @can ('social-create')
+    @if(auth()->user()->checkPermission('social-create'))
       <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="/images/edit.png" /></a>
 
       {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $image->id],'style'=>'display:inline']) !!}
         <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
       {!! Form::close() !!}
-    @endcan
+    @endif
 
     <a href="{{ route('image.grid.download', $image->id) }}" class="btn-link">Download</a>
 
