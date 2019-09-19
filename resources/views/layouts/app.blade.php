@@ -506,6 +506,23 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
+                                    <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
+                                </li>
+                                @endif
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown dropdown-submenu">
+                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Purchase<span class="caret"></span></a>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('purchase.index') }}">Purchase</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.grid') }}">Purchase Grid</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.calendar') }}">Purchase Calendar</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.grid', 'canceled-refunded') }}">Cancel/Refund Grid</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
+                                    <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
+                                </li>
+                                <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customer<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
@@ -531,13 +548,19 @@
                                         </li>
                                     </ul>
                                 </li>
+
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown dropdown-submenu">
+                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Instructions<span class="caret"></span></a>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Private<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('stock.private.viewing') }}">Private Viewing</a>
-
-                                        </li>
+                                        <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
+                                        <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
+                                        <a class="dropdown-item" href="{{ action('KeywordInstructionController@index') }}">Instruction Keyword Instructions</a>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -548,15 +571,108 @@
                                         </li>
                                     </ul>
                                 </li>
+                            </ul>
+
+                        </li>
+                        <li class="nav-item dropdown dropdown-submenu">
+                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Orders<span class="caret"></span></a>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Broadcast<span class="caret"></span></a>
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Orders<span class="caret"></span></a>
+
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
-                                            <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
-                                            <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calender</a>
-                                        </li>
+                                        <a class="dropdown-item" href="{{ route('order.index') }}">Orders</a>
+                                        <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
+                                        <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
                                     </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown dropdown-submenu">
+                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customer<span class="caret"></span></a>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
+                                </li>
+                            </ul>
+
+                        </li>
+                        <li class="nav-item dropdown dropdown-submenu">
+                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Missed<span class="caret"></span></a>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('order.missed-calls') }}">Missed Calls List</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown dropdown-submenu">
+                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Call<span class="caret"></span></a>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('order.calls-history') }}">Call history</a>
+
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown dropdown-submenu">
+                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Private<span class="caret"></span></a>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('stock.private.viewing') }}">Private Viewing</a>
+
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown dropdown-submenu">
+                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Bulk Customer Replies<span class="caret"></span></a>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{{ action('BulkCustomerRepliesController@index') }}">Bulk Messages</a>
+                                <a class="dropdown-item" href="{{ action('CustomerCategoryController@index') }}">Categories</a>
+                                <a class="dropdown-item" href="{{ action('KeywordToCategoryController@index') }}">Keywords</a>
+
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown dropdown-submenu">
+                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Delivery<span class="caret"></span></a>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('deliveryapproval.index') }}">Delivery Approvals</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown dropdown-submenu">
+                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Broadcast<span class="caret"></span></a>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
+                                    <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
+                                    <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calender</a>
+                                </li>
+                            </ul>
+                        </li>
+                </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Vendor <span class="caret"></span></a>
+                    <ul class="dropdown-menu multi-level">
+                        {{-- Sub Menu Product --}}
+                        <li class="nav-item dropdown">
+                            <a class="dropdown-item" href="{{ route('vendor.index') }}">Vendor Info</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="dropdown-item" href="{{ route('vendor.product.index') }}">Product Info</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Users <span class="caret"></span></a>
+                    <ul class="dropdown-menu multi-level">
+                        {{-- Sub Menu Product --}}
+                        <li class="nav-item dropdown dropdown-submenu">
+                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>User Management<span class="caret"></span></a>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('users.index') }}">List Users</a>
                                 </li>
                             </ul>
                         </li>
@@ -603,23 +719,80 @@
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Permissions<span class="caret"></span></a>
 
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ route('permissions.index') }}">List Permissions</a>
-                                                <a class="dropdown-item" href="{{ route('permissions.create') }}">Add New</a>
-                                                <a class="dropdown-item" href="{{ route('permissions.users') }}">User Permission List</a>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comments Statistics</a>
+                                        </li>
 
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customers followers</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags Used by top customers.</a>
+                                        </li>
 
-                                            </ul>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign </a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                         </li>
                                     </ul>
                                 </li>
+                                @endif
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Activity<span class="caret"></span></a>
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('activity') }}">View</a>
+                                            <a class="dropdown-item" href="{{ action('InstagramController@showImagesToBePosted') }}">Create Post</a>
                                         </li>
 
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('InstagramController@showSchedules') }}">Schedule A Post</a>
+                                        </li>
+
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ action('FacebookController@index') }}">Facebook Post</a>
+                                            </ul>
+                                        </li>
+
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook Groups<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ action('FacebookController@show', 'group') }}">Facebook Groups</a>
+                                            </ul>
+                                        </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('graph_user') }}">User Graph</a>
@@ -816,6 +989,17 @@
                                           </li>
                                       </ul>
                                 </li>
+
+                                <!-- mailchimp -->
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">MailChimp<span class="caret">
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                              <a href="{{ route('manage.mailchimp') }}">Manage MailChimp</a>
+
+                                          </li>
+                                      </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -849,126 +1033,198 @@
                                                 <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
                                             </li>
 
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('voucher.index') }}">Convience Voucher</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('budget.index') }}">Budget</a>
+                                            <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue
+                                            </a>
                                             </li>
                                         </ul>
                                     </li>
                                     @if(auth()->user()->isAdmin())
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{route('lawyer.index')}}"> Lawyers</a>
-                                                </li>
+                                        <li class="nav-item dropdown">
+                                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
+                                            <ul class="dropdown-menu multi-level">
+                                                {{-- Sub Menu Product --}}
+                                                <li class="nav-item dropdown dropdown-submenu">
+                                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cash Flow<span class="caret"></span></a>
+                                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
+                                                        </li>
 
-                                                <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{route('case.index')}}">Cases</a>
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{ route('voucher.index') }}">Convience Voucher</a>
+                                                        </li>
+
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
+                                                        </li>
+
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{ route('budget.index') }}">Budget</a>
+                                                        </li>
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
+                                                        </li>
+
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{ route('budget.index') }}">Hubstaff</a>
+                                                        </li>
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{ url('page-notes') }}">Page Notes</a>
+                                                        </li>
+
+
+                                                    </ul>
+                                                </li>
+                                                @if(auth()->user()->isAdmin())
+                                                    <li class="nav-item dropdown dropdown-submenu">
+                                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
+                                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                            <li class="nav-item dropdown">
+                                                                <a class="dropdown-item" href="{{route('lawyer.index')}}"> Lawyers</a>
+                                                            </li>
+
+                                                            <li class="nav-item dropdown">
+                                                                <a class="dropdown-item" href="{{route('case.index')}}">Cases</a>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                @endif
+                                                <li class="nav-item dropdown dropdown-submenu">
+                                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Old Issues<span class="caret"></span></a>
+                                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{ action('OldController@index') }}">Old Out going</a>
+                                                        </li>
+
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old Incoming</a>
+                                                        </li>
+                                                    </ul>
                                                 </li>
                                             </ul>
                                         </li>
                                     @endif
-                                    <li class="nav-item dropdown dropdown-submenu">
-                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Old Issues<span class="caret"></span></a>
-                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('OldController@index') }}">Old Out going</a>
-                                            </li>
+                                    <li class="nav-item dropdown">
+                                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Username <span class="caret"></span></a>
+                                        <ul class="dropdown-menu multi-level">
+                                            {{-- Sub Menu Product --}}
 
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old Incoming</a>
+                                                <a class="dropdown-item" href="{{ route('mastercontrol.index') }}">Master Control</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('dailyplanner.index') }}">Daily Planner</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>
+                                            </li>
+                                            @if(auth()->user()->isAdmin())
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
+                                                </li>
+
+
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
+                                                </li>
+                                            @endif
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Product<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('category')}}">Category</a>
+
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old Incoming</a>
+                                                    </li>
+                                                </ul>
                                             </li>
                                         </ul>
                                     </li>
-                                </ul>
-                            </li>
-                        @endif
-                        <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Username <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
-                                </li>
-
-                                @if(auth()->user()->isAdmin())
+                                    @endif
                                     <li class="nav-item dropdown">
-                                        <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
+                                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Username <span class="caret"></span></a>
+                                        <ul class="dropdown-menu multi-level">
+                                            {{-- Sub Menu Product --}}
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
+                                            </li>
+
+                                            @if(auth()->user()->isAdmin())
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
+                                                </li>
+                                            @endif
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Product<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('category')}}">Category</a>
+
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{action('CategoryController@mapCategory')}}">Category Reference</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
+                                                    </li>
+                                                    @if(auth()->user()->checkPermission('category-edit'))
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a>
+                                                        </li>
+                                                    @endif
+                                                </ul>
+                                            </li>
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customer<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                    @if(auth()->user()->isAdmin())
+                                                        <li class="nav-item dropdown">
+                                                            <a class="dropdown-item" href="{{route('task_category.index')}}">Task Category</a>
+                                                        </li>
+                                                    @endif
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('reply.index')}}">Quick Replies</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="{{route('autoreply.index')}}">Auto Reples</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                                    {{ __('Logout') }}</a>
+                                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                                    @csrf
+                                                </form>
+                                            </li>
+                                        </ul>
                                     </li>
-                                @endif
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Product<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
-                                        </li>
+                                    @endif
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('category')}}">Category</a>
-
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{action('CategoryController@mapCategory')}}">Category Reference</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
-                                        </li>
-                                        @if(auth()->user()->checkPermission('category-edit'))
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a>
-                                            </li>
-                                        @endif
-                                    </ul>
-                                </li>
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customer<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        @if(auth()->user()->isAdmin())
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('task_category.index')}}">Task Category</a>
-                                            </li>
-                                        @endif
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('reply.index')}}">Quick Replies</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('autoreply.index')}}">Auto Reples</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}</a>
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                        @csrf
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                    @endif
-
-                </ul>
+                                </ul>
 
             </div>
 

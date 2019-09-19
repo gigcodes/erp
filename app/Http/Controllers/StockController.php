@@ -22,7 +22,7 @@ class StockController extends Controller
 {
 
     public function __construct() {
-      $this->middleware('permission:private-viewing', ['only' => ['privateViewing', 'privateViewingStore', 'privateViewingUpload', 'privateViewingUpdateStatus', 'updateOfficeBoy', 'privateViewingDestroy']]);
+    //  $this->middleware('permission:private-viewing', ['only' => ['privateViewing', 'privateViewingStore', 'privateViewingUpload', 'privateViewingUpdateStatus', 'updateOfficeBoy', 'privateViewingDestroy']]);
     }
 
     /**

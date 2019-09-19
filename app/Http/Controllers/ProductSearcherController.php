@@ -15,12 +15,12 @@ class ProductSearcherController extends Controller
 	//
 	public function __construct() {
 
-		$this->middleware('permission:searcher-list',['only' => ['sList','index']]);
-		$this->middleware('permission:searcher-create', ['only' => ['create','store']]);
-		$this->middleware('permission:searcher-edit', ['only' => ['edit','update']]);
-
-
-		$this->middleware('permission:searcher-delete', ['only' => ['destroy']]);
+//		$this->middleware('permission:searcher-list',['only' => ['sList','index']]);
+//		$this->middleware('permission:searcher-create', ['only' => ['create','store']]);
+//		$this->middleware('permission:searcher-edit', ['only' => ['edit','update']]);
+//
+//
+//		$this->middleware('permission:searcher-delete', ['only' => ['destroy']]);
 	}
 
 

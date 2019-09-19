@@ -19,7 +19,7 @@ class CaseController extends Controller
 
     public function __construct()
     {
-        $this->middleware('permission:case-all');
+      //  $this->middleware('permission:case-all');
         $this->data['statuses'] = ['Not Filed', 'Filed', 'Hearing', 'Differed', 'Settled', 'Closed'];
     }
 

@@ -21,8 +21,8 @@ class ProductInventoryController extends Controller
 {
 	public function __construct() {
 
-		$this->middleware('permission:inventory-list',['only' => ['index']]);
-		$this->middleware('permission:inventory-edit',['only' => ['edit','stock']]);
+//		$this->middleware('permission:inventory-list',['only' => ['index']]);
+//		$this->middleware('permission:inventory-edit',['only' => ['edit','stock']]);
 	}
 
 

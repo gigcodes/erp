@@ -23,11 +23,11 @@ class ProductSelectionController extends Controller
 
 	public function __construct() {
 
-		$this->middleware('permission:selection-list',['only' => ['sList','index']]);
-		$this->middleware('permission:selection-create', ['only' => ['create','store']]);
-		$this->middleware('permission:selection-edit', ['only' => ['edit','update']]);
+		//$this->middleware('permission:selection-list',['only' => ['sList','index']]);
+		//$this->middleware('permission:selection-create', ['only' => ['create','store']]);
+		//$this->middleware('permission:selection-edit', ['only' => ['edit','update']]);
 
-		$this->middleware('permission:selection-delete', ['only' => ['destroy']]);
+		//$this->middleware('permission:selection-delete', ['only' => ['destroy']]);
 	}
 
 	public function index(){

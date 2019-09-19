@@ -14,8 +14,8 @@ class ProductApproverController extends Controller
 {
 	public function __construct() {
 
-		$this->middleware('permission:approver-list',['only' => ['index']]);
-		$this->middleware('permission:approver-edit',['only' => ['edit','isFinal']]);
+//		$this->middleware('permission:approver-list',['only' => ['index']]);
+//		$this->middleware('permission:approver-edit',['only' => ['edit','isFinal']]);
 	}
 
 
