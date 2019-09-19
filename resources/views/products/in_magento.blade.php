@@ -466,9 +466,9 @@
             var task = $(this).data('task');
             var url = "{{ url('development') }}/" + task.id + "/edit";
 
-            @can('developer-all')
+            @if(auth()->user()->checkPermission('development-list'))
             $('#user_field').val(task.user_id);
-            @endcan
+            @endif
             $('#priority_field').val(task.priority);
             $('#task_field').val(task.task);
             $('#task_subject').val(task.subject);

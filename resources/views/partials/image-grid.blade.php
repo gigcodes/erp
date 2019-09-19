@@ -2,6 +2,17 @@
 
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <style type="text/css">
+      .select-multiple-cat-list .select2-container {
+          position: relative;
+          z-index: 2;
+          float: left;
+          width: 100%;
+          margin-bottom: 0;
+          display: table;
+          table-layout: fixed;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -29,6 +40,7 @@
 
                 <!--Product Search Input -->
                 <form action="{{ route('search') }}" method="GET" id="searchForm" class="form-inline align-items-start">
+                  <input type="hidden" name="source_of_search" value="attach_media">
                   @csrf
                     {{-- <div class="form-group">
                         <div class="row"> --}}
@@ -50,7 +62,7 @@
                                     <input hidden name="status" type="text" value="{{ $status ?? '' }}">
                                 @endif
                             </div>
-                            <div class="form-group mr-3 mb-3">
+                            <div class="form-group mr-3">
                               {!! $category_selection !!}
                             </div>
 
@@ -108,16 +120,24 @@
                                      value="{{ isset($size) ? $size : '' }}"
                                      placeholder="Size">
                             </div>
-
+                            <div class="form-group mr-3">
+                              {!! Form::select('per_page',[
+                              "20" => "20 Images Per Page",
+                              "30" => "30 Images Per Page",
+                              "50" => "50 Images Per Page",
+                              "100" => "100 Images Per Page",
+                              ], request()->get("per_page",null), ['placeholder' => '-- Select Images Per Page --','class' => 'form-control']) !!}
+                            </div>
                             <div class="form-group mr-3">
                               <strong class="mr-3">Price</strong>
                               <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '400000' }}]"/>
                             </div>
+                            
 
                             <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}" id="attach_all_message">
                             <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : 'nothing' }}" value="{{ $model_id }}" id="attach_all_model_id">
                             <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">
-
+                            &nbsp;
                             <input type="checkbox" class="is_on_sale" id="is_on_sale" name="is_on_sale"><label
                             for="is_on_sale">Sale Products</label>
 
@@ -130,7 +150,7 @@
                   <input type="hidden" name="quick_product" value="true">
                   <button type="submit" class="btn btn-xs btn-secondary">Quick Products</button>
                 </form>
-
+                <button type="button" class="btn btn-secondary select-all-product-btn">Select All</button>
                 <button type="button" class="btn btn-secondary" id="attachAllButton">Attach All</button>
             </div>
         </div>
@@ -166,15 +186,71 @@
 	  <?php $stage = new \App\Stage(); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
+    var image_array = [];  
     $(document).ready(function() {
        $(".select-multiple").select2();
-       $(".select-multiple-cat").multiselect();
+       //$(".select-multiple-cat").multiselect();
        $("body").tooltip({ selector: '[data-toggle=tooltip]' });
        $('.lazy').Lazy({
          effect: 'fadeIn'
        });
+       $(".select-multiple-cat-list").select2();
+       $('.select-multiple-cat-list').on('select2:close', function (evt) {
+        var uldiv = $(this).siblings('span.select2').find('ul')
+        var count = uldiv.find('li').length - 1;
+          if(count == 0) {
+            
+          }else{
+            uldiv.html('<li class="select2-selection__choice">'+count+' item selected</li>');
+          }
+      });
+
+       var selectAllBtn = $(".select-all-product-btn");
+           selectAllBtn.on("click",function(){
+              var $this = $(this);
+
+              if($this.hasClass("has-all-selected") === false) {
+                  $this.html("Deselect all");
+                  $(".select-pr-list-chk").prop("checked",true).change();
+                  $this.addClass("has-all-selected");
+              }else{
+                  $this.html("Select all");
+                  $(".select-pr-list-chk").prop("checked",false).change();
+                  $this.removeClass("has-all-selected");
+              }
+           })
     });
-      var image_array = [];
+
+    function unique(list) {
+        var result = [];
+        $.each(list, function(i, e) {
+            if ($.inArray(e, result) == -1) result.push(e);
+        });
+        return result;
+    }
+
+    $(document).on('change', '.select-pr-list-chk', function(e) {
+        var $this = $(this);
+        var productCard = $this.closest(".product-list-card").find(".attach-photo-all");
+            if(productCard.length > 0) {
+              var image =  productCard.data("image");
+              if($this.is(":checked") === true) {
+                  Object.keys(image).forEach(function(index) {
+                      image_array.push(image[index]);
+                  });
+
+                  image_array = unique(image_array);
+
+              }else{
+                  Object.keys(image).forEach(function(key) {
+                    var index = image_array.indexOf(image[key]);
+                        image_array.splice(index, 1);
+                  });
+                  image_array = unique(image_array);
+              }
+            }  
+    });
+      
 
       // $('#product-search').autocomplete({
       //   source: function(request, response) {
@@ -312,9 +388,9 @@
             // });
 
             {{--@if($roletype == 'Supervisor')
-            @can('supervisor-edit')
-                attactApproveEvent();
-            @endcan
+             @if(auth()->user()->checkPermission('productsupervisor-edit'))
+            attactApproveEvent();
+            @endif
             @endif--}}
 
             jQuery('.btn-attach').click(function (e) {

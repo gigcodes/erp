@@ -54,7 +54,7 @@ class CustomerController extends Controller
 
     public function __construct()
     {
-        $this->middleware('permission:customer');
+       // $this->middleware('permission:customer');
     }
 
     /**
@@ -2093,9 +2093,19 @@ class CustomerController extends Controller
 
         $chat_message = ChatMessage::create($params);
 
+        $mediaList = [];
+
         foreach ($data[ 'products' ] as $product) {
             if ($product->hasMedia(config('constants.media_tags'))) {
-                $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
+                $mediaList[] = $product->getMedia(config('constants.media_tags'));
+            }
+        }
+
+        foreach (array_unique($mediaList) as $list) {
+            try{
+                $chat_message->attachMedia($list, config('constants.media_tags'));
+            }catch(\Exception $e){
+
             }
         }
 

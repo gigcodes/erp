@@ -11,7 +11,7 @@
         @csrf
 
         <div class="modal-body">
-          @can('developer-all')
+         @if(auth()->user()->checkPermission('development-list'))
             <div class="form-group">
               <strong>User:</strong>
               <select class="form-control" name="user_id" required>
@@ -24,7 +24,7 @@
                   <div class="alert alert-danger">{{$errors->first('user_id')}}</div>
               @endif
             </div>
-          @endcan
+          @endif
 
           <div class="form-group">
             <strong>Attach files:</strong>
@@ -130,7 +130,7 @@
         @csrf
 
         <div class="modal-body">
-          @can('developer-all')
+         @if(auth()->user()->checkPermission('development-list'))
             <div class="form-group">
               <strong>User:</strong>
               <select class="form-control" name="user_id" id="user_field" required>
@@ -143,7 +143,7 @@
                   <div class="alert alert-danger">{{$errors->first('user_id')}}</div>
               @endif
             </div>
-          @endcan
+          @endif
 
           <div class="form-group">
             <strong>Attach files:</strong>

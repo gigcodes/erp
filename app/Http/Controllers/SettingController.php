@@ -13,8 +13,8 @@ class SettingController extends Controller
 
 	public function __construct() {
 
-		$this->middleware('permission:setting-list',['only' => ['index']]);
-		$this->middleware('permission:setting-create',['only' => ['store']]);
+	//	$this->middleware('permission:setting-list',['only' => ['index']]);
+	//	$this->middleware('permission:setting-create',['only' => ['store']]);
 	}
 
 	public function index()

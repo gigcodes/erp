@@ -379,7 +379,6 @@
               <span class="text-success change_status_message" style="display: none;">Successfully updated DND status</span>
       			</div> --}}
 
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="form-group form-inline">
                 <input type="number" id="customer_phone" name="phone" class="form-control input-sm" placeholder="910000000000" value="{{ $customer->phone }}">
 
@@ -388,7 +387,6 @@
                 @endif
                 {{-- <strong>Phone:</strong> <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $customer->phone }}</span> --}}
               </div>
-            @endif
 
             <div class="form-group">
               {{-- <strong>Address:</strong> {{ $customer->address }} --}}
@@ -415,7 +413,6 @@
               </div>
             </div>
 
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="form-group">
                 {{-- <strong>Email:</strong> <a href="#" class="btn-link" data-toggle="modal" data-target="#emailSendModal">{{ $customer->email }}</a> --}}
                 <input type="email" name="email" id="customer_email" class="form-control input-sm" placeholder="Email" value="{{ $customer->email }}">
@@ -436,7 +433,6 @@
 
                 <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
         			</div>
-            @endif
 
             <div class="row">
               <div class="col-6">
@@ -1278,13 +1274,14 @@
                                 @endif
                               </td> --}}
                               {{-- <td>
-                                @can('voucher')
+                                
+                                 @if(auth()->user()->checkPermission('voucher'))
                                   @if ($order->delivery_approval->voucher)
                                     <button type="button" class="btn btn-xs btn-secondary edit-voucher" data-toggle="modal" data-target="#editVoucherModal" data-id="{{ $order->delivery_approval->voucher->id }}" data-amount="{{ $order->delivery_approval->voucher->amount }}" data-travel="{{ $order->delivery_approval->voucher->travel_type }}">Edit Voucher</button>
                                   @else
                                     <button type="button" class="btn btn-xs btn-secondary create-voucher" data-id="{{ $order->delivery_approval->id }}">Create Voucher</button>
                                   @endif
-                                @endcan
+                                @endif
                               </td> --}}
                             </tr>
                           </tbody>
