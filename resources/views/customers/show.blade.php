@@ -379,7 +379,6 @@
               <span class="text-success change_status_message" style="display: none;">Successfully updated DND status</span>
       			</div> --}}
 
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="form-group form-inline">
                 <input type="number" id="customer_phone" name="phone" class="form-control input-sm" placeholder="910000000000" value="{{ $customer->phone }}">
 
@@ -388,7 +387,6 @@
                 @endif
                 {{-- <strong>Phone:</strong> <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $customer->phone }}</span> --}}
               </div>
-            @endif
 
             <div class="form-group">
               {{-- <strong>Address:</strong> {{ $customer->address }} --}}
