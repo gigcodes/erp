@@ -32,15 +32,15 @@
                 <td>
                     <form action="{{ route('productselection.destroy',$product->id) }}" method="POST">
                         {{--<a class="btn btn-info" href="{{ route('products.show',$product->id) }}">Show</a>--}}
-                        @can('selection-edit')
+                         @if(auth()->user()->checkPermission('productselection-edit'))
                             <a class="btn btn-image" href="{{ route('productselection.edit',$product->id) }}"><img src="/images/edit.png" /></a>
-                        @endcan
+                        @endif
 
                         @csrf
                         @method('DELETE')
-                        @can('selection-delete')
+                        @if(auth()->user()->checkPermission('productselection-delete'))
                             {{--<button type="submit" class="btn btn-danger">Delete</button>--}}
-                        @endcan
+                        @endif
                     </form>
                 </td>
             </tr>

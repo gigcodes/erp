@@ -527,7 +527,18 @@ class ProductCropperController extends Controller
                 ->first();
         }
 
-        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
+        if (!$secondProduct) {
+            $secondProduct = Product::where('status_id', StatusHelper::$cropApproval);
+            $secondProduct = QueryHelper::approvedListingOrder($secondProduct);
+            $secondProduct = $secondProduct->first();
+        }
+
+        if ( !$secondProduct || !isset($secondProduct->id) ) {
+            return redirect()->action('ProductCropperController@getListOfImagesToBeVerified');
+        } else {
+            return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
+        }
+
     }
 
     public function cropApprovalConfirmation($id, Request $request)
@@ -611,14 +622,9 @@ class ProductCropperController extends Controller
         }
 
         if (!$secondProduct) {
-            $secondProduct = Product::where('is_image_processed', 1)
-                ->where('id', '!=', $id)
-                ->where('is_crop_rejected', 0)
-                ->where('is_crop_approved', 0)
-                ->where('is_crop_being_verified', 0)
-                ->whereNotIn('id', DB::table('crop_amends')->pluck('product_id')->toArray())
-                ->orderBy('is_on_sale', 'DESC')
-                ->first();
+            $secondProduct = Product::where('status_id', StatusHelper::$cropApproval);
+            $secondProduct = QueryHelper::approvedListingOrder($secondProduct);
+            $secondProduct = $secondProduct->first();
         }
 
         if (!$secondProduct) {

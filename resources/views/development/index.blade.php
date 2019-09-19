@@ -10,7 +10,7 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Developer Tasks</h2>
 
-            @can('developer-all')
+            @if(auth()->user()->checkPermission('development-list'))
                 <div class="pull-left">
                     <form class="form-inline" action="{{ route('development.index') }}" method="GET">
                         <div class="form-group">
@@ -140,7 +140,7 @@
                                     <form action="{{ route('development.store') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-body">
-                                            @can('developer-all')
+                                            @if(auth()->user()->checkPermission('development-list'))
                                                 <div class="form-group">
                                                     <strong>User:</strong>
                                                     <select class="form-control" name="user_id" required>
@@ -153,7 +153,7 @@
                                                         <div class="alert alert-danger">{{$errors->first('user_id')}}</div>
                                                     @endif
                                                 </div>
-                                            @endcan
+                                            @endif
 
                                             <div class="form-group">
                                                 <strong>Attach files:</strong>
@@ -603,9 +603,9 @@
             var task = $(this).data('task');
             var url = "{{ url('development') }}/" + task.id + "/edit";
 
-            @can('developer-all')
+            @if(auth()->user()->checkPermission('development-list'))
             $('#user_field').val(task.user_id);
-            @endcan
+            @endif
             $('#priority_field').val(task.priority);
             $('#module_id_field option[value="' + task.module_id + '"]').attr('selected', true);
             $('#task_field').val(task.task);
