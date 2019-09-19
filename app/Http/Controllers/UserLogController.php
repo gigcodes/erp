@@ -101,7 +101,7 @@ class UserLogController extends Controller
             $userslogs = UserLog::select(['id', 'user_id', 'url', 'created_at','user_name', 'updated_at']);
         return Datatables::of($userslogs)
         ->addColumn('user_name', function ($userslogs) {
-            return '<h6><a href="/userslogs/'. $userslogs->id .'" >'. $userslogs->user_name .'</a></h6>';
+            return '<h6>.'. $userslogs->user_name .'</h6>';
         })
         ->rawColumns(['user_name'])
         ->make(true);
