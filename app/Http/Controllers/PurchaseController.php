@@ -466,6 +466,20 @@ class PurchaseController extends Controller
 
       $new_products = array_reverse($new_products);
 
+      $suppliers_all = array();
+      $suppliersQuery = DB::select('SELECT sp.id FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website inner join order_products op on op.sku = sp.sku where last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY)');
+      $cnt = count($suppliersQuery);
+              
+      if($cnt > 0) {
+        $suppliers_all = DB::select('SELECT id, supplier, product_id
+          FROM suppliers
+          INNER JOIN (
+            SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+            ) as product_suppliers
+          ON suppliers.id = product_suppliers.supplier_id
+          LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and product_id = :product_id', ['product_id' =>$product['id']]);                    
+      }
+
       if ($request->get('in_pdf') === 'on') {
           set_time_limit(0);
 
@@ -474,6 +488,7 @@ class PurchaseController extends Controller
               'order_status'  => $order_status,
               'supplier_list' => $supplier_list,
               'suppliers_array' => $suppliers_array,
+              'suppliers_all' => $suppliers_all,
               'term'          => $term,
               'status'        => $status,
               'supplier'      => $supplier,
@@ -501,6 +516,7 @@ class PurchaseController extends Controller
         'order_status'  => $order_status,
         'supplier_list' => $supplier_list,
         'suppliers_array' => $suppliers_array,
+        'suppliers_all' => $suppliers_all,
         'term'          => $term,
         'status'        => $status,
         'supplier'      => $supplier,
@@ -2472,5 +2488,91 @@ class PurchaseController extends Controller
         }
     }
 
+     public function sendEmailBulk(Request $request)
+    {
+      $this->validate($request, [
+        'subject' => 'required|min:3|max:255',
+        'message' => 'required',
+        'cc.*' => 'nullable|email',
+        'bcc.*' => 'nullable|email'
+      ]);
+
+      if ($request->suppliers) {
+        $suppliers = Supplier::whereIn('id', $request->suppliers)->where(function ($query) {
+          $query->whereNotNull('default_email')->orWhereNotNull('email');
+        })->get();
+      } else {
+        if ($request->not_received != 'on' && $request->received != 'on') {
+          return redirect()->route('purchase.index')->withErrors(['Please select either suppliers or option']);
+        }
+      }
+
+      if ($request->not_received == 'on') {
+        $suppliers = Supplier::doesnthave('emails')->where(function ($query) {
+          $query->whereNotNull('default_email')->orWhereNotNull('email');
+        })->get();
+      }
+
+      if ($request->received == 'on') {
+        $suppliers = Supplier::whereDoesntHave('emails', function ($query) {
+          $query->where('type', 'incoming');
+        })->where(function ($query) {
+          $query->whereNotNull('default_email')->orWhereNotNull('email');
+        })->where('has_error', 0)->get();
+      }
+
+     
+
+      $file_paths = [];
+
+      if ($request->hasFile('file')) {
+        foreach ($request->file('file') as $file) {
+          $filename = $file->getClientOriginalName();
+
+          $file->storeAs("documents", $filename, 'files');
+
+          $file_paths[] = "documents/$filename";
+        }
+      }
+
+      $cc = $bcc = [];
+      if ($request->has('cc')) {
+          $cc = array_values(array_filter($request->cc));
+      }
+      if ($request->has('bcc')) {
+          $bcc = array_values(array_filter($request->bcc));
+      }
+
+      foreach ($suppliers as $supplier) {
+        $mail = Mail::to($supplier->default_email ?? $supplier->email);
+
+        if ($cc) {
+            $mail->cc($cc);
+        }
+        if ($bcc) {
+            $mail->bcc($bcc);
+        }
+
+        $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+
+        $params = [
+          'model_id'        => $supplier->id,
+          'model_type'      => Supplier::class,
+          'from'            => 'buying@amourint.com',
+          'seen'            => 1,
+          'to'              => $supplier->default_email ?? $supplier->email,
+          'subject'         => $request->subject,
+          'message'         => $request->message,
+          'template'    => 'customer-simple',
+          'additional_data' => json_encode(['attachment' => $file_paths]),
+          'cc'              => $cc ?: null,
+          'bcc'             => $bcc ?: null,
+        ];
+
+        Email::create($params);
+      }
+
+      return redirect()->route('purchase.index')->withSuccess('You have successfully sent emails in bulk!');
+    }
 
 }
