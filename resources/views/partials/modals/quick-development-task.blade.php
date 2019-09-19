@@ -13,7 +13,7 @@
         <input type="hidden" name="status" value="Discussing">
 
         <div class="modal-body">
-          @can('developer-all')
+          @if(auth()->user()->checkPermission('development-list'))
             @php
               $quick_dev_users_array = \App\Helpers::getUserArray(\App\User::role('Developer')->get());
             @endphp
@@ -29,7 +29,7 @@
                   <div class="alert alert-danger">{{$errors->first('user_id')}}</div>
               @endif
             </div>
-          @endcan
+          @endif
 
           <div class="form-group">
             <strong>Module:</strong>

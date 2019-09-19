@@ -312,9 +312,9 @@
             // });
 
             {{--@if($roletype == 'Supervisor')
-            @can('supervisor-edit')
-                attactApproveEvent();
-            @endcan
+             @if(auth()->user()->checkPermission('productsupervisor-edit'))
+            attactApproveEvent();
+            @endif
             @endif--}}
 
             jQuery('.btn-attach').click(function (e) {

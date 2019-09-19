@@ -182,11 +182,11 @@
                   <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
                   {!! Form::close() !!}
 
-                  @can('order-delete')
+                  @if(auth()->user()->checkPermission('order-delete'))
                     {!! Form::open(['method' => 'DELETE','route' => ['order.permanentDelete', $order->id],'style'=>'display:inline']) !!}
                     <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
-                  @endcan
+                  @endif
                 </div>
               </td>
             </tr>

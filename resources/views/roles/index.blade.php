@@ -8,9 +8,9 @@
             <div class="pull-left">
             </div>
             <div class="pull-right">
-                @can('role-create')
+                @if(auth()->user()->checkPermission('roles-create'))
                     <a class="btn btn-secondary" href="{{ route('roles.create') }}">+</a>
-                @endcan
+                @endif
             </div>
         </div>
     </div>
