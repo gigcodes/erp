@@ -1437,9 +1437,9 @@ class ProductController extends Controller
         $products = $products->join("mediables",function($query){
             $query->on("mediables.mediable_id" , "products.id")->where("mediable_type", "App\Product");
         });
-        $products_count = $products->groupBy('id')->count();
+        $products_count = $products->count();
 
-        $products = $products->groupBy('id')->paginate(Setting::get('pagination'));
+        $products = $products->paginate(Setting::get('pagination'));
 
         if ($request->ajax()) {
             $html = view('partials.image-load', ['products' => $products, 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [], 'model_type' => $model_type])->render();
