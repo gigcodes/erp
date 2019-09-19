@@ -2831,7 +2831,7 @@ class WhatsAppController extends FindByNumberController
                 // check here that image media url is temp created if so we can delete that 
                 if (strpos($message->media_url, 'instant_message_') !== false) {
                     $path = parse_url($message->media_url, PHP_URL_PATH);
-                    if(file_exists(public_path($path))){
+                    if(file_exists(public_path($path)) && strpos($message->media_url, $path) !== false ){
                         @unlink( public_path($path) );
                     }
                 }
