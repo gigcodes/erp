@@ -2427,10 +2427,15 @@ class PurchaseController extends Controller
             'supplier_id' => 'required',
             'message' => 'required'
         ]);
-      $supplier_id = $request->input('supplier_id');
+      $supplier_id = json_decode($request->input('supplier_id'));
+     
       $id = $request->input('id');
-      $suppliers_all = DB::select('SELECT suppliers.id, suppliers.whatsapp_number, suppliers.supplier from suppliers where suppliers.id =:supplier', ['supplier' =>$supplier_id]);
-                
+      /// $suppliers_all = DB::select('SELECT suppliers.id, suppliers.whatsapp_number, suppliers.supplier from suppliers where suppliers.id =:supplier', ['supplier' =>$supplier_id]);
+
+      $suppliers_all =DB::table('suppliers')
+                      ->select('id', 'whatsapp_number', 'supplier')
+                      ->whereIn('id', $supplier_id)
+                      ->get();  
         if(count($suppliers_all) > 0){       
        
           foreach ($suppliers_all as $supplier){

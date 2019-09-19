@@ -104,11 +104,12 @@
                       @endif
                 </td>
                 <td><!-- {{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }} -->
-                @php 
-                $data = DB::select('SELECT id FROM `scraped_products` WHERE last_inventory_at is NOT null and last_inventory_at < if(is_excel=0, DATE_ADD(CURDATE(), INTERVAL - 48 HOUR), DATE_ADD(CURDATE(), INTERVAL - 14 DAY)) and  sku = :sku', ['sku' =>$product['sku']]);
+                @php                 
+                $data = DB::select('SELECT sp.id FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
+
                 $cnt = count($data);
                 @endphp
-                @if($cnt > 0)
+                @if($cnt == 0)
 
                 @php
                  $suppliers_array2 = DB::select('SELECT id, supplier, product_id
@@ -120,8 +121,7 @@
                     LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and product_id = :product_id', ['product_id' =>$product['id']]);
                     $cnt2 = count($suppliers_array2);
                 @endphp
-                   <select name="supplier" id="supplier_{{$product['id']}}" class="form-control">
-                      <option value="">Select Supplier</option>
+                   <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple" multiple>
                       @if($cnt2 > 0)
                         @foreach($suppliers_array2 as $sup)
                           <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
@@ -496,6 +496,9 @@
         function sendMSG(id)
         {
           var supplier_id = $('#supplier_'+id).val();
+
+          supplier_id = JSON.stringify(supplier_id);
+
           var message = $('#message_'+id).val();
           if(supplier_id == '')          {
 
@@ -527,13 +530,9 @@
                 setTimeout(function () {
                   $('#btnmsg_'+id).addClass('btn-secondary');
                   $('#btnmsg_'+id).removeClass('btn-success');
+                  $('#message_'+id).val('');
                 }, 2000);
 
-                /*$.each(response, function( index, value ) {
-                  html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
-                  html+"<hr>";
-                });
-                $("#viewRemarkModal").find('#remark-list').html(html);*/
             }).fail(function(response) {
               $('#btnmsg_'+id).val('SendSMG');
               console.log(response);
