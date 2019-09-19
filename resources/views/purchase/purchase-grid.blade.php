@@ -15,7 +15,7 @@
     </div>
 
     <div class="row">
-      <div class="col-lg-12 margin-tb">
+      <div class="col-lg-12 margin-tb">       
         <form action="{{ route('purchase.grid') }}" method="GET" class="form-inline align-items-start">
             <div class="form-group mr-3 mb-3">
               <input name="term" type="text" class="form-control" id="product-search"
@@ -52,12 +52,13 @@
 
             <input type="checkbox" name="in_pdf" id="in_pdf"> <label for="in_pdf">Download PDF</label>
 
-            <button type="submit" class="btn btn-image"><img src="/images/search.png" /></button>
+            <button type="submit" class="btn btn-image"><img src="/images/search.png" /></button>            
         </form>
-      </div>
+      </div>      
     </div>
 
     @include('partials.flash_messages')
+    
 
     {{-- {!! $products->appends(Request::except('page'))->links() !!} --}}
 
@@ -109,7 +110,7 @@
 
                 $cnt = count($data);
                 @endphp
-                @if($cnt == 0)
+                @if($cnt > 0)
 
                 @php
                  $suppliers_array2 = DB::select('SELECT id, supplier, product_id
