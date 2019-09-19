@@ -1434,9 +1434,9 @@ class ProductController extends Controller
 
         $products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier', 'purchase_status']);
         // assign query to get media records only
-        $products = $products->join("mediables",function($query){
-            $query->on("mediables.mediable_id" , "products.id")->where("mediable_type", "App\Product");
-        });
+        $products = $products->join("mediables", function ($query) {
+            $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
+        })->groupBy('products.id');
         $products_count = $products->count();
 
         $products = $products->paginate(Setting::get('pagination'));
@@ -1641,7 +1641,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($request->get('product_id'));
 
         // Check if this product is being cropped
-        if ( $product->status_id != StatusHelper::$isBeingCropped ) {
+        if ($product->status_id != StatusHelper::$isBeingCropped) {
             return response()->json([
                 'status' => 'unknown product'
             ], 400);

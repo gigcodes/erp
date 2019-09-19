@@ -30,7 +30,7 @@ class SearchController extends Controller {
 		$perPageLimit = $request->get("per_page",Setting::get( 'pagination' ));
 		$sourceOfSearch = $request->get("source_of_search","na");
 
-		// start add fixing for the price range since the one request from price is in range 
+		// start add fixing for the price range since the one request from price is in range
 		// price  = 0 , 100
 
 		$priceRange = $request->get("price",null);
@@ -326,7 +326,7 @@ class SearchController extends Controller {
 		                                        ->selected($selected_categories)
 		                                        ->renderAsDropdown();
 
-		 // fix if query is not setup due to some unknow condition                                        
+		 // fix if query is not setup due to some unknow condition
 		if(!isset($productQuery)) {
 			$productQuery = ( new Product() )->newQuery()->latest();
 		}
@@ -338,12 +338,12 @@ class SearchController extends Controller {
 		if($sourceOfSearch == "attach_media") {
 			$products = $products->join("mediables",function($query){
 				$query->on("mediables.mediable_id" , "products.id")->where("mediable_type", "App\Product");
-			});
+			})->groupBy('products.id');
 		}
-		
+
 		// select fields..
 		$products = $products->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'purchase_status', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
-		
+
 		$data['is_on_sale'] = 0;
 		if ($request->get('is_on_sale') == 'on') {
 		    $data['is_on_sale'] = 1;
