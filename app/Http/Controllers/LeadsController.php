@@ -731,12 +731,12 @@ class LeadsController extends Controller
      * 
      */
 
-    public static function createProductTextImage($path, $name = "", $text = "", $color = "FFF", $fontSize = "28")
+    public static function createProductTextImage($path, $name = "", $text = "", $color = "228B22", $fontSize = "50")
     {
        $img = \IImage::make($path);  
        // use callback to define details
         $img->text($text, 5, 50, function($font) use ($fontSize,$color) {
-            $font->file(public_path('fonts/Arial.ttf'));
+            $font->file(public_path('/fonts/Arial.ttf'));
             $font->size($fontSize);
             $font->color("#".$color);
             $font->align('top');
