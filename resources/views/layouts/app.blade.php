@@ -1635,6 +1635,7 @@
                                     <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                 @endcan
                                 <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
+                                <a class="dropdown-item" href="{{ route('development.kanbanboard') }}">Kanban Board</a>
                             </div>
                         </li>
 

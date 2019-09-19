@@ -780,4 +780,19 @@ class DevelopmentController extends Controller
         ] );
 
     }
+
+    public function kanbanBoard( Request $request )
+    {
+
+        $users = Helpers::getUserArray( User::role( 'Developer' )->get() );
+
+        return view( 'development.kanban_board', [
+            'users' => $users,
+        ] );
+    }
+
+//    public function developerTasks($developer_id){
+//        $developerTasks = DeveloperTask::where('user_id',$developer_id)->get();
+//
+//    }
 }

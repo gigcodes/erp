@@ -449,6 +449,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'development/task/assign-task', 'DevelopmentController@updateAssignee' );
     Route::post( 'development/task/relist-task', 'DevelopmentController@relistTask' );
 
+
     Route::resource( 'development-messages-schedules', 'DeveloperMessagesAlertSchedulesController' );
     Route::get( 'development', 'DevelopmentController@index' )->name( 'development.index' );
     Route::post( 'development/create', 'DevelopmentController@store' )->name( 'development.store' );
@@ -471,6 +472,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::get( 'development/issue/cost/assign', 'DevelopmentController@saveAmount' );
     Route::post( 'development/{id}/assignIssue', 'DevelopmentController@issueAssign' )->name( 'development.issue.assign' );
     Route::delete( 'development/{id}/issueDestroy', 'DevelopmentController@issueDestroy' )->name( 'development.issue.destroy' );
+    Route::get( 'development/kanban-board', 'DevelopmentController@kanbanBoard' )->name( 'development.kanbanboard' );
 
     Route::post( 'development/module/create', 'DevelopmentController@moduleStore' )->name( 'development.module.store' );
     Route::delete( 'development/module/{id}/destroy', 'DevelopmentController@moduleDestroy' )->name( 'development.module.destroy' );
