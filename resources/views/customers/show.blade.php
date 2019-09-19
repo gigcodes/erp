@@ -415,7 +415,6 @@
               </div>
             </div>
 
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="form-group">
                 {{-- <strong>Email:</strong> <a href="#" class="btn-link" data-toggle="modal" data-target="#emailSendModal">{{ $customer->email }}</a> --}}
                 <input type="email" name="email" id="customer_email" class="form-control input-sm" placeholder="Email" value="{{ $customer->email }}">
@@ -436,7 +435,6 @@
 
                 <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
         			</div>
-            @endif
 
             <div class="row">
               <div class="col-6">
