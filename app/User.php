@@ -9,6 +9,7 @@ use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Cache;
+use App\UserLog;
 
 
 class User extends Authenticatable
@@ -205,6 +206,10 @@ class User extends Authenticatable
             }
         }
         return false; 
+    }
+
+    public function user_logs(){
+        return $this->hasMany(UserLog::class);
     }
 
 

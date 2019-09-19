@@ -173,6 +173,7 @@ return [
         PragmaRX\Tracker\Vendor\Laravel\ServiceProvider::class,
         Thujohn\Twitter\TwitterServiceProvider::class,
         App\Providers\PermissionCheckServiceProvider::class,
+        Yajra\DataTables\DataTablesServiceProvider::class,
     ],
 
     /*
@@ -233,6 +234,7 @@ return [
         'Tracker' => PragmaRX\Tracker\Vendor\Laravel\Facade::class,
         'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
         'PermissionCheck' => App\Facades\PermissionCheckClass::class,
+        'DataTables' => Yajra\DataTables\Facades\DataTables::class,
     ],
 
 ];
