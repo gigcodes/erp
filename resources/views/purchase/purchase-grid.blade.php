@@ -79,8 +79,7 @@
       <div class="table-responsive">
         <table class="table table-bordered">
           <thead>
-            <tr>
-              <th>#</th>
+            <tr>              
               <th>Product</th>
               <th>SKU</th>            
               <th>Supplier</th>
@@ -96,12 +95,13 @@
               @endphp 
               <tr>
                 <td>
-                  <input type="checkbox" class="select-product" name="products[]" value="{{ $product['id'] }}" data-supplier="{{ $product['single_supplier'] }}" />
-                </td>
-                <td>
                   <a href="{{ route('products.show', $product['id']) }}" target="_blank"><img src="{{ $product['image'] }}" class="img-responsive" style="width: 100px !important" alt=""></a>
                 </td>
-                <td>{{$product['sku'] }}
+                <td>@if($custcount > 1) 
+                        <a href="javascript:void(0);" class="expandrow" data-id="{{$product['id']}}">{{$product['sku'] }}</a>
+                       @else 
+                        {{$product['sku'] }}
+                      @endif
                 </td>
                 <td><!-- {{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }} -->
                 @php 
@@ -141,10 +141,11 @@
                 </td>
               </tr>
               <tr id="product_cust_{{$product['id']}}">
-                <td colspan="7">
+                <td colspan="6">
                     <table class="table table-bordered" width="100%">
                   <thead>
                     <tr>
+                      <th>#</th>
                       <th>Customers</th>
                       <th>Price In Order</th>
                       <th>Order Date</th>
@@ -154,6 +155,10 @@
                   <tbody>
                     @foreach ($product['order_products'] as $order_product)
                     <tr>
+                        <td>
+                          <input type="checkbox" class="select-product" name="products[]" value="{{ $product['id'] }}" data-customer="{{ $order_product->order->customer->id }}" data-supplier="{{ $product['single_supplier'] }}" />
+                           <input type="hidden" name="customer[]" value="{{ $order_product->order->customer->id }}" />
+                        </td>
                         <td><a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a></td>
                         <td>{{ $order_product->product_price }}</td>
                         <td>
@@ -189,6 +194,7 @@
       <input type="hidden" name="purchase_handler" value="{{ Auth::id() }}" />
       <input type="hidden" name="supplier_id" value="" />
       <input type="hidden" name="products" value="">
+       <input type="hidden" name="customer" value="">
 
       <div class="row">
         <div class="col text-center">
@@ -371,22 +377,29 @@
         });
 
         var selected_products = [];
+        var selected_customer = [];
         $(document).on('click', '.select-product', function() {
           var supplier_id = $(this).data('supplier');
-
+          var customer_id = $(this).data('customer');
           $('input[name="supplier_id"]').val(supplier_id);
 
           var checked = $(this).prop('checked');
 
           if (checked) {
             selected_products.push($(this).val());
+            selected_customer.push(customer_id);
           } else {
             var index = selected_products.indexOf($(this).val());
 
             selected_products.splice(index, 1);
+
+            var index2 = selected_customer.indexOf(customer_id);
+
+            selected_customer.splice(index2, 1);
           }
 
           console.log(selected_products);
+          console.log(selected_customer);
         });
 
         $(window).scroll(function() {
@@ -471,6 +484,7 @@
         $('#createPurchaseButton').on('click', function(e) {
           if (selected_products.length > 0) {
             $(this).closest('form').find('input[name="products"]').val(JSON.stringify(selected_products));
+            $(this).closest('form').find('input[name="customer"]').val(JSON.stringify(selected_customer));
             $(this).closest('form').submit();
           } else {
             e.preventDefault();

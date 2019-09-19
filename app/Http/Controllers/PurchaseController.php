@@ -739,28 +739,31 @@ class PurchaseController extends Controller
         // 'supplier'          => 'required',
         'products'          => 'required'
       ]);
-
+      
       $purchase = new Purchase;
 
       $purchase->purchase_handler = $request->purchase_handler;
       $purchase->supplier_id = $request->supplier_id;
       $purchase->status = 'Pending Purchase';
-
       $purchase->save();
 
       $products = json_decode($request->products);
-
+      $customer = json_decode($request->customer);
       $purchase->products()->attach($products);
 
-      foreach ($products as $product_id) {
+      foreach ($products as $key=>$product_id) {
+
         $product = Product::find($product_id);
 
         foreach ($product->orderproducts as $order_product) {
-          $order_product->purchase_status = 'Pending Purchase';
-          $order_product->save();
+
+          if ( key_exists($order_product->customer_id, $customer) ) {
+            $order_product->purchase_status = 'Pending Purchase';
+            $order_product->save();
+          }
+
         }
       }
-
       return redirect()->route('purchase.index');
     }
 
