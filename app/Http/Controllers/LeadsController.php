@@ -586,10 +586,10 @@ class LeadsController extends Controller
               $textImage = null;
               if($mediaImage) {
                 // define seperator 
-                define("DS",DIRECTORY_SEPARATOR);
+                define("DSP",DIRECTORY_SEPARATOR);
                 // add text message and create image
                 $textImage = self::createProductTextImage(
-                  public_path($mediaImage->disk.DS.$mediaImage->filename.".".$mediaImage->extension),
+                  public_path($mediaImage->disk.DSP.$mediaImage->filename.".".$mediaImage->extension),
                   "instant_message_".$chat_message->id,
                   $auto_message
                 );
