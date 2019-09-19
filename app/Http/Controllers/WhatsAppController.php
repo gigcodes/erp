@@ -2828,6 +2828,13 @@ class WhatsAppController extends FindByNumberController
             } else {
 //             $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
                 $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, null, $message->media_url);
+                // check here that image media url is temp created if so we can delete that 
+                if (strpos($message->media_url, 'instant_message_') !== false) {
+                    $path = parse_url($message->media_url, PHP_URL_PATH);
+                    if(file_exists(public_path($path))){
+                        @unlink( public_path($path) );
+                    }
+                }
             }
         }
 
