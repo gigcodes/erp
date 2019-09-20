@@ -35,33 +35,39 @@ class DevelopmentController extends Controller
 
     public function index(Request $request)
     {
+        // Set required data
         $user = $request->user ?? Auth::id();
         $start = $request->range_start ? "$request->range_start 00:00" : Carbon::now()->startOfWeek();
         $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
         $id = null;
 
+        // Set initial variables
         $progressTasks = new DeveloperTask();
         $plannedTasks = new DeveloperTask();
         $completedTasks = new DeveloperTask();
 
+        // For non-admins get tasks assigned to the user
         if (!Auth::user()->hasRole('Admin')) {
             $progressTasks = DeveloperTask::where('user_id', Auth::id());
             $plannedTasks = DeveloperTask::where('user_id', Auth::id());
             $completedTasks = DeveloperTask::where('user_id', Auth::id());
         }
 
+        // Get tasks for specific user if you are admin
         if (Auth::user()->hasRole('Admin') && (int)$request->user > 0) {
             $progressTasks = DeveloperTask::where('user_id', $user);
             $plannedTasks = DeveloperTask::where('user_id', $user);
             $completedTasks = DeveloperTask::where('user_id', $user);
         }
 
+        // Filter by date
         if ($request->get('range_start') != '') {
             $progressTasks = $progressTasks->whereBetween('created_at', [$start, $end]);
             $plannedTasks = $plannedTasks->whereBetween('created_at', [$start, $end]);
             $completedTasks = $completedTasks->whereBetween('created_at', [$start, $end]);
         }
 
+        // Filter by ID
         if ($request->get('id')) {
             $progressTasks = $progressTasks->where(function ($query) use ($request) {
                 $id = $request->get('id');
@@ -77,17 +83,26 @@ class DevelopmentController extends Controller
             });
         }
 
+        // Get all data with user and messages
         $plannedTasks = $plannedTasks->where('status', 'Planned')->orderBy('created_at')->with(['user', 'messages'])->get();
         $completedTasks = $completedTasks->where('status', 'Done')->orderBy('created_at')->with(['user', 'messages'])->get();
         $progressTasks = $progressTasks->where('status', 'In Progress')->orderBy('created_at')->with(['user', 'messages'])->get();
 
+        // Get all modules
         $modules = DeveloperModule::all();
+
+        // Get all developers
         $users = Helpers::getUserArray(User::role('Developer')->get());
-        $module_names = [];
+
+        // Get all task types
         $tasksTypes = TaskTypes::all();
 
+        // Create empty array for module names
+        $moduleNames = [];
+
+        // Loop over all modules and store them
         foreach ($modules as $module) {
-            $module_names[ $module->id ] = $module->name;
+            $moduleNames[ $module->id ] = $module->name;
         }
 
         $times = [];
@@ -98,7 +113,7 @@ class DevelopmentController extends Controller
             'user' => $user,
             'start' => $start,
             'end' => $end,
-            'module_names' => $module_names,
+            'moduleNames' => $moduleNames,
             'completedTasks' => $completedTasks,
             'plannedTasks' => $plannedTasks,
             'progressTasks' => $progressTasks,

@@ -288,7 +288,7 @@
                                 <td>{{ $task->developerModule ? $task->developerModule->name : 'N/A' }}</td>
                                 <td>{{ $task->subject ?? 'N/A' }}</td>
                                 <td>
-                                    {{ $task->task }}
+                                    {!! nl2br($task->task) !!}
                                     <div>
                                         @foreach($task->getMedia('gallery') as $media)
                                             <a href="{{ $media->getUrl() }}" target="_new">
