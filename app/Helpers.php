@@ -239,4 +239,9 @@ class Helpers {
         return $items;
     }
 
+    public static function getDeveloperTasks($developer_id){
+        $developerTasks = DeveloperTask::where('user_id',$developer_id)->get();
+        return $developerTasks;
+    }
+
 }

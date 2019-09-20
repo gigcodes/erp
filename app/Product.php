@@ -96,7 +96,7 @@ class Product extends Model
                 }
 
                 // Add sizes to the product
-                if (is_array($json->properties[ 'size' ]) && count($json->properties[ 'size' ]) > 0) {
+                if (isset($json->properties[ 'size' ]) && is_array($json->properties[ 'size' ]) && count($json->properties[ 'size' ]) > 0) {
                     $product->size = implode(',', array_keys($json->properties[ 'size' ]));
                 }
 

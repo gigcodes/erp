@@ -457,43 +457,46 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('imported/leads/save', 'ColdLeadsController@addLeadToCustomer');
 
     // Development
+    Route::post( 'development/task/move-to-progress', 'DevelopmentController@moveTaskToProgress' );
+    Route::post( 'development/task/complete-task', 'DevelopmentController@completeTask' );
+    Route::post( 'development/task/assign-task', 'DevelopmentController@updateAssignee' );
+    Route::post( 'development/task/relist-task', 'DevelopmentController@relistTask' );
 
-    Route::post('development/task/move-to-progress', 'DevelopmentController@moveTaskToProgress');
-    Route::post('development/task/complete-task', 'DevelopmentController@completeTask');
-    Route::post('development/task/assign-task', 'DevelopmentController@updateAssignee');
-    Route::post('development/task/relist-task', 'DevelopmentController@relistTask');
 
-    Route::resource('development-messages-schedules', 'DeveloperMessagesAlertSchedulesController');
-    Route::get('development', 'DevelopmentController@index')->name('development.index');
-    Route::post('development/create', 'DevelopmentController@store')->name('development.store');
-    Route::post('development/{id}/edit', 'DevelopmentController@update')->name('development.update');
-    Route::post('development/{id}/verify', 'DevelopmentController@verify')->name('development.verify');
-    Route::get('development/verify/view', 'DevelopmentController@verifyView')->name('development.verify.view');
-    Route::delete('development/{id}/destroy', 'DevelopmentController@destroy')->name('development.destroy');
-    Route::post('development/{id}/updateCost', 'DevelopmentController@updateCost')->name('development.update.cost');
-    Route::post('development/{id}/status', 'DevelopmentController@updateStatus')->name('development.update.status');
-    Route::post('development/{id}/updateTask', 'DevelopmentController@updateTask')->name('development.update.task');
-    Route::post('development/{id}/updatePriority', 'DevelopmentController@updatePriority')->name('development.update.priority');
+    Route::resource( 'task-types', 'TaskTypesController' );
 
-    Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
-    Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
-    Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
-    Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');
-    Route::get('development/issue/user/resolve', 'DevelopmentController@resolveIssue');
-    Route::get('development/issue/estimate_date/assign', 'DevelopmentController@saveEstimateTime');
-    Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
-    Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');
-    Route::post('development/{id}/assignIssue', 'DevelopmentController@issueAssign')->name('development.issue.assign');
-    Route::delete('development/{id}/issueDestroy', 'DevelopmentController@issueDestroy')->name('development.issue.destroy');
+    Route::resource( 'development-messages-schedules', 'DeveloperMessagesAlertSchedulesController' );
+    Route::get( 'development', 'DevelopmentController@index' )->name( 'development.index' );
+    Route::post( 'development/create', 'DevelopmentController@store' )->name( 'development.store' );
+    Route::post( 'development/{id}/edit', 'DevelopmentController@update' )->name( 'development.update' );
+    Route::post( 'development/{id}/verify', 'DevelopmentController@verify' )->name( 'development.verify' );
+    Route::get( 'development/verify/view', 'DevelopmentController@verifyView' )->name( 'development.verify.view' );
+    Route::delete( 'development/{id}/destroy', 'DevelopmentController@destroy' )->name( 'development.destroy' );
+    Route::post( 'development/{id}/updateCost', 'DevelopmentController@updateCost' )->name( 'development.update.cost' );
+    Route::post( 'development/{id}/status', 'DevelopmentController@updateStatus' )->name( 'development.update.status' );
+    Route::post( 'development/{id}/updateTask', 'DevelopmentController@updateTask' )->name( 'development.update.task' );
+    Route::post( 'development/{id}/updatePriority', 'DevelopmentController@updatePriority' )->name( 'development.update.priority' );
 
-    Route::post('development/module/create', 'DevelopmentController@moduleStore')->name('development.module.store');
-    Route::delete('development/module/{id}/destroy', 'DevelopmentController@moduleDestroy')->name('development.module.destroy');
-    Route::post('development/{id}/assignModule', 'DevelopmentController@moduleAssign')->name('development.module.assign');
+    Route::get( 'development/issue/list', 'DevelopmentController@issueIndex' )->name( 'development.issue.index' );
+    Route::get( 'development/issue/create', 'DevelopmentController@issueCreate' )->name( 'development.issue.create' );
+    Route::post( 'development/issue/create', 'DevelopmentController@issueStore' )->name( 'development.issue.store' );
+    Route::get( 'development/issue/user/assign', 'DevelopmentController@assignUser' );
+    Route::get( 'development/issue/user/resolve', 'DevelopmentController@resolveIssue' );
+    Route::get( 'development/issue/estimate_date/assign', 'DevelopmentController@saveEstimateTime' );
+    Route::get( 'development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser' );
+    Route::get( 'development/issue/cost/assign', 'DevelopmentController@saveAmount' );
+    Route::post( 'development/{id}/assignIssue', 'DevelopmentController@issueAssign' )->name( 'development.issue.assign' );
+    Route::delete( 'development/{id}/issueDestroy', 'DevelopmentController@issueDestroy' )->name( 'development.issue.destroy' );
+    Route::get( 'development/kanban-board', 'DevelopmentController@kanbanBoard' )->name( 'development.kanbanboard' );
 
-    Route::post('development/comment/create', 'DevelopmentController@commentStore')->name('development.comment.store');
-    Route::post('development/{id}/awaiting/response', 'DevelopmentController@awaitingResponse')->name('development.comment.awaiting.response');
+    Route::post( 'development/module/create', 'DevelopmentController@moduleStore' )->name( 'development.module.store' );
+    Route::delete( 'development/module/{id}/destroy', 'DevelopmentController@moduleDestroy' )->name( 'development.module.destroy' );
+    Route::post( 'development/{id}/assignModule', 'DevelopmentController@moduleAssign' )->name( 'development.module.assign' );
 
-    Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
+    Route::post( 'development/comment/create', 'DevelopmentController@commentStore' )->name( 'development.comment.store' );
+    Route::post( 'development/{id}/awaiting/response', 'DevelopmentController@awaitingResponse' )->name( 'development.comment.awaiting.response' );
+
+    Route::post( 'development/cost/store', 'DevelopmentController@costStore' )->name( 'development.cost.store' );
 
     // Development
     Route::get('development', 'DevelopmentController@index')->name('development.index');
