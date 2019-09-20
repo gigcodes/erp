@@ -59,7 +59,7 @@
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
           </div>
         </form>
-      </div>      
+      </div>
     </div>
 
     @include('partials.flash_messages')
@@ -85,9 +85,9 @@
       <div class="table-responsive">
         <table class="table table-bordered">
           <thead>
-            <tr>              
+            <tr>
               <th>Product</th>
-              <th>SKU</th>            
+              <th>SKU</th>
               <th>Supplier</th>
               <th>Suppliers</th>
               <th>Brand</th>
@@ -97,20 +97,20 @@
 
           <tbody>
             @foreach ($products as $product)
-              @php $custcount = count($product['customers']); 
-              @endphp 
+              @php $custcount = count($product['customers']);
+              @endphp
               <tr>
                 <td>
                   <a href="{{ route('products.show', $product['id']) }}" target="_blank"><img src="{{ $product['image'] }}" class="img-responsive" style="width: 100px !important" alt=""></a>
                 </td>
-                <td>@if($custcount > 1) 
+                <td>@if($custcount > 1)
                         <a href="javascript:void(0);" class="expandrow" data-id="{{$product['id']}}">{{$product['sku'] }}</a>
-                       @else 
+                       @else
                         {{$product['sku'] }}
                       @endif
                 </td>
                 <td><!-- {{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }} -->
-                @php                 
+                @php
                 $data = DB::select('SELECT sp.id FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
 
                 $cnt = count($data);
@@ -136,7 +136,7 @@
                     </select>
                     <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message" >
                     <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
-                @endif                
+                @endif
                 </td>
                 <td>{{ $product['supplier_list'] }}</td>
                 <td>{{ $product['brand'] }}</td>
@@ -162,14 +162,14 @@
                     @foreach ($product['order_products'] as $order_product)
                     <tr>
                         <td>
-                          @if ($order_product->order->customer)
+                          @if ( isset($order_product->order->customer) )
                           <input type="checkbox" class="select-product" name="products[]" value="{{ $product['id'] }}" data-customer="{{ $order_product->order->customer->id }}" data-supplier="{{ $product['single_supplier'] }}" />
                            <input type="hidden" name="customer[]" value="{{ $order_product->order->customer->id }}" />
                            @endif
                         </td>
 
                         <td>
-                          @if ($order_product->order->customer)
+                          @if ( isset($order_product->order->customer) )
                           <a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a>
                           @endif
                         </td>
@@ -181,8 +181,8 @@
                             No Order
                           @endif
                         </td>
-                        <td>                        
-                          @if ($order_product->order) 
+                        <td>
+                          @if ( isset($order_product->order) )
                             {{ $order_product->order->advance_detail }}</li>
                           @else
                             No Order
@@ -191,7 +191,7 @@
                     </tr>
                     @endforeach
                   </tbody>
-                </table>  
+                </table>
                 </td>
               </tr>
             @endforeach
@@ -517,13 +517,13 @@
 
             $('#supplier_'+id).css('border', '1px solid red')
             return false;
-          }          
+          }
           if(message == '')          {
 
             $('#message_'+id).css('border', '1px solid red')
             return false;
-          }  
-          $('#btnmsg_'+id).val('Sending...');     
+          }
+          $('#btnmsg_'+id).val('Sending...');
           $.ajax({
                 type: 'POST',
                 headers: {
@@ -553,7 +553,7 @@
 
         }
 
-        
+
     $(document).on('click', '.add-cc', function (e) {
         e.preventDefault();
 
