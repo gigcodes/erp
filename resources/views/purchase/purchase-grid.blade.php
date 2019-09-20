@@ -162,10 +162,17 @@
                     @foreach ($product['order_products'] as $order_product)
                     <tr>
                         <td>
+                          @if ($order_product->order->customer)
                           <input type="checkbox" class="select-product" name="products[]" value="{{ $product['id'] }}" data-customer="{{ $order_product->order->customer->id }}" data-supplier="{{ $product['single_supplier'] }}" />
                            <input type="hidden" name="customer[]" value="{{ $order_product->order->customer->id }}" />
+                           @endif
                         </td>
-                        <td><a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a></td>
+
+                        <td>
+                          @if ($order_product->order->customer)
+                          <a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a>
+                          @endif
+                        </td>
                         <td>{{ $order_product->product_price }}</td>
                         <td>
                           @if ($order_product->order)
