@@ -2817,6 +2817,7 @@ class WhatsAppController extends FindByNumberController
             }
         }
 
+        $sendMediaFile = true;
         if ($message->media_url != '') {
 
 
@@ -2830,15 +2831,18 @@ class WhatsAppController extends FindByNumberController
                 $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, null, $message->media_url);
                 // check here that image media url is temp created if so we can delete that 
                 if (strpos($message->media_url, 'instant_message_') !== false) {
+                    $sendMediaFile = false;
                     $path = parse_url($message->media_url, PHP_URL_PATH);
                     if(file_exists(public_path($path)) && strpos($message->media_url, $path) !== false ){
                         @unlink( public_path($path) );
+                        $message->media_url = null;
+                        $message->save();
                     }
                 }
             }
         }
 
-        if ($images = $message->getMedia(config('constants.media_tags'))) {
+        if ($images = $message->getMedia(config('constants.media_tags')) && $sendMediaFile) {
             $count = 0;
             foreach ($images as $key => $image) {
                 $send = str_replace(' ', '%20', $image->getUrl());

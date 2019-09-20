@@ -575,36 +575,36 @@ class LeadsController extends Controller
 
                 } else {
 
-                    $product_names = "$brand_name $product->name" . ' - ' . "$special_price";
-                    $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'lead-product-prices')->first();
-                    $auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
-                    $params[ 'message' ] = $auto_message;
+                    $auto_message = "$brand_name $product->name" . ' - ' . "$special_price";
+                    //$auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'lead-product-prices')->first();
+                    //$auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
+                    $params['message'] = "";//$auto_message;
                     $chat_message = ChatMessage::create($params);
 
                     $mediaImage = $product->getMedia(config('constants.media_tags'))->first();
 
-                    $chat_message->attachMedia($mediaImage, config('constants.media_tags'));
+                    $chat_message->attachMedia($mediaImage,  config('constants.media_tags'));
 
                     // create text image to null first so no issue ahead
-//                    $textImage = null;
-//                    if ($mediaImage) {
-//                        // define seperator
-//                        if (!defined("DSP")) {
-//                            define("DSP", DIRECTORY_SEPARATOR);
-//                        }
-//                        // add text message and create image
-//                        $textImage = self::createProductTextImage(
-//                            public_path($mediaImage->disk . DSP . $mediaImage->filename . "." . $mediaImage->extension),
-//                            "instant_message_" . $chat_message->id,
-//                            $auto_message
-//                        );
-//
-//                        $chat_message->media_url = $textImage;
-//                        $chat_message->save();
-//
-//                    }
+                    $textImage = null;
+                    if($mediaImage) {
+                      // define seperator 
+                      if(!defined("DSP")) {
+                        define("DSP",DIRECTORY_SEPARATOR);
+                      } 
+                      // add text message and create image
+                      $textImage = self::createProductTextImage(
+                        public_path($mediaImage->disk.DSP.$mediaImage->filename.".".$mediaImage->extension),
+                        "instant_message_".$chat_message->id,
+                        $auto_message
+                      );
+
+                      $chat_message->media_url = $textImage;
+                      $chat_message->save();
+
+                    }
                     // send message now
-                    app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client);
+                    app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
                 }
             }
 
@@ -741,10 +741,13 @@ class LeadsController extends Controller
 
     public static function createProductTextImage($path, $name = "", $text = "", $color = "228B22", $fontSize = "40")
     {
-        $text = wordwrap($text, 36, "\n");
-        $img = \IImage::make($path);
-        // use callback to define details
-        $img->text($text, 5, 50, function ($font) use ($fontSize, $color) {
+       $text = wordwrap(strtoupper($text), 24, "\n");
+       $img = \IImage::make($path);
+       $img->resize(600, null, function ($constraint) {
+          $constraint->aspectRatio();
+       });  
+       // use callback to define details
+        $img->text($text, 5, 50, function($font) use ($fontSize,$color) {
             $font->file(public_path('/fonts/Arial.ttf'));
             $font->size($fontSize);
             $font->color("#" . $color);
