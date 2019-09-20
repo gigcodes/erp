@@ -34,7 +34,19 @@
                             <input value="" type="text" name="id" id="id" placeholder="Id, subject..." class="form-control">
                         </div>
 
-                        <button type="submit" class="btn btn-secondary ml-3">Submit</button>
+                        <div class="form-group ml-3">
+
+                            <select class="form-control" name="task_type" >
+                                <option value="">Please select Type</option>
+                                @foreach ($tasksTypes as $id => $taskType)
+                                    <option value="{{ $taskType->id }}" {{ app('request')->input('task_type') == $taskType->id ? 'selected' : '' }}>{{ $taskType->name }}</option>
+                                @endforeach
+                            </select>
+
+                        </div>
+
+                        <button type="submit"  class="btn btn-secondary ml-3">Submit</button>
+
                     </form>
                 </div>
             @endcan
@@ -309,7 +321,9 @@
                                             @endforeach
                                         </div>
                                         <div class="panel-footer">
-                                            <input type="text" class="form-control send-message" name="message" data-id="{{$task->id}}" placeholder="Enter to send..">
+                                            <textarea name="message" id="message_{{$task->id}}" rows="6" class="form-control send-message" data-id="{{$task->id}}" placeholder="Enter to send.."></textarea>
+{{--                                            <input type="text" class="form-control send-message" name="message" data-id="{{$task->id}}" placeholder="Enter to send..">--}}
+                                            <button type="submit" id="submit_message" class="btn btn-secondary ml-3" data-id="{{$task->id}}" style="float: right;margin-top: 2%;">Submit</button>
                                         </div>
                                     </div>
                                 </td>
@@ -1176,14 +1190,14 @@
 
         });
 
-        $(document).on('keyup', '.send-message', function (event) {
+        $(document).on('click', '#submit_message', function (event) {
             let self = this;
             let developer_task_id = $(this).attr('data-id');
-            let message = $(this).val();
+            let message = $("#message_"+developer_task_id).val();
 
-            if (event.which != 13) {
-                return;
-            }
+            // if (event.which != 13) {
+            //     return;
+            // }
 
             $.ajax({
                 url: "{{action('WhatsAppController@sendMessage', 'developer_task')}}",
@@ -1196,7 +1210,9 @@
                 },
                 success: function () {
                     $(self).removeAttr('disabled');
+                    $("#message_"+developer_task_id).removeAttr('disabled');
                     $(self).val('');
+                    $("#message_"+developer_task_id).val('');
                     toastr['success']('Message sent successfully!', 'Message');
                 },
                 error: function () {
@@ -1204,6 +1220,7 @@
                 },
                 beforeSend: function () {
                     $(self).attr('disabled', true);
+                    $("#message_"+developer_task_id).attr('disabled', true);
                 }
             });
         });
