@@ -174,6 +174,7 @@ return [
         Thujohn\Twitter\TwitterServiceProvider::class,
         App\Providers\PermissionCheckServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
     ],
 
     /*
@@ -235,6 +236,7 @@ return [
         'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
         'PermissionCheck' => App\Facades\PermissionCheckClass::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+        'IImage' => Intervention\Image\Facades\Image::class,
     ],
 
 ];
