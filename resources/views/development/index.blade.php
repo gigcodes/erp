@@ -288,7 +288,25 @@
                                 <td>{{ $task->developerModule ? $task->developerModule->name : 'N/A' }}</td>
                                 <td>{{ $task->subject ?? 'N/A' }}</td>
                                 <td>
-                                    {!! nl2br($task->task) !!}
+                                    <div id="task{{ $task->id }}" class="task-line" style="height: 2em; overflow: hidden;">
+                                        {!! nl2br($task->task) !!}
+                                    </div>
+                                    <script>
+                                        $('#task{{ $task->id }}').click(function() {
+                                            if ( $(this).hasClass('task-line') ) {
+                                                var reducedHeight = $(this).height();
+                                                $(this).css('height', 'auto');
+                                                var fullHeight = $(this).height();
+                                                $(this).height(reducedHeight);
+                                                $(this).animate({height: fullHeight}, 500);
+                                                $(this).removeClass('task-line');
+                                            } else {
+                                                $(this).height('2em');
+                                                $(this).addClass('task-line');
+                                            }
+
+                                        });
+                                    </script>
                                     <div>
                                         @foreach($task->getMedia('gallery') as $media)
                                             <a href="{{ $media->getUrl() }}" target="_new">
