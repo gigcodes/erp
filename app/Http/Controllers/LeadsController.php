@@ -575,7 +575,7 @@ class LeadsController extends Controller
               $product_names = "$brand_name $product->name" . ' - ' . "$special_price";
               $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'lead-product-prices')->first();
               $auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
-              $params['message'] = $auto_message;
+              $params['message'] = "";//$auto_message;
               $chat_message = ChatMessage::create($params);
 
               $mediaImage = $product->getMedia(config('constants.media_tags'))->first();
