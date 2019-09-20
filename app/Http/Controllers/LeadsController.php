@@ -735,7 +735,9 @@ class LeadsController extends Controller
     {
        $text = wordwrap($text, 36, "\n");
        $img = \IImage::make($path);
-       $img->resize(600, 600);  
+       $img->resize(600, null, function ($constraint) {
+          $constraint->aspectRatio();
+      });  
        // use callback to define details
         $img->text($text, 5, 50, function($font) use ($fontSize,$color) {
             $font->file(public_path('/fonts/Arial.ttf'));
