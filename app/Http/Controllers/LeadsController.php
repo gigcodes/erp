@@ -733,7 +733,7 @@ class LeadsController extends Controller
 
     public static function createProductTextImage($path, $name = "", $text = "", $color = "228B22", $fontSize = "40")
     {
-       $text = wordwrap($text, 36, "\n");
+       $text = wordwrap($text, 24, "\n");
        $img = \IImage::make($path);
        $img->resize(600, null, function ($constraint) {
           $constraint->aspectRatio();
