@@ -572,9 +572,9 @@ class LeadsController extends Controller
           
           } else {
 
-              $product_names = "$brand_name $product->name" . ' - ' . "$special_price";
-              $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'lead-product-prices')->first();
-              $auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
+              $auto_message = "$brand_name $product->name" . ' - ' . "$special_price";
+              //$auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'lead-product-prices')->first();
+              //$auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
               $params['message'] = "";//$auto_message;
               $chat_message = ChatMessage::create($params);
 
@@ -734,7 +734,8 @@ class LeadsController extends Controller
     public static function createProductTextImage($path, $name = "", $text = "", $color = "228B22", $fontSize = "40")
     {
        $text = wordwrap($text, 36, "\n");
-       $img = \IImage::make($path);  
+       $img = \IImage::make($path);
+       $img->resize(600, 600);  
        // use callback to define details
         $img->text($text, 5, 50, function($font) use ($fontSize,$color) {
             $font->file(public_path('/fonts/Arial.ttf'));
