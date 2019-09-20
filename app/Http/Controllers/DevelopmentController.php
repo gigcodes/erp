@@ -84,8 +84,8 @@ class DevelopmentController extends Controller
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::role('Developer')->get());
         $module_names = [];
-
-
+        $tasksTypes = TasksTypes::all();
+        
         foreach ($modules as $module) {
             $module_names[ $module->id ] = $module->name;
         }
