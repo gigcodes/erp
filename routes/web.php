@@ -463,6 +463,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post( 'development/task/relist-task', 'DevelopmentController@relistTask' );
 
 
+    Route::resource( 'task-types', 'TaskTypesController' );
+
     Route::resource( 'development-messages-schedules', 'DeveloperMessagesAlertSchedulesController' );
     Route::get( 'development', 'DevelopmentController@index' )->name( 'development.index' );
     Route::post( 'development/create', 'DevelopmentController@store' )->name( 'development.store' );

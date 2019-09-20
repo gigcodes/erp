@@ -881,18 +881,20 @@
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('development.index') }}">Task
-                                    </a>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                 </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue list
-                                    </a>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('task-types.index') }}">Task Types</a>
                                 </li>
-                                <li class="nav-item dropdown">
-
-                                    <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue
-                                    </a>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue list</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('development.kanbanboard') }}">Kanban Board</a>
                                 </li>
                             </ul>
                         </li>
@@ -1006,7 +1008,6 @@
                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                                 Development<span class="caret"></span>
                                             </a>
-
 
                                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
