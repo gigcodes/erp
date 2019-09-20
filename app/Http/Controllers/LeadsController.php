@@ -604,7 +604,7 @@ class LeadsController extends Controller
 //
 //                    }
                     // send message now
-                    app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
+                    app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client);
                 }
             }
 
