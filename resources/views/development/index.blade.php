@@ -335,7 +335,10 @@
                                     <div id="collapse_{{$task->id}}" class="panel-collapse collapse">
                                         <div class="panel-body">
                                             @foreach($task->messages as $message)
-                                                <li>{{ date('d-m-Y H:i:s', strtotime($message->created_at)) }} : {!! nl2br($message->message) !!}</li>
+                                                <p>
+                                                    <b>{{ date('d-m-Y H:i:s', strtotime($message->created_at)) }}</b><br />
+                                                    {!! nl2br($message->message) !!}
+                                                </p>
                                             @endforeach
                                         </div>
                                         <div class="panel-footer">
