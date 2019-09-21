@@ -2093,9 +2093,19 @@ class CustomerController extends Controller
 
         $chat_message = ChatMessage::create($params);
 
+        $mediaList = [];
+
         foreach ($data[ 'products' ] as $product) {
             if ($product->hasMedia(config('constants.media_tags'))) {
-                $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
+                $mediaList[] = $product->getMedia(config('constants.media_tags'));
+            }
+        }
+
+        foreach (array_unique($mediaList) as $list) {
+            try{
+                $chat_message->attachMedia($list, config('constants.media_tags'));
+            }catch(\Exception $e){
+
             }
         }
 
@@ -2119,5 +2129,30 @@ class CustomerController extends Controller
         $customer->delete();
 
         return redirect()->route('customer.index')->with('success', 'You have successfully deleted a customer');
+    }
+
+    /**
+     * using for creating file and save into the on given folder path
+     *
+     */
+
+    public function testImage()
+    {
+       $path     = request()->get("path");
+       $text     = request()->get("text");
+       $color    = request()->get("color","FFF"); 
+       $fontSize = request()->get("size",42);
+
+       $img = \IImage::make(public_path($path));  
+      // use callback to define details
+        $img->text($text, 5, 50, function($font) use ($fontSize,$color) {
+            $font->file(public_path('fonts/Arial.ttf'));
+            $font->size($fontSize);
+            $font->color("#".$color);
+            $font->align('top');
+        });
+
+        return  $img->response();
+       //$img->save(public_path('uploads/withtext.jpg')); 
     }
 }

@@ -450,7 +450,7 @@ class WhatsAppController extends FindByNumberController
         return response("");
     }
 
-    public function sendRealTime($message, $model_id, $client)
+    public function sendRealTime($message, $model_id, $client, $customFile = null)
     {
         $realtime_params = [
             'realtime_id' => $model_id,
@@ -467,10 +467,15 @@ class WhatsAppController extends FindByNumberController
             'error_status' => $message->error_status ?? 0,
         ];
 
-        if ($message->media_url) {
-            $realtime_params[ 'media_url' ] = $message->media_url;
-            $headers = get_headers($message->media_url, 1);
-            $realtime_params[ 'content_type' ] = $headers[ "Content-Type" ][ 1 ];
+        // attach custom image or file here if not want to send original
+        $mediaUrl = ($customFile && !empty($customFile)) ? $customFile : $message->media_url;
+
+        if ($mediaUrl) {
+            
+            $realtime_params[ 'media_url' ] = $mediaUrl;
+            $headers = get_headers($mediaUrl, 1);
+            $realtime_params[ 'content_type' ] = is_string($headers[ "Content-Type" ]) ? $headers[ "Content-Type" ] : $headers[ "Content-Type" ][ 1 ];
+            
         }
 
         if ($message->message) {
@@ -2029,7 +2034,7 @@ class WhatsAppController extends FindByNumberController
                 $media = MediaUploader::fromSource($fileName)->upload();
                 $chat_message->attachMedia($media, 'gallery');
             } else {
-                foreach ($imagesDecoded as $image) {
+                foreach (array_unique($imagesDecoded) as $image) {
                     $media = Media::find($image);
                     $chat_message->attachMedia($media, config('constants.media_tags'));
                 }
@@ -2812,6 +2817,7 @@ class WhatsAppController extends FindByNumberController
             }
         }
 
+        $sendMediaFile = true;
         if ($message->media_url != '') {
 
 
@@ -2823,10 +2829,21 @@ class WhatsAppController extends FindByNumberController
             } else {
 //             $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
                 $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, null, $message->media_url);
+                // check here that image media url is temp created if so we can delete that 
+                if (strpos($message->media_url, 'instant_message_') !== false) {
+                    $sendMediaFile = false;
+                    $path = parse_url($message->media_url, PHP_URL_PATH);
+                    if(file_exists(public_path($path)) && strpos($message->media_url, $path) !== false ){
+                        @unlink( public_path($path) );
+                        $message->media_url = null;
+                        $message->save();
+                    }
+                }
             }
         }
 
-        if ($images = $message->getMedia(config('constants.media_tags'))) {
+        $images = $message->getMedia(config('constants.media_tags'));
+        if (!empty($images) && $sendMediaFile) {
             $count = 0;
             foreach ($images as $key => $image) {
                 $send = str_replace(' ', '%20', $image->getUrl());

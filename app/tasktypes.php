@@ -1,17 +1,15 @@
 <?php
 
-
 namespace App;
 
+use Illuminate\Database\Eloquent\Model;
 
-class tasktypes extends ReadOnlyBase {
+class TaskTypes extends Model
+{
 
-	protected $data =[
-		'Task' => '1',
-		'Call' => '2',
-		'Meeting' => '3',
-		'Outdoor' => '4',
-		'Others' => '5',		
-	];
+    protected $table = 'task_types';
 
+    protected $fillable = [
+        'name'
+    ];
 }

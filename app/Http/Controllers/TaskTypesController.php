@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Notification;
 use App\Task;
-use App\TasksTypes;
-use App\tasktypes;
+use App\TaskTypes;
 use App\Status;
 use App\Setting;
 use App\User;
@@ -24,10 +23,10 @@ class TaskTypesController extends Controller
      */
     public function index()
     {
-        //
+        // Get all task types
+        $taskTypes = TaskTypes::all();
 
-        $taskTypes = TasksTypes::all();
-
+        // Return task types index
         return view('task-types.index', compact('taskTypes'));
     }
 
@@ -38,7 +37,7 @@ class TaskTypesController extends Controller
      */
     public function create()
     {
-        //
+        // Return form
         return view('task-types.create');
     }
 
@@ -51,116 +50,16 @@ class TaskTypesController extends Controller
      */
     public function store(Request $request)
     {
-        // testing
-        $request->merge(array('userid' => Auth::id()));
+        // Validate the request
         $task = $this->validate(request(), [
             'name' => 'required',
 
         ]);
 
+        // Create the task
+        $task = TaskTypes::create($task);
 
-        $task = TasksTypes::create($task);
-
-        return redirect()->route('taskTypes/create')
+        return redirect()->route('task-types.index')
             ->with('success', 'Task created successfully.');
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-        $task = Task::find($id);
-        $type = New tasktypes;
-        $data[ 'task' ] = $type->all();
-        $users = User::oldest()->get()->toArray();
-        $data[ 'users' ] = $users;
-        $status = New status;
-        $data[ 'status' ] = $status->all();
-        $task[ 'task' ] = $data[ 'task' ];
-        $task[ 'status' ] = $data[ 'status' ];
-        $task[ 'user' ] = $data[ 'users' ];
-
-        return view('task.edit', compact('task', 'id'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-        $task = Task::find($id);
-        $this->validate(request(), [
-            'name' => 'required',
-            'details' => 'required',
-            'type' => 'required',
-            'related' => '',
-            'assigned_user' => 'required',
-            'remark' => '',
-            'minutes' => '',
-            'comments' => '',
-            'status' => '',
-            'userid' => '',
-
-
-        ]);
-
-        $task->name = $request->get('name');
-        $task->details = $request->get('details');
-        $task->type = $request->get('type');
-        $task->related = $request->get('related');
-        $task->assigned_user = $request->get('assigned_user');
-        $task->remark = $request->get('remark');
-        $task->minutes = $request->get('minutes');
-        $task->status = $request->get('status');
-        $task->userid = $request->get('userid');
-
-
-        $task->save();
-
-        return redirect()->route('task.index')
-            ->with('success', 'Task Updated successfully.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-    // getting remarks
-    public function getremarks($taskid)
-    {
-        $results = DB::select('select * from reamrks where taskid = :taskid', ['taskid' => $taskid]);
-        return $results;
     }
 }

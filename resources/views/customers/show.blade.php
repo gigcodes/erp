@@ -229,6 +229,11 @@
           color: rgba(84, 110, 122,1.0);
 
       }
+
+      #preview-image-modelodal {
+        text-align: center;
+        padding: 2!important;
+      }
   </style>
 @endsection
 
@@ -326,6 +331,13 @@
 
 <div class="row">
   <div class="col-xs-12 col-md-4 border">
+    <!-- The Modal -->
+    <div id="preview-image-model" class="modal col-6" data-backdrop="false">
+      <span class="close">&times;</span>
+      <div class="row">
+        <div class="col-12"><img class="modal-content" height="500px;" id="img01"></div>
+      </div>
+    </div>
     <div class="tab-content">
       <div class="tab-pane active mt-3" id="one">
         <div class="row">
@@ -379,7 +391,6 @@
               <span class="text-success change_status_message" style="display: none;">Successfully updated DND status</span>
       			</div> --}}
 
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="form-group form-inline">
                 <input type="number" id="customer_phone" name="phone" class="form-control input-sm" placeholder="910000000000" value="{{ $customer->phone }}">
 
@@ -388,7 +399,6 @@
                 @endif
                 {{-- <strong>Phone:</strong> <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $customer->phone }}</span> --}}
               </div>
-            @endif
 
             <div class="form-group">
               {{-- <strong>Address:</strong> {{ $customer->address }} --}}
@@ -415,7 +425,6 @@
               </div>
             </div>
 
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="form-group">
                 {{-- <strong>Email:</strong> <a href="#" class="btn-link" data-toggle="modal" data-target="#emailSendModal">{{ $customer->email }}</a> --}}
                 <input type="email" name="email" id="customer_email" class="form-control input-sm" placeholder="Email" value="{{ $customer->email }}">
@@ -436,7 +445,6 @@
 
                 <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
         			</div>
-            @endif
 
             <div class="row">
               <div class="col-6">
@@ -3454,6 +3462,20 @@
         //   sendWAMessage();
         // } );
         // startPolling();
+        // 
+        
+          $(document).on('mouseover', '.talktext .thumbnail-wrapper', function(e) { 
+              $('#preview-image-model').find(".modal-content").attr("src",$(this).find("img").attr("src"));
+              if($(".container").find(".chat-window").length == 0) {
+                $('#preview-image-model').modal('show');
+              }
+          });
+
+          $(document).on('mouseout', '.talktext .thumbnail-wrapper', function(e) { 
+             $('#preview-image-model').modal('hide');
+          });
+
+        
 
          $(document).on('click', '.send-communication', function(e) {
            e.preventDefault();
