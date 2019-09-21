@@ -9,6 +9,7 @@ use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Cache;
+use App\UserLog;
 
 
 class User extends Authenticatable
@@ -205,6 +206,42 @@ class User extends Authenticatable
             }
         }
         return false; 
+    }
+
+    public function hasRole($role){
+         //Check if user is Admin
+        $authcheck = auth()->user()->isAdmin();
+        //Return True if user is Admin
+        if($authcheck == true){
+            return true;
+        }
+
+        $roles = Role::where('name',$role)->first();
+        if($roles == null && $roles == ''){
+        return true;
+        }
+        $role = $roles->toArray();
+
+        $user_role = $this->roles()
+                              ->pluck('id')->unique()->toArray();
+                              //dd($user_role);
+        foreach ($user_role as $key => $value) {
+           if (in_array($value, $role)) {
+                return true;
+            }
+        }
+        return false; 
+
+    }
+
+    public function user_logs(){
+        return $this->hasMany(UserLog::class);
+    }
+
+    public function getRoleNames(){
+       $user_role = $this->roles()
+                              ->pluck('name')->unique()->toArray(); 
+       return $user_role;                       
     }
 
 
