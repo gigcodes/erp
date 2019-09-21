@@ -63,6 +63,15 @@ class RunMessageQueue extends Command
             // Get groups
             $groups = DB::table('message_queues')->groupBy("group_id")->select("group_id")->get(['group_id']);
 
+            $allWhatsappNo          = config("apiwha.instances");
+            $this->waitingMessages  = [];
+            if(!empty($allWhatsappNo)){
+                foreach($allWhatsappNo as $no => $dataInstance) {
+                    $waitingMessage             = $this->waitingLimit($no);
+                    $this->waitingMessages[$no] = $waitingMessage;
+                }
+            }
+
             foreach ($groups as $group) {
                 // Get messages
                 $message_queues = MessageQueue::where('group_id', $group->group_id)
@@ -72,18 +81,6 @@ class RunMessageQueue extends Command
                 ->orderBy('sending_time', 'ASC')
                 ->limit(20);
             
-                $findUniqueNumber =  clone $message_queues;
-                $findUniqueNumber = $findUniqueNumber->groupby("whatsapp_number")->select("whatsapp_number")->get();
-
-                $this->waitingMessages = [];
-                if(!$findUniqueNumber->isEmpty()) {
-                    foreach($findUniqueNumber as $uniqueNumber) {
-                        $number                         = !empty($uniqueNumber->whatsapp_number) ? (string)$uniqueNumber->whatsapp_number : 0;
-                        $waitingMessage                 = $this->waitingLimit($number);
-                        $this->waitingMessages[$number] = $waitingMessage;
-                    }
-                }
-
                 // Do we have results?
                 if (count($message_queues->get()) > 0) {
                     foreach ($message_queues->get() as $message) {
@@ -91,11 +88,12 @@ class RunMessageQueue extends Command
                         // check message can able to send 
                         $number = !empty($message->whatsapp_number) ? (string)$message->whatsapp_number : 0;
                         
-                        if(!$this->isWaitingFull($number)) {
-                            if ($message->type == 'message_all') {
+                        if ($message->type == 'message_all') {
 
-                                $customer = Customer::find($message->customer_id);
-
+                            $customer = Customer::find($message->customer_id);
+                            $number   = !empty($customer->whatsapp_number) ? (string)$customer->whatsapp_number : 0;
+                        
+                            if(!$this->isWaitingFull($number)) {
                                 if ($customer && $customer->do_not_disturb == 0) {
                                     SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
 
@@ -105,21 +103,27 @@ class RunMessageQueue extends Command
 
                                     dump('deleting queue');
                                 }
-                            } else {
+                            }else{
+                                dump('sorry , message is full right now for this number : '.$number);
+                            }    
+
+                            
+                        } else {
+                            
+                            if(!$this->isWaitingFull($number)) {
                                 SendMessageToSelected::dispatchNow($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);
 
                                 dump('sent to selected');
-                            }
-
-                            // start to add more if there is existing already
-                            if(isset($this->waitingMessages[$number])) {
-                                $this->waitingMessages[$number] = $this->waitingMessages[$number] + 1;
                             }else{
-                                $this->waitingMessages[$number] = 1;
-                            }
+                                dump('sorry , message is full right now for this number : '.$number);
+                            } 
+                        }
 
+                        // start to add more if there is existing already
+                        if(isset($this->waitingMessages[$number])) {
+                            $this->waitingMessages[$number] = $this->waitingMessages[$number] + 1;
                         }else{
-                            dump('Due to more waiting message for given number : '.$number );
+                            $this->waitingMessages[$number] = 1;
                         }
                     }
                 }
