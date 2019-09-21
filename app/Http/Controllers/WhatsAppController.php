@@ -2842,7 +2842,8 @@ class WhatsAppController extends FindByNumberController
             }
         }
 
-        if ($images = $message->getMedia(config('constants.media_tags')) && $sendMediaFile) {
+        $images = $message->getMedia(config('constants.media_tags'));
+        if (!empty($images) && $sendMediaFile) {
             $count = 0;
             foreach ($images as $key => $image) {
                 $send = str_replace(' ', '%20', $image->getUrl());
