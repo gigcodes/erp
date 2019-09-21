@@ -1,69 +1,74 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    #myKanban{overflow-x: auto; padding:20px 0;}
+
+    .success{background: #00B961; color:#fff}
+    .info{background: #2A92BF; color:#fff}
+    .warning{background: #F4CE46; color:#fff}
+    .error{background: #FB7D44; color:#fff}
+</style>
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Kanban Board</h2>
+        <h2 class="page-heading">Work in progress</h2>
     </div>
 </div>
 
-<main class="content">
+<main class="content" style="display: none;">
     <div class="container p-0">
 
-        <h1 class="h3 mb-3">Kanban Board</h1>
+        <h1 class="h3 mb-3">Work in progress</h1>
 
-        <div class="row">
+        <div class="row" >
+            <?php $count = 0;?>
             @foreach($users as $id=>$name)
-                <?php $tasks = \App\Helpers::getDeveloperTasks($id); ?>
-                    <div class="col-12 col-lg-6 col-xl-3">
+                <?php $count++; $tasks = \App\Helpers::getDeveloperTasks($id); ?>
+
+                    <div class="col-12 col-lg-6 col-xl-3 {{ ($count > 0 && $count <= 4) ? 'show' : 'hide' }}" id="{{$count}}" >
                         <div class="card card-border-primary">
                             <div class="card-header">
-                                <div class="card-actions float-right" style="display: none;">
-                                    <div class="dropdown show" >
-                                        <a href="#" data-toggle="dropdown" data-display="static">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal align-middle">
-                                                <circle cx="12" cy="12" r="1"></circle>
-                                                <circle cx="19" cy="12" r="1"></circle>
-                                                <circle cx="5" cy="12" r="1"></circle>
-                                            </svg>
-                                        </a>
 
-                                        <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <a class="dropdown-item" href="#">Something else here</a>
-                                        </div>
-                                    </div>
-                                </div>
                                 <h5 class="card-title">{{ucwords($name)}}</h5>
                             </div>
                             <div class="card-body p-3">
-
-                            @foreach ($tasks as $task)
-                                @if($task->user_id == $id)
-                                    <div class="card mb-3 bg-light">
-                                        <div class="card-body p-3">
-                                            <div class="float-right mr-n2">
-                                                <label class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" checked="">
-                                                    <span class="custom-control-label"></span>
-                                                </label>
+                            @if(!empty($tasks) && count($tasks) >0)
+                                @foreach ($tasks as $task)
+                                    @if($task->user_id == $id)
+                                        @if($task->priority == 1)
+                                            <?php $border = 'border-left: 4px solid green;'; ?>
+                                        @elseif($task->priority == 2)
+                                                <?php $border = 'border-left: 4px solid orange;'; ?>
+                                        @elseif($task->priority == 3)
+                                                <?php $border = 'border-left: 4px solid red;'; ?>
+                                        @endif
+                                        <div class="card mb-3 bg-light" style=" {{$border}} ">
+                                            <div class="card-body p-3">
+                                                <div class="float-right mr-n2">
+                                                    <label class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input" checked="">
+                                                        <span class="custom-control-label"></span>
+                                                    </label>
+                                                </div>
+                                                <h4>{{ ucfirst($task->subject) }}</h4>
+                                                <p>{{ $task->task }}</p>
+                                                <div class="float-right mt-n1">
+                                                    <img src="https://bootdey.com/img/Content/avatar/avatar6.png" width="32" height="32" class="rounded-circle" alt="Avatar">
+                                                </div>
+                {{--                                <a class="btn btn-outline-primary btn-sm" href="#">View</a>--}}
                                             </div>
-                                            <h4>{{ ucfirst($task->subject) }}</h4>
-                                            <p>{{ $task->task }}</p>
-                                            <div class="float-right mt-n1">
-                                                <img src="https://bootdey.com/img/Content/avatar/avatar6.png" width="32" height="32" class="rounded-circle" alt="Avatar">
-                                            </div>
-            {{--                                <a class="btn btn-outline-primary btn-sm" href="#">View</a>--}}
                                         </div>
-                                    </div>
-                                @endif
-                            @endforeach
+                                    @endif
+                                @endforeach
+                            @else
+                                <div style="text-align: center;font-size: medium;">Record not Found</div>
+                            @endif
 {{--                                <a href="#" class="btn btn-primary btn-block">Add new</a>--}}
 
                             </div>
                         </div>
                     </div>
+
             @endforeach
 
 
@@ -72,7 +77,55 @@
     </div>
 </main>
 
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div id="myKanban">
+                <div class="kanban-container" style="width: 2000px;">
+                    @foreach($users as $id=>$name)
+                        <?php $count++; $tasks = \App\Helpers::getDeveloperTasks($id); ?>
+                            <div class="" style="width: 200px;display: inline-block;">
+                                <div class="card card-border-warning">
+                                    <div class="card-header">
+                                        <h5 class="card-title">{{ucwords($name)}}</h5>
 
+                                    </div>
+                                    <div class="card-body">
+                                        @if(!empty($tasks) && count($tasks) >0)
+                                            @foreach ($tasks as $task)
+                                                @if($task->user_id == $id)
+                                                    @if($task->priority == 1)
+                                                        <?php $border = 'border-left: 4px solid green;'; ?>
+                                                    @elseif($task->priority == 2)
+                                                        <?php $border = 'border-left: 4px solid orange;'; ?>
+                                                    @elseif($task->priority == 3)
+                                                        <?php $border = 'border-left: 4px solid red;'; ?>
+                                                    @endif
+                                                    <div class="card mb-3 bg-light" style=" {{$border}} ">
+                                                        <div class="card-body p-3">
+
+                                                            <h4>{{ ucfirst($task->subject) }}</h4>
+                                                            <p>{{ $task->task }}</p>
+                                                            <div class="float-right mt-n1">
+                                                                <img src="https://bootdey.com/img/Content/avatar/avatar6.png" width="32" height="32" class="rounded-circle" alt="Avatar">
+                                                            </div>
+{{--                                                            <a class="btn btn-outline-primary btn-sm" href="#">View</a>--}}
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        @else
+                                            <div style="text-align: center;font-size: small;">Record not Found</div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
