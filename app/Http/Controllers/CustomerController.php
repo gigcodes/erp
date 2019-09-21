@@ -315,6 +315,7 @@ class CustomerController extends Controller
                 customers.is_error_flagged,
                 customers.is_priority,
                 customers.instruction_completed_at,
+                customers.whatsapp_number,
                 chat_messages.*,
                 chat_messages.status AS message_status,
                 chat_messages.number,
@@ -2154,5 +2155,41 @@ class CustomerController extends Controller
 
         return  $img->response();
        //$img->save(public_path('uploads/withtext.jpg')); 
+    }
+
+    /**
+     * Change in whatsapp no
+     * 
+     */
+
+    public function changeWhatsappNo()
+    {
+        $customerId = request()->get("customer_id",0);
+        $whatsappNo = request()->get("number",null);
+
+        if($customerId > 0) {
+            // find the record from customer table
+            $customer = \App\Customer::where("id",$customerId)->first();
+            
+            if($customer) {
+                // assing nummbers
+                $oldNumber = $customer->whatsapp_number;
+                $customer->whatsapp_number = $whatsappNo;
+
+                if($customer->save()) {
+                    // update into whatsapp history table
+                    $wHistory = new \App\HistoryWhatsappNumber;
+                    $wHistory->date_time = date("Y-m-d H:i:s");
+                    $wHistory->object = "App\Customer";
+                    $wHistory->object_id = $customerId;
+                    $wHistory->old_number = $oldNumber;
+                    $wHistory->new_number = $whatsappNo;
+                    $wHistory->save();                           
+
+                }
+            }
+        }
+
+        return response()->json(["code" => 1 , "message" => "Number updated successfully"]);
     }
 }

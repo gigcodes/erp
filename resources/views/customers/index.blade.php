@@ -260,6 +260,7 @@
                 <th>Purchase Status</th>
                 <th width="15%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
                 <th width="15%">Send Message</th>
+                <th width="15%">Whatsapp No</th>
                 <th>Shortcuts</th>
                 <th width="10%">Action</th>
                 </thead>
@@ -598,6 +599,18 @@
                                 </select>
                             </p>
                         </td>
+                        <td>
+                            <p class="pb-4 mt-3" style="display: block;">
+                                <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>">
+                                    <option value="">-No Selected-</option>
+                                    @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                                        @if($number != "0")
+                                            <option {{ ($number == $customer->whatsapp_number && $customer->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                                        @endif    
+                                    @endforeach
+                                </select>
+                            </p>                                
+                        </td>    
                         <td>
                             {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send images"><img src="/images/attach.png" /></button> --}}
                             {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send price">$</button> --}}
@@ -1717,5 +1730,24 @@
                 alert('Could not change lead status');
             });
         });
+
+        $(document).on('change', '.change-whatsapp-no', function () {
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('customer.change.whatsapp') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_id: $this.data("customer-id"),
+                    number : $this.val()
+                }
+            }).done(function () {
+                alert('Number updated successfully!');
+            }).fail(function (response) {
+                console.log(response);
+            });
+        });    
+
+        
     </script>
 @endsection
