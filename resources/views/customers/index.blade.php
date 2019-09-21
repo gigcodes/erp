@@ -597,7 +597,7 @@
                                     }}
                                 </select>
                             </p>
-                        </td>
+                        </td>   
                         <td>
                             {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send images"><img src="/images/attach.png" /></button> --}}
                             {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send price">$</button> --}}
