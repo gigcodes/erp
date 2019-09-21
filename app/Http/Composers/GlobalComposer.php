@@ -16,14 +16,7 @@ class GlobalComposer
     {
 
         if(auth()->check() == true){
-
-            $user_log = new UserLog();
-            $user_log->user_id = Auth::id();
-            $user_log->url = Request::url();
-            $user_log->user_name = Auth::user()->name;
-            $user_log->save();
-
-            $currentPath= Route::getFacadeRoot()->current()->uri();
+           $currentPath= Route::getFacadeRoot()->current()->uri();
             $permission = new PermissionCheck();
             $per = $permission->checkUser($currentPath);
             if($per == true){

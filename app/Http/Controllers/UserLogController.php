@@ -37,7 +37,15 @@ class UserLogController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $url = $request->url;
+        $user_id = $request->user_id;
+        $user_name = $request->user_name;
+
+        $user_log = new UserLog();
+            $user_log->user_id = $user_id;
+            $user_log->url = $url;
+            $user_log->user_name = $user_name;
+            $user_log->save();
     }
 
     /**
@@ -97,11 +105,19 @@ class UserLogController extends Controller
         ->make(true);
 
 
+        }elseif (!empty($request->id)) {
+             $userslogs = UserLog::select(['id', 'user_id', 'url', 'created_at','user_name', 'updated_at'])->where('id',$request->id)->get();
+        return Datatables::of($userslogs)
+        ->addColumn('user_name', function ($userslogs) {
+            return '<h6>'. $userslogs->user_name .'</h6>';
+        })
+        ->rawColumns(['user_name'])
+        ->make(true);
         }else{
             $userslogs = UserLog::select(['id', 'user_id', 'url', 'created_at','user_name', 'updated_at']);
         return Datatables::of($userslogs)
         ->addColumn('user_name', function ($userslogs) {
-            return '<h6>.'. $userslogs->user_name .'</h6>';
+            return '<button class="btn btn-sm yellow edit" onclick="usertype('.$userslogs->user_id .')">'.$userslogs->user_name .'</button>';
         })
         ->rawColumns(['user_name'])
         ->make(true);

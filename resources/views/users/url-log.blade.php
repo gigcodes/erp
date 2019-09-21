@@ -73,7 +73,7 @@ $(document).ready(function(){
    serverSide: true,
    ajax: {
     url:'{{ route("userlogs.datatable") }}',
-    data:{from_date:from_date, to_date:to_date , id}
+    data:{from_date:from_date, to_date:to_date , id:id}
    },
    columns: [
         {
@@ -120,6 +120,10 @@ $(document).ready(function(){
   $('#userlogs-table').DataTable().destroy();
   load_data();
  });
+
+  $('#userlogs-table').on('draw.dt', function () {
+    
+});
 
 });
 </script>

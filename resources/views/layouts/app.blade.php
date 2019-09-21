@@ -1233,6 +1233,21 @@
     //         });
     //     }
     // });
+    @if (Auth::check())
+    $(document).ready(function(){
+       var url = window.location.href;
+       var user_id = {{ Auth::id() }};
+      user_name = "{{ Auth::user()->name }}";
+      $.ajax({
+                type: "POST",
+                url: "/api/userLogs",
+                data: {"_token": "{{ csrf_token() }}","url": url ,"user_id" : user_id , "user_name" : user_name },
+                dataType: "json",
+                success: function(message) {
+                }
+            });
+       });
+    @endif
 </script>
 {{--  <script src="{{ asset('js/tracker.js') }}"></script>--}}
 <!-- Global site tag (gtag.js) - Google Analytics -->
