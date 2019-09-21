@@ -499,7 +499,6 @@
                   <input type="text" name="clothing_size" id="customer_clothing_size" class="form-control input-sm" placeholder="Clothing Size" value="{{ $customer->clothing_size }}">
                 </div>
               </div>
-
               <div class="col-6">
                 <div class="form-group">
                   <select class="form-control input-sm" name="gender" id="customer_gender">
@@ -508,7 +507,19 @@
                   </select>
                 </div>
               </div>
-
+              <div class="col-12">
+                <div class="form-group">
+                  <label>Whatsapp No :</label>
+                  <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>">
+                      <option value="">-No Selected-</option>
+                      @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                          @if($number != "0")
+                              <option {{ ($number == $customer->whatsapp_number && $customer->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                          @endif    
+                      @endforeach
+                  </select>
+                </div>
+              </div>
               <div class="col-6">
                 <div class="form-group">
                   <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
@@ -4735,6 +4746,23 @@
               }
           });
       });
+
+      $(document).on('change', '.change-whatsapp-no', function () {
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('customer.change.whatsapp') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_id: $this.data("customer-id"),
+                    number : $this.val()
+                }
+            }).done(function () {
+                alert('Number updated successfully!');
+            }).fail(function (response) {
+                console.log(response);
+            });
+        });
 
       // $(document).on()
   </script>
