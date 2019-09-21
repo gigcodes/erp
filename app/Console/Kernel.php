@@ -276,12 +276,15 @@ class Kernel extends ConsoleKernel
 
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         $schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
-        
+
          //This command saves the twilio call logs in call_busy_messages table...
         $schedule->command('twilio:allcalls')->everyFifteenMinutes();
         // Saved zoom recordings corresponding to past meetings based on meeting id
         $schedule->command('meeting:getrecordings')->hourly();
         $schedule->command('meeting:deleterecordings')->dailyAt('07:00')->timezone('Asia/Kolkata');
+
+        // Check scrapers
+        $schedule->command('scraper:not-running')->hourly()->between('7:00', '23:00');
     }
 
     /**
