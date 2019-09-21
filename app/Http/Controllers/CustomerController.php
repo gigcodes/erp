@@ -2155,4 +2155,104 @@ class CustomerController extends Controller
         return  $img->response();
        //$img->save(public_path('uploads/withtext.jpg')); 
     }
+
+    public function brodcast()
+    {
+        $customerId = request()->get("customer_id",0);
+
+        $pendingBrodCast = \App\MessageQueue::where("customer_id",$customerId)
+        ->where("sent",0)->select("id")->get()->toArray();
+
+        return response()->json(["code" => 1, "data" => $pendingBrodCast]);
+
+    }
+
+    public function brodcastRun()
+    {
+        $brodcastId = request()->get("brodcast_id",0);
+
+        $message = \App\MessageQueue::where("id",$brodcastId)->first();
+        // if the pending brodcast
+        if($message) {
+            if ($message->type == 'message_all') {
+                $customer = Customer::find($message->customer_id);
+                if ($customer && $customer->do_not_disturb == 0) {
+                    $this->dispatchBroadCastRun($customer,$message);
+                } else {
+                    $message->delete();
+                }
+            }
+        }
+
+        return response()->json(["code" => 1 , "message" => "Brodcast run successfully" , "data" => $message]);
+    }
+
+    public function dispatchBroadCastRun($customer,$message)
+    {
+        if (!empty($customer) && is_numeric($customer->phone)) {
+            
+            $content        = json_decode($message->data, true);
+            $send_number    = $customer->whatsapp_number ?? NULL;
+            
+            if (array_key_exists('linked_images', $content)) {
+                
+                $chat_message = \App\ChatMessage::create([
+                    'number'      => NULL,
+                    'user_id'     => $message->user_id,
+                    'customer_id' => $customer->id,
+                    'approved'    => 0,
+                    'status'      => 8, // status for Broadcast messages
+                ]);
+
+                if(!empty($content['linked_images'])) {
+                
+                    foreach ($content['linked_images'] as $image) {
+                    
+                        if (is_array($image)) {
+                            
+                            $image_key = $image['key'];
+                            $mediable_type = "BroadcastImage";
+
+                            $broadcast = \App\BroadcastImage::with('Media')
+                                ->whereRaw("broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
+                                ->first();
+
+                            $product_ids = ($broadcast) ? json_decode($broadcast->products, true) : [];
+                        
+                        } else {
+                        
+                            $broadcast_image = \App\BroadcastImage::find($image);
+                            $product_ids = ($broadcast_image) ? json_decode($broadcast_image->products, true) : [];
+                        
+                        }
+
+                        if(!empty(array_filter($product_ids))) {
+                            
+                            $quick_lead = Leads::create([
+                                'customer_id' => $customer->id,
+                                'rating' => 1,
+                                'status' => 3,
+                                'assigned_user' => 6,
+                                'selected_product' => json_encode($product_ids),
+                                'created_at' => Carbon::now()
+                            ]);
+
+                            $requestData = new Request();
+                            $requestData->setMethod('POST');
+                            $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $product_ids]);
+
+                            $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
+                            
+                            $message->sent = 1;
+                            $message->save();
+                            
+                            return true;
+                        }
+
+                        return false;
+                    } 
+                }
+            }
+         }
+    }
 }

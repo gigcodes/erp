@@ -319,6 +319,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('customer/flag', 'CustomerController@flag')->name('customer.flag');
     Route::post('customer/prioritize', 'CustomerController@prioritize')->name('customer.priority');
     Route::post('customer/create', 'CustomerController@store')->name('customer.store');
+    Route::get('customer/brodcast', 'CustomerController@brodcast')->name('customer.brodcast.list');
+    Route::get('customer/brodcast-run', 'CustomerController@brodcastRun')->name('customer.brodcast.run');
     Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
     Route::get('customer/{id}/edit', 'CustomerController@edit')->name('customer.edit');
     Route::post('customer/{id}/edit', 'CustomerController@update')->name('customer.update');
