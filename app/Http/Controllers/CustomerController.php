@@ -2156,23 +2156,23 @@ class CustomerController extends Controller
        //$img->save(public_path('uploads/withtext.jpg')); 
     }
 
-    public function brodcast()
+    public function broadcast()
     {
         $customerId = request()->get("customer_id",0);
 
-        $pendingBrodCast = \App\MessageQueue::where("customer_id",$customerId)
+        $pendingBroadcast = \App\MessageQueue::where("customer_id",$customerId)
         ->where("sent",0)->select("id")->get()->toArray();
 
-        return response()->json(["code" => 1, "data" => $pendingBrodCast]);
+        return response()->json(["code" => 1, "data" => $pendingBroadcast]);
 
     }
 
-    public function brodcastRun()
+    public function broadcastRun()
     {
-        $brodcastId = request()->get("brodcast_id",0);
+        $broadcastId = request()->get("broadcast_id",0);
 
-        $message = \App\MessageQueue::where("id",$brodcastId)->first();
-        // if the pending brodcast
+        $message = \App\MessageQueue::where("id",$broadcastId)->first();
+        // if the pending broadcast
         if($message) {
             if ($message->type == 'message_all') {
                 $customer = Customer::find($message->customer_id);
