@@ -28,7 +28,7 @@ class RunMessageQueue extends Command
     protected $description = 'Command description';
     
     // custom defined vars
-    const WAITING_MESSAGE_LIMIT = 100;
+    const WAITING_MESSAGE_LIMIT = 150;
     
     // waiting messages group
     public $waitingMessages = [];
