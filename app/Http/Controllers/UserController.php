@@ -54,7 +54,7 @@ class UserController extends Controller
 	 */
 	public function index(Request $request)
 	{
-		$data = User::orderBy('id','DESC')->paginate(25);
+		$data = User::orderBy('name','asc')->paginate(25);
 		return view('users.index',compact('data'))
 			->with('i', ($request->input('page', 1) - 1) * 5);
 	}
@@ -87,7 +87,7 @@ class UserController extends Controller
 			'email' => 'required|email|unique:users,email',
 			'phone' => 'sometimes|nullable|integer|unique:users,phone',
 			'password' => 'required|same:confirm-password',
-			'roles' => 'required',
+			
 
 		]);
 
@@ -99,11 +99,10 @@ class UserController extends Controller
         $input['agent_role'] = implode(',', $input['agent_role']);
 
 		$user = User::create($input);
-		$user->roles()->sync($request->input('roles'));
+		
 
 
-		return redirect()->route('users.index')
-		                 ->with('success','User created successfully');
+		return redirect()->to('/users/'.$user->id.'/edit')->with('success','User created successfully');;
 	}
 
 
@@ -161,8 +160,8 @@ class UserController extends Controller
 	public function edit($id)
 	{
 		$user = User::find($id);
-		$roles = Role::pluck('name','id')->all();
-		$permission = Permission::pluck('name','id')->all();
+		$roles = Role::orderBy('name','asc')->pluck('name','id')->all();
+		$permission = Permission::orderBy('name','asc')->pluck('name','id')->all();
 		$users = User::all();
 		$userRole = $user->roles->pluck('name','id')->all();
 		$userPermission = $user->permissions->pluck('name','id')->all();

@@ -150,8 +150,8 @@
 
                         @foreach($roles as $key => $value)
                            <div>
-                                <strong>{{ $value }}</strong>
-                                {{ Form::checkbox('roles[]',  $key  , (in_array($value, $userRole)) ? "checked" : '') }}
+                                {{ Form::checkbox('roles[]',  $key  , (in_array($value, $userRole)) ? "checked" : '') }} <strong>{{ $value }}</strong>
+                                
                                  </div>
                         @endforeach
 
@@ -178,8 +178,8 @@
                     <strong>Permission:</strong>
                     @foreach($permission as $key => $value)
                         <div>
-                            <strong>{{ $value }}</strong>
-                            {{ Form::checkbox('permissions[]',  $key , (in_array($value, $userPermission)) ? "checked" : '') }}
+                           {{ Form::checkbox('permissions[]',  $key , (in_array($value, $userPermission)) ? "checked" : '') }} <strong>{{ $value }}</strong>
+                            
                         </div>
                     @endforeach
                 </div>
