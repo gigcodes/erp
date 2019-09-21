@@ -293,6 +293,7 @@ class CustomerController extends Controller
 
         $assignedWhereClause = '';
         if (Auth::user()->hasRole('Customer Care')) {
+           
             $user_id = Auth::id();
             $assignedWhereClause = " AND id IN (SELECT customer_id FROM user_customers WHERE user_id = $user_id)";
         }

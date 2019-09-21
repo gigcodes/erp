@@ -209,17 +209,9 @@ class User extends Authenticatable
     }
 
     public function hasRole($role){
-         //Check if user is Admin
-        $authcheck = auth()->user()->isAdmin();
-        //Return True if user is Admin
-        if($authcheck == true){
-            return true;
-        }
 
         $roles = Role::where('name',$role)->first();
-        if($roles == null && $roles == ''){
-        return true;
-        }
+        
         $role = $roles->toArray();
 
         $user_role = $this->roles()
