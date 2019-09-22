@@ -285,6 +285,9 @@ class Kernel extends ConsoleKernel
 
         // Check scrapers
         $schedule->command('scraper:not-running')->hourly()->between('7:00', '23:00');
+
+        // Move cold leads to customers
+        $schedule->command('cold-leads:move-to-customers')->daily();
     }
 
     /**
