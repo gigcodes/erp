@@ -48,6 +48,7 @@ use Webklex\IMAP\Client;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Auth;
+use GuzzleHttp\Client as GuzzleClient;
 
 class CustomerController extends Controller
 {
@@ -2258,7 +2259,7 @@ class CustomerController extends Controller
                             $requestData->setMethod('POST');
                             $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $product_ids]);
 
-                            $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
+                            $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
                             
                             $message->sent = 1;
                             $message->save();
