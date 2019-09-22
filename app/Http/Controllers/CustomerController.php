@@ -2214,17 +2214,8 @@ class CustomerController extends Controller
         if (!empty($customer) && is_numeric($customer->phone)) {
 
             $content = json_decode($message->data, true);
-            $send_number = $customer->whatsapp_number ?? null;
 
             if (array_key_exists('linked_images', $content)) {
-
-                $chat_message = \App\ChatMessage::create([
-                    'number' => null,
-                    'user_id' => $message->user_id,
-                    'customer_id' => $customer->id,
-                    'approved' => 0,
-                    'status' => 8, // status for Broadcast messages
-                ]);
 
                 if (!empty($content[ 'linked_images' ])) {
 

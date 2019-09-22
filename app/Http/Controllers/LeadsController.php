@@ -544,7 +544,7 @@ class LeadsController extends Controller
         $params = [
             'number' => null,
             'user_id' => Auth::id() ?? 6,
-            'approved' => 0,
+            'approved' => 1,
             'status' => 1,
         ];
 
@@ -588,10 +588,10 @@ class LeadsController extends Controller
                     // create text image to null first so no issue ahead
                     $textImage = null;
                     if($mediaImage) {
-                      // define seperator 
+                      // define seperator
                       if(!defined("DSP")) {
                         define("DSP",DIRECTORY_SEPARATOR);
-                      } 
+                      }
                       // add text message and create image
                       $textImage = self::createProductTextImage(
                         public_path($mediaImage->disk.DSP.$mediaImage->filename.".".$mediaImage->extension),
@@ -745,7 +745,7 @@ class LeadsController extends Controller
        $img = \IImage::make($path);
        $img->resize(600, null, function ($constraint) {
           $constraint->aspectRatio();
-       });  
+       });
        // use callback to define details
         $img->text($text, 5, 50, function($font) use ($fontSize,$color) {
             $font->file(public_path('/fonts/Arial.ttf'));

@@ -471,11 +471,11 @@ class WhatsAppController extends FindByNumberController
         $mediaUrl = ($customFile && !empty($customFile)) ? $customFile : $message->media_url;
 
         if ($mediaUrl) {
-            
+
             $realtime_params[ 'media_url' ] = $mediaUrl;
             $headers = get_headers($mediaUrl, 1);
             $realtime_params[ 'content_type' ] = is_string($headers[ "Content-Type" ]) ? $headers[ "Content-Type" ] : $headers[ "Content-Type" ][ 1 ];
-            
+
         }
 
         if ($message->message) {
@@ -2632,7 +2632,7 @@ class WhatsAppController extends FindByNumberController
 
         $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
+        $perPage = 1000;
 
         if ($request->page) {
             $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
@@ -2829,7 +2829,7 @@ class WhatsAppController extends FindByNumberController
             } else {
 //             $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
                 $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, null, $message->media_url);
-                // check here that image media url is temp created if so we can delete that 
+                // check here that image media url is temp created if so we can delete that
                 if (strpos($message->media_url, 'instant_message_') !== false) {
                     $sendMediaFile = false;
                     $path = parse_url($message->media_url, PHP_URL_PATH);
@@ -3766,7 +3766,7 @@ class WhatsAppController extends FindByNumberController
 
     public function createGroup($task_id = null, $group_id = null, $number , $message = null , $whatsapp_number)
     {
-        
+
          $encodedText = $message;
 
         if ($whatsapp_number == '919004780634') { // Indian
@@ -3799,9 +3799,9 @@ class WhatsAppController extends FindByNumberController
            $array = [
             'groupName' => $id,
             'phones' => $number,
-           
+
             ];
-           $link = 'group'; 
+           $link = 'group';
 
         }else{
             $id = (string) $group_id;
@@ -3838,7 +3838,7 @@ class WhatsAppController extends FindByNumberController
         curl_close($curl);
 
         $result = json_decode($response, true);
-        
+
         if ($err) {
             // DON'T THROW EXCEPTION
             //throw new \Exception("cURL Error #:" . $err);
@@ -3860,5 +3860,5 @@ class WhatsAppController extends FindByNumberController
          return $result;
     }
 
-   
+
 }
