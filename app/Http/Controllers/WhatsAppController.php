@@ -2632,7 +2632,7 @@ class WhatsAppController extends FindByNumberController
 
         $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 1000;
+        $perPage = 10000;
 
         if ($request->page) {
             $currentItems = array_slice($result, $perPage * ($currentPage - 1), $perPage);
