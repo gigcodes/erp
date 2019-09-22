@@ -680,6 +680,11 @@
 
                                 <button type="submit" class="btn btn-image quick-shortcut-button" title="Show Client Chat"><img src="/images/chat.png"/></button>
                             </form>
+                            <div class="d-inline">
+                                <button type="button" class="btn btn-image btn-broadcast-send" data-id="{{ $customer->id }}">
+                                    <img src="/images/broadcast-icon.png"/>
+                                </button>
+                            </div>
 
                             <div class="d-inline">
                                 <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
@@ -771,6 +776,37 @@
         </div>
     </div>
     @include('customers.zoomMeeting');
+    <div id="broadcast-list" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Broadcast Pending List</h4>
+                </div>
+                <div class="modal-body">
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+     <div id="broadcast-list-approval" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Broadcast Pending List</h4>
+                </div>
+                <div class="modal-body">
+                    do you want to create a lead and send price ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default broadcast-list-approval-btn">Yes</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -1712,10 +1748,71 @@
                 });
 
                 $(thiss).addClass('active-bullet-status');
-            }).fail(function (response) {
-                console.log(response);
-                alert('Could not change lead status');
             });
         });
+
+        var updateBroadCastList = function(customerId, needtoShowModel) {
+            $.ajax({
+                type: "GET",
+                url: "{{ route('customer.broadcast.list') }}",
+                dataType: "json",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_id: customerId
+                }
+            }).done(function (response) {
+                var html = "Sorry, There is no available broadcast";
+                if(response.code == 1) {
+                    html = "";
+                    if(response.data.length > 0) {
+                        $.each(response.data, function(k,v){
+                            html += '<button class="badge badge-default broadcast-list-rndr" data-customer-id="'+customerId+'" data-id="'+v.id+'">'+v.id+'</button>';
+                        });
+                    }else{
+                        html = "Sorry, There is no available broadcast";
+                    }
+                }
+                $("#broadcast-list").find(".modal-body").html(html);
+                if(needtoShowModel && typeof needtoShowModel != "undefined") {
+                    $("#broadcast-list").modal("show");
+                }
+            });
+        }
+
+        var broadCastIcon = $(".btn-broadcast-send");
+            broadCastIcon.on("click",function(){
+                updateBroadCastList($(this).data("id"),true);
+            });
+
+          $(document).on("click",".broadcast-list-rndr",function(){
+            var $this = $(this);
+            $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("broadcast", $this.data("id")); 
+            $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("customer-id", $this.data("customer-id"));   
+            $("#broadcast-list-approval").modal("show");
+
+            $(".broadcast-list-approval-btn").unbind().on("click",function(){
+               var $this = $(this);
+                   $.ajax({
+                        type: "GET",
+                        url: "{{ route('customer.broadcast.run') }}",
+                        beforeSend: function() {
+                            // setting a timeout
+                            $this.html('Sending Request...');
+                        },
+                        dataType: "json",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            broadcast_id: $this.data("broadcast"),
+                            customer_id : $this.data("customer-id")
+                        }
+                   }).done(function (response) {
+                        //updateBroadCastList(customerId, false);
+                        $("#broadcast-list-approval").modal("hide");
+                        $("#broadcast-list").modal("hide");
+                   }).fail(function (response) {
+                        alert("Error occured, please try again later.");
+                   });
+            });
+          });  
     </script>
 @endsection
