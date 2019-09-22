@@ -1766,7 +1766,7 @@
                     html = "";
                     if(response.data.length > 0) {
                         $.each(response.data, function(k,v){
-                            html += '<button class="badge badge-default broadcast-list-rndr" data-customer-id="'+v.customer_id+'" data-id="'+v.id+'">'+v.id+'</button>';
+                            html += '<button class="badge badge-default broadcast-list-rndr" data-customer-id="'+customerId+'" data-id="'+v.id+'">'+v.id+'</button>';
                         });
                     }else{
                         html = "Sorry, There is no available broadcast";
@@ -1786,8 +1786,8 @@
 
           $(document).on("click",".broadcast-list-rndr",function(){
             var $this = $(this);
-            var customerId = $this.data("customer-id");
-            $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("broadcast", $this.data("id"));    
+            $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("broadcast", $this.data("id")); 
+            $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("customer-id", $this.data("customer-id"));   
             $("#broadcast-list-approval").modal("show");
 
             $(".broadcast-list-approval-btn").unbind().on("click",function(){
@@ -1802,7 +1802,8 @@
                         dataType: "json",
                         data: {
                             _token: "{{ csrf_token() }}",
-                            broadcast_id: $this.data("broadcast")
+                            broadcast_id: $this.data("broadcast"),
+                            customer_id : $this.data("customer-id")
                         }
                    }).done(function (response) {
                         //updateBroadCastList(customerId, false);

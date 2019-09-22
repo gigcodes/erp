@@ -2186,8 +2186,9 @@ class CustomerController extends Controller
     public function broadcastRun()
     {
         $broadcastId = request()->get("broadcast_id",0);
+        $customerId = request()->get("customer_id",0);
 
-        $messages = \App\MessageQueue::where("group_id",$broadcastId)->where("sent",0)->get();
+        $messages = \App\MessageQueue::where("group_id",$broadcastId)->where("customer_id", $customerId)->where("sent",0)->get();
         // if the pending broadcast
         if(!$messages->isEmpty()) {
             foreach($messages as $message) {
