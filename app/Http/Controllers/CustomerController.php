@@ -2161,9 +2161,24 @@ class CustomerController extends Controller
         $customerId = request()->get("customer_id",0);
 
         $pendingBroadcast = \App\MessageQueue::where("customer_id",$customerId)
-        ->where("sent",0)->select("id")->get()->toArray();
+        ->where("sent",0)->orderBy("group_id","asc")->groupBy("group_id")->select("group_id as id")->get()->toArray();
+        // last two
+        $lastBroadcast = \App\MessageQueue::where("customer_id",$customerId)
+        ->where("sent",1)->orderBy("group_id","desc")->groupBy("group_id")->limit(2)->select("group_id as id")->get()->toArray();
 
-        return response()->json(["code" => 1, "data" => $pendingBroadcast]);
+        $allRequest = array_merge($pendingBroadcast, $lastBroadcast);
+
+        if(!empty($allRequest)) {
+            usort($allRequest, function($a, $b){
+                $a = $a['id'];
+                $b = $b['id'];
+
+                if ($a == $b) return 0;
+                return ($a < $b) ? -1 : 1;
+            });
+        }
+
+        return response()->json(["code" => 1, "data" => $allRequest]);
 
     }
 
@@ -2171,20 +2186,22 @@ class CustomerController extends Controller
     {
         $broadcastId = request()->get("broadcast_id",0);
 
-        $message = \App\MessageQueue::where("id",$broadcastId)->first();
+        $messages = \App\MessageQueue::where("group_id",$broadcastId)->where("sent",0)->get();
         // if the pending broadcast
-        if($message) {
-            if ($message->type == 'message_all') {
-                $customer = Customer::find($message->customer_id);
-                if ($customer && $customer->do_not_disturb == 0) {
-                    $this->dispatchBroadCastRun($customer,$message);
-                } else {
-                    $message->delete();
+        if(!$messages->isEmpty()) {
+            foreach($messages as $message) {
+                if ($message->type == 'message_all') {
+                    $customer = Customer::find($message->customer_id);
+                    if ($customer && $customer->do_not_disturb == 0) {
+                        $this->dispatchBroadCastRun($customer,$message);
+                    } else {
+                        $message->delete();
+                    }
                 }
             }
         }
 
-        return response()->json(["code" => 1 , "message" => "Brodcast run successfully" , "data" => $message]);
+        return response()->json(["code" => 1 , "message" => "Brodcast run successfully"]);
     }
 
     public function dispatchBroadCastRun($customer,$message)

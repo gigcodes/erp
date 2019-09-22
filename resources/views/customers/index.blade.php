@@ -1751,37 +1751,42 @@
             });
         });
 
+        var updateBroadCastList = function(customerId, needtoShowModel) {
+            $.ajax({
+                type: "GET",
+                url: "{{ route('customer.broadcast.list') }}",
+                dataType: "json",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_id: customerId
+                }
+            }).done(function (response) {
+                var html = "Sorry, There is no available broadcast";
+                if(response.code == 1) {
+                    html = "";
+                    if(response.data.length > 0) {
+                        $.each(response.data, function(k,v){
+                            html += '<button class="badge badge-default broadcast-list-rndr" data-customer-id="'+v.customer_id+'" data-id="'+v.id+'">'+v.id+'</button>';
+                        });
+                    }else{
+                        html = "Sorry, There is no available broadcast";
+                    }
+                }
+                $("#broadcast-list").find(".modal-body").html(html);
+                if(needtoShowModel && typeof needtoShowModel != "undefined") {
+                    $("#broadcast-list").modal("show");
+                }
+            });
+        }
+
         var broadCastIcon = $(".btn-broadcast-send");
             broadCastIcon.on("click",function(){
-                var customerId = $(this).data("id");
-                $.ajax({
-                    type: "GET",
-                    url: "{{ route('customer.broadcast.list') }}",
-                    dataType: "json",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        customer_id: customerId
-                    }
-                }).done(function (response) {
-                    var html = "Sorry, There is no available broadcast";
-                    if(response.code == 1) {
-                        html = "";
-                        if(response.data.length > 0) {
-                            $.each(response.data, function(k,v){
-                                html += '<button class="badge badge-default broadcast-list-rndr" data-id="'+v.id+'">'+v.id+'</button>';
-                            });
-                        }else{
-                            html = "Sorry, There is no available broadcast";
-                        }
-                    }
-                    $("#broadcast-list").find(".modal-body").html(html);
-                    $("#broadcast-list").modal("show");
-
-                });
+                updateBroadCastList($(this).data("id"),true);
             });
 
           $(document).on("click",".broadcast-list-rndr",function(){
             var $this = $(this);
+            var customerId = $this.data("customer-id");
             $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("broadcast", $this.data("id"));    
             $("#broadcast-list-approval").modal("show");
 
@@ -1790,13 +1795,21 @@
                    $.ajax({
                         type: "GET",
                         url: "{{ route('customer.broadcast.run') }}",
+                        beforeSend: function() {
+                            // setting a timeout
+                            $this.html('Sending Request...');
+                        },
                         dataType: "json",
                         data: {
                             _token: "{{ csrf_token() }}",
                             broadcast_id: $this.data("broadcast")
                         }
                    }).done(function (response) {
+                        //updateBroadCastList(customerId, false);
                         $("#broadcast-list-approval").modal("hide");
+                        $("#broadcast-list").modal("hide");
+                   }).fail(function (response) {
+                        alert("Error occured, please try again later.");
                    });
             });
           });  
