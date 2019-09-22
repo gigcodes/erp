@@ -322,7 +322,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('customer/prioritize', 'CustomerController@prioritize')->name('customer.priority');
     Route::post('customer/create', 'CustomerController@store')->name('customer.store');
     Route::get('customer/broadcast', 'CustomerController@broadcast')->name('customer.broadcast.list');
-    Route::get('customer/broadcast-run', 'CustomerController@broadcastRun')->name('customer.broadcast.run');
+    Route::get('customer/broadcast-send-price', 'CustomerController@broadcastSendPrice')->name('customer.broadcast.run');
     Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
     Route::get('customer/{id}/edit', 'CustomerController@edit')->name('customer.edit');
     Route::post('customer/{id}/edit', 'CustomerController@update')->name('customer.update');

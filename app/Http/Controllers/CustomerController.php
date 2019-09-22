@@ -55,7 +55,7 @@ class CustomerController extends Controller
 
     public function __construct()
     {
-       // $this->middleware('permission:customer');
+        // $this->middleware('permission:customer');
     }
 
     /**
@@ -2104,9 +2104,9 @@ class CustomerController extends Controller
         }
 
         foreach (array_unique($mediaList) as $list) {
-            try{
+            try {
                 $chat_message->attachMedia($list, config('constants.media_tags'));
-            }catch(\Exception $e){
+            } catch (\Exception $e) {
 
             }
         }
@@ -2140,42 +2140,44 @@ class CustomerController extends Controller
 
     public function testImage()
     {
-       $path     = request()->get("path");
-       $text     = request()->get("text");
-       $color    = request()->get("color","FFF"); 
-       $fontSize = request()->get("size",42);
+        $path = request()->get("path");
+        $text = request()->get("text");
+        $color = request()->get("color", "FFF");
+        $fontSize = request()->get("size", 42);
 
-       $img = \IImage::make(public_path($path));  
-      // use callback to define details
-        $img->text($text, 5, 50, function($font) use ($fontSize,$color) {
+        $img = \IImage::make(public_path($path));
+        // use callback to define details
+        $img->text($text, 5, 50, function ($font) use ($fontSize, $color) {
             $font->file(public_path('fonts/Arial.ttf'));
             $font->size($fontSize);
-            $font->color("#".$color);
+            $font->color("#" . $color);
             $font->align('top');
         });
 
-        return  $img->response();
-       //$img->save(public_path('uploads/withtext.jpg')); 
+        return $img->response();
+        //$img->save(public_path('uploads/withtext.jpg'));
     }
 
     public function broadcast()
     {
-        $customerId = request()->get("customer_id",0);
+        $customerId = request()->get("customer_id", 0);
 
-        $pendingBroadcast = \App\MessageQueue::where("customer_id",$customerId)
-        ->where("sent",0)->orderBy("group_id","asc")->groupBy("group_id")->select("group_id as id")->get()->toArray();
+        $pendingBroadcast = \App\MessageQueue::where("customer_id", $customerId)
+            ->where("sent", 0)->orderBy("group_id", "asc")->groupBy("group_id")->select("group_id as id")->get()->toArray();
         // last two
-        $lastBroadcast = \App\MessageQueue::where("customer_id",$customerId)
-        ->where("sent",1)->orderBy("group_id","desc")->groupBy("group_id")->limit(2)->select("group_id as id")->get()->toArray();
+        $lastBroadcast = \App\MessageQueue::where("customer_id", $customerId)
+            ->where("sent", 1)->orderBy("group_id", "desc")->groupBy("group_id")->limit(2)->select("group_id as id")->get()->toArray();
 
         $allRequest = array_merge($pendingBroadcast, $lastBroadcast);
 
-        if(!empty($allRequest)) {
-            usort($allRequest, function($a, $b){
-                $a = $a['id'];
-                $b = $b['id'];
+        if (!empty($allRequest)) {
+            usort($allRequest, function ($a, $b) {
+                $a = $a[ 'id' ];
+                $b = $b[ 'id' ];
 
-                if ($a == $b) return 0;
+                if ($a == $b) {
+                    return 0;
+                }
                 return ($a < $b) ? -1 : 1;
             });
         }
@@ -2184,19 +2186,19 @@ class CustomerController extends Controller
 
     }
 
-    public function broadcastRun()
+    public function broadcastSendPrice()
     {
-        $broadcastId = request()->get("broadcast_id",0);
-        $customerId = request()->get("customer_id",0);
+        $broadcastId = request()->get("broadcast_id", 0);
+        $customerId = request()->get("customer_id", 0);
 
-        $messages = \App\MessageQueue::where("group_id",$broadcastId)->where("customer_id", $customerId)->where("sent",0)->get();
-        // if the pending broadcast
-        if(!$messages->isEmpty()) {
-            foreach($messages as $message) {
+        $messages = \App\MessageQueue::where("group_id", $broadcastId)->where("customer_id", $customerId)->get();
+
+        if (!$messages->isEmpty()) {
+            foreach ($messages as $message) {
                 if ($message->type == 'message_all') {
                     $customer = Customer::find($message->customer_id);
                     if ($customer && $customer->do_not_disturb == 0) {
-                        $this->dispatchBroadCastRun($customer,$message);
+                        $this->dispatchBroadSendPrice($customer, $message);
                     } else {
                         $message->delete();
                     }
@@ -2204,33 +2206,33 @@ class CustomerController extends Controller
             }
         }
 
-        return response()->json(["code" => 1 , "message" => "Brodcast run successfully"]);
+        return response()->json(["code" => 1, "message" => "Broadcast run successfully"]);
     }
 
-    public function dispatchBroadCastRun($customer,$message)
+    public function dispatchBroadSendPrice($customer, $message)
     {
         if (!empty($customer) && is_numeric($customer->phone)) {
-            
-            $content        = json_decode($message->data, true);
-            $send_number    = $customer->whatsapp_number ?? NULL;
-            
+
+            $content = json_decode($message->data, true);
+            $send_number = $customer->whatsapp_number ?? null;
+
             if (array_key_exists('linked_images', $content)) {
-                
+
                 $chat_message = \App\ChatMessage::create([
-                    'number'      => NULL,
-                    'user_id'     => $message->user_id,
+                    'number' => null,
+                    'user_id' => $message->user_id,
                     'customer_id' => $customer->id,
-                    'approved'    => 0,
-                    'status'      => 8, // status for Broadcast messages
+                    'approved' => 0,
+                    'status' => 8, // status for Broadcast messages
                 ]);
 
-                if(!empty($content['linked_images'])) {
-                
-                    foreach ($content['linked_images'] as $image) {
-                    
+                if (!empty($content[ 'linked_images' ])) {
+
+                    foreach ($content[ 'linked_images' ] as $image) {
+
                         if (is_array($image)) {
-                            
-                            $image_key = $image['key'];
+
+                            $image_key = $image[ 'key' ];
                             $mediable_type = "BroadcastImage";
 
                             $broadcast = \App\BroadcastImage::with('Media')
@@ -2238,16 +2240,16 @@ class CustomerController extends Controller
                                 ->first();
 
                             $product_ids = ($broadcast) ? json_decode($broadcast->products, true) : [];
-                        
+
                         } else {
-                        
+
                             $broadcast_image = \App\BroadcastImage::find($image);
                             $product_ids = ($broadcast_image) ? json_decode($broadcast_image->products, true) : [];
-                        
+
                         }
 
-                        if(!empty(array_filter($product_ids))) {
-                            
+                        if (!empty(array_filter($product_ids))) {
+
                             $quick_lead = Leads::create([
                                 'customer_id' => $customer->id,
                                 'rating' => 1,
@@ -2262,40 +2264,40 @@ class CustomerController extends Controller
                             $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $product_ids]);
 
                             $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
-                            
+
                             //$message->sent = 1;
                             //$message->save();
-                            
+
                             return true;
                         }
 
                         return false;
-                    } 
+                    }
                 }
             }
-         }
-    }     
+        }
+    }
 
     /**
      * Change in whatsapp no
-     * 
+     *
      */
 
     public function changeWhatsappNo()
     {
-        $customerId = request()->get("customer_id",0);
-        $whatsappNo = request()->get("number",null);
+        $customerId = request()->get("customer_id", 0);
+        $whatsappNo = request()->get("number", null);
 
-        if($customerId > 0) {
+        if ($customerId > 0) {
             // find the record from customer table
-            $customer = \App\Customer::where("id",$customerId)->first();
-            
-            if($customer) {
+            $customer = \App\Customer::where("id", $customerId)->first();
+
+            if ($customer) {
                 // assing nummbers
                 $oldNumber = $customer->whatsapp_number;
                 $customer->whatsapp_number = $whatsappNo;
 
-                if($customer->save()) {
+                if ($customer->save()) {
                     // update into whatsapp history table
                     $wHistory = new \App\HistoryWhatsappNumber;
                     $wHistory->date_time = date("Y-m-d H:i:s");
@@ -2303,12 +2305,12 @@ class CustomerController extends Controller
                     $wHistory->object_id = $customerId;
                     $wHistory->old_number = $oldNumber;
                     $wHistory->new_number = $whatsappNo;
-                    $wHistory->save();                           
+                    $wHistory->save();
 
                 }
             }
         }
 
-        return response()->json(["code" => 1 , "message" => "Number updated successfully"]);
+        return response()->json(["code" => 1, "message" => "Number updated successfully"]);
     }
 }
