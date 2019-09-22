@@ -36,7 +36,7 @@
 
                         <div class="form-group ml-3">
 
-                            <select class="form-control" name="task_type" >
+                            <select class="form-control" name="task_type">
                                 <option value="">Please select Type</option>
                                 @foreach ($tasksTypes as $id => $taskType)
                                     <option value="{{ $taskType->id }}" {{ app('request')->input('task_type') == $taskType->id ? 'selected' : '' }}>{{ $taskType->name }}</option>
@@ -45,7 +45,7 @@
 
                         </div>
 
-                        <button type="submit"  class="btn btn-secondary ml-3">Submit</button>
+                        <button type="submit" class="btn btn-secondary ml-3">Submit</button>
 
                     </form>
                 </div>
@@ -292,8 +292,8 @@
                                         {!! nl2br($task->task) !!}
                                     </div>
                                     <script>
-                                        $('#task{{ $task->id }}').click(function() {
-                                            if ( $(this).hasClass('task-line') ) {
+                                        $('#task{{ $task->id }}').click(function () {
+                                            if ($(this).hasClass('task-line')) {
                                                 var reducedHeight = $(this).height();
                                                 $(this).css('height', 'auto');
                                                 var fullHeight = $(this).height();
@@ -335,12 +335,14 @@
                                     <div id="collapse_{{$task->id}}" class="panel-collapse collapse">
                                         <div class="panel-body">
                                             @foreach($task->messages as $message)
-                                                <li>{{ date('d-m-Y H:i:s', strtotime($message->created_at)) }} : {{ $message->message }}</li>
+                                                <p>
+                                                    <b>{{ date('d-m-Y H:i:s', strtotime($message->created_at)) }}</b><br />
+                                                    {!! nl2br($message->message) !!}
+                                                </p>
                                             @endforeach
                                         </div>
                                         <div class="panel-footer">
                                             <textarea name="message" id="message_{{$task->id}}" rows="6" class="form-control send-message" data-id="{{$task->id}}" placeholder="Enter to send.."></textarea>
-{{--                                            <input type="text" class="form-control send-message" name="message" data-id="{{$task->id}}" placeholder="Enter to send..">--}}
                                             <button type="submit" id="submit_message" class="btn btn-secondary ml-3" data-id="{{$task->id}}" style="float: right;margin-top: 2%;">Submit</button>
                                         </div>
                                     </div>
@@ -1211,7 +1213,7 @@
         $(document).on('click', '#submit_message', function (event) {
             let self = this;
             let developer_task_id = $(this).attr('data-id');
-            let message = $("#message_"+developer_task_id).val();
+            let message = $("#message_" + developer_task_id).val();
 
             // if (event.which != 13) {
             //     return;
@@ -1228,9 +1230,9 @@
                 },
                 success: function () {
                     $(self).removeAttr('disabled');
-                    $("#message_"+developer_task_id).removeAttr('disabled');
+                    $("#message_" + developer_task_id).removeAttr('disabled');
                     $(self).val('');
-                    $("#message_"+developer_task_id).val('');
+                    $("#message_" + developer_task_id).val('');
                     toastr['success']('Message sent successfully!', 'Message');
                 },
                 error: function () {
@@ -1238,7 +1240,7 @@
                 },
                 beforeSend: function () {
                     $(self).attr('disabled', true);
-                    $("#message_"+developer_task_id).attr('disabled', true);
+                    $("#message_" + developer_task_id).attr('disabled', true);
                 }
             });
         });
