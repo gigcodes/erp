@@ -2261,8 +2261,8 @@ class CustomerController extends Controller
 
                             $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
                             
-                            $message->sent = 1;
-                            $message->save();
+                            //$message->sent = 1;
+                            //$message->save();
                             
                             return true;
                         }
