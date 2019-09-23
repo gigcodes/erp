@@ -370,6 +370,8 @@
                                 @endif
                             @endif
 
+                            <p>{{ $customer->whatsapp_number }}</p>
+
                         </td>
                         {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                           <td>{{ $customer['email'] }}</td>
@@ -597,7 +599,7 @@
                                     }}
                                 </select>
                             </p>
-                        </td>   
+                        </td>
                         <td>
                             {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send images"><img src="/images/attach.png" /></button> --}}
                             {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send price">$</button> --}}
@@ -783,7 +785,7 @@
                     <h4 class="modal-title">Broadcast Pending List</h4>
                 </div>
                 <div class="modal-body">
-                    
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -1786,8 +1788,8 @@
 
           $(document).on("click",".broadcast-list-rndr",function(){
             var $this = $(this);
-            $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("broadcast", $this.data("id")); 
-            $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("customer-id", $this.data("customer-id"));   
+            $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("broadcast", $this.data("id"));
+            $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("customer-id", $this.data("customer-id"));
             $("#broadcast-list-approval").modal("show");
 
             $(".broadcast-list-approval-btn").unbind().on("click",function(){
@@ -1813,6 +1815,6 @@
                         alert("Error occured, please try again later.");
                    });
             });
-          });  
+          });
     </script>
 @endsection
