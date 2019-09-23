@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use Illuminate\Http\Request;
 use Auth;
 use Crypt;
@@ -19,9 +20,10 @@ class PasswordController extends Controller
     public function index()
     {
        $passwords = Password::latest()->paginate(Setting::get('pagination'));
-
+        $users = User::orderBy('name','asc')->get();
         return view('passwords.index', [
-          'passwords' => $passwords
+          'passwords' => $passwords,
+          'users' => $users,
         ]);
 
     }
@@ -103,11 +105,24 @@ class PasswordController extends Controller
         $data_old['url'] = $password->url;
         $data_old['username'] = $password->username;
         $data_old['password'] = $password->password;
+        $old_password =  $password->password;
+        $data_old['registered_with'] = $password->registered_with;
         PasswordHistory::create($data_old);
 
         $data = $request->except('_token');
         $data['password'] = Crypt::encrypt($request->password);
         $password->update($data);
+
+        if(isset($request->send_message) && $request->send_message == 1){
+            $user_id = $request->user_id;
+            $user = User::findorfail($user_id);
+            $number = $user->phone;
+            $whatsappnumber = '971545889192';
+            $message = 'Password Change For '. $request->website .'is, Old Password  : ' . Crypt::decrypt($old_password) . ' New Password is : ' . $request->password;
+
+            $whatsappmessage = new WhatsAppController();
+            $whatsappmessage->sendWithThirdApi($number, $whatsappnumber , $message);
+         }
 
         return redirect()->route('password.index')->withSuccess('You have successfully changed password');
     }

@@ -1,5 +1,14 @@
 @extends('layouts.app')
 
+@section('styles')
+    <style>
+        .users {
+            display: none;
+        }
+    </style>
+@endsection
+
+
 @section('content')
 
     <div class="row">
@@ -51,6 +60,7 @@
             <th>Website</th>
             <th>Username</th>
             <th>Password</th>
+            <th>Registered With</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -65,7 +75,8 @@
               </td>
               <td>{{ $password->username }}</td>
               <td>{{ Crypt::decrypt($password->password) }}</td>
-                <td><button onclick="changePassword({{ $password->id }})" class="btn btn-primary btn-sm">Change</button></td>
+              <td>{{ $password->registered_with }}</td>
+                <td><button onclick="changePassword({{ $password->id }})" class="btn btn-secondary btn-sm">Change</button></td>
             </tr>
           @endforeach
         </tbody>
@@ -122,6 +133,15 @@
                   <div class="alert alert-danger">{{$errors->first('password')}}</div>
                 @endif
               </div>
+              <div class="form-group">
+                    <strong>Registered With:</strong>
+                    <input type="text" name="registered_with" class="form-control" value="{{ $password->registered_with }}" required>
+
+                    @if ($errors->has('password'))
+                        <div class="alert alert-danger" >{{$errors->first('password')}}</div>
+                    @endif
+              </div>
+
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -180,6 +200,25 @@
                                 <div class="alert alert-danger" >{{$errors->first('password')}}</div>
                             @endif
                         </div>
+                        <div class="form-group">
+                            <strong>Registered With:</strong>
+                            <input type="text" name="registered_with" class="form-control" value="{{ $password->registered_with }}">
+
+                            @if ($errors->has('password'))
+                                <div class="alert alert-danger" >{{$errors->first('password')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                          <input type="checkbox" class="check" value="1" name="send_message"> Send Via WhatsApp
+                        </div>
+                        <div class="form-group users">
+                            <select class="form-control" name="user_id">
+                                @foreach($users as $user)
+                                <option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -199,6 +238,12 @@
     function changePassword(password_id) {
         $("#passwordEditModal"+ password_id +"" ).modal('show');
     }
-
+    $(".check").change(function() {
+        if(this.checked) {
+            $(".users").show();
+        }else{
+            $(".users").hide();
+        }
+    });
 </script>
 @endsection
