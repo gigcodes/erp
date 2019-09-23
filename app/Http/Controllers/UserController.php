@@ -161,7 +161,7 @@ class UserController extends Controller
 	{
 		$user = User::find($id);
 		$roles = Role::orderBy('name','asc')->pluck('name','id')->all();
-		$permission = Permission::orderBy('name','asc')->pluck('name','id')->all();
+		$permission = Permission::orderBy('name','asc')->pluck('route','id')->all();
 		$users = User::all();
 		$userRole = $user->roles->pluck('name','id')->all();
 		$userPermission = $user->permissions->pluck('name','id')->all();
