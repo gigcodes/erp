@@ -575,6 +575,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Paswords Manager
     Route::get('passwords', 'PasswordController@index')->name('password.index');
     Route::post('password/store', 'PasswordController@store')->name('password.store');
+    Route::post('password/update', 'PasswordController@update')->name('password.update');
 
     // Documents Manager
     Route::get('documents', 'DocumentController@index')->name('document.index');

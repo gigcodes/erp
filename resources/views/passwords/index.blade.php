@@ -65,7 +65,7 @@
               </td>
               <td>{{ $password->username }}</td>
               <td>{{ Crypt::decrypt($password->password) }}</td>
-              <td></td>
+                <td><button onclick="changePassword({{ $password->id }})" class="btn btn-primary btn-sm">Change</button></td>
             </tr>
           @endforeach
         </tbody>
@@ -132,5 +132,73 @@
 
       </div>
     </div>
+    @foreach($passwords as $password)
+    <div id="passwordEditModal{{$password->id}}" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="{{ route('password.update') }}" method="POST">
+                    @csrf
 
+                    <div class="modal-header">
+                        <h4 class="modal-title">Store a Password</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <strong>Website:</strong>
+                            <input type="text" name="website" class="form-control" value="{{ $password->website }}">
+
+                            @if ($errors->has('website'))
+                                <div class="alert alert-danger">{{$errors->first('website')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>URL:</strong>
+                            <input type="text" name="url" class="form-control" value="{{ $password->url }}" required>
+
+                            @if ($errors->has('url'))
+                                <div class="alert alert-danger">{{$errors->first('url')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Username:</strong>
+                            <input type="text" name="username" class="form-control" value="{{ $password->username }}" required>
+
+                            @if ($errors->has('username'))
+                                <div class="alert alert-danger">{{$errors->first('username')}}</div>
+                            @endif
+                        </div>
+                            <input type="hidden" name="id" value="{{ $password->id }}"/>
+                        <div class="form-group">
+                            <strong>Password:</strong>
+                            <input type="text" name="password" class="form-control" value="{{ Crypt::decrypt($password->password) }}" required>
+
+                            @if ($errors->has('password'))
+                                <div class="alert alert-danger" >{{$errors->first('password')}}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Update</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    @endforeach
+@endsection
+
+
+@section('scripts')
+<script>
+    function changePassword(password_id) {
+        $("#passwordEditModal"+ password_id +"" ).modal('show');
+    }
+
+</script>
 @endsection

@@ -7,6 +7,7 @@ use Auth;
 use Crypt;
 use App\Password;
 use App\Setting;
+use App\PasswordHistory;
 
 class PasswordController extends Controller
 {
@@ -90,9 +91,28 @@ class PasswordController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $this->validate($request, [
+            'website'   => 'sometimes|nullable|string|max:255',
+            'url'       => 'required|url',
+            'username'  => 'required|min:3|max:255',
+            'password'  => 'required|min:6|max:255'
+        ]);
+
+        $password = Password::findorfail($request->id);
+        $data_old['password_id'] = $password->id;
+        $data_old['website'] = $password->website;
+        $data_old['url'] = $password->url;
+        $data_old['username'] = $password->username;
+        $data_old['password'] = $password->password;
+        PasswordHistory::create($data_old);
+
+        $data = $request->except('_token');
+        $data['password'] = Crypt::encrypt($request->password);
+        $password->update($data);
+
+        return redirect()->route('password.index')->withSuccess('You have successfully changed password');
     }
 
     /**
