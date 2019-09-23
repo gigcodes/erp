@@ -371,8 +371,18 @@
                                 @endif
                             @endif
 
-                            <p>{{ $customer->whatsapp_number }}</p>
-
+                            <p>
+                                <div class="form-group">
+                                  <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>">
+                                      <option value="">-No Selected-</option>
+                                      @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                                          @if($number != "0")
+                                              <option {{ ($number == $customer->whatsapp_number && $customer->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                                          @endif    
+                                      @endforeach
+                                  </select>
+                                </div>
+                            </p>    
                         </td>
                         {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                           <td>{{ $customer['email'] }}</td>
@@ -1896,6 +1906,23 @@
                         alert("Error occured, please try again later.");
                    });
             });
-          });
+         });
+
+         $(document).on('change', '.change-whatsapp-no', function () {
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('customer.change.whatsapp') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_id: $this.data("customer-id"),
+                    number : $this.val()
+                }
+            }).done(function () {
+                alert('Number updated successfully!');
+            }).fail(function (response) {
+                console.log(response);
+            });
+        }); 
     </script>
 @endsection
