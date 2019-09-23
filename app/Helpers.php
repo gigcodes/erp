@@ -240,7 +240,9 @@ class Helpers {
     }
 
     public static function getDeveloperTasks($developer_id){
-        $developerTasks = DeveloperTask::where('user_id',$developer_id)->orderBy('subject','ASC')->get();
+        $developerTasks = DeveloperTask::where('user_id',$developer_id)
+                            ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
+                            ->orderBy('subject','ASC')->get();
         return $developerTasks;
     }
 

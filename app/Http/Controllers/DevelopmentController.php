@@ -791,8 +791,15 @@ class DevelopmentController extends Controller
         ] );
     }
 
-//    public function developerTasks($developer_id){
-//        $developerTasks = DeveloperTask::where('user_id',$developer_id)->get();
-//
-//    }
+    public function taskDetail($task_id){
+
+        $task = DeveloperTask::where('developer_tasks.id',$task_id)
+            ->select('developer_tasks.*','task_types.name as task_type','users.name as username')
+            ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
+            ->join('users', 'users.id', '=', 'developer_tasks.user_id')
+            ->first();
+        return view( 'development.task_detail', [
+            'task' => $task,
+        ] );
+    }
 }

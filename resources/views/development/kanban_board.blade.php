@@ -81,7 +81,8 @@
     <div class="row">
         <div class="col-md-12">
             <div id="myKanban">
-                <div class="kanban-container" style="width: 2000px;">
+                <?php $width = count($users) * 230; ?>
+                <div class="kanban-container" style="width: {{$width}}px;">
                     @foreach($users as $id=>$name)
                         <?php $count++; $tasks = \App\Helpers::getDeveloperTasks($id); ?>
                             <div class="" style="width: 200px;display: inline-block;">
@@ -104,7 +105,7 @@
                                                     <div class="card mb-3 bg-light" style=" {{$border}} ">
                                                         <div class="card-body p-3">
 
-                                                            <h4>{{ ucfirst($task->subject) }}</h4>
+                                                            <h4><a href="taskDetail/{{$task->id}}">{{ '#'.$task->name.'-'.$task->id.' '.ucfirst($task->subject) }} </a></h4>
                                                             <p>{{ $task->task }}</p>
                                                             <div class="float-right mt-n1">
                                                                 <img src="https://bootdey.com/img/Content/avatar/avatar6.png" width="32" height="32" class="rounded-circle" alt="Avatar">
