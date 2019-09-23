@@ -577,7 +577,7 @@
                             @endif
 
                             <button data-toggle="tooltip" title="Load More..." type="button" class="btn btn-xs btn-image load-more-communication" data-id="{{ $customer->id }}">
-                                <img src="{{ asset('images/loadmore.png') }}" alt="">
+                                <img src="{{ asset('/images/chat.png') }}" alt="">
                             </button>
 
                             <ul class="more-communication-container">
@@ -830,6 +830,21 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default broadcast-list-approval-btn">Yes</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication (Last 30)</h4>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -1563,19 +1578,26 @@
                 type: "GET",
                 url: "{{ url('customers') }}/" + customer_id + '/loadMoreMessages',
                 data: {
-                    customer_id: customer_id
+                    customer_id: customer_id,
+                    limit : 30
                 },
                 beforeSend: function () {
                     $(thiss).text('Loading...');
                 }
             }).done(function (response) {
+                var li = "<ul>";
                 (response.messages).forEach(function (index) {
-                    var li = '<li>' + index + '</li>';
+                    li += '<li>' + index + '</li>';
 
-                    $(thiss).closest('td').find('.more-communication-container').append(li);
+                    //$(thiss).closest('td').find('.more-communication-container').append(li);
                 });
 
+                li += "</ul>";
+
+                $("#chat-list-history").find(".modal-body").html(li);4
                 $(thiss).remove();
+                $("#chat-list-history").modal("show");
+
             }).fail(function (response) {
                 $(thiss).text('Load More');
 

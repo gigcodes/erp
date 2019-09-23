@@ -915,9 +915,11 @@ class CustomerController extends Controller
 
     public function loadMoreMessages(Request $request)
     {
+        $limit  = request()->get("limit",3);
+        
         $customer = Customer::find($request->customer_id);
 
-        $chat_messages = $customer->whatsapps_all()->skip(1)->take(3)->get();
+        $chat_messages = $customer->whatsapps_all()->where("message", "!=" , "")->skip(1)->take($limit)->get();
 
         $messages = [];
 
