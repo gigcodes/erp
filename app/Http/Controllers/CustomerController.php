@@ -149,6 +149,30 @@ class CustomerController extends Controller
         $start_time = $request->range_start ? "$request->range_start 00:00" : Carbon::now()->subDay();
         $end_time = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay();
 
+        $allCustomers = $results[0]->pluck("id")->toArray();
+
+        $successBroadCast = [];
+        if(!empty($allCustomers)) {
+            foreach($allCustomers as $alc) {
+                $sbQuery = DB::select("select group_id from message_queues where sent = 1 and customer_id = {$alc} group by  group_id order by group_id desc limit 2");
+                if(!empty($sbQuery)) {
+                    $castID  = [];
+                    foreach($sbQuery as $resSuccessBrd) {
+                        $castID[] = $resSuccessBrd->group_id;
+                    }
+                    $successBroadCast[$alc] = $castID;
+                }
+            }
+        }
+
+        $pendingBroadCast = DB::select("select group_concat(group_id) as pending_brodcast,customer_id 
+            from message_queues 
+            where sent = 0 and customer_id in (".implode(',',$allCustomers).") 
+            group by customer_id");
+
+
+
+        $pendingBroadCast = collect($pendingBroadCast)->pluck("pending_brodcast","customer_id")->toArray();
 
         return view('customers.index', [
             'customers' => $results[ 0 ],
@@ -171,7 +195,9 @@ class CustomerController extends Controller
             'end_time' => $end_time,
             'leads_data' => $results[ 2 ],
             'order_stats' => $order_stats,
-            'complaints' => $complaints
+            'complaints' => $complaints,
+            'pendingBroadCast' => $pendingBroadCast,
+            'successBroadCast' => $successBroadCast
         ]);
     }
 
@@ -2188,85 +2214,76 @@ class CustomerController extends Controller
 
     public function broadcastSendPrice()
     {
-        $broadcastId = request()->get("broadcast_id", 0);
-        $customerId = request()->get("customer_id", 0);
+        $broadcastId        = request()->get("broadcast_id", 0);
+        $customerId         = request()->get("customer_id", 0);
+        $productsToBeRun    = explode(",",request()->get("product_to_be_run", ""));
 
-        $messages = \App\MessageQueue::where("group_id", $broadcastId)->where("customer_id", $customerId)->get();
-
-        if (!$messages->isEmpty()) {
-            foreach ($messages as $message) {
-                if ($message->type == 'message_all') {
-                    $customer = Customer::find($message->customer_id);
-                    if ($customer && $customer->do_not_disturb == 0) {
-                        $this->dispatchBroadSendPrice($customer, $message);
-                    } else {
-                        $message->delete();
-                    }
+        $products = []; 
+        if(!empty(array_filter($productsToBeRun))) {
+            foreach($productsToBeRun as $prd) {
+                if(is_numeric($prd)) {
+                    $products[] = $prd;
                 }
             }
+        }
+
+        $customer = Customer::where("id",$customerId)->first();
+
+        if ($customer && $customer->do_not_disturb == 0) {
+            $this->dispatchBroadSendPrice($customer, array_unique($products));
         }
 
         return response()->json(["code" => 1, "message" => "Broadcast run successfully"]);
     }
 
-    public function dispatchBroadSendPrice($customer, $message)
+    public function dispatchBroadSendPrice($customer, $product_ids)
     {
         if (!empty($customer) && is_numeric($customer->phone)) {
 
-            $content = json_decode($message->data, true);
+            if (!empty(array_filter($product_ids))) {
 
-            if (array_key_exists('linked_images', $content)) {
+                $quick_lead = Leads::create([
+                    'customer_id' => $customer->id,
+                    'rating' => 1,
+                    'status' => 3,
+                    'assigned_user' => 6,
+                    'selected_product' => json_encode($product_ids),
+                    'created_at' => Carbon::now()
+                ]);
 
-                if (!empty($content[ 'linked_images' ])) {
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $product_ids]);
 
-                    foreach ($content[ 'linked_images' ] as $image) {
+                $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
 
-                        if (is_array($image)) {
+                //$message->sent = 1;
+                //$message->save();
 
-                            $image_key = $image[ 'key' ];
-                            $mediable_type = "BroadcastImage";
+                return true;
+            }
 
-                            $broadcast = \App\BroadcastImage::with('Media')
-                                ->whereRaw("broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
-                                ->first();
+            return false;
+        }
+    }
 
-                            $product_ids = ($broadcast) ? json_decode($broadcast->products, true) : [];
+    public function broadcastDetails()
+    {
+        $broadcastId = request()->get("broadcast_id", 0);
+        $customerId  = request()->get("customer_id", 0);
 
-                        } else {
+        $messages = \App\MessageQueue::where("group_id", $broadcastId)->where("customer_id", $customerId)->get();
 
-                            $broadcast_image = \App\BroadcastImage::find($image);
-                            $product_ids = ($broadcast_image) ? json_decode($broadcast_image->products, true) : [];
+        $response = [];
 
-                        }
-
-                        if (!empty(array_filter($product_ids))) {
-
-                            $quick_lead = Leads::create([
-                                'customer_id' => $customer->id,
-                                'rating' => 1,
-                                'status' => 3,
-                                'assigned_user' => 6,
-                                'selected_product' => json_encode($product_ids),
-                                'created_at' => Carbon::now()
-                            ]);
-
-                            $requestData = new Request();
-                            $requestData->setMethod('POST');
-                            $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $product_ids]);
-
-                            $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
-
-                            //$message->sent = 1;
-                            //$message->save();
-
-                            return true;
-                        }
-
-                        return false;
-                    }
-                }
+        if (!$messages->isEmpty()) {
+            foreach ($messages as $message) {
+                $response[] = $message->getImagesWithProducts();
             }
         }
+
+        return response()->json(["code" => 1, "data" => $response]);
+
     }
 
     /**
