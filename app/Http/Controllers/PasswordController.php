@@ -18,15 +18,12 @@ class PasswordController extends Controller
      */
     public function index()
     {
-      if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 90 || Auth::id() == 65) {
-        $passwords = Password::latest()->paginate(Setting::get('pagination'));
+       $passwords = Password::latest()->paginate(Setting::get('pagination'));
 
         return view('passwords.index', [
           'passwords' => $passwords
         ]);
-      } else {
-        return redirect()->back();
-      }
+
     }
 
     /**
