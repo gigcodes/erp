@@ -1582,7 +1582,7 @@
                     limit : 30
                 },
                 beforeSend: function () {
-                    $(thiss).text('Loading...');
+                    //$(thiss).text('Loading...');
                 }
             }).done(function (response) {
                 var li = "<ul>";
@@ -1595,7 +1595,7 @@
                 li += "</ul>";
 
                 $("#chat-list-history").find(".modal-body").html(li);4
-                $(thiss).remove();
+                $(thiss).html("<img src='/images/chat.png' alt=''>");
                 $("#chat-list-history").modal("show");
 
             }).fail(function (response) {
