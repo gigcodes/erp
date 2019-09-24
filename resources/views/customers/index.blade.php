@@ -531,7 +531,7 @@
                         <td>
                             @if (array_key_exists($customer->id, $orders))
                                 @if ($customer->purchase_status != null)
-                                    {{ $customer->purchase_status }}
+                                    <a target="_new" href="{{ route('purchase.grid') }}">{{ $customer->purchase_status }}</a>
                                     @php
                                         $orderProduct = App\Order::where('customer_id', $customer->id)->with('order_product.product')->get();
                                     @endphp
