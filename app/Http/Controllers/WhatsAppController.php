@@ -1401,7 +1401,7 @@ class WhatsAppController extends FindByNumberController
                                     $requestData->setMethod('POST');
                                     $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
 
-                                    app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
+                                    app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
 
                                     CommunicationHistory::create([
                                         'model_id' => $latest_broadcast_message->id,
