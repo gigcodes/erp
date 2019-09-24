@@ -1399,7 +1399,7 @@ class WhatsAppController extends FindByNumberController
 
                                     $requestData = new Request();
                                     $requestData->setMethod('POST');
-                                    $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
+                                    $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products,'auto_approve' => false]);
 
                                     app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
 
