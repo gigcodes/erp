@@ -754,7 +754,7 @@ class LeadsController extends Controller
        });
        // use callback to define details
         $img->text($text, 5, 50, function($font) use ($fontSize,$color) {
-            $font->file(public_path('/fonts/Arial.ttf'));
+            $font->file(public_path('/fonts/HelveticaNeue.ttf'));
             $font->size($fontSize);
             $font->color("#" . $color);
             $font->align('top');
