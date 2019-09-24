@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdatePasswordsPasswordHistoriesTable extends Migration
+class UpdatePasswordHistoriesChangeTables extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class UpdatePasswordsPasswordHistoriesTable extends Migration
     public function up()
     {
         Schema::table('password_histories', function ($table){
-            $table->string('registered_with')->nullable();
+            $table->longText('password')->change();
         });
     }
 
