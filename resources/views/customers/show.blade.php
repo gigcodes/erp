@@ -2428,7 +2428,8 @@
               _token: "{{ csrf_token() }}",
               customer_id: customer_id,
               lead_id: response.lead.id,
-              selected_product: selected_product_images
+              selected_product: selected_product_images,
+              auto_approve : true
             }
           }).done(function() {
             location.reload();

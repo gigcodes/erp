@@ -578,46 +578,52 @@ class LeadsController extends Controller
                     $auto_message = "$brand_name $product->name" . ' - ' . "$special_price";
                     //$auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'lead-product-prices')->first();
                     //$auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
-                    $params['message'] = "";//$auto_message;
-                    $chat_message = ChatMessage::create($params);
+                    $mediaImages = $product->getMedia(config('constants.media_tags'));
 
-                    $mediaImage = $product->getMedia(config('constants.media_tags'))->first();
+                    if(!$mediaImages->isEmpty()) {
+                        foreach($mediaImages as $mediaImage) {
 
-                    $chat_message->attachMedia($mediaImage,  config('constants.media_tags'));
-
-                    // create text image to null first so no issue ahead
-                    $textImage = null;
-                    if($mediaImage) {
-                      // define seperator
-                      if(!defined("DSP")) {
-                        define("DSP",DIRECTORY_SEPARATOR);
-                      }
-                      // add text message and create image
-                      $textImage = self::createProductTextImage(
-                        public_path($mediaImage->disk.DSP.$mediaImage->filename.".".$mediaImage->extension),
-                        "instant_message_".$chat_message->id,
-                        $auto_message
-                      );
-
-                      $chat_message->media_url = $textImage;
-                      $chat_message->save();
-
-                    }
-                    // send message now
-                    // uncomment this one to send message immidiatly
-                    $autoApprove = $request->get("auto_approve", true);
-
-                    if($autoApprove) {
-                        // send request if auto approve    
-                        $approveRequest = new Request();
-                        $approveRequest->setMethod('GET');
-                        $approveRequest->request->add(['messageId' => $chat_message->id]);
-                        
-                        app(WhatsAppController::class)->approveMessage("customer",$approveRequest);
+                            $params['message'] = "";//$auto_message;
                     
+                            $chat_message = ChatMessage::create($params);
+                            $chat_message->attachMedia($mediaImage,  config('constants.media_tags'));
+
+                            // create text image to null first so no issue ahead
+                            $textImage = null;
+                            
+                            if($mediaImage) {
+                              // define seperator
+                              if(!defined("DSP")) {
+                                define("DSP",DIRECTORY_SEPARATOR);
+                              }
+                              // add text message and create image
+                              $textImage = self::createProductTextImage(
+                                public_path($mediaImage->disk.DSP.$mediaImage->filename.".".$mediaImage->extension),
+                                "instant_message_".$chat_message->id,
+                                $auto_message
+                              );
+
+                              $chat_message->media_url = $textImage;
+                              $chat_message->save();
+
+                            }
+                            // send message now
+                            // uncomment this one to send message immidiatly
+                            $autoApprove = $request->get("auto_approve", false);
+
+                            if($autoApprove) {
+                                // send request if auto approve    
+                                $approveRequest = new Request();
+                                $approveRequest->setMethod('GET');
+                                $approveRequest->request->add(['messageId' => $chat_message->id]);
+                                
+                                app(WhatsAppController::class)->approveMessage("customer",$approveRequest);
+                            
+                            }
+                            
+                            app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
+                        }
                     }
-                    
-                    app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
                 }
             }
 
