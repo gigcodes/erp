@@ -76,7 +76,8 @@
               <td>{{ $password->username }}</td>
               <td>{{ Crypt::decrypt($password->password) }}</td>
               <td>{{ $password->registered_with }}</td>
-                <td><button onclick="changePassword({{ $password->id }})" class="btn btn-secondary btn-sm">Change</button></td>
+                <td><button onclick="changePassword({{ $password->id }})" class="btn btn-secondary btn-sm">Change</button>
+                <button onclick="getData({{ $password->id }})" class="btn btn-secondary btn-sm">History</button></td>
             </tr>
           @endforeach
         </tbody>
@@ -230,6 +231,43 @@
         </div>
     </div>
     @endforeach
+    <div id="getHistory" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+
+
+                    <div class="modal-header">
+                        <h4 class="modal-title">Password History</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Website</th>
+                                <th>Username</th>
+                                <th>Password</th>
+                                <th>Registered With</th>
+                            </tr>
+                            </thead>
+                            <tbody class="table" id="data">
+
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
 @endsection
 
 
@@ -245,5 +283,32 @@
             $(".users").hide();
         }
     });
+
+    function getData(password_id) {
+        event.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "{{ route('password.history') }}",
+            data: {"_token": "{{ csrf_token() }}", "password_id": password_id},
+            dataType: "json",
+            success: function (message) {
+               $c =  message.length;
+                if($c == 0){
+                   alert('No History Exist');
+                } else{
+                    var detials="";
+                    $.each( message, function( key, value ) {
+                        detials += "<tr><th>" + value.website + "</th><th>" + value.username +"</th><th>" + value.password_decrypt + "</th><th>" + value.registered_with +"</th><tr>";
+                    });
+                    console.log(detials);
+                    $('#data').html(detials);
+                    $("#getHistory").modal('show');
+                }
+            }, error: function () {
+
+            }
+
+        });
+    }
 </script>
 @endsection

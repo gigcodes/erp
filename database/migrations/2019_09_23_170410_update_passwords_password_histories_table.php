@@ -15,6 +15,7 @@ class UpdatePasswordsPasswordHistoriesTable extends Migration
     {
         Schema::table('password_histories', function ($table){
             $table->string('registered_with')->nullable();
+            $table->longText('password')->change();
         });
     }
 

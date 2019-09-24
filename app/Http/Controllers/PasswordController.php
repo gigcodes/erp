@@ -104,8 +104,8 @@ class PasswordController extends Controller
         $data_old['website'] = $password->website;
         $data_old['url'] = $password->url;
         $data_old['username'] = $password->username;
-        $data_old['password'] = $password->password;
         $old_password =  $password->password;
+        $data_old['password'] = $old_password;
         $data_old['registered_with'] = $password->registered_with;
         PasswordHistory::create($data_old);
 
@@ -136,5 +136,27 @@ class PasswordController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public  function getHistory(Request $request){
+
+       $password =  PasswordHistory::where('password_id',$request->password_id)->get();
+       $count = 0;
+       foreach ($password as $passwords){
+        $value[$count]['username'] = $passwords->username;
+        $value[$count]['website'] = $passwords->website;
+        $value[$count]['url'] = $passwords->url;
+        $value[$count]['registered_with'] = $passwords->registered_with;
+        $value[$count]['password_decrypt'] = Crypt::decrypt($passwords->password);
+        $count++;
+       }
+       if(count($password) == 0){
+           return array();
+       }else{
+           return $value;
+       }
+       return $value;
+
+
     }
 }
