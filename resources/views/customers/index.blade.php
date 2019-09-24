@@ -254,13 +254,12 @@
                 {{-- <th width="10%">Lead/Order Status</th> --}}
                 {{-- <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=lead_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Created at</a></th>
                 <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Order Created at</a></th> --}}
-                <th width="10%">Instruction</th>
-                <th width="10%">Message Status</th>
+                <th width="15%">Instruction</th>
+                <th width="15%">Message Status</th>
                 <th>Order Status</th>
                 <th>Purchase Status</th>
-                <th width="15%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
-                <th width="15%">Send Message</th>
-                <th width="15%">Broadcast</th>
+                <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
+                <th width="20%">Send Message</th>
                 <th>Shortcuts</th>
                 <th width="10%">Action</th>
                 </thead>
@@ -378,11 +377,11 @@
                                       @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
                                           @if($number != "0")
                                               <option {{ ($number == $customer->whatsapp_number && $customer->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
-                                          @endif    
+                                          @endif
                                       @endforeach
                                   </select>
                                 </div>
-                            </p>    
+                            </p>
                         </td>
                         {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                           <td>{{ $customer['email'] }}</td>
@@ -610,19 +609,15 @@
                                     }}
                                 </select>
                             </p>
-                        </td>
-                        <td>
-                            <?php
-                                $sucBroadCastList = isset($successBroadCast[$customer->id]) ? $successBroadCast[$customer->id] : [];
-                                $broadCastList = isset($pendingBroadCast[$customer->id]) ? explode(",",$pendingBroadCast[$customer->id]) : [];
-                                $listBrd =  array_merge($sucBroadCastList,$broadCastList);
-                                sort($listBrd);
-                                if(!empty($listBrd)) {
-                                    foreach($listBrd as $brdList) {
-                                        echo "<a href='javascript:;' class='fetch-broad-cast-spn' data-id='".$brdList."' data-customer-id='".$customer->id."'>#".$brdList."</a>&nbsp;";
+                            <p>
+                                <?php
+                                if(!empty($broadcasts)) {
+                                    foreach($broadcasts as $broadcast) {
+                                        echo "<a href='javascript:;' class='fetch-broad-cast-spn' data-id='".$broadcast."' data-customer-id='".$customer->id."'>#".$broadcast."</a> ";
                                     }
                                 }
-                            ?>
+                                ?>
+                            </p>
                         </td>
                         <td>
                             {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send images"><img src="/images/attach.png" /></button> --}}
@@ -1834,13 +1829,13 @@
                                 html += '</div>';
                                 html += '</div>';
                                 res++;
-                            })    
+                            })
                         });
                     }else{
                         html = "Sorry, There is no available broadcast";
                     }
 
-                    html += '</div>'; 
+                    html += '</div>';
                 }
                 $("#broadcast-list").find(".modal-body").html(html);
                 //if(needtoShowModel && typeof needtoShowModel != "undefined") {
@@ -1850,8 +1845,8 @@
 
 
 
-        });    
-        
+        });
+
 
         var updateBroadCastList = function(customerId, needtoShowModel) {
             $.ajax({
@@ -1893,12 +1888,12 @@
             var checkedProdctsArr = [];
                 if(checkedProducts.length > 0) {
                    $.each(checkedProducts,function(e,v){
-                      checkedProdctsArr += ","+$(v).val(); 
-                   }) 
+                      checkedProdctsArr += ","+$(v).val();
+                   })
                 }
 
-            var selectionLead = $("#broadcast-list").find(".selection-broadcast-list").first();     
-           
+            var selectionLead = $("#broadcast-list").find(".selection-broadcast-list").first();
+
             //$("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("broadcast", $this.data("id"));
             $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("customer-id", selectionLead.data("customer-id"));
             $("#broadcast-list-approval").modal("show");
@@ -1945,6 +1940,6 @@
             }).fail(function (response) {
                 console.log(response);
             });
-        }); 
+        });
     </script>
 @endsection

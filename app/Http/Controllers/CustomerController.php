@@ -149,30 +149,26 @@ class CustomerController extends Controller
         $start_time = $request->range_start ? "$request->range_start 00:00" : Carbon::now()->subDay();
         $end_time = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay();
 
-        $allCustomers = $results[0]->pluck("id")->toArray();
+        $allCustomers = $results[ 0 ]->pluck("id")->toArray();
 
-        $successBroadCast = [];
-        if(!empty($allCustomers)) {
-            foreach($allCustomers as $alc) {
-                $sbQuery = DB::select("select group_id from message_queues where sent = 1 and customer_id = {$alc} group by  group_id order by group_id desc limit 2");
-                if(!empty($sbQuery)) {
-                    $castID  = [];
-                    foreach($sbQuery as $resSuccessBrd) {
-                        $castID[] = $resSuccessBrd->group_id;
-                    }
-                    $successBroadCast[$alc] = $castID;
-                }
+        // Get all sent broadcasts from the past month
+        $sbQuery = DB::select("select MIN(group_id) AS minGroup, MAX(group_id) AS maxGroup from message_queues where sent = 1 and created_at>'" . date('Y-m-d H:i:s', strtotime('1 month ago')) . "'");
+
+        // Add broadcasts to array
+        $broadcasts = [];
+        if ($sbQuery !== null) {
+            // Get min and max
+            $minBroadcast = $sbQuery[ 0 ]->minGroup;
+            $maxBroadcast = $sbQuery[ 0 ]->maxGroup;
+
+            // Deduct 2 from min
+            $minBroadcast = $minBroadcast - 2;
+
+            for ($i = $minBroadcast; $i <= $maxBroadcast; $i++) {
+                $broadcasts[] = $i;
             }
         }
 
-        $pendingBroadCast = DB::select("select group_concat(group_id) as pending_brodcast,customer_id 
-            from message_queues 
-            where sent = 0 and customer_id in (".implode(',',$allCustomers).") 
-            group by customer_id");
-
-
-
-        $pendingBroadCast = collect($pendingBroadCast)->pluck("pending_brodcast","customer_id")->toArray();
 
         return view('customers.index', [
             'customers' => $results[ 0 ],
@@ -196,8 +192,7 @@ class CustomerController extends Controller
             'leads_data' => $results[ 2 ],
             'order_stats' => $order_stats,
             'complaints' => $complaints,
-            'pendingBroadCast' => $pendingBroadCast,
-            'successBroadCast' => $successBroadCast
+            'broadcasts' => $broadcasts
         ]);
     }
 
@@ -915,11 +910,11 @@ class CustomerController extends Controller
 
     public function loadMoreMessages(Request $request)
     {
-        $limit  = request()->get("limit",3);
-        
+        $limit = request()->get("limit", 3);
+
         $customer = Customer::find($request->customer_id);
 
-        $chat_messages = $customer->whatsapps_all()->where("message", "!=" , "")->skip(1)->take($limit)->get();
+        $chat_messages = $customer->whatsapps_all()->where("message", "!=", "")->skip(1)->take($limit)->get();
 
         $messages = [];
 
@@ -2216,20 +2211,20 @@ class CustomerController extends Controller
 
     public function broadcastSendPrice()
     {
-        $broadcastId        = request()->get("broadcast_id", 0);
-        $customerId         = request()->get("customer_id", 0);
-        $productsToBeRun    = explode(",",request()->get("product_to_be_run", ""));
+        $broadcastId = request()->get("broadcast_id", 0);
+        $customerId = request()->get("customer_id", 0);
+        $productsToBeRun = explode(",", request()->get("product_to_be_run", ""));
 
-        $products = []; 
-        if(!empty(array_filter($productsToBeRun))) {
-            foreach($productsToBeRun as $prd) {
-                if(is_numeric($prd)) {
+        $products = [];
+        if (!empty(array_filter($productsToBeRun))) {
+            foreach ($productsToBeRun as $prd) {
+                if (is_numeric($prd)) {
                     $products[] = $prd;
                 }
             }
         }
 
-        $customer = Customer::where("id",$customerId)->first();
+        $customer = Customer::where("id", $customerId)->first();
 
         if ($customer && $customer->do_not_disturb == 0) {
             $this->dispatchBroadSendPrice($customer, array_unique($products));
@@ -2272,7 +2267,7 @@ class CustomerController extends Controller
     public function broadcastDetails()
     {
         $broadcastId = request()->get("broadcast_id", 0);
-        $customerId  = request()->get("customer_id", 0);
+        $customerId = request()->get("customer_id", 0);
 
         $messages = \App\MessageQueue::where("group_id", $broadcastId)->where("customer_id", $customerId)->get();
 
