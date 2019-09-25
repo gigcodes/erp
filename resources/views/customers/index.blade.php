@@ -858,7 +858,7 @@
             <label for="sel1">Select User for send contact data:</label>
             <form method="post" id="send-contact-to-user">
                 {{ Form::open(array('url' => '', 'id' => 'send-contact-user-form')) }}
-                {!! Form::hidden('customer_id',$customer->id,['id' => 'customer_id_attr']) !!}
+                {!! Form::hidden('customer_id',0,['id' => 'customer_id_attr']) !!}
                 {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list select2', 'style'=> 'width:100%']) !!}
                 {{ Form::close() }}
             </form>
