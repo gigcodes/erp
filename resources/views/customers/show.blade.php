@@ -2223,7 +2223,7 @@
         <form method="post" id="send-contact-to-user">
             {{ Form::open(array('url' => '', 'id' => 'send-contact-user-form')) }}
             {!! Form::hidden('customer_id',$customer->id) !!}
-            {!! Form::select('user_id', \App\User::all()->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list select2', 'style'=> 'width:100%']) !!}
+            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list select2', 'style'=> 'width:100%']) !!}
             {{ Form::close() }}
         </form>
       </div>

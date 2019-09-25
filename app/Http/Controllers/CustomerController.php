@@ -2331,13 +2331,14 @@ class CustomerController extends Controller
         if($user && $customer) {
 
             $data = [
-                "Customer Name : $customer->name",
-                "Customer Phone : $customer->phone",
-                "Customer Email : $customer->email",
-                "Customer Address : $customer->address",
-                "Customer City : $customer->city",
-                "Customer Country : $customer->country",
-                "Customer zipcode : $customer->pincode"
+                "Customer details:",
+                "$customer->name",
+                "$customer->phone",
+                "$customer->email",
+                "$customer->address",
+                "$customer->city",
+                "$customer->country",
+                "$customer->pincode"
             ];
 
             $messageData = implode("\n",$data);
