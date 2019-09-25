@@ -211,13 +211,11 @@ class PurchaseController extends Controller
 
     public function purchaseGrid(Request $request, $page = null)
     {
-      $purchases = Purchase::select('id');
-      $not_include_products = [];
+      $purchases = Db::select("select p.sku from purchase_products as pp join products as p on p.id = pp.product_id");
 
-      foreach ($purchases as $purchase) {
-        foreach ($purchase->products as $product) {
-          $not_include_products[] = $product->sku;
-        }
+      $not_include_products = [];
+      foreach ((array)$purchases as $product) {
+        $not_include_products[] = $product->sku;
       }
 
       if ($request->status[0] != null && $request->supplier[0] == null && $request->brand[0] == null) {
