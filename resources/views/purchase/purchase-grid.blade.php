@@ -495,13 +495,12 @@
         });
 
         $('#createPurchaseButton').on('click', function(e) {
+          e.preventDefault();
           if (selected_products.length > 0) {
             $(this).closest('form').find('input[name="products"]').val(JSON.stringify(selected_products));
             $(this).closest('form').find('input[name="customer"]').val(JSON.stringify(selected_customer));
             $(this).closest('form').submit();
           } else {
-            e.preventDefault();
-
             alert('Please select atleast one product');
           }
         });

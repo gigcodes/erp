@@ -391,6 +391,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post( 'purchase/sendmsgsupplier', 'PurchaseController@sendmsgsupplier' )->name( 'purchase.sendmsgsupplier' );
     Route::post( 'purchase/send/emailBulk', 'PurchaseController@sendEmailBulk' )->name( 'purchase.email.send.bulk' );
+    Route::resource( 'purchase-status', 'PurchaseStatusController' );
      
     Route::get( 'download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts' );
 
