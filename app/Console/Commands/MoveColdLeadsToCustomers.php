@@ -60,7 +60,7 @@ class MoveColdLeadsToCustomers extends Command
                     $customer = new Customer();
                     $customer->name = $coldLead->name;
                     $customer->phone = $coldLead->platform_id;
-                    $customer->whatsapp_number = $coldLead->platform_id;
+                    $customer->whatsapp_number = '919152731486';
                     $customer->city = $coldLead->address;
                     $customer->country = 'IN';
                     $customer->save();
