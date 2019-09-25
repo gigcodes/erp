@@ -2318,4 +2318,44 @@ class CustomerController extends Controller
 
         return response()->json(["code" => 1, "message" => "Number updated successfully"]);
     }
+
+    public function sendContactDetails()
+    {
+        $userID = request()->get("user_id",0);
+        $customerID = request()->get("customer_id",0);
+
+        $user = \App\User::where("id", $userID)->first();
+        $customer = \App\Customer::where("id", $customerID)->first();
+
+        // if found customer and  user
+        if($user && $customer) {
+
+            $data = [
+                "Customer details:",
+                "$customer->name",
+                "$customer->phone",
+                "$customer->email",
+                "$customer->address",
+                "$customer->city",
+                "$customer->country",
+                "$customer->pincode"
+            ];
+
+            $messageData = implode("\n",$data);
+
+            $params[ 'erp_user' ] = $user->id;
+            $params[ 'approved' ] = 1;
+            $params[ 'message' ]  = $messageData;
+            $params[ 'status' ]   = 2;
+            
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
+
+            $chat_message = \App\ChatMessage::create($params);
+
+        }
+
+        return response()->json(["code" => 1 , "message" => "done"]);
+
+        
+    }
 }
