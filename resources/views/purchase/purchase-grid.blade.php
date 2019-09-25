@@ -163,8 +163,9 @@
                     <tr>
                         <td>
                           @if ( isset($order_product->order->customer) )
-                          <input type="checkbox" class="select-product" name="products[]" value="{{ $product['id'] }}" data-customer="{{ $order_product->order->customer->id }}" data-supplier="{{ $product['single_supplier'] }}" />
+                          <input type="hidden" class="select-product-dis" name="products[]" value="{{ $product['id'] }}" data-customer="{{ $order_product->order->customer->id }}" data-supplier="{{ $product['single_supplier'] }}" />
                            <input type="hidden" name="customer[]" value="{{ $order_product->order->customer->id }}" />
+                           <input type="checkbox" class="select-product" name="purchase_products[]" value="{{ $order_product->id }}#{{ $product['single_supplier'] }}">
                            @endif
                         </td>
 
@@ -207,7 +208,9 @@
       <input type="hidden" name="purchase_handler" value="{{ Auth::id() }}" />
       <input type="hidden" name="supplier_id" value="" />
       <input type="hidden" name="products" value="">
-       <input type="hidden" name="customer" value="">
+      <input type="hidden" name="customer" value="">
+      <input type="hidden" name="order_products" value="">
+
 
       <div class="row">
         <div class="col text-center">
@@ -391,6 +394,15 @@
 
         var selected_products = [];
         var selected_customer = [];
+        var selected_order_products = [];
+
+        $(document).on('click', '.select-product', function() {
+            var checked = $(this).prop('checked');
+            if (checked) {
+               selected_order_products.push($(this).val());
+            }
+        });  
+
         $(document).on('click', '.select-product', function() {
           var supplier_id = $(this).data('supplier');
           var customer_id = $(this).data('customer');
@@ -496,9 +508,10 @@
 
         $('#createPurchaseButton').on('click', function(e) {
           e.preventDefault();
-          if (selected_products.length > 0) {
-            $(this).closest('form').find('input[name="products"]').val(JSON.stringify(selected_products));
-            $(this).closest('form').find('input[name="customer"]').val(JSON.stringify(selected_customer));
+          if (selected_order_products.length > 0) {
+            $(this).closest('form').find('input[name="order_products"]').val(JSON.stringify(selected_order_products));
+            /*$(this).closest('form').find('input[name="products"]').val(JSON.stringify(selected_products));
+            $(this).closest('form').find('input[name="customer"]').val(JSON.stringify(selected_customer));*/
             $(this).closest('form').submit();
           } else {
             alert('Please select atleast one product');

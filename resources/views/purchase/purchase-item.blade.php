@@ -19,14 +19,11 @@
       <th width="10%">Action</th>
     </tr>
     @foreach ($purchases_array as $key => $purchase)
+     <?php //echo '<pre>'; print_r($purchase); echo '</pre>';exit; ?>
       @php
         $products_count = 1;
-        if (count($purchase['products']) > 0) {
-          // foreach ($purchase['products'] as $product) {
-          //   $products_count += count($product['orderproducts']);
-          // }
-
-          $products_count = count($purchase['products']) + 1;
+        if (count($purchase['order_products']) > 0) {
+          $products_count = count($purchase['order_products']) + 1;
         }
       @endphp
         <tr>
@@ -40,17 +37,16 @@
           <td rowspan="{{ $products_count }}">{{ $purchase['status']}}</td>
         </tr>
 
-        @if ($purchase['products'])
+        @if ($purchase['order_products'])
           @php
             $qty = 0;
             $sold_price = 0;
           @endphp
-          @foreach ($purchase['products'] as $product)
+          @foreach ($purchase['order_products'] as $order_product)
+           <?php //echo '<pre>'; print_r($orderProduct); echo '</pre>';exit; ?>
             <tr>
               <td>
-                @if ($product['orderproducts'])
-                  {{-- <ul> --}}
-                    @foreach ($product['orderproducts'] as $order_product)
+                @if ($order_product)
                       <li>
                         @if ($order_product['order'])
                           @if ($order_product['order']['customer'])
@@ -70,7 +66,6 @@
                         @endphp
                       </li>
                       @php $qty = 0; @endphp
-                    @endforeach
                   {{-- </ul> --}}
                 @else
                   <li>No Order Product</li>
@@ -78,43 +73,18 @@
               </td>
               <td>
                 @php
-                  $special_product = \App\Product::find($product['id']);
+                  $special_product = \App\Product::find($order_product['products'][0]['id']);
                 @endphp
                 @if ($special_product->hasMedia(config('constants.media_tags')))
                   <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" width="50px">
                 @endif
               </td>
-              {{-- <td>
-                @if (count($product['orderproducts']) > 0)
-                  <ul>
-                    @foreach ($product['orderproducts'] as $order_product)
-                      <li>{{ $qty = $order_product['qty'] }}</li>
-                      @php
-
-                        $qty = 0;
-                      @endphp
-                    @endforeach
-                  </ul>
-                @endif
-              </td> --}}
-              <td>{{ $product['price'] }}</td>
-              {{-- <td>
-                @php $sold_price = 0; @endphp
-                <ul>
-                  @foreach ($product['orderproducts'] as $order_product)
-                    <li>{{ $order_product['product_price'] }}</li>
-
-                    @php
-                      $sold_price += $order_product['product_price'];
-                    @endphp
-                  @endforeach
-                </ul>
-              </td> --}}
-              <td>
+              <td>{{ $order_product['products'][0]['price'] }}</td>
+               <td>
                 @php $actual_price = 0; @endphp
-                @php $actual_price += $product['price'] @endphp
+                @php $actual_price += $order_product['products'][0]['price'] @endphp
 
-                {{ $product['price'] * 78 }}
+                {{ $order_product['products'][0]['price'] * 78 }}
               </td>
               <td>
                 {{ $sold_price - ($actual_price * 78) }}
@@ -138,111 +108,6 @@
             </div>
           </td>
         </tr>
-        {{-- <td>
-          <ul>
-            @foreach ($purchase['products'] as $product)
-              <li>
-                {{ $product['orderproducts'] ? ($product['orderproducts'][0]['order'] ? ($product['orderproducts'][0]['order']['customer'] ? $product['orderproducts'][0]['order']['customer']['name'] : 'No Customer') : 'No Order') : 'No Order Product' }}
-              </li>
-            @endforeach
-          </ul>
-        </td> --}}
-            {{-- <td>
-              @foreach ($purchase['products'] as $product)
-                <img src="{{ $product['imageurl'] }}" class="img-responsive" width="50px">
-              @endforeach
-            </td> --}}
-
-
-            {{-- <td>
-              @php
-                $qty = 0;
-              @endphp
-              <ul>
-                @foreach ($purchase['products'] as $product)
-                  @if (count($product['orderproducts']) > 0)
-                    @foreach ($product['orderproducts'] as $order_product)
-                      @php
-                        $qty += $order_product['qty'];
-                      @endphp
-                    @endforeach
-                  @endif
-
-                  <li>
-                    {{ $qty }}
-                  </li>
-
-                  @php
-                    $qty = 0;
-                  @endphp
-                @endforeach
-              </ul>
-            </td> --}}
-            {{-- <td>
-              {{-- @php $retail_price = 0; @endphp
-              @foreach ($purchase['products'] as $product)
-                @php $retail_price += $product['price'] @endphp
-              @endforeach
-
-              {{ $retail_price }}
-
-              <ul>
-                @foreach ($purchase['products'] as $product)
-                  <li>
-                    {{ $product['price'] }}
-                  </li>
-                @endforeach
-              </ul>
-            </td> --}}
-            {{-- <td>
-              <ul>
-                @php $sold_price = 0; @endphp
-                @foreach ($purchase['products'] as $product)
-                  @foreach ($product['orderproducts'] as $order_product)
-                    <li>{{ $order_product['product_price'] }}</li>
-
-                    @php
-                      $sold_price += $order_product['product_price'];
-                    @endphp
-                  @endforeach
-                @endforeach
-              </ul>
-            </td> --}}
-            {{-- <td>
-              <ul>
-                @php $actual_price = 0; @endphp
-                @foreach ($purchase['products'] as $product)
-                  @php $actual_price += $product['price'] @endphp
-
-                  <li>{{ $product['price'] * 78 }}</li>
-                @endforeach
-              </ul>
-            </td> --}}
-            {{-- <td>
-              {{ $sold_price - ($actual_price * 78) }}
-            </td> --}}
-            {{-- <td>
-              @if ($purchase['communication']['status'] != null && $purchase['communication']['status'] == 0)
-                Unread
-              @elseif ($purchase['communication']['status'] == 5)
-                Read
-              @elseif ($purchase['communication']['status'] == 6)
-                Replied
-              @elseif ($purchase['communication']['status'] == 1)
-                Awaiting Approval
-              @elseif ($purchase['communication']['status'] == 2)
-                Approved
-              @elseif ($purchase['communication']['status'] == 4)
-                Internal Message
-              @endif
-            </td>
-            <td>
-              @if (strpos($purchase['communication']['body'], '<br>') !== false)
-                {{ substr($purchase['communication']['body'], 0, strpos($purchase['communication']['body'], '<br>')) }}
-              @else
-                {{ $purchase['communication']['body'] }}
-              @endif
-            </td> --}}
 
         </tr>
     @endforeach

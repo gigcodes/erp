@@ -28,6 +28,11 @@ class Purchase extends Model
     return $this->belongsToMany('App\Product', 'purchase_products', 'purchase_id', 'product_id');
   }
 
+  public function orderProducts()
+  {
+    return $this->belongsToMany('App\OrderProduct', 'purchase_products', 'purchase_id', 'order_product_id');
+  }
+
   public function files()
   {
     return $this->hasMany('App\File', 'model_id')->where('model_type', 'App\Purchase');

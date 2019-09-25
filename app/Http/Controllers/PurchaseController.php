@@ -85,13 +85,13 @@ class PurchaseController extends Controller
   					 $sortby = 'created_at';
   		}
 
-  		$purchases = (new Purchase())->newQuery()->with(['Products' => function ($query) {
-        $query->with(['orderproducts' => function ($quer) {
-          $quer->with(['Order' => function ($q) {
+  		$purchases = (new Purchase())->newQuery()->with(['orderProducts' => function ($query) {
+        $query->with(['Order' => function ($q) {
             $q->with('customer');
-          }]);
-        }]);
+        },'products']);
       }, 'purchase_supplier']);
+
+      //echo '<pre>'; print_r($purchases->get()->toArray()); echo '</pre>';exit;
 
       // $purchases_new = DB::table('purchases');
 
@@ -753,34 +753,56 @@ class PurchaseController extends Controller
       $this->validate($request, [
         'purchase_handler'  => 'required',
         // 'supplier'          => 'required',
-        'products'          => 'required'
+        //'products'          => 'required',
+        'order_products'    => 'required'
       ]);
+
       
-      $purchase = new Purchase;
+      $supllierWise = [];
+      $postOP = json_decode($request->order_products,true);
+      $supplierWiseProducts = [];
 
-      $purchase->purchase_handler = $request->purchase_handler;
-      $purchase->supplier_id = $request->supplier_id;
-      $purchase->status = 'Pending Purchase';
-      $purchase->save();
+      if(!empty($postOP)) {
+        foreach($postOP as $post) {
+           @list($opId, $supplierId) = explode("#",$post);
+           $supplierId = !empty($supplierId) ? $supplierId : 0;
+           $supplierWiseProducts[$supplierId][] = $opId;
+        } 
+      }
 
-      $products = array_unique(json_decode($request->products,true));
-      $customer = json_decode($request->customer);
-      $purchase->products()->attach($products);
-      $purchase->customers()->attach($customer);
+      if(!empty($supplierWiseProducts)) {
+         foreach($supplierWiseProducts as $productList) {
 
-      foreach ($products as $key=>$product_id) {
+          // assing purchase supllier wise
+          $purchase = new Purchase;
+          $purchase->purchase_handler = $request->purchase_handler;
+          $purchase->supplier_id = $request->supplier_id;
+          $purchase->status = 'Pending Purchase';
+          
+          // now store the order products
+          if($purchase->save()) {
+             // find all order products
+             $orderProducts = \App\OrderProduct::whereIn("id",$productList)->get();
 
-        $product = Product::find($product_id);
+             if(!$orderProducts->isEmpty()) {
+                foreach($orderProducts as $orderProduct) {
+                    \App\PurchaseProduct::insert([
+                      "purchase_id" => $purchase->id,
+                      "product_id"  => $orderProduct->product->id,
+                      "order_product_id" => $orderProduct->id
+                    ]);
 
-        foreach ($product->orderproducts as $order_product) {
+                    $orderProduct->purchase_status = 'Pending Purchase';
+                    $orderProduct->save();
 
-          if ( key_exists($order_product->customer_id, $customer) ) {
-            $order_product->purchase_status = 'Pending Purchase';
-            $order_product->save();
+                }
+              }
+            // storing in product end  
           }
 
-        }
+         }
       }
+
       return redirect()->route('purchase.index');
     }
 
