@@ -752,7 +752,7 @@ class LeadsController extends Controller
      *
      */
 
-    public static function createProductTextImage($path, $name = "", $text = "", $color = "228B22", $fontSize = "40")
+    public static function createProductTextImage($path, $name = "", $text = "", $color = "545b62", $fontSize = "40")
     {
        $text = wordwrap(strtoupper($text), 24, "\n");
        $img = \IImage::make($path);
