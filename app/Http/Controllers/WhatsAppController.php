@@ -1360,7 +1360,49 @@ class WhatsAppController extends FindByNumberController
             // Auto Instruction
             if ($params[ 'customer_id' ] != '1000' && $params[ 'customer_id' ] != '976' && array_key_exists('message', $params) && (preg_match("/price/i", $params[ 'message' ]) || preg_match("/you photo/i", $params[ 'message' ]) || preg_match("/pp/i", $params[ 'message' ]) || preg_match("/how much/i", $params[ 'message' ]) || preg_match("/cost/i", $params[ 'message' ]) || preg_match("/rate/i", $params[ 'message' ]))) {
                 if ($customer = Customer::find($params[ 'customer_id' ])) {
-                    $two_hours = Carbon::now()->subHours(2);
+
+                    // send price from meessage queue
+                    $messageSentLast = \App\MessageQueue::where("customer_id",$customer->id)->where("sent",1)->orderBy("sending_time","desc")->first();
+                    // if message found then start
+                    $selected_products = [];
+                    if($messageSentLast) {
+                        $mqProducts = $messageSentLast->getImagesWithProducts();
+                        if(!empty($mqProducts)) {
+                            foreach($mqProducts as $mq) {
+                                if(!empty($mq["products"])) {
+                                    foreach($mq["products"] as $productId) {
+                                       $selected_products[] = $productId;     
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (!empty($selected_products) && $messageSentLast) {
+                        $quick_lead = Leads::create([
+                            'customer_id' => $customer->id,
+                            'rating' => 1,
+                            'status' => 3,
+                            'assigned_user' => 6,
+                            'selected_product' => json_encode($selected_products),
+                            'created_at' => Carbon::now()
+                        ]);
+
+                        $requestData = new Request();
+                        $requestData->setMethod('POST');
+                        $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
+
+                        app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
+
+                        CommunicationHistory::create([
+                            'model_id' => $messageSentLast->id,
+                            'model_type' => \App\MessageQueue::class,
+                            'type' => 'broadcast-prices',
+                            'method' => 'whatsapp'
+                        ]);
+                    }
+
+                    /*$two_hours = Carbon::now()->subHours(2);
                     $latest_broadcast_message = ChatMessage::where('customer_id', $customer->id)->where('created_at', '>', $two_hours)->where('status', 8)->latest()->first();
 
                     if ($latest_broadcast_message) {
@@ -1399,9 +1441,9 @@ class WhatsAppController extends FindByNumberController
 
                                     $requestData = new Request();
                                     $requestData->setMethod('POST');
-                                    $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products,'auto_approve' => false]);
+                                    $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
 
-                                    app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+                                    app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
 
                                     CommunicationHistory::create([
                                         'model_id' => $latest_broadcast_message->id,
@@ -1420,7 +1462,7 @@ class WhatsAppController extends FindByNumberController
                                 }
                             }
                         }
-                    }
+                    }*/
 
                     Instruction::create([
                         'customer_id' => $customer->id,
