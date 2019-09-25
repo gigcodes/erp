@@ -46,12 +46,16 @@ class ScrapedProducts extends Model
 
         // Loop over array
         foreach ($arrBulkJson as $json) {
+            // Excel?
+            if ( $isExcel == 1 ) {
+                $json->title = empty($json->title) ? $json->title : ' ';
+            }
+
             // Check for required values
             if (
                 !empty($json->title) &&
                 !empty($json->sku) &&
-                !empty($json->brand_id) &&
-                !empty($json->properties[ 'category' ])
+                !empty($json->brand_id)
             ) {
                 // Set possible alternate SKU
                 $sku2 = ProductHelper::getSku($json->sku);

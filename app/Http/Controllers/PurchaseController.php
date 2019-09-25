@@ -53,7 +53,7 @@ use App\Mail\ReplyToEmail;
 class PurchaseController extends Controller
 {
     public function __construct() {
-      $this->middleware('permission:purchase');
+     // $this->middleware('permission:purchase');
     }
 
     public function index(Request $request)

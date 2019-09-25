@@ -35,7 +35,7 @@
     </form>
   </div>
 
-  @can('social-create')
+  @if(auth()->user()->checkPermission('social-create'))
     <div class="col-12 mb-3">
       <div class="pull-right">
         <a href class="btn btn-secondary select-image">Select Images</a>
@@ -82,7 +82,7 @@
 
       </div>
     </div>
-  @endcan
+  @endif
 </div>
 
 
@@ -112,25 +112,25 @@
 
         <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="/images/view.png" /></a>
 
-        @can ('social-create')
+        @if(auth()->user()->checkPermission('social-create'))
           <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="/images/edit.png" /></a>
 
           {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $image->id],'style'=>'display:inline']) !!}
             <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
           {!! Form::close() !!}
-        @endcan
+        @endif
 
         @if (isset($image->approved_user))
           <span>Approved by {{ App\User::find($image->approved_user)->name}} on {{ Carbon\Carbon::parse($image->approved_date)->format('d-m') }}</span>
         @else
-          @can ('social-manage')
+         @if(auth()->user()->checkPermission('social-create'))
             {{-- <form action="{{ route('image.grid.approveImage', $image->id) }}" method="POST">
               @csrf
               <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
             </form> --}}
 
             <button type="button" class="btn btn-xs btn-secondary approve-image" data-id="{{ $image->id }}">Approve</button>
-          @endcan
+          @endif
         @endif
       </div>
       @endforeach

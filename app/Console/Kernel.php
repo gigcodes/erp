@@ -62,6 +62,9 @@ use App\Console\Commands\ResetDailyPlanner;
 
 use App\Console\Commands\UpdateMagentoProductStatus;
 use App\Console\Commands\ImportCustomersEmail;
+use App\Console\Commands\TwilioCallLogs;
+use App\Console\Commands\ZoomMeetingRecordings;
+use App\Console\Commands\ZoomMeetingDeleteRecordings;
 
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
@@ -132,6 +135,9 @@ class Kernel extends ConsoleKernel
         SendAutoReplyToCustomers::class,
         FixCategoryNameBySupplier::class,
         ImportCustomersEmail::class,
+        TwilioCallLogs::class,
+        ZoomMeetingRecordings::class,
+        ZoomMeetingDeleteRecordings::class,
         FlagCustomersIfTheyHaveAComplaint::class,
         MakeKeywordAndCustomersIndex::class,
         GetMostUsedWordsInCustomerMessages::class,
@@ -222,7 +228,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
-        $schedule->command('run:message-queues')->everyFiveMinutes()->between('9:00', '18:00')->withoutOverlapping(10);
+        $schedule->command('run:message-queues')->everyFiveMinutes()->between('07:30', '17:00')->withoutOverlapping(10);
         $schedule->command('monitor:cron-jobs')->everyMinute();
 //        $schedule->command('cold-leads:send-broadcast-messages')->everyMinute()->withoutOverlapping();
         // $schedule->exec('/usr/local/php72/bin/php-cli artisan queue:work --once --timeout=120')->everyMinute()->withoutOverlapping(3);
@@ -270,6 +276,18 @@ class Kernel extends ConsoleKernel
 
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         $schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
+
+         //This command saves the twilio call logs in call_busy_messages table...
+        $schedule->command('twilio:allcalls')->everyFifteenMinutes();
+        // Saved zoom recordings corresponding to past meetings based on meeting id
+        $schedule->command('meeting:getrecordings')->hourly();
+        $schedule->command('meeting:deleterecordings')->dailyAt('07:00')->timezone('Asia/Kolkata');
+
+        // Check scrapers
+        $schedule->command('scraper:not-running')->hourly()->between('7:00', '23:00');
+
+        // Move cold leads to customers
+        $schedule->command('cold-leads:move-to-customers')->daily();
     }
 
     /**

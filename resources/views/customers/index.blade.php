@@ -254,12 +254,12 @@
                 {{-- <th width="10%">Lead/Order Status</th> --}}
                 {{-- <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=lead_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Lead Created at</a></th>
                 <th width="5%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_created{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Order Created at</a></th> --}}
-                <th width="10%">Instruction</th>
-                <th width="10%">Message Status</th>
+                <th width="15%">Instruction</th>
+                <th width="15%">Message Status</th>
                 <th>Order Status</th>
                 <th>Purchase Status</th>
-                <th width="15%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
-                <th width="15%">Send Message</th>
+                <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
+                <th width="20%">Send Message</th>
                 <th>Shortcuts</th>
                 <th width="10%">Action</th>
                 </thead>
@@ -370,6 +370,18 @@
                                 @endif
                             @endif
 
+                            <p>
+                                <div class="form-group">
+                                  <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>">
+                                      <option value="">-No Selected-</option>
+                                      @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                                          @if($number != "0")
+                                              <option {{ ($number == $customer->whatsapp_number && $customer->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                                          @endif
+                                      @endforeach
+                                  </select>
+                                </div>
+                            </p>
                         </td>
                         {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                           <td>{{ $customer['email'] }}</td>
@@ -459,6 +471,8 @@
                                 <span style="color: #333; font-size: 12px;">
                              {{ print_r($instructions[$customer->id][0]['remarks'] ? $instructions[$customer->id][0]['remarks'][array_key_first($instructions[$customer->id][0]['remarks'])]['remark'] : 'No remark') }}
                         </span>
+                                <br/>
+                                <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png"/></a>
                             </td>
                         @else
                             <td>
@@ -562,7 +576,7 @@
                             @endif
 
                             <button data-toggle="tooltip" title="Load More..." type="button" class="btn btn-xs btn-image load-more-communication" data-id="{{ $customer->id }}">
-                                <img src="{{ asset('images/loadmore.png') }}" alt="">
+                                <img src="{{ asset('/images/chat.png') }}" alt="">
                             </button>
 
                             <ul class="more-communication-container">
@@ -594,6 +608,15 @@
                                     <option value="">Quick Reply</option>
                                     }}
                                 </select>
+                            </p>
+                            <p>
+                                <?php
+                                if(!empty($broadcasts)) {
+                                    foreach($broadcasts as $broadcast) {
+                                        echo "<a href='javascript:;' class='fetch-broad-cast-spn' data-id='".$broadcast."' data-customer-id='".$customer->id."'>#".$broadcast."</a> ";
+                                    }
+                                }
+                                ?>
                             </p>
                         </td>
                         <td>
@@ -678,6 +701,11 @@
 
                                 <button type="submit" class="btn btn-image quick-shortcut-button" title="Show Client Chat"><img src="/images/chat.png"/></button>
                             </form>
+                            <div class="d-inline">
+                                <button type="button" class="btn btn-image btn-broadcast-send" data-id="{{ $customer->id }}">
+                                    <img src="/images/broadcast-icon.png"/>
+                                </button>
+                            </div>
 
                             <div class="d-inline">
                                 <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
@@ -705,7 +733,7 @@
                             </form>
 
                             <a class="btn btn-image" href="{{ route('customer.edit',$customer->id) }}" target="_blank"><img src="/images/edit.png"/></a>
-
+                            <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $customer->id }}" data-type="customer"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
                             {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
                             <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                             {!! Form::close() !!}
@@ -768,7 +796,54 @@
 
         </div>
     </div>
+    @include('customers.zoomMeeting');
+    <div id="broadcast-list" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Broadcast Pending List</h4>
+                </div>
+                <div class="modal-body">
 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default broadcast-list-create-lead">Create Lead</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+     <div id="broadcast-list-approval" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Broadcast Pending List</h4>
+                </div>
+                <div class="modal-body">
+                    do you want to create a lead and send price ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default broadcast-list-approval-btn">Yes</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication (Last 30)</h4>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -779,6 +854,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
+    <script src="{{asset('js/zoom-meetings.js')}}"></script>
     <script type="text/javascript">
         var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
 
@@ -1052,7 +1128,6 @@
 
         $(document).on('click', '.complete-call', function (e) {
             e.preventDefault();
-
             var thiss = $(this);
             var token = "{{ csrf_token() }}";
             var url = "{{ route('instruction.complete') }}";
@@ -1196,12 +1271,10 @@
         $(document).on('change', '.quickComment', function () {
             $(this).closest('td').find('input').val($(this).val());
         });
-
         $('.change_status').on('change', function () {
             var thiss = $(this);
             var token = "{{ csrf_token() }}";
             var status = $(this).val();
-
 
             if ($(this).hasClass('order_status')) {
                 var id = $(this).data('orderid');
@@ -1500,19 +1573,26 @@
                 type: "GET",
                 url: "{{ url('customers') }}/" + customer_id + '/loadMoreMessages',
                 data: {
-                    customer_id: customer_id
+                    customer_id: customer_id,
+                    limit : 30
                 },
                 beforeSend: function () {
-                    $(thiss).text('Loading...');
+                    //$(thiss).text('Loading...');
                 }
             }).done(function (response) {
+                var li = "<ul>";
                 (response.messages).forEach(function (index) {
-                    var li = '<li>' + index + '</li>';
+                    li += '<li>' + index + '</li>';
 
-                    $(thiss).closest('td').find('.more-communication-container').append(li);
+                    //$(thiss).closest('td').find('.more-communication-container').append(li);
                 });
 
-                $(thiss).remove();
+                li += "</ul>";
+
+                $("#chat-list-history").find(".modal-body").html(li);4
+                $(thiss).html("<img src='/images/chat.png' alt=''>");
+                $("#chat-list-history").modal("show");
+
             }).fail(function (response) {
                 $(thiss).text('Load More');
 
@@ -1712,9 +1792,153 @@
                 });
 
                 $(thiss).addClass('active-bullet-status');
+            });
+        });
+
+        $(document).on('click', '.fetch-broad-cast-spn', function () {
+            var broadCastId =  $(this).data("id");
+            var customerId  =  $(this).data("customer-id");
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('customer.broadcast.details') }}",
+                dataType: "json",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_id: customerId,
+                    broadcast_id : broadCastId
+                }
+            }).done(function (response) {
+                var html = "Sorry, There is no available broadcast";
+                if(response.code == 1) {
+                    html = '<div class="row selection-broadcast-list" data-customer-id='+customerId+'>';
+                    if(response.data.length > 0) {
+                        var res = 1;
+                        $.each(response.data, function(k,v){
+                            $.each(v, function(r,d){
+                                html += '<div class="col-md-4">';
+                                html += '<div class="thumbnail">';
+                                html += '<img src="'+d.image+'" alt="Lights" style="width:100%">';
+                                html += '<div class="caption">';
+                                html += '<p>Product Id(s) : '+d.products.join(",")+'</p>';
+                                html += '<div class="custom-control custom-checkbox mb-4">';
+                                html += '<input type="checkbox" checked="checked" name="selecte_products_lead[]" value="'+d.products.join(",")+'" class="custom-control-input select-pr-list-chk" id="defaultUnchecked_'+res+'">';
+                                html += '<label class="custom-control-label" for="defaultUnchecked_'+res+'"></label>';
+                                html += '</div>';
+                                html += '</div>';
+                                html += '</div>';
+                                html += '</div>';
+                                res++;
+                            })
+                        });
+                    }else{
+                        html = "Sorry, There is no available broadcast";
+                    }
+
+                    html += '</div>';
+                }
+                $("#broadcast-list").find(".modal-body").html(html);
+                //if(needtoShowModel && typeof needtoShowModel != "undefined") {
+                    $("#broadcast-list").modal("show");
+                //}
+            });
+
+
+
+        });
+
+
+        var updateBroadCastList = function(customerId, needtoShowModel) {
+            $.ajax({
+                type: "GET",
+                url: "{{ route('customer.broadcast.list') }}",
+                dataType: "json",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_id: customerId
+                }
+            }).done(function (response) {
+                var html = "Sorry, There is no available broadcast";
+                if(response.code == 1) {
+                    html = "";
+                    if(response.data.length > 0) {
+                        $.each(response.data, function(k,v){
+                            html += '<button class="badge badge-default broadcast-list-rndr" data-customer-id="'+customerId+'" data-id="'+v.id+'">'+v.id+'</button>';
+                        });
+                    }else{
+                        html = "Sorry, There is no available broadcast";
+                    }
+                }
+                $("#broadcast-list").find(".modal-body").html(html);
+                if(needtoShowModel && typeof needtoShowModel != "undefined") {
+                    $("#broadcast-list").modal("show");
+                }
+            });
+        }
+
+        var broadCastIcon = $(".btn-broadcast-send");
+            broadCastIcon.on("click",function(){
+                updateBroadCastList($(this).data("id"),true);
+            });
+
+          $(document).on("click",".broadcast-list-create-lead",function(){
+            var $this = $(this);
+
+            var checkedProducts = $("#broadcast-list").find("input[name='selecte_products_lead[]']:checked");
+            var checkedProdctsArr = [];
+                if(checkedProducts.length > 0) {
+                   $.each(checkedProducts,function(e,v){
+                      checkedProdctsArr += ","+$(v).val();
+                   })
+                }
+
+            var selectionLead = $("#broadcast-list").find(".selection-broadcast-list").first();
+
+            //$("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("broadcast", $this.data("id"));
+            $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("customer-id", selectionLead.data("customer-id"));
+            $("#broadcast-list-approval").modal("show");
+
+            $(".broadcast-list-approval-btn").unbind().on("click",function(){
+               var $this = $(this);
+                   $.ajax({
+                        type: "GET",
+                        url: "{{ route('customer.broadcast.run') }}",
+                        beforeSend: function() {
+                            // setting a timeout
+                            $this.html('Sending Request...');
+                        },
+                        dataType: "json",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            //broadcast_id: $this.data("broadcast"),
+                            customer_id : $this.data("customer-id"),
+                            product_to_be_run : checkedProdctsArr
+                        }
+                   }).done(function (response) {
+                        //updateBroadCastList(customerId, false);
+                        $this.html('Yes');
+                        $("#broadcast-list-approval").modal("hide");
+                        $("#broadcast-list").modal("hide");
+                   }).fail(function (response) {
+                        alert("Error occured, please try again later.");
+                   });
+            });
+         });
+
+         $(document).on('change', '.change-whatsapp-no', function () {
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('customer.change.whatsapp') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_id: $this.data("customer-id"),
+                    number : $this.val()
+                }
+            }).done(function () {
+                alert('Number updated successfully!');
             }).fail(function (response) {
                 console.log(response);
-                alert('Could not change lead status');
             });
         });
     </script>

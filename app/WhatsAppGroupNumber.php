@@ -4,11 +4,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TasksTypes extends Model
+class WhatsAppGroupNumber extends Model
 {
-    protected $table = 'task_types';
-
     protected $fillable = [
-        'name'
+        'user_id',
+        'group_id',
+        'user_number'
     ];
 }

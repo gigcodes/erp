@@ -143,7 +143,7 @@
                 @endif
               </td> --}}
               <td>
-                @can('voucher')
+                @if(auth()->user()->checkPermission('voucher'))
                   @if ($delivery_approval->voucher)
                     <button type="button" class="btn btn-xs btn-secondary edit-voucher" data-toggle="modal" data-target="#editVoucherModal" data-id="{{ $delivery_approval->voucher->id }}" data-amount="{{ $delivery_approval->voucher->amount }}" data-travel="{{ $delivery_approval->voucher->travel_type }}">Edit Voucher</button>
                   @else
@@ -151,7 +151,7 @@
                       <button type="button" class="btn btn-xs btn-secondary create-voucher" data-id="{{ $delivery_approval->id }}" data-customer="{{ $delivery_approval->order->customer }}">Create Voucher</button>
                     @endif
                   @endif
-                @endcan
+                @endif
               </td>
             </tr>
           @endforeach

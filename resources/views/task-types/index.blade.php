@@ -1,14 +1,13 @@
 @extends('layouts.app')
 
-
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Users Management</h2>
+            <h2 class="page-heading">Task Types</h2>
             <div class="pull-left">
             </div>
             <div class="pull-right">
-                <a class="btn btn-secondary" href="{{ route('taskTypes.create') }}">+</a>
+                <a class="btn btn-secondary" href="{{ route('task-types.create') }}">+</a>
             </div>
         </div>
     </div>

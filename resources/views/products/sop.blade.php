@@ -5,7 +5,7 @@
         <div class="col-md-12">
             <h2 class="page-heading">{{ $sop->name }} - SOP</h2>
         </div>
-        @can('admin')
+         @if(auth()->user()->isAdmin())
             <?php $aayo = true; ?>
             <div class="col-md-12">
                 <form method="post" action="{{ action('ProductController@saveSOP') }}">
@@ -15,7 +15,7 @@
                     <button class="btn btn-secondary">Save</button>
                 </form>
             </div>
-        @endcan
+        @endif
         @if(!isset($aayo))
             <div class="col-md-12">
                 {!! $sop->content !!}

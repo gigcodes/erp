@@ -82,7 +82,7 @@ class ProductAi implements ShouldQueue
             'gender' => ''
         ];
 
-        // Run test
+        // Run AI
         $resultAI = GoogleVisionHelper::getPropertiesFromImageSet($arrImages);
 
         // Log result

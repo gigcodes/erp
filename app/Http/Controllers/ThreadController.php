@@ -20,7 +20,7 @@ class ThreadController extends Controller
      */
 
     public function __construct() {
-        $this->middleware('permission:review-view');
+    //    $this->middleware('permission:review-view');
     }
 
     public function index()

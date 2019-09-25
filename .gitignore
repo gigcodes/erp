@@ -54,4 +54,5 @@ composer.lock
 /public/*.zip
 /public/*.pdf
 public/uploads/*
-app/DocumentCategory.php
+public/zoom/*
+!public/zoom/.gitkeep

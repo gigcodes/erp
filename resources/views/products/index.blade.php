@@ -26,9 +26,9 @@
       </form>
     </div>
     <div class="pull-right">
-      @can('product-create')
+      @if(auth()->user()->checkPermission('products-create'))
       <a class="btn btn-secondary" href="{{ route('products.create') }}">+</a>
-      @endcan
+      @endif
     </div>
   </div>
 </div>
@@ -78,9 +78,9 @@
         <form action="{{ route('products.destroy',$product->id) }}" method="POST" style="display:inline">
           @csrf
           @method('DELETE')
-          @can('product-delete')
+          @if(auth()->user()->checkPermission('products-delete'))
           <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-          @endcan
+          @endif
         </form>
       </td>
     </tr>

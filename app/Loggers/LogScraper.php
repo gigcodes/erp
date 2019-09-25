@@ -12,7 +12,7 @@ class LogScraper extends Model
     protected $table = 'log_scraper';
     protected $fillable = ['ip_address', 'website', 'url', 'sku', 'brand', 'title', 'description', 'properties', 'images', 'size_system', 'currency', 'price', 'discounted_price',];
 
-    public static function LogScrapeValidationUsingRequest($request)
+    public static function LogScrapeValidationUsingRequest($request, $isExcel = 0)
     {
         // Set empty log for errors and warnings
         $errorLog = "";
@@ -28,7 +28,7 @@ class LogScraper extends Model
         $errorLog .= self::validateSku($request->sku);
 
         // Validate brand
-        $errorLog .= self::validateBrand($request->brand);
+        $errorLog .= self::validateBrand($request);
 
         // Validate title
         $errorLog .= self::validateTitle($request->title);
@@ -37,7 +37,7 @@ class LogScraper extends Model
         $warningLog .= self::validateDescription($request->description);
 
         // Validate size_system
-        $errorLog .= self::validateSizeSystem($request->size_system);
+        $errorLog .= self::validateSizeSystem($request);
 
         // Validate properties
         // TODO
@@ -54,8 +54,27 @@ class LogScraper extends Model
         // Validate discounted price
         $errorLog .= self::validateDiscountedPrice($request->discounted_price);
 
-        // Create new record
-        $logScraper = new LogScraper();
+        // Find existing record
+        $logScraper = LogScraper::where('website', $request->website)->where('sku', $request->sku)->first();
+
+        // Create new record if not found
+        if ($logScraper == null) {
+            $logScraper = new LogScraper();
+        }
+
+        // For excels we only need the SKU
+        if ($isExcel == 1 && isset($request->sku)) {
+            // Replace errors with warnings
+            $errorLog = str_replace('[error]', '[warning]', $errorLog);
+
+            // Update warningLog
+            $warningLog = $errorLog . $warningLog;
+
+            // Empty error log
+            $errorLog = '';
+        }
+
+        // Update values
         $logScraper->ip_address = self::getRealIp();
         $logScraper->website = $request->website ?? null;
         $logScraper->url = $request->url ?? null;
@@ -73,6 +92,9 @@ class LogScraper extends Model
         $logScraper->validated = empty($errorLog) ? 1 : 0;
         $logScraper->validation_result = $errorLog . $warningLog;
         $logScraper->save();
+
+        // Return true or false
+        return $errorLog;
     }
 
     public static function validateWebsite($website)
@@ -114,10 +136,10 @@ class LogScraper extends Model
         return "";
     }
 
-    public static function validateBrand($brand)
+    public static function validateBrand($request)
     {
         // Check if we have a value
-        if (empty($brand)) {
+        if (empty($request->brand)) {
             return "[error] Brand cannot be empty\n";
         }
 
@@ -147,10 +169,10 @@ class LogScraper extends Model
         return "";
     }
 
-    public static function validateSizeSystem($sizeSystem)
+    public static function validateSizeSystem($request)
     {
         // Check if we have a value
-        if (empty($sizeSystem)) {
+        if (empty($request->sizeSystem)) {
             return "[error] Size system is missing\n";
         }
 
@@ -231,8 +253,10 @@ class LogScraper extends Model
             $ip = $_SERVER[ 'HTTP_CLIENT_IP' ];
         } elseif (!empty($_SERVER[ 'HTTP_X_FORWARDED_FOR' ])) {
             $ip = $_SERVER[ 'HTTP_X_FORWARDED_FOR' ];
-        } else {
+        } elseif (!empty($_SERVER[ 'REMOTE_ADDR' ])) {
             $ip = $_SERVER[ 'REMOTE_ADDR' ];
+        } else {
+            $ip = "none";
         }
 
         // Return IP
