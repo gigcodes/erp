@@ -92,4 +92,9 @@ class Purchase extends Model
     {
         return $this->morphMany(CashFlow::class, 'cash_flow_able');
     }
+
+  public function customers()
+  {
+    return $this->belongsToMany('App\Customer', 'purchase_order_customer', 'purchase_id', 'customer_id');
+  }  
 }

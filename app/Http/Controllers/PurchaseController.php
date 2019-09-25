@@ -763,9 +763,10 @@ class PurchaseController extends Controller
       $purchase->status = 'Pending Purchase';
       $purchase->save();
 
-      $products = json_decode($request->products);
+      $products = array_unique(json_decode($request->products,true));
       $customer = json_decode($request->customer);
       $purchase->products()->attach($products);
+      $purchase->customers()->attach($customer);
 
       foreach ($products as $key=>$product_id) {
 
