@@ -175,7 +175,7 @@ class ActivityConroller extends Controller
         // Get total number of scraped products
         $sqlScrapedProductsInStock = "
                 SELECT
-                    COUNT(s.id) as ttl
+                    COUNT(DISTINCT(ls.sku)) as ttl
                 FROM
                     suppliers s
                 JOIN 
