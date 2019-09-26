@@ -101,5 +101,11 @@ class Purchase extends Model
   public function customers()
   {
     return $this->belongsToMany('App\Customer', 'purchase_order_customer', 'purchase_id', 'customer_id');
-  }  
+  }
+
+  public function purchaseProducts()
+  {
+    return $this->hasMany('App\PurchaseProduct', 'purchase_id', 'id');
+  }
+
 }

@@ -19,12 +19,16 @@
       <th width="10%">Action</th>
     </tr>
     @foreach ($purchases_array as $key => $purchase)
-     <?php //echo '<pre>'; print_r($purchase); echo '</pre>';exit; ?>
       @php
         $products_count = 1;
-        if (count($purchase['order_products']) > 0) {
-          $products_count = count($purchase['order_products']) + 1;
+        if (count($purchase['products']) > 0) {
+          // foreach ($purchase['products'] as $product) {
+          //   $products_count += count($product['orderproducts']);
+          // }
+
+          $products_count = count($purchase['products']) + 1;
         }
+       
       @endphp
         <tr>
           <td rowspan="{{ $products_count }}">
@@ -36,17 +40,61 @@
           <td rowspan="{{ $products_count }}">{{ $purchase['purchase_supplier']['supplier'] }}</td>
           <td rowspan="{{ $products_count }}">{{ $purchase['status']}}</td>
         </tr>
-
-        @if ($purchase['order_products'])
-          @php
+         @php
             $qty = 0;
             $sold_price = 0;
-          @endphp
-          @foreach ($purchase['order_products'] as $order_product)
-           <?php //echo '<pre>'; print_r($orderProduct); echo '</pre>';exit; ?>
+        @endphp
+        @if($purchase['order_products'])
+            @foreach ($purchase['order_products'] as $order_product)
+                <tr>
+                    <td>
+                        <li>
+                            @if ($order_product['order'])
+                                @if ($order_product['order']['customer'])
+                                    {{ $order_product['order']['customer']['name'] }}
+                                @else
+                                    No Customer
+                                @endif
+                            @else
+                                No Order
+                            @endif
+
+                             - Qty. <strong>{{ $qty = $order_product['qty'] }}</strong>
+                             - Sold Price: <strong>{{ $order_product['product_price'] }}</strong>
+
+                            @php
+                              $sold_price += $order_product['product_price'];
+                            @endphp
+                          </li>
+                    </td>
+                    <td>
+                        @php
+                          $special_product = \App\Product::find($order_product['product']['id']);
+                        @endphp
+                        @if ($special_product->hasMedia(config('constants.media_tags')))
+                          <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" width="50px">
+                        @endif
+                    </td>
+                    <td>{{ $order_product['product']['price'] }}</td>
+                    <td>
+                        @php $actual_price = 0; @endphp
+                        @php $actual_price += $order_product['product']['price'] @endphp
+
+                        {{ $order_product['product']['price'] * 78 }}
+                    </td>
+                    <td>
+                        {{ $sold_price - ($actual_price * 78) }}
+                    </td>
+                </tr>        
+            @endforeach
+
+        @elseif ($purchase['products'])
+         @foreach ($purchase['products'] as $product)
             <tr>
               <td>
-                @if ($order_product)
+                @if ($product['orderproducts'])
+                  {{-- <ul> --}}
+                    @foreach ($product['orderproducts'] as $order_product)
                       <li>
                         @if ($order_product['order'])
                           @if ($order_product['order']['customer'])
@@ -66,6 +114,7 @@
                         @endphp
                       </li>
                       @php $qty = 0; @endphp
+                    @endforeach
                   {{-- </ul> --}}
                 @else
                   <li>No Order Product</li>
@@ -73,18 +122,18 @@
               </td>
               <td>
                 @php
-                  $special_product = \App\Product::find($order_product['products'][0]['id']);
+                  $special_product = \App\Product::find($product['id']);
                 @endphp
                 @if ($special_product->hasMedia(config('constants.media_tags')))
                   <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" width="50px">
                 @endif
               </td>
-              <td>{{ $order_product['products'][0]['price'] }}</td>
-               <td>
+              <td>{{ $product['price'] }}</td>
+              <td>
                 @php $actual_price = 0; @endphp
-                @php $actual_price += $order_product['products'][0]['price'] @endphp
+                @php $actual_price += $product['price'] @endphp
 
-                {{ $order_product['products'][0]['price'] * 78 }}
+                {{ $product['price'] * 78 }}
               </td>
               <td>
                 {{ $sold_price - ($actual_price * 78) }}
@@ -108,8 +157,7 @@
             </div>
           </td>
         </tr>
-
-        </tr>
+    </tr>
     @endforeach
 </table>
 </div>

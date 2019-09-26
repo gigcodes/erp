@@ -85,11 +85,18 @@ class PurchaseController extends Controller
   					 $sortby = 'created_at';
   		}
 
-  		$purchases = (new Purchase())->newQuery()->with(['orderProducts' => function ($query) {
-        $query->with(['Order' => function ($q) {
-            $q->with('customer');
-        },'products']);
-      }, 'purchase_supplier']);
+  		$purchases = (new Purchase())->newQuery()->with(['orderProducts'=> function ($query) {
+            $query->with(['Order' => function ($q) {
+                $q->with('customer');
+            }]);
+            $query->with(['Product']);
+        },'Products' => function ($query) {
+            $query->with(['orderproducts' => function ($quer) {
+              $quer->with(['Order' => function ($q) {
+                $q->with('customer');
+              }]);
+            }]);
+        }, 'purchase_supplier']);
 
       //echo '<pre>'; print_r($purchases->get()->toArray()); echo '</pre>';exit;
 
