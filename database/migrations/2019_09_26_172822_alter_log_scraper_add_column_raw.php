@@ -14,7 +14,7 @@ class AlterLogScraperAddColumnRaw extends Migration
     public function up()
     {
         Schema::table( 'log_scraper', function ( $table ) {
-            $table->string( 'raw_data' )->nullable()->after( 'validation_result' );
+            $table->text( 'raw_data' )->nullable()->after( 'validation_result' );
         } );
     }
 
