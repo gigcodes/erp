@@ -82,7 +82,7 @@ class LogScraper extends Model
         $logScraper->url = $request->url ?? null;
         $logScraper->sku = $request->sku ?? null;
         $logScraper->brand = $request->brand ?? null;
-        $logScraper->category = isset($request->category) ? serialize($request->category) : null;
+        $logScraper->category = isset($request->properties->category) ? serialize($request->properties->category) : null;
         $logScraper->title = $request->title ?? null;
         $logScraper->description = $request->description ?? null;
         $logScraper->properties = isset($request->properties) ? serialize($request->properties) : null;
