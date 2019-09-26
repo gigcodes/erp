@@ -267,13 +267,14 @@ class DevelopmentController extends Controller
         $data[ 'user_id' ]      = $request->user_id ? $request->user_id : Auth::id();
 
         $module = $request->get( 'module_id' );
-
-        $module = DeveloperModule::find( $module );
-        if ( !$module ) {
-            $module = new DeveloperModule();
-            $module->name = $request->get( 'module_id' );
-            $module->save();
-            $data[ 'module_id' ] = $module->id;
+        if(!empty($module)) {
+            $module = DeveloperModule::find($module);
+            if (!$module) {
+                $module = new DeveloperModule();
+                $module->name = $request->get('module_id');
+                $module->save();
+                $data['module_id'] = $module->id;
+            }
         }
 
         $task = DeveloperTask::create( $data );
@@ -798,8 +799,10 @@ class DevelopmentController extends Controller
             ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
             ->join('users', 'users.id', '=', 'developer_tasks.user_id')
             ->first();
+        $subtasks = DeveloperTask::where('developer_tasks.parent_id',$task_id)->get();
         return view( 'development.task_detail', [
             'task' => $task,
+            'subtasks' => $subtasks,
         ] );
     }
 }
