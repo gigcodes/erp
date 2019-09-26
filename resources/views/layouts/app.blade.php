@@ -331,7 +331,7 @@
                                                 @if(auth()->user()->checkPermission('productselection-create'))
                                                     <a class="dropdown-item" href="{{ route('productselection.create') }}">Add New</a>
                                                 @endif
-                                                <a class="dropdown-item" href="{{ route('productselection.index') }}">Import Excel Document Type 1 </a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer') }}">Excel Import </a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -408,6 +408,18 @@
                                                 <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
                                             </li>
                                         @endif
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ url('scrap/statistics') }}">Statistics</a>
+                                            </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>SKU<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ route('sku-format.index') }}">SKU Format</a>
+                                            </ul>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -427,7 +439,7 @@
                                     <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scrap<span class="caret"></span></a>
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sale Items</a>
