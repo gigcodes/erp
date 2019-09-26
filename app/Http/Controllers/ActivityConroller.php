@@ -183,9 +183,8 @@ class ActivityConroller extends Controller
                 ON 
                     ls.website=s.scraper_name
                 WHERE
-                    s.supplier_status_id=1 AND
-                    ls.updated_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) AND 
-                    ls.updated_at < '" . $range_end . ' 23:59:59' . "'
+                    s.supplier_status_id=1 AND 
+                    ls.updated_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) 
             ";
         $resultScrapedProductsInStock = DB::select($sqlScrapedProductsInStock);
 
@@ -199,8 +198,6 @@ class ActivityConroller extends Controller
             $scrapCount = $scrapCount->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
             $inventoryCount = $inventoryCount->whereBetween('last_inventory_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
             $rejectedListingsCount = $rejectedListingsCount->whereBetween('listing_rejected_on', [$range_start . ' 00:00', $range_end . ' 23:59']);
-
-            $resultScrapedProductsInStock = $resultScrapedProductsInStock->whereBetween('modified_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
         }
 
         if (!$range_start || !$range_end) {
