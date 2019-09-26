@@ -2596,4 +2596,26 @@ class PurchaseController extends Controller
       return redirect()->route('purchase.index')->withSuccess('You have successfully sent emails in bulk!');
     }
 
+    /**
+     * Start to sync the products with order product id 
+     *
+     * 
+     */
+    
+    public function syncOrderProductId()
+    {
+      $recordsOldUpdate = Db::select("
+        select pp.id,pp.purchase_id, pp.product_id 
+        from purchase_products as pp join products as p on p.id = pp.product_id
+        left join order_products as op on op.sku = p.sku 
+        where pp.order_product_id != op.id");
+
+      if(!empty($recordsOldUpdate)) {
+        foreach($recordsOldUpdate as $records) {
+         // start 
+         \App\PurchaseProduct::where('id', $records["id"])->update(['order_product_id' => $records["order_product_id"]]);
+        }
+      }
+    }
+
 }

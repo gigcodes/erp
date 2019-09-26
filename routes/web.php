@@ -1047,4 +1047,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/', 'PageNotesController@index')->name('pageNotes.viewList');
 
     });
+
+    // this is temp action
+    Route::get('update-purchase-order-product', 'PurchaseController@syncOrderProductId');
 });
