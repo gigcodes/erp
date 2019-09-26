@@ -599,6 +599,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Document Cateogry
     Route::post('documentcategory/add', 'DocuemntCategoryController@addCategory')->name('documentcategory.add');
 
+    //SKU Format
+    Route::get('sku-format/datatables','SkuFormatController@getData')->name('skuFormat.datatable');
+    Route::resource('sku-format','SkuFormatController');
+
     // Cash Flow Module
     Route::get('cashflow/{id}/download', 'CashFlowController@download')->name('cashflow.download');
     Route::get('cashflow/mastercashflow', 'CashFlowController@mastercashflow')->name('cashflow.mastercashflow');
