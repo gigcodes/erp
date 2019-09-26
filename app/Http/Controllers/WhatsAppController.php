@@ -234,7 +234,7 @@ class WhatsAppController extends FindByNumberController
                 if (array_key_exists('message', $params) && (preg_match("/price/i", $params[ 'message' ]) || preg_match("/you photo/i", $params[ 'message' ]) || preg_match("/pp/i", $params[ 'message' ]) || preg_match("/how much/i", $params[ 'message' ]) || preg_match("/cost/i", $params[ 'message' ]) || preg_match("/rate/i", $params[ 'message' ]))) {
                     if ($customer = Customer::find($params[ 'customer_id' ])) {
                         $two_hours = Carbon::now()->subHours(2);
-                        $latest_broadcast_message = ChatMessage::where('customer_id', $customer->id)->where('created_at', '>', $two_hours)->where('status', 8)->latest()->first();
+                        $latest_broadcast_message = ChatMessage::where('customer_id', $customer->id)->where('created_at', '>', $two_hours)->where('status', 8)->orderBy('id', 'DESC')->first();
 
                         if ($latest_broadcast_message) {
                             if (!$latest_broadcast_message->is_sent_broadcast_price()) {
@@ -1371,7 +1371,7 @@ class WhatsAppController extends FindByNumberController
                             foreach($mqProducts as $mq) {
                                 if(!empty($mq["products"])) {
                                     foreach($mq["products"] as $productId) {
-                                       $selected_products[] = $productId;     
+                                       $selected_products[] = $productId;
                                     }
                                 }
                             }
