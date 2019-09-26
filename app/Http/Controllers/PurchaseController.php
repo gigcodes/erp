@@ -98,12 +98,7 @@ class PurchaseController extends Controller
             }]);
         }, 'purchase_supplier']);
 
-      //echo '<pre>'; print_r($purchases->get()->toArray()); echo '</pre>';exit;
-
-      // $purchases_new = DB::table('purchases');
-
-
-
+      
   		if(!empty($term)) {
         $purchases = $purchases
         ->orWhere('id','like','%'.$term.'%')
@@ -228,11 +223,10 @@ class PurchaseController extends Controller
       if ($request->status[0] != null && $request->supplier[0] == null && $request->brand[0] == null) {
         $status = $request->status;
         $status_list = implode("','", $request->status ?? []);
-
-  			$orders = OrderProduct::select('sku')->with('Order')
-        ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
-        ->where('qty', '>=', 1)
-        ->get();
+  			$orders = OrderProduct::join("orders as o","o.id","order_products.order_id")->whereIn("o.order_status",$status)
+            ->where('qty', '>=', 1)
+            ->select("sku")
+            ->get();
   		}
 
         $status_list = implode("','", $request->status ?? []);
@@ -244,40 +238,49 @@ class PurchaseController extends Controller
         if ($request->status[0] != null) {
           $status_list = implode("','", $request->status);
 
-          $orders = OrderProduct::select(['sku', 'order_id'])->with(['Order', 'Product'])
+          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id'])->join("orders as o","o.id","order_products.order_id")
+          ->join("products as p","p.sku","order_products.sku")
+          ->join("product_suppliers as ps","ps.product_id","p.id")
+          ->whereIn("o.order_status",$request->status)
+          ->whereIn("ps.supplier_id",$request->supplier)->where('qty', '>=', 1)->get();
+
+          /*$orders = OrderProduct::select(['sku', 'order_id'])->with(['Order', 'Product'])
           ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
           // ->whereRaw("order_products.sku IN (SELECT products.sku FROM (SELECT products.id FROM products WHERE IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))) WHERE products.sku = order_products.sku)")
           ->whereHas('Product', function ($qs) use ($supplier_list) {
             $qs->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
-          })->where('qty', '>=', 1)->get();
+          })->where('qty', '>=', 1)->get();*/
         } else {
-          $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
+          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id'])->join("orders as o","o.id","order_products.order_id");
           if ($page == 'canceled-refunded') {
-            $orders = $orders
-            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");
+            $orders = $orders->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
+            /*$orders = $orders
+            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");*/
             // ->whereHas('Order', function($q) {
             //   $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
             // });
           } elseif ($page == 'ordered') {
 
           } elseif ($page == 'delivered') {
-            $orders = $orders
-            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Delivered'))");
+            $orders = $orders->whereIn("o.order_status",['Delivered']);
+            /*$orders = $orders
+            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Delivered'))");*/
             // ->whereHas('Order', function($q) {
             //   $q->whereIn('order_status', ['Delivered']);
             // });
           } else {
-            $orders = $orders
-            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status NOT IN ('Cancel', 'Refund to be processed', 'Delivered'))");
+            $orders = $orders->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
+            /*$orders = $orders
+            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status NOT IN ('Cancel', 'Refund to be processed', 'Delivered'))");*/
             // ->whereHas('Order', function($q) {
             //   $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
             // });
 
           }
-
-          $orders = $orders
-          ->whereRaw("order_products.sku IN (SELECT products.sku FROM products WHERE id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list)))")
+          $orders = $orders->join("products as p","p.sku","order_products.sku")->join("product_suppliers as ps","ps.product_id","p.id")->whereIn("ps.supplier_id",$request->supplier)
+          /*$orders = $orders
+          ->whereRaw("order_products.sku IN (SELECT products.sku FROM products WHERE id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list)))")*/
           // ->whereHas('Product', function($q) use ($supplier_list) {
           //   $q->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
           // })
@@ -292,16 +295,22 @@ class PurchaseController extends Controller
         $brand = $request->brand[0];
 
         if ($request->status[0] != null || $request->supplier[0] != null) {
-          $orders = OrderProduct::select('sku')->with(['Order', 'Product'])
+            $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id'])
+            ->join("orders as o","o.id","order_products.order_id")
+            ->join("products as p","p.sku","order_products.sku")
+            ->whereIn("o.order_status",$request->status)
+            ->where('brand', $brand)->where('qty', '>=', 1)->get();
+
+          /*$orders = OrderProduct::select('sku')->with(['Order', 'Product'])
           ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
           // ->whereHas('Order', function($q) use ($status) {
           //   $q->whereIn('order_status', $status);
           // })
           ->whereHas('Product', function($q) use ($brand) {
             $q->where('brand', $brand);
-          })->where('qty', '>=', 1)->get();
+          })->where('qty', '>=', 1)->get();*/
         } else {
-          $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
+          /*$orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
           if ($page == 'canceled-refunded') {
             $orders = $orders
@@ -323,18 +332,26 @@ class PurchaseController extends Controller
             // ->whereHas('Order', function($q) {
             //   $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
             // });
+          }*/
+
+          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id'])->join("orders as o","o.id","order_products.order_id");
+          if ($page == 'canceled-refunded') {
+            $orders = $orders->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
+          } elseif ($page == 'ordered') {
+          } elseif ($page == 'delivered') {
+            $orders = $orders->whereIn("o.order_status",['Delivered']);
+          } else {
+            $orders = $orders->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
           }
 
-          $orders = $orders->whereHas('Product', function($q) use ($brand) {
-            $q->where('brand', $brand);
-          })->where('qty', '>=', 1)->get();
+          $orders = $orders->join("products as p","p.sku","order_products.sku")->where('brand', $brand)->where('qty', '>=', 1)->get();
         }
       }
 
 
 
       if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null) {
-        if ($page == 'canceled-refunded') {
+        /*if ($page == 'canceled-refunded') {
           $orders = OrderProduct::with('Order')
           ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");
           // ->whereHas('Order', function($q) {
@@ -354,9 +371,21 @@ class PurchaseController extends Controller
           // ->whereHas('Order', function($q) {
           //   $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
           // });
-        }
+        }*/
 
-        $orders = $orders->select(['qty', 'sku'])->where('qty', '>=', 1)->get()->toArray();
+         $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id'])->join("orders as o","o.id","order_products.order_id");
+          if ($page == 'canceled-refunded') {
+            $orders = $orders->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
+          } elseif ($page == 'ordered') {
+          } elseif ($page == 'delivered') {
+            $orders = $orders->whereIn("o.order_status",['Delivered']);
+          } else {
+            $orders = $orders->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
+          }
+
+          $orders = $orders->where('qty', '>=', 1)->get();
+
+          //$orders = $orders->select(['qty', 'sku'])->where('qty', '>=', 1)->get()->toArray();
       }
 
 
