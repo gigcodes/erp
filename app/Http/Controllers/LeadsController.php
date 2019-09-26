@@ -605,11 +605,18 @@ class LeadsController extends Controller
                     }
                     // send message now
                     // uncomment this one to send message immidiatly
-                    /*$approveRequest = new Request();
-                    $approveRequest->setMethod('GET');
-                    $approveRequest->request->add(['messageId' => $chat_message->id]);
+                    $autoApprove = $request->get("auto_approve", false);
+
+                    if($autoApprove) {
+                        // send request if auto approve    
+                        $approveRequest = new Request();
+                        $approveRequest->setMethod('GET');
+                        $approveRequest->request->add(['messageId' => $chat_message->id]);
+                        
+                        app(WhatsAppController::class)->approveMessage("customer",$approveRequest);
                     
-                    app(WhatsAppController::class)->approveMessage("customer",$approveRequest);*/
+                    }
+                    
                     app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
                 }
             }
@@ -754,7 +761,7 @@ class LeadsController extends Controller
        });
        // use callback to define details
         $img->text($text, 5, 50, function($font) use ($fontSize,$color) {
-            $font->file(public_path('/fonts/Arial.ttf'));
+            $font->file(public_path('/fonts/HelveticaNeue.ttf'));
             $font->size($fontSize);
             $font->color("#" . $color);
             $font->align('top');
