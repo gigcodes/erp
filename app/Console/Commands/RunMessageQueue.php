@@ -26,10 +26,10 @@ class RunMessageQueue extends Command
      * @var string
      */
     protected $description = 'Command description';
-    
+
     // custom defined vars
-    const WAITING_MESSAGE_LIMIT = 150;
-    
+    const WAITING_MESSAGE_LIMIT = 300;
+
     // waiting messages group
     public $waitingMessages = [];
 
@@ -80,19 +80,19 @@ class RunMessageQueue extends Command
                 ->where('status', '!=', 1)
                 ->orderBy('sending_time', 'ASC')
                 ->limit(20);
-            
+
                 // Do we have results?
                 if (count($message_queues->get()) > 0) {
                     foreach ($message_queues->get() as $message) {
 
-                        // check message can able to send 
+                        // check message can able to send
                         $number = !empty($message->whatsapp_number) ? (string)$message->whatsapp_number : 0;
-                        
+
                         if ($message->type == 'message_all') {
 
                             $customer = Customer::find($message->customer_id);
                             $number   = !empty($customer->whatsapp_number) ? (string)$customer->whatsapp_number : 0;
-                        
+
                             if(!$this->isWaitingFull($number)) {
                                 if ($customer && $customer->do_not_disturb == 0) {
                                     SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
@@ -105,18 +105,18 @@ class RunMessageQueue extends Command
                                 }
                             }else{
                                 dump('sorry , message is full right now for this number : '.$number);
-                            }    
+                            }
 
-                            
+
                         } else {
-                            
+
                             if(!$this->isWaitingFull($number)) {
                                 SendMessageToSelected::dispatchNow($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);
 
                                 dump('sent to selected');
                             }else{
                                 dump('sorry , message is full right now for this number : '.$number);
-                            } 
+                            }
                         }
 
                         // start to add more if there is existing already
@@ -154,22 +154,22 @@ class RunMessageQueue extends Command
 
     /**
      * Get instance from whatsapp number
-     * 
+     *
      */
 
     private function getInstance($number = null)
     {
         $number = !empty($number) ? $number : 0;
 
-        return isset(config("apiwha.instances")[$number]) 
-        ? config("apiwha.instances")[$number] 
+        return isset(config("apiwha.instances")[$number])
+        ? config("apiwha.instances")[$number]
         : config("apiwha.instances")[0];
-       
+
     }
 
     /**
      * send request for find waiting message number
-     * 
+     *
      */
 
     private function waitingLimit($number = null)
@@ -183,7 +183,7 @@ class RunMessageQueue extends Command
         if(!empty($instanceId) && !empty($token)) {
             // executing curl
             $curl = curl_init();
-        
+
             curl_setopt_array($curl, array(
                 CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/showMessagesQueue?token=$token",
                 CURLOPT_RETURNTRANSFER => true,
@@ -208,10 +208,10 @@ class RunMessageQueue extends Command
                     $waiting = $result["totalMessages"];
                 }
             }
-            
+
         }
 
         return $waiting;
-        
+
     }
 }

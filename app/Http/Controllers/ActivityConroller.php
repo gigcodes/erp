@@ -184,6 +184,8 @@ class ActivityConroller extends Controller
                     ls.website=s.scraper_name
                 WHERE
                     s.supplier_status_id=1 AND 
+                    ls.validated=1 AND
+                    ls.website!='internal_scraper' AND
                     ls.updated_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) 
             ";
         $resultScrapedProductsInStock = DB::select($sqlScrapedProductsInStock);
