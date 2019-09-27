@@ -558,7 +558,7 @@ class LeadsController extends Controller
 
             $product = Product::find($product_id);
             $brand_name = $product->brands->name ?? '';
-            $special_price = $product->price_special_offer ?? $product->price_special;
+            $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_special;
 
             if ($request->has('dimension')) {
 
@@ -608,15 +608,15 @@ class LeadsController extends Controller
                     $autoApprove = $request->get("auto_approve", false);
 
                     if($autoApprove) {
-                        // send request if auto approve    
+                        // send request if auto approve
                         $approveRequest = new Request();
                         $approveRequest->setMethod('GET');
                         $approveRequest->request->add(['messageId' => $chat_message->id]);
-                        
+
                         app(WhatsAppController::class)->approveMessage("customer",$approveRequest);
-                    
+
                     }
-                    
+
                     app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
                 }
             }
