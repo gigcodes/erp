@@ -418,7 +418,7 @@ class PurchaseController extends Controller
       $order_status = (new OrderStatus)->all();
       $supplier_list = (new SupplierList)->all();
       // $suppliers = Supplier::select(['id', 'supplier'])->whereHas('products')->get();
-      $suppliers = DB::select('
+      /*$suppliers = DB::select('
   				SELECT id, supplier
   				FROM suppliers
 
@@ -426,10 +426,15 @@ class PurchaseController extends Controller
   					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
   					) as product_suppliers
   				ON suppliers.id = product_suppliers.supplier_id
-  		');
+  		');*/
+
+      $suppliers = DB::select('
+          SELECT s.id, s.supplier
+          FROM suppliers as s
+          JOIN product_suppliers as ps on ps.supplier_id = s.id
+          GROUP BY supplier_id');
 
       $suppliers_array = [];
-
       foreach ($suppliers as $supp) {
         $suppliers_array[$supp->id] = $supp->supplier;
       }
@@ -452,7 +457,9 @@ class PurchaseController extends Controller
       foreach($products as $key => $product) {
         $supplier_list = '';
         $single_supplier = '';
+
         foreach ($product->suppliers as $key2 => $supplier) {
+          
           if ($key2 == 0) {
             $supplier_list .= "$supplier->supplier";
           } else {
@@ -460,6 +467,7 @@ class PurchaseController extends Controller
           }
 
           $single_supplier = $supplier->id;
+        
         }
 
         $customer_names = '';
