@@ -1,5 +1,4 @@
 <?php
-
 // IF YOU UPDATE THIS FILE, UPDATE IT IN THE SCRAPERSOLOLUXURY REPOSITORY AS WELL
 
 namespace App\Loggers;
@@ -28,7 +27,7 @@ class LogScraper extends Model
         $errorLog .= self::validateSku($request->sku);
 
         // Validate brand
-        $errorLog .= self::validateBrand($request);
+        $errorLog .= self::validateBrand($request->brand);
 
         // Validate title
         $errorLog .= self::validateTitle($request->title);
@@ -37,13 +36,16 @@ class LogScraper extends Model
         $warningLog .= self::validateDescription($request->description);
 
         // Validate size_system
-        $errorLog .= self::validateSizeSystem($request);
+        $errorLog .= self::validateSizeSystem($request->size_system);
 
         // Validate properties
         // TODO
 
-        // Validate images
-        $errorLog .= self::validateImages($request->images);
+        // Validate image warnings
+        $warningLog .= self::validateImageWarnings($request->images);
+
+        // Validate image errors
+        $errorLog .= self::validateImageErrors($request->images);
 
         // Validate currency
         $errorLog .= self::validateCurrency($request->currency);
@@ -80,6 +82,7 @@ class LogScraper extends Model
         $logScraper->url = $request->url ?? null;
         $logScraper->sku = $request->sku ?? null;
         $logScraper->brand = $request->brand ?? null;
+        $logScraper->category = isset($request->properties->category) ? serialize($request->properties->category) : null;
         $logScraper->title = $request->title ?? null;
         $logScraper->description = $request->description ?? null;
         $logScraper->properties = isset($request->properties) ? serialize($request->properties) : null;
@@ -91,6 +94,11 @@ class LogScraper extends Model
         $logScraper->is_sale = $request->is_sale ?? 0;
         $logScraper->validated = empty($errorLog) ? 1 : 0;
         $logScraper->validation_result = $errorLog . $warningLog;
+        $logScraper->raw_data = isset($_SERVER[ 'REMOTE_ADDR' ]) ? serialize($request->all()) : null;
+        $logScraper->save();
+
+        // Update modified date
+        $logScraper->touch();
         $logScraper->save();
 
         // Return true or false
@@ -136,10 +144,10 @@ class LogScraper extends Model
         return "";
     }
 
-    public static function validateBrand($request)
+    public static function validateBrand($brand)
     {
         // Check if we have a value
-        if (empty($request->brand)) {
+        if (empty($brand)) {
             return "[error] Brand cannot be empty\n";
         }
 
@@ -169,10 +177,10 @@ class LogScraper extends Model
         return "";
     }
 
-    public static function validateSizeSystem($request)
+    public static function validateSizeSystem($sizeSystem)
     {
         // Check if we have a value
-        if (empty($request->sizeSystem)) {
+        if (empty($sizeSystem)) {
             return "[error] Size system is missing\n";
         }
 
@@ -180,23 +188,29 @@ class LogScraper extends Model
         return "";
     }
 
-    public static function validateImages($images)
+    public static function validateImageWarnings($images)
     {
         // Check if we have a value
         if (empty($images)) {
-            return "[error] Images cannot be empty\n";
+            return "[warning] Product without images\n";
         }
 
-        // Check if we have an array
-        if (!is_array($images)) {
-            return "[error] Images must be an array\n";
-        }
+        // Return an empty string
+        return "";
+    }
 
+    public static function validateImageErrors($images)
+    {
         // Check image URLS
         foreach ($images as $image) {
             if (!filter_var($image, FILTER_VALIDATE_URL)) {
                 return "[error] One or more images has an invalid URL\n";
             }
+        }
+
+        // Check if we have an array
+        if ($images != '' && !is_array($images)) {
+            return "[error] Images must be an array\n";
         }
 
         // Return an empty string
