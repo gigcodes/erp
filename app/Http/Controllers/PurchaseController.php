@@ -661,8 +661,12 @@ class PurchaseController extends Controller
             $main_purchase->save();
           }
 
-          foreach ($merging_purchase->products as $product) {
-            $main_purchase->products()->syncWithoutDetaching($product);
+          foreach ($merging_purchase->purchaseProducts as $product) {
+              $purchaseProducts = new \App\PurchaseProduct;
+              $purchaseProducts->purchase_id = $main_purchase->id;
+              $purchaseProducts->product_id = $product->product_id;
+              $purchaseProducts->order_product_id = $product->order_product_id;
+              $purchaseProducts->save();
           }
 
           $merging_purchase->products()->detach();
