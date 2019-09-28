@@ -176,10 +176,10 @@
               <input type="text" name="gst" id="supplier_gst" class="form-control input-sm" placeholder="GST" value="{{ $supplier->gst }}">
             </div>
             <div class="form-group">
-              {!!Form::select('supplier_category_id', $suppliercategory, $supplier->supplier_category_id, ['class' => 'form-control form-control-sm'])!!}
+              {!!Form::select('supplier_category_id', $suppliercategory, $supplier->supplier_category_id, ['class' => 'form-control form-control-sm' , 'id' => 'supplier_category_id'])!!}
             </div>
             <div class="form-group">
-              {!!Form::select('supplier_status_id', $supplierstatus, $supplier->supplier_status_id, ['class' => 'form-control form-control-sm'])!!}
+              {!!Form::select('supplier_status_id', $supplierstatus, $supplier->supplier_status_id, ['class' => 'form-control form-control-sm', 'id' => 'supplier_status_id'])!!}
             </div>
             <div class="form-group">
               <select name="status" id="status" class="form-control form-control-sm">
@@ -1726,6 +1726,8 @@
         var website = $('#supplier_website').val();
         var gst = $('#supplier_gst').val();
         var status = $('#status').val();
+        var supplier_category_id = $('#supplier_category_id').val();
+        var supplier_status_id = $('#supplier_status_id').val();
 
         $.ajax({
           type: "POST",
@@ -1744,7 +1746,9 @@
             social_handle: social_handle,
             website: website,
             gst: gst,
-            status: status
+            status: status,
+            supplier_category_id: supplier_category_id,
+            supplier_status_id: supplier_status_id            
           },
           beforeSend: function() {
             $(thiss).text('Saving...');
