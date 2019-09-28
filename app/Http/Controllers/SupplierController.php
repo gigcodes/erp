@@ -164,7 +164,7 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'supplier_category_id' => 'required|string|max:255',
+            //'supplier_category_id' => 'required|string|max:255',
             'supplier'        => 'required|string|max:255',
             'address'         => 'sometimes|nullable|string',
             'phone'           => 'sometimes|nullable|numeric',
@@ -175,7 +175,7 @@ class SupplierController extends Controller
             'scraper_name'   => 'sometimes|nullable',
             'inventory_lifetime' => 'sometimes|nullable',
             'gst'             => 'sometimes|nullable|max:255',
-            'supplier_status_id' => 'required'
+            //'supplier_status_id' => 'required'
         ]);
 
         $data = $request->except('_token');
@@ -233,7 +233,7 @@ class SupplierController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'supplier_category_id'        => 'required|string|max:255',
+            //'supplier_category_id'        => 'required|string|max:255',
             'supplier'        => 'required|string|max:255',
             'address'         => 'sometimes|nullable|string',
             'phone'           => 'sometimes|nullable|numeric',
@@ -245,7 +245,7 @@ class SupplierController extends Controller
             'scraper_name'   => 'sometimes|nullable',
             'inventory_lifetime' => 'sometimes|nullable',
             'gst'             => 'sometimes|nullable|max:255',
-            'supplier_status_id' => 'required'
+            //'supplier_status_id' => 'required'
             //'status' => 'required'
         ]);
 

@@ -1598,7 +1598,9 @@ class CustomerController extends Controller
         $customer->name = $request->name;
         $customer->email = $request->email;
         $customer->phone = $request->phone;
-        $customer->whatsapp_number = $request->whatsapp_number;
+        if ($request->get('whatsapp_number', false)) {
+            $customer->whatsapp_number = $request->whatsapp_number;
+        }
         $customer->instahandler = $request->instahandler;
         $customer->rating = $request->rating;
         $customer->do_not_disturb = $request->do_not_disturb == 'on' ? 1 : 0;
