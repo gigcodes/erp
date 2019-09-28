@@ -377,16 +377,27 @@ class PurchaseController extends Controller
         }*/
 
          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])
-         ->join("orders as o","o.id","order_products.order_id")
+         //->join("orders as o","o.id","order_products.order_id")
+         ->join("orders as o",function($query) use($page){
+            $query->on("o.id","order_products.order_id");
+            if ($page == 'canceled-refunded') {
+              $query->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
+            } elseif ($page == 'ordered') {
+            } elseif ($page == 'delivered') {
+              $query->whereIn("o.order_status",['Delivered']);
+            } else {
+              $query->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
+            }
+         })
          ->join("products as p","p.sku","order_products.sku");
-          if ($page == 'canceled-refunded') {
+          /*if ($page == 'canceled-refunded') {
             $orders = $orders->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
           } elseif ($page == 'ordered') {
           } elseif ($page == 'delivered') {
             $orders = $orders->whereIn("o.order_status",['Delivered']);
           } else {
             $orders = $orders->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
-          }
+          }*/
 
           $orders = $orders->where('qty', '>=', 1)->get();
 
