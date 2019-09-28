@@ -18,7 +18,9 @@
               {{-- <option value="">Select Suppliers</option> --}}
 
               @foreach ($suppliers_all as $supplier)
-                <option value="{{ $supplier->id }}">{{ $supplier->supplier }} - {{ $supplier->default_email }} / {{ $supplier->email }}</option>
+                @if(isset($supplier->default_email))
+                  <option value="{{ $supplier->id }}">{{ $supplier->supplier }} - {{ $supplier->default_email }} / {{ $supplier->email }}</option>
+                @endif
               @endforeach
             </select>
           </div>

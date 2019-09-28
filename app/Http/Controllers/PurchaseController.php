@@ -492,8 +492,8 @@ class PurchaseController extends Controller
         $new_products[$count]['supplier_list'] = $supplier_list;
         $new_products[$count]['single_supplier'] = $single_supplier;
         $new_products[$count]['brand'] = $product->brands ? $product->brands->name : 'No Brand';
-        $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
-        $new_products[$count]['abs_img_url'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
+        $new_products[$count]['image'] = "";//$product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+        $new_products[$count]['abs_img_url'] = "";//$product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
         $new_products[$count]['customer_id'] = !empty($product->orderproducts->first()->order) ? ( !empty($product->orderproducts->first()->order->customer) ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
         $new_products[$count]['customers'] = $customers;
         $new_products[$count]['customer_names'] = '';
@@ -556,7 +556,7 @@ class PurchaseController extends Controller
             'path'  => LengthAwarePaginator::resolveCurrentPath()
         ]);
 
-       echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';exit; 
+       echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';//exit; 
 
       return view('purchase.purchase-grid')->with([
         'products'      => $new_products,
