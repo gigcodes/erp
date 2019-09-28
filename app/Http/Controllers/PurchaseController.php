@@ -396,14 +396,16 @@ class PurchaseController extends Controller
         array_push($new_orders, $order['sku']);
       }
 
-      $products = Product::with(['Orderproducts' => function($query) {
-        $query->with('Order');
-      }, 'Purchases', 'Suppliers'])->whereIn('sku', $new_orders);
+      $products = Product::with(['orderproducts' => function($query) {
+        $query->with(['order' => function($q){
+            $q->with("customer");
+        }]);
+      }, 'purchases', 'suppliers'])->whereIn('sku', $new_orders);
 
 
 
       if ($page == 'ordered') {
-        $products = $products->whereHas('Purchases', function ($query) {
+        $products = $products->whereHas('purchases', function ($query) {
           $query->where('status', 'Ordered');
         });
       } else {
@@ -554,7 +556,7 @@ class PurchaseController extends Controller
             'path'  => LengthAwarePaginator::resolveCurrentPath()
         ]);
 
-       echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';exit; 
+       //echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';exit; 
 
       return view('purchase.purchase-grid')->with([
         'products'      => $new_products,
