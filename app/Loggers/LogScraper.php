@@ -94,7 +94,7 @@ class LogScraper extends Model
         $logScraper->is_sale = $request->is_sale ?? 0;
         $logScraper->validated = empty($errorLog) ? 1 : 0;
         $logScraper->validation_result = $errorLog . $warningLog;
-        $logScraper->raw_data = isset($_SERVER[ 'REMOTE_ADDR' ]) ? serialize($request->all()) : null;
+        $logScraper->raw_data = $isExcel == 0 ? serialize($request->all()) : null;
         $logScraper->save();
 
         // Update modified date
