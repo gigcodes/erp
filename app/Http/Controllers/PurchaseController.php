@@ -213,7 +213,7 @@ class PurchaseController extends Controller
 
     public function purchaseGrid(Request $request, $page = null)
     {
-      DB::enableQueryLog();
+      //DB::enableQueryLog();
       $purchases = Db::select("select p.sku,p.id from purchase_products as pp join products as p on p.id = pp.product_id");
 
       $not_include_products = [];
@@ -377,27 +377,16 @@ class PurchaseController extends Controller
         }*/
 
          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])
-         //->join("orders as o","o.id","order_products.order_id")
-         ->join("orders as o",function($query) use($page){
-            $query->on("o.id","order_products.order_id");
-            if ($page == 'canceled-refunded') {
-              $query->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
-            } elseif ($page == 'ordered') {
-            } elseif ($page == 'delivered') {
-              $query->whereIn("o.order_status",['Delivered']);
-            } else {
-              $query->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
-            }
-         })
+         ->join("orders as o","o.id","order_products.order_id")
          ->join("products as p","p.sku","order_products.sku");
-          /*if ($page == 'canceled-refunded') {
+          if ($page == 'canceled-refunded') {
             $orders = $orders->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
           } elseif ($page == 'ordered') {
           } elseif ($page == 'delivered') {
             $orders = $orders->whereIn("o.order_status",['Delivered']);
           } else {
             $orders = $orders->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
-          }*/
+          }
 
           $orders = $orders->where('qty', '>=', 1)->get();
 
@@ -507,8 +496,8 @@ class PurchaseController extends Controller
         $new_products[$count]['supplier_list'] = $supplier_list;
         $new_products[$count]['single_supplier'] = $single_supplier;
         $new_products[$count]['brand'] = $product->brands ? $product->brands->name : 'No Brand';
-        $new_products[$count]['image'] = "";//$product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
-        $new_products[$count]['abs_img_url'] = "";//$product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
+        $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+        $new_products[$count]['abs_img_url'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
         $new_products[$count]['customer_id'] = !empty($product->orderproducts->first()->order) ? ( !empty($product->orderproducts->first()->order->customer) ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
         $new_products[$count]['customers'] = $customers;
         $new_products[$count]['customer_names'] = '';
@@ -571,7 +560,7 @@ class PurchaseController extends Controller
             'path'  => LengthAwarePaginator::resolveCurrentPath()
         ]);
 
-       echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';//exit; 
+       //echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';//exit; 
 
       return view('purchase.purchase-grid')->with([
         'products'      => $new_products,
