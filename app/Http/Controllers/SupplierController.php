@@ -122,8 +122,8 @@ class SupplierController extends Controller
             'path'	=> LengthAwarePaginator::resolveCurrentPath()
         ]);
 
-        $suppliercategory = SupplierCategory::get();
-        $supplierstatus = SupplierStatus::get();
+        $suppliercategory = SupplierCategory::pluck('name', 'id')->toArray();
+        $supplierstatus = SupplierStatus::pluck('name', 'id')->toArray();
 
         //SELECT supplier_status_id, COUNT(*) AS number_of_products FROM suppliers WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id
         $statistics = DB::select('SELECT supplier_status_id, ss.name, COUNT(*) AS number_of_products FROM suppliers s LEFT join supplier_status ss on ss.id = s.supplier_status_id WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id');
@@ -199,8 +199,8 @@ class SupplierController extends Controller
         $reply_categories = ReplyCategory::all();
         $users_array = Helpers::getUserArray(User::all());
         $emails = [];
-        $suppliercategory = SupplierCategory::get();
-        $supplierstatus = SupplierStatus::get();
+        $suppliercategory = SupplierCategory::pluck('name', 'id');
+        $supplierstatus = SupplierStatus::pluck('name', 'id');
 
         return view('suppliers.show', [
             'supplier'  => $supplier,

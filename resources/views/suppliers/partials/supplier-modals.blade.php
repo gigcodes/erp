@@ -64,6 +64,17 @@
               <div class="alert alert-danger">{{$errors->first('gst')}}</div>
             @endif
           </div>
+
+          <div class="form-group">
+            <strong>Supplier Category:</strong>
+            {!!Form::select('supplier_category_id', $suppliercategory, old('supplier_category_id') , ['class' => 'form-control form-control-sm'])!!}
+          </div>
+
+          <div class="form-group">
+            <strong>Supplier Status:</strong>
+            {!!Form::select('supplier_status_id', $supplierstatus, old('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
+          </div>
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -142,6 +153,16 @@
               <div class="alert alert-danger">{{$errors->first('gst')}}</div>
             @endif
           </div>
+          <div class="form-group">
+            <strong>Supplier Category:</strong>
+            {!!Form::select('supplier_category_id', $suppliercategory, old('supplier_category_id') , ['class' => 'form-control form-control-sm', 'id' => 'supplier_category_id'])!!}
+          </div>
+
+          <div class="form-group">
+            <strong>Supplier Status:</strong>
+            {!!Form::select('supplier_status_id', $supplierstatus, old('supplier_status_id'), ['class' => 'form-control form-control-sm', 'id' => 'supplier_status_id'])!!}
+          </div>
+
           <div class="form-group">
             <label for="status">Status</label>
             <select name="status" id="status" class="form-control">
