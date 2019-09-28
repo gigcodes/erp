@@ -400,7 +400,7 @@ class PurchaseController extends Controller
         $query->with(['order' => function($q){
             $q->with("customer");
         }]);
-      }, 'purchases', 'suppliers'])->whereIn('sku', $new_orders);
+      }, 'purchases', 'suppliers','brands'])->whereIn('sku', $new_orders);
 
 
 
