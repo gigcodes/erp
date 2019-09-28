@@ -214,19 +214,21 @@ class PurchaseController extends Controller
     public function purchaseGrid(Request $request, $page = null)
     {
       DB::enableQueryLog();
-      $purchases = Db::select("select p.sku from purchase_products as pp join products as p on p.id = pp.product_id");
+      $purchases = Db::select("select p.sku,p.id from purchase_products as pp join products as p on p.id = pp.product_id");
 
       $not_include_products = [];
       foreach ((array)$purchases as $product) {
-        $not_include_products[] = $product->sku;
+        $not_include_products[] = $product->id;
       }
 
       if ($request->status[0] != null && $request->supplier[0] == null && $request->brand[0] == null) {
         $status = $request->status;
         $status_list = implode("','", $request->status ?? []);
-  			$orders = OrderProduct::join("orders as o","o.id","order_products.order_id")->whereIn("o.order_status",$status)
+  			$orders = OrderProduct::join("orders as o","o.id","order_products.order_id")
+            ->join("products as p","p.sku","order_products.sku")
+            ->whereIn("o.order_status",$status)
             ->where('qty', '>=', 1)
-            ->select("sku")
+            ->select(["sku","p.id"])
             ->get();
   		}
 
@@ -239,7 +241,7 @@ class PurchaseController extends Controller
         if ($request->status[0] != null) {
           $status_list = implode("','", $request->status);
 
-          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id'])->join("orders as o","o.id","order_products.order_id")
+          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])->join("orders as o","o.id","order_products.order_id")
           ->join("products as p","p.sku","order_products.sku")
           ->join("product_suppliers as ps","ps.product_id","p.id")
           ->whereIn("o.order_status",$request->status)
@@ -253,7 +255,7 @@ class PurchaseController extends Controller
           })->where('qty', '>=', 1)->get();*/
         } else {
 
-          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id'])->join("orders as o","o.id","order_products.order_id");
+          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])->join("orders as o","o.id","order_products.order_id");
           if ($page == 'canceled-refunded') {
             $orders = $orders->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
             /*$orders = $orders
@@ -296,7 +298,7 @@ class PurchaseController extends Controller
         $brand = $request->brand[0];
 
         if ($request->status[0] != null || $request->supplier[0] != null) {
-            $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id'])
+            $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])
             ->join("orders as o","o.id","order_products.order_id")
             ->join("products as p","p.sku","order_products.sku")
             ->whereIn("o.order_status",$request->status)
@@ -335,7 +337,7 @@ class PurchaseController extends Controller
             // });
           }*/
 
-          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id'])->join("orders as o","o.id","order_products.order_id");
+          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])->join("orders as o","o.id","order_products.order_id");
           if ($page == 'canceled-refunded') {
             $orders = $orders->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
           } elseif ($page == 'ordered') {
@@ -374,7 +376,9 @@ class PurchaseController extends Controller
           // });
         }*/
 
-         $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id'])->join("orders as o","o.id","order_products.order_id");
+         $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])
+         ->join("orders as o","o.id","order_products.order_id")
+         ->join("products as p","p.sku","order_products.sku");
           if ($page == 'canceled-refunded') {
             $orders = $orders->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
           } elseif ($page == 'ordered') {
@@ -393,14 +397,14 @@ class PurchaseController extends Controller
 
       $new_orders = [];
       foreach ($orders as $order) {
-        array_push($new_orders, $order['sku']);
+        array_push($new_orders, $order['id']);
       }
 
       $products = Product::with(['orderproducts' => function($query) {
         $query->with(['order' => function($q){
             $q->with("customer");
         }]);
-      }, 'purchases', 'suppliers','brands'])->whereIn('sku', $new_orders);
+      }, 'purchases', 'suppliers','brands'])->whereIn('id', $new_orders);
 
 
 
@@ -409,7 +413,7 @@ class PurchaseController extends Controller
           $query->where('status', 'Ordered');
         });
       } else {
-        $products = $products->whereNotIn('sku', $not_include_products);
+        $products = $products->whereNotIn('id', $not_include_products);
       }
 
 
