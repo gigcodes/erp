@@ -213,6 +213,7 @@ class PurchaseController extends Controller
 
     public function purchaseGrid(Request $request, $page = null)
     {
+      DB::enableQueryLog();
       $purchases = Db::select("select p.sku from purchase_products as pp join products as p on p.id = pp.product_id");
 
       $not_include_products = [];
@@ -552,6 +553,8 @@ class PurchaseController extends Controller
         $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
             'path'  => LengthAwarePaginator::resolveCurrentPath()
         ]);
+
+       echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';exit; 
 
       return view('purchase.purchase-grid')->with([
         'products'      => $new_products,
