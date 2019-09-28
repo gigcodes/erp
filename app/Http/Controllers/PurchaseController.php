@@ -494,13 +494,13 @@ class PurchaseController extends Controller
         $new_products[$count]['brand'] = $product->brands ? $product->brands->name : 'No Brand';
         $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
         $new_products[$count]['abs_img_url'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
-        $new_products[$count]['customer_id'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
+        $new_products[$count]['customer_id'] = !empty($product->orderproducts->first()->order) ? ( !empty($product->orderproducts->first()->order->customer) ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
         $new_products[$count]['customers'] = $customers;
         $new_products[$count]['customer_names'] = '';
         $new_products[$count]['order_products'] = $product->orderproducts;
-        $new_products[$count]['order_price'] = $product->orderproducts->first()->product_price;
-        $new_products[$count]['order_date'] = $product->orderproducts->first()->order ? $product->orderproducts->first()->order->order_date : 'No Order';
-        $new_products[$count]['order_advance'] = $product->orderproducts->first()->order ? $product->orderproducts->first()->order->advance_detail : 'No Order';
+        $new_products[$count]['order_price'] = !empty($product->orderproducts->first()->product_price) ? $product->orderproducts->first()->product_price : 0;
+        $new_products[$count]['order_date'] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->order_date : 'No Order';
+        $new_products[$count]['order_advance'] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->advance_detail : 'No Order';
 
         $count++;
       }
