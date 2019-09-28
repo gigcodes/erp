@@ -556,7 +556,7 @@ class PurchaseController extends Controller
             'path'  => LengthAwarePaginator::resolveCurrentPath()
         ]);
 
-       //echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';exit; 
+       echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';exit; 
 
       return view('purchase.purchase-grid')->with([
         'products'      => $new_products,
