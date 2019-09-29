@@ -105,7 +105,7 @@
                                                     <div class="card mb-3 bg-light" style=" {{$border}} ">
                                                         <div class="card-body p-3">
 
-                                                            <h4><a href="taskDetail/{{$task->id}}">{{ '#'.$task->name.'-'.$task->id.' '.ucfirst($task->subject) }} </a></h4>
+                                                            <h4><a href="taskDetail/{{$task->task_id}}">{{ '#'.$task->name.'-'.$task->task_id.' '.ucfirst($task->subject) }} </a></h4>
                                                             <p>{{ $task->task }}</p>
                                                             <div class="float-right mt-n1">
                                                                 <img src="https://bootdey.com/img/Content/avatar/avatar6.png" width="32" height="32" class="rounded-circle" alt="Avatar">

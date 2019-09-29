@@ -59,7 +59,8 @@
                                 <button type="button" id="subtask_create">Create</button>
                                 <input type="hidden" id="task_id" value="{{$task->id}}">
                             </div>
-                            @if(!empty($subtasks))
+                            
+                            @if(!empty($subtasks) && count($subtasks) > 0)
                                 @foreach($subtasks as $subtask)
                                     <div class="task high" style="background: white;">
                                         <div class="desc">
@@ -70,6 +71,8 @@
                                         </div>
                                     </div>
                                 @endforeach
+                            @else
+                                <div style="text-align: center;"> No Subtask yet</div>
                             @endif
                         </div>
                     </div>
