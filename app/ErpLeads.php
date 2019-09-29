@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ErpLeads extends Model
 {
     //
-    use SoftDeletes;
+    //use SoftDeletes;
 
     protected $fillable = [
         'lead_status_id',

@@ -7,7 +7,8 @@ class TmpTaskController extends Controller
 
     public function importLeads()
     {
-        $leads = \App\Leads::all();
+        set_time_limit(0);
+        $leads = \App\Leads::where("customer_id" , ">" , 0)->get();
 
         if (!$leads->isEmpty()) {
             foreach ($leads as $lead) {

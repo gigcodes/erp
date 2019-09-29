@@ -775,4 +775,59 @@ class LeadsController extends Controller
 
         return url('/') . "/" . $path;
     }
+
+    public function erpLeads()
+    {
+        return view("leads.erp.index");
+    }
+
+    public function erpLeadsResponse()
+    {
+        return datatables()->of(\App\ErpLeads::join('products', 'products.id', '=', 'erp_leads.product_id')
+            ->join("customers as c","c.id","erp_leads.customer_id")
+            ->join("erp_lead_status as els","els.id","erp_leads.lead_status_id")
+            ->leftJoin("categories as cat","cat.id","erp_leads.category_id")
+            ->leftJoin("brands as br","br.id","erp_leads.brand_id")
+            ->orderBy("erp_leads.id","desc")
+            ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name"]
+        )->get())->make();
+    }
+
+    public function erpLeadsCreate()
+    {
+        $customerList = \App\Customer::pluck("name","id")->toArray();
+        $brands = Brand::pluck("name","id")->toArray();
+        $category = Category::pluck("title","id")->toArray();
+        return view("leads.erp.create",compact('customerList','brands','category'));
+    }
+
+    public function erpLeadsEdit()
+    {
+        $id = request()->get("id",0);
+        $erpLeads = \App\ErpLeads::where("id",$id)->first();    
+        if($erpLeads) {
+            $customerList = \App\Customer::pluck("name","id")->toArray();
+            $brands = Brand::pluck("name","id")->toArray();
+            $category = Category::pluck("title","id")->toArray();
+            $products = \App\Product::where("id",$erpLeads->product_id)->get()->pluck("name","id")->toArray();
+
+            return view("leads.erp.edit",compact('erpLeads','customerList','brands','category','products'));
+        }
+    }
+
+    public function erpLeadsStore()
+    {
+        $id = request()->get("id",0);
+
+        $erpLeads = \App\ErpLeads::where("id",$id)->first();
+        if(!$erpLeads) {
+            $erpLeads = new \App\ErpLeads;
+        }
+
+        $erpLeads->fill(request()->all());
+        $erpLeads->save();
+
+        return response()->json(["code"=> 1 , "data" => []]);
+    }
+
 }
