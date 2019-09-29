@@ -243,6 +243,7 @@ class Helpers {
         $developerTasks = DeveloperTask::where('user_id',$developer_id)
                             ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
                             ->select('*','developer_tasks.id as task_id')
+                            ->where('parent_id','=','0')
                             ->orderBy('subject','ASC')->get();
         return $developerTasks;
     }

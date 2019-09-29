@@ -14,6 +14,7 @@ class AddCreatedbyToDeveloperTasksTable extends Migration
     public function up()
     {
         Schema::table('developer_tasks', function (Blueprint $table) {
+            $table->integer('task_type_id');
             $table->integer('parent_id');
             $table->integer('created_by');
         });
