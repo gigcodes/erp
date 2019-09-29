@@ -101,20 +101,22 @@
 {{--                    </div>--}}
                     <h3>Activity</h3>
                     <div class="dev_comments">
-                        <div class="media m-b-20">
-                            <div class="d-flex mr-3">
-                                <a href="#"><img class="media-object rounded-circle thumb-sm" alt="64x64" src="https://bootdey.com/img/Content/avatar/avatar1.png"></a>
-                            </div>
-                            <div class="media-body">
-                                <h5 class="mt-0">Maxine Kennedy</h5>
-                                <p class="font-13 text-muted mb-0"><a href="" class="text-dark">@Michael</a> Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio.</p>
-                            </div>
-                        </div>
+                        @if(!empty($comments))
+                            @foreach($comments as $comment)
+                                <div class="media m-b-20"><div class="d-flex mr-3">
+                                    <a href="#"><img class="media-object rounded-circle thumb-sm" alt="64x64" src="https://bootdey.com/img/Content/avatar/avatar1.png"></a>
+                                </div>
+                                <div class="media-body">
+                                    <h5 class="mt-0">{{ $comment->name }}</h5>
+                                    <p class="font-13 text-muted mb-0">{{ $comment->comment }}</p></div>
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
                     <div class="media m-b-20">
                         <div class="d-flex mr-3"> <a href="#"><img class="media-object rounded-circle thumb-sm" alt="64x64" src="https://bootdey.com/img/Content/avatar/avatar1.png"></a></div>
                         <div class="media-body">
-                            <input type="text" id="comment" class="form-control input-sm" placeholder="Some text value...">
+                            <input type="text" name="comment" id="comment" class="form-control input-sm" placeholder="Some text value...">
                             <div class="mt-2 text-right"> <button type="button" class="btn btn-sm btn-custom waves-effect waves-light" id="add_comment">Send</button></div>
                         </div>
                     </div>
@@ -138,7 +140,16 @@
                                 <img class="media-object rounded-circle thumb-sm" alt="64x64" src="https://bootdey.com/img/Content/avatar/avatar2.png">
                             </div>
                             <div class="media-body" style="margin-top: 7px;">
-                                <h4 class="mt-0">{{$task->username}}</h4>
+                                <h4 class="mt-0 assignee_name">{{$task->username}}</h4>
+                                <div class="developer_section" style="display: none;">
+                                    @if(!empty($developers))
+                                         <select name="task_status" class="form-control change-assignee"  data-id="{{$task->id}}">
+                                                @foreach($developers as $id=>$name)
+                                                    <option value="{{$id}}">{{$name}}</option>
+                                                @endforeach
+                                        </select>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -203,14 +214,61 @@
 
 
         $(document).on('click', '#add_comment', function () {
-            comment
-            var comment = $("#comment").val();
-
+            
+            var comment     = $("#comment").val();
+            var taskId      = $("#task_id").val();
             if(comment != '') {
-
+                $.ajax({
+                    url: "{{ action('DevelopmentController@taskComment') }}",
+                    type: 'POST',
+                    data: {
+                        task_id: taskId,
+                        _token: "{{csrf_token()}}",
+                        comment: comment,
+                    },
+                    success: function () {
+                        var html = '<div class="media m-b-20">'+
+                                        '<div class="d-flex mr-3">'+
+                                            '<a href="#"><img class="media-object rounded-circle thumb-sm" alt="64x64" src="https://bootdey.com/img/Content/avatar/avatar1.png"></a>'+
+                                        '</div>'+
+                                        '<div class="media-body">'+
+                                            '<h5 class="mt-0">{{Auth::user()->name}}</h5>'+
+                                            '<p class="font-13 text-muted mb-0">'+comment+'</p>'+
+                                        '</div>'+
+                                    '</div>';
+                        $(".dev_comments").append(html);
+                        toastr['success']('Subtask Added successfully!')
+                    }
+                });
             }else{
                 toastr['error']('Comment is empty','Error');
             }
         });
+
+        $(document).on('click', '.assignee_name', function () {
+            $(".assignee_name").hide();
+            $(".developer_section").show();
+
+        });
+
+        $(document).on('change', '.change-assignee', function () {
+            var taskId = $(this).attr('data-id');
+            var user_id = $(this).val();
+
+            $.ajax({
+                url: "{{ action('DevelopmentController@updateAssignee') }}",
+                type: 'POST',
+                data: {
+                    task_id: taskId,
+                    _token: "{{csrf_token()}}",
+                    user_id: user_id
+                },
+                success: function () {
+                    toastr['success']('Assigned user successfully!')
+                }
+            });
+
+        });
+        
     </script>
 @endsection

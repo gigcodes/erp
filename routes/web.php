@@ -480,6 +480,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'development/{id}/assignModule', 'DevelopmentController@moduleAssign' )->name( 'development.module.assign' );
 
     Route::post( 'development/comment/create', 'DevelopmentController@commentStore' )->name( 'development.comment.store' );
+    Route::post( 'task/comment/create', 'DevelopmentController@taskComment' )->name( 'task.comment.store' );
     Route::post( 'development/{id}/awaiting/response', 'DevelopmentController@awaitingResponse' )->name( 'development.comment.awaiting.response' );
 
     Route::post( 'development/cost/store', 'DevelopmentController@costStore' )->name( 'development.cost.store' );

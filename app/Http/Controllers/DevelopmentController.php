@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\DeveloperTask;
 use App\DeveloperModule;
 use App\DeveloperComment;
+use App\DeveloperTaskComment;
 use App\DeveloperCost;
 use App\PushNotification;
 use App\User;
@@ -799,10 +800,37 @@ class DevelopmentController extends Controller
             ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
             ->join('users', 'users.id', '=', 'developer_tasks.user_id')
             ->first();
-        $subtasks = DeveloperTask::where('developer_tasks.parent_id',$task_id)->get();
+        $subtasks   = DeveloperTask::where('developer_tasks.parent_id',$task_id)->get();
+        $comments   = DeveloperTaskComment::where('task_id',$task_id)
+                        ->join('users', 'users.id', '=', 'developer_task_comments.user_id')
+                        ->get();
+        $developers  = Helpers::getUserArray( User::role( 'Developer' )->get() );
         return view( 'development.task_detail', [
             'task' => $task,
             'subtasks' => $subtasks,
+            'comments' => $comments,
+            'developers' => $developers,
         ] );
+    }
+
+    public function taskComment(Request $request){
+
+        $response = array();
+         $this->validate( $request, [
+            'comment' => 'required|string|min:5'
+        ] );
+
+        $data = $request->except( '_token' );
+        $data[ 'user_id' ] = Auth::id();
+
+        $created = DeveloperTaskComment::create( $data );
+        if($created){
+            $response['status'] = 'ok';
+            $response['msg']    = 'Comment stored successfully';
+            echo json_encode($response);
+        }else{
+            $response['status'] = 'error';
+            $response['msg']    = 'Error';
+        }
     }
 }
