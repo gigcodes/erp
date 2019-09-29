@@ -34,7 +34,13 @@
                 </div>
 
                   <div class="form-group ml-3">
-                      <input type="checkbox" name="status" id="status" value="1"> Active
+                      <input type="checkbox" name="status" id="status" value="1" {{ request()->get('status') == '1' ? 'checked' : ''}}> Active
+                  </div>
+                  <div class="form-group ml-3">
+                       {!!Form::select('supplier_status_id', ["" => "select supplier status"] + $supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
+                  </div>
+                  <div class="form-group ml-3">
+                       {!!Form::select('supplier_category_id', ["" => "select category"] + $suppliercategory, request()->get('supplier_category_id'), ['class' => 'form-control form-control-sm'])!!}
                   </div>
 
 {{--                  <div class="form-group ml-3">--}}
@@ -402,6 +408,8 @@
       $('#supplier_social_handle').val(supplier.social_handle);
       $('#supplier_gst').val(supplier.gst);
       $('#status').val(supplier.status);
+      $('#supplier_status_id').val(supplier.supplier_status_id);
+      $('#supplier_category_id').val(supplier.supplier_category_id);
     });
 
     $(document).on('click', '.send-supplier-email', function() {

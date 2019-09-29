@@ -212,7 +212,7 @@ class User extends Authenticatable
 
         $roles = Role::where('name',$role)->first();
         
-        $role = $roles->toArray();
+        $role = ($roles) ? $roles->toArray() : [];
 
         $user_role = $this->roles()
                               ->pluck('id')->unique()->toArray();
