@@ -1042,3 +1042,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     });
 });
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::prefix('tmp-task')->group(function () {
+        Route::get('import-leads', 'TmpTaskController@importLeads')->name('importLeads');
+    });
+});
