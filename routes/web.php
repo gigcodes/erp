@@ -448,6 +448,7 @@ Route::group(['middleware'  => ['auth', 'optimizeImages'] ], function (){
     Route::post( 'development/task/complete-task', 'DevelopmentController@completeTask' );
     Route::post( 'development/task/assign-task', 'DevelopmentController@updateAssignee' );
     Route::post( 'development/task/relist-task', 'DevelopmentController@relistTask' );
+    Route::post( 'development/task/update-status', 'DevelopmentController@changeTaskStatus' );
 
 
     Route::resource( 'development-messages-schedules', 'DeveloperMessagesAlertSchedulesController' );

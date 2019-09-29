@@ -796,9 +796,10 @@ class DevelopmentController extends Controller
     public function taskDetail($task_id){
 
         $task = DeveloperTask::where('developer_tasks.id',$task_id)
-            ->select('developer_tasks.*','task_types.name as task_type','users.name as username')
+            ->select('developer_tasks.*','task_types.name as task_type','users.name as username','u.name as reporter')
             ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
             ->join('users', 'users.id', '=', 'developer_tasks.user_id')
+            ->join('users as u', 'u.id', '=', 'developer_tasks.created_by')
             ->first();
         $subtasks   = DeveloperTask::where('developer_tasks.parent_id',$task_id)->get();
         $comments   = DeveloperTaskComment::where('task_id',$task_id)
@@ -831,6 +832,18 @@ class DevelopmentController extends Controller
         }else{
             $response['status'] = 'error';
             $response['msg']    = 'Error';
+        }
+    }
+
+    public function changeTaskStatus(Request $request){
+
+        if(!empty($request->input( 'task_id' ))){
+
+            $task           = DeveloperTask::find( $request->input( 'task_id' ) );
+            $task->status   = $request->input( 'status' );
+            $task->save();
+        
+            return response()->json( ['success'] );
         }
     }
 }

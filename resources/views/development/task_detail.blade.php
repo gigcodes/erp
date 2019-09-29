@@ -127,7 +127,7 @@
                 <div class="card-box">
                     <h4 class="header-title m-b-30">Status</h4>
                     <div class="task_status">
-                        <select name="task_status" class="form-control">
+                        <select name="task_status" class="form-control change_task_status">
                             <option value="Planned" {{ ($task->status == 'Planned') ? 'selected' : '' }}>Planned</option>
                             <option value="In Progress" {{ ($task->status == 'In Progress') ? 'selected' : '' }}>In Progress</option>
                             <option value="Done" {{ ($task->status == 'Done') ? 'selected' : '' }}>Done</option>
@@ -160,7 +160,7 @@
                                 <img class="media-object rounded-circle thumb-sm" alt="64x64" src="https://bootdey.com/img/Content/avatar/avatar2.png">
                             </div>
                             <div class="media-body" style="margin-top: 7px;">
-                                <h4 class="mt-0">James</h4>
+                                <h4 class="mt-0">{{$task->reporter}}</h4>
                             </div>
                         </div>
                     </div>
@@ -267,7 +267,23 @@
                     toastr['success']('Assigned user successfully!')
                 }
             });
+        });
 
+        $(document).on('change', '.change_task_status', function () {
+           var taskId       = $("#task_id").val();
+           var status      = $(this).val();
+            $.ajax({
+                url: "{{ action('DevelopmentController@changeTaskStatus') }}",
+                type: 'POST',
+                data: {
+                    task_id: taskId,
+                    _token: "{{csrf_token()}}",
+                    status: status
+                },
+                success: function () {
+                    toastr['success']('Status Changed successfully!')
+                }
+            });
         });
         
     </script>
