@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddCreatedbyToDeveloperTasksTable extends Migration
+class AddTaskTypeIdToDevelopersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,7 @@ class AddCreatedbyToDeveloperTasksTable extends Migration
     public function up()
     {
         Schema::table('developer_tasks', function (Blueprint $table) {
-            $table->integer('parent_id');
-            $table->integer('created_by');
+            $table->integer('task_type_id');
         });
     }
 
