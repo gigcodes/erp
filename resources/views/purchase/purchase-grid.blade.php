@@ -399,7 +399,10 @@
         $(document).on('click', '.select-product', function() {
             var checked = $(this).prop('checked');
             if (checked) {
-               selected_order_products.push($(this).val());
+              selected_order_products.push($(this).val());
+            }else{
+              var index = selected_order_products.indexOf($(this).val());
+              selected_order_products.splice(index, 1);
             }
         });  
 
