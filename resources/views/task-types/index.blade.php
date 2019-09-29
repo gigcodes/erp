@@ -7,7 +7,7 @@
             <div class="pull-left">
             </div>
             <div class="pull-right">
-                <a class="btn btn-secondary" href="{{ route('taskTypes.create') }}">+</a>
+                <a class="btn btn-secondary" href="{{ route('task-types.create') }}">+</a>
             </div>
         </div>
     </div>

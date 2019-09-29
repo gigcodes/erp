@@ -7,47 +7,11 @@ use App\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use \Carbon\Carbon;
+use App\ScrapRemark;
+use Auth;
 
 class ScrapStatisticsController extends Controller
 {
-
-
-    private $suppliers = [
-        'angelominetti' => 23,
-        'Wiseboutique' => 18,
-        'G&B' => 25,
-        'DoubleF' => 15,
-        'cuccuini' => 27,
-        'Tory' => 1,
-        'lidiashopping' => 14,
-        'Spinnaker' => 19,
-        'alducadaosta' => 16,
-        'biffi' => 11,
-        'brunarosso' => 22,
-        'conceptstore' => 9,
-        'deliberti' => 14,
-        'griffo210' => 13,
-        'linoricci' => 8,
-        'les-market' => 3,
-        'leam' => 17,
-        'laferramenta' => 9,
-        'montiboutique' => 21,
-        'mimmaninnishop' => 5,
-        'nugnes1920' => 21,
-        'railso' => 9,
-        'savannahs' => 6,
-        'stilmoda' => 6,
-        'tessabit' => 17,
-        'tizianafausti' => 24,
-        'vinicio' => 24,
-        'coltorti' => 16,
-        'italiani' => 9,
-        'giglio' => 28,
-        'mariastore' => 7,
-        'Divo' => 20,
-        'aldogibiralo' => 8
-    ];
-
     /**
      * Display a listing of the resource.
      *
@@ -56,34 +20,44 @@ class ScrapStatisticsController extends Controller
     public function index(Request $request)
     {
         // Set dates
-        $startDate = date('Y-m-d H:i:s', time() - (2 * 86400));
         $endDate = date('Y-m-d H:i:s');
+
+        // Get active suppliers
+        $activeSuppliers = Supplier::where('supplier_status_id', 1)->orderby('supplier')->get();
 
         // Get scrape data
         $sql = '
             SELECT
-                website,
-                COUNT(id) AS total,
-                SUM(IF(validated=0,1,0)) AS failed,
-                SUM(IF(validated=1,1,0)) AS validated,
-                SUM(IF(validation_result LIKE "%[error]%",1,0)) AS errors,
-                SUM(IF(validation_result LIKE "%[warning]%",1,0)) AS warnings,
-                MAX(created_at) AS last_scrape_date,
-                IF(MAX(created_at) < DATE_SUB(NOW(), INTERVAL 2 DAY),0,1) AS running
+                s.supplier,
+                s.inventory_lifetime,
+                ls.website,
+                ls.ip_address,
+                COUNT(ls.id) AS total,
+                SUM(IF(ls.validated=0,1,0)) AS failed,
+                SUM(IF(ls.validated=1,1,0)) AS validated,
+                SUM(IF(ls.validation_result LIKE "%[error]%",1,0)) AS errors,
+                SUM(IF(ls.validation_result LIKE "%[warning]%",1,0)) AS warnings,
+                MAX(ls.updated_at) AS last_scrape_date,
+                IF(MAX(ls.updated_at) < DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY),0,1) AS running
             FROM
-                log_scraper
+                suppliers s
+            RIGHT JOIN
+                log_scraper ls 
+            ON  
+                s.scraper_name=ls.website
             WHERE
-                created_at > "' . $startDate . '" AND
-                created_at < "' . $endDate . '"
+                ls.updated_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) AND
+                ls.updated_at < "' . $endDate . '" AND
+                ls.website != "internal_scraper"
             GROUP BY
-                website
+                ls.website
             ORDER BY
-                website
+                s.supplier
         ';
-        $scrapeData = DB::select($sql);
+        $scrapeData =  DB::select($sql);
 
         // Return view
-        return view('scrap.stats', compact('scrapeData'));
+        return view('scrap.stats', compact('activeSuppliers', 'scrapeData'));
     }
 
     /**
@@ -173,5 +147,30 @@ class ScrapStatisticsController extends Controller
         $end = Carbon::now()->format('Y-m-d 23:59:00');
         // dd('hello');
         return view('scrap.asset-manager');
+    }
+
+    public function getRemark(Request $request)
+    {
+        $name   = $request->input( 'name' );
+
+        $remark = ScrapRemark::where('scraper_name', $name)->get();
+
+        return response()->json($remark,200);
+    }
+
+    public function addRemark(Request $request)
+    {
+        $remark = $request->input( 'remark' );
+        $name = $request->input( 'id' );
+        $created_at = date('Y-m-d H:i:s');
+        $update_at = date('Y-m-d H:i:s');
+        $remark_entry = ScrapRemark::create([
+            'scraper_name' => $name,
+            'remark'  => $remark,
+            'user_name' => Auth::user()->name
+        ]);
+
+
+        return response()->json(['remark' => $remark ],200);
     }
 }

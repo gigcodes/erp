@@ -229,6 +229,11 @@
           color: rgba(84, 110, 122,1.0);
 
       }
+
+      #preview-image-modelodal {
+        text-align: center;
+        padding: 2!important;
+      }
   </style>
 @endsection
 
@@ -326,6 +331,13 @@
 
 <div class="row">
   <div class="col-xs-12 col-md-4 border">
+    <!-- The Modal -->
+    <div id="preview-image-model" class="modal col-6" data-backdrop="false">
+      <span class="close">&times;</span>
+      <div class="row">
+        <div class="col-12"><img class="modal-content" height="500px;" id="img01"></div>
+      </div>
+    </div>
     <div class="tab-content">
       <div class="tab-pane active mt-3" id="one">
         <div class="row">
@@ -367,6 +379,7 @@
                 @endif
 
                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#advancePaymentModal"><img src="/images/advance-link.png" /></button>
+                <button type="button" class="btn btn-image" data-toggle="modal" data-target="#sendContacts"><img src="/images/details.png" /></button>
 
                 @include('customers.partials.modal-advance-link')
               </div>
@@ -379,7 +392,6 @@
               <span class="text-success change_status_message" style="display: none;">Successfully updated DND status</span>
       			</div> --}}
 
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="form-group form-inline">
                 <input type="number" id="customer_phone" name="phone" class="form-control input-sm" placeholder="910000000000" value="{{ $customer->phone }}">
 
@@ -388,7 +400,6 @@
                 @endif
                 {{-- <strong>Phone:</strong> <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $customer->phone }}</span> --}}
               </div>
-            @endif
 
             <div class="form-group">
               {{-- <strong>Address:</strong> {{ $customer->address }} --}}
@@ -415,7 +426,6 @@
               </div>
             </div>
 
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="form-group">
                 {{-- <strong>Email:</strong> <a href="#" class="btn-link" data-toggle="modal" data-target="#emailSendModal">{{ $customer->email }}</a> --}}
                 <input type="email" name="email" id="customer_email" class="form-control input-sm" placeholder="Email" value="{{ $customer->email }}">
@@ -436,7 +446,6 @@
 
                 <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
         			</div>
-            @endif
 
             <div class="row">
               <div class="col-6">
@@ -491,7 +500,6 @@
                   <input type="text" name="clothing_size" id="customer_clothing_size" class="form-control input-sm" placeholder="Clothing Size" value="{{ $customer->clothing_size }}">
                 </div>
               </div>
-
               <div class="col-6">
                 <div class="form-group">
                   <select class="form-control input-sm" name="gender" id="customer_gender">
@@ -500,7 +508,19 @@
                   </select>
                 </div>
               </div>
-
+              <div class="col-12">
+                <div class="form-group">
+                  <label>Whatsapp No :</label>
+                  <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>">
+                      <option value="">-No Selected-</option>
+                      @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                          @if($number != "0")
+                              <option {{ ($number == $customer->whatsapp_number && $customer->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                          @endif    
+                      @endforeach
+                  </select>
+                </div>
+              </div>
               <div class="col-6">
                 <div class="form-group">
                   <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
@@ -1278,13 +1298,14 @@
                                 @endif
                               </td> --}}
                               {{-- <td>
-                                @can('voucher')
+                                
+                                 @if(auth()->user()->checkPermission('voucher'))
                                   @if ($order->delivery_approval->voucher)
                                     <button type="button" class="btn btn-xs btn-secondary edit-voucher" data-toggle="modal" data-target="#editVoucherModal" data-id="{{ $order->delivery_approval->voucher->id }}" data-amount="{{ $order->delivery_approval->voucher->amount }}" data-travel="{{ $order->delivery_approval->voucher->travel_type }}">Edit Voucher</button>
                                   @else
                                     <button type="button" class="btn btn-xs btn-secondary create-voucher" data-id="{{ $order->delivery_approval->id }}">Create Voucher</button>
                                   @endif
-                                @endcan
+                                @endif
                               </td> --}}
                             </tr>
                           </tbody>
@@ -2190,6 +2211,31 @@
   </div>
 </div>
 
+<div id="sendContacts" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+        <label for="sel1">Select User for send contact data:</label>
+        <form method="post" id="send-contact-to-user">
+            {{ Form::open(array('url' => '', 'id' => 'send-contact-user-form')) }}
+            {!! Form::hidden('customer_id',$customer->id) !!}
+            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list select2', 'style'=> 'width:100%']) !!}
+            {{ Form::close() }}
+        </form>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default send-contact-user-btn"><img style="width: 17px;" src="/images/filled-sent.png"></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 
 <form action="" method="POST" id="product-remove-form">
@@ -2408,7 +2454,8 @@
               _token: "{{ csrf_token() }}",
               customer_id: customer_id,
               lead_id: response.lead.id,
-              selected_product: selected_product_images
+              selected_product: selected_product_images,
+              auto_approve : true
             }
           }).done(function() {
             location.reload();
@@ -3453,6 +3500,20 @@
         //   sendWAMessage();
         // } );
         // startPolling();
+        // 
+        
+          $(document).on('mouseover', '.talktext .thumbnail-wrapper', function(e) { 
+              $('#preview-image-model').find(".modal-content").attr("src",$(this).find("img").attr("src"));
+              if($(".container").find(".chat-window").length == 0) {
+                $('#preview-image-model').modal('show');
+              }
+          });
+
+          $(document).on('mouseout', '.talktext .thumbnail-wrapper', function(e) { 
+             $('#preview-image-model').modal('hide');
+          });
+
+        
 
          $(document).on('click', '.send-communication', function(e) {
            e.preventDefault();
@@ -4712,6 +4773,43 @@
               }
           });
       });
+
+      $(document).on('change', '.change-whatsapp-no', function () {
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('customer.change.whatsapp') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_id: $this.data("customer-id"),
+                    number : $this.val()
+                }
+            }).done(function () {
+                alert('Number updated successfully!');
+            }).fail(function (response) {
+                console.log(response);
+            });
+        });
+
+      $(document).on('click', '.send-contact-user-btn', function () {
+            var $form = $("#send-contact-to-user");
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('customer.send.contact') }}",
+                data: $form.serialize(),
+                beforeSend : function(){
+                  $this.html("Sending message...");
+                }
+            }).done(function () {
+                $this.html('<img style="width: 17px;" src="/images/filled-sent.png">');
+                $("#sendContacts").modal("hide");
+            }).fail(function (response) {
+                console.log(response);
+            });
+        }); 
+
+        
 
       // $(document).on()
   </script>

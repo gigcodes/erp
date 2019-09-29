@@ -100,7 +100,7 @@ class ProductEnhancementController extends Controller
         }
 
         // Update status
-        $product->status_id = StatusHelper::$cropApprovalConfirmation;
+        $product->status_id = StatusHelper::$finalApproval;
         $product->is_enhanced = 1;
         $product->save();
 

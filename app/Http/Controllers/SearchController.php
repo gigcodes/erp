@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller {
 	public function __construct() {
-		$this->middleware( 'permission:product-list' );
+		//$this->middleware( 'permission:product-list' );
 	}
 
 	public function search( Stage $stage, Request $request ) {
@@ -27,6 +27,26 @@ class SearchController extends Controller {
 
 		$data['term']     = $term;
 		$data['roletype'] = $roletype;
+		$perPageLimit = $request->get("per_page",Setting::get( 'pagination' ));
+		$sourceOfSearch = $request->get("source_of_search","na");
+
+		// start add fixing for the price range since the one request from price is in range
+		// price  = 0 , 100
+
+		$priceRange = $request->get("price",null);
+
+		if($priceRange && !empty($priceRange)) {
+			@list($minPrice, $maxPrice) = explode(",",$priceRange);
+			// adding min price
+			if(isset($minPrice)) {
+				$request->request->add(['price_min' =>  (float) $minPrice]);
+			}
+			// addin max price
+			if(isset($maxPrice)) {
+				$request->request->add(['price_max' => (float) $maxPrice]);
+			}
+		}
+
 
 		$doSelection = $request->input( 'doSelection' );
 
@@ -306,7 +326,24 @@ class SearchController extends Controller {
 		                                        ->selected($selected_categories)
 		                                        ->renderAsDropdown();
 
-		$products = $productQuery->where('stock', '>=', 1)->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'purchase_status', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
+		 // fix if query is not setup due to some unknow condition
+		if(!isset($productQuery)) {
+			$productQuery = ( new Product() )->newQuery()->latest();
+		}
+
+		// assing product to varaible so can use as per condition for join table media
+		$products = $productQuery->where('stock', '>=', 1);
+
+		// if source is attach_media for search then check product has image exist or not
+		if($sourceOfSearch == "attach_media") {
+			$products = $products->join("mediables",function($query){
+				$query->on("mediables.mediable_id" , "products.id")->where("mediable_type", "App\Product");
+			})->groupBy('products.id');
+		}
+
+		// select fields..
+		$products = $products->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'purchase_status', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
+
 		$data['is_on_sale'] = 0;
 		if ($request->get('is_on_sale') == 'on') {
 		    $data['is_on_sale'] = 1;
@@ -315,7 +352,7 @@ class SearchController extends Controller {
 
 		$products_count = $products->count();
 		$data['products_count'] = $products_count;
-		$data['products'] = $products->paginate( Setting::get( 'pagination' ) );
+		$data['products'] = $products->paginate( $perPageLimit );
 
 		if ($request->model_type == 'broadcast-images') {
 			$data['attachImages'] = true;

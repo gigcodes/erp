@@ -54,7 +54,7 @@
                             <td>{{ $replacement->replacement_term ?? 'Empty Value' }}</td>
                             <td>{{ $replacement->remarks }}</td>
                             <td>
-                                @can('admin')
+                                 @if(auth()->user()->isAdmin())
                                     @if($replacement->user)
                                         {{ $replacement->user->name }}
                                     @else
@@ -63,11 +63,11 @@
                                         </button>
                                         <span class="hidden" id="name_{{ $replacement->id  }}">{{ Auth::user()->name }}</span>
                                     @endif
-                                @endcan
+                                @endif
                             </td>
                             <td>{{ $replacement->created_at->format('Y-m-d') }}</td>
                             <td>
-                                @can('admin')
+                                 @if(auth()->user()->isAdmin())
                                     <form method="post" action="{{ action('AttributeReplacementController@destroy', $replacement->id) }}">
                                         @method('DELETE')
                                         @csrf
@@ -75,7 +75,7 @@
                                             Delete
                                         </button>
                                     </form>
-                                @endcan
+                                @endif
                             </td>
                         </tr>
                     @endforeach

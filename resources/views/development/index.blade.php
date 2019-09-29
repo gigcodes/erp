@@ -10,7 +10,7 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Developer Tasks</h2>
 
-            @can('developer-all')
+            @if(auth()->user()->checkPermission('development-list'))
                 <div class="pull-left">
                     <form class="form-inline" action="{{ route('development.index') }}" method="GET">
                         <div class="form-group">
@@ -36,7 +36,7 @@
 
                         <div class="form-group ml-3">
 
-                            <select class="form-control" name="task_type" >
+                            <select class="form-control" name="task_type">
                                 <option value="">Please select Type</option>
                                 @foreach ($tasksTypes as $id => $taskType)
                                     <option value="{{ $taskType->id }}" {{ app('request')->input('task_type') == $taskType->id ? 'selected' : '' }}>{{ $taskType->name }}</option>
@@ -45,7 +45,8 @@
 
                         </div>
 
-                        <button type="submit"  class="btn btn-secondary ml-3">Submit</button>
+                        <button type="submit" class="btn btn-secondary ml-3">Submit</button>
+
                     </form>
                 </div>
             @endcan
@@ -151,7 +152,7 @@
                                     <form action="{{ route('development.store') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-body">
-                                            @can('developer-all')
+                                            @if(auth()->user()->checkPermission('development-list'))
                                                 <div class="form-group">
                                                     <strong>User:</strong>
                                                     <select class="form-control" name="user_id" required>
@@ -164,21 +165,7 @@
                                                         <div class="alert alert-danger">{{$errors->first('user_id')}}</div>
                                                     @endif
                                                 </div>
-                                            @endcan
-
-                                            <div class="form-group">
-                                                <strong>Type:</strong>
-                                                <select class="form-control" name="task_type_id" required>
-                                                    @foreach ($tasksTypes as $id => $taskType)
-                                                        <option value="{{ $taskType->id }}" {{ old('task_type_id') == $taskType->id ? 'selected' : '' }}>{{ $taskType->name }}</option>
-                                                    @endforeach
-                                                </select>
-
-                                                @if ($errors->has('task_type_id'))
-                                                    <div class="alert alert-danger">{{$errors->first('task_type_id')}}</div>
-                                                @endif
-                                            </div>
-
+                                            @endif
 
                                             <div class="form-group">
                                                 <strong>Attach files:</strong>
@@ -301,7 +288,25 @@
                                 <td>{{ $task->developerModule ? $task->developerModule->name : 'N/A' }}</td>
                                 <td>{{ $task->subject ?? 'N/A' }}</td>
                                 <td>
-                                    {{ $task->task }}
+                                    <div id="task{{ $task->id }}" class="task-line" style="height: 2em; overflow: hidden;">
+                                        {!! nl2br($task->task) !!}
+                                    </div>
+                                    <script>
+                                        $('#task{{ $task->id }}').click(function () {
+                                            if ($(this).hasClass('task-line')) {
+                                                var reducedHeight = $(this).height();
+                                                $(this).css('height', 'auto');
+                                                var fullHeight = $(this).height();
+                                                $(this).height(reducedHeight);
+                                                $(this).animate({height: fullHeight}, 500);
+                                                $(this).removeClass('task-line');
+                                            } else {
+                                                $(this).height('2em');
+                                                $(this).addClass('task-line');
+                                            }
+
+                                        });
+                                    </script>
                                     <div>
                                         @foreach($task->getMedia('gallery') as $media)
                                             <a href="{{ $media->getUrl() }}" target="_new">
@@ -330,12 +335,14 @@
                                     <div id="collapse_{{$task->id}}" class="panel-collapse collapse">
                                         <div class="panel-body">
                                             @foreach($task->messages as $message)
-                                                <li>{{ date('d-m-Y H:i:s', strtotime($message->created_at)) }} : {{ $message->message }}</li>
+                                                <p>
+                                                    <b>{{ date('d-m-Y H:i:s', strtotime($message->created_at)) }}</b><br />
+                                                    {!! nl2br($message->message) !!}
+                                                </p>
                                             @endforeach
                                         </div>
                                         <div class="panel-footer">
                                             <textarea name="message" id="message_{{$task->id}}" rows="6" class="form-control send-message" data-id="{{$task->id}}" placeholder="Enter to send.."></textarea>
-{{--                                            <input type="text" class="form-control send-message" name="message" data-id="{{$task->id}}" placeholder="Enter to send..">--}}
                                             <button type="submit" id="submit_message" class="btn btn-secondary ml-3" data-id="{{$task->id}}" style="float: right;margin-top: 2%;">Submit</button>
                                         </div>
                                     </div>
@@ -630,9 +637,9 @@
             var task = $(this).data('task');
             var url = "{{ url('development') }}/" + task.id + "/edit";
 
-            @can('developer-all')
+            @if(auth()->user()->checkPermission('development-list'))
             $('#user_field').val(task.user_id);
-            @endcan
+            @endif
             $('#priority_field').val(task.priority);
             $('#module_id_field option[value="' + task.module_id + '"]').attr('selected', true);
             $('#task_field').val(task.task);
@@ -1206,7 +1213,7 @@
         $(document).on('click', '#submit_message', function (event) {
             let self = this;
             let developer_task_id = $(this).attr('data-id');
-            let message = $("#message_"+developer_task_id).val();
+            let message = $("#message_" + developer_task_id).val();
 
             // if (event.which != 13) {
             //     return;
@@ -1223,9 +1230,9 @@
                 },
                 success: function () {
                     $(self).removeAttr('disabled');
-                    $("#message_"+developer_task_id).removeAttr('disabled');
+                    $("#message_" + developer_task_id).removeAttr('disabled');
                     $(self).val('');
-                    $("#message_"+developer_task_id).val('');
+                    $("#message_" + developer_task_id).val('');
                     toastr['success']('Message sent successfully!', 'Message');
                 },
                 error: function () {
@@ -1233,7 +1240,7 @@
                 },
                 beforeSend: function () {
                     $(self).attr('disabled', true);
-                    $("#message_"+developer_task_id).attr('disabled', true);
+                    $("#message_" + developer_task_id).attr('disabled', true);
                 }
             });
         });

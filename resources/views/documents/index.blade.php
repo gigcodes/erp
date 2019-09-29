@@ -212,19 +212,6 @@
           
           if(id == 0){
               $("#myModal").modal();
-          }else{
-           var list_id = $(this).find(':selected').data('list');   
-              $.ajax({
-                  url: '{{ route('updateCategoryPost') }}',
-                  type: 'POST',
-                  dataType: 'json',
-                  data: {'_token': '{{ csrf_token() }}','id' : id,'link_id':list_id},
-              })
-              .done(function(message) {
-                  console.log(message);
-              })
-              
-              
           }
           
       });
