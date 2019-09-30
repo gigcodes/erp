@@ -978,30 +978,24 @@ class ScrapController extends Controller
         ], 400);
     }
 
-    public function getProductsLinks(Request $request){
-        $log = LogScraper::select('url')->where('website',$request->website)->get();
-
-            // Return response
-            return response()->json([
-                'body' => $log,
-            ],200);
-    }
     public function updateProductsLink(Request $request){
-        $log = LogScraper::select('url','sku','updated_at')->where('url',$request->link)->where('website',$request->website)->first();
-        if($log){
-            $log->updated_at = now();
-            $log->save();
-            // dd($log);
-            $scraped_products = ScrapedProducts::where('sku',$log->sku)->first();
-            $scraped_products->last_inventory_at = now();
-            $scraped_products->save();
+        $pending_url = array();
+        $links = $request->link;
+        for ($i=0;$i<count($links);$i++){
+           $log = LogScraper::select('url','sku','updated_at')->where('url',$links[$i])->where('website',$request->website)->first();
+            if($log != null){
+                $log->touch();
+                $log->save();
 
-            // Return response
-            return response()->json([
-                'status' => 'Link Updated',
-                'data' => $log,
-                'updated' => 1,
-            ],200);
+                $scraped_products = ScrapedProducts::where('sku',$log->sku)->first();
+                $scraped_products->last_inventory_at = now();
+                $scraped_products->save();
+
+            }else{
+                $pending_url[] = $links[$i];
+            }
         }
+        return $pending_url;
+
     }
 }
