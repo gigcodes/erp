@@ -18,7 +18,7 @@
   </div>
   <div class="form-group">
     <label for="color">Color:</label>
-    <?php echo Form::text("color",null,["class"=> "form-control"]);  ?>
+    <?php echo Form::select("color",$colors,null,["class"=> "form-control"]);  ?>
   </div>
   <div class="form-group">
     <label for="size">Size:</label>

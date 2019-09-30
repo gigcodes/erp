@@ -798,7 +798,8 @@ class LeadsController extends Controller
         $customerList = \App\Customer::pluck("name","id")->toArray();
         $brands = Brand::pluck("name","id")->toArray();
         $category = Category::pluck("title","id")->toArray();
-        return view("leads.erp.create",compact('customerList','brands','category'));
+        $colors = \App\ColorNamesReference::pluck("erp_name","erp_name")->toArray();
+        return view("leads.erp.create",compact('customerList','brands','category','colors'));
     }
 
     public function erpLeadsEdit()
@@ -810,8 +811,8 @@ class LeadsController extends Controller
             $brands = Brand::pluck("name","id")->toArray();
             $category = Category::pluck("title","id")->toArray();
             $products = \App\Product::where("id",$erpLeads->product_id)->get()->pluck("name","id")->toArray();
-
-            return view("leads.erp.edit",compact('erpLeads','customerList','brands','category','products'));
+            $colors = \App\ColorNamesReference::pluck("erp_name","erp_name")->toArray();
+            return view("leads.erp.edit",compact('erpLeads','customerList','brands','category','products','colors'));
         }
     }
 

@@ -19,7 +19,7 @@
   </div>
   <div class="form-group">
     <label for="color">Color:</label>
-    <?php echo Form::text("color",$erpLeads->color,["class"=> "form-control"]);  ?>
+    <?php echo Form::select("color",$colors,$erpLeads->color,["class"=> "form-control"]);  ?>
   </div>
   <div class="form-group">
     <label for="size">Size:</label>
