@@ -120,4 +120,17 @@ class StatusHelper extends Model
             (isset($status[self::$unableToScrape]) ? $status[self::$unableToScrape] : 0) -
             (isset($status[self::$unableToScrapeImages]) ? $status[self::$unableToScrapeImages] : 0);
     }
+
+    public static function isApproved($statusId) {
+        // Check if status ID is matching approved product statuses
+        switch($statusId) {
+            case self::$finalApproval:
+            case self::$pushToMagento;
+            case self::$inMagento;
+                return true;
+                break; // just to be sure
+            default:
+                return false;
+        }
+    }
 }
