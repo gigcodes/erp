@@ -27,7 +27,7 @@ class LogScraper extends Model
         $errorLog .= self::validateSku($request->sku);
 
         // Validate brand
-        $errorLog .= self::validateBrand($request->brand);
+        $errorLog .= self::validateBrand(!empty($request->brand) ? $request->brand : '');
 
         // Validate title
         $errorLog .= self::validateTitle($request->title);
@@ -36,7 +36,7 @@ class LogScraper extends Model
         $warningLog .= self::validateDescription($request->description);
 
         // Validate size_system
-        $errorLog .= self::validateSizeSystem($request->size_system);
+        $errorLog .= self::validateSizeSystem(!empty($request->size_system) ? $request->size_system : '');
 
         // Validate properties
         // TODO
@@ -238,6 +238,11 @@ class LogScraper extends Model
         // Check if we have a value
         if (empty($price)) {
             return "[error] Price cannot be empty\n";
+        }
+
+        // Check for comma's
+        if ( stristr($price,',')) {
+            return "[error] Comma in the price\n";
         }
 
         // Check if price is a float value
