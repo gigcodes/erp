@@ -36,7 +36,7 @@ class LogScraper extends Model
         $warningLog .= self::validateDescription($request->description);
 
         // Validate size_system
-        $errorLog .= self::validateSizeSystem($request->size_system);
+        $errorLog .= self::validateSizeSystem(!empty($request->size_system) ? $request->size_system : '');
 
         // Validate properties
         // TODO
