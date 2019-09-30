@@ -332,7 +332,9 @@ class SearchController extends Controller {
 		}
 
 		// assing product to varaible so can use as per condition for join table media
-		$products = $productQuery->where('stock', '>=', 1);
+        if ($request->quick_product !== 'true') {
+            $products = $productQuery->where('stock', '>=', 1);
+        }
 
 		// if source is attach_media for search then check product has image exist or not
 		if($sourceOfSearch == "attach_media") {
