@@ -240,6 +240,11 @@ class LogScraper extends Model
             return "[error] Price cannot be empty\n";
         }
 
+        // Check for comma's
+        if ( stristr($price,',')) {
+            return "[error] Comma in the price\n";
+        }
+
         // Check if price is a float value
         if ((float)$price == 0) {
             return "[error] Price must be of type float/double\n";
