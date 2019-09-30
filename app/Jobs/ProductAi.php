@@ -76,7 +76,7 @@ class ProductAi implements ShouldQueue
 
         // Set json with original data
         $resultScraper = [
-            'category' => isset($product->product_category->title) ? $product->product_category->title : '',
+            'category' => isset($product->product_category->title) ? json_encode($product->product_category->title) : '',
             'color' => $product->color,
             'composite' => $product->composition,
             'gender' => ''
