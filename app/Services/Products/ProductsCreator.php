@@ -342,37 +342,38 @@ class ProductsCreator
             $categories = Category::all();
             $category_id = 1;
 
-            foreach ($properties_array[ 'category' ] as $key => $cat) {
-                $up_cat = strtoupper($cat);
+            if ( is_array($properties_array['category']) ) {
+                foreach ($properties_array[ 'category' ] as $key => $cat) {
+                    $up_cat = strtoupper($cat);
 
-                if ($up_cat == 'WOMAN') {
-                    $up_cat = 'WOMEN';
-                }
+                    if ($up_cat == 'WOMAN') {
+                        $up_cat = 'WOMEN';
+                    }
 
-                if ($key == 0 && $up_cat == 'WOMEN') {
-                    $women_children = Category::where('title', 'WOMEN')->first()->childs;
-                }
+                    if ($key == 0 && $up_cat == 'WOMEN') {
+                        $women_children = Category::where('title', 'WOMEN')->first()->childs;
+                    }
 
-                if (isset($women_children)) {
-                    foreach ($women_children as $children) {
-                        if (strtoupper($children->title) == $up_cat) {
-                            $category_id = $children->id;
+                    if (isset($women_children)) {
+                        foreach ($women_children as $children) {
+                            if (strtoupper($children->title) == $up_cat) {
+                                $category_id = $children->id;
+                            }
+
+                            foreach ($children->childs as $child) {
+                                if (strtoupper($child->title) == $up_cat) {
+                                    $category_id = $child->id;
+                                }
+                            }
                         }
-
-                        foreach ($children->childs as $child) {
-                            if (strtoupper($child->title) == $up_cat) {
-                                $category_id = $child->id;
+                    } else {
+                        foreach ($categories as $category) {
+                            if (strtoupper($category->title) == $up_cat) {
+                                $category_id = $category->id;
                             }
                         }
                     }
-                } else {
-                    foreach ($categories as $category) {
-                        if (strtoupper($category->title) == $up_cat) {
-                            $category_id = $category->id;
-                        }
-                    }
                 }
-
             }
 
             $category = $category_id;
