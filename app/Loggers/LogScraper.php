@@ -27,7 +27,7 @@ class LogScraper extends Model
         $errorLog .= self::validateSku($request->sku);
 
         // Validate brand
-        $errorLog .= self::validateBrand($request->brand);
+        $errorLog .= self::validateBrand(!empty($request->brand) ? $request->brand : '');
 
         // Validate title
         $errorLog .= self::validateTitle($request->title);
