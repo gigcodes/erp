@@ -1,5 +1,5 @@
 <?php
-// IF YOU UPDATE THIS FILE, UPDATE IT IN THE SCRAPERSOLOLUXURY REPOSITORY AS WELL
+// IF YOU UPDATE THIS FILE, UPDATE IT IN THE ERP REPOSITORY AS WELL
 
 namespace App\Loggers;
 
@@ -82,7 +82,7 @@ class LogScraper extends Model
         $logScraper->url = $request->url ?? null;
         $logScraper->sku = $request->sku ?? null;
         $logScraper->brand = $request->brand ?? null;
-        $logScraper->category = isset($request->properties->category) ? serialize($request->properties->category) : null;
+        $logScraper->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
         $logScraper->title = $request->title ?? null;
         $logScraper->description = $request->description ?? null;
         $logScraper->properties = isset($request->properties) ? serialize($request->properties) : null;
@@ -94,7 +94,7 @@ class LogScraper extends Model
         $logScraper->is_sale = $request->is_sale ?? 0;
         $logScraper->validated = empty($errorLog) ? 1 : 0;
         $logScraper->validation_result = $errorLog . $warningLog;
-        $logScraper->raw_data = $isExcel == 0 ? serialize($request->all()) : null;
+        $logScraper->raw_data = isset($_SERVER[ 'REMOTE_ADDR' ]) ? serialize($request->all()) : null;
         $logScraper->save();
 
         // Update modified date
@@ -243,6 +243,11 @@ class LogScraper extends Model
         // Check for comma's
         if ( stristr($price,',')) {
             return "[error] Comma in the price\n";
+        }
+
+        // Check for two dots
+        if ( substr_count($price, '.') > 1 ) {
+            return "[error] More than one dot in the price\n";
         }
 
         // Check if price is a float value
