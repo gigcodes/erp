@@ -201,16 +201,18 @@ class LogScraper extends Model
 
     public static function validateImageErrors($images)
     {
-        // Check image URLS
-        foreach ($images as $image) {
-            if (!filter_var($image, FILTER_VALIDATE_URL)) {
-                return "[error] One or more images has an invalid URL\n";
-            }
-        }
-
         // Check if we have an array
         if ($images != '' && !is_array($images)) {
             return "[error] Images must be an array\n";
+        }
+
+        // Check image URLS
+        if ( is_array($images) ) {
+            foreach ($images as $image) {
+                if (!filter_var($image, FILTER_VALIDATE_URL)) {
+                    return "[error] One or more images has an invalid URL\n";
+                }
+            }
         }
 
         // Return an empty string
