@@ -2349,7 +2349,7 @@ class CustomerController extends Controller
             $params[ 'approved' ] = 1;
             $params[ 'message' ]  = $messageData;
             $params[ 'status' ]   = 2;
-            
+
             app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
 
             $chat_message = \App\ChatMessage::create($params);
@@ -2358,6 +2358,6 @@ class CustomerController extends Controller
 
         return response()->json(["code" => 1 , "message" => "done"]);
 
-        
+
     }
 }

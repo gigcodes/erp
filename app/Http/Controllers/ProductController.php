@@ -1340,8 +1340,6 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
-        DB::enableQueryLog();
-
         $roletype = $request->input('roletype') ?? 'Sale';
         $products = Product::where(function ($query) {
             $query->where('stock', '>=', 1)->orWhereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11)");
@@ -1437,12 +1435,13 @@ class ProductController extends Controller
         $products = $products->join("mediables", function ($query) {
             $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
         })->groupBy('products.id');
-        $products_count = $products->count();
+        $products_count = $products->get()->count();
+        $all_product_ids = $products->pluck('id')->toArray();
 
         $products = $products->paginate(Setting::get('pagination'));
 
         if ($request->ajax()) {
-            $html = view('partials.image-load', ['products' => $products, 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [], 'model_type' => $model_type])->render();
+            $html = view('partials.image-load', ['products' => $products, 'all_product_ids' => $all_product_ids, 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [], 'model_type' => $model_type])->render();
 
             return response()->json(['html' => $html]);
         }
