@@ -217,12 +217,19 @@ class PurchaseController extends Controller
       $purchases = Db::select("select p.sku,p.id,pp.order_product_id from purchase_products as pp join products as p on p.id = pp.product_id");
 
       $not_include_products = [];
+      $includedPurchases = [];
       foreach ((array)$purchases as $product) {
         if($product->order_product_id > 0) {
           $not_include_products[] = $product->order_product_id;
+          $includedPurchases[] = $product->id;
         }
       }
 
+      $skuNeed = Db::select("select p.id from order_products as op join products as p on p.sku = op.sku left join purchase_products as pp on pp.order_product_id = op.id  where pp.order_product_id is null group by op.sku");
+      $skuNeed = collect($skuNeed)->pluck("id")->toArray();
+
+      $ignoreSku = array_diff($includedPurchases, $skuNeed);  
+    
       if ($request->status[0] != null && $request->supplier[0] == null && $request->brand[0] == null) {
         $status = $request->status;
         $status_list = implode("','", $request->status ?? []);
@@ -418,7 +425,7 @@ class PurchaseController extends Controller
           $query->where('status', 'Ordered');
         });
       } else {
-        //$products = $products->whereNotIn('id', $not_include_products);
+        $products = $products->whereNotIn('id', $ignoreSku);
       }
 
 
