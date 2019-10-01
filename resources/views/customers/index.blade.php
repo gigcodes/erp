@@ -259,7 +259,7 @@
                 <th>Order Status</th>
                 <th>Purchase Status</th>
                 <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
-                <th width="20%">Send Message</th>
+                <th width="30%">Send Message</th>
                 <th>Shortcuts</th>
                 <th width="10%">Action</th>
                 </thead>
@@ -1997,6 +1997,6 @@
             });
         });
 
-         
+
     </script>
 @endsection

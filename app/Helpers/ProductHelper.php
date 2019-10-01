@@ -17,6 +17,7 @@ class ProductHelper extends Model
         $sku = str_replace('/', '', $sku);
         $sku = str_replace('-', '', $sku);
         $sku = str_replace('_', '', $sku);
+        $sku = str_replace('+', '', $sku);
         $sku = str_replace('|', '', $sku);
         $sku = str_replace('\\', '', $sku);
 
@@ -114,5 +115,66 @@ class ProductHelper extends Model
 
         // Return currency
         return $currency;
+    }
+
+    public static function fixCommonMistakesInRequest($request)
+    {
+        // Category is not an array
+        if (!is_array($request->get('category'))) {
+            $request->merge([
+                'category' => [],
+            ]);
+        }
+
+        // Replace currency symbol with three character currency for EUR
+        if ($request->get('currency') == '€') {
+            $request->merge([
+                'currency' => 'EUR',
+            ]);
+        }
+
+        // Replace currency symbol with three character currency for GBP
+        if ($request->get('currency') == '£') {
+            $request->merge([
+                'currency' => 'GBP',
+            ]);
+        }
+
+        // Replace currency symbol with three character currency for USD
+        if ($request->get('currency') == '$') {
+            $request->merge([
+                'currency' => 'USD',
+            ]);
+        }
+
+        // Replace currency symbol with three character currency for USD
+        if ($request->get('currency') == 'US$') {
+            $request->merge([
+                'currency' => 'USD',
+            ]);
+        }
+
+        // Replace spaces in image URLS
+        if (is_array($request->get('images')) && count($request->get('images')) > 0) {
+            // Set empty array with images
+            $arrImages = [];
+
+            // Loop over arrImages
+            foreach ($request->get('images') as $image) {
+                // Replace space in image
+                $image = str_replace(' ', '%20', $image);
+
+                // Store image in array
+                $arrImages[] = $image;
+            }
+
+            // Replace images with corrected URLs
+            $request->merge([
+                'images' => $arrImages,
+            ]);
+        }
+
+        // Return request
+        return $request;
     }
 }
