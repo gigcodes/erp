@@ -2377,8 +2377,6 @@
 
       selected_product_images.splice(index, 1);
     }
-
-    console.log(selected_product_images);
   });
 
   $('#create_refund_instruction').on('click', function () {
@@ -3305,21 +3303,27 @@
 
                if (message.images) {
                  var images = '';
+                 var imageCount = 0;
                  message.images.forEach(function (image) {
                    images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '<br><strong>Supplier: </strong>' + image.supplier_initials + '">' : '';
-                   images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete whatsapp-image" data-image="' + image.key + '">x</span></div>';
+                   images += '<div class="thumbnail-wrapper"><img width="20px" height="35px" src="' + image.image + '" class="message-img" /><span class="thumbnail-delete whatsapp-image" data-image="' + image.key + '">x</span></div>';
                    images += image.product_id !== '' ? '<input type="checkbox" name="product" style="width: 20px; height: 20px;" class="d-block mx-auto select-product-image" data-id="' + image.product_id + '" /></a>' : '';
 
                    if (image.product_id !== '') {
                      has_product_image = true;
                    }
+                   imageCount++;
                  });
+
+                 if(has_product_image && imageCount > 0) {
+                    images += "";
+                 }
 
                  images += '<br>';
 
                  if (has_product_image) {
                    var show_images_wrapper = $('<div class="show-images-wrapper hidden"></div>');
-                   var show_images_button = $('<button type="button" class="btn btn-xs btn-secondary show-images-button">Show Images</button>');
+                   var show_images_button = $('<button type="button" class="btn btn-xs btn-secondary show-images-button mt-2">Show Images</button>&nbsp;<button type="button" class="btn btn-xs btn-secondary select-all-images-button mt-2 hidden">Select All</button>');
 
                    $(images).appendTo(show_images_wrapper);
                    $(show_images_wrapper).appendTo(text);
@@ -4584,7 +4588,12 @@
       });
 
       $(document).on('click', '.show-images-button', function() {
-        $(this).siblings('.show-images-wrapper').toggleClass('hidden');
+          $(this).siblings('.show-images-wrapper').toggleClass('hidden');
+          $(this).parent().find(".select-all-images-button").toggleClass('hidden');
+      });
+
+       $(document).on('click', '.select-all-images-button', function() {
+          $(this).parent().find(".select-product-image").trigger('click');
       });
 
       $(document).on('click', '.fix-message-error', function() {
