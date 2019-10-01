@@ -73,7 +73,7 @@ class WhatsappMoveToNew extends Command
                 $request = new Request();
                 $request->setMethod('POST');
                 $request->request->add([
-                    'customer_id' => $customer->id,
+                    'customer_id' => $customer->customer_id,
                     'message' => $message,
                     'status' => 1
                 ]);
