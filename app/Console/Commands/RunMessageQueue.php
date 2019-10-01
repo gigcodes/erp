@@ -50,6 +50,8 @@ class RunMessageQueue extends Command
      */
     public function handle()
     {
+        return;
+
         $report = CronJobReport::create([
             'signature' => $this->signature,
             'start_time' => Carbon::now()
