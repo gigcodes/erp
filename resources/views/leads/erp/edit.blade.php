@@ -6,7 +6,7 @@
     <?php echo Form::select("customer_id", $customerList, $erpLeads->customer_id,["class"=> "form-control"]);  ?>
   </div>
   <div class="form-group">
-    <label for="product_id">Products:</label>
+    <label for="product_id">Products: (selected :<?php echo @reset($products); ?>)</label>
     <?php echo Form::select("product_id", $products , $erpLeads->product_id,["class"=> "form-control" ,"id" => "select2-product", "style"=>"width:100%;"]);  ?>
   </div>
   <div class="form-group">
