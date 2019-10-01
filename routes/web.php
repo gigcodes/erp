@@ -651,8 +651,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('vendor_category', 'VendorCategoryController');
 
     // Suppliers Module
-    // Route::post('supplier/agent/store', 'SupplierController@agentStore')->name('supplier.agent.store');
-    // Route::put('supplier/agent/update/{id}', 'SupplierController@agentUpdate')->name('supplier.agent.update');
+    Route::get('supplier/categorycount', 'SupplierController@addSupplierCategoryCount');
+    Route::post('supplier/saveCategoryCount', 'SupplierController@saveSupplierCategoryCount')->name('supplier.count.save');
+    Route::post('supplier/getCategoryCount', 'SupplierController@getSupplierCategoryCount')->name('supplier.count.get');
+    Route::post('supplier/updateCategoryCount', 'SupplierController@updateSupplierCategoryCount')->name('supplier.count.update');
+    Route::post('supplier/deleteCategoryCount', 'SupplierController@deleteSupplierCategoryCount')->name('supplier.count.delete');
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
