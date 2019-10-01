@@ -4,12 +4,13 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Plank\Mediable\Mediable;
 
 class ErpLeads extends Model
 {
     //
     //use SoftDeletes;
-
+    use Mediable;
     protected $fillable = [
         'lead_status_id',
         'customer_id',
@@ -23,4 +24,9 @@ class ErpLeads extends Model
         'created_at',
         'updated_at',
     ];
+
+    public function status_changes()
+    {
+        return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\ErpLeads')->latest();
+    }
 }

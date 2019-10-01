@@ -22,6 +22,9 @@
                 <th>Brand</th>
                 <th>Category</th>
                 <th>Color</th>
+                <th>Size</th>
+                <th>Min Price</th>
+                <th>Max Price</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -64,6 +67,9 @@
               {data: 'brand_name', name: 'brand_name'},
               {data: 'cat_title', name: 'cat_title'},
               {data: 'color', name: 'color'},
+              {data: 'size', name: 'size'},
+              {data: 'min_price', name: 'min_price'},
+              {data: 'max_price', name: 'max_price'},
               {
                   data: null,
                   render : function ( data, type, row ) {
@@ -147,6 +153,7 @@
     var productSelect = function()
     {
        $("#select2-product").select2({
+          tags : true,
           ajax: {
               url: '/productSearch/',
               dataType: 'json',
@@ -175,6 +182,11 @@
           templateSelection: (product) => product.name || product.sku,
 
       });
+
+       $("#select2-product").trigger({
+            type: 'select2:select',
+            params: {}
+        });
     };
 
     function formatProduct (product) {

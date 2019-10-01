@@ -35,8 +35,8 @@ class CreateErpLeadsTable extends Migration
             $table->string('color')->nullable();
             $table->string('size')->nullable();
 
-            $table->decimal('min_price');
-            $table->decimal('max_price');
+            $table->decimal('min_price')->nullable()->default('0.00');
+            $table->decimal('max_price')->nullable()->default('0.00');
 
             $table->timestamps();
 

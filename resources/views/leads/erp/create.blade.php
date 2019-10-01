@@ -34,7 +34,7 @@
   </div>
   <div class="form-group">
     <label for="lead_status_id">Status:</label>
-    <?php echo Form::select("lead_status_id", $status , $erpLeads->lead_status_ids,["class"=> "form-control"]);  ?>
+    <?php echo Form::select("lead_status_id", $status , null,["class"=> "form-control"]);  ?>
   </div>
   <button type="submit" class="btn btn-default lead-button-submit-form">Submit</button>
 </form>

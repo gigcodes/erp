@@ -259,12 +259,12 @@ class LeadsController extends Controller
         // }
         $customer = Customer::find($request->customer_id);
 
-        $data[ 'client_name' ] = $customer->name;
-        $data[ 'contactno' ] = $customer->phone;
+        //$data[ 'client_name' ] = $customer->name;
+        //$data[ 'contactno' ] = $customer->phone;
 
-        $data[ 'userid' ] = Auth::id();
-        $data[ 'selected_product' ] = json_encode($request->input('selected_product'));
-
+        //$data[ 'userid' ] = Auth::id();
+        //$data[ 'selected_product' ] = json_encode($request->input('selected_product'));
+        $lead = null;
         if ($request->type == 'product-lead') {
             $brand_array = [];
             $category_array = [];
@@ -272,27 +272,43 @@ class LeadsController extends Controller
             foreach ($request->selected_product as $product_id) {
                 $product = Product::find($product_id);
 
-                array_push($brand_array, $product->brand);
-                array_push($category_array, $product->category);
+                //array_push($brand_array, $product->brand);
+                //array_push($category_array, $product->category);
+                $lead = \App\ErpLeads::create([
+                    "customer_id"       => $request->customer_id,
+                    "product_id"        => $product_id,
+                    "brand_id"          => $product->brand,
+                    "category_id"       => $product->category,
+                    "color"             => $product->color,
+                    "size"              => $product->size_value,
+                    "lead_status_id"    => 1   
+                ]);
+
+                if ($request->hasfile('image')) {
+                    foreach ($request->file('image') as $image) {
+                        $media = MediaUploader::fromSource($image)->upload();
+                        $lead->attachMedia($media, config('constants.media_tags'));
+                    }
+                }
             }
 
-            $data[ 'multi_brand' ] = $brand_array ? json_encode($brand_array) : null;
-            $data[ 'multi_category' ] = $category_array ? json_encode($category_array) : null;
+            //$data[ 'multi_brand' ] = $brand_array ? json_encode($brand_array) : null;
+            //$data[ 'multi_category' ] = $category_array ? json_encode($category_array) : null;
         } else {
             $data[ 'multi_brand' ] = $request->input('multi_brand') ? json_encode($request->input('multi_brand')) : null;
             $data[ 'multi_category' ] = $request->input('multi_category');
-        }
+            $data['multi_category'] = json_encode( $request->input( 'multi_category' ) );
 
-        // $data['multi_category'] = json_encode( $request->input( 'multi_category' ) );
-
-
-        $lead = Leads::create($data);
-        if ($request->hasfile('image')) {
-            foreach ($request->file('image') as $image) {
-                $media = MediaUploader::fromSource($image)->upload();
-                $lead->attachMedia($media, config('constants.media_tags'));
+            $lead = Leads::create($data);
+            if ($request->hasfile('image')) {
+                foreach ($request->file('image') as $image) {
+                    $media = MediaUploader::fromSource($image)->upload();
+                    $lead->attachMedia($media, config('constants.media_tags'));
+                }
             }
         }
+
+        
 
 
         // if(!empty($request->input('assigned_user'))){
@@ -549,7 +565,7 @@ class LeadsController extends Controller
         ];
 
         $customer = Customer::find($request->customer_id);
-        $lead = Customer::find($request->lead_id);
+        //$lead = Customer::find($request->lead_id);
         $product_names = '';
 
         $params[ 'customer_id' ] = $customer->id;
@@ -783,9 +799,9 @@ class LeadsController extends Controller
 
     public function erpLeadsResponse()
     {
-        return datatables()->of(\App\ErpLeads::join('products', 'products.id', '=', 'erp_leads.product_id')
-            ->join("customers as c","c.id","erp_leads.customer_id")
-            ->join("erp_lead_status as els","els.id","erp_leads.lead_status_id")
+        return datatables()->of(\App\ErpLeads::leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
+            ->leftJoin("customers as c","c.id","erp_leads.customer_id")
+            ->leftJoin("erp_lead_status as els","els.id","erp_leads.lead_status_id")
             ->leftJoin("categories as cat","cat.id","erp_leads.category_id")
             ->leftJoin("brands as br","br.id","erp_leads.brand_id")
             ->orderBy("erp_leads.id","desc")
