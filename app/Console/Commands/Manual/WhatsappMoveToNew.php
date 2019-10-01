@@ -43,9 +43,9 @@ class WhatsappMoveToNew extends Command
     public function handle()
     {
         // Set number to change
-        $number = '919152731483';
+        $number = '91915273148%';
         $newNumber = '971562744570';
-        $days = 30;
+        $days = 1;
         $message = "Greetings from Solo Luxury  , we have moved our customer service to Dubai and you will receive all further messages from our Dubai number , in case you have sent any messages to us in the last 6  hours please resend it  , so that we can respond to it as some messages may have been missed out .";
 
         // Query to find all customers of $number
@@ -67,7 +67,6 @@ class WhatsappMoveToNew extends Command
                 ) AND 
                 number IS NOT NULL AND 
                 created_at > DATE_SUB(NOW(), INTERVAL " . $days . " DAY)
-            LIMIT 1
         ";
         $rs = DB::select(DB::raw($sql));
 
