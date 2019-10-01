@@ -214,11 +214,11 @@ class PurchaseController extends Controller
     public function purchaseGrid(Request $request, $page = null)
     {
       //DB::enableQueryLog();
-      $purchases = Db::select("select p.sku,p.id from purchase_products as pp join products as p on p.id = pp.product_id");
+      $purchases = Db::select("select p.sku,p.id,pp.order_product_id from purchase_products as pp join products as p on p.id = pp.product_id");
 
       $not_include_products = [];
       foreach ((array)$purchases as $product) {
-        $not_include_products[] = $product->id;
+        $not_include_products[] = $product->order_product_id;
       }
 
       if ($request->status[0] != null && $request->supplier[0] == null && $request->brand[0] == null) {
@@ -400,7 +400,10 @@ class PurchaseController extends Controller
         array_push($new_orders, $order['id']);
       }
 
-      $products = Product::with(['orderproducts' => function($query) {
+      $products = Product::with(['orderproducts' => function($query) use ($page,$not_include_products) {
+        if($page != 'ordered') {
+            $query->whereNotIn("id",$not_include_products);
+        }
         $query->with(['order' => function($q){
             $q->with("customer");
         }]);
@@ -413,7 +416,7 @@ class PurchaseController extends Controller
           $query->where('status', 'Ordered');
         });
       } else {
-        $products = $products->whereNotIn('id', $not_include_products);
+        //$products = $products->whereNotIn('id', $not_include_products);
       }
 
 
