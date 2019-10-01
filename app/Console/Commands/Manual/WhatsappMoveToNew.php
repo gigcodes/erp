@@ -5,6 +5,7 @@ namespace App\Console\Commands\Manual;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\ChatMessage;
 
 class WhatsappMoveToNew extends Command
 {
