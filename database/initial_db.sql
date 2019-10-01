@@ -8934,3 +8934,12 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+INSERT INTO `erp_lead_status` (`id`, `name`) VALUES
+(1, 'Cold Lead'),
+(2, 'Cold / Important Lead'),
+(3, 'Hot Lead'),
+(4, 'Very Hot Lead'),
+(5, 'Advance Follow Up'),
+(6, 'HIGH PRIORITY');
