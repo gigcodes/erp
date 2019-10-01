@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Category;
 use App\SupplierCategoryCount;
+use App\Brand;
 use App\SupplierBrandCount;
 use App\Supplier;
 use App\Agent;
@@ -615,19 +616,18 @@ class SupplierController extends Controller
     public function addSupplierBrandCount(){
 
         $suppliercount =  SupplierBrandCount::all();
-        $category_parent = Category::where('parent_id',0)->get();
-        $category_child = Category::where('parent_id','!=',0)->get();
+        $brand = Brand::orderby('name','asc')->get();
         $supplier = Supplier::where('supplier_status_id',1)->get();
 
-        return view('suppliers.supplier_brand_count',compact('supplier','suppliercount','category_parent','category_child'));
+        return view('suppliers.supplier_brand_count',compact('supplier','suppliercount','brand'));
     }
 
     public function saveSupplierBrandCount(Request $request){
-        $category_id = $request->category_id;
+        $brand_id = $request->brand_id;
         $supplier_id = $request->supplier_id;
         $count = $request->count;
 
-        $data['category_id'] = $category_id;
+        $data['brand_id'] = $brand_id;
         $data['supplier_id'] = $supplier_id;
         $data['cnt'] = $count;
         SupplierBrandCount::create($data);
@@ -638,8 +638,8 @@ class SupplierController extends Controller
     {
         $suppliercount = SupplierBrandCount::all();
         $supplier_list = Supplier::where('supplier_status_id',1)->get();
-        $category_parent = Category::where('parent_id',0)->get();
-        $category_child = Category::where('parent_id','!=',0)->get();
+        $brand_list = Brand::orderby('name','asc')->get();
+
 
 
         foreach($suppliercount as $supplier)
@@ -654,36 +654,23 @@ class SupplierController extends Controller
                 }
             }
 
-            $cat = "";
-            foreach($category_parent as $c){
-                if($c->id == $supplier->category_id){
-                    $cat .= '<option value="'.$c->id.'" selected>'.$c->title.'</option>';
+            $brands = "";
+            foreach($brand_list as $v)
+            {
+                if($v->id == $supplier->brand_id){
+                    $brands .= '<option value="'.$v->id.'" selected>'.$v->name.'</option>';
                 }else{
-                    $cat .= '<option value="'.$c->id.'">'.$c->title.'</option>';
-                    if($c->childs){
-                        foreach ($c->childs as $categ){
-                            $cat .= '<option value="'.$categ->id.'">-&nbsp;'.$categ->title.'</option>';
-                        }
-                    }
+                    $brands .= '<option value="'.$v->id.'">'.$v->name.'</option>';
                 }
             }
-            foreach($category_child as $c){
-                if($c->id == $supplier->category_id){
-                    $cat .= '<option value="'.$c->id.'" selected>'.$c->title.'</option>';
-                }else{
-                    $cat .= '<option value="'.$c->id.'">'.$c->title.'</option>';
-                    if($c->childs){
-                        foreach ($c->childs as $categ){
-                            $cat .= '<option value="'.$categ->id.'">-&nbsp;'.$categ->title.'</option>';
-                        }
-                    }
-                }
-            }
+
+
+
 
 
             $sub_array = array();
             $sub_array[] = '<select class="form-control update" data-column="supplier_id" data-id="'.$supplier["id"].'">' . $sup . '</select>';
-            $sub_array[] = '<select class="form-control update" data-id="'.$supplier["id"].'" data-column="category_id">' . $cat . '</select>';
+            $sub_array[] = '<select class="form-control update" data-id="'.$supplier["id"].'" data-column="brand_id">' . $brands . '</select>';
             $sub_array[] = '<input type="number"  data-id="'.$supplier["id"].'" data-column="cnt" value="'.$supplier["cnt"].'"  class="form-control update">';
             $sub_array[] = '<button type="button" name="delete" class="btn btn-danger btn-xs delete" id="'.$supplier["id"].'">Delete</button>';
             $data[] = $sub_array;
