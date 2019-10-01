@@ -799,7 +799,8 @@ class LeadsController extends Controller
         $brands = Brand::pluck("name","id")->toArray();
         $category = Category::pluck("title","id")->toArray();
         $colors = \App\ColorNamesReference::pluck("erp_name","erp_name")->toArray();
-        return view("leads.erp.create",compact('customerList','brands','category','colors'));
+        $status = \App\ErpLeadStatus::pluck("name","id")->toArray();
+        return view("leads.erp.create",compact('customerList','brands','category','colors','status'));
     }
 
     public function erpLeadsEdit()
@@ -812,7 +813,8 @@ class LeadsController extends Controller
             $category = Category::pluck("title","id")->toArray();
             $products = \App\Product::where("id",$erpLeads->product_id)->get()->pluck("name","id")->toArray();
             $colors = \App\ColorNamesReference::pluck("erp_name","erp_name")->toArray();
-            return view("leads.erp.edit",compact('erpLeads','customerList','brands','category','products','colors'));
+            $status = \App\ErpLeadStatus::pluck("name","id")->toArray();
+            return view("leads.erp.edit",compact('erpLeads','customerList','brands','category','products','colors','status'));
         }
     }
 
@@ -827,6 +829,18 @@ class LeadsController extends Controller
 
         $erpLeads->fill(request()->all());
         $erpLeads->save();
+
+        return response()->json(["code"=> 1 , "data" => []]);
+    }
+
+    public function erpLeadDelete()
+    {
+        $id = request()->get("id",0);
+
+        $erpLeads = \App\ErpLeads::where("id",$id)->first();
+        if($erpLeads) {
+           $erpLeads->delete();
+        }
 
         return response()->json(["code"=> 1 , "data" => []]);
     }

@@ -32,5 +32,9 @@
     <label for="max_price">Max price:</label>
     <?php echo Form::text("max_price",null,["class"=> "form-control"]);  ?>
   </div>
+  <div class="form-group">
+    <label for="lead_status_id">Status:</label>
+    <?php echo Form::select("lead_status_id", $status , $erpLeads->lead_status_ids,["class"=> "form-control"]);  ?>
+  </div>
   <button type="submit" class="btn btn-default lead-button-submit-form">Submit</button>
 </form>

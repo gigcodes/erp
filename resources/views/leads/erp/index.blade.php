@@ -68,7 +68,7 @@
                   data: null,
                   render : function ( data, type, row ) {
                       // Combine the first and last names into a single table field
-                      return '<a href="javascript:;" data-lead-id = "'+data.id+'" class="editor_edit">Edit</a> / <a data-lead-id = "'+data.id+'" href="javascript:;" class="editor_remove">Delete</a>';
+                      return '<a href="javascript:;" data-lead-id = "'+data.id+'" class="editor_edit btn btn-image"><img src="/images/edit.png"></a><a data-lead-id = "'+data.id+'" href="javascript:;" class="editor_remove btn btn-image"><img src="/images/delete.png"></a>';
                   },
                   className: "center"
               }
@@ -88,6 +88,26 @@
         }).fail(function (response) {
             console.log(response);
         });
+    });
+
+    $(document).on('click', '.editor_remove', function () {
+      var r = confirm("Are you sure you want to delete this lead?");
+      if (r == true) {
+        var $this = $(this);
+          $.ajax({
+              type: "GET",
+              data : {
+                id : $this.data("lead-id")
+              },
+              url: "{{ route('leads.erpLeads.delete') }}"
+          }).done(function (data) {
+             $("#erp-leads").find(".modal-body").html("");
+             $("#erp-leads").modal("hide");
+             location.reload(true);
+          }).fail(function (response) {
+              console.log(response);
+          });
+      }
     });
 
     $(document).on('click', '.editor_edit', function () {
