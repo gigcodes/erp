@@ -6,6 +6,8 @@ use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\ChatMessage;
+use App\Customer;
+use App\Http\Controllers\WhatsAppController;
 
 class WhatsappMoveToNew extends Command
 {
@@ -42,8 +44,9 @@ class WhatsappMoveToNew extends Command
     {
         // Set number to change
         $number = '919152731483';
+        $newNumber = '971562744570';
         $days = 30;
-        $message = "Greetings from Solo Luxury. We have moved our customer service to Dubai and you will receive all further messages from our Dubai number. In case you have sent any messages to us in the last 2 hours please resend it  - so that we can respond to it as some messages may have been missed out.";
+        $message = "Greetings from Solo Luxury  , we have moved our customer service to Dubai and you will receive all further messages from our Dubai number , in case you have sent any messages to us in the last 6  hours please resend it  , so that we can respond to it as some messages may have been missed out .";
 
         // Query to find all customers of $number
         $sql = "
@@ -63,31 +66,34 @@ class WhatsappMoveToNew extends Command
                         is_blocked=0                
                 ) AND 
                 number IS NOT NULL AND 
-                customer_id = 44 AND
                 created_at > DATE_SUB(NOW(), INTERVAL " . $days . " DAY)
+            LIMIT 1
         ";
         $rs = DB::select(DB::raw($sql));
 
         // Loop over customers
         if ($rs !== null) {
-            foreach ($rs as $customer) {
+            foreach ($rs as $result) {
+                // Find customer
+                $customer = Customer::find($result->customer_id);
+                $customer->whatsapp_number = $newNumber;
+                $customer->save();
+
                 // Send messages
                 $params = [
                     'number' => null,
                     'user_id' => 6,
                     'approved' => 1,
                     'status' => 1,
-                    'customer_id' => $customer->customer_id,
+                    'customer_id' => $result->customer_id,
                     'message' => $message
                 ];
-
-
                 $chat_message = ChatMessage::create($params);
 
+                // Approve message
                 $myRequest = new Request();
                 $myRequest->setMethod('POST');
                 $myRequest->request->add(['messageId' => $chat_message->id]);
-
                 app(WhatsAppController::class)->approveMessage('customer', $myRequest);
             }
         }

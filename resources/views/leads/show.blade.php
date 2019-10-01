@@ -156,7 +156,7 @@
                                     <option value="918291920455" {{'918291920455'== $leads->whatsapp_number ? 'Selected=Selected':''}}>03</option>
                                     <option value="919152731483" {{'919152731483'== $leads->whatsapp_number ? 'Selected=Selected':''}}>04</option>
                                     <option value="919152731484" {{'919152731484'== $leads->whatsapp_number ? 'Selected=Selected':''}}>05</option>
-                                    <option value="919152731486" {{'919152731486'== $leads->whatsapp_number ? 'Selected=Selected':''}}>06</option>
+                                    <option value="971562744570" {{'971562744570'== $leads->whatsapp_number ? 'Selected=Selected':''}}>06</option>
                                     <option value="918291352520" {{'918291352520'== $leads->whatsapp_number ? 'Selected=Selected':''}}>08</option>
                                     <option value="919004008983" {{'919004008983'== $leads->whatsapp_number ? 'Selected=Selected':''}}>09</option>
                             </Select>
@@ -562,7 +562,7 @@
                                   <option value="918291920455" {{'918291920455'== $leads->whatsapp_number ? 'Selected=Selected':''}}>03</option>
                                   <option value="919152731483" {{'919152731483'== $leads->whatsapp_number ? 'Selected=Selected':''}}>04</option>
                                   <option value="919152731484" {{'919152731484'== $leads->whatsapp_number ? 'Selected=Selected':''}}>05</option>
-                                  <option value="919152731486" {{'919152731486'== $leads->whatsapp_number ? 'Selected=Selected':''}}>06</option>
+                                  <option value="971562744570" {{'971562744570'== $leads->whatsapp_number ? 'Selected=Selected':''}}>06</option>
                                   <option value="918291352520" {{'918291352520'== $leads->whatsapp_number ? 'Selected=Selected':''}}>08</option>
                                   <option value="919004008983" {{'919004008983'== $leads->whatsapp_number ? 'Selected=Selected':''}}>09</option>
                           </Select>
