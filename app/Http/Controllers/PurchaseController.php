@@ -218,7 +218,9 @@ class PurchaseController extends Controller
 
       $not_include_products = [];
       foreach ((array)$purchases as $product) {
-        $not_include_products[] = $product->order_product_id;
+        if($product->order_product_id > 0) {
+          $not_include_products[] = $product->order_product_id;
+        }
       }
 
       if ($request->status[0] != null && $request->supplier[0] == null && $request->brand[0] == null) {
