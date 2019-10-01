@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Console\Commands\Manual;
-
+use Illuminate\Http\Request;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
