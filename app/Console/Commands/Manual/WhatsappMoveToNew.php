@@ -70,16 +70,24 @@ class WhatsappMoveToNew extends Command
         // Loop over customers
         if ($rs !== null) {
             foreach ($rs as $customer) {
-                // Check if we have received a message in the last $days days
-                $requestData = new Request();
-                $requestData->setMethod('POST');
-                $requestData->request->add([
+                // Send messages
+                $params = [
+                    'number' => null,
+                    'user_id' => 6,
+                    'approved' => 1,
+                    'status' => 1,
                     'customer_id' => $customer->customer_id,
-                    'message' => $message,
-                    'status' => 1
-                ]);
+                    'message' => $message
+                ];
 
-                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
+
+                $chat_message = ChatMessage::create($params);
+
+                $myRequest = new Request();
+                $myRequest->setMethod('POST');
+                $myRequest->request->add(['messageId' => $chat_message->id]);
+
+                app(WhatsAppController::class)->approveMessage('customer', $myRequest);
             }
         }
     }
