@@ -500,7 +500,7 @@ class SupplierController extends Controller
         $suppliercount =  SupplierCategoryCount::all();
         $category_parent = Category::where('parent_id',0)->get();
         $category_child = Category::where('parent_id','!=',0)->get();
-        $supplier = Supplier::where('status',1)->get();
+        $supplier = Supplier::where('supplier_status_id',1)->get();
 
         return view('suppliers.supplier_category_count',compact('supplier','suppliercount','category_parent','category_child'));
     }
@@ -520,7 +520,7 @@ class SupplierController extends Controller
     public function getSupplierCategoryCount()
     {
         $suppliercount = SupplierCategoryCount::all();
-        $supplier_list = Supplier::where('status',1)->get();
+        $supplier_list = Supplier::where('supplier_status_id',1)->get();
         $category_parent = Category::where('parent_id',0)->get();
         $category_child = Category::where('parent_id','!=',0)->get();
 
@@ -617,7 +617,7 @@ class SupplierController extends Controller
         $suppliercount =  SupplierBrandCount::all();
         $category_parent = Category::where('parent_id',0)->get();
         $category_child = Category::where('parent_id','!=',0)->get();
-        $supplier = Supplier::where('status',1)->get();
+        $supplier = Supplier::where('supplier_status_id',1)->get();
 
         return view('suppliers.supplier_brand_count',compact('supplier','suppliercount','category_parent','category_child'));
     }
@@ -637,7 +637,7 @@ class SupplierController extends Controller
     public function getSupplierBrandCount()
     {
         $suppliercount = SupplierBrandCount::all();
-        $supplier_list = Supplier::where('status',1)->get();
+        $supplier_list = Supplier::where('supplier_status_id',1)->get();
         $category_parent = Category::where('parent_id',0)->get();
         $category_child = Category::where('parent_id','!=',0)->get();
 
