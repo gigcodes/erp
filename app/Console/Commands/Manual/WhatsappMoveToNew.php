@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Console\Commands\Manual;
-use Illuminate\Http\Request;
+
 use Illuminate\Console\Command;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class WhatsappMoveToNew extends Command
@@ -64,21 +65,21 @@ class WhatsappMoveToNew extends Command
                 customer_id = 44 AND
                 created_at > DATE_SUB(NOW(), INTERVAL " . $days . " DAY)
         ";
-        $rs = DB::select( DB::raw( $sql ) );
+        $rs = DB::select(DB::raw($sql));
 
         // Loop over customers
-        if ( $rs !== NULL ) {
-            foreach ( $rs as $customer ) {
+        if ($rs !== null) {
+            foreach ($rs as $customer) {
                 // Check if we have received a message in the last $days days
-                $request = new Request();
-                $request->setMethod('POST');
-                $request->request->add([
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add([
                     'customer_id' => $customer->customer_id,
                     'message' => $message,
                     'status' => 1
                 ]);
 
-                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($request, 'customer');
+                app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
             }
         }
     }
