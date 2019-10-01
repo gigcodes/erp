@@ -78,7 +78,7 @@ class WhatsappMoveToNew extends Command
                     'status' => 1
                 ]);
 
-                app(WhatsAppController::class)->sendMessage($request, 'customer');
+                app(App\Http\Controllers\WhatsAppController::class)->sendMessage($request, 'customer');
             }
         }
     }
