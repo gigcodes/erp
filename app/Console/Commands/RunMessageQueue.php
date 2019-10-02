@@ -63,23 +63,23 @@ class RunMessageQueue extends Command
             // Get groups
             $groups = DB::table('message_queues')->groupBy("group_id")->select("group_id")->get(['group_id']);
 
-            $allWhatsappNo          = config("apiwha.instances");
-            $this->waitingMessages  = [];
-            if(!empty($allWhatsappNo)){
-                foreach($allWhatsappNo as $no => $dataInstance) {
-                    $waitingMessage             = $this->waitingLimit($no);
-                    $this->waitingMessages[$no] = $waitingMessage;
+            $allWhatsappNo = config("apiwha.instances");
+            $this->waitingMessages = [];
+            if (!empty($allWhatsappNo)) {
+                foreach ($allWhatsappNo as $no => $dataInstance) {
+                    $waitingMessage = $this->waitingLimit($no);
+                    $this->waitingMessages[ $no ] = $waitingMessage;
                 }
             }
 
             foreach ($groups as $group) {
                 // Get messages
                 $message_queues = MessageQueue::where('group_id', $group->group_id)
-                ->where('sending_time', '<=', Carbon::now())
-                ->where('sent', 0)
-                ->where('status', '!=', 1)
-                ->orderBy('sending_time', 'ASC')
-                ->limit(30);
+                    ->where('sending_time', '<=', Carbon::now())
+                    ->where('sent', 0)
+                    ->where('status', '!=', 1)
+                    ->orderBy('sending_time', 'ASC')
+                    ->limit(30);
 
                 // Do we have results?
                 if (count($message_queues->get()) > 0) {
@@ -91,43 +91,39 @@ class RunMessageQueue extends Command
                         if ($message->type == 'message_all') {
 
                             $customer = Customer::find($message->customer_id);
-                            $number   = !empty($customer->whatsapp_number) ? (string)$customer->whatsapp_number : 0;
+                            $number = !empty($customer->whatsapp_number) ? (string)$customer->whatsapp_number : 0;
+                            
+                            if (!$this->isWaitingFull($number)) {
+                                if ($customer && $customer->do_not_disturb == 0) {
+                                    SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
 
-                            if ( $number == '919152731483' ) {
-                                if (!$this->isWaitingFull($number)) {
-                                    if ($customer && $customer->do_not_disturb == 0) {
-                                        SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
-
-                                        dump('sent to all');
-                                    } else {
-                                        $message->delete();
-
-                                        dump('deleting queue');
-                                    }
+                                    dump('sent to all');
                                 } else {
-                                    dump('sorry , message is full right now for this number : ' . $number);
+                                    $message->delete();
+
+                                    dump('deleting queue');
                                 }
                             } else {
-                                $message->delete();
+                                dump('sorry , message is full right now for this number : ' . $number);
                             }
 
 
                         } else {
 
-                            if(!$this->isWaitingFull($number)) {
+                            if (!$this->isWaitingFull($number)) {
                                 SendMessageToSelected::dispatchNow($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);
 
                                 dump('sent to selected');
-                            }else{
-                                dump('sorry , message is full right now for this number : '.$number);
+                            } else {
+                                dump('sorry , message is full right now for this number : ' . $number);
                             }
                         }
 
                         // start to add more if there is existing already
-                        if(isset($this->waitingMessages[$number])) {
-                            $this->waitingMessages[$number] = $this->waitingMessages[$number] + 1;
-                        }else{
-                            $this->waitingMessages[$number] = 1;
+                        if (isset($this->waitingMessages[ $number ])) {
+                            $this->waitingMessages[ $number ] = $this->waitingMessages[ $number ] + 1;
+                        } else {
+                            $this->waitingMessages[ $number ] = 1;
                         }
                     }
                 }
@@ -148,7 +144,7 @@ class RunMessageQueue extends Command
     {
         $number = !empty($number) ? $number : 0;
 
-        if(isset($this->waitingMessages[$number]) && $this->waitingMessages[$number] > self::WAITING_MESSAGE_LIMIT) {
+        if (isset($this->waitingMessages[ $number ]) && $this->waitingMessages[ $number ] > self::WAITING_MESSAGE_LIMIT) {
             return true;
         }
 
@@ -165,9 +161,9 @@ class RunMessageQueue extends Command
     {
         $number = !empty($number) ? $number : 0;
 
-        return isset(config("apiwha.instances")[$number])
-        ? config("apiwha.instances")[$number]
-        : config("apiwha.instances")[0];
+        return isset(config("apiwha.instances")[ $number ])
+            ? config("apiwha.instances")[ $number ]
+            : config("apiwha.instances")[ 0 ];
 
     }
 
@@ -178,13 +174,13 @@ class RunMessageQueue extends Command
 
     private function waitingLimit($number = null)
     {
-        $instance   = $this->getInstance($number);
-        $instanceId = isset($instance["instance_id"]) ? $instance["instance_id"] : 0;
-        $token      = isset($instance["token"]) ? $instance["token"] : 0;
+        $instance = $this->getInstance($number);
+        $instanceId = isset($instance[ "instance_id" ]) ? $instance[ "instance_id" ] : 0;
+        $token = isset($instance[ "token" ]) ? $instance[ "token" ] : 0;
 
         $waiting = 0;
 
-        if(!empty($instanceId) && !empty($token)) {
+        if (!empty($instanceId) && !empty($token)) {
             // executing curl
             $curl = curl_init();
 
@@ -208,8 +204,8 @@ class RunMessageQueue extends Command
                 // throw some error if you want
             } else {
                 $result = json_decode($response, true);
-                if(isset($result["totalMessages"]) && is_numeric($result["totalMessages"])){
-                    $waiting = $result["totalMessages"];
+                if (isset($result[ "totalMessages" ]) && is_numeric($result[ "totalMessages" ])) {
+                    $waiting = $result[ "totalMessages" ];
                 }
             }
 
