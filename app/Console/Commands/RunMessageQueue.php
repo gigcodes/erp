@@ -50,8 +50,6 @@ class RunMessageQueue extends Command
      */
     public function handle()
     {
-        return;
-
         $report = CronJobReport::create([
             'signature' => $this->signature,
             'start_time' => Carbon::now()
@@ -81,7 +79,7 @@ class RunMessageQueue extends Command
                 ->where('sent', 0)
                 ->where('status', '!=', 1)
                 ->orderBy('sending_time', 'ASC')
-                ->limit(20);
+                ->limit(30);
 
                 // Do we have results?
                 if (count($message_queues->get()) > 0) {
@@ -95,18 +93,22 @@ class RunMessageQueue extends Command
                             $customer = Customer::find($message->customer_id);
                             $number   = !empty($customer->whatsapp_number) ? (string)$customer->whatsapp_number : 0;
 
-                            if(!$this->isWaitingFull($number)) {
-                                if ($customer && $customer->do_not_disturb == 0) {
-                                    SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
+                            if ( $number == '919152731483' ) {
+                                if (!$this->isWaitingFull($number)) {
+                                    if ($customer && $customer->do_not_disturb == 0) {
+                                        SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
 
-                                    dump('sent to all');
+                                        dump('sent to all');
+                                    } else {
+                                        $message->delete();
+
+                                        dump('deleting queue');
+                                    }
                                 } else {
-                                    $message->delete();
-
-                                    dump('deleting queue');
+                                    dump('sorry , message is full right now for this number : ' . $number);
                                 }
-                            }else{
-                                dump('sorry , message is full right now for this number : '.$number);
+                            } else {
+                                $message->delete();
                             }
 
 
