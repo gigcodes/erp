@@ -1837,6 +1837,7 @@ class WhatsAppController extends FindByNumberController
             'lawyer_id' => 'sometimes|nullable|numeric',
             'case_id' => 'sometimes|nullable|numeric',
             'blogger_id' => 'sometimes|nullable|numeric',
+            'document_id' => 'sometimes|nullable|numeric',
         ]);
 
         $data = $request->except('_token');
@@ -1957,6 +1958,78 @@ class WhatsAppController extends FindByNumberController
                 $chat_message = ChatMessage::create($params);
 
                 return response()->json(['message' => $chat_message]);
+
+            } elseif ($context == 'document') {
+
+                //Sending Documents To User / Vendor / Contacts
+                $data[ 'document_id' ] = $request->document_id;
+                $module_id = $request->document_id;
+
+                //Getting User For Sending Documents
+                if($request->user_type == 1){
+                    $document = Document::findOrFail($module_id);
+                    $document_url = $document->getDocumentPathById($document->id);
+
+                    foreach ($request->users as $key) {
+                        $user =  User::findOrFail($key);
+
+                        // User ID For Chat Message
+                        $data[ 'user_id' ] = $user->id;
+
+                        //Creating Chat Message
+                        $chat_message = ChatMessage::create($data);
+
+                        //Sending Document
+                        $this->sendWithThirdApi($user->phone, $request->whatsapp_number, '' , $document_url,'','');
+                        //Sending Text
+                        $this->sendWithThirdApi($user->phone, $request->whatsapp_number, $request->message ,'','','');
+                    }
+
+
+                    //Getting Vendor For Sending Documents
+                }elseif($request->user_type == 2){
+                    $document = Document::findOrFail($module_id);
+                    $document_url = $document->getDocumentPathById($document->id);
+                    foreach ($request->users as $key) {
+                        $vendor =  Vendor::findOrFail($key);
+
+                        // Vendor ID For Chat Message
+                        $data[ 'vendor_id' ] = $vendor->id;
+
+                        //Creating Chat Message
+                        $chat_message = ChatMessage::create($data);
+
+                        //Sending Document
+                        $this->sendWithThirdApi($vendor->phone, $request->whatsapp_number, '' , $document_url,'','');
+                        //Sending Text
+                        $this->sendWithThirdApi($vendor->phone, $request->whatsapp_number, $request->message ,'','','');
+                    }
+
+
+                    //Getting Contact For Sending Documents
+                }elseif($request->user_type == 3){
+                    $document = Document::findOrFail($module_id);
+                    $document_url = $document->getDocumentPathById($document->id);
+                    foreach ($request->users as $key) {
+                        $contact =  Contact::findOrFail($key);
+
+                        // Contact ID For Chat Message
+                        $data[ 'contact_id' ] = $contact->id;
+
+                        //Creating Chat Message
+                        $chat_message = ChatMessage::create($data);
+
+                        //Sending Document
+                        $this->sendWithThirdApi($contact->phone, $request->whatsapp_number, '' , $document_url,'','');
+                        //Sending Text
+                        $this->sendWithThirdApi($contact->phone, $request->whatsapp_number, $request->message ,'','','');
+                    }
+
+
+
+                }
+
+                return redirect()->back()->with('message', 'Document Send SucessFully');
 
             } else {
                 if ($context == 'developer_task') {
