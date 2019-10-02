@@ -3,7 +3,7 @@
   <?php echo Form::hidden("id",$erpLeads->id,["class"=> "form-control"]);  ?>
   <div class="form-group">
     <label for="customer_id">Customer:</label>
-    <?php echo Form::select("customer_id", $customerList, $erpLeads->customer_id,["class"=> "form-control"]);  ?>
+    <?php echo Form::select("customer_id", $customerList, $erpLeads->customer_id,["class"=> "form-control customer-search-box"]);  ?>
   </div>
   <div class="form-group">
     <label for="product_id">Products: (selected :<?php echo @reset($products); ?>)</label>

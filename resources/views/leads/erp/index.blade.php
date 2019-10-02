@@ -82,6 +82,41 @@
         });
   });
 
+    // start to search for customer   
+
+    var customerSearch = function() {
+        $(".customer-search-box").select2({
+          tags : true,
+          ajax: {
+              url: '/productSearch/',
+              dataType: 'json',
+              delay: 750,
+              data: function (params) {
+                  return {
+                      q: params.term, // search term
+                  };
+              },
+              processResults: function (data,params) {
+
+                  params.page = params.page || 1;
+
+                  return {
+                      results: data,
+                      pagination: {
+                          more: (params.page * 30) < data.total_count
+                      }
+                  };
+              },
+          },
+          placeholder: 'Search for Product by id, Name, Sku',
+          escapeMarkup: function (markup) { return markup; },
+          minimumInputLength: 5,
+          templateResult: formatProduct,
+          templateSelection: (product) => product.name || product.sku,
+
+      });
+    };
+
     $(document).on('click', '.editor_create', function () {
        var $this = $(this);
         $.ajax({
