@@ -390,6 +390,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('purchase/email/forward', 'PurchaseController@emailForward')->name('purchase.email.forward');
     Route::get('download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts');
 
+    Route::post( 'purchase/sendmsgsupplier', 'PurchaseController@sendmsgsupplier' )->name( 'purchase.sendmsgsupplier' );
+    Route::post( 'purchase/send/emailBulk', 'PurchaseController@sendEmailBulk' )->name( 'purchase.email.send.bulk' );
+    Route::resource( 'purchase-status', 'PurchaseStatusController' );
+     
+    Route::get( 'download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts' );
+
     // Master Plan
     Route::get('mastercontrol/clearAlert', 'MasterControlController@clearAlert')->name('mastercontrol.clear.alert');
     Route::resource('mastercontrol', 'MasterControlController');
@@ -1051,4 +1057,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/', 'PageNotesController@index')->name('pageNotes.viewList');
 
     });
+
+    // this is temp action
+    Route::get('update-purchase-order-product', 'PurchaseController@syncOrderProductId');
 });
