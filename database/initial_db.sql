@@ -3777,7 +3777,7 @@ CREATE TABLE `purchases` (
   `supplier` varchar(255) DEFAULT NULL,
   `status` varchar(255) DEFAULT NULL,
   `supplier_phone` varchar(255) DEFAULT NULL,
-  `whatsapp_number` varchar(255) NOT NULL DEFAULT '919152731486',
+  `whatsapp_number` varchar(255) NOT NULL DEFAULT '971562744570',
   `transaction_id` varchar(191) DEFAULT NULL,
   `transaction_date` datetime DEFAULT NULL,
   `transaction_amount` varchar(191) DEFAULT NULL,

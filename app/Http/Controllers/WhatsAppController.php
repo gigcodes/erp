@@ -1240,7 +1240,7 @@ class WhatsAppController extends FindByNumberController
             $to = "919004780634";
         } else {
             if ($instanceId == '55202') { // Solo 06
-                $to = '919152731486';
+                $to = '971562744570';
             } else {
                 if ($instanceId == '55211') { // Solo 04
                     $to = '919152731483';
@@ -1251,7 +1251,7 @@ class WhatsAppController extends FindByNumberController
         }
 
 
-        if ($customer && ($to == '919152731483' || $to == '919152731486')) {
+        if ($customer && ($to == '919152731483' || $to == '971562744570')) {
             $params[ 'erp_user' ] = null;
             $params[ 'supplier_id' ] = null;
             $params[ 'task_id' ] = null;
@@ -2721,7 +2721,7 @@ class WhatsAppController extends FindByNumberController
 
                 $additional_message = ChatMessage::create($params);
 
-//                if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486' ) {
+//                if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '971562744570' ) {
                 $this->sendWithThirdApi($message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, null, $additional_message->id);
 
                 //$this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, null, $additional_message->id);
@@ -3015,7 +3015,7 @@ class WhatsAppController extends FindByNumberController
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
 
-                if ($whatsapp_number == '919152731486') {
+                if ($whatsapp_number == '971562744570') {
                     foreach ($customers as $customer) {
                         if (!$now->between($morning, $evening, true)) {
                             if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
@@ -3543,7 +3543,7 @@ class WhatsAppController extends FindByNumberController
             $instanceId = "62439";
             $token = "jdcqh3ladeuvwzp4";
         } else {
-            if ($whatsapp_number == '919152731486') { // Solo 06
+            if ($whatsapp_number == '971562744570') { // Solo 06
                 $instanceId = '55202';
                 $token = '42ndn0qg5om26vzf';
             } else {
@@ -3705,7 +3705,7 @@ class WhatsAppController extends FindByNumberController
             // $additional_message = ChatMessage::create($params);
 
             if ($chat_message->message != '') {
-                if ($customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486') {
+                if ($customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '971562744570') {
                     $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, $chat_message->message, null, $chat_message->id);
                 } else {
                     $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $chat_message->message, true, $chat_message->id);
@@ -3714,7 +3714,7 @@ class WhatsAppController extends FindByNumberController
 
             if ($chat_message->hasMedia(config('constants.media_tags'))) {
                 foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
-                    if ($customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486') {
+                    if ($customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '971562744570') {
                         $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, null, $image->getUrl(), $chat_message->id);
                     } else {
                         $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), true, $chat_message->id);
@@ -3825,7 +3825,7 @@ class WhatsAppController extends FindByNumberController
             $instanceId = "62439";
             $token = "jdcqh3ladeuvwzp4";
         } else {
-            if ($whatsapp_number == '919152731486') { // Solo 06
+            if ($whatsapp_number == '971562744570') { // Solo 06
                 $instanceId = '55202';
                 $token = '42ndn0qg5om26vzf';
             } else {

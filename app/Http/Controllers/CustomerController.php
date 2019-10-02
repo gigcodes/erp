@@ -258,7 +258,7 @@ class CustomerController extends Controller
         if ($request->type == 'unread' || $request->type == 'unapproved') {
             $join = "RIGHT";
             $type = $request->type == 'unread' ? 0 : ($request->type == 'unapproved' ? 1 : 0);
-            $orderByClause = " ORDER BY last_communicated_at $orderby, is_flagged DESC, message_status ASC";
+            $orderByClause = " ORDER BY is_flagged DESC, message_status ASC, last_communicated_at $orderby";
             $filterWhereClause = " AND chat_messages.status = $type";
             $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.status != 10";
             // $messageWhereClause = " WHERE chat_messages.status = $type";
@@ -2352,7 +2352,7 @@ class CustomerController extends Controller
             $params[ 'approved' ] = 1;
             $params[ 'message' ]  = $messageData;
             $params[ 'status' ]   = 2;
-            
+
             app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
 
             $chat_message = \App\ChatMessage::create($params);
@@ -2361,6 +2361,6 @@ class CustomerController extends Controller
 
         return response()->json(["code" => 1 , "message" => "done"]);
 
-        
+
     }
 }

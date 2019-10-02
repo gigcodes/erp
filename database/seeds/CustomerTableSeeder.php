@@ -22,7 +22,7 @@ class CustomerTableSeeder extends Seeder
             $customer->name = $faker->name;
             $customer->email = $faker->email;
             $customer->phone = $faker->phoneNumber;
-            $customer->whatsapp_number = '919152731486';
+            $customer->whatsapp_number = '971562744570';
             $customer->rating = rand(0,9);
             $customer->gender = rand(0,1) == 0 ? 'male' : 'female';
             $customer->address = $faker->address;

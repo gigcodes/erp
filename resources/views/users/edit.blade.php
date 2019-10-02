@@ -70,7 +70,7 @@
                                 <option value="918291920455" {{ $user->whatsapp_number == '918291920455' ? 'selected' : '' }}>03</option>
                                 <option value="919152731483" {{ $user->whatsapp_number == '919152731483' ? 'selected' : '' }}>04</option>
                                 <option value="919152731484" {{ $user->whatsapp_number == '919152731484' ? 'selected' : '' }}>05</option>
-                                <option value="919152731486" {{ $user->whatsapp_number == '919152731486' ? 'selected' : '' }}>06</option>
+                                <option value="971562744570" {{ $user->whatsapp_number == '971562744570' ? 'selected' : '' }}>06</option>
                                 <option value="918291352520" {{ $user->whatsapp_number == '918291352520' ? 'selected' : '' }}>08</option>
                                 <option value="919004008983" {{ $user->whatsapp_number == '919004008983' ? 'selected' : '' }}>09</option>
                             </Select> --}}
@@ -151,7 +151,7 @@
                         @foreach($roles as $key => $value)
                            <div>
                                 {{ Form::checkbox('roles[]',  $key  , (in_array($value, $userRole)) ? "checked" : '') }} <strong>{{ $value }}</strong>
-                                
+
                                  </div>
                         @endforeach
 
@@ -179,7 +179,7 @@
                     @foreach($permission as $key => $value)
                         <div>
                            {{ Form::checkbox('permissions[]',  $key , (in_array($value, $userPermission)) ? "checked" : '') }} <strong>{{ $value }}</strong>
-                            
+
                         </div>
                     @endforeach
                 </div>
