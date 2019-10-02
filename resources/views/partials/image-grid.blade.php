@@ -150,8 +150,11 @@
                     <input type="hidden" name="quick_product" value="true">
                     <button type="submit" class="btn btn-xs btn-secondary">Quick Products</button>
                 </form>
-                <button type="button" class="btn btn-secondary select-all-product-btn">Select All</button>
-                <button type="button" class="btn btn-secondary" id="attachAllButton">Attach All</button>
+                <button type="button" class="btn btn-secondary select-all-product-btn" data-count="0">Select All</button>
+                <button type="button" class="btn btn-secondary select-all-product-btn" data-count="20">Select 20</button>
+                <button type="button" class="btn btn-secondary select-all-product-btn" data-count="30">Select 30</button>
+                <button type="button" class="btn btn-secondary select-all-product-btn" data-count="50">Select 50</button>
+                <button type="button" class="btn btn-secondary select-all-product-btn" data-count="100">Select 100</button>
             </div>
         </div>
     </div>
@@ -209,18 +212,45 @@
             var selectAllBtn = $(".select-all-product-btn");
             selectAllBtn.on("click", function () {
                 var $this = $(this);
+                var vcount = 0;
+
+                vcount = $this.data('count');
+                if (vcount == 0) {
+                    vcount = 'all';
+                }
+
                 if ($this.hasClass("has-all-selected") === false) {
-                    $this.html("Deselect all");
-                    $(".select-pr-list-chk").prop("checked", true).change();
+                    $this.html("Deselect " + vcount);
+                    if (vcount == 'all') {
+                        $(".select-pr-list-chk").prop("checked", true).change();
+                    } else {
+                        var boxes = $(".select-pr-list-chk");
+                        for (i = 0; i < vcount; i++) {
+                            try {
+                                $(boxes[i]).prop("checked", true).change();
+                            } catch (err) {
+                            }
+                        }
+                    }
                     $this.addClass("has-all-selected");
                 } else {
-                    $this.html("Select all");
-                    $(".select-pr-list-chk").prop("checked", false).change();
+                    $this.html("Select " + vcount);
+                    if (vcount == 'all') {
+                        $(".select-pr-list-chk").prop("checked", false).change();
+                    } else {
+                        var boxes = $(".select-pr-list-chk");
+                        for (i = 0; i < vcount; i++) {
+                            try {
+                                $(boxes[i]).prop("checked", false).change();
+                            } catch (err) {
+                            }
+                        }
+                    }
                     $this.removeClass("has-all-selected");
                 }
 
                 // Add all images to array
-                for (i = 0; i < all_product_ids.length; i++) {
+                for (i = 0; i < all_product_ids.length && i < vcount; i++) {
                     image_array.push(all_product_ids[i]);
                 }
                 image_array = unique(image_array);
