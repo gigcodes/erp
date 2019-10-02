@@ -2,7 +2,7 @@
   <?php echo csrf_field(); ?>
   <div class="form-group">
     <label for="customer_id">Customer:</label>
-    <?php echo Form::select("customer_id", $customerList, null,["class"=> "form-control"]);  ?>
+    <?php echo Form::select("customer_id", $customerList, null,["class"=> "form-control customer-search-box", "style"=>"width:100%;"]);  ?>
   </div>
   <div class="form-group">
     <label for="product_id">Products:</label>
@@ -10,15 +10,15 @@
   </div>
   <div class="form-group">
     <label for="brand_id">Brand:</label>
-    <?php echo Form::select("brand_id", $brands , null,["class"=> "form-control"]);  ?>
+    <?php echo Form::select("brand_id", ["" => "-- Select an option --"] + $brands , null,["class"=> "form-control"]);  ?>
   </div>
   <div class="form-group">
     <label for="category_id">Category:</label>
-    <?php echo Form::select("category_id", $category , null,["class"=> "form-control"]);  ?>
+    <?php echo $category; ?>
   </div>
   <div class="form-group">
     <label for="color">Color:</label>
-    <?php echo Form::select("color",$colors,null,["class"=> "form-control"]);  ?>
+    <?php echo Form::select("color",["" => "-- Select an option --"] + $colors,null,["class"=> "form-control"]);  ?>
   </div>
   <div class="form-group">
     <label for="size">Size:</label>

@@ -29,4 +29,9 @@ class ErpLeads extends Model
     {
         return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\ErpLeads')->latest();
     }
+
+    public function customer()
+    {
+        return $this->hasOne('App\Customer', 'id', 'customer_id');
+    }
 }

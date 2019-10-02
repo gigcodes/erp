@@ -811,9 +811,9 @@ class LeadsController extends Controller
 
     public function erpLeadsCreate()
     {
-        $customerList = \App\Customer::pluck("name","id")->toArray();
+        $customerList = [];//\App\Customer::pluck("name","id")->toArray();
         $brands = Brand::pluck("name","id")->toArray();
-        $category = Category::pluck("title","id")->toArray();
+        $category = Category::attr(['name' => 'category_id', 'class' => 'form-control', 'id' => 'category_id'])->selected()->renderAsDropdown();
         $colors = \App\ColorNamesReference::pluck("erp_name","erp_name")->toArray();
         $status = \App\ErpLeadStatus::pluck("name","id")->toArray();
         return view("leads.erp.create",compact('customerList','brands','category','colors','status'));
@@ -824,9 +824,9 @@ class LeadsController extends Controller
         $id = request()->get("id",0);
         $erpLeads = \App\ErpLeads::where("id",$id)->first();    
         if($erpLeads) {
-            $customerList = \App\Customer::pluck("name","id")->toArray();
+            $customerList = [$erpLeads->customer_id => $erpLeads->customer->name];//\App\Customer::pluck("name","id")->toArray();
             $brands = Brand::pluck("name","id")->toArray();
-            $category = Category::pluck("title","id")->toArray();
+            $category = Category::attr(['name' => 'category_id', 'class' => 'form-control', 'id' => 'category_id'])->selected($erpLeads->category_id)->renderAsDropdown();
             $products = \App\Product::where("id",$erpLeads->product_id)->get()->pluck("name","id")->toArray();
             $colors = \App\ColorNamesReference::pluck("erp_name","erp_name")->toArray();
             $status = \App\ErpLeadStatus::pluck("name","id")->toArray();
@@ -837,14 +837,24 @@ class LeadsController extends Controller
     public function erpLeadsStore()
     {
         $id = request()->get("id",0);
+        $productId =  request()->get("product_id",0);
+        
+        $customer = \App\Customer::where("id",request()->get("customer_id",0))->first();
+        if(!$customer) {
+            return response()->json(["code"=> 0 , "data" => [], "message" => "Please select valid customer"]);
+        }    
 
-        $erpLeads = \App\ErpLeads::where("id",$id)->first();
-        if(!$erpLeads) {
-            $erpLeads = new \App\ErpLeads;
+        $product = \App\Product::where("id",$productId)->first();
+        if($product) {
+            $erpLeads = \App\ErpLeads::where("id",$id)->first();
+            if(!$erpLeads) {
+                $erpLeads = new \App\ErpLeads;
+            }
+            $erpLeads->fill(request()->all());
+            $erpLeads->save();
+        }else{
+            return response()->json(["code"=> 0 , "data" => [], "message" => "Please select valid product"]);            
         }
-
-        $erpLeads->fill(request()->all());
-        $erpLeads->save();
 
         return response()->json(["code"=> 1 , "data" => []]);
     }
@@ -859,6 +869,13 @@ class LeadsController extends Controller
         }
 
         return response()->json(["code"=> 1 , "data" => []]);
+    }
+
+    public function customerSearch()
+    {
+        $term = request()->get("q",null);
+        $search = \App\Customer::where("name","like","%{$term}%")->orWhere("phone","like","%{$term}%")->get();
+        return $search;
     }
 
 }

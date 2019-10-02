@@ -88,7 +88,7 @@
         $(".customer-search-box").select2({
           tags : true,
           ajax: {
-              url: '/productSearch/',
+              url: '/erp-leads/customer-search',
               dataType: 'json',
               delay: 750,
               data: function (params) {
@@ -108,11 +108,11 @@
                   };
               },
           },
-          placeholder: 'Search for Product by id, Name, Sku',
+          placeholder: 'Search for Customer by id, Name, No',
           escapeMarkup: function (markup) { return markup; },
-          minimumInputLength: 5,
-          templateResult: formatProduct,
-          templateSelection: (product) => product.name || product.sku,
+          minimumInputLength: 2,
+          templateResult: formatCustomer,
+          templateSelection: (customer) => customer.text || customer.name,
 
       });
     };
@@ -125,6 +125,7 @@
         }).done(function (data) {
            $("#erp-leads").find(".modal-body").html(data);
            productSelect();
+           customerSearch();
            $("#erp-leads").modal("show");
         }).fail(function (response) {
             console.log(response);
@@ -162,6 +163,7 @@
         }).done(function (data) {
            $("#erp-leads").find(".modal-body").html(data);
            productSelect();
+           customerSearch();
            $("#erp-leads").modal("show");
         }).fail(function (response) {
             console.log(response);
@@ -177,9 +179,13 @@
             data : $form.serialize(),
             url: "{{ route('leads.erpLeads.store') }}"
         }).done(function (data) {
-           $("#erp-leads").find(".modal-body").html("");
-           $("#erp-leads").modal("hide");
-           location.reload(true);
+           if(data.code == 1) {
+               $("#erp-leads").find(".modal-body").html("");
+               $("#erp-leads").modal("hide");
+               location.reload(true);
+           }else{
+              alert(data.message);
+           } 
         }).fail(function (response) {
             console.log(response);
         });
@@ -212,16 +218,11 @@
           },
           placeholder: 'Search for Product by id, Name, Sku',
           escapeMarkup: function (markup) { return markup; },
-          minimumInputLength: 5,
+          minimumInputLength: 2,
           templateResult: formatProduct,
-          templateSelection: (product) => product.name || product.sku,
+          templateSelection: (product) => product.text || product.name,
 
       });
-
-       $("#select2-product").trigger({
-            type: 'select2:select',
-            params: {}
-        });
     };
 
     function formatProduct (product) {
@@ -229,7 +230,21 @@
             return product.sku;
         }
 
-        return "<p> <b>Id:</b> " +product.id  + (product.name ? " <b>Name:</b> "+product.name : "" ) +  " <b>Sku:</b> "+product.sku+" </p>";
+        if(product.sku) {
+            return "<p> <b>Id:</b> " +product.id  + (product.name ? " <b>Name:</b> "+product.name : "" ) +  " <b>Sku:</b> "+product.sku+" </p>";
+        }
+
+    }
+
+    function formatCustomer (customer) {
+        if (customer.loading) {
+            return customer.name;
+        }
+
+        if(customer.name) {
+            return "<p> <b>Id:</b> " +customer.id  + (customer.name ? " <b>Name:</b> "+customer.name : "" ) +  (customer.phone ? " <b>Phone:</b> "+customer.phone : "" ) + "</p>";
+        }
+
     }
 
     
