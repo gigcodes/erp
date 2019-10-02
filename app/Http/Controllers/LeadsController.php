@@ -845,16 +845,19 @@ class LeadsController extends Controller
         }    
 
         $product = \App\Product::where("id",$productId)->first();
+        $productId = null;
         if($product) {
-            $erpLeads = \App\ErpLeads::where("id",$id)->first();
-            if(!$erpLeads) {
-                $erpLeads = new \App\ErpLeads;
-            }
-            $erpLeads->fill(request()->all());
-            $erpLeads->save();
-        }else{
-            return response()->json(["code"=> 0 , "data" => [], "message" => "Please select valid product"]);            
+           $productId = $product->id;
         }
+        $params = request()->all();
+        $params["product_id"] = $productId;
+
+        $erpLeads = \App\ErpLeads::where("id",$id)->first();
+        if(!$erpLeads) {
+            $erpLeads = new \App\ErpLeads;
+        }
+        $erpLeads->fill($params);
+        $erpLeads->save();
 
         return response()->json(["code"=> 1 , "data" => []]);
     }
