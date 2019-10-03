@@ -1053,6 +1053,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::prefix('page-notes')->group(function () {
         Route::post('create', 'PageNotesController@create')->name('createPageNote');
         Route::get('list', 'PageNotesController@list')->name('listPageNote');
+        Route::get('edit', 'PageNotesController@edit')->name('editPageNote');
+        Route::post('update', 'PageNotesController@update')->name('updatePageNote');
+        Route::get('delete', 'PageNotesController@delete')->name('deletePageNote');
         Route::get('records', 'PageNotesController@records')->name('pageNotesRecords');
         Route::get('/', 'PageNotesController@index')->name('pageNotes.viewList');
 
@@ -1060,4 +1063,5 @@ Route::group(['middleware' => 'auth'], function () {
 
     // this is temp action
     Route::get('update-purchase-order-product', 'PurchaseController@syncOrderProductId');
+    Route::resource('page-notes-categories', 'PageNotesCategoriesController');
 });
