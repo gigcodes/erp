@@ -63,18 +63,18 @@ class ProductsCreator
                 return false;
             }
 
-            // Is the product approved?
+            // Is the product not approved yet?
             if (!StatusHelper::isApproved($image->status_id)) {
                 // Check if we can update - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_TITLE')->first();
                 if ($manual == null || (int)$manual->value == 0) {
-                    $product->name = $image->title;
+                    $product->name = ProductHelper::getRedactedText($image->title);
                 }
 
                 // Check if we can update - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->first();
                 if ($manual == null || (int)$manual->value == 0) {
-                    $product->short_description = $image->description;
+                    $product->short_description = ProductHelper::getRedactedText($image->description);
                 }
 
                 // Check if we can update - not manually entered
@@ -87,12 +87,12 @@ class ProductsCreator
                 if ($manual == null || (int)$manual->value == 0) {
                     // Check for composition key
                     if (isset($image->properties[ 'composition' ])) {
-                        $product->composition = trim($image->properties[ 'composition' ] ?? '');
+                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'composition' ] ?? ''));
                     }
 
                     // Check for material_used key
                     if (isset($image->properties[ 'material_used' ])) {
-                        $product->composition = trim($image->properties[ 'material_used' ] ?? '');
+                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'material_used' ] ?? ''));
                     }
                 }
             }
@@ -249,9 +249,9 @@ class ProductsCreator
 
         // Check for EUR to INR
         if (!empty($brand->euro_to_inr)) {
-            $price_inr = (double) $brand->euro_to_inr * (double) $image->price;
+            $price_inr = (float)$brand->euro_to_inr * (float)trim($image->price);
         } else {
-            $price_inr = (double) Setting::get('euro_to_inr') * (double) $image->price;
+            $price_inr = (float)Setting::get('euro_to_inr') * (float)trim($image->price);
         }
 
         // Set INR price and special price
@@ -279,49 +279,28 @@ class ProductsCreator
         }
 
         if (array_key_exists('sizes', $properties_array)) {
-            $sizes = $properties_array[ 'sizes' ];
-            $size = implode(',', $sizes);
+            $orgSizes = $properties_array[ 'sizes' ];
+            $tmpSizes = [];
+
+            // Loop over sizes
+            foreach ($orgSizes as $size) {
+                if (substr(strtoupper($size), -2) == 'IT') {
+                    $size = str_replace('IT', '', $size);
+                    $size = trim($size);
+                }
+
+                if (!empty($size)) {
+                    $tmpSizes[] = $size;
+                }
+            }
+
+            $size = implode(',', $tmpSizes);
         }
 
         if (array_key_exists('dimension', $properties_array)) {
-            if (!is_array($properties_array[ 'dimension' ])) {
-                if (strpos($properties_array[ 'dimension' ], 'Width') !== false || strpos($properties_array[ 'dimension' ], 'W') !== false) {
-                    if (preg_match_all('/Width ([\d]+)/', $properties_array[ 'dimension' ], $match)) {
-                        $lmeasurement = (int)$match[ 1 ][ 0 ];
-                        $measurement_size_type = 'measurement';
-                    }
-
-                    if (preg_match_all('/W ([\d]+)/', $properties_array[ 'dimension' ], $match)) {
-                        $lmeasurement = (int)$match[ 1 ][ 0 ];
-                        $measurement_size_type = 'measurement';
-                    }
-                }
-
-                if (strpos($properties_array[ 'dimension' ], 'Height') !== false || strpos($properties_array[ 'dimension' ], 'H') !== false) {
-                    if (preg_match_all('/Height ([\d]+)/', $properties_array[ 'dimension' ], $match)) {
-                        $hmeasurement = (int)$match[ 1 ][ 0 ];
-                    }
-
-                    if (preg_match_all('/H ([\d]+)/', $properties_array[ 'dimension' ], $match)) {
-                        $hmeasurement = (int)$match[ 1 ][ 0 ];
-                    }
-                }
-
-                if (strpos($properties_array[ 'dimension' ], 'Depth') !== false || strpos($properties_array[ 'dimension' ], 'D') !== false) {
-                    if (preg_match_all('/Depth ([\d]+)/', $properties_array[ 'dimension' ], $match)) {
-                        $dmeasurement = (int)$match[ 1 ][ 0 ];
-                    }
-
-                    if (preg_match_all('/D ([\d]+)/', $properties_array[ 'dimension' ], $match)) {
-                        $dmeasurement = (int)$match[ 1 ][ 0 ];
-                    }
-                }
-
-                if (strpos($properties_array[ 'dimension' ], 'x') !== false) {
-                    $formatted = str_replace('cm', '', $properties_array[ 'dimension' ]);
-                    $formatted = str_replace(' ', '', $formatted);
-                    $exploded = explode('x', $formatted);
-
+            if (is_array($properties_array[ 'dimension' ])) {
+                $exploded = $properties_array[ 'dimension' ];
+                if (count($exploded) == 3) {
                     if (array_key_exists('0', $exploded)) {
                         $lmeasurement = (int)$exploded[ 0 ];
                         $measurement_size_type = 'measurement';
@@ -342,7 +321,7 @@ class ProductsCreator
             $categories = Category::all();
             $category_id = 1;
 
-            if ( is_array($properties_array['category']) ) {
+            if (is_array($properties_array[ 'category' ])) {
                 foreach ($properties_array[ 'category' ] as $key => $cat) {
                     $up_cat = strtoupper($cat);
 
@@ -350,12 +329,16 @@ class ProductsCreator
                         $up_cat = 'WOMEN';
                     }
 
-                    if ($key == 0 && $up_cat == 'WOMEN') {
-                        $women_children = Category::where('title', 'WOMEN')->first()->childs;
+                    if ($up_cat == 'MAN') {
+                        $up_cat = 'MEN';
                     }
 
-                    if (isset($women_children)) {
-                        foreach ($women_children as $children) {
+                    if ($key == 0 && $up_cat == 'WOMEN') {
+                        $wchildren = Category::where('title', $up_cat)->first()->childs;
+                    }
+
+                    if (isset($wchildren)) {
+                        foreach ($wchildren as $children) {
                             if (strtoupper($children->title) == $up_cat) {
                                 $category_id = $children->id;
                             }
