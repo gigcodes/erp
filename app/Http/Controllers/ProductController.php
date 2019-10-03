@@ -1436,7 +1436,7 @@ class ProductController extends Controller
             $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
         })->groupBy('products.id');
         $products_count = $products->get()->count();
-        $all_product_ids = $products->pluck('id')->toArray();
+        $all_product_ids = $products->get()->pluck('id')->toArray();
 
         $products = $products->paginate(Setting::get('pagination'));
 

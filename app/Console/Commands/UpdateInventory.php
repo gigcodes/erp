@@ -59,22 +59,6 @@ class UpdateInventory extends Command
                 sp.last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) 
             GROUP BY
                 sp.sku
-                
-                
-            SELECT
-                sp.sku,
-                COUNT(sp.id) AS cnt
-            FROM
-                scraped_products sp
-            JOIN
-                suppliers s 
-            ON 
-                sp.website=s.website
-            WHERE
-                s.supplier_status_id=1 AND 
-                sp.last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) 
-            GROUP BY
-                sp.sku
         ";
         $scrapedProducts = DB::select($sqlScrapedProductsInStock);
 
