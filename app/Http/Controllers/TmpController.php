@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Plank\Mediable\Media;
+use Illuminate\Http\Request;
 
 class TmpController extends Controller
 {
 
-    public function updateImageDirectory()
+    public function updateImageDirectory( Request $request)
     {
-        $mediaArr = Media::paginate(100);
+        $mediaArr = Media::paginate($request->get('limit', 1000));
         foreach ($mediaArr as $media) {
             if ($media->fileExists()) {
                 $mediables = DB::table('mediables')->where('media_id', $media->id)->first();
