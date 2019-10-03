@@ -99,14 +99,19 @@ class ProductsCreator
 
             // Get current sizes
             $sizes = $product->size;
+            $product->size = [];
 
             // Update with scraped sizes
             if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) >= 1) {
                 $sizes = implode(',', $image->properties[ 'sizes' ] ?? []);
-            }
 
-            // Store everything again in sizes
-            $product->size = $sizes;
+                // Loop over sizes and redactText
+                if (is_array($sizes) && $sizes > 0) {
+                    foreach ($sizes as $size) {
+                        $product->size[] = ProductHelper::getRedactedText($size);
+                    }
+                }
+            }
 
             // Store measurement
             $product->lmeasurement = $formattedDetails[ 'lmeasurement' ] > 0 ? $formattedDetails[ 'lmeasurement' ] : null;
@@ -327,10 +332,6 @@ class ProductsCreator
 
                     if ($up_cat == 'WOMAN') {
                         $up_cat = 'WOMEN';
-                    }
-
-                    if ($up_cat == 'MAN') {
-                        $up_cat = 'MEN';
                     }
 
                     if ($key == 0 && $up_cat == 'WOMEN') {
