@@ -181,6 +181,15 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('leads/{id}/changestatus', 'LeadsController@updateStatus');
     Route::delete('leads/permanentDelete/{leads}', 'LeadsController@permanentDelete')->name('leads.permanentDelete');
     Route::resource('chat', 'ChatController');
+    Route::get('erp-leads', 'LeadsController@erpLeads');
+    Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
+    Route::get('erp-leads/edit', 'LeadsController@erpLeadsEdit')->name('leads.erpLeads.edit');
+    Route::get('erp-leads/create', 'LeadsController@erpLeadsCreate')->name('leads.erpLeads.create');
+    Route::post('erp-leads/store', 'LeadsController@erpLeadsStore')->name('leads.erpLeads.store');
+    Route::get('erp-leads/delete', 'LeadsController@erpLeadDelete')->name('leads.erpLeads.delete');
+    Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
+    
+    
 //	Route::resource('task','TaskController');
 
     // Instruction
@@ -1059,7 +1068,12 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/', 'PageNotesController@index')->name('pageNotes.viewList');
 
     });
+});
 
+Route::group(['middleware' => 'auth'], function () {
+    Route::prefix('tmp-task')->group(function () {
+        Route::get('import-leads', 'TmpTaskController@importLeads')->name('importLeads');
+    });
     // this is temp action
     Route::get('update-purchase-order-product', 'PurchaseController@syncOrderProductId');
-});
+});    
