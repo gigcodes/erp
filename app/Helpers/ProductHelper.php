@@ -178,6 +178,7 @@ class ProductHelper extends Model
         return $request;
     }
 
+
     public static function getMeasurements($product)
     {
         // Create array with measurements

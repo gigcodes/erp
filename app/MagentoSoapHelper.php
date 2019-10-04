@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Category;
 use App\ProductReference;
+use App\Helpers\ProductHelper;
 
 class MagentoSoapHelper
 {
@@ -229,14 +230,14 @@ class MagentoSoapHelper
         $sku = $product->sku . $product->color;
 
         // Set measurement
-        $measurement = 'L-' . $product->lmeasurement . ',H-' . $product->hmeasurement . ',D-' . $product->dmeasurement;
+        $measurement = ProductHelper::getMeasurements($product);
 
         // Set product data
         $productData = array(
             'categories' => $categories,
-            'name' => $product->name,
+            'name' => strtoupper($product->name),
             'description' => '<p></p>',
-            'short_description' => $product->short_description,
+            'short_description' => ucwords(strtolower($product->short_description)),
             'website_ids' => array(1), // Id or code of website
             'status' => 1, // 1 = Enabled, 2 = Disabled
             'visibility' => 4, // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
@@ -252,11 +253,11 @@ class MagentoSoapHelper
             'special_price' => $product->price_special,
             'additional_attributes' => [
                 'single_data' => [
-                    ['key' => 'composition', 'value' => $product->composition,],
-                    ['key' => 'color', 'value' => $product->color,],
+                    ['key' => 'composition', 'value' => ucwords($product->composition),],
+                    ['key' => 'color', 'value' => ucwords($product->color),],
                     ['key' => 'measurement', 'value' => $measurement,],
-                    ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
-                    ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
+                    ['key' => 'country_of_manufacture', 'value' => ucwords($product->made_in),],
+                    ['key' => 'brands', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
                 ]
             ]
         );
