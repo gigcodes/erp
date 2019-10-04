@@ -24,7 +24,7 @@ class ColorNamesReference extends Model
         // Check if color can be found in url
         if (isset($productObject->url)) {
             foreach ($mainColorNames as $colorName) {
-                if (stristr($productObject->url, $colorName->erp_name)) {
+                if (stristr(self::_replaceKnownProblems($productObject->url), $colorName->erp_name)) {
                     return $colorName->erp_name;
                 }
             }
@@ -33,7 +33,7 @@ class ColorNamesReference extends Model
         // Check if color can be found in title
         if (isset($productObject->title)) {
             foreach ($mainColorNames as $colorName) {
-                if (stristr($productObject->title, $colorName->erp_name)) {
+                if (stristr(self::_replaceKnownProblems($productObject->title), $colorName->erp_name)) {
                     return $colorName->erp_name;
                 }
             }
@@ -42,13 +42,26 @@ class ColorNamesReference extends Model
         // Check if color can be found in description
         if (isset($productObject->description)) {
             foreach ($mainColorNames as $colorName) {
-                if (stristr($productObject->description, $colorName->erp_name)) {
+                if (stristr(self::_replaceKnownProblems($productObject->description), $colorName->erp_name)) {
                     return $colorName->erp_name;
                 }
             }
         }
 
-        // Return false by default
-        return false;
+        // Return an empty string by default
+        return '';
+    }
+
+    private static function _replaceKnownProblems($text)
+    {
+        // Replace known problems
+        $text = str_ireplace('off-white', '', $text);
+        $text = str_ireplace('off+white', '', $text);
+        $text = str_ireplace('off%20white', '', $text);
+        $text = str_ireplace('off white', '', $text);
+        $text = str_ireplace('offwhite', '', $text);
+
+        // Return text
+        return $text;
     }
 }

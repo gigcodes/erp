@@ -11,6 +11,53 @@
         .quick-edit-color {
             transition: 1s ease-in-out;
         }
+
+        .thumbnail-pic {
+            position: relative;
+            display: inline-block;
+        }
+
+        .thumbnail-pic:hover .thumbnail-edit {
+            display: block;
+        }
+
+        .thumbnail-edit {
+            padding-top: 12px;
+            padding-right: 7px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: none;
+        }
+
+        .thumbnail-edit a {
+            color: #FF0000;
+        }
+
+        .thumbnail-pic {
+            position: relative;
+            padding-top: 10px;
+            display: inline-block;
+        }
+
+        .notify-badge {
+            position: absolute;
+            right: -20px;
+            top: 10px;
+            text-align: center;
+            border-radius: 30px 30px 30px 30px;
+            color: white;
+            padding: 5px 10px;
+            font-size: 10px;
+        }
+
+        .notify-red-badge {
+            background: red;
+        }
+
+        .notify-green-badge {
+            background: green;
+        }
     </style>
 @endsection
 
@@ -128,7 +175,6 @@
                         <th width="5%">Composition</th>
                         <th width="10%">Color</th>
                         <th width="5%">Price</th>
-                        {{-- <th width="5%">Cropper</th> --}}
                         <th width="10%">Action</th>
                         <th width="20%">Remarks</th>
                     </tr>
@@ -143,7 +189,24 @@
                                         @if ($product->hasMedia(config('constants.media_tags')))
                                             @foreach($product->getMedia('gallery') as $media)
                                                 @if(stripos($media->filename, 'crop') !== false)
-                                                    <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ $media->getUrl() }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                                                    <?php
+                                                    $width = 0;
+                                                    $height = 0;
+                                                    if (file_exists($media->getAbsolutePath())) {
+                                                        list($width, $height) = getimagesize($media->getAbsolutePath());
+                                                        $badge = "notify-red-badge";
+                                                        if ($width == 1000 && $height == 1000) {
+                                                            $badge = "notify-green-badge";
+                                                        }
+                                                    } else {
+                                                        $badge = "notify-red-badge";
+                                                    }
+                                                    ?>
+                                                    <div class="thumbnail-pic">
+                                                        <div class="thumbnail-edit"><a class="delete-thumbail-img" data-product-id="{{ $product->id }}" data-media-id="{{ $media->id }}" data-media-type="gallery" href="javascript:;"><i class="fa fa-trash fa-lg"></i></a></div>
+                                                        <span class="notify-badge {{$badge}}">{{ $width."X".$height}}</span>
+                                                        <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ $media->getUrl() }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                                                    </div>
                                                 @endif
                                             @endforeach
                                         @endif
@@ -157,7 +220,7 @@
                                     </div>
                                     <div class="col-md-3">
                                         <strong class="same-color">{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
-                                        <p class="same-color">{{ $product->name }}</p>
+                                        <p class="same-color">{{ strtoupper($product->name) }}</p>
                                         <br/>
                                         <p class="same-color" style="font-size: 18px;">
                                             <span style="text-decoration: line-through">Rs. {{ number_format($product->price_inr) }}</span> Rs. {{ number_format($product->price_special) }}
@@ -167,7 +230,7 @@
                                             <strong class="same-color" style="text-decoration: underline">Description</strong>
                                             <br/>
                                             <span id="description{{ $product->id }}" class="same-color">
-                                                {{ html_entity_decode($product->short_description) }}
+                                                {{ ucwords(strtolower(html_entity_decode($product->description))) }}
                                             </span>
                                         </p>
                                         <br/>
@@ -179,7 +242,7 @@
                                                 @if ( !empty(trim($description->description)) && trim($description->description) != trim($product->short_description) )
                                                     <hr/>
                                                     <span class="same-color">
-                                                        {{ html_entity_decode($description->description) }}
+                                                        {{ ucwords(strtolower(html_entity_decode($description->description))) }}
                                                     </span>
                                                     <p>
                                                         <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", html_entity_decode($description->description)) }}">Use this description ({{ $description->website }})</button>
@@ -193,26 +256,26 @@
                                             <strong class="same-color" style="text-decoration: underline;">Composition</strong>
                                             <br/>
                                             <span class="same-color flex-column">
-                                                {{ $product->composition }}
+                                                {{ strtoupper($product->composition) }}
                                             </span>
                                         </p>
 
                                         <p>
                                         <span>
-                                            <strong>Color</strong>: {{ $product->color }}<br/>
+                                            <strong>Color</strong>: {{ strtoupper($product->color) }}<br/>
                                         </span>
                                         </p>
 
                                         <p>
                                             <strong>Sizes</strong>: {{ $product->size }}<br/>
-                                            <strong>Dimension</strong>: {{ $product->lmeasurement }} x {{ $product->hmeasurement }} x {{ $product->dmeasurement }}<br/>
+                                            <strong>Dimension</strong>: {{ \App\Helpers\ProductHelper::getMeasurements($product) }}<br/>
                                         </p>
                                         <p>
                                             <span class="sololuxury-button">ADD TO BAG</span>
                                             <span class="sololuxury-button"><i class="fa fa-heart"></i> ADD TO WISHLIST</span>
                                         </p>
                                         <p class="same-color">
-                                            View All: <strong>{{ isset($product->product_category->title) ? $product->product_category->title  : '' }}</strong>
+                                            View All: <strong>{{ isset($product->product_category->id) ? \App\Category::getCategoryPathById($product->product_category->id)  : '' }}</strong>
                                             <br/>
                                             View All: <strong>{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
                                         </p>
@@ -295,7 +358,7 @@
                                                             <div class="modal-dialog modal-dialog modal-lg" role="document">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
-                                                                        <h4 class="modal-title">{{ $product->name }}</h4>
+                                                                        <h4 class="modal-title">{{ strtoupper($product->name) }}</h4>
                                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                                                     </div>
                                                                     <div class="modal-body">
@@ -524,10 +587,6 @@
                                     @if ($product->product_user_id != null)
                                         {{ \App\User::find($product->product_user_id)->name }}
                                     @endif
-
-                                    {{-- <button type="button" data-toggle="modal" data-target="#editTaskModal" data-task="{{ $task }}" class="btn btn-image edit-task-button"><img src="/images/edit.png" /></button> --}}
-
-                                    {{-- <button type="button" class="btn btn-image task-delete-button" data-id="{{ $task->id }}"><img src="/images/archive.png" /></button> --}}
                                 </td>
                                 <td style="min-width: 80px;">
                                     <input type="checkbox" name="reject_{{$product->id}}" id="reject_{{$product->id}}"> Reject<br/>
@@ -979,7 +1038,7 @@
         });
 
 
-        $(document).on('click', '.btn-composition', function() {
+        $(document).on('click', '.btn-composition', function () {
             var id = $(this).data('id');
             var composition = $(this).data('value');
             var thiss = $(this);
@@ -1558,5 +1617,31 @@
                 alert('Could not fetch remarks');
             });
         });
+
+        $(document).on('click', '.delete-thumbail-img', function (e) {
+            e.preventDefault();
+            var conf = confirm("Are you sure you want to delete this image ?");
+            if (conf == true) {
+                var $this = $(this);
+                $.ajax({
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: '{{ route('product.deleteImages') }}',
+                    data: {
+                        product_id: $this.data("product-id"),
+                        media_id: $this.data("media-id"),
+                        media_type: $this.data("media-type")
+                    },
+                }).done(response => {
+                    if (response.code == 1) {
+                        $this.closest(".thumbnail-pic").remove();
+                    }
+                });
+            }
+        });
+
+
     </script>
 @endsection

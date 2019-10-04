@@ -63,50 +63,60 @@ class ProductsCreator
                 return false;
             }
 
-            // Is the product approved?
+            // Is the product not approved yet?
             if (!StatusHelper::isApproved($image->status_id)) {
-                // Check if we can update - not manually entered
+                // Check if we can update the title - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_TITLE')->first();
                 if ($manual == null || (int)$manual->value == 0) {
-                    $product->name = $image->title;
+                    $product->name = ProductHelper::getRedactedText($image->title);
                 }
 
-                // Check if we can update - not manually entered
+                // Check if we can update the short description - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->first();
                 if ($manual == null || (int)$manual->value == 0) {
-                    $product->short_description = $image->description;
+                    $product->short_description = ProductHelper::getRedactedText($image->description);
                 }
 
-                // Check if we can update - not manually entered
+                // Check if we can update the color - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_COLOR')->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->color = ColorNamesReference::getProductColorFromObject($image);
                 }
 
+                // Check if we can update the composition - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_COMPOSITION')->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     // Check for composition key
                     if (isset($image->properties[ 'composition' ])) {
-                        $product->composition = trim($image->properties[ 'composition' ] ?? '');
+                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'composition' ] ?? ''));
                     }
 
                     // Check for material_used key
                     if (isset($image->properties[ 'material_used' ])) {
-                        $product->composition = trim($image->properties[ 'material_used' ] ?? '');
+                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'material_used' ] ?? ''));
                     }
                 }
+
+                // Update the category
+                $product->category = $formattedDetails[ 'category' ];
             }
 
             // Get current sizes
-            $sizes = $product->size;
+            $allSize = [];
 
             // Update with scraped sizes
             if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) >= 1) {
                 $sizes = implode(',', $image->properties[ 'sizes' ] ?? []);
-            }
 
-            // Store everything again in sizes
-            $product->size = $sizes;
+                // Loop over sizes and redactText
+                if (is_array($sizes) && $sizes > 0) {
+                    foreach ($sizes as $size) {
+                        $allSize[] = ProductHelper::getRedactedText($size);
+                    }
+                }
+
+                $product->size = implode(',', $allSize);
+            }
 
             // Store measurement
             $product->lmeasurement = $formattedDetails[ 'lmeasurement' ] > 0 ? $formattedDetails[ 'lmeasurement' ] : null;
@@ -249,9 +259,9 @@ class ProductsCreator
 
         // Check for EUR to INR
         if (!empty($brand->euro_to_inr)) {
-            $price_inr = (double) $brand->euro_to_inr * (double) $image->price;
+            $price_inr = (float)$brand->euro_to_inr * (float)trim($image->price);
         } else {
-            $price_inr = (double) Setting::get('euro_to_inr') * (double) $image->price;
+            $price_inr = (float)Setting::get('euro_to_inr') * (float)trim($image->price);
         }
 
         // Set INR price and special price
@@ -279,49 +289,28 @@ class ProductsCreator
         }
 
         if (array_key_exists('sizes', $properties_array)) {
-            $sizes = $properties_array[ 'sizes' ];
-            $size = implode(',', $sizes);
+            $orgSizes = $properties_array[ 'sizes' ];
+            $tmpSizes = [];
+
+            // Loop over sizes
+            foreach ($orgSizes as $size) {
+                if (substr(strtoupper($size), -2) == 'IT') {
+                    $size = str_replace('IT', '', $size);
+                    $size = trim($size);
+                }
+
+                if (!empty($size)) {
+                    $tmpSizes[] = $size;
+                }
+            }
+
+            $size = implode(',', $tmpSizes);
         }
 
         if (array_key_exists('dimension', $properties_array)) {
-            if (!is_array($properties_array[ 'dimension' ])) {
-                if (strpos($properties_array[ 'dimension' ], 'Width') !== false || strpos($properties_array[ 'dimension' ], 'W') !== false) {
-                    if (preg_match_all('/Width ([\d]+)/', $properties_array[ 'dimension' ], $match)) {
-                        $lmeasurement = (int)$match[ 1 ][ 0 ];
-                        $measurement_size_type = 'measurement';
-                    }
-
-                    if (preg_match_all('/W ([\d]+)/', $properties_array[ 'dimension' ], $match)) {
-                        $lmeasurement = (int)$match[ 1 ][ 0 ];
-                        $measurement_size_type = 'measurement';
-                    }
-                }
-
-                if (strpos($properties_array[ 'dimension' ], 'Height') !== false || strpos($properties_array[ 'dimension' ], 'H') !== false) {
-                    if (preg_match_all('/Height ([\d]+)/', $properties_array[ 'dimension' ], $match)) {
-                        $hmeasurement = (int)$match[ 1 ][ 0 ];
-                    }
-
-                    if (preg_match_all('/H ([\d]+)/', $properties_array[ 'dimension' ], $match)) {
-                        $hmeasurement = (int)$match[ 1 ][ 0 ];
-                    }
-                }
-
-                if (strpos($properties_array[ 'dimension' ], 'Depth') !== false || strpos($properties_array[ 'dimension' ], 'D') !== false) {
-                    if (preg_match_all('/Depth ([\d]+)/', $properties_array[ 'dimension' ], $match)) {
-                        $dmeasurement = (int)$match[ 1 ][ 0 ];
-                    }
-
-                    if (preg_match_all('/D ([\d]+)/', $properties_array[ 'dimension' ], $match)) {
-                        $dmeasurement = (int)$match[ 1 ][ 0 ];
-                    }
-                }
-
-                if (strpos($properties_array[ 'dimension' ], 'x') !== false) {
-                    $formatted = str_replace('cm', '', $properties_array[ 'dimension' ]);
-                    $formatted = str_replace(' ', '', $formatted);
-                    $exploded = explode('x', $formatted);
-
+            if (is_array($properties_array[ 'dimension' ])) {
+                $exploded = $properties_array[ 'dimension' ];
+                if (count($exploded) == 3) {
                     if (array_key_exists('0', $exploded)) {
                         $lmeasurement = (int)$exploded[ 0 ];
                         $measurement_size_type = 'measurement';
@@ -338,45 +327,29 @@ class ProductsCreator
             }
         }
 
+        // Get category - TODO: Get from database?
         if (array_key_exists('category', $properties_array)) {
-            $categories = Category::all();
-            $category_id = 1;
+            // Check if category is an array
+            if (is_array($properties_array[ 'category' ])) {
+                // Set gender to null
+                $gender = null;
 
-            if ( is_array($properties_array['category']) ) {
-                foreach ($properties_array[ 'category' ] as $key => $cat) {
-                    $up_cat = strtoupper($cat);
-
-                    if ($up_cat == 'WOMAN') {
-                        $up_cat = 'WOMEN';
+                // Loop over categories to find gender
+                foreach ($properties_array[ 'category' ] as $category) {
+                    // Check for gender man
+                    if (in_array(strtoupper($category), ['MAN', 'MEN', 'UOMO', 'MALE'])) {
+                        $gender = 'MEN';
                     }
 
-                    if ($key == 0 && $up_cat == 'WOMEN') {
-                        $women_children = Category::where('title', 'WOMEN')->first()->childs;
-                    }
-
-                    if (isset($women_children)) {
-                        foreach ($women_children as $children) {
-                            if (strtoupper($children->title) == $up_cat) {
-                                $category_id = $children->id;
-                            }
-
-                            foreach ($children->childs as $child) {
-                                if (strtoupper($child->title) == $up_cat) {
-                                    $category_id = $child->id;
-                                }
-                            }
-                        }
-                    } else {
-                        foreach ($categories as $category) {
-                            if (strtoupper($category->title) == $up_cat) {
-                                $category_id = $category->id;
-                            }
-                        }
+                    // Check for gender woman
+                    if (in_array(strtoupper($category), ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'])) {
+                        $gender = 'WOMEN';
                     }
                 }
-            }
 
-            $category = $category_id;
+                // Try to get category ID
+                $category = Category::getCategoryIdByKeyword(end($properties_array[ 'category' ]), $gender);
+            }
         }
 
         if (array_key_exists('country', $properties_array)) {

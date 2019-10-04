@@ -52,7 +52,7 @@ class Category extends Model
 
     }
 
-    public static function getCategoryIdByKeyword( $keyword, $gender, $genderAlternative )
+    public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
     {
         // Set gender
         if ( empty( $gender ) ) {
@@ -126,6 +126,40 @@ class Category extends Model
                 }
             }
         }
+    }
+
+    public static function getCategoryPathById($categoryId = '')
+    {
+        // If we don't have an ID, return an empty string
+        if (empty($categoryId)) {
+            return '';
+        }
+
+        // Set empty category path
+        $categoryPath = '';
+
+        // Get category from database
+        $category = Category::find($categoryId);
+
+        // Do we have data?
+        if ($category !== null) {
+            // Set initial title
+            $categoryPath = $category->title;
+
+            // Loop while we haven't reached the top category
+            while ($category && $category->parent_id > 0) {
+                // Get next category from database
+                $category = Category::find($category->parent_id);
+
+                // Update category path
+                if ($category !== null) {
+                    $categoryPath = $category->title . ' > ' . $categoryPath;
+                }
+            }
+        }
+
+        // Return category path
+        return $categoryPath;
     }
 
     public static function getCategoryTreeMagento( $id )
