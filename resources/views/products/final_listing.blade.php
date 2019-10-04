@@ -396,6 +396,7 @@
                                         @endphp
                                         @if ($logScrapers)
                                             <div>
+                                                <br />
                                                 Successfully scraped on the following sites:<br/>
                                                 <ul>
                                                     @foreach($logScrapers as $logScraper)
