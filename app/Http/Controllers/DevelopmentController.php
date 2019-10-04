@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\DeveloperMessagesAlertSchedules;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Auth;
+use Carbon\Carbon;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 use App\TasksHistory;
 use App\TaskTypes;
-use Illuminate\Http\Request;
 use App\DeveloperTask;
 use App\DeveloperModule;
 use App\DeveloperComment;
@@ -16,10 +20,6 @@ use App\PushNotification;
 use App\User;
 use App\Helpers;
 use App\Issue;
-use Auth;
-use Carbon\Carbon;
-use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class DevelopmentController extends Controller
 {
@@ -266,14 +266,14 @@ class DevelopmentController extends Controller
         $data = $request->except('_token');
         $data[ 'user_id' ] = $request->user_id ? $request->user_id : Auth::id();
 
-        $module = $request->get( 'module_id' );
-        if(!empty($module)) {
+        $module = $request->get('module_id');
+        if (!empty($module)) {
             $module = DeveloperModule::find($module);
             if (!$module) {
                 $module = new DeveloperModule();
                 $module->name = $request->get('module_id');
                 $module->save();
-                $data['module_id'] = $module->id;
+                $data[ 'module_id' ] = $module->id;
             }
         }
 
@@ -793,65 +793,78 @@ class DevelopmentController extends Controller
 
     public function overview(Request $request)
     {
+        // Get status
+        $status = $request->get('status');
+        if (empty($status)) {
+            $status = 'In Progress';
+        }
 
         $users = Helpers::getUsersByRoleName('Developer');
 
         return view('development.overview', [
             'users' => $users,
+            'status' => $status
         ]);
     }
 
-    public function taskDetail($task_id){
-
-        $task = DeveloperTask::where('developer_tasks.id',$task_id)
-            ->select('developer_tasks.*','task_types.name as task_type','users.name as username','u.name as reporter')
+    public function taskDetail($taskId)
+    {
+        // Get tasks
+        $task = DeveloperTask::where('developer_tasks.id', $taskId)
+            ->select('developer_tasks.*', 'task_types.name as task_type', 'users.name as username')
             ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
             ->join('users', 'users.id', '=', 'developer_tasks.user_id')
-            ->join('users as u', 'u.id', '=', 'developer_tasks.created_by')
             ->first();
-        $subtasks   = DeveloperTask::where('developer_tasks.parent_id',$task_id)->get();
-        $comments   = DeveloperTaskComment::where('task_id',$task_id)
-                        ->join('users', 'users.id', '=', 'developer_task_comments.user_id')
-                        ->get();
-        $developers  = Helpers::getUserArray( User::role( 'Developer' )->get() );
-        return view( 'development.task_detail', [
+
+        // Get subtasks
+        $subtasks = DeveloperTask::where('developer_tasks.parent_id', $taskId)->get();
+
+        // Get comments
+        $comments = DeveloperTaskComment::where('task_id', $taskId)
+            ->join('users', 'users.id', '=', 'developer_task_comments.user_id')
+            ->get();
+        $developers = Helpers::getUserArray(User::role('Developer')->get());
+
+        // Return view
+        return view('development.task_detail', [
             'task' => $task,
             'subtasks' => $subtasks,
             'comments' => $comments,
             'developers' => $developers,
-        ] );
+        ]);
     }
 
-    public function taskComment(Request $request){
-
+    public function taskComment(Request $request)
+    {
         $response = array();
-         $this->validate( $request, [
-            'comment' => 'required|string|min:5'
-        ] );
+        $this->validate($request, [
+            'comment' => 'required|string|min:1'
+        ]);
 
-        $data = $request->except( '_token' );
+        $data = $request->except('_token');
         $data[ 'user_id' ] = Auth::id();
 
-        $created = DeveloperTaskComment::create( $data );
-        if($created){
-            $response['status'] = 'ok';
-            $response['msg']    = 'Comment stored successfully';
+        $created = DeveloperTaskComment::create($data);
+        if ($created) {
+            $response[ 'status' ] = 'ok';
+            $response[ 'msg' ] = 'Comment stored successfully';
             echo json_encode($response);
-        }else{
-            $response['status'] = 'error';
-            $response['msg']    = 'Error';
+        } else {
+            $response[ 'status' ] = 'error';
+            $response[ 'msg' ] = 'Error';
         }
     }
 
-    public function changeTaskStatus(Request $request){
+    public function changeTaskStatus(Request $request)
+    {
 
-        if(!empty($request->input( 'task_id' ))){
+        if (!empty($request->input('task_id'))) {
 
-            $task           = DeveloperTask::find( $request->input( 'task_id' ) );
-            $task->status   = $request->input( 'status' );
+            $task = DeveloperTask::find($request->input('task_id'));
+            $task->status = $request->input('status');
             $task->save();
 
-            return response()->json( ['success'] );
+            return response()->json(['success']);
         }
     }
 }

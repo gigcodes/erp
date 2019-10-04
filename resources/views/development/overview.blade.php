@@ -29,7 +29,7 @@
     </style>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Work in progress</h2>
+            <h2 class="page-heading">Development {{ $status }}</h2>
         </div>
     </div>
 
@@ -45,7 +45,7 @@
                         <div class="overview-container">
                             @foreach($users as $user)
                                 @php
-                                    $tasks = \App\Helpers\DevelopmentHelper::getDeveloperTasks($user->id);
+                                    $tasks = \App\Helpers\DevelopmentHelper::getDeveloperTasks($user->id, $status);
                                 @endphp
                                 @if(!empty($tasks) && count($tasks)>0)
                                     <div style="width: 200px; display: inline-block;">
@@ -65,17 +65,21 @@
                                                         @endif
                                                         <div class="card mb-3 bg-light" style=" {{$border}} ">
                                                             <div class="card-body p-3">
-                                                                <div class="float-right mr-n2">
-                                                                    <label class="custom-control custom-checkbox">
-                                                                        <input type="checkbox" class="custom-control-input" checked="">
-                                                                        <span class="custom-control-label"></span>
-                                                                    </label>
-                                                                </div>
-                                                                <h4>{{ ucfirst($task->subject) }}</h4>
+                                                                @if (1==2)
+                                                                    <div class="float-right mr-n2">
+                                                                        <label class="custom-control custom-checkbox">
+                                                                            <input type="checkbox" class="custom-control-input" checked="">
+                                                                            <span class="custom-control-label"></span>
+                                                                        </label>
+                                                                    </div>
+                                                                @endif
+                                                                <h4><a href="task-detail/{{$task->task_id}}">{{ '#'.strtoupper($task->name).'-'.$task->task_id.' '.ucfirst($task->subject) }} </a></h4>
                                                                 <p>{{ $task->task }}</p>
-                                                                <div class="float-right mt-n1">
-                                                                    <img src="https://bootdey.com/img/Content/avatar/avatar6.png" width="32" height="32" class="rounded-circle" alt="Avatar">
-                                                                </div>
+                                                                @if(1==2)
+                                                                    <div class="float-right mt-n1">
+                                                                        <img src="https://bootdey.com/img/Content/avatar/avatar6.png" width="32" height="32" class="rounded-circle" alt="Avatar">
+                                                                    </div>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     @endif
@@ -99,8 +103,7 @@
 @section('scripts')
     <script type="text/javascript">
         $(document).ready(function () {
-            $('.overview-container').css("width", "<?= $count*200 ?>px !important;");
-            $('.overview-container').width(<?= $count*200 ?>);
+            $('.overview-container').width(<?= $count * 210 ?>);
         });
     </script>
 @endsection

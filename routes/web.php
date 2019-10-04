@@ -502,7 +502,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post( 'development/{id}/assignIssue', 'DevelopmentController@issueAssign' )->name( 'development.issue.assign' );
     Route::delete( 'development/{id}/issueDestroy', 'DevelopmentController@issueDestroy' )->name( 'development.issue.destroy' );
     Route::get( 'development/overview', 'DevelopmentController@overview' )->name( 'development.overview' );
-    Route::get( 'development/taskDetail/{id}', 'DevelopmentController@taskDetail' )->name( 'taskDetail' );
+    Route::get( 'development/task-detail/{id}', 'DevelopmentController@taskDetail' )->name( 'taskDetail' );
 
     Route::post( 'development/module/create', 'DevelopmentController@moduleStore' )->name( 'development.module.store' );
     Route::delete( 'development/module/{id}/destroy', 'DevelopmentController@moduleDestroy' )->name( 'development.module.destroy' );

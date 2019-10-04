@@ -42,6 +42,9 @@
                 <div class="card-box task-detail">
                     <div class="media mt-0 m-b-30">
                         <div class="media-body">
+                            <p>
+                                <a href="{{ route('development.overview') }}?status={{$task->status}}">Back to {{$task->status}}</a>
+                            </p>
                             <h4 class="media-heading mb-0 mt-0">{{$task->task_type .'-'.$task->id}}
                                 <span class="badge badge-danger" style="{{$bg_color}}">{{$task_type}}</span>
                             </h4>
@@ -59,7 +62,7 @@
                                 <button type="button" id="subtask_create">Create</button>
                                 <input type="hidden" id="task_id" value="{{$task->id}}">
                             </div>
-                            
+
                             @if(!empty($subtasks) && count($subtasks) > 0)
                                 @foreach($subtasks as $subtask)
                                     <div class="task high" style="background: white;">
@@ -77,28 +80,6 @@
                         </div>
                     </div>
 
-                    <div class="linked_issues" style="background: #ccc;padding: 8px;border-radius: 5px;margin-top: 12px;">
-                        <div class="task-list">
-                            <h3>Linked Issues</h3>
-                            <div class="task high" style="background: white;">
-                                <div class="desc">
-                                    <div class="title">Update Documentation on developer</div>
-                                    {{--                                    <div>Update Documentation</div>--}}
-                                </div>
-                                <div class="time">
-                                    <div class="date">Jun 1, 2012</div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-{{--                    <div class="task-tags mt-4">--}}
-{{--                        <h5 class="">Tags</h5>--}}
-{{--                        <div class="bootstrap-tagsinput"><span class="tag label label-info">Amsterdam<span data-role="remove"></span></span> <span class="tag label label-info">Washington<span data-role="remove"></span></span> <span class="tag label label-info">Sydney<span data-role="remove"></span></span>--}}
-
-{{--                        </div>--}}
-
-{{--                    </div>--}}
                     <h3>Activity</h3>
                     <div class="dev_comments">
                         @if(!empty($comments))
@@ -134,13 +115,16 @@
                         </select>
                     </div>
                     <div class="assignee">
+                        <br />
                         <h4 class="header-title m-b-30">Assignee</h4>
                         <div class="media m-b-20">
+                            @if(1==2)
                             <div class="d-flex mr-3">
                                 <img class="media-object rounded-circle thumb-sm" alt="64x64" src="https://bootdey.com/img/Content/avatar/avatar2.png">
                             </div>
+                            @endif
                             <div class="media-body" style="margin-top: 7px;">
-                                <h4 class="mt-0 assignee_name">{{$task->username}}</h4>
+                                <h4 class="mt-0 assignee_name">&nbsp; {{$task->username}}</h4>
                                 <div class="developer_section" style="display: none;">
                                     @if(!empty($developers))
                                          <select name="task_status" class="form-control change-assignee"  data-id="{{$task->id}}">
@@ -154,19 +138,23 @@
                         </div>
                     </div>
                     <div class="assignee">
+                        <br />
                         <h4 class="header-title m-b-30">Reporter</h4>
                         <div class="media m-b-20">
+                            @if(1==2)
                             <div class="d-flex mr-3">
                                 <img class="media-object rounded-circle thumb-sm" alt="64x64" src="https://bootdey.com/img/Content/avatar/avatar2.png">
                             </div>
+                            @endif
                             <div class="media-body" style="margin-top: 7px;">
-                                <h4 class="mt-0">{{$task->reporter}}</h4>
+                                <h4 class="mt-0">&nbsp; {{$task->reporter}}</h4>
                             </div>
                         </div>
                     </div>
                     <div class="priority">
+                        <br />
                         <h4 class="header-title m-b-30">Priority</h4>
-                        <h4 style="{{$priority_clr}}">{{$task_type}}</h4>
+                        <h4 style="{{$priority_clr}}">&nbsp; {{$task_type}}</h4>
                     </div>
                 </div>
             </div>
@@ -214,7 +202,7 @@
 
 
         $(document).on('click', '#add_comment', function () {
-            
+
             var comment     = $("#comment").val();
             var taskId      = $("#task_id").val();
             if(comment != '') {
@@ -285,6 +273,6 @@
                 }
             });
         });
-        
+
     </script>
 @endsection
