@@ -92,7 +92,10 @@ class ProductEnhancementController extends Controller
             // Loop over files
             foreach ($files[ 'images' ] as $file) {
                 // Upload media
-                $media = MediaUploader::fromSource($file)->useFilename(uniqid('cropped_', true))->upload();
+                $media = MediaUploader::fromSource($file)
+                                        ->useFilename(uniqid('cropped_', true))
+                                        ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                                        ->upload();
 
                 // Attach media to product
                 $product->attachMedia($media, 'gallery');

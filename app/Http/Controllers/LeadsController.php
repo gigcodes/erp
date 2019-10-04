@@ -289,7 +289,9 @@ class LeadsController extends Controller
         $lead = Leads::create($data);
         if ($request->hasfile('image')) {
             foreach ($request->file('image') as $image) {
-                $media = MediaUploader::fromSource($image)->upload();
+                $media = MediaUploader::fromSource($image)
+                                        ->toDirectory('leads/'.floor($lead->id / config('constants.image_par_folder')))
+                                        ->upload();
                 $lead->attachMedia($media, config('constants.media_tags'));
             }
         }

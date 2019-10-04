@@ -13,7 +13,7 @@ class TmpController extends Controller
     {
         $mediaArr = Media::paginate($request->get('limit', 1000));
         foreach ($mediaArr as $media) {
-            if ($media->fileExists()) {
+            if (empty($media->directory) && $media->fileExists()) {
                 $mediables = DB::table('mediables')->where('media_id', $media->id)->first();
                 if ($mediables) {
                     $table = strtolower(str_replace('App\\', '', $mediables->mediable_type));

@@ -1136,7 +1136,9 @@ class ProductController extends Controller
             $product->detachMediaTags(config('constants.media_tags'));
 
             foreach ($request->file('images') as $key => $image) {
-                $media = MediaUploader::fromSource($image)->upload();
+                $media = MediaUploader::fromSource($image)
+                                        ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                                        ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
 
                 if ($key == 0) {

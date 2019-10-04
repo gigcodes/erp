@@ -279,7 +279,9 @@ class DevelopmentController extends Controller
 
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
-                $media = MediaUploader::fromSource($image)->upload();
+                $media = MediaUploader::fromSource($image)
+                        ->toDirectory('developertask/'.floor($task->id / config('constants.image_par_folder')))
+                        ->upload();
                 $task->attachMedia($media, config('constants.media_tags'));
             }
         }

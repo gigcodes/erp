@@ -85,7 +85,9 @@ class MessageController extends Controller
             $message = Message::create($data);
 
             if ($request->hasFile('image')) {
-              $media = MediaUploader::fromSource($request->file('image'))->upload();
+              $media = MediaUploader::fromSource($request->file('image'))
+                                      ->toDirectory('message/'.floor($message->id / config('constants.image_par_folder')))
+                                      ->upload();
               $message->attachMedia($media,config('constants.media_tags'));
             }
 
@@ -103,7 +105,9 @@ class MessageController extends Controller
               $img = substr($request->screenshot_path, strpos($request->screenshot_path, ",")+1);
               $img = Image::make(base64_decode($img))->encode('png')->save($image_path);
 
-              $media = MediaUploader::fromSource($image_path)->upload();
+              $media = MediaUploader::fromSource($image_path)
+                                      ->toDirectory('message/'.floor($message->id / config('constants.image_par_folder')))
+                                      ->upload();
               $message->attachMedia($media,config('constants.media_tags'));
 
               File::delete('uploads/temp_screenshot.png');

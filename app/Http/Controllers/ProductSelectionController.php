@@ -112,7 +112,9 @@ class ProductSelectionController extends Controller
 		}
 
 		$productselection->detachMediaTags(config('constants.media_tags'));
-		$media = MediaUploader::fromSource($request->file('image'))->upload();
+		$media = MediaUploader::fromSource($request->file('image'))
+								->toDirectory('product/'.floor($productselection->id / config('constants.image_par_folder')))
+								->upload();
 		$productselection->attachMedia($media,config('constants.media_tags'));
 
 		NotificaitonContoller::store('has selected',['Searchers'], $productselection->id);
@@ -165,7 +167,9 @@ class ProductSelectionController extends Controller
 		if ($request->oldImage > 0) {
 			self::replaceImage($request,$productselection);
 		} elseif ($request->oldImage == -1) {
-			$media = MediaUploader::fromSource( $request->file( 'image' ) )->upload();
+			$media = MediaUploader::fromSource( $request->file( 'image' ) )
+									->toDirectory('product/'.floor($productselection->id / config('constants.image_par_folder')))
+									->upload();
 			$productselection->attachMedia( $media, config( 'constants.media_tags' ) );
 		}
 
