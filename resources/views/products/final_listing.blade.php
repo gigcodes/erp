@@ -396,10 +396,14 @@
                                         @endphp
                                         @if ($logScrapers)
                                             <div>
-                                                Successfully scraped on the following sites:<br />
+                                                Successfully scraped on the following sites:<br/>
                                                 <ul>
                                                     @foreach($logScrapers as $logScraper)
-                                                        <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a></li>
+                                                        @if($logScraper->url != "N/A")
+                                                            <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a></li>
+                                                        @else
+                                                            <li><?= $logScraper->website ?></li>
+                                                        @endif
                                                     @endforeach
                                                 </ul>
                                             </div>
