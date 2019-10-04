@@ -230,7 +230,7 @@
                                             <strong class="same-color" style="text-decoration: underline">Description</strong>
                                             <br/>
                                             <span id="description{{ $product->id }}" class="same-color">
-                                                {{ ucwords(strtolower(html_entity_decode($product->description))) }}
+                                                {{ ucwords(strtolower(html_entity_decode($product->short_description))) }}
                                             </span>
                                         </p>
                                         <br/>
@@ -390,6 +390,27 @@
                                         </p>
                                         <div>
                                             <input class="form-control send-message" data-sku="{{$product->sku}}" type="text" placeholder="Message..." id="message_{{$product->approved_by}}" data-id="{{$product->approved_by}}">
+                                        </div>
+                                        @php
+                                            $logScrapers = \App\Loggers\LogScraper::where('sku', $product->sku)->where('validated', 1)->get();
+                                        @endphp
+                                        @if ($logScrapers)
+                                            <div>
+                                                <br />
+                                                Successfully scraped on the following sites:<br/>
+                                                <ul>
+                                                    @foreach($logScrapers as $logScraper)
+                                                        @if($logScraper->url != "N/A")
+                                                            <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a></li>
+                                                        @else
+                                                            <li><?= $logScraper->website ?></li>
+                                                        @endif
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endif
+                                        <div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -631,8 +652,8 @@
                                 <td class="read-more-button">
                                     <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
                                     <span class="long-description-container hidden">
-                  <span class="description-container">{{ $product->short_description }}</span>
-                </span>
+                                        <span class="description-container">{{ $product->short_description }}</span>
+                                    </span>
                                 </td>
 
                                 <td>
