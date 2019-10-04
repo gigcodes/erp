@@ -230,7 +230,7 @@
                                             <strong class="same-color" style="text-decoration: underline">Description</strong>
                                             <br/>
                                             <span id="description{{ $product->id }}" class="same-color">
-                                                {{ ucwords(strtolower(html_entity_decode($product->description))) }}
+                                                {{ ucwords(strtolower(html_entity_decode($product->short_description))) }}
                                             </span>
                                         </p>
                                         <br/>
@@ -631,8 +631,8 @@
                                 <td class="read-more-button">
                                     <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
                                     <span class="long-description-container hidden">
-                  <span class="description-container">{{ $product->short_description }}</span>
-                </span>
+                                        <span class="description-container">{{ $product->short_description }}</span>
+                                    </span>
                                 </td>
 
                                 <td>
