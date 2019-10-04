@@ -140,6 +140,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('stock/private/viewing/{id}/updateOfficeBoy', 'StockController@updateOfficeBoy')->name('stock.private.viewing.updateOfficeBoy');
     Route::post('sop', 'ProductController@saveSOP');
 
+    Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
+
     // Delivery Approvals
     Route::post('deliveryapproval/{id}/updateStatus', 'DeliveryApprovalController@updateStatus')->name('deliveryapproval.updateStatus');
     Route::resource('deliveryapproval', 'DeliveryApprovalController');

@@ -178,30 +178,32 @@ class ProductHelper extends Model
         return $request;
     }
 
-    public static function getMeasurements($product) {
+
+    public static function getMeasurements($product)
+    {
         // Create array with measurements
         $arrMeasurement = [];
 
         // Add measurements
-        if ( $product->lmeasurement > 0 ) {
+        if ($product->lmeasurement > 0) {
             $arrMeasurement[] = $product->lmeasurement;
         }
 
-        if ( $product->hmeasurement > 0 ) {
+        if ($product->hmeasurement > 0) {
             $arrMeasurement[] = $product->hmeasurement;
         }
 
-        if ( $product->dmeasurement > 0 ) {
+        if ($product->dmeasurement > 0) {
             $arrMeasurement[] = $product->dmeasurement;
         }
 
         // Check for all dimensions
-        if ( count($arrMeasurement) == 3 ) {
-            return 'L-' . $arrMeasurement[0] . 'cm,H-' . $arrMeasurement[1] . 'cm,D-' . $arrMeasurement[2] . 'cm';
-        } elseif ( count($arrMeasurement) == 2 ) {
-            return $arrMeasurement[0] . 'cm x ' . $arrMeasurement[1] . 'cm';
-        } elseif ( count($arrMeasurement) == 1 ) {
-            return 'Height: ' . $arrMeasurement[0] . 'cm';
+        if (count($arrMeasurement) == 3) {
+            return 'L-' . $arrMeasurement[ 0 ] . 'cm,H-' . $arrMeasurement[ 1 ] . 'cm,D-' . $arrMeasurement[ 2 ] . 'cm';
+        } elseif (count($arrMeasurement) == 2) {
+            return $arrMeasurement[ 0 ] . 'cm x ' . $arrMeasurement[ 1 ] . 'cm';
+        } elseif (count($arrMeasurement) == 1) {
+            return 'Height: ' . $arrMeasurement[ 0 ] . 'cm';
         }
 
         // Still here?
