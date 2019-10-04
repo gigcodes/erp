@@ -124,7 +124,6 @@ class StatusHelper extends Model
     public static function isApproved($statusId) {
         // Check if status ID is matching approved product statuses
         switch($statusId) {
-            case self::$finalApproval:
             case self::$pushToMagento;
             case self::$inMagento;
                 return true;
@@ -132,5 +131,8 @@ class StatusHelper extends Model
             default:
                 return false;
         }
+
+        // Return false by default
+        return false;
     }
 }

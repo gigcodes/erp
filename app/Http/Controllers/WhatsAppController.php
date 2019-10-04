@@ -1484,7 +1484,7 @@ class WhatsAppController extends FindByNumberController
                     if (preg_match("/{$keyword}/i", $params[ 'message' ])) {
                         $temp_params = $params;
                         $temp_params[ 'message' ] = $auto_reply->reply;
-                        $temp_params[ 'status' ] = 1;
+                        $temp_params[ 'status' ] = 8;
 
                         ChatMessage::create($temp_params);
 
