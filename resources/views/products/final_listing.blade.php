@@ -395,11 +395,14 @@
                                             $logScrapers = \App\Loggers\LogScraper::where('sku', $product->sku)->where('validated', 1)->get();
                                         @endphp
                                         @if ($logScrapers)
-                                            <ul>
-                                            @foreach($logScrapers as $logScraper)
-                                                    <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a></li>
-                                            @endforeach
-                                            </ul>
+                                            <div>
+                                                Successfully scraped on the following sites:<br />
+                                                <ul>
+                                                    @foreach($logScrapers as $logScraper)
+                                                        <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a></li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
                                         @endif
                                         <div>
 
