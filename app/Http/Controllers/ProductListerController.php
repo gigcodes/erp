@@ -21,8 +21,8 @@ class ProductListerController extends Controller
     public function __construct()
     {
 
-        $this->middleware( 'permission:lister-list', [ 'only' => [ 'index' ] ] );
-        $this->middleware( 'permission:lister-edit', [ 'only' => [ 'edit', 'isUploaded' ] ] );
+//        $this->middleware( 'permission:lister-list', [ 'only' => [ 'index' ] ] );
+//        $this->middleware( 'permission:lister-edit', [ 'only' => [ 'edit', 'isUploaded' ] ] );
     }
 
 

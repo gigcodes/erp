@@ -13,8 +13,8 @@ class ProductSupervisorController extends Controller
 {
     public function __construct() {
 
-	    $this->middleware('permission:supervisor-list',['only' => ['index']]);
-	    $this->middleware('permission:supervisor-edit',['only' => ['edit','approve']]);
+	  //  $this->middleware('permission:supervisor-list',['only' => ['index']]);
+	  //  $this->middleware('permission:supervisor-edit',['only' => ['edit','approve']]);
     }
 
 

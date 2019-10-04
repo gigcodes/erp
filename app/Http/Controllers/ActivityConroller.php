@@ -172,6 +172,24 @@ class ActivityConroller extends Controller
         $inventoryCount = new ScrapedProducts();
         $rejectedListingsCount = Product::where('is_listing_rejected', 1);
 
+        // Get total number of scraped products
+        $sqlScrapedProductsInStock = "
+                SELECT
+                    COUNT(DISTINCT(ls.sku)) as ttl
+                FROM
+                    suppliers s
+                JOIN 
+                    log_scraper ls 
+                ON 
+                    ls.website=s.scraper_name
+                WHERE
+                    s.supplier_status_id=1 AND 
+                    ls.validated=1 AND
+                    ls.website!='internal_scraper' AND
+                    ls.updated_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) 
+            ";
+        $resultScrapedProductsInStock = DB::select($sqlScrapedProductsInStock);
+
         if ($range_start != '' && $range_end != '') {
             $activity = $activity->where(function ($query) use ($range_end, $range_start) {
                 $query->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
@@ -182,8 +200,6 @@ class ActivityConroller extends Controller
             $scrapCount = $scrapCount->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
             $inventoryCount = $inventoryCount->whereBetween('last_inventory_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
             $rejectedListingsCount = $rejectedListingsCount->whereBetween('listing_rejected_on', [$range_start . ' 00:00', $range_end . ' 23:59']);
-
-
         }
 
         if (!$range_start || !$range_end) {
@@ -202,7 +218,7 @@ class ActivityConroller extends Controller
         $cropCountPerMinute = Product::whereRaw('TIMESTAMPDIFF(DAY, cropped_at, NOW()) IN (0,1)')->count();
         $cropCountPerMinute = round($cropCountPerMinute / 1440, 4);
 
-        return view('activity.index', compact('aiActivity', 'userActions', 'users', 'selected_user', 'range_end', 'range_start', 'allActivity', 'scrapCount', 'inventoryCount', 'rejectedListingsCount', 'productStats', 'productStatsDateRange', 'cropCountPerMinute'));
+        return view('activity.index', compact('resultScrapedProductsInStock', 'aiActivity', 'userActions', 'users', 'selected_user', 'range_end', 'range_start', 'allActivity', 'scrapCount', 'inventoryCount', 'rejectedListingsCount', 'productStats', 'productStatsDateRange', 'cropCountPerMinute'));
     }
 
     public function showGraph(Request $request)

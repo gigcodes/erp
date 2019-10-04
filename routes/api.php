@@ -53,4 +53,6 @@ Route::get('broken-link-details', 'BrokenLinkCheckerController@getBrokenLinkDeta
 
 Route::get('products/enhance', 'Products\ProductEnhancementController@index');
 Route::post('products/enhance', 'Products\ProductEnhancementController@store');
+Route::post('users/updatePermission', 'PermissionController@updatePermission');
+Route::post('userLogs', 'UserLogController@store');
 

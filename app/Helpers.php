@@ -26,10 +26,10 @@ class Helpers {
 
 		$roleID = Role::findByName( $roleName );
 
-		$users = DB::table( 'users as u' )
+		$users = DB::table( 'users AS u' )
 		           ->select( 'u.id', 'u.name' )
 		           ->where( 'm.role_id', '=', $roleID->id )
-		           ->leftJoin( 'model_has_roles as m', 'm.model_id', '=', 'u.id' )
+		           ->leftJoin( 'model_has_roles AS m', 'm.model_id', '=', 'u.id' )
 		           ->distinct()
 		           ->get();
 
@@ -238,14 +238,4 @@ class Helpers {
         $items->setPath($request->url());
         return $items;
     }
-
-    public static function getDeveloperTasks($developer_id){
-        $developerTasks = DeveloperTask::where('user_id',$developer_id)
-                            ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
-                            ->select('*','developer_tasks.id as task_id')
-                            ->where('parent_id','=','0')
-                            ->orderBy('subject','ASC')->get();
-        return $developerTasks;
-    }
-
 }

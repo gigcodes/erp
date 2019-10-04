@@ -112,12 +112,12 @@
               </select>
             </div>
 
-            <div class="form-group">
+            <!-- <div class="form-group">
               <select class="form-control form-control-sm" name="status" id="status">
                 <option {{ !$supplier->status ? 'selected' : '' }} value="0">Inactive</option>
                 <option {{ $supplier->status ? 'selected' : '' }} value="1">Active</option>
               </select>
-            </div>
+            </div> -->
 
             {{-- <div class="form-group">
               <input type="number" id="supplier_whatsapp_number" name="whatsapp_number" class="form-control input-sm" placeholder="Whatsapp Number" value="{{ $supplier->whatsapp_number }}">
@@ -175,7 +175,12 @@
             <div class="form-group">
               <input type="text" name="gst" id="supplier_gst" class="form-control input-sm" placeholder="GST" value="{{ $supplier->gst }}">
             </div>
-
+            <div class="form-group">
+              {!!Form::select('supplier_category_id', $suppliercategory, $supplier->supplier_category_id, ['class' => 'form-control form-control-sm' , 'id' => 'supplier_category_id'])!!}
+            </div>
+            <div class="form-group">
+              {!!Form::select('supplier_status_id', $supplierstatus, $supplier->supplier_status_id, ['class' => 'form-control form-control-sm', 'id' => 'supplier_status_id'])!!}
+            </div>
             <div class="form-group">
               <select name="status" id="status" class="form-control form-control-sm">
                 <option {{ $supplier->status ? '' : 'selected' }} value="0">Inactive</option>
@@ -1721,6 +1726,8 @@
         var website = $('#supplier_website').val();
         var gst = $('#supplier_gst').val();
         var status = $('#status').val();
+        var supplier_category_id = $('#supplier_category_id').val();
+        var supplier_status_id = $('#supplier_status_id').val();
 
         $.ajax({
           type: "POST",
@@ -1739,7 +1746,9 @@
             social_handle: social_handle,
             website: website,
             gst: gst,
-            status: status
+            status: status,
+            supplier_category_id: supplier_category_id,
+            supplier_status_id: supplier_status_id            
           },
           beforeSend: function() {
             $(thiss).text('Saving...');

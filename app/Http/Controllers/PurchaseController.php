@@ -53,7 +53,7 @@ use App\Mail\ReplyToEmail;
 class PurchaseController extends Controller
 {
     public function __construct() {
-      $this->middleware('permission:purchase');
+     // $this->middleware('permission:purchase');
     }
 
     public function index(Request $request)
@@ -85,18 +85,20 @@ class PurchaseController extends Controller
   					 $sortby = 'created_at';
   		}
 
-  		$purchases = (new Purchase())->newQuery()->with(['Products' => function ($query) {
-        $query->with(['orderproducts' => function ($quer) {
-          $quer->with(['Order' => function ($q) {
-            $q->with('customer');
-          }]);
-        }]);
-      }, 'purchase_supplier']);
+  		$purchases = (new Purchase())->newQuery()->with(['orderProducts'=> function ($query) {
+            $query->with(['Order' => function ($q) {
+                $q->with('customer');
+            }]);
+            $query->with(['Product']);
+        },'Products' => function ($query) {
+            $query->with(['orderproducts' => function ($quer) {
+              $quer->with(['Order' => function ($q) {
+                $q->with('customer');
+              }]);
+            }]);
+        }, 'purchase_supplier']);
 
-      // $purchases_new = DB::table('purchases');
-
-
-
+      
   		if(!empty($term)) {
         $purchases = $purchases
         ->orWhere('id','like','%'.$term.'%')
@@ -211,23 +213,32 @@ class PurchaseController extends Controller
 
     public function purchaseGrid(Request $request, $page = null)
     {
-      $purchases = Purchase::select('id');
-      $not_include_products = [];
+      //DB::enableQueryLog();
+      $purchases = Db::select("select p.sku,p.id,pp.order_product_id from purchase_products as pp join products as p on p.id = pp.product_id");
 
-      foreach ($purchases as $purchase) {
-        foreach ($purchase->products as $product) {
-          $not_include_products[] = $product->sku;
+      $not_include_products = [];
+      $includedPurchases = [];
+      foreach ((array)$purchases as $product) {
+        if($product->order_product_id > 0) {
+          $not_include_products[] = $product->order_product_id;
+          $includedPurchases[] = $product->id;
         }
       }
 
+      $skuNeed = Db::select("select p.id from order_products as op join products as p on p.sku = op.sku left join purchase_products as pp on pp.order_product_id = op.id  where pp.order_product_id is null group by op.sku");
+      $skuNeed = collect($skuNeed)->pluck("id")->toArray();
+
+      $ignoreSku = array_diff($includedPurchases, $skuNeed);  
+    
       if ($request->status[0] != null && $request->supplier[0] == null && $request->brand[0] == null) {
         $status = $request->status;
         $status_list = implode("','", $request->status ?? []);
-
-  			$orders = OrderProduct::select('sku')->with('Order')
-        ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
-        ->where('qty', '>=', 1)
-        ->get();
+  			$orders = OrderProduct::join("orders as o","o.id","order_products.order_id")
+            ->join("products as p","p.sku","order_products.sku")
+            ->whereIn("o.order_status",$status)
+            ->where('qty', '>=', 1)
+            ->select(["sku","p.id"])
+            ->get();
   		}
 
         $status_list = implode("','", $request->status ?? []);
@@ -239,40 +250,49 @@ class PurchaseController extends Controller
         if ($request->status[0] != null) {
           $status_list = implode("','", $request->status);
 
-          $orders = OrderProduct::select(['sku', 'order_id'])->with(['Order', 'Product'])
+          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])->join("orders as o","o.id","order_products.order_id")
+          ->join("products as p","p.sku","order_products.sku")
+          ->join("product_suppliers as ps","ps.product_id","p.id")
+          ->whereIn("o.order_status",$request->status)
+          ->whereIn("ps.supplier_id",$request->supplier)->where('qty', '>=', 1)->get();
+
+          /*$orders = OrderProduct::select(['sku', 'order_id'])->with(['Order', 'Product'])
           ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
           // ->whereRaw("order_products.sku IN (SELECT products.sku FROM (SELECT products.id FROM products WHERE IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))) WHERE products.sku = order_products.sku)")
           ->whereHas('Product', function ($qs) use ($supplier_list) {
             $qs->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
-          })->where('qty', '>=', 1)->get();
+          })->where('qty', '>=', 1)->get();*/
         } else {
-          $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
+          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])->join("orders as o","o.id","order_products.order_id");
           if ($page == 'canceled-refunded') {
-            $orders = $orders
-            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");
+            $orders = $orders->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
+            /*$orders = $orders
+            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");*/
             // ->whereHas('Order', function($q) {
             //   $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
             // });
           } elseif ($page == 'ordered') {
 
           } elseif ($page == 'delivered') {
-            $orders = $orders
-            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Delivered'))");
+            $orders = $orders->whereIn("o.order_status",['Delivered']);
+            /*$orders = $orders
+            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Delivered'))");*/
             // ->whereHas('Order', function($q) {
             //   $q->whereIn('order_status', ['Delivered']);
             // });
           } else {
-            $orders = $orders
-            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status NOT IN ('Cancel', 'Refund to be processed', 'Delivered'))");
+            $orders = $orders->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
+            /*$orders = $orders
+            ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status NOT IN ('Cancel', 'Refund to be processed', 'Delivered'))");*/
             // ->whereHas('Order', function($q) {
             //   $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
             // });
 
           }
-
-          $orders = $orders
-          ->whereRaw("order_products.sku IN (SELECT products.sku FROM products WHERE id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list)))")
+          $orders = $orders->join("products as p","p.sku","order_products.sku")->join("product_suppliers as ps","ps.product_id","p.id")->whereIn("ps.supplier_id",$request->supplier)
+          /*$orders = $orders
+          ->whereRaw("order_products.sku IN (SELECT products.sku FROM products WHERE id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list)))")*/
           // ->whereHas('Product', function($q) use ($supplier_list) {
           //   $q->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
           // })
@@ -287,16 +307,22 @@ class PurchaseController extends Controller
         $brand = $request->brand[0];
 
         if ($request->status[0] != null || $request->supplier[0] != null) {
-          $orders = OrderProduct::select('sku')->with(['Order', 'Product'])
+            $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])
+            ->join("orders as o","o.id","order_products.order_id")
+            ->join("products as p","p.sku","order_products.sku")
+            ->whereIn("o.order_status",$request->status)
+            ->where('brand', $brand)->where('qty', '>=', 1)->get();
+
+          /*$orders = OrderProduct::select('sku')->with(['Order', 'Product'])
           ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
           // ->whereHas('Order', function($q) use ($status) {
           //   $q->whereIn('order_status', $status);
           // })
           ->whereHas('Product', function($q) use ($brand) {
             $q->where('brand', $brand);
-          })->where('qty', '>=', 1)->get();
+          })->where('qty', '>=', 1)->get();*/
         } else {
-          $orders = OrderProduct::select('sku')->with(['Order', 'Product']);
+          /*$orders = OrderProduct::select('sku')->with(['Order', 'Product']);
 
           if ($page == 'canceled-refunded') {
             $orders = $orders
@@ -318,18 +344,26 @@ class PurchaseController extends Controller
             // ->whereHas('Order', function($q) {
             //   $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
             // });
+          }*/
+
+          $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])->join("orders as o","o.id","order_products.order_id");
+          if ($page == 'canceled-refunded') {
+            $orders = $orders->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
+          } elseif ($page == 'ordered') {
+          } elseif ($page == 'delivered') {
+            $orders = $orders->whereIn("o.order_status",['Delivered']);
+          } else {
+            $orders = $orders->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
           }
 
-          $orders = $orders->whereHas('Product', function($q) use ($brand) {
-            $q->where('brand', $brand);
-          })->where('qty', '>=', 1)->get();
+          $orders = $orders->join("products as p","p.sku","order_products.sku")->where('brand', $brand)->where('qty', '>=', 1)->get();
         }
       }
 
 
 
       if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null) {
-        if ($page == 'canceled-refunded') {
+        /*if ($page == 'canceled-refunded') {
           $orders = OrderProduct::with('Order')
           ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");
           // ->whereHas('Order', function($q) {
@@ -349,30 +383,49 @@ class PurchaseController extends Controller
           // ->whereHas('Order', function($q) {
           //   $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
           // });
-        }
+        }*/
 
-        $orders = $orders->select(['qty', 'sku'])->where('qty', '>=', 1)->get()->toArray();
+         $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])
+         ->join("orders as o","o.id","order_products.order_id")
+         ->join("products as p","p.sku","order_products.sku");
+          if ($page == 'canceled-refunded') {
+            $orders = $orders->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
+          } elseif ($page == 'ordered') {
+          } elseif ($page == 'delivered') {
+            $orders = $orders->whereIn("o.order_status",['Delivered']);
+          } else {
+            $orders = $orders->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
+          }
+
+          $orders = $orders->where('qty', '>=', 1)->get();
+
+          //$orders = $orders->select(['qty', 'sku'])->where('qty', '>=', 1)->get()->toArray();
       }
 
 
 
       $new_orders = [];
       foreach ($orders as $order) {
-        array_push($new_orders, $order['sku']);
+        array_push($new_orders, $order['id']);
       }
 
-      $products = Product::with(['Orderproducts' => function($query) {
-        $query->with('Order');
-      }, 'Purchases', 'Suppliers'])->whereIn('sku', $new_orders);
+      $products = Product::with(['orderproducts' => function($query) use ($page,$not_include_products) {
+        if($page != 'ordered') {
+            $query->whereNotIn("id",$not_include_products);
+        }
+        $query->with(['order' => function($q){
+            $q->with("customer");
+        }]);
+      }, 'purchases', 'suppliers','brands'])->whereIn('id', $new_orders);
 
 
 
       if ($page == 'ordered') {
-        $products = $products->whereHas('Purchases', function ($query) {
+        $products = $products->whereHas('purchases', function ($query) {
           $query->where('status', 'Ordered');
         });
       } else {
-        $products = $products->whereNotIn('sku', $not_include_products);
+        $products = $products->whereNotIn('id', $ignoreSku);
       }
 
 
@@ -384,7 +437,7 @@ class PurchaseController extends Controller
       $order_status = (new OrderStatus)->all();
       $supplier_list = (new SupplierList)->all();
       // $suppliers = Supplier::select(['id', 'supplier'])->whereHas('products')->get();
-      $suppliers = DB::select('
+      /*$suppliers = DB::select('
   				SELECT id, supplier
   				FROM suppliers
 
@@ -392,10 +445,15 @@ class PurchaseController extends Controller
   					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
   					) as product_suppliers
   				ON suppliers.id = product_suppliers.supplier_id
-  		');
+  		');*/
+
+      $suppliers = DB::select('
+          SELECT s.id, s.supplier
+          FROM suppliers as s
+          JOIN product_suppliers as ps on ps.supplier_id = s.id
+          GROUP BY supplier_id');
 
       $suppliers_array = [];
-
       foreach ($suppliers as $supp) {
         $suppliers_array[$supp->id] = $supp->supplier;
       }
@@ -418,7 +476,9 @@ class PurchaseController extends Controller
       foreach($products as $key => $product) {
         $supplier_list = '';
         $single_supplier = '';
+
         foreach ($product->suppliers as $key2 => $supplier) {
+          
           if ($key2 == 0) {
             $supplier_list .= "$supplier->supplier";
           } else {
@@ -426,6 +486,7 @@ class PurchaseController extends Controller
           }
 
           $single_supplier = $supplier->id;
+        
         }
 
         $customer_names = '';
@@ -449,13 +510,13 @@ class PurchaseController extends Controller
         $new_products[$count]['brand'] = $product->brands ? $product->brands->name : 'No Brand';
         $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
         $new_products[$count]['abs_img_url'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
-        $new_products[$count]['customer_id'] = $product->orderproducts->first()->order ? ($product->orderproducts->first()->order->customer ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
+        $new_products[$count]['customer_id'] = !empty($product->orderproducts->first()->order) ? ( !empty($product->orderproducts->first()->order->customer) ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
         $new_products[$count]['customers'] = $customers;
         $new_products[$count]['customer_names'] = '';
         $new_products[$count]['order_products'] = $product->orderproducts;
-        $new_products[$count]['order_price'] = $product->orderproducts->first()->product_price;
-        $new_products[$count]['order_date'] = $product->orderproducts->first()->order ? $product->orderproducts->first()->order->order_date : 'No Order';
-        $new_products[$count]['order_advance'] = $product->orderproducts->first()->order ? $product->orderproducts->first()->order->advance_detail : 'No Order';
+        $new_products[$count]['order_price'] = !empty($product->orderproducts->first()->product_price) ? $product->orderproducts->first()->product_price : 0;
+        $new_products[$count]['order_date'] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->order_date : 'No Order';
+        $new_products[$count]['order_advance'] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->advance_detail : 'No Order';
 
         $count++;
       }
@@ -466,6 +527,20 @@ class PurchaseController extends Controller
 
       $new_products = array_reverse($new_products);
 
+      $suppliers_all = array();
+      $suppliersQuery = DB::select('SELECT sp.id FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website inner join order_products op on op.sku = sp.sku where last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY)');
+      $cnt = count($suppliersQuery);
+              
+      if($cnt > 0) {
+        $suppliers_all = DB::select('SELECT id, supplier, product_id
+          FROM suppliers
+          INNER JOIN (
+            SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+            ) as product_suppliers
+          ON suppliers.id = product_suppliers.supplier_id
+          LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and product_id = :product_id', ['product_id' =>$product['id']]);                    
+      }
+
       if ($request->get('in_pdf') === 'on') {
           set_time_limit(0);
 
@@ -474,6 +549,7 @@ class PurchaseController extends Controller
               'order_status'  => $order_status,
               'supplier_list' => $supplier_list,
               'suppliers_array' => $suppliers_array,
+              'suppliers_all' => $suppliers_all,
               'term'          => $term,
               'status'        => $status,
               'supplier'      => $supplier,
@@ -496,11 +572,14 @@ class PurchaseController extends Controller
             'path'  => LengthAwarePaginator::resolveCurrentPath()
         ]);
 
+       //echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';//exit; 
+
       return view('purchase.purchase-grid')->with([
         'products'      => $new_products,
         'order_status'  => $order_status,
         'supplier_list' => $supplier_list,
         'suppliers_array' => $suppliers_array,
+        'suppliers_all' => $suppliers_all,
         'term'          => $term,
         'status'        => $status,
         'supplier'      => $supplier,
@@ -611,8 +690,12 @@ class PurchaseController extends Controller
             $main_purchase->save();
           }
 
-          foreach ($merging_purchase->products as $product) {
-            $main_purchase->products()->syncWithoutDetaching($product);
+          foreach ($merging_purchase->purchaseProducts as $product) {
+              $purchaseProducts = new \App\PurchaseProduct;
+              $purchaseProducts->purchase_id = $main_purchase->id;
+              $purchaseProducts->product_id = $product->product_id;
+              $purchaseProducts->order_product_id = $product->order_product_id;
+              $purchaseProducts->save();
           }
 
           $merging_purchase->products()->detach();
@@ -737,28 +820,54 @@ class PurchaseController extends Controller
       $this->validate($request, [
         'purchase_handler'  => 'required',
         // 'supplier'          => 'required',
-        'products'          => 'required'
+        //'products'          => 'required',
+        'order_products'    => 'required'
       ]);
 
-      $purchase = new Purchase;
+      
+      $supllierWise = [];
+      $postOP = json_decode($request->order_products,true);
+      $supplierWiseProducts = [];
 
-      $purchase->purchase_handler = $request->purchase_handler;
-      $purchase->supplier_id = $request->supplier_id;
-      $purchase->status = 'Pending Purchase';
+      if(!empty($postOP)) {
+        foreach($postOP as $post) {
+           @list($opId, $supplierId) = explode("#",$post);
+           $supplierId = !empty($supplierId) ? $supplierId : 0;
+           $supplierWiseProducts[$supplierId][] = $opId;
+        } 
+      }
 
-      $purchase->save();
+      if(!empty($supplierWiseProducts)) {
+         foreach($supplierWiseProducts as $productList) {
 
-      $products = json_decode($request->products);
+          // assing purchase supllier wise
+          $purchase = new Purchase;
+          $purchase->purchase_handler = $request->purchase_handler;
+          $purchase->supplier_id = $request->supplier_id;
+          $purchase->status = 'Pending Purchase';
+          
+          // now store the order products
+          if($purchase->save()) {
+             // find all order products
+             $orderProducts = \App\OrderProduct::whereIn("id",$productList)->get();
 
-      $purchase->products()->attach($products);
+             if(!$orderProducts->isEmpty()) {
+                foreach($orderProducts as $orderProduct) {
+                    \App\PurchaseProduct::insert([
+                      "purchase_id" => $purchase->id,
+                      "product_id"  => $orderProduct->product->id,
+                      "order_product_id" => $orderProduct->id
+                    ]);
 
-      foreach ($products as $product_id) {
-        $product = Product::find($product_id);
+                    $orderProduct->purchase_status = 'Pending Purchase';
+                    $orderProduct->save();
 
-        foreach ($product->orderproducts as $order_product) {
-          $order_product->purchase_status = 'Pending Purchase';
-          $order_product->save();
-        }
+                }
+              }
+            // storing in product end  
+          }
+
+         }
       }
 
       return redirect()->route('purchase.index');
@@ -2418,5 +2527,164 @@ class PurchaseController extends Controller
         return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
     }
 
+    public function sendmsgsupplier(Request $request)
+    {
+      $validator = Validator::make($request->all(), [
+            'supplier_id' => 'required',
+            'message' => 'required'
+        ]);
+      $supplier_id = json_decode($request->input('supplier_id'));
+     
+      $id = $request->input('id');
+      /// $suppliers_all = DB::select('SELECT suppliers.id, suppliers.whatsapp_number, suppliers.supplier from suppliers where suppliers.id =:supplier', ['supplier' =>$supplier_id]);
+
+      $suppliers_all =DB::table('suppliers')
+                      ->select('id', 'whatsapp_number', 'supplier')
+                      ->whereIn('id', $supplier_id)
+                      ->get();  
+        if(count($suppliers_all) > 0){       
+       
+          foreach ($suppliers_all as $supplier){
+
+            if($supplier->whatsapp_number != '')
+            {
+              $message = $request->input('message');
+
+              dump($message);
+
+              try {
+                dump("Sending message");
+
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($supplier->whatsapp_number, NULL, $message); 
+
+                $params = [
+                  'number'    => NULL,
+                  'user_id'   => Auth::id(),
+                  'message'   => $message,
+                  'approved'  => 0,
+                  'status'    => 1
+                ];
+
+                $chat_message = ChatMessage::create($params);
+
+                $values = array('product_id' => $id,'supplier_id' => $supplier_id, 'chat_message_id' => $chat_message->id);
+                DB::table('purchase_product_supplier')->insert($values);
+
+              } catch (\Exception $e) {
+                dump($e->getMessage());
+              }
+            }           
+          }
+        }
+    }
+
+     public function sendEmailBulk(Request $request)
+    {
+      $this->validate($request, [
+        'subject' => 'required|min:3|max:255',
+        'message' => 'required',
+        'cc.*' => 'nullable|email',
+        'bcc.*' => 'nullable|email'
+      ]);
+
+      if ($request->suppliers) {
+        $suppliers = Supplier::whereIn('id', $request->suppliers)->where(function ($query) {
+          $query->whereNotNull('default_email')->orWhereNotNull('email');
+        })->get();
+      } else {
+        if ($request->not_received != 'on' && $request->received != 'on') {
+          return redirect()->route('purchase.index')->withErrors(['Please select either suppliers or option']);
+        }
+      }
+
+      if ($request->not_received == 'on') {
+        $suppliers = Supplier::doesnthave('emails')->where(function ($query) {
+          $query->whereNotNull('default_email')->orWhereNotNull('email');
+        })->get();
+      }
+
+      if ($request->received == 'on') {
+        $suppliers = Supplier::whereDoesntHave('emails', function ($query) {
+          $query->where('type', 'incoming');
+        })->where(function ($query) {
+          $query->whereNotNull('default_email')->orWhereNotNull('email');
+        })->where('has_error', 0)->get();
+      }
+
+     
+
+      $file_paths = [];
+
+      if ($request->hasFile('file')) {
+        foreach ($request->file('file') as $file) {
+          $filename = $file->getClientOriginalName();
+
+          $file->storeAs("documents", $filename, 'files');
+
+          $file_paths[] = "documents/$filename";
+        }
+      }
+
+      $cc = $bcc = [];
+      if ($request->has('cc')) {
+          $cc = array_values(array_filter($request->cc));
+      }
+      if ($request->has('bcc')) {
+          $bcc = array_values(array_filter($request->bcc));
+      }
+
+      foreach ($suppliers as $supplier) {
+        $mail = Mail::to($supplier->default_email ?? $supplier->email);
+
+        if ($cc) {
+            $mail->cc($cc);
+        }
+        if ($bcc) {
+            $mail->bcc($bcc);
+        }
+
+        $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+
+        $params = [
+          'model_id'        => $supplier->id,
+          'model_type'      => Supplier::class,
+          'from'            => 'buying@amourint.com',
+          'seen'            => 1,
+          'to'              => $supplier->default_email ?? $supplier->email,
+          'subject'         => $request->subject,
+          'message'         => $request->message,
+          'template'    => 'customer-simple',
+          'additional_data' => json_encode(['attachment' => $file_paths]),
+          'cc'              => $cc ?: null,
+          'bcc'             => $bcc ?: null,
+        ];
+
+        Email::create($params);
+      }
+
+      return redirect()->route('purchase.index')->withSuccess('You have successfully sent emails in bulk!');
+    }
+
+    /**
+     * Start to sync the products with order product id 
+     *
+     * 
+     */
+    
+    public function syncOrderProductId()
+    {
+      $recordsOldUpdate = Db::select("
+        select pp.id,pp.purchase_id, pp.product_id 
+        from purchase_products as pp join products as p on p.id = pp.product_id
+        left join order_products as op on op.sku = p.sku 
+        where pp.order_product_id != op.id");
+
+      if(!empty($recordsOldUpdate)) {
+        foreach($recordsOldUpdate as $records) {
+         // start 
+         \App\PurchaseProduct::where('id', $records["id"])->update(['order_product_id' => $records["order_product_id"]]);
+        }
+      }
+    }
 
 }

@@ -39,7 +39,7 @@
                 <td>
                     <ul class="list-unstyled">
                         @foreach ($product['customers'] as $customer)
-                            <li><a href="{{ route('customer.post.show', $customer->id) }}" target="_blank">{{ $customer->name }}</a></li>
+                            <li><a href="{{ route('customer.show', $customer->id) }}" target="_blank">{{ $customer->name }}</a></li>
                         @endforeach
                     </ul>
 

@@ -10477,3 +10477,102 @@ a.text-dark:focus {
   float:left;
 }
 .btn-active{border-color: #e9ecef #e9ecef #dee2e6;}
+
+/*Floating menu css start*/
+
+.help-button-wrapper {
+  position: fixed;
+  bottom: 1em;
+  left : 2em;
+  z-index: 9999;
+}
+.help-button {
+  height: 3em;
+  width: 3em;
+  font-size: 14px;
+  border-radius: 50%;
+  border: 0 none;
+  background: #72AB59;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+  transform: scale(1);
+  transition: all 200ms ease;
+}
+.help-button:hover,
+.help-button:focus,
+.help-button:active {
+  box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+  outline: 0;
+}
+.help-button span {
+  display: block;
+  font-size: 2em;
+  transform: scale(1);
+  transition: transform 100ms ease;
+}
+.help-button:hover span,
+.expanded .help-button span,
+.expanded .help-button span {
+  transform: scale(1.25);
+}
+.expanded .help-button {
+  transform: scale(.5);
+  color: rgba(255,255,255,.5);
+  background: #ffaa00;
+}
+.help-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  transition: all 200ms ease;
+  transform: translate(0, 90px) scale(.5);
+  transform-origin: bottom center;
+  opacity: 0;
+}
+.expanded .help-list {
+  transform: translate(0px,20px) scale(1);
+  opacity: 1;
+}
+.help-list li {
+  margin-bottom: 1em;
+}
+.help-list a {
+  color: #212121;
+}
+
+.page-notes-header-fixed {
+    width: 100% 
+}
+
+.page-notes-header-fixed > thead,
+.page-notes-header-fixed > tbody,
+.page-notes-header-fixed > thead > tr,
+.page-notes-header-fixed > tbody > tr,
+.page-notes-header-fixed > thead > tr > th,
+.page-notes-header-fixed > tbody > tr > td {
+    display: block;
+}
+
+.page-notes-header-fixed > tbody > tr:after,
+.page-notes-header-fixed > thead > tr:after {
+    content: ' ';
+    display: block;
+    visibility: hidden;
+    clear: both;
+}
+
+.page-notes-header-fixed > tbody {
+    overflow-y: auto;
+    height: 150px;
+}
+
+.page-notes-header-fixed > tbody > tr > td,
+.page-notes-header-fixed > thead > tr > th {
+    width: 25%;
+    float: left;
+}
+
+.dis-none{
+  display: none;
+}

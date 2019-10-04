@@ -157,7 +157,7 @@
                                     </div>
                                     <div class="col-md-3">
                                         <strong class="same-color">{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
-                                        <p class="same-color">{{ $product->name }}</p>
+                                        <p class="same-color">{{ strtoupper($product->name) }}</p>
                                         <br/>
                                         <p class="same-color" style="font-size: 18px;">
                                             <span style="text-decoration: line-through">Rs. {{ number_format($product->price_inr) }}</span> Rs. {{ number_format($product->price_special) }}
@@ -167,7 +167,7 @@
                                             <strong class="same-color" style="text-decoration: underline">Description</strong>
                                             <br/>
                                             <span id="description{{ $product->id }}" class="same-color">
-                                                {{ html_entity_decode($product->short_description) }}
+                                                {{ ucwords(strtolower(html_entity_decode($product->description))) }}
                                             </span>
                                         </p>
                                         <br/>
@@ -179,7 +179,7 @@
                                                 @if ( !empty(trim($description->description)) && trim($description->description) != trim($product->short_description) )
                                                     <hr/>
                                                     <span class="same-color">
-                                                        {{ html_entity_decode($description->description) }}
+                                                        {{ ucwords(strtolower(html_entity_decode($description->description))) }}
                                                     </span>
                                                     <p>
                                                         <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", html_entity_decode($description->description)) }}">Use this description ({{ $description->website }})</button>
@@ -193,19 +193,19 @@
                                             <strong class="same-color" style="text-decoration: underline;">Composition</strong>
                                             <br/>
                                             <span class="same-color flex-column">
-                                                {{ $product->composition }}
+                                                {{ strtoupper($product->composition) }}
                                             </span>
                                         </p>
 
                                         <p>
                                         <span>
-                                            <strong>Color</strong>: {{ $product->color }}<br/>
+                                            <strong>Color</strong>: {{ strtoupper($product->color) }}<br/>
                                         </span>
                                         </p>
 
                                         <p>
                                             <strong>Sizes</strong>: {{ $product->size }}<br/>
-                                            <strong>Dimension</strong>: {{ $product->lmeasurement }} x {{ $product->hmeasurement }} x {{ $product->dmeasurement }}<br/>
+                                            <strong>Dimension</strong>: {{ \App\Helpers\ProductHelper::getMeasurements($product) }}<br/>
                                         </p>
                                         <p>
                                             <span class="sololuxury-button">ADD TO BAG</span>
@@ -295,7 +295,7 @@
                                                             <div class="modal-dialog modal-dialog modal-lg" role="document">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
-                                                                        <h4 class="modal-title">{{ $product->name }}</h4>
+                                                                        <h4 class="modal-title">{{ strtoupper($product->name) }}</h4>
                                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                                                     </div>
                                                                     <div class="modal-body">
@@ -928,9 +928,9 @@
             var task = $(this).data('task');
             var url = "{{ url('development') }}/" + task.id + "/edit";
 
-            @can('developer-all')
+            @if(auth()->user()->checkPermission('development-list'))
             $('#user_field').val(task.user_id);
-            @endcan
+            @endif
             $('#priority_field').val(task.priority);
             $('#task_field').val(task.task);
             $('#task_subject').val(task.subject);
