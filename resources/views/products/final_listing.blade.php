@@ -391,6 +391,19 @@
                                         <div>
                                             <input class="form-control send-message" data-sku="{{$product->sku}}" type="text" placeholder="Message..." id="message_{{$product->approved_by}}" data-id="{{$product->approved_by}}">
                                         </div>
+                                        @php
+                                            $logScrapers = \App\Loggers\LogScraper::where('sku', $product->sku)->where('validated', 1)->get();
+                                        @endphp
+                                        @if ($logScrapers)
+                                            <ul>
+                                            @foreach($logScrapers as $logScraper)
+                                                    <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a></li>
+                                            @endforeach
+                                            </ul>
+                                        @endif
+                                        <div>
+
+                                        </div>
                                     </div>
                                 </div>
                             </td>
