@@ -192,8 +192,8 @@
                                                     <?php
                                                     $width = 0;
                                                     $height = 0;
-                                                    if (file_exists($media->getUrl())) {
-                                                        list($width, $height) = getimagesize($media->getUrl());
+                                                    if (file_exists($media->getAbsolutePath())) {
+                                                        list($width, $height) = getimagesize($media->getAbsolutePath());
                                                         $badge = "notify-red-badge";
                                                         if ($width == 1000 && $height == 1000) {
                                                             $badge = "notify-green-badge";
@@ -275,7 +275,7 @@
                                             <span class="sololuxury-button"><i class="fa fa-heart"></i> ADD TO WISHLIST</span>
                                         </p>
                                         <p class="same-color">
-                                            View All: <strong>{{ isset($product->product_category->title) ? $product->product_category->title  : '' }}</strong>
+                                            View All: <strong>{{ isset($product->product_category->id) ? \App\Category::getCategoryPathById($product->product_category->id)  : '' }}</strong>
                                             <br/>
                                             View All: <strong>{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
                                         </p>
