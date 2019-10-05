@@ -46,7 +46,6 @@ class UpdateShoeAndClothingSizeFromChatMessages extends Command
                             ->orWhere('clothing_size', '=', null);
                         })
                         ->get();
-        echo '<pre>'; print_r($chatMessage);die;
         if ($chatMessage) {
             foreach ($chatMessage as $message) {
                 if ($message->customer_id) {
