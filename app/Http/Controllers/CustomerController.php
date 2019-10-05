@@ -20,6 +20,7 @@ use App\Customer;
 use App\Suggestion;
 use App\Setting;
 use App\Leads;
+use App\ErpLeads;
 use App\Order;
 use App\Status;
 use App\Product;
@@ -1125,7 +1126,7 @@ class CustomerController extends Controller
             $message->save();
         }
 
-        $leads = Leads::where('customer_id', $request->second_customer_id)->get();
+        $leads = ErpLeads::where('customer_id', $request->second_customer_id)->get();
 
         foreach ($leads as $lead) {
             $lead->customer_id = $first_customer->id;
@@ -2241,14 +2242,16 @@ class CustomerController extends Controller
 
             if (!empty(array_filter($product_ids))) {
 
-                $quick_lead = Leads::create([
-                    'customer_id' => $customer->id,
-                    'rating' => 1,
-                    'status' => 3,
-                    'assigned_user' => 6,
-                    'selected_product' => json_encode($product_ids),
-                    'created_at' => Carbon::now()
-                ]);
+                foreach($product_ids as $pid) {
+                    $quick_lead = ErpLeads::create([
+                        'customer_id' => $customer->id,
+                        //'rating' => 1,
+                        'lead_status_id' => 3,
+                        //'assigned_user' => 6,
+                        'product_id' => $pid,
+                        'created_at' => Carbon::now()
+                    ]);
+                }
 
                 $requestData = new Request();
                 $requestData->setMethod('POST');
