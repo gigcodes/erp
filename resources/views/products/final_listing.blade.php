@@ -401,7 +401,7 @@
                                                 <ul>
                                                     @foreach($logScrapers as $logScraper)
                                                         @if($logScraper->url != "N/A")
-                                                            <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a></li>
+                                                            <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a> ( <?= $logScraper->updated_at ?> )</li>
                                                         @else
                                                             <li><?= $logScraper->website ?></li>
                                                         @endif

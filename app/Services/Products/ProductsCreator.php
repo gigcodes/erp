@@ -105,8 +105,8 @@ class ProductsCreator
             $allSize = [];
 
             // Update with scraped sizes
-            if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) >= 1) {
-                $sizes = implode(',', $image->properties[ 'sizes' ] ?? []);
+            if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) > 0) {
+                $sizes = $image->properties[ 'sizes' ];
 
                 // Loop over sizes and redactText
                 if (is_array($sizes) && $sizes > 0) {
@@ -310,7 +310,7 @@ class ProductsCreator
         if (array_key_exists('dimension', $properties_array)) {
             if (is_array($properties_array[ 'dimension' ])) {
                 $exploded = $properties_array[ 'dimension' ];
-                if (count($exploded) == 3) {
+                if (count($exploded) > 0) {
                     if (array_key_exists('0', $exploded)) {
                         $lmeasurement = (int)$exploded[ 0 ];
                         $measurement_size_type = 'measurement';
@@ -327,7 +327,7 @@ class ProductsCreator
             }
         }
 
-        // Get category - TODO: Get from database?
+        // Get category
         if (array_key_exists('category', $properties_array)) {
             // Check if category is an array
             if (is_array($properties_array[ 'category' ])) {
