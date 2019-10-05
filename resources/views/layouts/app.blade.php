@@ -420,6 +420,13 @@
                                                 <a class="dropdown-item" href="{{ route('sku-format.index') }}">SKU Format</a>
                                             </ul>
                                         </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Sub Category Scraping<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
+                                                <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
+                                            </ul>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -461,7 +468,9 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers</a>
+                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers - unread</a>
+                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
+                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -892,7 +901,10 @@
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
+                                {{-- Sub Menu Development --}}
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                 </li>
@@ -904,9 +916,6 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.kanbanboard') }}">Kanban Board</a>
                                 </li>
                             </ul>
                         </li>
@@ -1025,7 +1034,7 @@
                                                 <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                                 <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                                 <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                                <a class="dropdown-item" href="{{ route('development.kanbanboard') }}">Kanban Board</a>
+                                                <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                             </div>
                                         </li>
 

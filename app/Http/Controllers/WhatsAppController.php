@@ -261,21 +261,24 @@ class WhatsAppController extends FindByNumberController
                                     }
 
                                     if (isset($broadcast)) {
-                                        $quick_lead = Leads::create([
-                                            'customer_id' => $customer->id,
-                                            'rating' => 1,
-                                            'status' => 3,
-                                            'assigned_user' => 6,
-                                            'selected_product' => json_encode($selected_products),
-                                            'created_at' => Carbon::now()
-                                        ]);
+                                        if(!empty($selected_products)) {
+                                            foreach($selected_products as $pid) {
+                                                $quick_lead = \App\ErpLeads::create([
+                                                    'customer_id' => $customer->id,
+                                                    //'rating' => 1,
+                                                    'lead_status_id' => 3,
+                                                    //'assigned_user' => 6,
+                                                    'product_id' => $pid,
+                                                    'created_at' => Carbon::now()
+                                                ]);
+                                            }
+                                            $requestData = new Request();
+                                            $requestData->setMethod('POST');
+                                            $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
 
-                                        $requestData = new Request();
-                                        $requestData->setMethod('POST');
-                                        $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
-
-                                        app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
-
+                                            app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
+                                        }
+                                        
                                         CommunicationHistory::create([
                                             'model_id' => $latest_broadcast_message->id,
                                             'model_type' => ChatMessage::class,
@@ -344,15 +347,15 @@ class WhatsAppController extends FindByNumberController
                     $customer->rating = 2;
                     $customer->save();
 
-                    $lead = Leads::create([
+                    $lead = \App\ErpLeads::create([
                         'customer_id' => $customer->id,
-                        'client_name' => $from,
-                        'contactno' => $from,
-                        'rating' => 2,
-                        'status' => 1,
-                        'assigned_user' => $user->id,
-                        'userid' => $user->id,
-                        'whatsapp_number' => $to
+                        //'client_name' => $from,
+                        //'contactno' => $from,
+                        //'rating' => 2,
+                        'lead_status_id' => 1,
+                        //'assigned_user' => $user->id,
+                        //'userid' => $user->id,
+                        //'whatsapp_number' => $to
                     ]);
 
                     $params[ 'lead_id' ] = $lead->id;
@@ -772,14 +775,16 @@ class WhatsAppController extends FindByNumberController
                                     }
 
                                     if (isset($broadcast)) {
-                                        $quick_lead = Leads::create([
-                                            'customer_id' => $customer->id,
-                                            'rating' => 1,
-                                            'status' => 3,
-                                            'assigned_user' => 6,
-                                            'selected_product' => json_encode($selected_products),
-                                            'created_at' => Carbon::now()
-                                        ]);
+                                        foreach ($selected_products as $pid) {
+                                            $quick_lead = \App\ErpLeads::create([
+                                                'customer_id' => $customer->id,
+                                                //'rating' => 1,
+                                                'lead_status_id' => 3,
+                                                //'assigned_user' => 6,
+                                                'product_id' => $pid,
+                                                'created_at' => Carbon::now()
+                                            ]);
+                                        }
 
                                         $requestData = new Request();
                                         $requestData->setMethod('POST');
@@ -855,15 +860,15 @@ class WhatsAppController extends FindByNumberController
                     $customer->rating = 2;
                     $customer->save();
 
-                    $lead = Leads::create([
+                    $lead = \App\ErpLeads::create([
                         'customer_id' => $customer->id,
-                        'client_name' => $from,
-                        'contactno' => $from,
-                        'rating' => 2,
-                        'status' => 1,
-                        'assigned_user' => $user->id,
-                        'userid' => $user->id,
-                        'whatsapp_number' => $to
+                        //'client_name' => $from,
+                        //'contactno' => $from,
+                        //'rating' => 2,
+                        'lead_status_id' => 1,
+                        //'assigned_user' => $user->id,
+                        //'userid' => $user->id,
+                        //'whatsapp_number' => $to
                     ]);
 
                     $params[ 'lead_id' ] = $lead->id;
@@ -1235,7 +1240,7 @@ class WhatsAppController extends FindByNumberController
             $to = "919004780634";
         } else {
             if ($instanceId == '55202') { // Solo 06
-                $to = '919152731486';
+                $to = '971562744570';
             } else {
                 if ($instanceId == '55211') { // Solo 04
                     $to = '919152731483';
@@ -1246,7 +1251,7 @@ class WhatsAppController extends FindByNumberController
         }
 
 
-        if ($customer && ($to == '919152731483' || $to == '919152731486')) {
+        if ($customer && ($to == '919152731483' || $to == '971562744570')) {
             $params[ 'erp_user' ] = null;
             $params[ 'supplier_id' ] = null;
             $params[ 'task_id' ] = null;
@@ -1379,14 +1384,16 @@ class WhatsAppController extends FindByNumberController
                     }
 
                     if (!empty($selected_products) && $messageSentLast) {
-                        $quick_lead = Leads::create([
-                            'customer_id' => $customer->id,
-                            'rating' => 1,
-                            'status' => 3,
-                            'assigned_user' => 6,
-                            'selected_product' => json_encode($selected_products),
-                            'created_at' => Carbon::now()
-                        ]);
+                        foreach($selected_products as $pid) {
+                            $quick_lead = \App\ErpLeads::create([
+                                'customer_id' => $customer->id,
+                                //'rating' => 1,
+                                'lead_status_id' => 3,
+                                //'assigned_user' => 6,
+                                'product_id' => $pid,
+                                'created_at' => Carbon::now()
+                            ]);    
+                        }
 
                         $requestData = new Request();
                         $requestData->setMethod('POST');
@@ -1484,7 +1491,7 @@ class WhatsAppController extends FindByNumberController
                     if (preg_match("/{$keyword}/i", $params[ 'message' ])) {
                         $temp_params = $params;
                         $temp_params[ 'message' ] = $auto_reply->reply;
-                        $temp_params[ 'status' ] = 1;
+                        $temp_params[ 'status' ] = 8;
 
                         ChatMessage::create($temp_params);
 
@@ -2116,7 +2123,7 @@ class WhatsAppController extends FindByNumberController
     public function sendMultipleMessages(Request $request)
     {
         $selected_leads = json_decode($request->selected_leads, true);
-        $leads = Leads::whereIn('id', $selected_leads)->whereNotNull('contactno')->get();
+        $leads = \App\ErpLeads::whereIn('id', $selected_leads)->get();
 
         if (count($leads) > 0) {
             foreach ($leads as $lead) {
@@ -2184,7 +2191,7 @@ class WhatsAppController extends FindByNumberController
 
             if ($request->moduletype == 'leads') {
                 $params[ 'lead_id' ] = $message->moduleid;
-                if ($lead = Leads::find($message->moduleid)) {
+                if ($lead = \App\ErpLeads::find($message->moduleid)) {
                     if ($lead->customer) {
                         $params[ 'customer_id' ] = $lead->customer->id;
                     }
@@ -2230,7 +2237,7 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'order_id' ] = null;
             } elseif ($request->moduletype == 'leads') {
                 $params[ 'lead_id' ] = $request->moduleid;
-                if ($lead = Leads::find($request->moduleid)) {
+                if ($lead = \App\ErpLeads::find($request->moduleid)) {
                     if ($lead->customer) {
                         $params[ 'customer_id' ] = $lead->customer->id;
                     }
@@ -2714,7 +2721,7 @@ class WhatsAppController extends FindByNumberController
 
                 $additional_message = ChatMessage::create($params);
 
-//                if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486' ) {
+//                if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '971562744570' ) {
                 $this->sendWithThirdApi($message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, null, $additional_message->id);
 
                 //$this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, null, $additional_message->id);
@@ -3001,6 +3008,14 @@ class WhatsAppController extends FindByNumberController
                 $data = $data->where('gender', $request->gender);
             }
 
+            if ($request->shoe_size != '') {
+                $data = $data->where('shoe_size', $request->shoe_size);
+            }
+
+            if ($request->clothing_size != '') {
+                $data = $data->where('clothing_size', $request->clothing_size);
+            }
+
             $data = $data->get()->groupBy('whatsapp_number');
 
             foreach ($data as $whatsapp_number => $customers) {
@@ -3008,7 +3023,7 @@ class WhatsAppController extends FindByNumberController
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
 
-                if ($whatsapp_number == '919152731486') {
+                if ($whatsapp_number == '971562744570') {
                     foreach ($customers as $customer) {
                         if (!$now->between($morning, $evening, true)) {
                             if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
@@ -3536,7 +3551,7 @@ class WhatsAppController extends FindByNumberController
             $instanceId = "62439";
             $token = "jdcqh3ladeuvwzp4";
         } else {
-            if ($whatsapp_number == '919152731486') { // Solo 06
+            if ($whatsapp_number == '971562744570') { // Solo 06
                 $instanceId = '55202';
                 $token = '42ndn0qg5om26vzf';
             } else {
@@ -3698,7 +3713,7 @@ class WhatsAppController extends FindByNumberController
             // $additional_message = ChatMessage::create($params);
 
             if ($chat_message->message != '') {
-                if ($customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486') {
+                if ($customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '971562744570') {
                     $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, $chat_message->message, null, $chat_message->id);
                 } else {
                     $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $chat_message->message, true, $chat_message->id);
@@ -3707,7 +3722,7 @@ class WhatsAppController extends FindByNumberController
 
             if ($chat_message->hasMedia(config('constants.media_tags'))) {
                 foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
-                    if ($customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '919152731486') {
+                    if ($customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '971562744570') {
                         $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, null, $image->getUrl(), $chat_message->id);
                     } else {
                         $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), true, $chat_message->id);
@@ -3818,7 +3833,7 @@ class WhatsAppController extends FindByNumberController
             $instanceId = "62439";
             $token = "jdcqh3ladeuvwzp4";
         } else {
-            if ($whatsapp_number == '919152731486') { // Solo 06
+            if ($whatsapp_number == '971562744570') { // Solo 06
                 $instanceId = '55202';
                 $token = '42ndn0qg5om26vzf';
             } else {

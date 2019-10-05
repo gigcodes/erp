@@ -140,6 +140,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('stock/private/viewing/{id}/updateOfficeBoy', 'StockController@updateOfficeBoy')->name('stock.private.viewing.updateOfficeBoy');
     Route::post('sop', 'ProductController@saveSOP');
 
+    Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
+
     // Delivery Approvals
     Route::post('deliveryapproval/{id}/updateStatus', 'DeliveryApprovalController@updateStatus')->name('deliveryapproval.updateStatus');
     Route::resource('deliveryapproval', 'DeliveryApprovalController');
@@ -179,6 +181,15 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('leads/{id}/changestatus', 'LeadsController@updateStatus');
     Route::delete('leads/permanentDelete/{leads}', 'LeadsController@permanentDelete')->name('leads.permanentDelete');
     Route::resource('chat', 'ChatController');
+    Route::get('erp-leads', 'LeadsController@erpLeads');
+    Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
+    Route::get('erp-leads/edit', 'LeadsController@erpLeadsEdit')->name('leads.erpLeads.edit');
+    Route::get('erp-leads/create', 'LeadsController@erpLeadsCreate')->name('leads.erpLeads.create');
+    Route::post('erp-leads/store', 'LeadsController@erpLeadsStore')->name('leads.erpLeads.store');
+    Route::get('erp-leads/delete', 'LeadsController@erpLeadDelete')->name('leads.erpLeads.delete');
+    Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
+    
+    
 //	Route::resource('task','TaskController');
 
     // Instruction
@@ -390,6 +401,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('purchase/email/forward', 'PurchaseController@emailForward')->name('purchase.email.forward');
     Route::get('download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts');
 
+    Route::post( 'purchase/sendmsgsupplier', 'PurchaseController@sendmsgsupplier' )->name( 'purchase.sendmsgsupplier' );
+    Route::post( 'purchase/send/emailBulk', 'PurchaseController@sendEmailBulk' )->name( 'purchase.email.send.bulk' );
+    Route::resource( 'purchase-status', 'PurchaseStatusController' );
+
+    Route::get( 'download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts' );
+
     // Master Plan
     Route::get('mastercontrol/clearAlert', 'MasterControlController@clearAlert')->name('mastercontrol.clear.alert');
     Route::resource('mastercontrol', 'MasterControlController');
@@ -484,6 +501,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post( 'development/{id}/status', 'DevelopmentController@updateStatus' )->name( 'development.update.status' );
     Route::post( 'development/{id}/updateTask', 'DevelopmentController@updateTask' )->name( 'development.update.task' );
     Route::post( 'development/{id}/updatePriority', 'DevelopmentController@updatePriority' )->name( 'development.update.priority' );
+    Route::post( 'development/upload-attach-documents', 'DevelopmentController@uploadAttachDocuments' )->name( 'development.upload.files' );
 
     Route::get( 'development/issue/list', 'DevelopmentController@issueIndex' )->name( 'development.issue.index' );
     Route::get( 'development/issue/create', 'DevelopmentController@issueCreate' )->name( 'development.issue.create' );
@@ -495,8 +513,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get( 'development/issue/cost/assign', 'DevelopmentController@saveAmount' );
     Route::post( 'development/{id}/assignIssue', 'DevelopmentController@issueAssign' )->name( 'development.issue.assign' );
     Route::delete( 'development/{id}/issueDestroy', 'DevelopmentController@issueDestroy' )->name( 'development.issue.destroy' );
-    Route::get( 'development/kanban-board', 'DevelopmentController@kanbanBoard' )->name( 'development.kanbanboard' );
-    Route::get( 'development/taskDetail/{id}', 'DevelopmentController@taskDetail' )->name( 'taskDetail' );
+    Route::get( 'development/overview', 'DevelopmentController@overview' )->name( 'development.overview' );
+    Route::get( 'development/task-detail/{id}', 'DevelopmentController@taskDetail' )->name( 'taskDetail' );
 
     Route::post( 'development/module/create', 'DevelopmentController@moduleStore' )->name( 'development.module.store' );
     Route::delete( 'development/module/{id}/destroy', 'DevelopmentController@moduleDestroy' )->name( 'development.module.destroy' );
@@ -648,8 +666,18 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('vendor_category', 'VendorCategoryController');
 
     // Suppliers Module
-    // Route::post('supplier/agent/store', 'SupplierController@agentStore')->name('supplier.agent.store');
-    // Route::put('supplier/agent/update/{id}', 'SupplierController@agentUpdate')->name('supplier.agent.update');
+    Route::get('supplier/categorycount', 'SupplierController@addSupplierCategoryCount')->name('supplier.count');
+    Route::post('supplier/saveCategoryCount', 'SupplierController@saveSupplierCategoryCount')->name('supplier.count.save');
+    Route::post('supplier/getCategoryCount', 'SupplierController@getSupplierCategoryCount')->name('supplier.count.get');
+    Route::post('supplier/updateCategoryCount', 'SupplierController@updateSupplierCategoryCount')->name('supplier.count.update');
+    Route::post('supplier/deleteCategoryCount', 'SupplierController@deleteSupplierCategoryCount')->name('supplier.count.delete');
+
+    Route::get('supplier/brandcount', 'SupplierController@addSupplierBrandCount')->name('supplier.brand.count');
+    Route::post('supplier/saveBrandCount', 'SupplierController@saveSupplierBrandCount')->name('supplier.brand.count.save');
+    Route::post('supplier/getBrandCount', 'SupplierController@getSupplierBrandCount')->name('supplier.brand.count.get');
+    Route::post('supplier/updateBrandCount', 'SupplierController@updateSupplierBrandCount')->name('supplier.brand.count.update');
+    Route::post('supplier/deleteBrandCount', 'SupplierController@deleteSupplierBrandCount')->name('supplier.brand.count.delete');
+
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
@@ -1045,3 +1073,11 @@ Route::group(['middleware' => 'auth'], function () {
 
     });
 });
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::prefix('tmp-task')->group(function () {
+        Route::get('import-leads', 'TmpTaskController@importLeads')->name('importLeads');
+    });
+    // this is temp action
+    Route::get('update-purchase-order-product', 'PurchaseController@syncOrderProductId');
+});    

@@ -1,8 +1,9 @@
 <?php
-// IF YOU UPDATE THIS FILE, UPDATE IT IN THE SCRAPERSOLOLUXURY REPOSITORY AS WELL
+// IF YOU UPDATE THIS FILE, UPDATE IT IN THE ERP REPOSITORY AS WELL
 
 namespace App\Loggers;
 
+use App\Helpers\ProductHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Request;
 
@@ -27,7 +28,7 @@ class LogScraper extends Model
         $errorLog .= self::validateSku($request->sku);
 
         // Validate brand
-        $errorLog .= self::validateBrand($request->brand);
+        $errorLog .= self::validateBrand(!empty($request->brand) ? $request->brand : '');
 
         // Validate title
         $errorLog .= self::validateTitle($request->title);
@@ -36,7 +37,7 @@ class LogScraper extends Model
         $warningLog .= self::validateDescription($request->description);
 
         // Validate size_system
-        $errorLog .= self::validateSizeSystem($request->size_system);
+        $errorLog .= self::validateSizeSystem(!empty($request->size_system) ? $request->size_system : '');
 
         // Validate properties
         // TODO
@@ -57,7 +58,7 @@ class LogScraper extends Model
         $errorLog .= self::validateDiscountedPrice($request->discounted_price);
 
         // Find existing record
-        $logScraper = LogScraper::where('website', $request->website)->where('sku', $request->sku)->first();
+        $logScraper = LogScraper::where('website', $request->website)->where('sku', ProductHelper::getSku($request->sku))->first();
 
         // Create new record if not found
         if ($logScraper == null) {
@@ -80,9 +81,10 @@ class LogScraper extends Model
         $logScraper->ip_address = self::getRealIp();
         $logScraper->website = $request->website ?? null;
         $logScraper->url = $request->url ?? null;
-        $logScraper->sku = $request->sku ?? null;
+        $logScraper->sku = ProductHelper::getSku($request->sku) ?? null;
+        $logScraper->original_sku = $request->sku ?? null;
         $logScraper->brand = $request->brand ?? null;
-        $logScraper->category = isset($request->properties->category) ? serialize($request->properties->category) : null;
+        $logScraper->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
         $logScraper->title = $request->title ?? null;
         $logScraper->description = $request->description ?? null;
         $logScraper->properties = isset($request->properties) ? serialize($request->properties) : null;
@@ -138,6 +140,11 @@ class LogScraper extends Model
         // Check if we have a value
         if (empty($sku)) {
             return "[error] SKU cannot be empty\n";
+        }
+
+        // Check for length
+        if (strlen($sku) < 5) {
+            return "[error] SKU must be at least five characters\n";
         }
 
         // Return an empty string
@@ -201,16 +208,18 @@ class LogScraper extends Model
 
     public static function validateImageErrors($images)
     {
-        // Check image URLS
-        foreach ($images as $image) {
-            if (!filter_var($image, FILTER_VALIDATE_URL)) {
-                return "[error] One or more images has an invalid URL\n";
-            }
-        }
-
         // Check if we have an array
         if ($images != '' && !is_array($images)) {
             return "[error] Images must be an array\n";
+        }
+
+        // Check image URLS
+        if (is_array($images)) {
+            foreach ($images as $image) {
+                if (!filter_var($image, FILTER_VALIDATE_URL)) {
+                    return "[error] One or more images has an invalid URL\n";
+                }
+            }
         }
 
         // Return an empty string
@@ -238,6 +247,16 @@ class LogScraper extends Model
         // Check if we have a value
         if (empty($price)) {
             return "[error] Price cannot be empty\n";
+        }
+
+        // Check for comma's
+        if (stristr($price, ',')) {
+            return "[error] Comma in the price\n";
+        }
+
+        // Check for two dots
+        if (substr_count($price, '.') > 1) {
+            return "[error] More than one dot in the price\n";
         }
 
         // Check if price is a float value

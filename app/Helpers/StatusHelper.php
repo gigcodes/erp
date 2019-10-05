@@ -35,7 +35,7 @@ class StatusHelper extends Model
         // Update status to AI
         if ($newStatus == 3) {
             // Queue for AI
-            ProductAi::dispatch($product)->onQueue('product');;
+            ProductAi::dispatch($product)->onQueue('product');
         }
 
         // Return
@@ -119,5 +119,20 @@ class StatusHelper extends Model
             (isset($status[self::$scrape]) ? $status[self::$scrape] : 0) -
             (isset($status[self::$unableToScrape]) ? $status[self::$unableToScrape] : 0) -
             (isset($status[self::$unableToScrapeImages]) ? $status[self::$unableToScrapeImages] : 0);
+    }
+
+    public static function isApproved($statusId) {
+        // Check if status ID is matching approved product statuses
+        switch($statusId) {
+            case self::$pushToMagento;
+            case self::$inMagento;
+                return true;
+                break; // just to be sure
+            default:
+                return false;
+        }
+
+        // Return false by default
+        return false;
     }
 }

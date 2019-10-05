@@ -259,7 +259,7 @@
                 <th>Order Status</th>
                 <th>Purchase Status</th>
                 <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
-                <th width="20%">Send Message</th>
+                <th width="30%">Send Message</th>
                 <th>Shortcuts</th>
                 <th width="10%">Action</th>
                 </thead>
@@ -523,8 +523,9 @@
                                             <option value="{{$value}}" {{$value == $orders[$customer->id][0]['order_status'] ? 'selected' : '' }}>{{ $key }}</option>
                                         @endforeach
                                     </select>
-                                    <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
-                                    <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
+                                    @foreach($orders[$customer->id] as $order)
+                                        <a href="/order/{{ $order['id'] }}"><img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt=""></a>
+                                    @endforeach
                                 @endif
                             @else
                                 No Orders
@@ -1997,6 +1998,6 @@
             });
         });
 
-         
+
     </script>
 @endsection

@@ -1115,18 +1115,18 @@ class TaskModuleController extends Controller {
 	public function addWhatsAppGroup(Request $request)
 	{
 
-		$whatsapp_number = '919152731486';
+		$whatsapp_number = '971562744570';
 		$task = Task::findorfail($request->id);
 
 		// Yogesh Sir Number
 		$admin_number = User::findorfail(6);
 		$assigned_from = Helpers::getUserArray( User::where('id',$task->assign_from)->get() );
-		$assigned_to = Helpers::getUserArray( User::where('id',$task->assign_to)->get() ); 		
+		$assigned_to = Helpers::getUserArray( User::where('id',$task->assign_to)->get() );
 		$task_id = $task->id;
-		
+
 		//Check if task id is present in Whats App Group
 		$group = WhatsAppGroup::where('task_id',$task_id)->first();
-		
+
 		if($group == null){
 		//First Create Group Using Admin id
 		$phone = $admin_number->phone;
@@ -1134,7 +1134,7 @@ class TaskModuleController extends Controller {
  		if(isset($result['chatId']) && $result['chatId'] != null){
              $task_id = $task_id;
              $chatId = $result['chatId'];
-             //Create Group 
+             //Create Group
 			 $group = new WhatsAppGroup;
              $group->task_id = $task_id;
              $group->group_id = $chatId;
@@ -1146,8 +1146,8 @@ class TaskModuleController extends Controller {
 		     $group_number->save();
 		     //Chat Message
 			 $params['task_id'] = $task_id;
-             $params['group_id'] = $group->id;	
-			 ChatMessage::create($params); 
+             $params['group_id'] = $group->id;
+			 ChatMessage::create($params);
 		}else{
 			$group = new WhatsAppGroup;
              $group->task_id = $task_id;
@@ -1161,9 +1161,9 @@ class TaskModuleController extends Controller {
 
              $params['task_id'] = $task_id;
              $params['group_id'] = $group->id;
-             $params['error_status'] = 1;	
-			 ChatMessage::create($params); 
-			 
+             $params['error_status'] = 1;
+			 ChatMessage::create($params);
+
 			}
 		}
 
@@ -1173,23 +1173,23 @@ class TaskModuleController extends Controller {
 
 		 $this->addGroupParticipant(request());
 		}
-		
+
 		//Add Assigned To Into Whats App Group
 		if(array_keys($assigned_to)[0] != null){
 		$request->request->add(['group_id' => $group->id, 'user_id' => array_keys($assigned_to),'task_id' => $task->id,'whatsapp_number'=>$whatsapp_number]);
 
 		 $this->addGroupParticipant(request());
 		}
-		return response()->json(['group_id' => $group->id]);	
-		
+		return response()->json(['group_id' => $group->id]);
+
 	}
 
 	public function addGroupParticipant(Request $request)
 			{
-				
-				$whatsapp_number = '919152731486';
+
+				$whatsapp_number = '971562744570';
 				//Now Add Participant In the Group
-				
+
 				foreach ($request->user_id as $key => $value) {
 
 					$check = WhatsAppGroupNumber::where('group_id',$request->group_id)->where('user_id',$value)->first();
@@ -1200,19 +1200,7 @@ class TaskModuleController extends Controller {
 						$result = app('App\Http\Controllers\WhatsAppController')->createGroup('' , $group->group_id, $phone ,'', $whatsapp_number);
 						if(isset($result['add']) && $result['add'] != null){
 							 $task_id = $request->task_id;
-				             
-							 $group_number = new WhatsAppGroupNumber;
-				             $group_number->group_id = $request->group_id;
-				             $group_number->user_id = $user->id;
-				             $group_number->save();
-				             $params['user_id'] = $user->id;
-				             $params['task_id'] = $task_id;
-				             $params['group_id'] = $request->group_id;	
-							 ChatMessage::create($params); 
-						
-						}else{
-							$task_id = $request->task_id;
-				             
+
 							 $group_number = new WhatsAppGroupNumber;
 				             $group_number->group_id = $request->group_id;
 				             $group_number->user_id = $user->id;
@@ -1220,12 +1208,24 @@ class TaskModuleController extends Controller {
 				             $params['user_id'] = $user->id;
 				             $params['task_id'] = $task_id;
 				             $params['group_id'] = $request->group_id;
-				             $params['error_status'] = 1;	
+							 ChatMessage::create($params);
+
+						}else{
+							$task_id = $request->task_id;
+
+							 $group_number = new WhatsAppGroupNumber;
+				             $group_number->group_id = $request->group_id;
+				             $group_number->user_id = $user->id;
+				             $group_number->save();
+				             $params['user_id'] = $user->id;
+				             $params['task_id'] = $task_id;
+				             $params['group_id'] = $request->group_id;
+				             $params['error_status'] = 1;
 							 ChatMessage::create($params);
 						}
 
-					}	
-					
+					}
+
 			}
 
 			return redirect()->back()->with('message', 'Participants Added To Group');
@@ -1233,6 +1233,6 @@ class TaskModuleController extends Controller {
 
 
 
-	
+
 
 }
