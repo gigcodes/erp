@@ -74,7 +74,14 @@ class Category extends Model
 
         // Just one result
         if ( $dbResult->count() == 1 ) {
-            return $dbResult->first()->id;
+            // Check if the category has subcategories
+            $dbSubResult = Category::where('parent_id', $dbResult->first()->id);
+
+            // No results?
+            if ( $dbSubResult == null ) {
+                // Return
+                return $dbResult->first()->id;
+            }
         }
 
         // Checking the result by gender only works if the gender is set
