@@ -41,6 +41,9 @@ class RemoveCategoriesWithSubCategories extends Command
      */
     public function handle()
     {
+        // Set memory limit
+        ini_set('memory_limit','2048M');
+
         // Get all products
         Product::all()->chunk(100, function($products) {
             // Loop over products

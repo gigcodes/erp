@@ -121,7 +121,11 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
-        $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        if ((int)$request->get('status_id') > 0) {
+            $newProducts = Product::where('status_id', (int)$request->get('status_id'));
+        } else {
+            $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        }
 
         // Run through query helper
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
@@ -2044,9 +2048,9 @@ class ProductController extends Controller
 
     public function deleteImage()
     {
-        $productId  =  request("product_id",0);
-        $mediaId    =  request("media_id",0);
-        $mediaType  =  request("media_type","gallery");
+        $productId = request("product_id", 0);
+        $mediaId = request("media_id", 0);
+        $mediaType = request("media_type", "gallery");
 
 
         $cond = Db::table("mediables")->where([
@@ -2056,11 +2060,11 @@ class ProductController extends Controller
             "mediable_type" => "App\Product"
         ])->delete();
 
-        if($cond) {
-           return response()->json(["code" => 1 , "data" => []]);
+        if ($cond) {
+            return response()->json(["code" => 1, "data" => []]);
         }
 
-        return response()->json(["code" => 0 , "data" => [],"message" => "No media found"]);
+        return response()->json(["code" => 0, "data" => [], "message" => "No media found"]);
 
     }
 }
