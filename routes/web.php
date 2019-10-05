@@ -404,7 +404,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post( 'purchase/sendmsgsupplier', 'PurchaseController@sendmsgsupplier' )->name( 'purchase.sendmsgsupplier' );
     Route::post( 'purchase/send/emailBulk', 'PurchaseController@sendEmailBulk' )->name( 'purchase.email.send.bulk' );
     Route::resource( 'purchase-status', 'PurchaseStatusController' );
-     
+
     Route::get( 'download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts' );
 
     // Master Plan
@@ -485,6 +485,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post( 'development/task/complete-task', 'DevelopmentController@completeTask' );
     Route::post( 'development/task/assign-task', 'DevelopmentController@updateAssignee' );
     Route::post( 'development/task/relist-task', 'DevelopmentController@relistTask' );
+    Route::post( 'development/task/update-status', 'DevelopmentController@changeTaskStatus' );
 
 
     Route::resource( 'task-types', 'TaskTypesController' );
@@ -511,13 +512,15 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get( 'development/issue/cost/assign', 'DevelopmentController@saveAmount' );
     Route::post( 'development/{id}/assignIssue', 'DevelopmentController@issueAssign' )->name( 'development.issue.assign' );
     Route::delete( 'development/{id}/issueDestroy', 'DevelopmentController@issueDestroy' )->name( 'development.issue.destroy' );
-    Route::get( 'development/kanban-board', 'DevelopmentController@kanbanBoard' )->name( 'development.kanbanboard' );
+    Route::get( 'development/overview', 'DevelopmentController@overview' )->name( 'development.overview' );
+    Route::get( 'development/task-detail/{id}', 'DevelopmentController@taskDetail' )->name( 'taskDetail' );
 
     Route::post( 'development/module/create', 'DevelopmentController@moduleStore' )->name( 'development.module.store' );
     Route::delete( 'development/module/{id}/destroy', 'DevelopmentController@moduleDestroy' )->name( 'development.module.destroy' );
     Route::post( 'development/{id}/assignModule', 'DevelopmentController@moduleAssign' )->name( 'development.module.assign' );
 
     Route::post( 'development/comment/create', 'DevelopmentController@commentStore' )->name( 'development.comment.store' );
+    Route::post( 'task/comment/create', 'DevelopmentController@taskComment' )->name( 'task.comment.store' );
     Route::post( 'development/{id}/awaiting/response', 'DevelopmentController@awaitingResponse' )->name( 'development.comment.awaiting.response' );
 
     Route::post( 'development/cost/store', 'DevelopmentController@costStore' )->name( 'development.cost.store' );
