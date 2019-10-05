@@ -230,6 +230,7 @@ class VendorController extends Controller
       $vendor = Vendor::find($id);
       $vendor_categories = VendorCategory::all();
       $vendor_show = true;
+      $emails = [];
       $reply_categories = ReplyCategory::all();
       $users_array = Helpers::getUserArray(User::all());
 
@@ -238,7 +239,8 @@ class VendorController extends Controller
         'vendor_categories'  => $vendor_categories,
         'vendor_show'  => $vendor_show,
         'reply_categories'  => $reply_categories,
-        'users_array'  => $users_array
+        'users_array'  => $users_array,
+        'emails' => $emails,
       ]);
     }
 
@@ -431,5 +433,79 @@ class VendorController extends Controller
         }
 
         return redirect()->route('vendor.index')->withSuccess('You have successfully sent emails in bulk!');
+    }
+
+    public function sendEmail(Request $request)
+    {
+        $this->validate($request, [
+            'subject' => 'required|min:3|max:255',
+            'message' => 'required',
+            'email.*' => 'required|email',
+            'cc.*' => 'nullable|email',
+            'bcc.*' => 'nullable|email'
+        ]);
+
+        $vendor = Vendor::find($request->vendor_id);
+
+        if ($vendor->email != '') {
+            $file_paths = [];
+
+            if ($request->hasFile('file')) {
+                foreach ($request->file('file') as $file) {
+                    $filename = $file->getClientOriginalName();
+
+                    $file->storeAs("documents", $filename, 'files');
+
+                    $file_paths[] = "documents/$filename";
+                }
+            }
+
+            $cc = $bcc = [];
+            $emails = $request->email;
+
+            if ($request->has('cc')) {
+                $cc = array_values(array_filter($request->cc));
+            }
+            if ($request->has('bcc')) {
+                $bcc = array_values(array_filter($request->bcc));
+            }
+
+            if (is_array($emails) && !empty($emails)) {
+                $to = array_shift($emails);
+                $cc = array_merge($emails, $cc);
+
+                $mail = Mail::to($to);
+
+                if ($cc) {
+                    $mail->cc($cc);
+                }
+                if ($bcc) {
+                    $mail->bcc($bcc);
+                }
+
+                $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+            } else {
+                return redirect()->back()->withErrors('Please select an email');
+            }
+
+            $params = [
+                'model_id' => $vendor->id,
+                'model_type' => Vendor::class,
+                'from' => 'buying@amourint.com',
+                'to' => $request->email[0],
+                'seen' => 1,
+                'subject' => $request->subject,
+                'message' => $request->message,
+                'template' => 'customer-simple',
+                'additional_data' => json_encode(['attachment' => $file_paths]),
+                'cc' => $cc ?: null,
+                'bcc' => $bcc ?: null
+            ];
+
+            Email::create($params);
+
+            return redirect()->route('vendor.show', $vendor->id)->withSuccess('You have successfully sent an email!');
+
+        }
     }
 }
