@@ -99,7 +99,9 @@ class ProductSearcherController extends Controller
 
 			if( !empty($request->file('image') ) ) {
 
-				$media = MediaUploader::fromSource( $request->file( 'image' ) )->upload();
+				$media = MediaUploader::fromSource( $request->file( 'image' ) )
+										->toDirectory('product/'.floor($productsearcher->id / config('constants.image_par_folder')))
+										->upload();
 				$productsearcher->attachMedia( $media, config( 'constants.media_tags' ) );
 			}
 		}

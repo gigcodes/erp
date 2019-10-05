@@ -946,7 +946,9 @@ class ScrapController extends Controller
                     $path = public_path('uploads') . '/social-media/' . $image_name;
 
                     // Add media from source
-                    $media = MediaUploader::fromSource($path)->upload();
+                    $media = MediaUploader::fromSource($path)
+                                            ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                                            ->upload();
 
                     // Attach media
                     $product->attachMedia($media, config('constants.media_tags'));

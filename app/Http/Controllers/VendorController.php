@@ -206,7 +206,9 @@ class VendorController extends Controller
 
       if ($request->hasFile('images')) {
         foreach ($request->file('images') as $image) {
-          $media = MediaUploader::fromSource($image)->upload();
+          $media = MediaUploader::fromSource($image)
+                                  ->toDirectory('vendorproduct/'.floor($product->id / config('constants.image_par_folder')))
+                                  ->upload();
           $product->attachMedia($media,config('constants.media_tags'));
         }
       }
@@ -306,7 +308,9 @@ class VendorController extends Controller
 
       if ($request->hasFile('images')) {
         foreach ($request->file('images') as $image) {
-          $media = MediaUploader::fromSource($image)->upload();
+          $media = MediaUploader::fromSource($image)
+                                ->toDirectory('vendorproduct/'.floor($product->id / config('constants.image_par_folder')))
+                                ->upload();
           $product->attachMedia($media,config('constants.media_tags'));
         }
       }

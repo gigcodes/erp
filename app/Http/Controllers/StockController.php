@@ -291,7 +291,9 @@ class StockController extends Controller
 
       if ($request->hasfile('images')) {
         foreach ($request->file('images') as $image) {
-          $media = MediaUploader::fromSource($image)->upload();
+          $media = MediaUploader::fromSource($image)
+                                  ->toDirectory('privateview/'.floor($private_view->id / config('constants.image_par_folder')))
+                                  ->upload();
           $private_view->attachMedia($media,config('constants.media_tags'));
         }
       }

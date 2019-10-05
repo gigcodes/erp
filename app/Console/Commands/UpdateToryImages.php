@@ -52,7 +52,9 @@ class UpdateToryImages extends Command
 
             foreach ($images as $image_name) {
               $path = public_path('uploads') . '/social-media/' . $image_name;
-              $media = MediaUploader::fromSource($path)->upload();
+              $media = MediaUploader::fromSource($path)
+                                    ->toDirectory('product/'.floor($scraped_product->product->id / config('constants.image_par_folder')))
+                                    ->upload();
               $scraped_product->product->attachMedia($media,config('constants.media_tags'));
             }
           }

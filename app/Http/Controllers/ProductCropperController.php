@@ -473,7 +473,9 @@ class ProductCropperController extends Controller
 
         if ($request->hasFile('file')) {
             $image = $request->file('file');
-            $media = MediaUploader::fromSource($image)->upload();
+            $media = MediaUploader::fromSource($image)
+                                    ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                                    ->upload();
             $product->attachMedia($media, 'gallery');
         }
 

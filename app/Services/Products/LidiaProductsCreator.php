@@ -174,7 +174,9 @@ class LidiaProductsCreator
          // Storage::disk('uploads')->delete('/social-media/' . $image_name);
 
          $path = public_path('uploads') . '/social-media/' . $image_name;
-         $media = MediaUploader::fromSource($path)->upload();
+         $media = MediaUploader::fromSource($path)
+                                ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                                ->upload();
          $product->attachMedia($media,config('constants.media_tags'));
        }
 

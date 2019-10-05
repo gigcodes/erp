@@ -1264,6 +1264,7 @@ class WhatsAppController extends FindByNumberController
                 File::put(public_path('uploads') . '/downloaded.jpg', file_get_contents($params[ 'message' ]));
                 $media = MediaUploaderFacade::fromSource(public_path('uploads') . '/downloaded.jpg')
                     ->useFilename(uniqid('whatsapp_', true))
+                    ->toDirectory('chatmessage/'.floor($message->id / config('constants.image_par_folder')))
                     ->upload();
                 $message->attachMedia($media, 'gallery');
                 $message->save();
@@ -2009,7 +2010,9 @@ class WhatsAppController extends FindByNumberController
         // }
 
         if ($request->hasFile('image')) {
-            $media = MediaUploader::fromSource($request->file('image'))->upload();
+            $media = MediaUploader::fromSource($request->file('image'))
+                                    ->toDirectory('chatmessage/'.floor($chat_message->id / config('constants.image_par_folder')))
+                                    ->upload();
             $chat_message->attachMedia($media, config('constants.media_tags'));
 
             // if ($context == 'task' && $data['erp_user'] != Auth::id()) {
@@ -2073,7 +2076,9 @@ class WhatsAppController extends FindByNumberController
                 $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
                 $pdf->render();
                 File::put($fileName, $pdf->output());
-                $media = MediaUploader::fromSource($fileName)->upload();
+                $media = MediaUploader::fromSource($fileName)
+                                        ->toDirectory('chatmessage/'.floor($chat_message->id / config('constants.image_par_folder')))
+                                        ->upload();
                 $chat_message->attachMedia($media, 'gallery');
             } else {
                 foreach (array_unique($imagesDecoded) as $image) {
@@ -2089,7 +2094,9 @@ class WhatsAppController extends FindByNumberController
             $img = substr($request->screenshot_path, strpos($request->screenshot_path, ",") + 1);
             $img = Image::make(base64_decode($img))->encode('png')->save($image_path);
 
-            $media = MediaUploader::fromSource($image_path)->upload();
+            $media = MediaUploader::fromSource($image_path)
+                                    ->toDirectory('chatmessage/'.floor($chat_message->id / config('constants.image_par_folder')))
+                                    ->upload();
             $chat_message->attachMedia($media, config('constants.media_tags'));
 
             // if ($context == 'task' && $data['erp_user'] != Auth::id()) {

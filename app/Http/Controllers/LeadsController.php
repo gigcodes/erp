@@ -520,7 +520,9 @@ class LeadsController extends Controller
                 self::removeImage($old);
             } elseif ($old == -1) {
                 foreach ($request->file('image') as $image) {
-                    $media = MediaUploader::fromSource($image)->upload();
+                    $media = MediaUploader::fromSource($image)
+                                            ->toDirectory('leads/'.floor($leads->id / config('constants.image_par_folder')))
+                                            ->upload();
                     $leads->attachMedia($media, config('constants.media_tags'));
                 }
             } elseif ($old == 0) {
@@ -531,7 +533,9 @@ class LeadsController extends Controller
         if ($count > 0) {
             if ($request->hasFile('image')) {
                 foreach ($request->file('image') as $image) {
-                    $media = MediaUploader::fromSource($image)->upload();
+                    $media = MediaUploader::fromSource($image)
+                                            ->toDirectory('leads/'.floor($leads->id / config('constants.image_par_folder')))
+                                            ->upload();
                     $leads->attachMedia($media, config('constants.media_tags'));
                 }
             }

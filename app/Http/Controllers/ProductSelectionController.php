@@ -202,7 +202,9 @@ class ProductSelectionController extends Controller
 
 			if( !empty($request->file('image') ) ) {
 
-				$media = MediaUploader::fromSource( $request->file( 'image' ) )->upload();
+				$media = MediaUploader::fromSource( $request->file( 'image' ) )
+										->toDirectory('product/'.floor($productselection->id / config('constants.image_par_folder')))
+										->upload();
 				$productselection->attachMedia( $media, config( 'constants.media_tags' ) );
 			}
 		}

@@ -1550,7 +1550,9 @@ class ProductController extends Controller
         }
 
         $product->detachMediaTags(config('constants.media_tags'));
-        $media = MediaUploader::fromSource($request->file('image'))->upload();
+        $media = MediaUploader::fromSource($request->file('image'))
+                                ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                                ->upload();
         $product->attachMedia($media, config('constants.media_tags'));
 
         $product_image = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
@@ -1652,7 +1654,10 @@ class ProductController extends Controller
         // Check if we have a file
         if ($request->hasFile('file')) {
             $image = $request->file('file');
-            $media = MediaUploader::fromSource($image)->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))->upload();
+            $media = MediaUploader::fromSource($image)
+                                    ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
+                                    ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                                    ->upload();
             $product->attachMedia($media, 'gallery');
             $product->crop_count = $product->crop_count + 1;
             $product->save();
