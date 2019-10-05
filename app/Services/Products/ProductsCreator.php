@@ -105,12 +105,13 @@ class ProductsCreator
             $allSize = [];
 
             // Update with scraped sizes
-            if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) >= 1) {
-                $sizes = implode(',', $image->properties[ 'sizes' ] ?? []);
+            if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) > 0) {
+                $sizes = $image->properties[ 'sizes' ];
 
                 // Loop over sizes and redactText
                 if (is_array($sizes) && $sizes > 0) {
                     foreach ($sizes as $size) {
+                        var_dump($size);
                         $allSize[] = ProductHelper::getRedactedText($size);
                     }
                 }
@@ -327,7 +328,7 @@ class ProductsCreator
             }
         }
 
-        // Get category - TODO: Get from database?
+        // Get category
         if (array_key_exists('category', $properties_array)) {
             // Check if category is an array
             if (is_array($properties_array[ 'category' ])) {
