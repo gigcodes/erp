@@ -310,7 +310,7 @@ class ProductsCreator
         if (array_key_exists('dimension', $properties_array)) {
             if (is_array($properties_array[ 'dimension' ])) {
                 $exploded = $properties_array[ 'dimension' ];
-                if (count($exploded) == 3) {
+                if (count($exploded) > 0) {
                     if (array_key_exists('0', $exploded)) {
                         $lmeasurement = (int)$exploded[ 0 ];
                         $measurement_size_type = 'measurement';
