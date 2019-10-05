@@ -20,7 +20,7 @@ class Customer extends Model
 
   public function leads()
   {
-    return $this->hasMany('App\Leads');
+    return $this->hasMany('App\ErpLeads');
   }
 
   public function orders()
