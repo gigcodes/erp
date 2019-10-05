@@ -69,6 +69,7 @@ use App\Console\Commands\ZoomMeetingDeleteRecordings;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
+use App\Console\Commands\ChatMessages;
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -144,7 +145,8 @@ class Kernel extends ConsoleKernel
         SendReminderToCustomerIfTheyHaventReplied::class,
         SendReminderToSupplierIfTheyHaventReplied::class,
         SendReminderToVendorIfTheyHaventReplied::class,
-        SendReminderToDubbizlesIfTheyHaventReplied::class
+        SendReminderToDubbizlesIfTheyHaventReplied::class,
+        ChatMessages::class
 
     ];
 

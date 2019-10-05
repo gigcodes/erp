@@ -12,7 +12,7 @@ class ChatMessages extends Command
      *
      * @var string
      */
-    protected $signature = 'get-size-from-chat-messages';
+    protected $signature = 'set-customers-shoe_size-and-clothing_size';
 
     /**
      * The console command description.
@@ -38,14 +38,52 @@ class ChatMessages extends Command
      */
     public function handle()
     {
-       $chatMessage = \Illuminate\Support\Facades\DB::table('chat_messages')
-                      ->leftJoin('customers', 'customers.id', '=', 'customer_id')
-                      ->select('chat_messages.id', 'customers.id as customer_id', 'message', 'shoe_size', 'clothing_size')
-                      ->get();
-      if ($chatMessage) {
-        foreach ($chatMessage as $message) {
+        $chatMessage = DB::table('chat_messages')
+                        ->leftJoin('customers', 'customers.id', '=', 'customer_id')
+                        ->select(['chat_messages.id', 'customers.id as customer_id', 'message', 'shoe_size', 'clothing_size'])
+                        ->get();
+        if ($chatMessage) {
+            foreach ($chatMessage as $message) {
+                if ($message->customer_id) {
+                    $customerParams = [];
+                    if (empty($message->shoe_size)) {
+                        $patternArr = [
+                            '/size\s*\w*\s([0-9\.]+)/',
+                            '/size\s*\?\s([0-9\.]+)/',
+                            '/size([0-9\.]+)/',
+                            '/([0-9\.]+)\s*size/',
+                        ];
+                        foreach ($patternArr as $pattern) {
+                            $matches = [];
+                            preg_match_all($pattern, strtolower($message->message), $matches);
+                            if (!empty($matches[1][0])) {
+                                $customerParams['shoe_size'] = $matches[1][0];
+                                break;
+                            }
+                        }
+                    }
 
+                    if (empty($message->clothing_size)) {
+                        $patternArr = [
+                            '/wear\s*\w*\s([0-9\.]+)/',
+                            '/wear\s*\?\s([0-9\.]+)/',
+                            '/([0-9\.]+)\s*wear/',
+                        ];
+                        foreach ($patternArr as $pattern) {
+                            $matches = [];
+                            preg_match_all($pattern, strtolower($message->message), $matches);
+                            if (!empty($matches[1][0])) {
+                                $customerParams['clothing_size'] = $matches[1][0];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!empty($customerParams)) {
+                        \App\Customer::where('id', $message->customer_id)->update($customerParams);
+                    }
+                }
+            }
         }
-      }
     }
 }
