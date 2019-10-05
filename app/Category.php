@@ -99,14 +99,14 @@ class Category extends Model
                 return $result->id;
             }
 
-            // Return correct result by gender
+            // Category directly under women? We don't want this - return 0
             if ( $parentId == 2 && strtolower( $gender ) == 'women' ) {
-                return $result->id;
+                return 0;
             }
 
-            // Return correct result by gender
+            // Category directly under men? We don't want this - return 0
             if ( $parentId == 3 && strtolower( $gender ) == 'men' ) {
-                return $result->id;
+                return 0;
             }
 
             // Other
