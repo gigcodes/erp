@@ -42,7 +42,7 @@ class ManualQueueForAi extends Command
     public function handle()
     {
         // Get all products queued for AI
-        $products = Product::where('status_id', 3)->where('stock', '>', 0)->limit(10)->get();
+        $products = Product::where('status_id', '>', 2)->where('stock', '>', 0)->limit(10)->get();
 
         // Loop over products
         foreach ( $products as $product ) {
