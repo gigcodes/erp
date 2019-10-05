@@ -5,21 +5,21 @@ namespace App\Console\Commands;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 
-class ChatMessages extends Command
+class UpdateShoeAndClothingSizeFromChatMessages extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'set-customers-shoe_size-and-clothing_size';
+    protected $signature = 'update-shoe-and-clothing-size-from-chat-messages';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'update shoe and clothing size from chat messages';
 
     /**
      * Create a new command instance.
@@ -41,7 +41,12 @@ class ChatMessages extends Command
         $chatMessage = DB::table('chat_messages')
                         ->leftJoin('customers', 'customers.id', '=', 'customer_id')
                         ->select(['chat_messages.id', 'customers.id as customer_id', 'message', 'shoe_size', 'clothing_size'])
+                        ->where(function($q) {
+                            $q->where('shoe_size', '=', null)
+                            ->orWhere('clothing_size', '=', null);
+                        })
                         ->get();
+        echo '<pre>'; print_r($chatMessage);die;
         if ($chatMessage) {
             foreach ($chatMessage as $message) {
                 if ($message->customer_id) {
@@ -63,7 +68,7 @@ class ChatMessages extends Command
                         }
                     }
 
-                    if (empty($message->clothing_size)) {
+                    /*if (empty($message->clothing_size)) {
                         $patternArr = [
                             '/wear\s*\w*\s([0-9\.]+)/',
                             '/wear\s*\?\s([0-9\.]+)/',
@@ -77,7 +82,7 @@ class ChatMessages extends Command
                                 break;
                             }
                         }
-                    }
+                    }*/
 
                     if (!empty($customerParams)) {
                         \App\Customer::where('id', $message->customer_id)->update($customerParams);
