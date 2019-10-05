@@ -3008,6 +3008,14 @@ class WhatsAppController extends FindByNumberController
                 $data = $data->where('gender', $request->gender);
             }
 
+            if ($request->shoe_size != '') {
+                $data = $data->where('shoe_size', $request->shoe_size);
+            }
+
+            if ($request->clothing_size != '') {
+                $data = $data->where('clothing_size', $request->clothing_size);
+            }
+
             $data = $data->get()->groupBy('whatsapp_number');
 
             foreach ($data as $whatsapp_number => $customers) {
