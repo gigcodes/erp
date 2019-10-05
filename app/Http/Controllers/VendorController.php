@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Email;
+use App\Mail\PurchaseEmail;
+use App\Supplier;
 use App\Vendor;
 use App\VendorProduct;
 use App\VendorCategory;
@@ -9,6 +12,7 @@ use App\Setting;
 use App\ReplyCategory;
 use App\Helpers;
 use App\User;
+use Mail;
 use Illuminate\Http\Request;
 use Plank\Mediable\Media;
 use Illuminate\Support\Facades\DB;
@@ -106,6 +110,7 @@ class VendorController extends Controller
   		]);
 
       $vendor_categories = VendorCategory::all();
+
 
       $users = User::all();
 
@@ -344,5 +349,87 @@ class VendorController extends Controller
       $product->delete();
 
       return redirect()->back()->withSuccess('You have successfully deleted a vendor product!');
+    }
+
+    public function sendEmailBulk(Request $request){
+        $this->validate($request, [
+            'subject' => 'required|min:3|max:255',
+            'message' => 'required',
+            'cc.*' => 'nullable|email',
+            'bcc.*' => 'nullable|email'
+        ]);
+
+        if ($request->vendors) {
+            $vendors = Vendor::where('id', $request->vendors)->get();
+        } else {
+            if ($request->not_received != 'on' && $request->received != 'on') {
+                return redirect()->route('vendor.index')->withErrors(['Please select vendors']);
+            }
+        }
+
+        if ($request->not_received == 'on') {
+            $vendors = Vendor::doesnthave('emails')->where(function ($query) {
+                $query->whereNotNull('email');
+            })->get();
+        }
+
+        if ($request->received == 'on') {
+            $vendors = Vendor::whereDoesntHave('emails', function ($query) {
+                $query->where('type', 'incoming');
+            })->where(function ($query) {
+                $query->orWhereNotNull('email');
+            })->where('has_error', 0)->get();
+        }
+
+        $file_paths = [];
+
+        if ($request->hasFile('file')) {
+            foreach ($request->file('file') as $file) {
+                $filename = $file->getClientOriginalName();
+
+                $file->storeAs("documents", $filename, 'files');
+
+                $file_paths[] = "documents/$filename";
+            }
+        }
+
+        $cc = $bcc = [];
+        if ($request->has('cc')) {
+            $cc = array_values(array_filter($request->cc));
+        }
+        if ($request->has('bcc')) {
+            $bcc = array_values(array_filter($request->bcc));
+        }
+
+        foreach ($vendors as $vendor) {
+            $mail = Mail::to($vendor->email);
+
+            if ($cc) {
+                $mail->cc($cc);
+            }
+            if ($bcc) {
+                $mail->bcc($bcc);
+            }
+
+            $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+
+            $params = [
+                'model_id'        => $vendor->id,
+                'model_type'      => Vendor::class,
+                'from'            => 'buying@amourint.com',
+                'seen'            => 1,
+                'to'              => $vendor->email,
+                'subject'         => $request->subject,
+                'message'         => $request->message,
+                'template'		=> 'customer-simple',
+                'additional_data'	=> json_encode(['attachment' => $file_paths]),
+                'cc'              => $cc ?: null,
+                'bcc'             => $bcc ?: null,
+            ];
+
+            Email::create($params);
+        }
+
+        return redirect()->route('vendor.index')->withSuccess('You have successfully sent emails in bulk!');
     }
 }
