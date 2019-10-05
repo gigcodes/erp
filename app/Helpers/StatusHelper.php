@@ -35,7 +35,7 @@ class StatusHelper extends Model
         // Update status to AI
         if ($newStatus == 3) {
             // Queue for AI
-            ProductAi::dispatch($product)->onQueue('product');;
+            ProductAi::dispatch($product)->onQueue('product');
         }
 
         // Return

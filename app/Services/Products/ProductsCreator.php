@@ -111,7 +111,6 @@ class ProductsCreator
                 // Loop over sizes and redactText
                 if (is_array($sizes) && $sizes > 0) {
                     foreach ($sizes as $size) {
-                        var_dump($size);
                         $allSize[] = ProductHelper::getRedactedText($size);
                     }
                 }
