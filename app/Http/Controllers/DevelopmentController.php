@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\TaskAttachment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Auth;
@@ -834,6 +835,7 @@ class DevelopmentController extends Controller
             'subtasks' => $subtasks,
             'comments' => $comments,
             'developers' => $developers,
+            'attachments' => $attachments,
         ]);
     }
 
@@ -872,9 +874,9 @@ class DevelopmentController extends Controller
     }
 
     public function uploadAttachDocuments(Request $request){
-
+        $task_id = $request->input('task_id');
         if (!empty($request->file('attached_document'))) {
-            $task_id = $request->input('task_id');
+
             foreach ($request->file('attached_document') as $file) {
                 $name = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('images/task_files/'), $name);
@@ -885,7 +887,9 @@ class DevelopmentController extends Controller
                 $task_attachment->name      = $name;
                 $task_attachment->save();
             }
-            return redirect(url("/development/taskDetail/$task_id"));
+            return redirect(url("/development/task-detail/$task_id"));
+        }else{
+            return redirect(url("/development/task-detail/$task_id"));
         }
 
 

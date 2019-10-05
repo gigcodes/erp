@@ -83,17 +83,19 @@
                     <!-- Attachments -->
                     <div class="attachment" style="background: #ccc;padding: 8px;border-radius: 5px;margin-top: 12px;">
                         <h3>Attachments
-                            <label class="btn btn-default pull-right">
+                            <label class="btn btn-default pull-right" style="display: none;">
                                 Choose File <input id="browse" type="file" name="upload_file[]" onchange="previewFiles()" multiple hidden>
                             </label>
                         </h3>
 
                         <div class="col-md-12">
-                            @foreach($attachments as $attachment)
-                                <div class="col-md-3">
-                                    <img src="{{ asset("images/task_files/$attachment->name") }}" class="img-responsive">
-                                </div>
-                            @endforeach
+                            @if(!empty($attachments))
+                                @foreach($attachments as $attachment)
+                                    <div class="col-md-3">
+                                        <img src="{{ asset("images/task_files/$attachment->name") }}" class="img-responsive">
+                                    </div>
+                                @endforeach
+                            @endif
                         </div>
 
                         <form action="{{ route('development.upload.files') }}" method="post" enctype="multipart/form-data">
