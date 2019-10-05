@@ -42,25 +42,25 @@ class RemoveCategoriesWithSubCategories extends Command
     public function handle()
     {
         // Get all products
-        $products = Product::all();
+        Product::all()->chunk(100, function($products) {
+            // Loop over products
+            foreach ($products as $product) {
+                // Get category ID
+                $categoryId = $product->category;
 
-        // Loop over products
-        foreach ( $products as $product ) {
-            // Get category ID
-            $categoryId = $product->category;
+                // Do we have a category ID?
+                if ($categoryId > 0) {
+                    // Check for parent ID
+                    $category = Category::find($categoryId);
 
-            // Do we have a category ID?
-            if ( $categoryId > 0 ) {
-                // Check for parent ID
-                $category = Category::find($categoryId);
-
-                // Check for parent 2 (women) or 3 (men)
-                if ( in_array($category->parent_id, [2,3]) ) {
-                    // Remove category from product
-                    $product->category = 0;
-                    $product->save();
+                    // Check for parent 2 (women) or 3 (men)
+                    if (in_array($category->parent_id, [2, 3])) {
+                        // Remove category from product
+                        $product->category = 0;
+                        $product->save();
+                    }
                 }
             }
-        }
+        });
     }
 }
