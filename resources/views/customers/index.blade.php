@@ -523,8 +523,9 @@
                                             <option value="{{$value}}" {{$value == $orders[$customer->id][0]['order_status'] ? 'selected' : '' }}>{{ $key }}</option>
                                         @endforeach
                                     </select>
-                                    <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
-                                    <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
+                                    @foreach($orders[$customer->id] as $order)
+                                        <a href="/order/{{ $order['id'] }}"><img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt=""></a>
+                                    @endforeach
                                 @endif
                             @else
                                 No Orders

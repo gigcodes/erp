@@ -94,6 +94,11 @@ class ProductAi implements ShouldQueue
         $logScraperVsAi->result_ai = json_encode($resultAI);
         $logScraperVsAi->save();
 
+        // Update product color if not set
+        if ( empty($product->color) ) {
+            $product->color = $resultAI->color;
+        }
+
         // Update product status to auto crop
         $product->status_id = StatusHelper::$autoCrop;
         $product->save();
