@@ -94,13 +94,8 @@ class RunMessageQueue extends Command
                             $number = !empty($customer->whatsapp_number) ? (string)$customer->whatsapp_number : 0;
 
                             if (!$this->isWaitingFull($number)) {
-                                if ($customer && $customer->do_not_disturb == 0) {
-                                    if ( substr($customer->whatsapp_number,0,3) == '971' ) {
-                                        SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
-                                    } else {
-                                        $message->delete();
-                                    }
-
+                                if ($customer && $customer->do_not_disturb == 0 && substr($customer->whatsapp_number, 0, 3) == '971') {
+                                    SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
                                     dump('sent to all');
                                 } else {
                                     $message->delete();
