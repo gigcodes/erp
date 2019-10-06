@@ -260,11 +260,13 @@
                                             </span>
                                         </p>
 
-                                        <p>
-                                        <span>
-                                            <strong>Color</strong>: {{ strtoupper($product->color) }}<br/>
-                                        </span>
-                                        </p>
+                                        @if (1==2)
+                                            <p>
+                                            <span>
+                                                <strong>Color</strong>: {{ strtoupper($product->color) }}<br/>
+                                            </span>
+                                            </p>
+                                        @endif
 
                                         <p>
                                             <strong>Sizes</strong>: {{ $product->size }}<br/>
