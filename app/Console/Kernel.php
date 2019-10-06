@@ -4,7 +4,6 @@ namespace App\Console;
 
 use App\Console\Commands\DoubleFProductDetailScraper;
 use App\Console\Commands\DoubleFScraper;
-use App\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\EnrichWiseProducts;
 use App\Console\Commands\FixCategoryNameBySupplier;
 use App\Console\Commands\FlagCustomersIfTheyHaveAComplaint;
@@ -147,7 +146,6 @@ class Kernel extends ConsoleKernel
         SendReminderToSupplierIfTheyHaventReplied::class,
         SendReminderToVendorIfTheyHaventReplied::class,
         SendReminderToDubbizlesIfTheyHaventReplied::class,
-        EmailExcelImporter::class,
         UpdateShoeAndClothingSizeFromChatMessages::class,
     ];
 
