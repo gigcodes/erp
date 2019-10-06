@@ -534,18 +534,18 @@ class VendorController extends Controller
             return response()->json(['emails' => $view]);
         }
 
-//        if ($request->type == 'inbox') {
-//            $inbox_name = 'INBOX';
-//            $direction = 'from';
-//            $type = 'incoming';
-//        } else {
+        if ($request->type == 'inbox') {
+            $inbox_name = 'INBOX';
+            $direction = 'from';
+            $type = 'incoming';
+       } else {
             $inbox_name = 'INBOX.Sent';
             $direction = 'to';
             $type = 'outgoing';
-//        }
+       }
 
         $inbox = $imap->getFolder($inbox_name);
-        dd($inbox);
+
         $latest_email = Email::where('type', $type)->where('model_id', $vendor->id)->where('model_type', 'App\Vendor')->latest()->first();
 
         $latest_email_date = $latest_email

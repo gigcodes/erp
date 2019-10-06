@@ -1584,7 +1584,7 @@
       });
 
     $('a[href="#email-tab"], #email-inbox-tab, #email-sent-tab').on('click', function() {
-      var vendor_id = $(this).data('supplierid');
+      var vendor_id = $(this).data('vendorid');
       var type = $(this).data('type');
 
       $.ajax({
