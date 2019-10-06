@@ -104,7 +104,12 @@ class RunMessageQueue extends Command
                                     dump('deleting queue');
                                 }
                             } else {
-                                dump('sorry , message is full right now for this number : ' . $number);
+                                if ( substr($number,0,3) == '971' ) {
+                                    dump('sorry , message is full right now for this number : ' . $number);
+                                } else {
+                                    $message->delete();
+                                    dump('deleting queue');
+                                }
                             }
 
 
