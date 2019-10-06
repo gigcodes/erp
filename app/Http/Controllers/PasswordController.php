@@ -141,7 +141,7 @@ class PasswordController extends Controller
     {
         //
     }
-    
+
     public function manage()
     {
         $users = User::where('is_active',1)->orderBy('id','desc')->get();
