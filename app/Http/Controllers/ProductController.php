@@ -121,7 +121,11 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
-        $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        if ((int)$request->get('status_id') > 0) {
+            $newProducts = Product::where('status_id', (int)$request->get('status_id'));
+        } else {
+            $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        }
 
         // Run through query helper
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
@@ -1340,8 +1344,6 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
-        DB::enableQueryLog();
-
         $roletype = $request->input('roletype') ?? 'Sale';
         $products = Product::where(function ($query) {
             $query->where('stock', '>=', 1)->orWhereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11)");
@@ -1432,17 +1434,17 @@ class ProductController extends Controller
 //			}
         }
 
-        $products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier', 'purchase_status']);
         // assign query to get media records only
         $products = $products->join("mediables", function ($query) {
             $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
         })->groupBy('products.id');
-        $products_count = $products->count();
-
+        $products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier', 'purchase_status', 'media_id']);
+        $products_count = $products->get()->count();
+        $all_product_ids = $products->get()->pluck('media_id')->toArray();
         $products = $products->paginate(Setting::get('pagination'));
 
         if ($request->ajax()) {
-            $html = view('partials.image-load', ['products' => $products, 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [], 'model_type' => $model_type])->render();
+            $html = view('partials.image-load', ['products' => $products, 'all_product_ids' => $all_product_ids, 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [], 'model_type' => $model_type])->render();
 
             return response()->json(['html' => $html]);
         }
@@ -1454,7 +1456,7 @@ class ProductController extends Controller
         $locations = (new LocationList)->all();
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers'));
+        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids'));
     }
 
 
@@ -2040,5 +2042,27 @@ class ProductController extends Controller
     public function getSupplierScrappingInfo(Request $request)
     {
         return View('scrap.supplier-info');
+    }
+
+    public function deleteImage()
+    {
+        $productId = request("product_id", 0);
+        $mediaId = request("media_id", 0);
+        $mediaType = request("media_type", "gallery");
+
+
+        $cond = Db::table("mediables")->where([
+            "media_id" => $mediaId,
+            "mediable_id" => $productId,
+            "tag" => $mediaType,
+            "mediable_type" => "App\Product"
+        ])->delete();
+
+        if ($cond) {
+            return response()->json(["code" => 1, "data" => []]);
+        }
+
+        return response()->json(["code" => 0, "data" => [], "message" => "No media found"]);
+
     }
 }

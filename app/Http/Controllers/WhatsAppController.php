@@ -278,7 +278,7 @@ class WhatsAppController extends FindByNumberController
 
                                             app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
                                         }
-                                        
+
                                         CommunicationHistory::create([
                                             'model_id' => $latest_broadcast_message->id,
                                             'model_type' => ChatMessage::class,
@@ -1392,7 +1392,7 @@ class WhatsAppController extends FindByNumberController
                                 //'assigned_user' => 6,
                                 'product_id' => $pid,
                                 'created_at' => Carbon::now()
-                            ]);    
+                            ]);
                         }
 
                         $requestData = new Request();
@@ -1491,7 +1491,7 @@ class WhatsAppController extends FindByNumberController
                     if (preg_match("/{$keyword}/i", $params[ 'message' ])) {
                         $temp_params = $params;
                         $temp_params[ 'message' ] = $auto_reply->reply;
-                        $temp_params[ 'status' ] = 1;
+                        $temp_params[ 'status' ] = 8;
 
                         ChatMessage::create($temp_params);
 
@@ -1844,6 +1844,7 @@ class WhatsAppController extends FindByNumberController
             'lawyer_id' => 'sometimes|nullable|numeric',
             'case_id' => 'sometimes|nullable|numeric',
             'blogger_id' => 'sometimes|nullable|numeric',
+            'document_id' => 'sometimes|nullable|numeric',
         ]);
 
         $data = $request->except('_token');
@@ -1965,6 +1966,78 @@ class WhatsAppController extends FindByNumberController
 
                 return response()->json(['message' => $chat_message]);
 
+            } elseif ($context == 'document') {
+
+                //Sending Documents To User / Vendor / Contacts
+                $data[ 'document_id' ] = $request->document_id;
+                $module_id = $request->document_id;
+
+                //Getting User For Sending Documents
+                if($request->user_type == 1){
+                    $document = Document::findOrFail($module_id);
+                    $document_url = $document->getDocumentPathById($document->id);
+
+                    foreach ($request->users as $key) {
+                        $user =  User::findOrFail($key);
+
+                        // User ID For Chat Message
+                        $data[ 'user_id' ] = $user->id;
+
+                        //Creating Chat Message
+                        $chat_message = ChatMessage::create($data);
+
+                        //Sending Document
+                        $this->sendWithThirdApi($user->phone, $request->whatsapp_number, '' , $document_url,'','');
+                        //Sending Text
+                        $this->sendWithThirdApi($user->phone, $request->whatsapp_number, $request->message ,'','','');
+                    }
+
+
+                    //Getting Vendor For Sending Documents
+                }elseif($request->user_type == 2){
+                    $document = Document::findOrFail($module_id);
+                    $document_url = $document->getDocumentPathById($document->id);
+                    foreach ($request->users as $key) {
+                        $vendor =  Vendor::findOrFail($key);
+
+                        // Vendor ID For Chat Message
+                        $data[ 'vendor_id' ] = $vendor->id;
+
+                        //Creating Chat Message
+                        $chat_message = ChatMessage::create($data);
+
+                        //Sending Document
+                        $this->sendWithThirdApi($vendor->phone, $request->whatsapp_number, '' , $document_url,'','');
+                        //Sending Text
+                        $this->sendWithThirdApi($vendor->phone, $request->whatsapp_number, $request->message ,'','','');
+                    }
+
+
+                    //Getting Contact For Sending Documents
+                }elseif($request->user_type == 3){
+                    $document = Document::findOrFail($module_id);
+                    $document_url = $document->getDocumentPathById($document->id);
+                    foreach ($request->users as $key) {
+                        $contact =  Contact::findOrFail($key);
+
+                        // Contact ID For Chat Message
+                        $data[ 'contact_id' ] = $contact->id;
+
+                        //Creating Chat Message
+                        $chat_message = ChatMessage::create($data);
+
+                        //Sending Document
+                        $this->sendWithThirdApi($contact->phone, $request->whatsapp_number, '' , $document_url,'','');
+                        //Sending Text
+                        $this->sendWithThirdApi($contact->phone, $request->whatsapp_number, $request->message ,'','','');
+                    }
+
+
+
+                }
+
+                return redirect()->back()->with('message', 'Document Send SucessFully');
+
             } else {
                 if ($context == 'developer_task') {
                     $params[ 'developer_task_id' ] = $request->get('developer_task_id');
@@ -2076,6 +2149,7 @@ class WhatsAppController extends FindByNumberController
                 $medias = Media::whereIn('id', $imagesDecoded)->get();
                 $pdfView = view('pdf_views.images' . $fn, compact('medias'));
                 $pdf = new Dompdf();
+                $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
                 $pdf->loadHtml($pdfView);
                 $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
                 $pdf->render();
@@ -2465,6 +2539,9 @@ class WhatsAppController extends FindByNumberController
 
     public function pollMessagesCustomer(Request $request)
     {
+        // Remove time limit
+        set_time_limit(0);
+
         $params = [];
         $result = [];
         // $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
@@ -3006,6 +3083,14 @@ class WhatsAppController extends FindByNumberController
 
             if ($request->gender != '') {
                 $data = $data->where('gender', $request->gender);
+            }
+
+            if ($request->shoe_size != '') {
+                $data = $data->where('shoe_size', $request->shoe_size);
+            }
+
+            if ($request->clothing_size != '') {
+                $data = $data->where('clothing_size', $request->clothing_size);
             }
 
             $data = $data->get()->groupBy('whatsapp_number');

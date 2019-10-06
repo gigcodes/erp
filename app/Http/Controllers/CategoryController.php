@@ -222,7 +222,7 @@ class CategoryController extends Controller
 
     public function mapCategory()
     {
-        $categories = Category::where( 'id', '>', 1 )->get();
+        $categories = Category::where( 'id', '>', 1 )->where('parent_id', 0)->get();
 
         return view( 'category.references', compact( 'categories' ) );
     }
