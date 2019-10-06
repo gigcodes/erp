@@ -405,10 +405,13 @@
       {{-- <h4>Messages</h4> --}}
 
       <div class="row">
+        <form action="{{ route('supplier.image') }}" method="post">
+          @csrf
+        <button type="submit" class="btn btn-xs btn-secondary">Save</button>
         <div class="col-12 my-3" id="message-wrapper">
-          <div id="message-container"></div>
+            <div id="message-container"></div>
         </div>
-
+        </form>
         <div class="col-xs-12 text-center hidden">
           <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
         </div>
@@ -855,6 +858,11 @@
                        img.attr("src", message.media_url);
                        img.attr("width", "100");
                        img.attr("height", "100");
+                       var input = $("<input />");
+                       input.attr('type','checkbox');
+                       input.attr('name','checkbox[]');
+                       input.attr('value', message.media_url);
+                       input.appendTo( a );
                        img.appendTo( a );
                        a.appendTo( p );
                        // console.log("rendered image message ", a);

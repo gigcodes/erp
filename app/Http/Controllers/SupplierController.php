@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\Product;
 use App\SupplierCategoryCount;
 use App\Brand;
 use App\SupplierBrandCount;
@@ -714,6 +715,11 @@ class SupplierController extends Controller
             SupplierBrandCount::destroy($id);
         }
         return 'Data Deleted';
+    }
+
+    public function saveImage(Request $request){
+        dd($request);
+        //Save Product
     }
 
 
