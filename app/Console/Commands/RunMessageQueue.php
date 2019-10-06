@@ -95,7 +95,11 @@ class RunMessageQueue extends Command
 
                             if (!$this->isWaitingFull($number)) {
                                 if ($customer && $customer->do_not_disturb == 0) {
-                                    SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
+                                    if ( substr($customer->whatsapp_number,0,3) == '971' ) {
+                                        SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
+                                    } else {
+                                        $message->delete();
+                                    }
 
                                     dump('sent to all');
                                 } else {
@@ -106,10 +110,6 @@ class RunMessageQueue extends Command
                             } else {
                                 dump('sorry , message is full right now for this number : ' . $number);
                             }
-                        } elseif ($message->type == 'message_all' && substr($number, 0, 3) != '971') {
-                            $message->delete();
-
-                            dump('deleting queue');
                         } else {
 
                             if (!$this->isWaitingFull($number)) {
