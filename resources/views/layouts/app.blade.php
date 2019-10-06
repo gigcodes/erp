@@ -901,7 +901,10 @@
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
+                                {{-- Sub Menu Development --}}
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                 </li>
@@ -913,9 +916,6 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.kanbanboard') }}">Kanban Board</a>
                                 </li>
                             </ul>
                         </li>
@@ -957,6 +957,9 @@
                                                 <a class="dropdown-item" href="{{ url('page-notes') }}">Page Notes</a>
                                             </li>
 
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
+                                            </li>
 
                                         </ul>
                                     </li>
@@ -1011,6 +1014,11 @@
                                         <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
                                     </li>
 
+                                    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 65 || Auth::id() == 90)
+                                        <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
+                                        <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
+                                        <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
+                                    @endif
 
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
@@ -1034,7 +1042,7 @@
                                                 <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                                 <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                                 <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                                <a class="dropdown-item" href="{{ route('development.kanbanboard') }}">Kanban Board</a>
+                                                <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                             </div>
                                         </li>
 
@@ -1215,6 +1223,13 @@
                         <label for="note">Notes:</label>
                         <textarea class="form-control" name="note" id="note"></textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="category_id">Category:</label>
+                        <?php 
+                            $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
+                        ?>
+                        {!! Form::select('category_id', ['' => "-- select --"] + $category, null, ['class'=>'form-control', 'id'=> 'category_id']) !!}
+                    </div>
                     <button type="button" class="btn btn-secondary ml-3 save-user-notes">Submit</button>
                 </form>
                 <table class="table table-fixed-page-notes page-notes-header-fixed" style="min-width: 402px;">
@@ -1222,6 +1237,7 @@
                     <tr>
                         <th class="col-xs-1" scope="col">#</th>
                         <th class="col-xs-3" scope="col">Note</th>
+                        <th class="col-xs-3" scope="col">Category</th>
                         <th class="col-xs-2" scope="col">Created By</th>
                         <th class="col-xs-3" scope="col">Created At</th>
                     </tr>
@@ -1302,6 +1318,7 @@
             data: {
                 _token: window.token,
                 note: $form.find("#note").val(),
+                category_id: $form.find("#category_id").val(),
                 url: "<?php echo request()->url() ?>"
             },
             dataType: "json",
@@ -1311,6 +1328,7 @@
                     var listOfN = "<tr>";
                     listOfN += "<td scope='row'>" + data.notes.id + "</td>";
                     listOfN += "<td>" + data.notes.note + "</td>";
+                    listOfN += "<td>" + data.notes.category_name + "</td>";
                     listOfN += "<td>" + data.notes.name + "</td>";
                     listOfN += "<td>" + data.notes.created_at + "</td>";
                     listOfN += "</tr>";
@@ -1337,6 +1355,7 @@
                         listOfN += "<tr>";
                         listOfN += "<td scope='row'>" + v.id + "</td>";
                         listOfN += "<td>" + v.note + "</td>";
+                        listOfN += "<td>" + v.category_name + "</td>";
                         listOfN += "<td>" + v.name + "</td>";
                         listOfN += "<td>" + v.created_at + "</td>";
                         listOfN += "</tr>";
@@ -1371,35 +1390,36 @@
     //     }
     // });
     @if (Auth::check())
-    $(document).ready(function(){
-       var url = window.location.href;
-       var user_id = {{ Auth::id() }};
-      user_name = "{{ Auth::user()->name }}";
-      $.ajax({
-                type: "POST",
-                url: "/api/userLogs",
-                data: {"_token": "{{ csrf_token() }}","url": url ,"user_id" : user_id , "user_name" : user_name },
-                dataType: "json",
-                success: function(message) {
-                }
-            });
-       });
+    $(document).ready(function () {
+        var url = window.location.href;
+        var user_id = {{ Auth::id() }};
+        user_name = "{{ Auth::user()->name }}";
+        $.ajax({
+            type: "POST",
+            url: "/api/userLogs",
+            data: {"_token": "{{ csrf_token() }}", "url": url, "user_id": user_id, "user_name": user_name},
+            dataType: "json",
+            success: function (message) {
+            }
+        });
+    });
     @endif
 </script>
-{{--  <script src="{{ asset('js/tracker.js') }}"></script>--}}
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
+@if ( !empty($_SERVER['HTTP_HOST']) && !stristr($_SERVER['HTTP_HOST'], '.mac') )
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
 
-    function gtag() {
-        dataLayer.push(arguments);
-    }
+        function gtag() {
+            dataLayer.push(arguments);
+        }
 
-    gtag('js', new Date());
+        gtag('js', new Date());
 
-    gtag('config', 'UA-147736165-1');
-</script>
+        gtag('config', 'UA-147736165-1');
+    </script>
+@endif
 </body>
 
 </html>
