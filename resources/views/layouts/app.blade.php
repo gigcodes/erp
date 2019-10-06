@@ -901,7 +901,10 @@
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
+                                {{-- Sub Menu Development --}}
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                 </li>
@@ -913,9 +916,6 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.kanbanboard') }}">Kanban Board</a>
                                 </li>
                             </ul>
                         </li>
@@ -1034,7 +1034,7 @@
                                                 <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                                 <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                                 <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                                <a class="dropdown-item" href="{{ route('development.kanbanboard') }}">Kanban Board</a>
+                                                <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                             </div>
                                         </li>
 

@@ -140,6 +140,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('stock/private/viewing/{id}/updateOfficeBoy', 'StockController@updateOfficeBoy')->name('stock.private.viewing.updateOfficeBoy');
     Route::post('sop', 'ProductController@saveSOP');
 
+    Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
+
     // Delivery Approvals
     Route::post('deliveryapproval/{id}/updateStatus', 'DeliveryApprovalController@updateStatus')->name('deliveryapproval.updateStatus');
     Route::resource('deliveryapproval', 'DeliveryApprovalController');
@@ -179,6 +181,15 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('leads/{id}/changestatus', 'LeadsController@updateStatus');
     Route::delete('leads/permanentDelete/{leads}', 'LeadsController@permanentDelete')->name('leads.permanentDelete');
     Route::resource('chat', 'ChatController');
+    Route::get('erp-leads', 'LeadsController@erpLeads');
+    Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
+    Route::get('erp-leads/edit', 'LeadsController@erpLeadsEdit')->name('leads.erpLeads.edit');
+    Route::get('erp-leads/create', 'LeadsController@erpLeadsCreate')->name('leads.erpLeads.create');
+    Route::post('erp-leads/store', 'LeadsController@erpLeadsStore')->name('leads.erpLeads.store');
+    Route::get('erp-leads/delete', 'LeadsController@erpLeadDelete')->name('leads.erpLeads.delete');
+    Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
+    
+    
 //	Route::resource('task','TaskController');
 
     // Instruction
@@ -393,7 +404,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post( 'purchase/sendmsgsupplier', 'PurchaseController@sendmsgsupplier' )->name( 'purchase.sendmsgsupplier' );
     Route::post( 'purchase/send/emailBulk', 'PurchaseController@sendEmailBulk' )->name( 'purchase.email.send.bulk' );
     Route::resource( 'purchase-status', 'PurchaseStatusController' );
-     
+
     Route::get( 'download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts' );
 
     // Master Plan
@@ -474,6 +485,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post( 'development/task/complete-task', 'DevelopmentController@completeTask' );
     Route::post( 'development/task/assign-task', 'DevelopmentController@updateAssignee' );
     Route::post( 'development/task/relist-task', 'DevelopmentController@relistTask' );
+    Route::post( 'development/task/update-status', 'DevelopmentController@changeTaskStatus' );
 
 
     Route::resource( 'task-types', 'TaskTypesController' );
@@ -500,13 +512,15 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get( 'development/issue/cost/assign', 'DevelopmentController@saveAmount' );
     Route::post( 'development/{id}/assignIssue', 'DevelopmentController@issueAssign' )->name( 'development.issue.assign' );
     Route::delete( 'development/{id}/issueDestroy', 'DevelopmentController@issueDestroy' )->name( 'development.issue.destroy' );
-    Route::get( 'development/kanban-board', 'DevelopmentController@kanbanBoard' )->name( 'development.kanbanboard' );
+    Route::get( 'development/overview', 'DevelopmentController@overview' )->name( 'development.overview' );
+    Route::get( 'development/task-detail/{id}', 'DevelopmentController@taskDetail' )->name( 'taskDetail' );
 
     Route::post( 'development/module/create', 'DevelopmentController@moduleStore' )->name( 'development.module.store' );
     Route::delete( 'development/module/{id}/destroy', 'DevelopmentController@moduleDestroy' )->name( 'development.module.destroy' );
     Route::post( 'development/{id}/assignModule', 'DevelopmentController@moduleAssign' )->name( 'development.module.assign' );
 
     Route::post( 'development/comment/create', 'DevelopmentController@commentStore' )->name( 'development.comment.store' );
+    Route::post( 'task/comment/create', 'DevelopmentController@taskComment' )->name( 'task.comment.store' );
     Route::post( 'development/{id}/awaiting/response', 'DevelopmentController@awaitingResponse' )->name( 'development.comment.awaiting.response' );
 
     Route::post( 'development/cost/store', 'DevelopmentController@costStore' )->name( 'development.cost.store' );
@@ -1057,7 +1071,12 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/', 'PageNotesController@index')->name('pageNotes.viewList');
 
     });
+});
 
+Route::group(['middleware' => 'auth'], function () {
+    Route::prefix('tmp-task')->group(function () {
+        Route::get('import-leads', 'TmpTaskController@importLeads')->name('importLeads');
+    });
     // this is temp action
     Route::get('update-purchase-order-product', 'PurchaseController@syncOrderProductId');
-});
+});    

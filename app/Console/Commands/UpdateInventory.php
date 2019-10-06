@@ -53,7 +53,7 @@ class UpdateInventory extends Command
             JOIN 
                 scraped_products sp 
             ON 
-                sp.website=sp.website
+                sp.website=s.scraper_name
             WHERE
                 s.supplier_status_id=1 AND 
                 sp.last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) 

@@ -3,6 +3,7 @@
 
 namespace App\Loggers;
 
+use App\Helpers\ProductHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Request;
 
@@ -57,7 +58,7 @@ class LogScraper extends Model
         $errorLog .= self::validateDiscountedPrice($request->discounted_price);
 
         // Find existing record
-        $logScraper = LogScraper::where('website', $request->website)->where('sku', $request->sku)->first();
+        $logScraper = LogScraper::where('website', $request->website)->where('sku', ProductHelper::getSku($request->sku))->first();
 
         // Create new record if not found
         if ($logScraper == null) {
@@ -80,7 +81,8 @@ class LogScraper extends Model
         $logScraper->ip_address = self::getRealIp();
         $logScraper->website = $request->website ?? null;
         $logScraper->url = $request->url ?? null;
-        $logScraper->sku = $request->sku ?? null;
+        $logScraper->sku = ProductHelper::getSku($request->sku) ?? null;
+        $logScraper->original_sku = $request->sku ?? null;
         $logScraper->brand = $request->brand ?? null;
         $logScraper->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
         $logScraper->title = $request->title ?? null;
@@ -138,6 +140,11 @@ class LogScraper extends Model
         // Check if we have a value
         if (empty($sku)) {
             return "[error] SKU cannot be empty\n";
+        }
+
+        // Check for length
+        if (strlen($sku) < 5) {
+            return "[error] SKU must be at least five characters\n";
         }
 
         // Return an empty string
@@ -207,7 +214,7 @@ class LogScraper extends Model
         }
 
         // Check image URLS
-        if ( is_array($images) ) {
+        if (is_array($images)) {
             foreach ($images as $image) {
                 if (!filter_var($image, FILTER_VALIDATE_URL)) {
                     return "[error] One or more images has an invalid URL\n";
@@ -243,12 +250,12 @@ class LogScraper extends Model
         }
 
         // Check for comma's
-        if ( stristr($price,',')) {
+        if (stristr($price, ',')) {
             return "[error] Comma in the price\n";
         }
 
         // Check for two dots
-        if ( substr_count($price, '.') > 1 ) {
+        if (substr_count($price, '.') > 1) {
             return "[error] More than one dot in the price\n";
         }
 
