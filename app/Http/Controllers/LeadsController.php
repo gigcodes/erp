@@ -886,7 +886,7 @@ class LeadsController extends Controller
     public function sendMessage(Request $request)
     {
         $customerIds = array_unique($request->get('customers', []));
-        $customerArr = Customer::whereIn('id', $customerIds)->where('do_not_disturb', 0)->groupBy('whatsapp_number')->get();
+        $customerArr = Customer::whereIn('id', $customerIds)->where('do_not_disturb', 0)->get();
         if (!empty($customerArr)) {
             $productIds = array_unique($request->get('products', []));
             $broadcast_image =  new BroadcastImage();
