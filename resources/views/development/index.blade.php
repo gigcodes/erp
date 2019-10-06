@@ -70,7 +70,7 @@
                         Please enter the estimated completion time so that we can alert you when the time is about to end or is expired.
                     </p>
                     <div class="form-group">
-                        <input type="date" name="progress_date" id="progress_date" placeholder="Enter Date..." class="form-control">
+                        <input type="date" name="progress_date" id="progress_date" placeholder="Enter Date..." class="form-control" value="<?= date('Y-m-d') ?>">
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -688,7 +688,7 @@
         let r_s = '{{ $start }}';
         let r_e = '{{ $end }}';
 
-        let start = r_s ? moment(r_s, 'YYYY-MM-DD') : moment().subtract(6, 'days');
+        let start = r_s ? moment(r_s, 'YYYY-MM-DD') : '2018-01-01';
         let end = r_e ? moment(r_e, 'YYYY-MM-DD') : moment();
 
         jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
