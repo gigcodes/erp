@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\DoubleFProductDetailScraper;
 use App\Console\Commands\DoubleFScraper;
+use App\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\EnrichWiseProducts;
 use App\Console\Commands\FixCategoryNameBySupplier;
 use App\Console\Commands\FlagCustomersIfTheyHaveAComplaint;
@@ -146,8 +147,8 @@ class Kernel extends ConsoleKernel
         SendReminderToSupplierIfTheyHaventReplied::class,
         SendReminderToVendorIfTheyHaventReplied::class,
         SendReminderToDubbizlesIfTheyHaventReplied::class,
-        UpdateShoeAndClothingSizeFromChatMessages::class
-
+        EmailExcelImporter::class,
+        UpdateShoeAndClothingSizeFromChatMessages::class,
     ];
 
     /**
@@ -169,6 +170,9 @@ class Kernel extends ConsoleKernel
 
         //This will run every  five minutes checking and making keyword-customer relationship...
         $schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();
+
+        //This will run every fifteen minutes checking if new mail is recieved for email importer...
+        $schedule->command('excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
 
         //Flag customer if they have a complaint
         $schedule->command('flag:customers-with-complaints')->daily();
