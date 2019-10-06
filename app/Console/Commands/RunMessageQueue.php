@@ -88,11 +88,11 @@ class RunMessageQueue extends Command
                         // check message can able to send
                         $number = !empty($message->whatsapp_number) ? (string)$message->whatsapp_number : 0;
 
-                        if ($message->type == 'message_all') {
+                        if ($message->type == 'message_all' && substr($number, 0, 3) == '971') {
 
                             $customer = Customer::find($message->customer_id);
                             $number = !empty($customer->whatsapp_number) ? (string)$customer->whatsapp_number : 0;
-                            
+
                             if (!$this->isWaitingFull($number)) {
                                 if ($customer && $customer->do_not_disturb == 0) {
                                     SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
