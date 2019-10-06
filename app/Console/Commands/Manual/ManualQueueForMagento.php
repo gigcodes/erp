@@ -40,6 +40,8 @@ class ManualQueueForMagento extends Command
      */
     public function handle()
     {
+        ini_set('memory_limit', '2048M');
+
         // Get all products queued for AI
         $products = Product::where('status_id', '=', 9)->where('stock', '>', 0)->get();
 
