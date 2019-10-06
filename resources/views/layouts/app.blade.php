@@ -901,7 +901,10 @@
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
+                                {{-- Sub Menu Development --}}
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                 </li>
@@ -913,9 +916,6 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.kanbanboard') }}">Kanban Board</a>
                                 </li>
                             </ul>
                         </li>
@@ -1034,7 +1034,7 @@
                                                 <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                                 <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                                 <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                                <a class="dropdown-item" href="{{ route('development.kanbanboard') }}">Kanban Board</a>
+                                                <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                             </div>
                                         </li>
 
@@ -1371,35 +1371,36 @@
     //     }
     // });
     @if (Auth::check())
-    $(document).ready(function(){
-       var url = window.location.href;
-       var user_id = {{ Auth::id() }};
-      user_name = "{{ Auth::user()->name }}";
-      $.ajax({
-                type: "POST",
-                url: "/api/userLogs",
-                data: {"_token": "{{ csrf_token() }}","url": url ,"user_id" : user_id , "user_name" : user_name },
-                dataType: "json",
-                success: function(message) {
-                }
-            });
-       });
+    $(document).ready(function () {
+        var url = window.location.href;
+        var user_id = {{ Auth::id() }};
+        user_name = "{{ Auth::user()->name }}";
+        $.ajax({
+            type: "POST",
+            url: "/api/userLogs",
+            data: {"_token": "{{ csrf_token() }}", "url": url, "user_id": user_id, "user_name": user_name},
+            dataType: "json",
+            success: function (message) {
+            }
+        });
+    });
     @endif
 </script>
-{{--  <script src="{{ asset('js/tracker.js') }}"></script>--}}
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
+@if ( !empty($_SERVER['HTTP_HOST']) && !stristr($_SERVER['HTTP_HOST'], '.mac') )
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
 
-    function gtag() {
-        dataLayer.push(arguments);
-    }
+        function gtag() {
+            dataLayer.push(arguments);
+        }
 
-    gtag('js', new Date());
+        gtag('js', new Date());
 
-    gtag('config', 'UA-147736165-1');
-</script>
+        gtag('config', 'UA-147736165-1');
+    </script>
+@endif
 </body>
 
 </html>
