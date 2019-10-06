@@ -951,6 +951,7 @@ class WhatsAppController extends FindByNumberController
             }
 
             if ($data[ 'data' ][ 'type' ] == 'image') {
+                $media->move('chatmessage/'.floor($message->id / config('constants.image_par_folder')));
                 $message->attachMedia($media, config('constants.media_tags'));
             }
         } else {
