@@ -106,8 +106,10 @@ class RunMessageQueue extends Command
                             } else {
                                 dump('sorry , message is full right now for this number : ' . $number);
                             }
+                        } elseif ($message->type == 'message_all' && substr($number, 0, 3) != '971') {
+                            $message->delete();
 
-
+                            dump('deleting queue');
                         } else {
 
                             if (!$this->isWaitingFull($number)) {
