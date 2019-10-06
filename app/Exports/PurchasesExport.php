@@ -32,26 +32,58 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
       $purchases = Purchase::whereIn('id', $this->selected_purchases)->get();
 
       foreach ($purchases as $purchase) {
-        foreach ($purchase->products as $product) {
-          foreach ($product->orderproducts as $order_product) {
-            if ($order_product->purchase_status == 'Request Sent to Supplier' || $order_product->purchase_status == 'Pending Purchase') {
-              $path = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
-              $this->path[] = $path;
+        // check order products
 
-              $products_array[$this->count]['image'] = 'Image.......';
-              $products_array[$this->count]['size'] = $order_product->size;
-              $products_array[$this->count]['sku'] = $product->sku;
-              $products_array[$this->count]['price'] = $product->price;
-              $products_array[$this->count]['discount'] = $product->percentage . "%";
-              $products_array[$this->count]['qty'] = $order_product->qty;
-              $products_array[$this->count]['final_cost'] = ($product->price - ($product->price * $product->percentage / 100) - $product->factor) * $order_product->qty;
-              // $products_array[$this->count]['client_name'] = $order_product->order ? ($order_product->order->customer ? $order_product->order->customer->name : 'No Customer') : 'No Order';
+        if(!$purchase->orderProducts->isEmpty()) {
+            foreach($purchase->orderProducts as $orderProducts) {
+                if ($orderProducts->purchase_status == 'Request Sent to Supplier' || $orderProducts->purchase_status == 'Pending Purchase') {
+                    
+                    $product = $orderProducts->product;
+                    if($product) {
+                        
+                        $path = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
+                        $this->path[] = $path;
 
-              $this->count++;
+                        $products_array[$this->count]['image'] = 'Image.......';
+                        $products_array[$this->count]['size'] = $orderProducts->size;
+                        $products_array[$this->count]['sku'] = $product->sku;
+                        $products_array[$this->count]['price'] = $product->price;
+                        $products_array[$this->count]['discount'] = $product->percentage . "%";
+                        $products_array[$this->count]['qty'] = $orderProducts->qty;
+                        $products_array[$this->count]['final_cost'] = ($product->price - ($product->price * $product->percentage / 100) - $product->factor) * $orderProducts->qty;
 
-              $total_price += $products_array[$this->count - 1]['final_cost'];
+                        $this->count++;
+
+                        $total_price += $products_array[$this->count - 1]['final_cost'];
+
+                    }
+
+                }    
             }
-          }
+        }else {
+
+            foreach ($purchase->products as $product) {
+              foreach ($product->orderproducts as $order_product) {
+                if ($order_product->purchase_status == 'Request Sent to Supplier' || $order_product->purchase_status == 'Pending Purchase') {
+                  $path = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
+                  $this->path[] = $path;
+
+                  $products_array[$this->count]['image'] = 'Image.......';
+                  $products_array[$this->count]['size'] = $order_product->size;
+                  $products_array[$this->count]['sku'] = $product->sku;
+                  $products_array[$this->count]['price'] = $product->price;
+                  $products_array[$this->count]['discount'] = $product->percentage . "%";
+                  $products_array[$this->count]['qty'] = $order_product->qty;
+                  $products_array[$this->count]['final_cost'] = ($product->price - ($product->price * $product->percentage / 100) - $product->factor) * $order_product->qty;
+                  // $products_array[$this->count]['client_name'] = $order_product->order ? ($order_product->order->customer ? $order_product->order->customer->name : 'No Customer') : 'No Order';
+
+                  $this->count++;
+
+                  $total_price += $products_array[$this->count - 1]['final_cost'];
+                }
+              }
+            }
+
         }
       }
 

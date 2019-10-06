@@ -31,6 +31,10 @@ class OrderProduct extends Model
 
 	}
 
+	public function products(){
+		return $this->hasMany('App\Product','sku','sku');
+	}
+
   public function purchase()
   {
 		return $this->belongsTo('App\Purchase');

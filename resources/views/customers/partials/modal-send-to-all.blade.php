@@ -94,6 +94,13 @@
                       </select>
                     </div>
 
+                    <div class="form-group">
+                       <input type='text' class="form-control" name="shoe_size" placeholder="Shoe Size"/>
+                     </div>
+                     <div class="form-group">
+                        <input type='text' class="form-control" name="clothing_size" placeholder="Clothing Size"/>
+                     </div>
+
                     <hr>
 
                     <div class="form-group">

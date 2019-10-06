@@ -121,7 +121,11 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
-        $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        if ((int)$request->get('status_id') > 0) {
+            $newProducts = Product::where('status_id', (int)$request->get('status_id'));
+        } else {
+            $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        }
 
         // Run through query helper
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
@@ -2039,5 +2043,27 @@ class ProductController extends Controller
     public function getSupplierScrappingInfo(Request $request)
     {
         return View('scrap.supplier-info');
+    }
+
+    public function deleteImage()
+    {
+        $productId = request("product_id", 0);
+        $mediaId = request("media_id", 0);
+        $mediaType = request("media_type", "gallery");
+
+
+        $cond = Db::table("mediables")->where([
+            "media_id" => $mediaId,
+            "mediable_id" => $productId,
+            "tag" => $mediaType,
+            "mediable_type" => "App\Product"
+        ])->delete();
+
+        if ($cond) {
+            return response()->json(["code" => 1, "data" => []]);
+        }
+
+        return response()->json(["code" => 0, "data" => [], "message" => "No media found"]);
+
     }
 }

@@ -45,7 +45,7 @@ class CustomerImport implements ToModel, WithHeadingRow, WithBatchInserts, WithC
         } elseif (strtoupper($row['mobile']) == 'LXRY 05') {
           $row['mobile'] = '919152731484';
         } elseif (strtoupper($row['mobile']) == 'LXRY 06') {
-          $row['mobile'] = '919152731486';
+          $row['mobile'] = '971562744570';
         } elseif (strtoupper($row['mobile']) == 'LXRY 08') {
           $row['mobile'] = '918291352520';
         } elseif (strtoupper($row['mobile']) == 'LXRY 09') {
