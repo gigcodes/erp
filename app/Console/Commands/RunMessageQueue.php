@@ -111,7 +111,11 @@ class RunMessageQueue extends Command
                         } else {
 
                             if (!$this->isWaitingFull($number)) {
-                                 SendMessageToSelected::dispatchNow($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);
+                                if ( substr($message->whatsapp_number,0,3) == '971') {
+                                    SendMessageToSelected::dispatchNow($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);
+                                } else {
+                                    $message->delete();
+                                }
 
                                 dump('sent to selected');
                             } else {
