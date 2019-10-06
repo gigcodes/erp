@@ -1434,14 +1434,13 @@ class ProductController extends Controller
 //			}
         }
 
-        $products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier', 'purchase_status']);
         // assign query to get media records only
         $products = $products->join("mediables", function ($query) {
             $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
         })->groupBy('products.id');
+        $products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier', 'purchase_status', 'media_id']);
         $products_count = $products->get()->count();
-        $all_product_ids = $products->get()->pluck('id')->toArray();
-
+        $all_product_ids = $products->get()->pluck('media_id')->toArray();
         $products = $products->paginate(Setting::get('pagination'));
 
         if ($request->ajax()) {
