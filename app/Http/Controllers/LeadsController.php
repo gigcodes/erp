@@ -31,6 +31,8 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use GuzzleHttp\Client as GuzzleClient;
 
 use App\CallBusyMessage;
+use App\MessageQueue;
+use App\BroadcastImage;
 use App\Http\Controllers\WhatsAppController;
 
 
@@ -879,6 +881,34 @@ class LeadsController extends Controller
         $term = request()->get("q",null);
         $search = \App\Customer::where("name","like","%{$term}%")->orWhere("phone","like","%{$term}%")->get();
         return $search;
+    }
+
+    public function sendMessage(Request $request)
+    {
+        $customerIds = array_unique($request->get('customers', []));
+        $customerArr = Customer::whereIn('id', $customerIds)->where('do_not_disturb', 0)->groupBy('whatsapp_number')->get();
+        if (!empty($customerArr)) {
+            $productIds = array_unique($request->get('products', []));
+            $broadcast_image =  new BroadcastImage();
+            $broadcast_image->products =  json_encode($productIds);
+            $broadcast_image->save();
+            $max_group_id = MessageQueue::max('group_id') + 1;
+            $params = [ 
+                'sending_time'  => $request->get('sending_time', ''),
+                'user_id' => Auth::id(),
+                'phone' => null,
+                'type' => 'message_all',
+                'data' => json_encode(['message' => $request->get('message', ''), 'linked_images' => [$broadcast_image->id]]),
+                'group_id' => $max_group_id 
+            ];
+
+            foreach ($customerArr as  $customer) {
+                $params['customer_id'] = $customer->id;
+                MessageQueue::create($params);
+            }
+        }
+
+        return response()->json(["code"=> 1 , "data" => []]);
     }
 
 }
