@@ -1371,35 +1371,36 @@
     //     }
     // });
     @if (Auth::check())
-    $(document).ready(function(){
-       var url = window.location.href;
-       var user_id = {{ Auth::id() }};
-      user_name = "{{ Auth::user()->name }}";
-      $.ajax({
-                type: "POST",
-                url: "/api/userLogs",
-                data: {"_token": "{{ csrf_token() }}","url": url ,"user_id" : user_id , "user_name" : user_name },
-                dataType: "json",
-                success: function(message) {
-                }
-            });
-       });
+    $(document).ready(function () {
+        var url = window.location.href;
+        var user_id = {{ Auth::id() }};
+        user_name = "{{ Auth::user()->name }}";
+        $.ajax({
+            type: "POST",
+            url: "/api/userLogs",
+            data: {"_token": "{{ csrf_token() }}", "url": url, "user_id": user_id, "user_name": user_name},
+            dataType: "json",
+            success: function (message) {
+            }
+        });
+    });
     @endif
 </script>
-{{--  <script src="{{ asset('js/tracker.js') }}"></script>--}}
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
+@if ( !empty($_SERVER['HTTP_HOST']) && !stristr($_SERVER['HTTP_HOST'], '.mac') )
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
 
-    function gtag() {
-        dataLayer.push(arguments);
-    }
+        function gtag() {
+            dataLayer.push(arguments);
+        }
 
-    gtag('js', new Date());
+        gtag('js', new Date());
 
-    gtag('config', 'UA-147736165-1');
-</script>
+        gtag('config', 'UA-147736165-1');
+    </script>
+@endif
 </body>
 
 </html>

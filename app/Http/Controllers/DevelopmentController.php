@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\TaskAttachment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Auth;
@@ -38,7 +39,7 @@ class DevelopmentController extends Controller
     {
         // Set required data
         $user = $request->user ?? Auth::id();
-        $start = $request->range_start ? "$request->range_start 00:00" : Carbon::now()->startOfWeek();
+        $start = $request->range_start ? "$request->range_start 00:00" : '2018-01-01 00:00';
         $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
         $id = null;
 
@@ -266,8 +267,8 @@ class DevelopmentController extends Controller
         $data = $request->except('_token');
         $data[ 'user_id' ] = $request->user_id ? $request->user_id : Auth::id();
 
-        $module = $request->get('module_id');
-        if (!empty($module)) {
+        $module = $request->get( 'module_id' );
+        if(!empty($module)) {
             $module = DeveloperModule::find($module);
             if (!$module) {
                 $module = new DeveloperModule();
@@ -823,6 +824,9 @@ class DevelopmentController extends Controller
         $comments = DeveloperTaskComment::where('task_id', $taskId)
             ->join('users', 'users.id', '=', 'developer_task_comments.user_id')
             ->get();
+
+        //Get Attachments
+        $attachments = TaskAttachment::where('task_id',$taskId)->get();
         $developers = Helpers::getUserArray(User::role('Developer')->get());
 
         // Return view
@@ -831,6 +835,7 @@ class DevelopmentController extends Controller
             'subtasks' => $subtasks,
             'comments' => $comments,
             'developers' => $developers,
+            'attachments' => $attachments,
         ]);
     }
 
@@ -866,5 +871,27 @@ class DevelopmentController extends Controller
 
             return response()->json(['success']);
         }
+    }
+
+    public function uploadAttachDocuments(Request $request){
+        $task_id = $request->input('task_id');
+        if (!empty($request->file('attached_document'))) {
+
+            foreach ($request->file('attached_document') as $file) {
+                $name = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('images/task_files/'), $name);
+                $filepath[] = 'images/task_files/' . $name;
+
+                $task_attachment = new TaskAttachment;
+                $task_attachment->task_id   = $task_id;
+                $task_attachment->name      = $name;
+                $task_attachment->save();
+            }
+            return redirect(url("/development/task-detail/$task_id"));
+        }else{
+            return redirect(url("/development/task-detail/$task_id"));
+        }
+
+
     }
 }
