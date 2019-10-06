@@ -3777,7 +3777,7 @@ CREATE TABLE `purchases` (
   `supplier` varchar(255) DEFAULT NULL,
   `status` varchar(255) DEFAULT NULL,
   `supplier_phone` varchar(255) DEFAULT NULL,
-  `whatsapp_number` varchar(255) NOT NULL DEFAULT '919152731486',
+  `whatsapp_number` varchar(255) NOT NULL DEFAULT '971562744570',
   `transaction_id` varchar(191) DEFAULT NULL,
   `transaction_date` datetime DEFAULT NULL,
   `transaction_amount` varchar(191) DEFAULT NULL,
@@ -8934,3 +8934,12 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+INSERT INTO `erp_lead_status` (`id`, `name`) VALUES
+(1, 'Cold Lead'),
+(2, 'Cold / Important Lead'),
+(3, 'Hot Lead'),
+(4, 'Very Hot Lead'),
+(5, 'Advance Follow Up'),
+(6, 'HIGH PRIORITY');

@@ -431,7 +431,7 @@
                         @endcan --}}
                     </div>
                     <div class="form-group">
-                        @can('lister-edit')
+                        @if(auth()->user()->checkPermission('productlister-edit'))
                             <form method="POST" action="{{ route('productlister.isuploaded',$id) }}"
                                   style="display: inline;">
                                 @csrf
@@ -440,8 +440,8 @@
                                     {{ ( $isUploaded  ==  '1' ) ? 'Uploaded' : 'Upload'  }}
                                 </button>
                             </form>
-                        @endcan
-                        @can('approver-edit')
+                        @endif
+                        @if(auth()->user()->checkPermission('productapprover-edit'))
                             <form method="POST" action="{{ route('productapprover.isfinal',$id) }}"
                                   style="display: inline;">
                                 @csrf
@@ -453,7 +453,7 @@
                         @endcan
                     </div>
                     {{-- <div class="form-group">
-                        @can('supervisor-edit')
+                         @if(auth()->user()->checkPermission('productsupervisor-edit'))
                             <form method="POST" action="{{ route('productsupervisor.reject',$id) }}">
                                 @csrf
                                 <div class="row" id="rejectWhom" style="
@@ -491,11 +491,11 @@
                                     </div>
                                 </div>
                             </form>
-                        @endcan
+                        @endif
                     </div> --}}
                     @if ($isUploaded == 1)
                       <div class="form-group">
-                          @can('inventory-edit')
+                           @if(auth()->user()->checkPermission('productinventory-edit'))
                               <form method="POST" action="{{ route('productinventory.stock',$id) }}"
                                     style="display: inline;">
                                   @csrf
@@ -508,7 +508,7 @@
                                   @endif
                                   <button type="submit" class="btn btn-secondary">+</button>
                               </form>
-                          @endcan
+                          @endif
                       </div>
                     @endif
                 </div>

@@ -14,15 +14,14 @@ class CronScraperNotRunning extends Command
      *
      * @var string
      */
-    protected $signature = 'send:cron-scraper-not-running';
+    protected $signature = 'scraper:not-running';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Send message to admin for scraper is not running.';
-
+    protected $description = 'Send message to admin if scraper is not running.';
 
     /**
      * Create a new command instance.
@@ -52,6 +51,7 @@ class CronScraperNotRunning extends Command
             SELECT
                 s.id,
                 s.supplier,
+                s.scraper_name,
                 MAX(ls.updated_at) AS last_update,
                 s.scraper_name,
                 s.inventory_lifetime 
@@ -78,10 +78,10 @@ class CronScraperNotRunning extends Command
             // Loop over suppliers
             foreach ($allSuppliers as $supplier) {
                 // Create message
-                $message = '[' . date('d-m-Y H:i:s') . '] Scraper not running: ' . $supplier->scraper_name;
+                $message = '[' . date('d-m-Y H:i:s') . '] Scraper not running: ' . $supplier->supplier;
 
                 // Output debug message
-                dump("Scraper not running: " . $supplier->scraper_name);
+                dump("Scraper not running: " . $supplier->supplier);
 
                 // Try to send message
                 try {
@@ -89,7 +89,8 @@ class CronScraperNotRunning extends Command
                     dump("Sending message");
 
                     // Send message
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('00971545889192', $supplier->whatsapp_number, $message);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('31629987287', '971545889192', $message);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('919004780634', '971545889192', $message);
                 } catch (\Exception $e) {
                     // Output error
                     dump($e->getMessage());

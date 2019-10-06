@@ -23,7 +23,7 @@ Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper')
 Route::get('messages/{thread}', 'InstagramController@getThread');
 Route::post('messages/{thread}', 'InstagramController@replyToThread');
 Route::post('sync-product', 'ScrapController@syncGnbProducts');
-//Route::post('scrap-products/add', 'ScrapController@syncProductsFromNodeApp');
+Route::post('scrap-products/add', 'ScrapController@syncProductsFromNodeApp');
 Route::post('add-product-entries', 'ScrapController@addProductEntries');
 Route::post('add-product-images', 'ScrapController@getProductsForImages');
 Route::post('save-product-images', 'ScrapController@saveImagesToProducts');
@@ -53,4 +53,7 @@ Route::get('broken-link-details', 'BrokenLinkCheckerController@getBrokenLinkDeta
 
 Route::get('products/enhance', 'Products\ProductEnhancementController@index');
 Route::post('products/enhance', 'Products\ProductEnhancementController@store');
+Route::post('users/updatePermission', 'PermissionController@updatePermission');
+Route::post('userLogs', 'UserLogController@store');
+Route::post('values-as-per-user','DocumentController@getDataByUserType')->name('getDataByUserType');
 

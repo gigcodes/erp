@@ -34,7 +34,13 @@
                 </div>
 
                   <div class="form-group ml-3">
-                      <input type="checkbox" name="status" id="status" value="1"> Active
+                      <input type="checkbox" name="status" id="status" value="1" {{ request()->get('status') == '1' ? 'checked' : ''}}> Active
+                  </div>
+                  <div class="form-group ml-3">
+                       {!!Form::select('supplier_status_id', ["" => "select supplier status"] + $supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
+                  </div>
+                  <div class="form-group ml-3">
+                       {!!Form::select('supplier_category_id', ["" => "select category"] + $suppliercategory, request()->get('supplier_category_id'), ['class' => 'form-control form-control-sm'])!!}
                   </div>
 
 {{--                  <div class="form-group ml-3">--}}
@@ -196,10 +202,10 @@
                       <a href="{{ route('supplier.show', $supplier->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a>
 
                       {{-- <button type="button" class="btn btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button> --}}
-
+                      <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $supplier->id }}" data-type="supplier"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
                       <button type="button" class="btn btn-image edit-supplier d-inline" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
                       <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="/images/remark.png" /></button>
-
+                      
                       {!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
                       {!! Form::close() !!}
@@ -263,11 +269,13 @@
 
         </div>
     </div>
-
+@include('customers.zoomMeeting');
 @endsection
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="{{asset('js/zoom-meetings.js')}}"></script>
   <script type="text/javascript">
 
       var supplierToRemind = null;
@@ -400,6 +408,8 @@
       $('#supplier_social_handle').val(supplier.social_handle);
       $('#supplier_gst').val(supplier.gst);
       $('#status').val(supplier.status);
+      $('#supplier_status_id').val(supplier.supplier_status_id);
+      $('#supplier_category_id').val(supplier.supplier_category_id);
     });
 
     $(document).on('click', '.send-supplier-email', function() {

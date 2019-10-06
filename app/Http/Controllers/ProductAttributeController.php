@@ -27,12 +27,12 @@ class ProductAttributeController extends Controller
     //
 	public function __construct() {
 
-		$this->middleware('permission:attribute-list',['only' => ['sList','index']]);
-		$this->middleware('permission:attribute-create', ['only' => ['create','store']]);
-		$this->middleware('permission:attribute-edit', ['only' => ['edit','update']]);
-
-
-		$this->middleware('permission:attribute-delete', ['only' => ['destroy']]);
+//		$this->middleware('permission:attribute-list',['only' => ['sList','index']]);
+//		$this->middleware('permission:attribute-create', ['only' => ['create','store']]);
+//		$this->middleware('permission:attribute-edit', ['only' => ['edit','update']]);
+//
+//
+//		$this->middleware('permission:attribute-delete', ['only' => ['destroy']]);
 	}
 
 	public function index(Stage $stage){

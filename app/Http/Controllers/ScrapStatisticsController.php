@@ -20,7 +20,6 @@ class ScrapStatisticsController extends Controller
     public function index(Request $request)
     {
         // Set dates
-        $startDate = date('Y-m-d H:i:s', time() - (2 * 86400));
         $endDate = date('Y-m-d H:i:s');
 
         // Get active suppliers
@@ -30,6 +29,7 @@ class ScrapStatisticsController extends Controller
         $sql = '
             SELECT
                 s.supplier,
+                s.inventory_lifetime,
                 ls.website,
                 ls.ip_address,
                 COUNT(ls.id) AS total,
@@ -46,7 +46,7 @@ class ScrapStatisticsController extends Controller
             ON  
                 s.scraper_name=ls.website
             WHERE
-                ls.updated_at > "' . $startDate . '" AND
+                ls.updated_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) AND
                 ls.updated_at < "' . $endDate . '" AND
                 ls.website != "internal_scraper"
             GROUP BY

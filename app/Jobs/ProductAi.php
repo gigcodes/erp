@@ -76,13 +76,13 @@ class ProductAi implements ShouldQueue
 
         // Set json with original data
         $resultScraper = [
-            'category' => $product->product_category->title,
+            'category' => (int) $product->category > 0 ? $product->product_category->title : '',
             'color' => $product->color,
             'composite' => $product->composition,
             'gender' => ''
         ];
 
-        // Run test
+        // Run AI
         $resultAI = GoogleVisionHelper::getPropertiesFromImageSet($arrImages);
 
         // Log result
@@ -93,6 +93,11 @@ class ProductAi implements ShouldQueue
         $logScraperVsAi->result_scraper = json_encode($resultScraper);
         $logScraperVsAi->result_ai = json_encode($resultAI);
         $logScraperVsAi->save();
+
+        // Update product color if not set
+        if ( empty($product->color) ) {
+            $product->color = $resultAI->color;
+        }
 
         // Update product status to auto crop
         $product->status_id = StatusHelper::$autoCrop;

@@ -50,8 +50,7 @@ class Product extends Model
         if (
             !empty($json->title) &&
             !empty($json->sku) &&
-            !empty($json->brand_id) &&
-            !empty($json->properties[ 'category' ])
+            !empty($json->brand_id)
         ) {
             // Check for unique product
             $data[ 'sku' ] = ProductHelper::getSku($json->sku);
@@ -97,7 +96,7 @@ class Product extends Model
                 }
 
                 // Add sizes to the product
-                if (is_array($json->properties[ 'size' ]) && count($json->properties[ 'size' ]) > 0) {
+                if (isset($json->properties[ 'size' ]) && is_array($json->properties[ 'size' ]) && count($json->properties[ 'size' ]) > 0) {
                     $product->size = implode(',', array_keys($json->properties[ 'size' ]));
                 }
 
@@ -194,8 +193,9 @@ class Product extends Model
                 // Set product values
                 $product->status_id = ($isExcel == 1 ? 2 : 3);
                 $product->sku = $data[ 'sku' ];
-                $product->brand = $json->brand_id;
                 $product->supplier = $json->website;
+                $product->brand = $json->brand_id;
+                $product->category = $json->properties[ 'category' ] ?? 0;
                 $product->name = ProductHelper::getRedactedText($json->title);
                 $product->short_description = ProductHelper::getRedactedText($json->description);
                 $product->supplier_link = $json->url;
@@ -212,7 +212,6 @@ class Product extends Model
                 $product->dmeasurement = isset($json->properties[ 'dmeasurement' ]) && $json->properties[ 'dmeasurement' ] > 0 ? $json->properties[ 'dmeasurement' ] : null;
                 $product->measurement_size_type = $json->properties[ 'measurement_size_type' ];
                 $product->made_in = $json->properties[ 'made_in' ] ?? null;
-                $product->category = $json->properties[ 'category' ] ?? null;
                 $product->price = $formattedPrices[ 'price' ];
                 $product->price_inr = $formattedPrices[ 'price_inr' ];
                 $product->price_special = $formattedPrices[ 'price_special' ];

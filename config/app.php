@@ -171,7 +171,10 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         PragmaRX\Tracker\Vendor\Laravel\ServiceProvider::class,
-        Thujohn\Twitter\TwitterServiceProvider::class
+        Thujohn\Twitter\TwitterServiceProvider::class,
+        App\Providers\PermissionCheckServiceProvider::class,
+        Yajra\DataTables\DataTablesServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
     ],
 
     /*
@@ -230,7 +233,10 @@ return [
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Tracker' => PragmaRX\Tracker\Vendor\Laravel\Facade::class,
-        'Twitter' => Thujohn\Twitter\Facades\Twitter::class
+        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
+        'PermissionCheck' => App\Facades\PermissionCheckClass::class,
+        'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+        'IImage' => Intervention\Image\Facades\Image::class,
     ],
 
 ];
