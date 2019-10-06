@@ -2149,6 +2149,7 @@ class WhatsAppController extends FindByNumberController
                 $medias = Media::whereIn('id', $imagesDecoded)->get();
                 $pdfView = view('pdf_views.images' . $fn, compact('medias'));
                 $pdf = new Dompdf();
+                $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
                 $pdf->loadHtml($pdfView);
                 $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
                 $pdf->render();
@@ -2538,6 +2539,9 @@ class WhatsAppController extends FindByNumberController
 
     public function pollMessagesCustomer(Request $request)
     {
+        // Remove time limit
+        set_time_limit(0);
+
         $params = [];
         $result = [];
         // $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
