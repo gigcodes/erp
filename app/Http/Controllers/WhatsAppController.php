@@ -278,7 +278,7 @@ class WhatsAppController extends FindByNumberController
 
                                             app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
                                         }
-                                        
+
                                         CommunicationHistory::create([
                                             'model_id' => $latest_broadcast_message->id,
                                             'model_type' => ChatMessage::class,
@@ -1392,7 +1392,7 @@ class WhatsAppController extends FindByNumberController
                                 //'assigned_user' => 6,
                                 'product_id' => $pid,
                                 'created_at' => Carbon::now()
-                            ]);    
+                            ]);
                         }
 
                         $requestData = new Request();
