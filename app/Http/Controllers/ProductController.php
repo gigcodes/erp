@@ -1187,7 +1187,7 @@ class ProductController extends Controller
         // If we have a product, push it to Magento
         if ($product !== null) {
             // Dispatch the job to the queue
-            PushToMagento::dispatch($product)->onQueue('listMagento');
+            PushToMagento::dispatch($product)->onQueue('magento');
 
             // Update the product so it doesn't show up in final listing
             $product->isUploaded = 1;
