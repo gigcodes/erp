@@ -2539,6 +2539,9 @@ class WhatsAppController extends FindByNumberController
 
     public function pollMessagesCustomer(Request $request)
     {
+        // Remove time limit
+        set_time_limit(0);
+
         $params = [];
         $result = [];
         // $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;

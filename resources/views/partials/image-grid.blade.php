@@ -190,7 +190,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
         var image_array = [];
-        var all_product_ids = [];
+        var all_product_ids = [<?= implode(',', $all_product_ids) ?>];
         $(document).ready(function () {
             $(".select-multiple").select2();
             //$(".select-multiple-cat").multiselect();
@@ -250,10 +250,13 @@
                 }
 
                 // Add all images to array
+                image_array = [];
+                console.log(all_product_ids.length);
                 for (i = 0; i < all_product_ids.length && i < vcount; i++) {
                     image_array.push(all_product_ids[i]);
                 }
                 image_array = unique(image_array);
+                console.log(image_array);
             })
         });
 
