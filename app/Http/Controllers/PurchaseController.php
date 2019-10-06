@@ -1784,12 +1784,8 @@ class PurchaseController extends Controller
         ]);
 
         $imap->connect();
-        if($request->vendor_id){
-            $supplier = Vendor::find($request->vendor_id);
-        }else{
-            $supplier = Supplier::find($request->supplier_id);
-        }
 
+        $supplier = Supplier::find($request->supplier_id);
 
         if ($request->type == 'inbox') {
             $inbox_name = 'INBOX';
@@ -1804,7 +1800,7 @@ class PurchaseController extends Controller
         $inbox = $imap->getFolder($inbox_name);
 
         $latest_email = Email::where('type', $type)->where('model_id', $supplier->id)->where(function($query) {
-            $query->where('model_type', 'App\Supplier')->orWhere('model_type', 'App\Purchase')->orWhere('model_type', 'App\Vendor');
+            $query->where('model_type', 'App\Supplier')->orWhere('model_type', 'App\Purchase');
         })->latest()->first();
 
         $latest_email_date = $latest_email

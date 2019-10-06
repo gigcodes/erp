@@ -1588,10 +1588,10 @@
       var type = $(this).data('type');
 
       $.ajax({
-        url: "{{ route('purchase.email.inbox') }}",
+        url: "{{ route('vendor.email.inbox') }}",
         type: "GET",
         data: {
-          supplier_id: vendor_id,
+          vendor_id: vendor_id,
           type: type
         },
         beforeSend: function() {

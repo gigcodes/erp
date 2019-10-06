@@ -649,8 +649,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Vendor Module
     Route::get('vendor/product', 'VendorController@product')->name('vendor.product.index');
-    Route::post('vendot/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendor.email.send.bulk');
-    Route::post('vendot/send/email', 'VendorController@sendEmail')->name('vendor.email.send');
+    Route::post('vendor/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendor.email.send.bulk');
+    Route::post('vendor/send/email', 'VendorController@sendEmail')->name('vendor.email.send');
+    Route::get('vendor/email/inbox', 'VendorController@emailInbox')->name('vendor.email.inbox');
     Route::post('vendor/product', 'VendorController@productStore')->name('vendor.product.store');
     Route::put('vendor/product/{id}', 'VendorController@productUpdate')->name('vendor.product.update');
     Route::delete('vendor/product/{id}', 'VendorController@productDestroy')->name('vendor.product.destroy');
