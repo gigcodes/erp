@@ -12,7 +12,7 @@
 */
 
 Auth::routes();
-
+Route::get('/test/test','TestController@index');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -605,7 +605,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Documents Manager
     Route::get('documents', 'DocumentController@index')->name('document.index');
+    Route::get('documents-email', 'DocumentController@email')->name('document.email');
     Route::post('document/store', 'DocumentController@store')->name('document.store');
+    Route::post('document/{id}/update', 'DocumentController@update')->name('document.update');
     Route::get('document/{id}/download', 'DocumentController@download')->name('document.download');
     Route::delete('document/{id}/destroy', 'DocumentController@destroy')->name('document.destroy');
     Route::post('document/send/emailBulk', 'DocumentController@sendEmailBulk')->name('document.email.send.bulk');
