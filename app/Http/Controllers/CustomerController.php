@@ -226,6 +226,14 @@ class CustomerController extends Controller
             $orderWhereClause = "WHERE orders.order_id LIKE '%$term%'";
         }
 
+        if ($request->get('shoe_size')) {
+            $searchWhereClause .= " AND customers.shoe_size = '".$request->get('shoe_size')."'";
+        }
+
+        if ($request->get('clothing_size')) {
+            $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size')."'";
+        }
+
         $orderby = 'DESC';
 
         if ($request->input('orderby')) {
