@@ -527,22 +527,15 @@ class VendorController extends Controller
 
         $vendor = Vendor::find($request->vendor_id);
 
-        if($vendor == null){
-
-            $emails = array();
-            $view = view('vendors.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
-            return response()->json(['emails' => $view]);
-        }
-
         if ($request->type == 'inbox') {
             $inbox_name = 'INBOX';
             $direction = 'from';
             $type = 'incoming';
-       } else {
+        } else {
             $inbox_name = 'INBOX.Sent';
             $direction = 'to';
             $type = 'outgoing';
-       }
+        }
 
         $inbox = $imap->getFolder($inbox_name);
 
@@ -620,7 +613,7 @@ class VendorController extends Controller
         $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
         $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
 
-        $view = view('vendor.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
+        $view = view('vendors.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
 
         return response()->json(['emails' => $view]);
     }
