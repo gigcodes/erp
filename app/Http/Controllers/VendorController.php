@@ -624,4 +624,38 @@ class VendorController extends Controller
 
         return response()->json(['emails' => $view]);
     }
+
+    private function createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails)
+    {
+        foreach ($emails as $email) {
+            $content = $email->hasHTMLBody() ? $email->getHTMLBody() : $email->getTextBody();
+
+            if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                $attachments_array = [];
+                $attachments = $email->getAttachments();
+
+                $attachments->each(function ($attachment) use (&$attachments_array) {
+                    file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                    $path = "email-attachments/" . $attachment->name;
+                    $attachments_array[] = $path;
+                });
+
+                $params = [
+                    'model_id'        => $vendor->id,
+                    'model_type'      => Vendor::class,
+                    'type'            => $type,
+                    'seen'            => $email->getFlags()['seen'],
+                    'from'            => $email->getFrom()[0]->mail,
+                    'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                    'subject'         => $email->getSubject(),
+                    'message'         => $content,
+                    'template'		  => 'customer-simple',
+                    'additional_data' => json_encode(['attachment' => $attachments_array]),
+                    'created_at'      => $email->getDate()
+                ];
+
+                Email::create($params);
+            }
+        }
+    }
 }
