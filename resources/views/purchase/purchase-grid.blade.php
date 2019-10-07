@@ -185,7 +185,7 @@
                         </td>
                         <td>
                           @if ( isset($order_product->order) )
-                            
+                            {{ $order_product->order->advance_detail }}</li>
                           @else
                             No Order
                           @endif
