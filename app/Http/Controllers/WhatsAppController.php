@@ -278,7 +278,7 @@ class WhatsAppController extends FindByNumberController
 
                                             app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
                                         }
-                                        
+
                                         CommunicationHistory::create([
                                             'model_id' => $latest_broadcast_message->id,
                                             'model_type' => ChatMessage::class,
@@ -1392,7 +1392,7 @@ class WhatsAppController extends FindByNumberController
                                 //'assigned_user' => 6,
                                 'product_id' => $pid,
                                 'created_at' => Carbon::now()
-                            ]);    
+                            ]);
                         }
 
                         $requestData = new Request();
@@ -2149,6 +2149,7 @@ class WhatsAppController extends FindByNumberController
                 $medias = Media::whereIn('id', $imagesDecoded)->get();
                 $pdfView = view('pdf_views.images' . $fn, compact('medias'));
                 $pdf = new Dompdf();
+                $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
                 $pdf->loadHtml($pdfView);
                 $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
                 $pdf->render();
@@ -2538,6 +2539,9 @@ class WhatsAppController extends FindByNumberController
 
     public function pollMessagesCustomer(Request $request)
     {
+        // Remove time limit
+        set_time_limit(0);
+
         $params = [];
         $result = [];
         // $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
@@ -3613,33 +3617,20 @@ class WhatsAppController extends FindByNumberController
 
     public function sendWithThirdApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic')
     {
-        // $configs = \Config::get("wassenger.api_keys");
-        $encodedNumber = '+' . $number;
-        $encodedText = $message;
-        // $wa_token = $configs[0]['key'];
-        if ($whatsapp_number == '919004780634') { // Indian
-            $instanceId = "43281";
-            $token = "yi841xjhrwyrwrc7";
-        } elseif ($whatsapp_number == '971545889192') { // YM Dubai
-            $instanceId = "62439";
-            $token = "jdcqh3ladeuvwzp4";
+        // Get configs
+        $config = \Config::get("apiwha.instances");
+
+        // Set instanceId and token
+        if ( isset($config[$whatsapp_number]) ) {
+            $instanceId = $config[ $whatsapp_number ]['instance_id'];
+            $token = $config[ $whatsapp_number ]['token'];
         } else {
-            if ($whatsapp_number == '971562744570') { // Solo 06
-                $instanceId = '55202';
-                $token = '42ndn0qg5om26vzf';
-            } else {
-                if ($whatsapp_number == '919152731483') { // 04
-                    $instanceId = '55211';
-                    $token = '3b92u5cbg215c718';
-                } else { // James
-//                    $instanceId = "43112";
-//                    $token = "vbi9bpkoejv2lvc4";
-                $instanceId = "62439";
-                $token = "jdcqh3ladeuvwzp4";
-                }
-            }
+            $instanceId = $config[0]['instance_id'];
+            $token = $config[0]['token'];
         }
 
+        $encodedNumber = '+' . $number;
+        $encodedText = $message;
 
         $array = [
             'phone' => $encodedNumber
