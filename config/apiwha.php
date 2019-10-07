@@ -23,8 +23,8 @@ return [
             "token" => "yi841xjhrwyrwrc7"
         ],
         "971545889192" => [
-            "instance_id" => 62439,
-            "token" => "jdcqh3ladeuvwzp4"
+            "instance_id" => 43112,
+            "token" => "vbi9bpkoejv2lvc4"
         ],
         "971562744570" => [
             "instance_id" => 55202,
@@ -34,9 +34,18 @@ return [
             "instance_id" => 55211,
             "token" => "3b92u5cbg215c718"
         ],
+        "971547763482" => [
+            "instance_id" => 55211,
+            "token" => "3b92u5cbg215c718"
+        ],
         "0" => [
-            "instance_id" => 62439,
-            "token" => "jdcqh3ladeuvwzp4"
-        ]
+            "instance_id" => 43112,
+            "token" => "vbi9bpkoejv2lvc4"
+        ],
+//        OLD DUBAI INSTANCE
+//        "971545889192" => [
+//            "instance_id" => 62439,
+//            "token" => "jdcqh3ladeuvwzp4"
+//        ],
     ]
 ];

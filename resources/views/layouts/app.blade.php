@@ -359,7 +359,8 @@
                                                 @endif
                                                 @if(auth()->user()->isAdmin())
                                                     <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
-
+                                                    <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=2">Listings awaiting scraping</a>
+                                                    <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=13">Listings unable to scrape</a>
                                                     <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
                                                     <a class="dropdown-item" href="{{ action('AttributeReplacementController@index') }}">Attribute Replacement</a>
 
@@ -1225,7 +1226,7 @@
                     </div>
                     <div class="form-group">
                         <label for="category_id">Category:</label>
-                        <?php 
+                        <?php
                             $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
                         ?>
                         {!! Form::select('category_id', ['' => "-- select --"] + $category, null, ['class'=>'form-control', 'id'=> 'category_id']) !!}
