@@ -201,9 +201,11 @@
                                                     } else {
                                                         $badge = "notify-red-badge";
                                                     }
-                                                    if ($width >= 1000 && $height >= 1000) {
+
                                                     // Get cropping grid image
                                                     $gridImage = \App\Category::getCroppingGridImageByCategoryId($product->category);
+                                                    
+                                                    if ($width >= 1000 && $height >= 1000) {
                                                     ?>
                                                     <div class="thumbnail-pic">
                                                         <div class="thumbnail-edit"><a class="delete-thumbail-img" data-product-id="{{ $product->id }}" data-media-id="{{ $media->id }}" data-media-type="gallery" href="javascript:;"><i class="fa fa-trash fa-lg"></i></a></div>
