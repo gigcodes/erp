@@ -281,19 +281,20 @@ class Category extends Model
         ];
 
         $category = Category::find($categoryId);
-        $catName = $category->title;
+        if ( isset($category->title) ) {
+            $catName = $category->title;
 
-        if (array_key_exists($catName, $imagesForGrid)) {
-            return $imagesForGrid[ $catName ];
-        }
+            if (array_key_exists($catName, $imagesForGrid)) {
+                return $imagesForGrid[ $catName ];
+            }
 
-        if ($category->parent_id > 1) {
-            $category = Category::find($category->parent_id);
-            return $imagesForGrid[ trim($category->title) ] ?? '';
+            if ($category->parent_id > 1) {
+                $category = Category::find($category->parent_id);
+                return $imagesForGrid[ trim($category->title) ] ?? '';
+            }
         }
 
         return '';
-
     }
 
 }
