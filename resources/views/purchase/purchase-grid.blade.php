@@ -156,6 +156,7 @@
                       <th>Price In Order</th>
                       <th>Order Date</th>
                       <th>Order Advance</th>
+                      <th>Ordered Size</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -184,10 +185,13 @@
                         </td>
                         <td>
                           @if ( isset($order_product->order) )
-                            {{ $order_product->order->advance_detail }}</li>
+                            
                           @else
                             No Order
                           @endif
+                        </td>
+                        <td>
+                          {{ $order_product->size }}
                         </td>
                     </tr>
                     @endforeach
