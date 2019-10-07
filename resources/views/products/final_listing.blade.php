@@ -201,6 +201,9 @@
                                                     } else {
                                                         $badge = "notify-red-badge";
                                                     }
+
+                                                    // Get cropping grid image
+                                                    $gridImage = \App\Category::getCroppingGridImageByCategoryId($product->category);
                                                     ?>
                                                     <div class="thumbnail-pic">
                                                         <div class="thumbnail-edit"><a class="delete-thumbail-img" data-product-id="{{ $product->id }}" data-media-id="{{ $media->id }}" data-media-type="gallery" href="javascript:;"><i class="fa fa-trash fa-lg"></i></a></div>
@@ -213,8 +216,8 @@
                                     </div>
                                     <div class="col-md-4">
                                         @if ($product->hasMedia(config('constants.media_tags')))
-                                            <div>
-                                                <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                                            <div style=" margin-bottom: 5px; width: 500px;height: 500px; background-image: url('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}'); background-size: 500px">
+                                                <img style="width: 500px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                                             </div>
                                         @endif
                                     </div>
@@ -398,7 +401,7 @@
                                         @endphp
                                         @if ($logScrapers)
                                             <div>
-                                                <br />
+                                                <br/>
                                                 Successfully scraped on the following sites:<br/>
                                                 <ul>
                                                     @foreach($logScrapers as $logScraper)
