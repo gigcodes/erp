@@ -216,8 +216,8 @@
                                     </div>
                                     <div class="col-md-4">
                                         @if ($product->hasMedia(config('constants.media_tags')))
-                                            <div style=" margin-bottom: 5px; width: 500px;height: 500px; background-image: url('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}'); background-size: 500px">
-                                                <img style="width: 500px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                                            <div style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}'); background-size: 300px">
+                                                <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                                             </div>
                                         @endif
                                     </div>
