@@ -469,11 +469,11 @@
                 }
             }).done(function (response) {
                 var li = '<div class="speech-wrapper">';
-                (response.messages).forEach(function (index) {
-                    if (index.indexOf('*IN*') > -1) {
-                        li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + index.replace('*IN*', '') + '</p><span class="timestamp"></span></div><div class="bubble-arrow"></div></div>';
-                    } else if (index.indexOf('*OUT*') > -1) {
-                        li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + index.replace('*OUT*', '') + '</p><span class="timestamp"></span></div> <div class="bubble-arrow alt"></div></div>';
+                (response.messages).forEach(function (message) {
+                    if (message.inout == 'in' ) {
+                        li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0,19) + '</span></div><div class="bubble-arrow"></div></div>';
+                    } else if (message.inout == 'out' ) {
+                        li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0,19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
                     } else {
                         li += '<div>' + index + '</div>';
                     }
