@@ -28,7 +28,7 @@ class Hashtags {
     public function login() {
         $instagram = new Instagram();
 //        $instagram->login('rishabh_aryal', 'R1shabh@12345');
-        $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
+        $instagram->login('sololuxury.official', "m69]T.X6wg-%");
         $this->token = Signatures::generateUUID();
         $this->instagram = $instagram;
     }
