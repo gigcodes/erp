@@ -81,7 +81,7 @@ class Leads extends Model {
 			} elseif ($whatsapp->created_at > $message->created_at && $whatsapp->created_at > $instagram->created_at) {
 				return $whatsapp;
 			} elseif ($instagram->created_at > $message->created_at && $instagram->created_at > $whatsapp->created_at) {
-				return $whatsapp;
+				return $instagram;
 			}
 		} elseif(!empty($message) && !empty($whatsapp)) {
 			if($message->created_at > $whatsapp->created_at) {

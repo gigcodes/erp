@@ -172,6 +172,12 @@
                             <span></span> <i class="fa fa-caret-down"></i>
                         </div>
                     </div>
+                    <div class="form-group ml-3">
+                        <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
+                    </div>
+                    <div class="form-group ml-3">
+                        <input placeholder="Clothing Size" type="text" name="clothing_size" value="{{request()->get('clothing_size')}}" class="form-control-sm form-control">
+                    </div>
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>

@@ -43,4 +43,9 @@ class Vendor extends Model
     {
         return $this->morphMany(CashFlow::class, 'cash_flow_able');
     }
+
+    public function emails()
+    {
+        return $this->hasMany('App\Email', 'model_id','id');
+    }
 }

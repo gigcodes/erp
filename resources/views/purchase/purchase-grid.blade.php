@@ -156,6 +156,7 @@
                       <th>Price In Order</th>
                       <th>Order Date</th>
                       <th>Order Advance</th>
+                      <th>Ordered Size</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -188,6 +189,9 @@
                           @else
                             No Order
                           @endif
+                        </td>
+                        <td>
+                          {{ $order_product->size }}
                         </td>
                     </tr>
                     @endforeach
