@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ProformaConfirmed;
+use App\Vendor;
 use Dompdf\Dompdf;
 use App\Mail\ForwardEmail;
 use Illuminate\Http\Request;
@@ -1818,6 +1819,7 @@ class PurchaseController extends Controller
         else if($supplierAgentsCount == 1) {
             $emails = $inbox->messages()->where($direction, $supplier->agents[0]->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
             $emails = $emails->leaveUnread()->get();
+
             $this->createEmailsForEmailInbox($supplier, $type, $latest_email_date, $emails);
         }
         else {

@@ -61,4 +61,9 @@ class Vendor extends Model
     {
         return $this->hasMany('App\ChatMessage', 'vendor_id')->whereNotIn('status', ['7', '8', '9'])->latest();
     }
+
+    public function emails()
+    {
+        return $this->hasMany('App\Email', 'model_id', 'id');
+    }
 }

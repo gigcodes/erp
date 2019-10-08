@@ -31,6 +31,7 @@
                         <label for="with_archived">Archived</label>
                     </div>
 
+                    <<<<<<< HEAD
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
             </div>
@@ -38,6 +39,15 @@
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
             </div>
+            =======
+            <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+            </form>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
+            >>>>>>> ba1cc1e66e67152e8d0ae020df0d7040bd8fce8a
         </div>
     </div>
 
@@ -153,12 +163,8 @@
                       {{ strlen(strip_tags($supplier->email_message)) > 0 ? 'Email' : '' }}
                     </td> --}}
                     <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
-                <span class="td-mini-container">
-                  {{ strlen($vendor->message) > 32 ? substr($vendor->message, 0, 29) . '...' : $vendor->message }}
-                </span>
-
                         <span class="td-full-container">
-                  {{ $vendor->message }}
+                            {{ $vendor->message }}
                             <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-more-communication" data-id="{{ $vendor->id }}" title="Load More..."><img src="/images/chat.png" alt=""></button>
                 </span>
 
@@ -197,7 +203,7 @@
     {!! $vendors->appends(Request::except('page'))->links() !!}
 
     @include('partials.modals.remarks')
-
+    @include('vendors.partials.modal-emailToAll')
     @include('vendors.partials.vendor-modals')
     {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')
@@ -474,9 +480,9 @@
             }).done(function (response) {
                 var li = '<div class="speech-wrapper">';
                 (response.messages).forEach(function (index) {
-                    if (index.indexOf('*IN*') > -1 ) {
+                    if (index.indexOf('*IN*') > -1) {
                         li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + index.replace('*IN*', '') + '</p><span class="timestamp"></span></div><div class="bubble-arrow"></div></div>';
-                    } else if (index.indexOf('*OUT*') > -1 ) {
+                    } else if (index.indexOf('*OUT*') > -1) {
                         li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + index.replace('*OUT*', '') + '</p><span class="timestamp"></span></div> <div class="bubble-arrow alt"></div></div>';
                     } else {
                         li += '<div>' + index + '</div>';
@@ -495,6 +501,82 @@
                 alert('Could not load more messages');
 
                 console.log(response);
+            });
+        });
+
+        $(document).on('click', '.add-cc', function (e) {
+            e.preventDefault();
+
+            if ($('#cc-label').is(':hidden')) {
+                $('#cc-label').fadeIn();
+            }
+
+            var el = `<div class="row cc-input">
+            <div class="col-md-10">
+                <input type="text" name="cc[]" class="form-control mb-3">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image cc-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+            $('#cc-list').append(el);
+        });
+
+        $(document).on('click', '.cc-delete-button', function (e) {
+            e.preventDefault();
+            var parent = $(this).parent().parent();
+
+            parent.hide(300, function () {
+                parent.remove();
+                var n = 0;
+
+                $('.cc-input').each(function () {
+                    n++;
+                });
+
+                if (n == 0) {
+                    $('#cc-label').fadeOut();
+                }
+            });
+        });
+
+        // bcc
+
+        $(document).on('click', '.add-bcc', function (e) {
+            e.preventDefault();
+
+            if ($('#bcc-label').is(':hidden')) {
+                $('#bcc-label').fadeIn();
+            }
+
+            var el = `<div class="row bcc-input">
+            <div class="col-md-10">
+                <input type="text" name="bcc[]" class="form-control mb-3">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image bcc-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+            $('#bcc-list').append(el);
+        });
+
+        $(document).on('click', '.bcc-delete-button', function (e) {
+            e.preventDefault();
+            var parent = $(this).parent().parent();
+
+            parent.hide(300, function () {
+                parent.remove();
+                var n = 0;
+
+                $('.bcc-input').each(function () {
+                    n++;
+                });
+
+                if (n == 0) {
+                    $('#bcc-label').fadeOut();
+                }
             });
         });
     </script>

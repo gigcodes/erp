@@ -26,7 +26,7 @@
                 </form> --}}
             </div>
             <div class="pull-right">
-                <a href="{{ route('document.email') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
+                <a href="{{ route('document.index') }}"><button type="button" class="btn btn-secondary">Active</button></a>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a>
 
             </div>
@@ -61,7 +61,9 @@
                 <th>Category</th>
                 <th>Filename</th>
                 <th>Actions</th>
-                <th>Remarks</th>
+                <th>Required
+                </th>
+
             </tr>
             </thead>
 
@@ -69,9 +71,9 @@
             @foreach ($documents as $document)
                 <tr>
                     <td>{{ $document->updated_at->format('d.m-Y') }}</td>
-                    <td>{{ $document->user->name }}</td>
-                    <td>{{ $document->user->agent_role  }}</td>
-                    <td>{{ $document->name}}</td>
+                    <td>@if(isset($document->user->name)){{ $document->user->name }}@endif</td>
+                    <td>@if(isset($document->user->agent_role)){{ $document->user->agent_role  }}@endif</td>
+                    <td>@if(isset($document->name)){{ $document->name}}@endif</td>
                     <td>@if(isset($document->documentCategory->name)){{ $document->documentCategory->name }} @endif</td>
                     <td>{{ $document->filename }}</td>
                     <td>
@@ -87,8 +89,12 @@
                         <button type="button" class="btn btn-image uploadDocument" data-id="{{ $document->id }}"><img src="/images/upload.png" /></button>
 
                         V: {{ $document->version }}
+
+                        <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $document->id }}"><img src="/images/remark.png" /></button>
+
                     </td>
-                    <td><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $document->id }}"><img src="/images/remark.png" /></button></td>
+                    <td><button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal{{ $document->id }}">Approve</a>
+                    </td>
                 </tr>
             @endforeach
             </tbody>
@@ -178,6 +184,82 @@
 
         </div>
     </div>
+
+    @foreach($documents as $document)
+        <div id="documentCreateModal{{ $document->id }}" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <form action="{{ url('document/'.$document->id.'/update') }}" method="POST">
+                        @csrf
+
+                        <div class="modal-header">
+                            <h4 class="modal-title">Store a Document</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <select class="selectpicker form-control" data-live-search="true" data-size="15" name="user_id" title="Choose a User" required>
+                                    @foreach ($users as $user)
+                                        <option data-tokens="{{ $user->name }} {{ $user->email }}" value="{{ $user->id }}"  @if(isset($document->user_id)){{ $user->id == $document->user_id ? 'selected' : '' }} @endif>{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+
+                                @if ($errors->has('user_id'))
+                                    <div class="alert alert-danger">{{$errors->first('user_id')}}</div>
+                                @endif
+                            </div>
+
+                            <div class="form-group">
+                                <strong>Document Type:</strong>
+                                <input type="text" name="name" class="form-control" value="{{ $document->name }}" required>
+
+                                @if ($errors->has('name'))
+                                    <div class="alert alert-danger">{{$errors->first('name')}}</div>
+                                @endif
+                            </div>
+                            <input type="hidden" name="filename" value="{{ $document->filename }}"/>
+                            <div class="form-group">
+                                <strong>Document category:</strong>
+                                <select class="selectpicker form-control category" data-live-search="true" data-size="15" name="category_id" title="Choose a Category" required>
+
+                                    @foreach($category as $cat)
+                                        <option value="{{ $cat->id }}" data-list="{{ $cat->id }}" @if(isset($document->category_id)){{ $cat->id == $document->category_id ? 'selected' : '' }} @endif>{{ $cat->name }}</option>
+                                    @endforeach
+                                    <option value="0">Add Category</option>
+                                </select>
+                                @if ($errors->has('category'))
+                                    <div class="alert alert-danger">{{$errors->first('category')}}</div>
+                                @endif
+                            </div>
+
+                            <div class="form-group">
+                                <strong>Version:</strong>
+                                <input type="text" name="version" class="form-control" value="{{ $document->version }}" disabled>
+
+                                @if ($errors->has('version'))
+                                    <div class="alert alert-danger">{{$errors->first('version')}}</div>
+                                @endif
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-secondary">Approve</button>
+                    </form>
+                    {!! Form::open(['method' => 'DELETE','route' => ['document.destroy', $document->id],'style'=>'display:inline']) !!}
+
+                    <button type="submit" class="btn btn-secondary">Reject</button>
+
+                    {!! Form::close() !!}
+
+                </div>
+
+            </div>
+
+        </div>
+        </div>
+    @endforeach
 
     <!-- Modal To Add Category-->
     <div class="modal fade" id="myModal" role="dialog">
