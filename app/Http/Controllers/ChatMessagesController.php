@@ -39,7 +39,7 @@ class ChatMessagesController extends Controller
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
             $messages[] = [
-                'inout' => $chatMessage->number == NULL ? 'out' : 'in',
+                'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
                 'message' => $chatMessage->message,
                 'datetime' => $chatMessage->created_at,
             ];
