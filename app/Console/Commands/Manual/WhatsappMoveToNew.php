@@ -53,7 +53,7 @@ class WhatsappMoveToNew extends Command
         // SECOND DUBAI NUMBER
         $newNumber = '971547763482';
         $message = "Greetings from Solo Luxury , our offices have moved to Dubai , and this is our new whats app number , Best Wishes - Solo Luxury "; // MESSAGE FOR ACTIVE CUSTOMERS OVER 60 DAYS
-        $days = 60;
+        $days = 150;
 
         // Query to find all customers of $number
         $sql = "
