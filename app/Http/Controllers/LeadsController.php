@@ -99,6 +99,18 @@ class LeadsController extends Controller
             $rating = $request->rating;
         }
 
+        $category = request()->get("multi_category",null);
+
+        if(!is_null($category) && $category != '' && $category != 1) {
+            $leads->where('multi_category', 'LIKE', '%"'.$category.'"%');
+        }
+
+        $status = request()->get("status",null);
+
+        if(!is_null($status) && $status != '') {
+            $leads->where('status', '=', $status);
+        }
+
         if (helpers::getadminorsupervisor()) {
             if ($sortby != 'communication') {
                 $leads = $leads->orderBy($sortby, $orderby);
@@ -157,7 +169,11 @@ class LeadsController extends Controller
             return response()->json(['html' => $html]);
         }
 
-        return view('leads.index', compact('leads', 'leads_array', 'term', 'orderby', 'brand', 'rating', 'type'))
+        $category_select = Category::attr(['name' => 'multi_category', 'class' => 'form-control', 'id' => 'multi_category'])->selected()->renderAsDropdown();
+        $status = array_flip((New status)->all());
+
+
+        return view('leads.index', compact('leads', 'leads_array', 'term', 'orderby', 'brand', 'rating', 'type','category_select','status'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
 
     }
