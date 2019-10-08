@@ -31,14 +31,18 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
-        $chatMessages = $object->whatsappAll()->where("message", "!=", "")->skip(1)->take($limit)->get();
+        $chatMessages = $object->whatsappAll()->where("message", "!=", "")->skip(0)->take($limit)->get();
 
         // Set empty array with messages
         $messages = [];
 
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
-            $messages[] = ($chatMessage->number == NULL ? '*OUT*' : '*IN*' ) . $chatMessage->message;
+            $messages[] = [
+                'inout' => $chatMessage->number == NULL ? 'out' : 'in',
+                'message' => $chatMessage->message,
+                'datetime' => $chatMessage->created_at,
+            ];
         }
 
         // Return JSON

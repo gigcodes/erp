@@ -10665,7 +10665,7 @@ a.text-dark:focus {
     content: "";
     position: absolute;
     border: 0 solid transparent;
-    border-top: 9px solid #f5f5f5;
+    border-top: 9px solid #ffffff;
     border-radius: 0 20px 0;
     width: 15px;
     height: 30px;
@@ -10673,5 +10673,6 @@ a.text-dark:focus {
 }
 
 .speech-wrapper .bubble .bubble-arrow.alt:after {
+    border-top: 9px solid #DDF7C8;
     transform: rotate(45deg) scaleY(-1);
 }

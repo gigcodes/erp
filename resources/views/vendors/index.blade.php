@@ -30,24 +30,14 @@
                         <input type="checkbox" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
                         <label for="with_archived">Archived</label>
                     </div>
-
-                    <<<<<<< HEAD
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
             </div>
             <div class="pull-right">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
             </div>
-            =======
-            <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
-            </form>
-        </div>
-        <div class="pull-right">
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
-            >>>>>>> ba1cc1e66e67152e8d0ae020df0d7040bd8fce8a
         </div>
     </div>
 
@@ -259,7 +249,7 @@
                 <div class="modal-header">
                     <h4 class="modal-title">Communication (Last 30)</h4>
                 </div>
-                <div class="modal-body" style="background-color: #eeeeee;">
+                <div class="modal-body" style="background-color: #999999;">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -479,11 +469,11 @@
                 }
             }).done(function (response) {
                 var li = '<div class="speech-wrapper">';
-                (response.messages).forEach(function (index) {
-                    if (index.indexOf('*IN*') > -1) {
-                        li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + index.replace('*IN*', '') + '</p><span class="timestamp"></span></div><div class="bubble-arrow"></div></div>';
-                    } else if (index.indexOf('*OUT*') > -1) {
-                        li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + index.replace('*OUT*', '') + '</p><span class="timestamp"></span></div> <div class="bubble-arrow alt"></div></div>';
+                (response.messages).forEach(function (message) {
+                    if (message.inout == 'in' ) {
+                        li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0,19) + '</span></div><div class="bubble-arrow"></div></div>';
+                    } else if (message.inout == 'out' ) {
+                        li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0,19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
                     } else {
                         li += '<div>' + index + '</div>';
                     }
