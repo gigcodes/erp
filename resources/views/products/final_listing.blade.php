@@ -201,20 +201,26 @@
                                                     } else {
                                                         $badge = "notify-red-badge";
                                                     }
+
+                                                    // Get cropping grid image
+                                                    $gridImage = \App\Category::getCroppingGridImageByCategoryId($product->category);
+
+                                                    if ($width == 1000 && $height == 1000) {
                                                     ?>
                                                     <div class="thumbnail-pic">
                                                         <div class="thumbnail-edit"><a class="delete-thumbail-img" data-product-id="{{ $product->id }}" data-media-id="{{ $media->id }}" data-media-type="gallery" href="javascript:;"><i class="fa fa-trash fa-lg"></i></a></div>
                                                         <span class="notify-badge {{$badge}}">{{ $width."X".$height}}</span>
                                                         <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ $media->getUrl() }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                                                     </div>
+                                                    <?php } ?>
                                                 @endif
                                             @endforeach
                                         @endif
                                     </div>
                                     <div class="col-md-4">
                                         @if ($product->hasMedia(config('constants.media_tags')))
-                                            <div>
-                                                <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                                            <div style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}'); background-size: 300px">
+                                                <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                                             </div>
                                         @endif
                                     </div>
@@ -398,7 +404,7 @@
                                         @endphp
                                         @if ($logScrapers)
                                             <div>
-                                                <br />
+                                                <br/>
                                                 Successfully scraped on the following sites:<br/>
                                                 <ul>
                                                     @foreach($logScrapers as $logScraper)
@@ -465,31 +471,14 @@
                                 <td class="table-hover-cell">
                                     {{-- {!! $category_selection !!} --}}
                                     {{--                  {{ $product->pr->title }}--}}
-                                    <select id="quick-edit-category-{{ $product->id }}" class="form-control quick-edit-category" name="category" data-id="">
+                                    <select class="form-control category_level_1 mt-1" name="category_level_1">
                                         @foreach ($category_array as $data)
                                             <option value="{{ $data['id'] }}">{{ $data['title'] }}</option>
-                                            @if ($data['title'] == 'Men')
-                                                @php
-                                                    $color = "#D6EAF8";
-                                                @endphp
-                                            @elseif ($data['title'] == 'Women')
-                                                @php
-                                                    $color = "#FADBD8";
-                                                @endphp
-                                            @else
-                                                @php
-                                                    $color = "";
-                                                @endphp
-                                            @endif
-
-                                            @foreach ($data['child'] as $children)
-                                                <option style="background-color: {{ $color }};" value="{{ $children['id'] }}">&nbsp;&nbsp;{{ $children['title'] }}</option>
-
-                                                @foreach ($children['child'] as $child)
-                                                    <option style="background-color: {{ $color }};" value="{{ $child['id'] }}">&nbsp;&nbsp;&nbsp;&nbsp;{{ $child['title'] }}</option>
-                                                @endforeach
-                                            @endforeach
                                         @endforeach
+                                     </select>
+                                    <select class="form-control category_level_2 mt-1" name="category_level_2">
+                                    </select>
+                                    <select id="quick-edit-category-{{ $product->id }}" class="form-control quick-edit-category" name="category" data-id="">
                                     </select>
                                     <input type="hidden" name="product_id" value="{{ $product->id }}">
                                     <input type="hidden" name="category_id" value="{{ $product->category }}">
@@ -769,6 +758,38 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script type="text/javascript">
+        var categoryJson = <?php echo json_encode($category_array); ?>;
+
+        $(document).on('change', '.category_level_1', function () {
+            var this_ = $(this);
+            var category_id = $(this).val();
+            categoryJson.forEach(function(category, index) {
+                if (category.id == category_id) {
+                    var html = "";
+                    category.child.forEach(function(child, i){
+                        html += '<option value="'+child.id+'">'+child.title+'</option>';
+                    });
+                    this_.closest('tr').find('.category_level_2').html(html);
+                }
+            })
+        });
+
+
+        $(document).on('change', '.category_level_2', function () {
+            var this_ = $(this);
+            var category_id = $(this).val();
+            categoryJson.forEach(function(category, index) {
+                category.child.forEach(function(children, i){
+                    if (children.id == category_id) {
+                        var html = "";
+                        children.child.forEach(function(child, i) {
+                            html += '<option value="'+child.id+'">'+child.title+'</option>';
+                        });
+                        this_.closest('tr').find('.quick-edit-category').html(html);
+                    }
+                });
+            })
+        });
 
         var productIds = [
             @foreach ( $products as $product )
@@ -946,6 +967,32 @@
                             selected_sizes = sizes.split(',');
 
                             $(this).attr('data-id', product_id);
+                            var this_ = $(this);
+                            categoryJson.forEach(function(category, index) {
+                                if (category.id == category_id) {
+                                    this_.closest('tr').find('.category_level_1').find('option[value="' + category.id + '"]').prop('selected', true)
+                                    this_.closest('tr').find('.category_level_1').trigger("change");
+                                }
+
+                                category.child.forEach(function(children, i){
+                                    if (children.id == category_id) {
+                                        this_.closest('tr').find('.category_level_1').find('option[value="' + category.id + '"]').prop('selected', true);
+                                        this_.closest('tr').find('.category_level_1').trigger("change");
+                                        this_.closest('tr').find('.category_level_2').find('option[value="' + category_id + '"]').prop('selected', true);
+                                        this_.closest('tr').find('.category_level_2').trigger("change");
+                                    }
+
+                                    children.child.forEach(function(child, i) {
+                                        if (child.id == category_id) {
+                                            this_.closest('tr').find('.category_level_1').find('option[value="' + category.id + '"]').prop('selected', true);
+                                            this_.closest('tr').find('.category_level_1').trigger("change");
+                                            this_.closest('tr').find('.category_level_2').find('option[value="' + children.id + '"]').prop('selected', true);
+                                            this_.closest('tr').find('.category_level_2').trigger("change");
+                                        }
+                                    });
+                                });
+                            });
+
                             $(this).find('option[value="' + category_id + '"]').prop('selected', true);
 
                             updateSizes(this, category_id);
@@ -997,6 +1044,33 @@
             selected_sizes = sizes.split(',');
 
             $(this).attr('data-id', product_id);
+
+            var this_ = $(this);
+            categoryJson.forEach(function(category, index) {
+                if (category.id == category_id) {
+                    this_.closest('tr').find('.category_level_1').find('option[value="' + category.id + '"]').prop('selected', true)
+                    this_.closest('tr').find('.category_level_1').trigger("change");
+                }
+
+                category.child.forEach(function(children, i){
+                    if (children.id == category_id) {
+                        this_.closest('tr').find('.category_level_1').find('option[value="' + category.id + '"]').prop('selected', true);
+                        this_.closest('tr').find('.category_level_1').trigger("change");
+                        this_.closest('tr').find('.category_level_2').find('option[value="' + category_id + '"]').prop('selected', true);
+                        this_.closest('tr').find('.category_level_2').trigger("change");
+                    }
+
+                    children.child.forEach(function(child, i) {
+                        if (child.id == category_id) {
+                            this_.closest('tr').find('.category_level_1').find('option[value="' + category.id + '"]').prop('selected', true);
+                            this_.closest('tr').find('.category_level_1').trigger("change");
+                            this_.closest('tr').find('.category_level_2').find('option[value="' + children.id + '"]').prop('selected', true);
+                            this_.closest('tr').find('.category_level_2').trigger("change");
+                        }
+                    });
+                });
+            });
+
             $(this).find('option[value="' + category_id + '"]').prop('selected', true);
 
             updateSizes(this, category_id);

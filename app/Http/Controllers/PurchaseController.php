@@ -452,6 +452,8 @@ class PurchaseController extends Controller
           SELECT s.id, s.supplier
           FROM suppliers as s
           JOIN product_suppliers as ps on ps.supplier_id = s.id
+          where
+          ps.stock >= 1
           GROUP BY supplier_id');
 
       $suppliers_array = [];
