@@ -19,7 +19,6 @@ use App\Services\Scrap\PinterestScraper;
 use App\Services\Products\GnbProductsCreator;
 use App\Supplier;
 use App\Loggers\LogScraper;
-use App\SupplierCategoryCount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -29,7 +28,6 @@ use Storage;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\Products\ProductsCreator;
-use App\SupplierBrandCount;
 
 class ScrapController extends Controller
 {
@@ -76,17 +74,17 @@ class ScrapController extends Controller
         $errorLog = LogScraper::LogScrapeValidationUsingRequest($request);
 
         // Return error
-//        if (!empty($errorLog)) {
-//            return response()->json([
-//                'error' => $errorLog
-//            ]);
-//        }
+        if (!empty($errorLog)) {
+            return response()->json([
+                'error' => $errorLog
+            ]);
+        }
 
         // Validate input
         $this->validate($request, [
             'sku' => 'required|min:5',
             'url' => 'required',
-
+            'images' => 'required|array',
             'properties' => 'required',
             'website' => 'required',
             'price' => 'required',
@@ -115,7 +113,6 @@ class ScrapController extends Controller
         $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
 
         if ($scrapedProduct) {
-
             // Add scrape statistics
             $scrapStatistics = new ScrapStatistics();
             $scrapStatistics->supplier = $request->get('website');
@@ -149,40 +146,40 @@ class ScrapController extends Controller
             foreach ($category as $categories){
                 $cat = Category::select('id')->where('title',$categories)->first();
                 if($cat){
-                if($cat->suppliercategorycount){
-                    $count = $cat->suppliercategorycount->count();
-                }else{
-                    $count = 0;
-                }
+                    if($cat->suppliercategorycount){
+                        $count = $cat->suppliercategorycount->count();
+                    }else{
+                        $count = 0;
+                    }
 
-                if($count == 0){
-                  $sup = Supplier::select('id')->where('supplier',$supplier)->first();
-                  if($sup){
-                    $data['category_id'] = $cat->id;
-                    $data['supplier_id'] = $sup->id;
-                    $data['cnt'] = 0;
-                    SupplierCategoryCount::create($data);
-                  }
+                    if($count == 0){
+                        $sup = Supplier::select('id')->where('supplier',$supplier)->first();
+                        if($sup){
+                            $data['category_id'] = $cat->id;
+                            $data['supplier_id'] = $sup->id;
+                            $data['cnt'] = 0;
+                            SupplierCategoryCount::create($data);
+                        }
+                    }
                 }
-              }
             }
 
             //Brand Count Save
             if($brand->supplierbrandcount){
-                    $count = $brand->supplierbrandcount->count();
-                }else{
-                    $count = 0;
-                }
+                $count = $brand->supplierbrandcount->count();
+            }else{
+                $count = 0;
+            }
 
             if($count == 0){
-                  $sup = Supplier::select('id')->where('supplier',$supplier)->first();
-                    if($sup){
+                $sup = Supplier::select('id')->where('supplier',$supplier)->first();
+                if($sup){
                     $data['brand_id'] = $brand->id;
                     $data['supplier_id'] = $sup->id;
                     $data['cnt'] = 0;
                     SupplierBrandCount::create($data);
-                    }
                 }
+            }
 
         } else {
             // Add scrape statistics
@@ -258,7 +255,6 @@ class ScrapController extends Controller
                     SupplierBrandCount::create($data);
                 }
             }
-
         }
 
         // Create or update product
