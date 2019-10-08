@@ -332,6 +332,8 @@
                                                     <a class="dropdown-item" href="{{ route('productselection.create') }}">Add New</a>
                                                 @endif
                                                 <a class="dropdown-item" href="{{ url('/excel-importer') }}">Excel Import </a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/mapping') }}">Add Mapping For Master </a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/tools-brand') }}">Add Mapping For Excel</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">

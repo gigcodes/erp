@@ -4,7 +4,8 @@ namespace App\Console\Commands;
 
 use App\Document;
 use Illuminate\Console\Command;
-use Webklex\IMAP\Facades\Client;
+use Webklex\IMAP\Client;
+
 
 class DocumentReciever extends Command
 {
@@ -39,9 +40,16 @@ class DocumentReciever extends Command
      */
     public function handle()
     {
-        $oClient = Client::account('default');
+        $oClient = new Client([
+            'host'          => env('IMAP_HOST_DOCUMENT'),
+            'port'          => env('IMAP_PORT_DOCUMENT'),
+            'encryption'    => env('IMAP_ENCRYPTION_DOCUMENT'),
+            'validate_cert' => env('IMAP_VALIDATE_CERT_DOCUMENT'),
+            'username'      => env('IMAP_USERNAME_DOCUMENT'),
+            'password'      => env('IMAP_PASSWORD_DOCUMENT'),
+            'protocol'      => env('IMAP_PROTOCOL_DOCUMENT')
+        ]);
 
-        //Connect to the IMAP Server
         $oClient->connect();
 
         $folder = $oClient->getFolder('INBOX');
@@ -62,7 +70,7 @@ class DocumentReciever extends Command
             } else {
                 session()->push('email.subject', $subject);
             }
-            if (strpos($subject, 'legal') !== false) {
+
                 if ($messages->hasAttachments()) {
                     $aAttachment = $messages->getAttachments();
                     $aAttachment->each(function ($oAttachment) {
@@ -75,11 +83,11 @@ class DocumentReciever extends Command
                         $document->version = 1;
                         $document->from_email = 1;
                         $document->save();
-
+                        echo 'Document Saved in Pending';
                     });
 
                 }
-            }
+
         }
     }
 }
