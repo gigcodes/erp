@@ -70,7 +70,7 @@ class DocumentReciever extends Command
             } else {
                 session()->push('email.subject', $subject);
             }
-            if (strpos($subject, 'legal') !== false) {
+
                 if ($messages->hasAttachments()) {
                     $aAttachment = $messages->getAttachments();
                     $aAttachment->each(function ($oAttachment) {
@@ -83,11 +83,11 @@ class DocumentReciever extends Command
                         $document->version = 1;
                         $document->from_email = 1;
                         $document->save();
-
+                        echo 'Document Saved in Pending';
                     });
 
                 }
-            }
+
         }
     }
 }
