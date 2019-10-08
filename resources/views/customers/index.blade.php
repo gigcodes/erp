@@ -172,6 +172,12 @@
                             <span></span> <i class="fa fa-caret-down"></i>
                         </div>
                     </div>
+                    <div class="form-group ml-3">
+                        <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
+                    </div>
+                    <div class="form-group ml-3">
+                        <input placeholder="Clothing Size" type="text" name="clothing_size" value="{{request()->get('clothing_size')}}" class="form-control-sm form-control">
+                    </div>
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
@@ -259,7 +265,7 @@
                 <th>Order Status</th>
                 <th>Purchase Status</th>
                 <th width="20%"><a href="/customers{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th>
-                <th width="20%">Send Message</th>
+                <th width="30%">Send Message</th>
                 <th>Shortcuts</th>
                 <th width="10%">Action</th>
                 </thead>
@@ -523,8 +529,9 @@
                                             <option value="{{$value}}" {{$value == $orders[$customer->id][0]['order_status'] ? 'selected' : '' }}>{{ $key }}</option>
                                         @endforeach
                                     </select>
-                                    <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
-                                    <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
+                                    @foreach($orders[$customer->id] as $order)
+                                        <a href="/order/{{ $order['id'] }}"><img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt=""></a>
+                                    @endforeach
                                 @endif
                             @else
                                 No Orders
@@ -1997,6 +2004,6 @@
             });
         });
 
-         
+
     </script>
 @endsection

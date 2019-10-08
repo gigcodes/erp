@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Category;
+use App\SupplierCategoryCount;
+use App\Brand;
+use App\SupplierBrandCount;
 use App\Supplier;
 use App\Agent;
 use App\Setting;
@@ -122,8 +126,8 @@ class SupplierController extends Controller
             'path'	=> LengthAwarePaginator::resolveCurrentPath()
         ]);
 
-        $suppliercategory = SupplierCategory::get();
-        $supplierstatus = SupplierStatus::get();
+        $suppliercategory = SupplierCategory::pluck('name', 'id')->toArray();
+        $supplierstatus = SupplierStatus::pluck('name', 'id')->toArray();
 
         //SELECT supplier_status_id, COUNT(*) AS number_of_products FROM suppliers WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id
         $statistics = DB::select('SELECT supplier_status_id, ss.name, COUNT(*) AS number_of_products FROM suppliers s LEFT join supplier_status ss on ss.id = s.supplier_status_id WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id');
@@ -164,7 +168,7 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'supplier_category_id' => 'required|string|max:255',
+            //'supplier_category_id' => 'required|string|max:255',
             'supplier'        => 'required|string|max:255',
             'address'         => 'sometimes|nullable|string',
             'phone'           => 'sometimes|nullable|numeric',
@@ -175,7 +179,7 @@ class SupplierController extends Controller
             'scraper_name'   => 'sometimes|nullable',
             'inventory_lifetime' => 'sometimes|nullable',
             'gst'             => 'sometimes|nullable|max:255',
-            'supplier_status_id' => 'required'
+            //'supplier_status_id' => 'required'
         ]);
 
         $data = $request->except('_token');
@@ -199,8 +203,8 @@ class SupplierController extends Controller
         $reply_categories = ReplyCategory::all();
         $users_array = Helpers::getUserArray(User::all());
         $emails = [];
-        $suppliercategory = SupplierCategory::get();
-        $supplierstatus = SupplierStatus::get();
+        $suppliercategory = SupplierCategory::pluck('name', 'id');
+        $supplierstatus = SupplierStatus::pluck('name', 'id');
 
         return view('suppliers.show', [
             'supplier'  => $supplier,
@@ -233,7 +237,7 @@ class SupplierController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'supplier_category_id'        => 'required|string|max:255',
+            //'supplier_category_id'        => 'required|string|max:255',
             'supplier'        => 'required|string|max:255',
             'address'         => 'sometimes|nullable|string',
             'phone'           => 'sometimes|nullable|numeric',
@@ -245,7 +249,7 @@ class SupplierController extends Controller
             'scraper_name'   => 'sometimes|nullable',
             'inventory_lifetime' => 'sometimes|nullable',
             'gst'             => 'sometimes|nullable|max:255',
-            'supplier_status_id' => 'required'
+            //'supplier_status_id' => 'required'
             //'status' => 'required'
         ]);
 
@@ -491,4 +495,226 @@ class SupplierController extends Controller
         }
         return $data;
     }
+
+    public function addSupplierCategoryCount(){
+
+        $suppliercount =  SupplierCategoryCount::all();
+        $category_parent = Category::where('parent_id',0)->get();
+        $category_child = Category::where('parent_id','!=',0)->get();
+        $supplier = Supplier::where('supplier_status_id',1)->get();
+
+        return view('suppliers.supplier_category_count',compact('supplier','suppliercount','category_parent','category_child'));
+    }
+
+    public function saveSupplierCategoryCount(Request $request){
+        $category_id = $request->category_id;
+        $supplier_id = $request->supplier_id;
+        $count = $request->count;
+
+        $data['category_id'] = $category_id;
+        $data['supplier_id'] = $supplier_id;
+        $data['cnt'] = $count;
+        SupplierCategoryCount::create($data);
+
+        return 'Saved SucessFully';
+    }
+    public function getSupplierCategoryCount()
+    {
+        $suppliercount = SupplierCategoryCount::all();
+        $supplier_list = Supplier::where('supplier_status_id',1)->get();
+        $category_parent = Category::where('parent_id',0)->get();
+        $category_child = Category::where('parent_id','!=',0)->get();
+
+
+        foreach($suppliercount as $supplier)
+        {
+            $sup = "";
+            foreach($supplier_list as $v)
+            {
+                if($v->id == $supplier->supplier_id){
+                    $sup .= '<option value="'.$v->id.'" selected>'.$v->supplier.'</option>';
+                }else{
+                    $sup .= '<option value="'.$v->id.'">'.$v->supplier.'</option>';
+                }
+            }
+
+            $cat = "";
+            foreach($category_parent as $c){
+                if($c->id == $supplier->category_id){
+                    $cat .= '<option value="'.$c->id.'" selected>'.$c->title.'</option>';
+                }else{
+                    $cat .= '<option value="'.$c->id.'">'.$c->title.'</option>';
+                    if($c->childs){
+                        foreach ($c->childs as $categ){
+                            $cat .= '<option value="'.$categ->id.'">-&nbsp;'.$categ->title.'</option>';
+                        }
+                    }
+                }
+            }
+            foreach($category_child as $c){
+                if($c->id == $supplier->category_id){
+                    $cat .= '<option value="'.$c->id.'" selected>'.$c->title.'</option>';
+                }else{
+                    $cat .= '<option value="'.$c->id.'">'.$c->title.'</option>';
+                    if($c->childs){
+                        foreach ($c->childs as $categ){
+                            $cat .= '<option value="'.$categ->id.'">-&nbsp;'.$categ->title.'</option>';
+                        }
+                    }
+                }
+            }
+
+
+            $sub_array = array();
+            $sub_array[] = '<select class="form-control update" data-column="supplier_id" data-id="'.$supplier["id"].'">' . $sup . '</select>';
+            $sub_array[] = '<select class="form-control update" data-id="'.$supplier["id"].'" data-column="category_id">' . $cat . '</select>';
+            $sub_array[] = '<input type="number"  data-id="'.$supplier["id"].'" data-column="cnt" value="'.$supplier["cnt"].'"  class="form-control update">';
+            $sub_array[] = '<button type="button" name="delete" class="btn btn-danger btn-xs delete" id="'.$supplier["id"].'">Delete</button>';
+            $data[] = $sub_array;
+        }
+        if(!empty($data)){
+            $output = array(
+                "draw"    => 0,
+                "recordsTotal"  =>  0,
+                "recordsFiltered" => 0,
+                "data"    => $data
+            );
+        }else{
+            $output = array(
+                "draw"    => 0,
+                "recordsTotal"  =>  0,
+                "recordsFiltered" => 0,
+                "data"    => [],
+            );
+        }
+
+
+        return json_encode($output);
+
+    }
+    public function updateSupplierCategoryCount(Request $request)
+    {
+        $id = $request->id;
+        $column_name = $request->column_name;
+        $value = $request->value;
+        $suppliercount = SupplierCategoryCount::findorfail($request->id);
+        $suppliercount->$column_name = $value;
+        $suppliercount->update();
+        return 'Data Updated';
+
+    }
+
+    public function deleteSupplierCategoryCount(Request $request){
+        $id = $request->id;
+        $suppliercpunt = SupplierCategoryCount::findorfail($id);
+        if($suppliercpunt){
+            SupplierCategoryCount::destroy($id);
+        }
+        return 'Data Deleted';
+    }
+
+    public function addSupplierBrandCount(){
+
+        $suppliercount =  SupplierBrandCount::all();
+        $brand = Brand::orderby('name','asc')->get();
+        $supplier = Supplier::where('supplier_status_id',1)->get();
+
+        return view('suppliers.supplier_brand_count',compact('supplier','suppliercount','brand'));
+    }
+
+    public function saveSupplierBrandCount(Request $request){
+        $brand_id = $request->brand_id;
+        $supplier_id = $request->supplier_id;
+        $count = $request->count;
+
+        $data['brand_id'] = $brand_id;
+        $data['supplier_id'] = $supplier_id;
+        $data['cnt'] = $count;
+        SupplierBrandCount::create($data);
+
+        return 'Saved SucessFully';
+    }
+    public function getSupplierBrandCount()
+    {
+        $suppliercount = SupplierBrandCount::all();
+        $supplier_list = Supplier::where('supplier_status_id',1)->get();
+        $brand_list = Brand::orderby('name','asc')->get();
+
+
+
+        foreach($suppliercount as $supplier)
+        {
+            $sup = "";
+            foreach($supplier_list as $v)
+            {
+                if($v->id == $supplier->supplier_id){
+                    $sup .= '<option value="'.$v->id.'" selected>'.$v->supplier.'</option>';
+                }else{
+                    $sup .= '<option value="'.$v->id.'">'.$v->supplier.'</option>';
+                }
+            }
+
+            $brands = "";
+            foreach($brand_list as $v)
+            {
+                if($v->id == $supplier->brand_id){
+                    $brands .= '<option value="'.$v->id.'" selected>'.$v->name.'</option>';
+                }else{
+                    $brands .= '<option value="'.$v->id.'">'.$v->name.'</option>';
+                }
+            }
+
+
+
+
+
+            $sub_array = array();
+            $sub_array[] = '<select class="form-control update" data-column="supplier_id" data-id="'.$supplier["id"].'">' . $sup . '</select>';
+            $sub_array[] = '<select class="form-control update" data-id="'.$supplier["id"].'" data-column="brand_id">' . $brands . '</select>';
+            $sub_array[] = '<input type="number"  data-id="'.$supplier["id"].'" data-column="cnt" value="'.$supplier["cnt"].'"  class="form-control update">';
+            $sub_array[] = '<button type="button" name="delete" class="btn btn-danger btn-xs delete" id="'.$supplier["id"].'">Delete</button>';
+            $data[] = $sub_array;
+        }
+        if(!empty($data)){
+            $output = array(
+                "draw"    => 0,
+                "recordsTotal"  =>  0,
+                "recordsFiltered" => 0,
+                "data"    => $data
+            );
+        }else{
+            $output = array(
+                "draw"    => 0,
+                "recordsTotal"  =>  0,
+                "recordsFiltered" => 0,
+                "data"    => [],
+            );
+        }
+
+
+        return json_encode($output);
+
+    }
+    public function updateSupplierBrandCount(Request $request)
+    {
+        $id = $request->id;
+        $column_name = $request->column_name;
+        $value = $request->value;
+        $suppliercount = SupplierBrandCount::findorfail($request->id);
+        $suppliercount->$column_name = $value;
+        $suppliercount->update();
+        return 'Data Updated';
+
+    }
+
+    public function deleteSupplierBrandCount(Request $request){
+        $id = $request->id;
+        $suppliercpunt = SupplierBrandCount::findorfail($id);
+        if($suppliercpunt){
+            SupplierBrandCount::destroy($id);
+        }
+        return 'Data Deleted';
+    }
+
+
 }

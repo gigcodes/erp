@@ -32,6 +32,56 @@
                                 </select>
                             </td>
                         </tr>
+                        <!-- get sub categories -->
+                        @php
+                            $subcategories = \App\Category::where( 'id', '>', 1 )->where('parent_id', $category->id)->get();
+                        @endphp
+                        @if ( $subcategories != NULL )
+                            @foreach($subcategories as $subcategory)
+                                <tr>
+                                    <td>
+                                        {{ $category->title }} &gt; {{ $subcategory->title }}
+                                    </td>
+                                    <td>
+                                        <select name="category[{{ $subcategory->id }}][]" cols="30" rows="2" class="form-control" multiple>
+                                            @php $options = explode(',', $subcategory->references) @endphp
+                                            @if(count($options)>0)
+                                                @foreach($options as $option)
+                                                    @if(strlen($option) > 1)
+                                                        <option selected value="{{$option}}">{{$option}}</option>
+                                                    @endif
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </td>
+                                </tr>
+                                <!-- get sub categories -->
+                                @php
+                                    $sscategories = \App\Category::where( 'id', '>', 1 )->where('parent_id', $subcategory->id)->get();
+                                @endphp
+                                @if ( $sscategories != NULL )
+                                    @foreach($sscategories as $sscategory)
+                                        <tr>
+                                            <td>
+                                                {{ $category->title }} &gt; {{ $subcategory->title }} &gt; {{ $sscategory->title }}
+                                            </td>
+                                            <td>
+                                                <select name="category[{{ $sscategory->id }}][]" cols="30" rows="2" class="form-control" multiple>
+                                                    @php $options = explode(',', $sscategory->references) @endphp
+                                                    @if(count($options)>0)
+                                                        @foreach($options as $option)
+                                                            @if(strlen($option) > 1)
+                                                                <option selected value="{{$option}}">{{$option}}</option>
+                                                            @endif
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            @endforeach
+                        @endif
                     @endforeach
                     <tr>
                         <td colspan="2" class="text-right">
