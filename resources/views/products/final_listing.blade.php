@@ -204,8 +204,8 @@
 
                                                     // Get cropping grid image
                                                     $gridImage = \App\Category::getCroppingGridImageByCategoryId($product->category);
-                                                    
-                                                    if ($width >= 1000 && $height >= 1000) {
+
+                                                    if ($width == 1000 && $height == 1000) {
                                                     ?>
                                                     <div class="thumbnail-pic">
                                                         <div class="thumbnail-edit"><a class="delete-thumbail-img" data-product-id="{{ $product->id }}" data-media-id="{{ $media->id }}" data-media-type="gallery" href="javascript:;"><i class="fa fa-trash fa-lg"></i></a></div>
@@ -967,7 +967,7 @@
                             selected_sizes = sizes.split(',');
 
                             $(this).attr('data-id', product_id);
-                            var this_ = $(this); 
+                            var this_ = $(this);
                             categoryJson.forEach(function(category, index) {
                                 if (category.id == category_id) {
                                     this_.closest('tr').find('.category_level_1').find('option[value="' + category.id + '"]').prop('selected', true)
@@ -977,7 +977,7 @@
                                 category.child.forEach(function(children, i){
                                     if (children.id == category_id) {
                                         this_.closest('tr').find('.category_level_1').find('option[value="' + category.id + '"]').prop('selected', true);
-                                        this_.closest('tr').find('.category_level_1').trigger("change");       
+                                        this_.closest('tr').find('.category_level_1').trigger("change");
                                         this_.closest('tr').find('.category_level_2').find('option[value="' + category_id + '"]').prop('selected', true);
                                         this_.closest('tr').find('.category_level_2').trigger("change");
                                     }
@@ -987,12 +987,12 @@
                                             this_.closest('tr').find('.category_level_1').find('option[value="' + category.id + '"]').prop('selected', true);
                                             this_.closest('tr').find('.category_level_1').trigger("change");
                                             this_.closest('tr').find('.category_level_2').find('option[value="' + children.id + '"]').prop('selected', true);
-                                            this_.closest('tr').find('.category_level_2').trigger("change");       
+                                            this_.closest('tr').find('.category_level_2').trigger("change");
                                         }
                                     });
                                 });
                             });
-                            
+
                             $(this).find('option[value="' + category_id + '"]').prop('selected', true);
 
                             updateSizes(this, category_id);
@@ -1045,7 +1045,7 @@
 
             $(this).attr('data-id', product_id);
 
-            var this_ = $(this); 
+            var this_ = $(this);
             categoryJson.forEach(function(category, index) {
                 if (category.id == category_id) {
                     this_.closest('tr').find('.category_level_1').find('option[value="' + category.id + '"]').prop('selected', true)
@@ -1055,7 +1055,7 @@
                 category.child.forEach(function(children, i){
                     if (children.id == category_id) {
                         this_.closest('tr').find('.category_level_1').find('option[value="' + category.id + '"]').prop('selected', true);
-                        this_.closest('tr').find('.category_level_1').trigger("change");       
+                        this_.closest('tr').find('.category_level_1').trigger("change");
                         this_.closest('tr').find('.category_level_2').find('option[value="' + category_id + '"]').prop('selected', true);
                         this_.closest('tr').find('.category_level_2').trigger("change");
                     }
@@ -1065,7 +1065,7 @@
                             this_.closest('tr').find('.category_level_1').find('option[value="' + category.id + '"]').prop('selected', true);
                             this_.closest('tr').find('.category_level_1').trigger("change");
                             this_.closest('tr').find('.category_level_2').find('option[value="' + children.id + '"]').prop('selected', true);
-                            this_.closest('tr').find('.category_level_2').trigger("change");       
+                            this_.closest('tr').find('.category_level_2').trigger("change");
                         }
                     });
                 });
