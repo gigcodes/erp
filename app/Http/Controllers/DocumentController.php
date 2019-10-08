@@ -28,7 +28,7 @@ class DocumentController extends Controller
     public function index()
     {
 
-            $documents = Document::latest()->paginate(Setting::get('pagination'));
+            $documents = Document::where('status',1)->latest()->paginate(Setting::get('pagination'));
             $users = User::select(['id', 'name', 'email', 'agent_role'])->get();
             $category = DocumentCategory::select('id', 'name')->get();
             $api_keys = ApiKey::select('number')->get();
@@ -118,7 +118,14 @@ class DocumentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $document = Document::findorfail($id);
+        $document->user_id = $request->user_id;
+        $document->name = $request->name;
+        $document->category_id = $request->category_id;
+        $document->status = 1;
+        $document->update();
+
+     return redirect()->route('document.index')->withSuccess('You have successfully updated document!');
     }
 
     /**
@@ -371,5 +378,25 @@ class DocumentController extends Controller
             echo $output;
 
         }
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function email()
+    {
+        $documents = Document::where('status',0)->latest()->paginate(Setting::get('pagination'));
+        $users = User::select(['id', 'name', 'email', 'agent_role'])->get();
+        $category = DocumentCategory::select('id', 'name')->get();
+        $api_keys = ApiKey::select('number')->get();
+        return view('documents.email', [
+            'documents' => $documents,
+            'users' => $users,
+            'category' => $category,
+            'api_keys' => $api_keys,
+        ]);
+
     }
 }
