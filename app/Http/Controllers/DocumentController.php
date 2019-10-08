@@ -68,7 +68,7 @@ class DocumentController extends Controller
         ]);
 
         $data = $request->except(['_token', 'file']);
-
+       // dd($data);
         foreach ($request->file('file') as $file) {
             $data[ 'filename' ] = $file->getClientOriginalName();
 

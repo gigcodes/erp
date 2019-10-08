@@ -149,7 +149,7 @@
                                 <div class="alert alert-danger">{{$errors->first('category')}}</div>
                             @endif
                         </div>
-
+                        <input type="hidden" name="status" value="1">
                         <div class="form-group">
                             <strong>File:</strong>
                             <input type="file" name="file[]" class="form-control" value="" multiple required>
