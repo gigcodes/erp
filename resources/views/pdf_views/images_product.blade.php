@@ -23,17 +23,23 @@
         }
 
         .box_0 {
+<<<<<<< HEAD
+            width: 99%;
+=======
             width: 70%;
+>>>>>>> remotes/origin/master
             display: block;
             border-radius: 10px;
             margin: 0 auto 5px;
+            margin-top: 10px;
         }
 
         .box_1 {
-            width: 70%;
+            width: 99%;
             display: block;
             border-radius: 10px;
             margin: 0 auto 5px;
+            margin-top: 10px;
         }
 
         img {
@@ -51,7 +57,7 @@
             @foreach($subMedias as $subMedia)
                 @php $first = false @endphp
                 <div class="box_{{$key}}">
-                    <img src="{{ $subMedia->getAbsolutePath() }}" alt="Image" style="width: 100%; border-bottom: 10px solid #cccccc">
+                    <img src="{{ $subMedia->getAbsolutePath() }}" alt="Image" style="width: 100%; border: 1px solid #cccccc">
                     <?php
                     $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
                     if ($mediable) {
@@ -62,7 +68,7 @@
                     }
                     ?>
                     @if($product)
-                        <div style="padding: 10px; font-size: 36px; text-align: justify">
+                        <div style="margin-top: -40px;  margin-left: 10px; position: relative; text-align: justify">
                             <p><strong>{{ $product->name }}</strong></p>
                             @if($product->brands)
                                 <p style="color: #1a60aa"><strong>{{ $product->brands->name }}</strong></p>
@@ -74,7 +80,9 @@
                             @endif
                         </div>
                     @else
-                        <strong>Details Unavailable</strong>
+                        <div style="margin-top: -40px; margin-left: 10px; position: relative; text-align: justify">
+                            <strong>Details Unavailable</strong>
+                        </div>
                     @endif
                 </div>
                 @php $key++ @endphp

@@ -293,7 +293,7 @@ class ProductCropperController extends Controller
         }
 
         $category = $product->category;
-        $img = $this->getCategoryForCropping($category);
+        $img = Category::getCroppingGridImageByCategoryId($category);
 
         $category_array = Category::renderAsArray();
 
@@ -324,92 +324,6 @@ class ProductCropperController extends Controller
         $userId = $request->get('user_id');
 
         return view('products.approved_crop_list', compact('products', 'users', 'userId'));
-    }
-
-    private function getCategoryForCropping($categoryId)
-    {
-        $imagesForGrid = [
-            'Shoes' => 'shoes_grid.png',
-            'Backpacks' => 'Backpack.png',
-            'Bags' => 'Backpack.png',
-            'Beach' => 'Backpack.png',
-            'Travel' => 'Backpack.png',
-            'Travel Bag' => 'Backpack.png',
-            'Travel Bags' => 'Backpack.png',
-            'Belt' => 'belt.png',
-            'Belts' => 'belt.png',
-            'Clothing' => 'Clothing.png',
-            'Skirts' => 'Clothing.png',
-            'Pullovers' => 'Clothing.png',
-            'Shirt' => 'Clothing.png',
-            'Dresses' => 'Clothing.png',
-            'Kaftan' => 'Clothing.png',
-            'Tops' => 'Clothing.png',
-            'Jumpers & Jump Suits' => 'Clothing.png',
-            'Pant' => 'Clothing.png',
-            'Pants' => 'Clothing.png',
-            'Dress' => 'Clothing.png',
-            'Sweatshirt/s & Hoodies' => 'Clothing.png',
-            'Shirts' => 'Clothing.png',
-            'Denim' => 'Clothing.png',
-            'Sweat Pants' => 'Clothing.png',
-            'T-Shirts' => 'Clothing.png',
-            'Sweater' => 'Clothing.png',
-            'Sweaters' => 'Clothing.png',
-            'Clothings' => 'Clothing.png',
-            'Coats & Jackets' => 'Clothing.png',
-            'Tie & Bow Ties' => 'Bow.png',
-            'Clutches' => 'Clutch.png',
-            'Clutches & Slings' => 'Clutch.png',
-            'Document Holder' => 'Clutch.png',
-            'Clutch Bags' => 'Clutch.png',
-            'Crossbody Bag' => 'Clutch.png',
-            'Wristlets' => 'Clutch.png',
-            'Crossbody Bags' => 'Clutch.png',
-            'Make-Up Bags' => 'Clutch.png',
-            'Belt Bag' => 'Clutch.png',
-            'Belt Bags' => 'Clutch.png',
-            'Hair Accessories' => 'Hair_accessories.png',
-            'Beanies & Caps' => 'Hair_accessories.png',
-            'Handbags' => 'Handbag.png',
-            'Duffle Bags' => 'Handbag.png',
-            'Laptop Bag' => 'Handbag.png',
-            'Bucket Bags' => 'Handbag.png',
-            'Laptop Bags' => 'Handbag.png',
-            'Jewelry' => 'Jewellery.png',
-            'Shoulder Bags' => 'Shoulder_bag.png',
-            'Sunglasses & Frames' => 'Sunglasses.png',
-            'Gloves' => 'Sunglasses.png', //need to be made for gloves
-            'Tote Bags' => 'Tote.png',
-            'Wallet' => 'Wallet.png',
-            'Wallets & Cardholder' => 'Wallet.png',
-            'Wallets & Cardholders' => 'Wallet.png',
-            'Key Pouches' => 'Wallet.png',
-            'Key Pouch' => 'Wallet.png',
-            'Coin Case / Purse' => 'Wallet.png',
-            'Shawls And Scarves' => 'Shawl.png',
-            'Shawls And Scarve' => 'Shawl.png',
-            'Scarves & Wraps' => 'Shawl.png',
-            'Key Rings & Chains' => 'Keychains.png',
-            'Key Rings & Chain' => 'Keychains.png',
-            'Watches' => 'Keychains.png',
-            'Watch' => 'Keychains.png',
-        ];
-
-        $category = Category::find($categoryId);
-        $catName = $category->title;
-
-        if (array_key_exists($catName, $imagesForGrid)) {
-            return $imagesForGrid[ $catName ];
-        }
-
-        if ($category->parent_id > 1) {
-            $category = Category::find($category->parent_id);
-            return $imagesForGrid[ trim($category->title) ] ?? '';
-        }
-
-        return '';
-
     }
 
     public function ammendCrop($id, Request $request, Stage $stage)
@@ -533,7 +447,7 @@ class ProductCropperController extends Controller
             $secondProduct = $secondProduct->first();
         }
 
-        if ( !$secondProduct || !isset($secondProduct->id) ) {
+        if (!$secondProduct || !isset($secondProduct->id)) {
             return redirect()->action('ProductCropperController@getListOfImagesToBeVerified');
         } else {
             return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
@@ -730,7 +644,7 @@ class ProductCropperController extends Controller
         $secondProduct = Product::where('id', '!=', $id)->where('is_crop_rejected', 1)->first();
 
         $category = $product->category;
-        $img = $this->getCategoryForCropping($category);
+        $img = Category::getCroppingGridImageByCategoryId($category);
 
         $medias = $product->getMedia('gallery');
         $originalMediaCount = 0;
