@@ -307,6 +307,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('quickSell', 'QuickSellController@store')->name('quicksell.store');
     Route::post('quickSell/{id}/edit', 'QuickSellController@update')->name('quicksell.update');
 
+    // Chat messages
+    Route::get('chat-messages/{object}/{object_id}/loadMoreMessages', 'ChatMessagesController@loadMoreMessages');
+
     // Customers
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
