@@ -386,13 +386,9 @@
                                         </table>
                                         <p class="text-right mt-5">
                                             <button class="btn btn-xs btn-default edit-product-show" data-id="{{$product->id}}">Toggle Edit</button>
-                                            @if ($product->is_approved == 0)
-                                                <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
-                                            @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
+                                            @if ($product->status_id == 9)
                                                 <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
-                                            @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
-                                                <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
-                                            @else
+                                            @elseif ($product->status_id == 12)
                                                 <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
                                             @endif
                                         </p>
