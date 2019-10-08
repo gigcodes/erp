@@ -278,7 +278,7 @@ class WhatsAppController extends FindByNumberController
 
                                             app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
                                         }
-                                        
+
                                         CommunicationHistory::create([
                                             'model_id' => $latest_broadcast_message->id,
                                             'model_type' => ChatMessage::class,
@@ -1243,7 +1243,7 @@ class WhatsAppController extends FindByNumberController
                 $to = '971562744570';
             } else {
                 if ($instanceId == '55211') { // Solo 04
-                    $to = '919152731483';
+                    $to = '971547763482';
                 } else { // James
                     $to = "971545889192";
                 }
@@ -1251,7 +1251,7 @@ class WhatsAppController extends FindByNumberController
         }
 
 
-        if ($customer && ($to == '919152731483' || $to == '971562744570')) {
+        if ($customer && ($to == '971547763482' || $to == '971562744570')) {
             $params[ 'erp_user' ] = null;
             $params[ 'supplier_id' ] = null;
             $params[ 'task_id' ] = null;
@@ -1392,7 +1392,7 @@ class WhatsAppController extends FindByNumberController
                                 //'assigned_user' => 6,
                                 'product_id' => $pid,
                                 'created_at' => Carbon::now()
-                            ]);    
+                            ]);
                         }
 
                         $requestData = new Request();
@@ -1408,68 +1408,6 @@ class WhatsAppController extends FindByNumberController
                             'method' => 'whatsapp'
                         ]);
                     }
-
-                    /*$two_hours = Carbon::now()->subHours(2);
-                    $latest_broadcast_message = ChatMessage::where('customer_id', $customer->id)->where('created_at', '>', $two_hours)->where('status', 8)->latest()->first();
-
-                    if ($latest_broadcast_message) {
-                        if (!$latest_broadcast_message->is_sent_broadcast_price()) {
-                            if ($latest_broadcast_message->hasMedia(config('constants.media_tags'))) {
-                                $selected_products = [];
-
-                                foreach ($latest_broadcast_message->getMedia(config('constants.media_tags')) as $image) {
-                                    $image_key = $image->getKey();
-                                    $mediable_type = "BroadcastImage";
-
-                                    $broadcast = BroadcastImage::with('Media')
-                                        ->whereRaw("broadcast_images.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
-                                        ->first();
-
-                                    if ($broadcast) {
-                                        $brod_products = json_decode($broadcast->products, true);
-
-                                        if (count($brod_products) > 0) {
-                                            foreach ($brod_products as $brod_pro) {
-                                                $selected_products[] = $brod_pro;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if (isset($broadcast)) {
-                                    $quick_lead = Leads::create([
-                                        'customer_id' => $customer->id,
-                                        'rating' => 1,
-                                        'status' => 3,
-                                        'assigned_user' => 6,
-                                        'selected_product' => json_encode($selected_products),
-                                        'created_at' => Carbon::now()
-                                    ]);
-
-                                    $requestData = new Request();
-                                    $requestData->setMethod('POST');
-                                    $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
-
-                                    app('App\Http\Controllers\LeadsController')->sendPrices($requestData);
-
-                                    CommunicationHistory::create([
-                                        'model_id' => $latest_broadcast_message->id,
-                                        'model_type' => ChatMessage::class,
-                                        'type' => 'broadcast-prices',
-                                        'method' => 'whatsapp'
-                                    ]);
-                                } else {
-                                    // Instruction::create([
-                                    //   'customer_id' => $customer->id,
-                                    //   'instruction' => 'Please send the prices',
-                                    //   'category_id' => 1,
-                                    //   'assigned_to' => 7,
-                                    //   'assigned_from' => 6
-                                    // ]);
-                                }
-                            }
-                        }
-                    }*/
 
                     Instruction::create([
                         'customer_id' => $customer->id,
@@ -2149,6 +2087,7 @@ class WhatsAppController extends FindByNumberController
                 $medias = Media::whereIn('id', $imagesDecoded)->get();
                 $pdfView = view('pdf_views.images' . $fn, compact('medias'));
                 $pdf = new Dompdf();
+                $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
                 $pdf->loadHtml($pdfView);
                 $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
                 $pdf->render();
@@ -2538,6 +2477,9 @@ class WhatsAppController extends FindByNumberController
 
     public function pollMessagesCustomer(Request $request)
     {
+        // Remove time limit
+        set_time_limit(0);
+
         $params = [];
         $result = [];
         // $skip = $request->page && $request->page > 1 ? $request->page * 10 : 0;
@@ -2774,7 +2716,7 @@ class WhatsAppController extends FindByNumberController
     public function approveMessage($context, Request $request)
     {
         $user = \Auth::user();
-        $defCustomer = '919152731483';
+        $defCustomer = '971547763482';
         $message = ChatMessage::findOrFail($request->get("messageId"));
         $today_date = Carbon::now()->format('Y-m-d');
 
@@ -3613,33 +3555,20 @@ class WhatsAppController extends FindByNumberController
 
     public function sendWithThirdApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic')
     {
-        // $configs = \Config::get("wassenger.api_keys");
-        $encodedNumber = '+' . $number;
-        $encodedText = $message;
-        // $wa_token = $configs[0]['key'];
-        if ($whatsapp_number == '919004780634') { // Indian
-            $instanceId = "43281";
-            $token = "yi841xjhrwyrwrc7";
-        } elseif ($whatsapp_number == '971545889192') { // YM Dubai
-            $instanceId = "62439";
-            $token = "jdcqh3ladeuvwzp4";
+        // Get configs
+        $config = \Config::get("apiwha.instances");
+
+        // Set instanceId and token
+        if ( isset($config[$whatsapp_number]) ) {
+            $instanceId = $config[ $whatsapp_number ]['instance_id'];
+            $token = $config[ $whatsapp_number ]['token'];
         } else {
-            if ($whatsapp_number == '971562744570') { // Solo 06
-                $instanceId = '55202';
-                $token = '42ndn0qg5om26vzf';
-            } else {
-                if ($whatsapp_number == '919152731483') { // 04
-                    $instanceId = '55211';
-                    $token = '3b92u5cbg215c718';
-                } else { // James
-//                    $instanceId = "43112";
-//                    $token = "vbi9bpkoejv2lvc4";
-                $instanceId = "62439";
-                $token = "jdcqh3ladeuvwzp4";
-                }
-            }
+            $instanceId = $config[0]['instance_id'];
+            $token = $config[0]['token'];
         }
 
+        $encodedNumber = '+' . $number;
+        $encodedText = $message;
 
         $array = [
             'phone' => $encodedNumber
@@ -3786,7 +3715,7 @@ class WhatsAppController extends FindByNumberController
             // $additional_message = ChatMessage::create($params);
 
             if ($chat_message->message != '') {
-                if ($customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '971562744570') {
+                if ($customer->whatsapp_number == '971547763482' || $customer->whatsapp_number == '971562744570') {
                     $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, $chat_message->message, null, $chat_message->id);
                 } else {
                     $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $chat_message->message, true, $chat_message->id);
@@ -3795,7 +3724,7 @@ class WhatsAppController extends FindByNumberController
 
             if ($chat_message->hasMedia(config('constants.media_tags'))) {
                 foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
-                    if ($customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '971562744570') {
+                    if ($customer->whatsapp_number == '971547763482' || $customer->whatsapp_number == '971562744570') {
                         $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, null, $image->getUrl(), $chat_message->id);
                     } else {
                         $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), true, $chat_message->id);
@@ -3910,7 +3839,7 @@ class WhatsAppController extends FindByNumberController
                 $instanceId = '55202';
                 $token = '42ndn0qg5om26vzf';
             } else {
-                if ($whatsapp_number == '919152731483') { // 04
+                if ($whatsapp_number == '971547763482') { // 04
                     $instanceId = '55211';
                     $token = '3b92u5cbg215c718';
                 } else { // James

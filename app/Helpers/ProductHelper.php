@@ -89,7 +89,7 @@ class ProductHelper extends Model
     {
         // Get all replacements
         if (count(self::$_attributeReplacements) == 0) {
-            self::$_attributeReplacements = AttributeReplacement::all();
+            self::$_attributeReplacements = AttributeReplacement::orderByRaw('CHAR_LENGTH(first_term)', 'DESC')->get();
         }
 
         // Loop over all replacements
