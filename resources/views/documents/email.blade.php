@@ -155,7 +155,7 @@
                                 <div class="alert alert-danger">{{$errors->first('category')}}</div>
                             @endif
                         </div>
-
+                        <input type="hidden" name="status" value="1">
                         <div class="form-group">
                             <strong>File:</strong>
                             <input type="file" name="file[]" class="form-control" value="" multiple required>
@@ -225,7 +225,7 @@
                                 <select class="selectpicker form-control category" data-live-search="true" data-size="15" name="category_id" title="Choose a Category" required>
 
                                     @foreach($category as $cat)
-                                        <option value="{{ $cat->id }}" data-list="{{ $cat->id }}" @if(isset($document->category_id)){{ $user->id == $document->category_id ? 'selected' : '' }} @endif>{{ $cat->name }}</option>
+                                        <option value="{{ $cat->id }}" data-list="{{ $cat->id }}" @if(isset($document->category_id)){{ $cat->id == $document->category_id ? 'selected' : '' }} @endif>{{ $cat->name }}</option>
                                     @endforeach
                                     <option value="0">Add Category</option>
                                 </select>
