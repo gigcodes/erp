@@ -111,7 +111,7 @@ class CustomerController extends Controller
                 $finalOrderStats[] = $order_stat;
             }
         }
-            
+
         $order_stats = $finalOrderStats;
 
         $finalOrderStats = [];
@@ -301,7 +301,7 @@ class CustomerController extends Controller
             $type = $request->type == 'unread' ? 0 : ($request->type == 'unapproved' ? 1 : 0);
             $orderByClause = " ORDER BY is_flagged DESC, message_status ASC, last_communicated_at $orderby";
             $filterWhereClause = " AND chat_messages.status = $type";
-            $messageWhereClause = " AND chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.status != 10";
+            $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.status != 10";
             // $messageWhereClause = " WHERE chat_messages.status = $type";
 
             if ($start_time != '' && $end_time != '') {
