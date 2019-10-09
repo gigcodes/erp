@@ -48,6 +48,7 @@ $(document).on('click', '.save-meeting', function () {
                 toastr['error'](response.data.msg);
             }else{
                 $('#zoomModal').modal('toggle');
+                window.open(response.data.meeting_link);
                 var html = '';
                 html += response.data.msg+'<br>';
                 html += 'Meeting URL: <a href="'+response.data.meeting_link+'" target="_blank">'+response.data.meeting_link+'</a><br><br>';

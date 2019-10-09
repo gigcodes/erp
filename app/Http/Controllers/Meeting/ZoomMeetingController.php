@@ -131,7 +131,7 @@ class ZoomMeetingController extends Controller
                 'data'   => $data
               ));
          }else{
-            $data = ['msg' => 'Token is expied. Please try to add the meeting again.'];
+            $data = ['msg' => 'Token is expired. Please try to add the meeting again.'];
             return Response::json(array(
                 'success' => false,
                 'data'   => $data
