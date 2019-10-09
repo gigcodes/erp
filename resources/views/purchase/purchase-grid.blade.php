@@ -4,6 +4,15 @@
 
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <style type="text/css">
+      .modal-xl {
+        width: 90%;
+       max-width:1200px;
+      }
+      .select2-container {
+        width: 215px !important;
+      }
+    </style>
 @endsection
 
 
@@ -157,6 +166,7 @@
                       <th>Order Date</th>
                       <th>Order Advance</th>
                       <th>Ordered Size</th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -192,6 +202,11 @@
                         </td>
                         <td>
                           {{ $order_product->size }}
+                        </td>
+                        <td>
+                          @if ( isset($order_product->order->customer) )
+                            <button type="submit" class="btn btn-secondary alternative_offers" data-brand="{{$product['brand_id']}}" data-category="{{$product['category']}}" data-price="{{$product['order_price']}}" data-customer_id="{{$order_product->order->customer->id}}">Alternative Offers</button>
+                          @endif
                         </td>
                     </tr>
                     @endforeach
@@ -284,6 +299,8 @@
       </div>
     </div>
 
+  
+
     <!-- Modal -->
     <div id="viewRemarkModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -308,14 +325,234 @@
       </div>
     </div>
 
+      <!-- Modal -->
+    <div id="alternative_offers" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-xl">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Alternative Offers</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+          </div>
+          <div class="modal-body">
+              <div class="row" id="alternative_offers_con">
+                <div class="col-lg-12">
+                  <form action="{{ route('search') }}" method="GET" class="form-inline align-items-start" id="alternative_offers_search_form">                    
+                      <div class="form-group mr-3 mb-3">
+                        {!! $category_selection !!}
+                      </div>
+                      <div class="form-group mr-3">
+                        <select class="form-control select-multiple2" name="brand[]" data-placeholder="Select brand.." multiple>
+                          <optgroup label="Brands">
+                            @foreach ($brands as $key => $name)
+                              <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
+                            @endforeach
+                        </optgroup>
+                        </select>
+                      </div>
+                      <div class="form-group mr-3">
+                        <strong class="mr-3">Price</strong>
+                          <input type="text" name="price_min" class="form-control" placeholder="min. price" value="{{ isset($_GET['price_min']) ? (int) $_GET['price_min'] : '' }}">
+                          <input type="text" name="price_max" class="form-control" placeholder="max. price" value="{{ isset($_GET['price_max']) ? (int) $_GET['price_max'] : '' }}">
+                      </div>
+                      <input type="hidden" name="selected_products" value="" id="selected_products">
+                      <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                  </form>
+                </div>
+                <div class="col-lg-6">
+                  <form method="POST" id="attachImageForm">
+                    @csrf
+                    <input type="hidden" name="images" id="images" value="">
+                    <input type="hidden" name="image" value="">
+                    <input type="hidden" name="screenshot_path" value="">
+                    <textarea name="message" placeholder="Message" class="form-control" ></textarea>
+                    <input type="hidden" name="customer_id" value="" class="customer_id">
+                    <input type="hidden" name="status" value="1">
+                </form>
+                </div>
+                <div class="col-lg-12">
+                  <div class="productGrid" id="productGrid"></div>
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     {{-- {!! $leads->links() !!} --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script>
     $(document).ready(function() {
        $(".select-multiple").multiselect();
+       $(".select-multiple2").select2();
     });
 
+    $(".alternative_offers").click(function() {
+        $('#alternative_offers_search_form').find("select[name='category[]']").val($(this).data('category'));
+        $('#alternative_offers_search_form').find("select[name='brand[]']").val($(this).data('brand'));
+        $('#alternative_offers_search_form').find("input[name='price_min']").val($(this).data('price'));
+        $('#attachImageForm').find(".customer_id").val($(this).data('customer_id'));
+        $.ajax({
+            url: "{{ route('search') }}",
+            data: $('#alternative_offers_search_form').serialize()
+        }).done(function (data) {
+            all_product_ids = data.all_product_ids;
+            $('#productGrid').html(data.html);
+            $(".page-goto").remove();
+            $('.lazy').Lazy({
+                effect: 'fadeIn'
+            });
+            $('#alternative_offers').modal('show');
+        }).fail(function () {
+            alert('Error searching for products');
+        });
+    });
+    var image_array = [];
+    function unique(list) {
+        var result = [];
+        $.each(list, function (i, e) {
+            if ($.inArray(e, result) == -1) result.push(e);
+        });
+        return result;
+    }
+
+    $("#alternative_offers_con").on('change', '.select-pr-list-chk', function (e) {
+        var $this = $(this);
+        var productCard = $this.closest(".product-list-card").find(".attach-photo-all");
+        if (productCard.length > 0) {
+            var image = productCard.data("image");
+            if ($this.is(":checked") === true) {
+                Object.keys(image).forEach(function (index) {
+                    image_array.push(image[index]);
+                });
+
+                image_array = unique(image_array);
+
+            } else {
+                Object.keys(image).forEach(function (key) {
+                    var index = image_array.indexOf(image[key]);
+                    image_array.splice(index, 1);
+                });
+                image_array = unique(image_array);
+            }
+        }
+    });
+
+    $("#alternative_offers_con").on('click', '.pagination a', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href') + '&selected_products=' + JSON.stringify(image_array);
+
+        getProducts(url);
+    });
+
+    function getProducts(url) {
+        $.ajax({
+            url: url
+        }).done(function (data) {
+            $('#productGrid').html(data.html);
+            $('.lazy').Lazy({
+                effect: 'fadeIn'
+            });
+        }).fail(function () {
+            alert('Error loading more products');
+        });
+    }
+
+    $("#alternative_offers_con").on('click', '.attach-photo', function (e) {
+          e.preventDefault();
+          var image = $(this).data('image');
+
+          if ($(this).data('attached') == 0) {
+              $(this).data('attached', 1);
+              image_array.push(image);
+          } else {
+              var index = image_array.indexOf(image);
+
+              $(this).data('attached', 0);
+              image_array.splice(index, 1);
+          }
+
+          $(this).toggleClass('btn-success');
+          $(this).toggleClass('btn-secondary');
+
+          console.log(image_array);
+      });
+
+      $("#alternative_offers_con").on('click', '.attach-photo-all', function (e) {
+          e.preventDefault();
+          var image = $(this).data('image');
+
+          if ($(this).data('attached') == 0) {
+              $(this).data('attached', 1);
+
+              Object.keys(image).forEach(function (index) {
+                  image_array.push(image[index]);
+              });
+          } else {
+              Object.keys(image).forEach(function (key) {
+                  var index = image_array.indexOf(image[key]);
+
+                  image_array.splice(index, 1);
+              });
+
+              $(this).data('attached', 0);
+          }
+
+          $(this).toggleClass('btn-success');
+          $(this).toggleClass('btn-secondary');
+
+          console.log(image_array);
+      });
+
+      $('#alternative_offers_search_form').on('submit', function (e) {
+            e.preventDefault();
+
+            $('#selected_products').val(JSON.stringify(image_array));
+
+            var url = "{{ route('search') }}";
+            var formData = $('#alternative_offers_search_form').serialize();
+
+            $.ajax({
+                url: url,
+                data: formData
+            }).done(function (data) {
+                $('#productGrid').html(data.html);
+                $('#products_count').text(data.products_count);
+                $(".page-goto").remove();
+                $('.lazy').Lazy({
+                    effect: 'fadeIn'
+                });
+            }).fail(function () {
+                alert('Error searching for products');
+            });
+        });
+
+      $(document).on('click', '#sendImageMessage', function (e) {
+          e.preventDefault();
+          if (image_array.length == 0) {
+              alert('Please select some images');
+          } else {
+              $('#images').val(JSON.stringify(image_array));
+
+              $.ajax({
+                method:'post',
+                url: "{{ route('whatsapp.send', 'customer') }}",
+                data: $('#attachImageForm').serialize()
+            }).done(function (data) {
+                alert('You have successfully send message!');
+                $('#alternative_offers').modal('hide');
+            }).fail(function () {
+                alert('Error searching for products');
+            });
+          }
+      });
 
         // Array.prototype.groupBy = function (prop) {
         //     return this.reduce(function (groups, item) {
