@@ -71,20 +71,20 @@ class ScrapController extends Controller
         $request = ProductHelper::fixCommonMistakesInRequest($request);
 
         // Log before validating
-        $errorLog = LogScraper::LogScrapeValidationUsingRequest($request);
-
-        // Return error
-        if (!empty($errorLog)) {
-            return response()->json([
-                'error' => $errorLog
-            ]);
-        }
+//        $errorLog = LogScraper::LogScrapeValidationUsingRequest($request);
+//
+//        // Return error
+//        if (!empty($errorLog)) {
+//            return response()->json([
+//                'error' => $errorLog
+//            ]);
+//        }
 
         // Validate input
         $this->validate($request, [
             'sku' => 'required|min:5',
             'url' => 'required',
-            'images' => 'required|array',
+//            'images' => 'required|array',
             'properties' => 'required',
             'website' => 'required',
             'price' => 'required',
@@ -140,28 +140,33 @@ class ScrapController extends Controller
             $scrapedProduct->touch();
 
             // Category Count Save
-            $property = json_decode($scrapedProduct->properties);
-            $category = $property->category;
-            $supplier = $scrapStatistics->supplier;
-            foreach ($category as $categories){
-                $cat = Category::select('id')->where('title',$categories)->first();
-                if($cat){
-                    if($cat->suppliercategorycount){
-                        $count = $cat->suppliercategorycount->count();
-                    }else{
-                        $count = 0;
-                    }
+            if($scrapedProduct->properties) {
+                $property = json_decode($scrapedProduct->properties);
+                if($property){
+                $category = $property->category;
 
-                    if($count == 0){
-                        $sup = Supplier::select('id')->where('supplier',$supplier)->first();
-                        if($sup){
-                            $data['category_id'] = $cat->id;
-                            $data['supplier_id'] = $sup->id;
-                            $data['cnt'] = 0;
-                            SupplierCategoryCount::create($data);
+                $supplier = $scrapStatistics->supplier;
+                foreach ($category as $categories) {
+                    $cat = Category::select('id')->where('title', $categories)->first();
+                    if ($cat) {
+                        if ($cat->suppliercategorycount) {
+                            $count = $cat->suppliercategorycount->count();
+                        } else {
+                            $count = 0;
+                        }
+
+                        if ($count == 0) {
+                            $sup = Supplier::select('id')->where('supplier', $supplier)->first();
+                            if ($sup) {
+                                $data['category_id'] = $cat->id;
+                                $data['supplier_id'] = $sup->id;
+                                $data['cnt'] = 0;
+                                SupplierCategoryCount::create($data);
+                            }
                         }
                     }
                 }
+              }
             }
 
             //Brand Count Save
@@ -180,6 +185,7 @@ class ScrapController extends Controller
                     SupplierBrandCount::create($data);
                 }
             }
+
 
         } else {
             // Add scrape statistics
@@ -216,25 +222,29 @@ class ScrapController extends Controller
 
             // Category Count Save
             $property = json_decode($scrapedProduct->properties);
-            if($property->category) {
-                $category = $property->category;
-                $supplier = $scrapStatistics->supplier;
-                foreach ($category as $categories) {
-                    $cat = Category::select('id')->where('title', $categories)->first();
-                    if ($cat) {
-                        if ($cat->suppliercategorycount) {
-                            $count = $cat->suppliercategorycount->count();
-                        } else {
-                            $count = 0;
-                        }
+            if($scrapedProduct->properties){
+                $property = json_decode($scrapedProduct->properties);
+                if($property){
+                    $category = $property->category;
 
-                        if ($count == 0) {
-                            $sup = Supplier::select('id')->where('supplier', $supplier)->first();
-                            if ($sup) {
-                                $data['category_id'] = $cat->id;
-                                $data['supplier_id'] = $sup->id;
-                                $data['cnt'] = 0;
-                                SupplierCategoryCount::create($data);
+                    $supplier = $scrapStatistics->supplier;
+                    foreach ($category as $categories) {
+                        $cat = Category::select('id')->where('title', $categories)->first();
+                        if ($cat) {
+                            if ($cat->suppliercategorycount) {
+                                $count = $cat->suppliercategorycount->count();
+                            } else {
+                                $count = 0;
+                            }
+
+                            if ($count == 0) {
+                                $sup = Supplier::select('id')->where('supplier', $supplier)->first();
+                                if ($sup) {
+                                    $data['category_id'] = $cat->id;
+                                    $data['supplier_id'] = $sup->id;
+                                    $data['cnt'] = 0;
+                                    SupplierCategoryCount::create($data);
+                                }
                             }
                         }
                     }
