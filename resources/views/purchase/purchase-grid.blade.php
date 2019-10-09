@@ -166,6 +166,7 @@
                       <th>Order Date</th>
                       <th>Order Advance</th>
                       <th>Ordered Size</th>
+                      <th>Ordered Status</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -202,6 +203,17 @@
                         </td>
                         <td>
                           {{ $order_product->size }}
+                        </td>
+                        <td>
+                            <div>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Follow up for advance' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Follow up for advance" data-id="Follow up for advance" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #666666;"></span>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Advance received' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Advance received" data-id="Advance received" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #4c4c4c;"></span>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Delivered' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Delivered" data-id="Delivered" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #323232;"></span>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Cancel' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Cancel" data-id="Cancel" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #191919;"></span>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Product shiped to Client' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Product shiped to Client" data-id="Product shiped to Client" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #414a4c;"></span>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Refund to be processed' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Refund to be processed" data-id="Refund to be processed" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #CCCCCC;"></span>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Refund Credited' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Refund Credited" data-id="Refund Credited" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #95a5a6;"></span>
+                             </div>
                         </td>
                         <td>
                           @if ( isset($order_product->order->customer) )
@@ -885,6 +897,32 @@
             }
         });
     });
+
+    $(document).on('click', '.change-order-status', function () {
+            let orderId = $(this).attr('data-orderid');
+            let status = $(this).attr('title');
+
+            let url = '/order/' + orderId + '/changestatus';
+
+            let thiss = $(this);
+
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    status: status
+                },
+                success: function () {
+                    toastr['success']('Status changed successfully!', 'Success');
+                    $(thiss).siblings('.change-order-status').removeClass('active-bullet-status');
+                    $(thiss).addClass('active-bullet-status');
+                    if (status == 'Product shiped to Client') {
+                        $('#tracking-wrapper-' + id).css({'display': 'block'});
+                    }
+                }
+            });
+        });
     </script>
 
 @endsection
