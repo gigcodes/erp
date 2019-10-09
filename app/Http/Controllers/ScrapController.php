@@ -72,20 +72,20 @@ class ScrapController extends Controller
         $request = ProductHelper::fixCommonMistakesInRequest($request);
 
         // Log before validating
-       // $errorLog = LogScraper::LogScrapeValidationUsingRequest($request);
+        $errorLog = LogScraper::LogScrapeValidationUsingRequest($request);
 
         // Return error
-//        if (!empty($errorLog)) {
-//            return response()->json([
-//                'error' => $errorLog
-//            ]);
-//        }
+        if (!empty($errorLog)) {
+            return response()->json([
+                'error' => $errorLog
+            ]);
+        }
 
         // Validate input
         $this->validate($request, [
             'sku' => 'required|min:5',
             'url' => 'required',
-        //   'images' => 'required|array',
+            'images' => 'required|array',
             'properties' => 'required',
             'website' => 'required',
             'price' => 'required',
