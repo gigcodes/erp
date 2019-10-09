@@ -28,8 +28,6 @@ use Storage;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\Products\ProductsCreator;
-use App\SupplierBrandCount;
-use App\SupplierCategoryCount;
 
 class ScrapController extends Controller
 {
@@ -141,55 +139,6 @@ class ScrapController extends Controller
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
             $scrapedProduct->save();
             $scrapedProduct->touch();
-
-            // Category Count Save
-            if($scrapedProduct->properties){
-
-                $property =  $scrapedProduct->properties;
-                if($property['category']){
-                $category = $property['category'];
-                $supplier = $scrapStatistics->supplier;
-                foreach ($category as $categories) {
-                    $cat = Category::select('id')->where('title', $categories)->first();
-                    if ($cat) {
-                        if ($cat->suppliercategorycount) {
-                            $count = $cat->suppliercategorycount->count();
-                        } else {
-                            $count = 0;
-                        }
-
-                        if ($count == 0) {
-                            $sup = Supplier::select('id')->where('supplier', $supplier)->first();
-                            if ($sup) {
-                                $data['category_id'] = $cat->id;
-                                $data['supplier_id'] = $sup->id;
-                                $data['cnt'] = 0;
-                                SupplierCategoryCount::create($data);
-                            }
-                        }
-                    }
-                 }
-              }
-            }
-
-            //Brand Count Save
-            if($brand->supplierbrandcount){
-                $count = $brand->supplierbrandcount->count();
-            }else{
-                $count = 0;
-            }
-
-            if($count == 0){
-                $sup = Supplier::select('id')->where('supplier', 'like', '%' . $supplier . '%')->first();
-                if($sup){
-                    $data['brand_id'] = $brand->id;
-                    $data['supplier_id'] = $sup->id;
-                    $data['cnt'] = 0;
-                    SupplierBrandCount::create($data);
-                }
-            }
-
-
         } else {
             // Add scrape statistics
             $scrapStatistics = new ScrapStatistics();
@@ -222,54 +171,6 @@ class ScrapController extends Controller
             $scrapedProduct->website = $request->get('website');
             $scrapedProduct->brand_id = $brand->id;
             $scrapedProduct->save();
-
-            // Category Count Save
-            if($scrapedProduct->properties){
-
-                $property =  $scrapedProduct->properties;
-                if($property['category']){
-                    $category = $property['category'];
-                    $supplier = $scrapStatistics->supplier;
-                    foreach ($category as $categories) {
-                        $cat = Category::select('id')->where('title', $categories)->first();
-                        if ($cat) {
-                            if ($cat->suppliercategorycount) {
-                                $count = $cat->suppliercategorycount->count();
-                            } else {
-                                $count = 0;
-                            }
-
-                            if ($count == 0) {
-                                $sup = Supplier::select('id')->where('supplier', $supplier)->first();
-                                if ($sup) {
-                                    $data['category_id'] = $cat->id;
-                                    $data['supplier_id'] = $sup->id;
-                                    $data['cnt'] = 0;
-                                    SupplierCategoryCount::create($data);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            //Brand Count Save
-            if($brand->supplierbrandcount){
-                $count = $brand->supplierbrandcount->count();
-            }else{
-                $count = 0;
-            }
-
-            if($count == 0){
-                $sup = Supplier::select('id')->where('supplier', 'like', '%' . $supplier . '%')->first();
-                if($sup){
-                    $data['brand_id'] = $brand->id;
-                    $data['supplier_id'] = $sup->id;
-                    $data['cnt'] = 0;
-                    SupplierBrandCount::create($data);
-                }
-            }
-
         }
 
         // Create or update product
