@@ -19,7 +19,7 @@ class ChatMessagesController extends Controller
         $limit = request()->get("limit", 3);
 
         // Get object (customer, vendor, etc.)
-        switch ( $request->object ) {
+        switch ($request->object) {
             case 'vendor':
                 $object = Vendor::find($request->object_id);
                 break;
@@ -38,10 +38,21 @@ class ChatMessagesController extends Controller
 
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
+            // Create empty media array
+            $media = [];
+
+            // Check for media
+            if ($chatMessage->hasMedia(config('constants.media_tags'))) {
+                foreach ($chatMessage->getMedia(config('constants.media_tags')) as $key => $image) {
+                    $media[] = $image->getUrl();
+                }
+            }
+
             $messages[] = [
                 'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
                 'message' => $chatMessage->message,
                 'datetime' => $chatMessage->created_at,
+                'media' => is_array($media) ? $media : null
             ];
         }
 

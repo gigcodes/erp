@@ -21,9 +21,11 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use seo2websites\LaravelZoom\LaravelZoom;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Response;
 /**
  * Class ZoomMeetingController - active record
- * 
+ *
  * A zoom class used to create meetings
  * This class is used to interact with zoom interface.
  *
@@ -35,7 +37,7 @@ class ZoomMeetingController extends Controller
     /**
      * Constructor of class
      * Calling env variables and adding in scope
-     * 
+     *
      */
     public function __construct()
     {
@@ -49,19 +51,28 @@ class ZoomMeetingController extends Controller
      * @param Request $request Request
      * @return \Illuminate\Http\Response
      * @Rest\Post("twilio/token")
-     * 
+     *
      * @uses Auth
      * @uses ClientToken
      */
    public function createMeeting( Request $request )
-    { 
+    {
         $this->validate( $request, [
             'meeting_topic' => 'required|min:3|max:255',
             'start_date_time' => 'required',
             'meeting_duration' => 'required',
             'timezone' => 'required'
         ] );
-        $input = $request->all(); 
+        $input = $request->all();
+        $startDate = strtotime(new Carbon($input['start_date_time']));
+        $currentDate = strtotime(Carbon::now());
+        if($startDate < $currentDate){
+             $data = ['msg' => 'Start date time should not be less than current date time.'];
+          return Response::json(array(
+                'success' => false,
+                'data'   => $data
+              ));
+        }
         $userId = $this->zoomuser;
         // Default settings for zoommeeting
          $settings = [
@@ -71,16 +82,16 @@ class ZoomMeetingController extends Controller
             'mute_upon_entry' => false,
             'enforce_login' => false,
             'auto_recording' => 'cloud'
-        ]; 
+        ];
         // gethering all data to pass to model function
         $data = [
             'user_id' => $userId,
-            'topic' => $input['meeting_topic'], 
+            'topic' => $input['meeting_topic'],
             'agenda' => $input['meeting_agenda'],
-            'settings' => $settings, 
-            'startTime' => new Carbon($input['start_date_time']), 
-            'duration' => $input['meeting_duration'], 
-            'timezone' => $input['timezone'], 
+            'settings' => $settings,
+            'startTime' => new Carbon($input['start_date_time']),
+            'duration' => $input['meeting_duration'],
+            'timezone' => $input['timezone'],
             ];
         // Calling model calss
         $meetings = new ZoomMeetings();
@@ -88,25 +99,59 @@ class ZoomMeetingController extends Controller
         $zoomSecret = $this->zoomsecret;
         $createMeeting = $meetings->createMeeting($zoomKey,$zoomSecret, $data);
         if($createMeeting){
-         $input[ 'meeting_id' ] = empty( $createMeeting[ 'body' ]['id'] ) ? 0 : $createMeeting[ 'body' ]['id']; 
+         $input[ 'meeting_id' ] = empty( $createMeeting[ 'body' ]['id'] ) ? "" : $createMeeting[ 'body' ]['id'];
          $input[ 'host_zoom_id' ] = $this->zoomuser;
          $input[ 'meeting_type' ] = 'scheduled';
-         $input[ 'join_meeting_url' ] = empty( $createMeeting[ 'body' ]['join_url'] ) ? 0 : $createMeeting[ 'body' ]['join_url']; 
-         $input[ 'start_meeting_url' ] = empty( $createMeeting[ 'body' ]['start_url'] ) ? 0 : $createMeeting[ 'body' ]['start_url']; 
+         $input[ 'join_meeting_url' ] = empty( $createMeeting[ 'body' ]['join_url'] ) ? "" : $createMeeting[ 'body' ]['join_url'];
+         $input[ 'start_meeting_url' ] = empty( $createMeeting[ 'body' ]['start_url'] ) ? "" : $createMeeting[ 'body' ]['start_url'];
          // saving data in db
-         ZoomMeetings::create( $input );
-         return back()->with( 'success', 'New Meeting added successfully.' );
+         $createMeeting = ZoomMeetings::create( $input );
+         if($createMeeting){
+             $getUserDetails =  $meetings->getUserDetails($input[ 'user_id' ], $input[ 'user_type' ]);
+             if(!empty($getUserDetails)){
+              $phonenumber  = isset($getUserDetails->number) ? $getUserDetails->number : $getUserDetails->phone;
+              $msg = "New meeting has been scheduled for you. Kindly find below the link to join the meeting. ".$input[ 'join_meeting_url' ];
+             $html = "New meeting has been scheduled for you. Kindly find below the link to join the meeting. <br><br> <a href='".$input[ 'join_meeting_url' ]."' target='_blank'>".$input[ 'join_meeting_url' ]."</a>";
+             if(!empty($phonenumber)){
+             $message = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phonenumber, NULL, $msg);
+             }
+             $email = $getUserDetails->email;
+             if(!empty($email)){
+                if('supplier' == $input[ 'user_type' ]){
+                   $name =  $getUserDetails->supplier;
+                }else{
+                  $name =  $getUserDetails->name;
+                }
+             $data = array('name'=>"SoloLuxury");
+             }
+             }
+             $data = ['msg' => 'New Meeting added successfully.', 'meeting_link' => $input[ 'join_meeting_url' ], 'start_meeting' => $input[ 'start_meeting_url' ]];
+            return Response::json(array(
+                'success' => true,
+                'data'   => $data
+              ));
+         }else{
+            $data = ['msg' => 'Token is expied. Please try to add the meeting again.'];
+            return Response::json(array(
+                'success' => false,
+                'data'   => $data
+              ));
+         }
         }else{
-            return back()->with( 'error', 'Meeting not added.' );
+            $data = ['msg' => 'Meeting not added.'];
+            return Response::json(array(
+                'success' => false,
+                'data'   => $data
+              ));
         }
     }
-    
+
     public function getMeetings()
     {
         $zoomKey =  $this->zoomkey;
         $zoomSecret = $this->zoomsecret;
         $zoom = new LaravelZoom($zoomKey,$zoomSecret);
-        $meeting1 = $zoom->getJWTToken(time() + 7200); 
+        $meeting1 = $zoom->getJWTToken(time() + 7200);
         $meeting = $zoom->getUsers('active',10);
         $user_id = '-ISK-roPRUyC3-3N5-AT_g';
         $topic = 'Test meeting using erp';
@@ -122,24 +167,36 @@ class ZoomMeetingController extends Controller
             'enforce_login' => false,
             'auto_recording' => 'local'
         ];
-        
+
         $data = ['user_id' => $user_id,'topic' => $topic, 'agenda' => $agenda, 'settings' => $settings, 'startTime' => $startTime, 'duration' => $duration, 'timezone' => $timezone, 'type' => 'all'];
         $meetings = new ZoomMeetings();
         //$createMeet = $meetings->getMeetings($zoomKey,$zoomSecret, $data);
         $createMeet = $meetings->createMeeting($zoomKey,$zoomSecret, $data);
         echo "hello"; echo "<pre>"; print_r($createMeet); die; die;
-       
+
     }
 
-    public function showData($type){ 
+    public function showData(Request $request){
+    $type = $request->get('type');
     $meetings = new ZoomMeetings();
     $curDate = Carbon::now();
-    $upcomingMeetings = $meetings->upcomingMeetings($type, $curDate); 
+    $upcomingMeetings = $meetings->upcomingMeetings($type, $curDate);
     $pastMeetings = $meetings->pastMeetings($type, $curDate);
     return view('zoom-meetings.showdata', [
             'upcomingMeetings' => $upcomingMeetings,
             'pastMeetings' => $pastMeetings,
             'type' => $type
-        ]);   
+        ]);
+    }
+
+    public function show(){
+    $type = "";
+    $upcomingMeetings = [];
+    $pastMeetings = [];
+    return view('zoom-meetings.showdata', [
+            'upcomingMeetings' => $upcomingMeetings,
+            'pastMeetings' => $pastMeetings,
+            'type' => $type
+        ]);
     }
 }
