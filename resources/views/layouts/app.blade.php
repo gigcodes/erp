@@ -332,6 +332,8 @@
                                                     <a class="dropdown-item" href="{{ route('productselection.create') }}">Add New</a>
                                                 @endif
                                                 <a class="dropdown-item" href="{{ url('/excel-importer') }}">Excel Import </a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/mapping') }}">Add Mapping For Master </a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/tools-brand') }}">Add Mapping For Excel</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -413,19 +415,15 @@
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ url('scrap/statistics') }}">Statistics</a>
+                                                <a class="dropdown-item" href="{{ action('CategoryController@brandMinMaxPricing') }}">Min/Max Pricing</a>
+                                                <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
+                                                <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>SKU<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('sku-format.index') }}">SKU Format</a>
-                                            </ul>
-                                        </li>
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Sub Category Scraping<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
-                                                <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
                                             </ul>
                                         </li>
                                     </ul>

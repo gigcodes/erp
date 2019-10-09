@@ -121,7 +121,7 @@ class PasswordController extends Controller
             $user_id = $request->user_id;
             $user = User::findorfail($user_id);
             $number = $user->phone;
-            $whatsappnumber = '971545889192';
+            $whatsappnumber = '971502609192';
             $message = 'Password Change For '. $request->website .'is, Old Password  : ' . Crypt::decrypt($old_password) . ' New Password is : ' . $request->password;
 
             $whatsappmessage = new WhatsAppController();

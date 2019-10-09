@@ -89,8 +89,8 @@ class CronScraperNotRunning extends Command
                     dump("Sending message");
 
                     // Send message
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('31629987287', '971545889192', $message);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('919004780634', '971545889192', $message);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('31629987287', '971502609192', $message);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('919004780634', '971502609192', $message);
                 } catch (\Exception $e) {
                     // Output error
                     dump($e->getMessage());
