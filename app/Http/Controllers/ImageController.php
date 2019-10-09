@@ -541,7 +541,6 @@ class ImageController extends Controller
           $new_image->attachMedia($media,config('constants.media_tags'));
         }
       }
-
       return redirect()->route('image.grid')->with('success', 'You have successfully attached images');
     }
 
