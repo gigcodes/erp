@@ -136,7 +136,7 @@
                         <option value="Africa/Djibouti">(GMT+3:00) Djibouti</option>
                         <option value="Africa/Mogadishu">(GMT+3:00) Mogadishu</option>
                         <option value="Europe/Kiev">(GMT+3:00) Kiev</option>
-                        <option value="Asia/Dubai">(GMT+4:00) Dubai</option>
+                        <option value="Asia/Dubai" selected>(GMT+4:00) Dubai</option>
                         <option value="Asia/Muscat">(GMT+4:00) Muscat</option>
                         <option value="Asia/Tehran">(GMT+4:30) Tehran</option>
                         <option value="Asia/Kabul">(GMT+4:30) Kabul</option>

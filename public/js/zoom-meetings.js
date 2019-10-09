@@ -2,12 +2,12 @@ $('#start_date_time').datetimepicker({
     format: 'YYYY-MM-DD HH:mm'
 });
 var offset = Intl.DateTimeFormat().resolvedOptions().timeZone;
-$('#timezone > option').each(function() {
-    var val = $(this).val()
-    if(offset == val){
-        $(this).attr('selected',true);
-    }
-});
+// $('#timezone > option').each(function() {
+//     var val = $(this).val()
+//     if(offset == val){
+//         $(this).attr('selected',true);
+//     }
+// });
 $(document).on('click', '.set-meetings', function() {
     let userId = $(this).data('id');
     let userType = $(this).data('type');

@@ -110,7 +110,7 @@ class ZoomMeetingController extends Controller
              $getUserDetails =  $meetings->getUserDetails($input[ 'user_id' ], $input[ 'user_type' ]);
              if(!empty($getUserDetails)){
               $phonenumber  = isset($getUserDetails->number) ? $getUserDetails->number : $getUserDetails->phone;
-              $msg = "New meeting has been scheduled for you. Kindly find below the link to join the meeting.".$input[ 'join_meeting_url' ];
+              $msg = "New meeting has been scheduled for you. Kindly find below the link to join the meeting. ".$input[ 'join_meeting_url' ];
              $html = "New meeting has been scheduled for you. Kindly find below the link to join the meeting. <br><br> <a href='".$input[ 'join_meeting_url' ]."' target='_blank'>".$input[ 'join_meeting_url' ]."</a>";
              if(!empty($phonenumber)){
              $message = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phonenumber, NULL, $msg);
