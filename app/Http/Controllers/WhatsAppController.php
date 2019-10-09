@@ -2071,7 +2071,7 @@ class WhatsAppController extends FindByNumberController
 
         if ($request->images) {
             $imagesDecoded = json_decode($request->images);
-            if (count($imagesDecoded) >= 10) {
+            if (count($imagesDecoded) >= 1) {
 
                 $temp_chat_message = ChatMessage::create($data);
                 foreach ($imagesDecoded as $image) {
@@ -2086,14 +2086,18 @@ class WhatsAppController extends FindByNumberController
                 }
                 $medias = Media::whereIn('id', $imagesDecoded)->get();
                 $pdfView = view('pdf_views.images' . $fn, compact('medias'));
-                $pdf = new Dompdf();
+                /*$pdf = new Dompdf();
                 $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
-                $pdf->loadHtml($pdfView);
+                $pdf->loadHtml($pdfView);*/
                 $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
-                $pdf->render();
-                File::put($fileName, $pdf->output());
+                //$pdf->render();
+                
+                \PDF::loadHTML($pdfView)->setPaper('a4')->setOrientation('landscape')->setOption('margin-bottom', 0)->save($fileName);
+
+                //File::put($fileName, $pdf->output());
                 $media = MediaUploader::fromSource($fileName)->upload();
                 $chat_message->attachMedia($media, 'gallery');
+                die;
             } else {
                 foreach (array_unique($imagesDecoded) as $image) {
                     $media = Media::find($image);

@@ -13,6 +13,7 @@
         "atayahmet/laravel-nestable": "^0.8.7",
         "barryvdh/laravel-ide-helper": "^2.4",
         "bugsnag/bugsnag-laravel": "^2.0",
+        "barryvdh/laravel-snappy" : "*",
         "chumper/zipper": "^1.0",
         "doctrine/dbal": "^2.9",
         "dompdf/dompdf": "^0.8.3",
