@@ -76,12 +76,45 @@ class CustomerController extends Controller
         $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
         $order_stats = DB::table('orders')->selectRaw('order_status, COUNT(*) as total')->whereNotNull('order_status')->groupBy('order_status')->get();
 
-        $finalOrderStats = [];
         $totalCount = 0;
         foreach ($order_stats as $order_stat) {
             $totalCount += $order_stat->total;
         }
 
+        $orderStatus = [
+            'order received',
+            'follow up for advance',
+            'prepaid',
+            'proceed without advance',
+            'pending purchase (advance received)',
+            'purchase complete',
+            'product shipped from italy',
+            'product in stock',
+            'product shipped to client',
+            'delivered',
+            'cancel',
+            'refund to be processed',
+            'refund credited'
+        ];
+
+        $finalOrderStats = [];
+        foreach ($orderStatus as $status) {
+            foreach ($order_stats as $order_stat) {
+                if ($status == strtolower($order_stat->order_status)) {
+                    $finalOrderStats[] = $order_stat;
+                }
+            }
+        }
+
+        foreach ($order_stats as $order_stat) {
+            if (!in_array(strtolower($order_stat->order_status), $orderStatus)) {
+                $finalOrderStats[] = $order_stat;
+            }
+        }
+            
+        $order_stats = $finalOrderStats;
+
+        $finalOrderStats = [];
         foreach ($order_stats as $key => $order_stat) {
             $finalOrderStats[] = array(
                 $order_stat->order_status,
@@ -260,7 +293,7 @@ class CustomerController extends Controller
         $end_time = $request->range_end ? "$request->range_end 23:59" : '';
 
         if ($start_time != '' && $end_time != '') {
-            $filterWhereClause = " WHERE last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "'";
+            $filterWhereClause = " AND last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "'";
         }
 
         if ($request->type == 'unread' || $request->type == 'unapproved') {
@@ -268,27 +301,27 @@ class CustomerController extends Controller
             $type = $request->type == 'unread' ? 0 : ($request->type == 'unapproved' ? 1 : 0);
             $orderByClause = " ORDER BY is_flagged DESC, message_status ASC, last_communicated_at $orderby";
             $filterWhereClause = " AND chat_messages.status = $type";
-            $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.status != 10";
+            $messageWhereClause = " AND chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.status != 10";
             // $messageWhereClause = " WHERE chat_messages.status = $type";
 
             if ($start_time != '' && $end_time != '') {
-                $filterWhereClause = " WHERE (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = $type";
+                $filterWhereClause = " AND (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = $type";
             }
         } else {
             if (
-                $request->get('type') === 'Advance received' ||
-                $request->get('type') === 'Cancel' ||
-                $request->get('type') === 'Delivered' ||
-                $request->get('type') === 'Follow up for advance' ||
-                $request->get('type') === 'HIGH PRIORITY' ||
-                $request->get('type') === 'In Transist from Italy' ||
-                $request->get('type') === 'Prepaid' ||
-                $request->get('type') === 'Proceed without Advance' ||
-                $request->get('type') === 'Product Shiped form Italy' ||
-                $request->get('type') === 'Product shiped to Client' ||
-                $request->get('type') === 'Refund Credited' ||
-                $request->get('type') === 'Refund Dispatched' ||
-                $request->get('type') === 'Refund to be processed'
+                strtolower($request->get('type')) === 'advance received' ||
+                strtolower($request->get('type')) === 'cancel' ||
+                strtolower($request->get('type')) === 'delivered' ||
+                strtolower($request->get('type')) === 'follow up for advance' ||
+                strtolower($request->get('type')) === 'high priority' ||
+                strtolower($request->get('type')) === 'in transist from italy' ||
+                strtolower($request->get('type')) === 'prepaid' ||
+                strtolower($request->get('type')) === 'proceed without advance' ||
+                strtolower($request->get('type')) === 'product shiped form italy' ||
+                strtolower($request->get('type')) === 'product shiped to client' ||
+                strtolower($request->get('type')) === 'refund credited' ||
+                strtolower($request->get('type')) === 'refund dispatched' ||
+                strtolower($request->get('type')) === 'refund to be processed'
             ) {
                 $join = 'LEFT';
                 $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
@@ -302,15 +335,15 @@ class CustomerController extends Controller
                 $filterWhereClause = ' AND order_status = "' . $request->get('type') . '"';
 
             } else {
-                if ($request->type != 'new' && $request->type != 'delivery' && $request->type != 'Refund to be processed' && $request->type != '') {
+                if (strtolower($request->type) != 'new' && strtolower($request->type) != 'delivery' && strtolower($request->type) != 'refund to be processed' && strtolower($request->type) != '') {
                     $join = 'LEFT';
                     $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
                     $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9";
 
                     if ($request->type == '0') {
-                        $leadsWhereClause = ' WHERE lead_status IS NULL';
+                        $leadsWhereClause = ' AND lead_status IS NULL';
                     } else {
-                        $leadsWhereClause = " WHERE lead_status = $request->type";
+                        $leadsWhereClause = " AND lead_status = $request->type";
                     }
                 } else {
                     if ($sortby === 'communication') {
