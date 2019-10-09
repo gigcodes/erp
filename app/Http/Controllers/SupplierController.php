@@ -739,7 +739,7 @@ class SupplierController extends Controller
                 $res->sku = 'QuickSell' . $number;
                 $res->original_sku = 'QUICKSELL' . $number;
                 $res->title = 'QUICKSELL' . $number;
-                $res->brand_id = 3;
+                $res->brand_id = 207;
                 $res->properties = array('composition' => '', 'measurement_size_type' => '', 'size' => '', 'color' => '');
                 $res->url = '';
                 $res->stock = 1;
