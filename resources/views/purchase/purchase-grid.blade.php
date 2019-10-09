@@ -205,6 +205,7 @@
                           {{ $order_product->size }}
                         </td>
                         <td>
+                            <?php if(isset($order_product->order) && !empty($order_product->order)) { ?>
                             <div>
                                <span class="order-status change-order-status {{ $order_product->order->order_status == 'Follow up for advance' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Follow up for advance" data-id="Follow up for advance" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #666666;"></span>
                                <span class="order-status change-order-status {{ $order_product->order->order_status == 'Advance received' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Advance received" data-id="Advance received" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #4c4c4c;"></span>
@@ -214,6 +215,7 @@
                                <span class="order-status change-order-status {{ $order_product->order->order_status == 'Refund to be processed' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Refund to be processed" data-id="Refund to be processed" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #CCCCCC;"></span>
                                <span class="order-status change-order-status {{ $order_product->order->order_status == 'Refund Credited' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Refund Credited" data-id="Refund Credited" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #95a5a6;"></span>
                              </div>
+                           <?php } ?>
                         </td>
                         <td>
                           @if ( isset($order_product->order->customer) )
