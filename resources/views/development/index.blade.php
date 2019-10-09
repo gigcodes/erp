@@ -203,6 +203,19 @@
                                                 @endif
                                             </div>
 
+                                                <div class="form-group">
+                                                    <label for="priority">Type:</label>
+                                                    <select class="form-control" name="task_type_id" id="task_type_id" required>
+                                                        @foreach($tasksTypes as $taskType)
+                                                            <option value="{{$taskType->id}}">{{$taskType->name}}</option>
+                                                        @endforeach
+                                                    </select>
+
+                                                    @if ($errors->has('priority'))
+                                                        <div class="alert alert-danger">{{$errors->first('priority')}}</div>
+                                                    @endif
+                                                </div>
+
                                             <div class="form-group">
                                                 <strong>Subject:</strong>
                                                 <input type="text" class="form-control" name="subject" value="{{ old('subject') }}"/>

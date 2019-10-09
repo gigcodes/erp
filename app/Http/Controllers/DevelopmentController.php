@@ -266,6 +266,7 @@ class DevelopmentController extends Controller
 
         $data = $request->except('_token');
         $data[ 'user_id' ] = $request->user_id ? $request->user_id : Auth::id();
+        $data[ 'created_by' ] =  Auth::id();
 
         $module = $request->get( 'module_id' );
         if(!empty($module)) {
@@ -812,9 +813,10 @@ class DevelopmentController extends Controller
     {
         // Get tasks
         $task = DeveloperTask::where('developer_tasks.id', $taskId)
-            ->select('developer_tasks.*', 'task_types.name as task_type', 'users.name as username')
+            ->select('developer_tasks.*', 'task_types.name as task_type', 'users.name as username','u.name as reporter')
             ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
             ->join('users', 'users.id', '=', 'developer_tasks.user_id')
+            ->join('users AS u', 'u.id', '=', 'developer_tasks.created_by')
             ->first();
 
         // Get subtasks
@@ -891,7 +893,23 @@ class DevelopmentController extends Controller
         }else{
             return redirect(url("/development/task-detail/$task_id"));
         }
+    }
 
+    public function openNewTaskPopup(Request $request){
+        $status     = "ok";
+        // Get all developers
+        $users = Helpers::getUserArray(User::role('Developer')->get());
+        // Get all task types
+        $tasksTypes = TaskTypes::all();
+        $moduleNames = [];
+        // Get all modules
+        $modules = DeveloperModule::all();
+        // Loop over all modules and store them
+        foreach ($modules as $module) {
+            $moduleNames[ $module->id ] = $module->name;
+        }
 
+        $html       = view('development.ajax.add_new_task', compact("users","tasksTypes","modules","moduleNames"))->render();
+        return json_encode(compact("html", "status"));
     }
 }

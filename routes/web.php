@@ -515,6 +515,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete( 'development/{id}/issueDestroy', 'DevelopmentController@issueDestroy' )->name( 'development.issue.destroy' );
     Route::get( 'development/overview', 'DevelopmentController@overview' )->name( 'development.overview' );
     Route::get( 'development/task-detail/{id}', 'DevelopmentController@taskDetail' )->name( 'taskDetail' );
+    Route::get( 'development/new-task-popup', 'DevelopmentController@openNewTaskPopup' )->name( 'openNewTaskPopup' );
 
     Route::post( 'development/module/create', 'DevelopmentController@moduleStore' )->name( 'development.module.store' );
     Route::delete( 'development/module/{id}/destroy', 'DevelopmentController@moduleDestroy' )->name( 'development.module.destroy' );

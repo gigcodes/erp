@@ -42,8 +42,11 @@
                 <div class="card-box task-detail">
                     <div class="media mt-0 m-b-30">
                         <div class="media-body">
-                            <p>
+                            <p style="width:50%;display: inline-block;">
                                 <a href="{{ route('development.overview') }}?status={{$task->status}}">Back to {{$task->status}}</a>
+                            </p>
+                            <p style="width:50%;display: inline-block; float:right;">
+                                <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Task </a>
                             </p>
                             <h4 class="media-heading mb-0 mt-0">{{$task->task_type .'-'.$task->id}}
                                 <span class="badge badge-danger" style="{{$bg_color}}">{{$task_type}}</span>
@@ -127,7 +130,8 @@
                     <div class="media m-b-20">
                         <div class="d-flex mr-3"> <a href="#"><img class="media-object rounded-circle thumb-sm" alt="64x64" src="https://bootdey.com/img/Content/avatar/avatar1.png"></a></div>
                         <div class="media-body">
-                            <input type="text" name="comment" id="comment" class="form-control input-sm" placeholder="Some text value...">
+                            <textarea name="comment" id="comment" class="form-control input-sm" placeholder="Some text value..."></textarea>
+                            {{--<input type="text" name="comment" id="comment" class="form-control input-sm" placeholder="Some text value...">--}}
                             <div class="mt-2 text-right"> <button type="button" class="btn btn-sm btn-custom waves-effect waves-light" id="add_comment">Send</button></div>
                         </div>
                     </div>
@@ -199,6 +203,7 @@
 
 @section('scripts')
     <script type="text/javascript">
+
         $(document).on('click', '#create_subtask_link', function () {
             $(".add_subtask_div").toggle();
         });
@@ -230,7 +235,6 @@
             }
         });
 
-
         $(document).on('click', '#add_comment', function () {
 
             var comment     = $("#comment").val();
@@ -255,6 +259,8 @@
                                         '</div>'+
                                     '</div>';
                         $(".dev_comments").append(html);
+                        $("#comment").val('');
+                        sendMessageWhatsapp("{{$task->user_id}}",comment,'user',"{{csrf_token()}}");
                         toastr['success']('Subtask Added successfully!')
                     }
                 });
@@ -335,6 +341,26 @@
             }
 
         }
+
+        //Popup for add new task
+        $(document).on('click', '#newTaskModalBtn', function () {
+            if ($("#newTaskModal").length > 0) {
+                $("#newTaskModal").remove();
+            }
+
+            $.ajax({
+                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                type: 'GET',
+                dataType: "JSON",
+                success: function (resp) {
+                    console.log(resp);
+                    if(resp.status == 'ok') {
+                        $("body").append(resp.html);
+                        $('#newTaskModal').modal('show');
+                    }
+                }
+            });
+        });
 
     </script>
 @endsection
