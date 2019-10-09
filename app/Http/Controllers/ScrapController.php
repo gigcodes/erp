@@ -67,13 +67,14 @@ class ScrapController extends Controller
 
     public function syncProductsFromNodeApp(Request $request)
     {
+
         // Update request data with common mistakes
         $request = ProductHelper::fixCommonMistakesInRequest($request);
 
         // Log before validating
-//        $errorLog = LogScraper::LogScrapeValidationUsingRequest($request);
-//
-//        // Return error
+       // $errorLog = LogScraper::LogScrapeValidationUsingRequest($request);
+
+        // Return error
 //        if (!empty($errorLog)) {
 //            return response()->json([
 //                'error' => $errorLog
@@ -84,7 +85,7 @@ class ScrapController extends Controller
         $this->validate($request, [
             'sku' => 'required|min:5',
             'url' => 'required',
-//            'images' => 'required|array',
+        //   'images' => 'required|array',
             'properties' => 'required',
             'website' => 'required',
             'price' => 'required',
@@ -140,11 +141,15 @@ class ScrapController extends Controller
             $scrapedProduct->touch();
 
             // Category Count Save
-            if($scrapedProduct->properties) {
-                $property = json_decode($scrapedProduct->properties);
+            if($scrapedProduct->properties){
+                @json_decode($scrapedProduct->properties);
+                    if(json_last_error() == JSON_ERROR_NONE){
+                        $property =  json_decode($scrapedProduct->properties);
+                    }else{
+                        $property =  json_decode(json_encode($scrapedProduct->properties));
+                    }
                 if($property){
                 $category = $property->category;
-
                 $supplier = $scrapStatistics->supplier;
                 foreach ($category as $categories) {
                     $cat = Category::select('id')->where('title', $categories)->first();
@@ -165,7 +170,7 @@ class ScrapController extends Controller
                             }
                         }
                     }
-                }
+                 }
               }
             }
 
@@ -223,7 +228,12 @@ class ScrapController extends Controller
             // Category Count Save
             $property = json_decode($scrapedProduct->properties);
             if($scrapedProduct->properties){
-                $property = json_decode($scrapedProduct->properties);
+                @json_decode($scrapedProduct->properties);
+                if(json_last_error() == JSON_ERROR_NONE){
+                    $property =  json_decode($scrapedProduct->properties);
+                }else{
+                    $property =  json_decode(json_encode($scrapedProduct->properties));
+                }
                 if($property){
                     $category = $property->category;
 
