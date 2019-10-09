@@ -42,7 +42,7 @@
                 <div class="form-group">
                     <label for="meeting_timezone">Timezone</label>
                     <select id="timezone" name="timezone" class="form-control">
-                        <option value="">Select</option>
+                        <option value="Asia/Dubai">(GMT+4:00) Dubai</option>
                         <option value="Pacific/Midway">(GMT-11:00) Midway Island, Samoa</option>
                         <option value="Pacific/Pago_Pago">(GMT-11:00) Pago Pago</option>
                         <option value="Pacific/Honolulu">(GMT-10:00) Hawaii</option>
