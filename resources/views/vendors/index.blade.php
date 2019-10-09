@@ -462,7 +462,7 @@
                 type: "GET",
                 url: "{{ url('chat-messages') }}/vendor/" + vendor_id + "/loadMoreMessages",
                 data: {
-                    limit: 30
+                    limit: 1000
                 },
                 beforeSend: function () {
                     //$(thiss).text('Loading...');
