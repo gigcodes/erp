@@ -28,6 +28,8 @@ use Storage;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\Products\ProductsCreator;
+use App\SupplierBrandCount;
+use App\SupplierCategoryCount;
 
 class ScrapController extends Controller
 {
@@ -142,14 +144,10 @@ class ScrapController extends Controller
 
             // Category Count Save
             if($scrapedProduct->properties){
-                @json_decode($scrapedProduct->properties);
-                    if(json_last_error() == JSON_ERROR_NONE){
-                        $property =  json_decode($scrapedProduct->properties);
-                    }else{
-                        $property =  json_decode(json_encode($scrapedProduct->properties));
-                    }
-                if($property){
-                $category = $property->category;
+
+                $property =  $scrapedProduct->properties;
+                if($property['category']){
+                $category = $property['category'];
                 $supplier = $scrapStatistics->supplier;
                 foreach ($category as $categories) {
                     $cat = Category::select('id')->where('title', $categories)->first();
@@ -182,7 +180,7 @@ class ScrapController extends Controller
             }
 
             if($count == 0){
-                $sup = Supplier::select('id')->where('supplier',$supplier)->first();
+                $sup = Supplier::select('id')->where('supplier', 'like', '%' . $supplier . '%')->first();
                 if($sup){
                     $data['brand_id'] = $brand->id;
                     $data['supplier_id'] = $sup->id;
@@ -226,17 +224,11 @@ class ScrapController extends Controller
             $scrapedProduct->save();
 
             // Category Count Save
-            $property = json_decode($scrapedProduct->properties);
             if($scrapedProduct->properties){
-                @json_decode($scrapedProduct->properties);
-                if(json_last_error() == JSON_ERROR_NONE){
-                    $property =  json_decode($scrapedProduct->properties);
-                }else{
-                    $property =  json_decode(json_encode($scrapedProduct->properties));
-                }
-                if($property){
-                    $category = $property->category;
 
+                $property =  $scrapedProduct->properties;
+                if($property['category']){
+                    $category = $property['category'];
                     $supplier = $scrapStatistics->supplier;
                     foreach ($category as $categories) {
                         $cat = Category::select('id')->where('title', $categories)->first();
@@ -269,7 +261,7 @@ class ScrapController extends Controller
             }
 
             if($count == 0){
-                $sup = Supplier::select('id')->where('supplier',$supplier)->first();
+                $sup = Supplier::select('id')->where('supplier', 'like', '%' . $supplier . '%')->first();
                 if($sup){
                     $data['brand_id'] = $brand->id;
                     $data['supplier_id'] = $sup->id;
@@ -277,6 +269,7 @@ class ScrapController extends Controller
                     SupplierBrandCount::create($data);
                 }
             }
+
         }
 
         // Create or update product
