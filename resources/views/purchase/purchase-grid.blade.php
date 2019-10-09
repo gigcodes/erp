@@ -204,7 +204,7 @@
                           {{ $order_product->size }}
                         </td>
                         <td>
-                          <button type="submit" class="btn btn-secondary alternative_offers" data-brand="{{$product['brand_id']}}" data-category="{{$product['category']}}" data-price="{{$product['order_price']}}">Alternative Offers</button>
+                          <button type="submit" class="btn btn-secondary alternative_offers" data-brand="{{$product['brand_id']}}" data-category="{{$product['category']}}" data-price="{{$product['order_price']}}" data-customer_id="{{$product['customer_id']}}">Alternative Offers</button>
                         </td>
                     </tr>
                     @endforeach
@@ -359,15 +359,18 @@
                       <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                   </form>
                 </div>
-                <div class="col-lg-12">
-                  <form action="{{ route('image.grid.attach') }}" method="POST" id="attachImageForm">
+                <div class="col-lg-6">
+                  <form method="POST" id="attachImageForm">
                     @csrf
+                    <input type="hidden" name="sending_time" value="{{date('Y-m-d m:i:s')}}"/>
                     <input type="hidden" name="images" id="images" value="">
                     <input type="hidden" name="image" value="">
                     <input type="hidden" name="screenshot_path" value="">
-                    <input type="hidden" name="message" value="">
-                    <input type="hidden" name="'nothing" value="">
+                    <textarea name="message" placeholder="Message" class="form-control" ></textarea>
+                    <input type="hidden" name="customer_id" value="" class="customer_id">
                     <input type="hidden" name="status" value="">
+                    <input type="hidden" name="frequency" value="1">
+                    <input type="hidden" name="moduletype" value="customers">
                 </form>
                 </div>
                 <div class="col-lg-12">
@@ -396,6 +399,7 @@
         $('#alternative_offers_search_form').find("select[name='category[]']").val($(this).data('category'));
         $('#alternative_offers_search_form').find("select[name='brand[]']").val($(this).data('brand'));
         $('#alternative_offers_search_form').find("input[name='price_min']").val($(this).data('price'));
+        $('#attachImageForm').find(".customer_id").val($(this).data('customer_id'));
         $.ajax({
             url: "{{ route('search') }}",
             data: $('#alternative_offers_search_form').serialize()
@@ -514,7 +518,7 @@
             $('#selected_products').val(JSON.stringify(image_array));
 
             var url = "{{ route('search') }}";
-            var formData = $('#searchForm').serialize();
+            var formData = $('#alternative_offers_search_form').serialize();
 
             $.ajax({
                 url: url,
@@ -540,10 +544,10 @@
 
               $.ajax({
                 method:'post',
-                url: "{{ route('image.grid.attach') }}",
+                url: "{{ route('customer.whatsapp.send.all', 'false') }}",
                 data: $('#attachImageForm').serialize()
             }).done(function (data) {
-                alert('You have successfully attached images');
+                alert('Messages are being sent in the background!');
                 $('#alternative_offers').modal('hide');
             }).fail(function () {
                 alert('Error searching for products');
