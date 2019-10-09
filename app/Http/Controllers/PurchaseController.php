@@ -406,16 +406,19 @@ class PurchaseController extends Controller
 
 
       $new_orders = [];
+      $includedOrders = [];
       foreach ($orders as $order) {
         array_push($new_orders, $order['id']);
+        array_push($includedOrders, $order['order_id']);
       }
 
-      $products = Product::with(['orderproducts' => function($query) use ($page,$not_include_products) {
+      $products = Product::with(['orderproducts' => function($query) use ($page,$not_include_products,$includedOrders) {
         if($page != 'ordered') {
             $query->whereNotIn("id",$not_include_products);
         }
-        $query->with(['order' => function($q){
+        $query->with(['order' => function($q) use($includedOrders){
             $q->with("customer");
+            $q->whereIn("id",array_unique($includedOrders));
         }]);
       }, 'purchases', 'suppliers','brands'])->whereIn('id', $new_orders);
 
