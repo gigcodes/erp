@@ -216,24 +216,26 @@ class ScrapController extends Controller
 
             // Category Count Save
             $property = json_decode($scrapedProduct->properties);
-            $category = $property->category;
-            $supplier = $scrapStatistics->supplier;
-            foreach ($category as $categories){
-                $cat = Category::select('id')->where('title',$categories)->first();
-                if($cat){
-                    if($cat->suppliercategorycount){
-                        $count = $cat->suppliercategorycount->count();
-                    }else{
-                        $count = 0;
-                    }
+            if($property->category) {
+                $category = $property->category;
+                $supplier = $scrapStatistics->supplier;
+                foreach ($category as $categories) {
+                    $cat = Category::select('id')->where('title', $categories)->first();
+                    if ($cat) {
+                        if ($cat->suppliercategorycount) {
+                            $count = $cat->suppliercategorycount->count();
+                        } else {
+                            $count = 0;
+                        }
 
-                    if($count == 0){
-                        $sup = Supplier::select('id')->where('supplier',$supplier)->first();
-                        if($sup){
-                            $data['category_id'] = $cat->id;
-                            $data['supplier_id'] = $sup->id;
-                            $data['cnt'] = 0;
-                            SupplierCategoryCount::create($data);
+                        if ($count == 0) {
+                            $sup = Supplier::select('id')->where('supplier', $supplier)->first();
+                            if ($sup) {
+                                $data['category_id'] = $cat->id;
+                                $data['supplier_id'] = $sup->id;
+                                $data['cnt'] = 0;
+                                SupplierCategoryCount::create($data);
+                            }
                         }
                     }
                 }
