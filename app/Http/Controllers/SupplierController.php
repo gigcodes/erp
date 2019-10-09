@@ -725,12 +725,14 @@ class SupplierController extends Controller
                 $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->orderBy('id', 'desc')->first();
                 if ($product) {
                     preg_match('/QUICKSELL(.*)/', $product->sku, $output_array);
-                    $number = $output_array[1];
-                    $number++;
-
-                } else {
+                    if ($number = $output_array) {
+                        $number = $output_array[1];
+                        $number++;
+                    }
+                }else {
                     $number = 1;
-                }
+                    }
+
                 $res = new \stdClass();
                 $res->website = 'QUICKSELL';
                 $res->images = [$image];
@@ -749,6 +751,7 @@ class SupplierController extends Controller
                 $res->is_sale = 0;
                 $product = new Product();
                 $product->createProductByJson($res, 0);
+
             }
             return redirect()->back()->withSuccess('You have successfully saved product(s)!');
         }
