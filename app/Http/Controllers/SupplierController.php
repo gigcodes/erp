@@ -718,8 +718,41 @@ class SupplierController extends Controller
     }
 
     public function saveImage(Request $request){
-        dd($request);
-        //Save Product
+        //dd($request);
+        $images = $request->checkbox;
+        if($images) {
+            foreach ($images as $image) {
+                $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->orderBy('id', 'desc')->first();
+                if ($product) {
+                    preg_match('/QUICKSELL(.*)/', $product->sku, $output_array);
+                    $number = $output_array[1];
+                    $number++;
+
+                } else {
+                    $number = 1;
+                }
+                $res = new \stdClass();
+                $res->website = 'QUICKSELL';
+                $res->images = [$image];
+                $res->sku = 'QuickSell' . $number;
+                $res->original_sku = 'QUICKSELL' . $number;
+                $res->title = 'QUICKSELL' . $number;
+                $res->brand_id = 3;
+                $res->properties = array('composition' => '', 'measurement_size_type' => '', 'size' => '', 'color' => '');
+                $res->url = '';
+                $res->stock = 1;
+                $res->size = '';
+                $res->description = '';
+                $res->currency = '';
+                $res->price = 0;
+                $res->discounted_price = '';
+                $res->is_sale = 0;
+                $product = new Product();
+                $product->createProductByJson($res, 0);
+            }
+            return redirect()->back()->withSuccess('You have successfully saved product(s)!');
+        }
+        return redirect()->back()->withSuccess('Please Select Image');
     }
 
 
