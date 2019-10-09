@@ -85,8 +85,8 @@
                                     <option value="919004780634" {{ '919004780634' == $case->whatsapp_number ? ' selected' : '' }}>
                                         919004780634 Indian
                                     </option>
-                                    <option value="971545889192" {{ '971545889192' == $case->whatsapp_number ? ' selected' : '' }}>
-                                        971545889192 Dubai
+                                    <option value="971502609192" {{ '971502609192' == $case->whatsapp_number ? ' selected' : '' }}>
+                                        971502609192 Dubai
                                     </option>
                                 </select>
                             </div>

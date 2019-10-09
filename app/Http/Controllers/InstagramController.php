@@ -40,7 +40,6 @@ class InstagramController extends Controller
         $this->instagram = $instagram;
         $this->facebook = $facebook;
         $this->messages = $messages;
-
     }
 
     /**

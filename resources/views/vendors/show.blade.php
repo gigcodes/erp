@@ -54,6 +54,9 @@
     <li>
       <a href="#agents-tab" data-toggle="tab">Agents</a>
     </li>
+    <li>
+      <a href="#email-tab" data-toggle="tab" data-vendorid="{{ $vendor->id }}" data-type="inbox">Emails</a>
+    </li>
   </ul>
 </div>
 
@@ -106,7 +109,7 @@
               <select name="whatsapp_number" id="vendor_whatsapp_number" class="form-control input-sm">
                 <option value>Whatsapp Number</option>
                 <option value="919004780634" {{ '919004780634' == $vendor->whatsapp_number ? ' selected' : '' }}>919004780634 Indian</option>
-                <option value="971545889192" {{ '971545889192' == $vendor->whatsapp_number ? ' selected' : '' }}>971545889192 Dubai</option>
+                <option value="971502609192" {{ '971502609192' == $vendor->whatsapp_number ? ' selected' : '' }}>971502609192 Dubai</option>
               </select>
             </div>
 
@@ -197,6 +200,7 @@
 
       @include('vendors.partials.agent-modals')
 
+
       <div class="tab-pane mt-3" id="agents-tab">
         <button type="button" class="btn btn-xs btn-secondary mb-3 create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $vendor->id }}">Add Agent</button>
 
@@ -263,14 +267,14 @@
         </div>
       </div>
 
-      {{-- <div class="tab-pane mt-3" id="email-tab">
+      <div class="tab-pane mt-3" id="email-tab">
         <div id="exTab3" class="mb-3">
           <ul class="nav nav-tabs">
             <li class="active">
-              <a href="#email-inbox" data-toggle="tab" id="email-inbox-tab" data-supplierid="{{ $supplier->id }}" data-type="inbox">Inbox</a>
+              <a href="#email-inbox" data-toggle="tab" id="email-inbox-tab" data-vendorid="{{ $vendor->id }}" data-type="inbox">Inbox</a>
             </li>
             <li>
-              <a href="#email-sent" data-toggle="tab" id="email-sent-tab" data-supplierid="{{ $supplier->id }}" data-type="sent">Sent</a>
+              <a href="#email-sent" data-toggle="tab" id="email-sent-tab" data-vendorid="{{ $vendor->id }}" data-type="sent">Sent</a>
             </li>
             <li class="nav-item ml-auto">
               <button type="button" class="btn btn-image" data-toggle="modal" data-target="#emailSendModal"><img src="{{ asset('images/filled-sent.png') }}" /></button>
@@ -281,7 +285,7 @@
         <div id="email-container">
           @include('purchase.partials.email')
         </div>
-      </div> --}}
+      </div>
     </div>
   </div>
 
@@ -546,6 +550,7 @@
 </div>
 
 {{-- @include('suppliers.partials.modal-email') --}}
+@include('vendors.partials.modal-email')
 
 @include('customers.partials.modal-reply')
 
@@ -1577,5 +1582,30 @@
       $('#hideRemarksButton').on('click', function() {
         $('#remarks-container').toggleClass('hidden');
       });
+
+    $('a[href="#email-tab"], #email-inbox-tab, #email-sent-tab').on('click', function() {
+      var vendor_id = $(this).data('vendorid');
+      var type = $(this).data('type');
+
+      $.ajax({
+        url: "{{ route('vendor.email.inbox') }}",
+        type: "GET",
+        data: {
+          vendor_id: vendor_id,
+          type: type
+        },
+        beforeSend: function() {
+          $('#email-tab #email-container .card').html('Loading emails');
+        }
+      }).done(function(response) {
+        console.log(response);
+        $('#email-tab #email-container').html(response.emails);
+      }).fail(function(response) {
+        $('#email-tab #email-container .card').html();
+
+        alert('Could not fetch emails');
+        console.log(response);
+      });
+    });
   </script>
 @endsection
