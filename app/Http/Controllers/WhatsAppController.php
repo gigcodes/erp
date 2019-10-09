@@ -2956,7 +2956,7 @@ class WhatsAppController extends FindByNumberController
 
     public function sendToAll(Request $request, $validate = true)
     {
-        if ($validate != 'false') {
+        if ($validate) {
             $this->validate($request, [
                 // 'message'         => 'required_without:images,linked_images',
                 // 'images'          => 'required_without:message|mimetypes:image/jpeg,image/png',
@@ -3028,10 +3028,6 @@ class WhatsAppController extends FindByNumberController
 
             if ($request->clothing_size != '') {
                 $data = $data->where('clothing_size', $request->clothing_size);
-            }
-
-            if ($request->customer_id != '') {
-                $data = $data->where('id', $request->customer_id);
             }
 
             $data = $data->get()->groupBy('whatsapp_number');
@@ -3146,10 +3142,6 @@ class WhatsAppController extends FindByNumberController
                     $now->addMinutes($minutes);
                 }
             }
-        }
-
-        if ($request->ajax()) {
-            return response()->json(['success' => 'You have successfully attached images']);
         }
 
         return redirect()->route('broadcast.images')->with('success', 'Messages are being sent in the background!');

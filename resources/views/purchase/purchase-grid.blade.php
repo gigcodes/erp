@@ -362,15 +362,12 @@
                 <div class="col-lg-6">
                   <form method="POST" id="attachImageForm">
                     @csrf
-                    <input type="hidden" name="sending_time" value="{{date('Y-m-d m:i:s')}}"/>
                     <input type="hidden" name="images" id="images" value="">
                     <input type="hidden" name="image" value="">
                     <input type="hidden" name="screenshot_path" value="">
                     <textarea name="message" placeholder="Message" class="form-control" ></textarea>
                     <input type="hidden" name="customer_id" value="" class="customer_id">
-                    <input type="hidden" name="status" value="">
-                    <input type="hidden" name="frequency" value="1">
-                    <input type="hidden" name="moduletype" value="customers">
+                    <input type="hidden" name="status" value="1">
                 </form>
                 </div>
                 <div class="col-lg-12">
@@ -544,10 +541,10 @@
 
               $.ajax({
                 method:'post',
-                url: "{{ route('customer.whatsapp.send.all', 'false') }}",
+                url: "{{ route('whatsapp.send', 'customer') }}",
                 data: $('#attachImageForm').serialize()
             }).done(function (data) {
-                alert('Messages are being sent in the background!');
+                alert('You have successfully send message!');
                 $('#alternative_offers').modal('hide');
             }).fail(function () {
                 alert('Error searching for products');
