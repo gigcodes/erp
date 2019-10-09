@@ -204,7 +204,9 @@
                           {{ $order_product->size }}
                         </td>
                         <td>
-                          <button type="submit" class="btn btn-secondary alternative_offers" data-brand="{{$product['brand_id']}}" data-category="{{$product['category']}}" data-price="{{$product['order_price']}}" data-customer_id="{{$product['customer_id']}}">Alternative Offers</button>
+                          @if ( isset($order_product->order->customer) )
+                            <button type="submit" class="btn btn-secondary alternative_offers" data-brand="{{$product['brand_id']}}" data-category="{{$product['category']}}" data-price="{{$product['order_price']}}" data-customer_id="{{$order_product->order->customer->id}}">Alternative Offers</button>
+                          @endif
                         </td>
                     </tr>
                     @endforeach
