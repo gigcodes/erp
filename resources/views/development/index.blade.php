@@ -50,6 +50,7 @@
                     </form>
                 </div>
             @endcan
+            <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Task </a>
         </div>
     </div>
 
@@ -139,7 +140,7 @@
             <div class="tab-content">
                 <div id="pending" class="tab-pane fade in active">
                     <div class="panel-group" style="margin-top: 10px;">
-                        <div class="panel panel-default">
+                        <div class="panel panel-default" style="display: none;">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
                                     <a data-toggle="collapse" href="#collapse1">
@@ -1261,6 +1262,27 @@
         $(document).ready(function () {
             $('.select2').select2({
                 tags: true
+            });
+        });
+
+
+        //Popup for add new task
+        $(document).on('click', '#newTaskModalBtn', function () {
+            if ($("#newTaskModal").length > 0) {
+                $("#newTaskModal").remove();
+            }
+
+            $.ajax({
+                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                type: 'GET',
+                dataType: "JSON",
+                success: function (resp) {
+                    console.log(resp);
+                    if(resp.status == 'ok') {
+                        $("body").append(resp.html);
+                        $('#newTaskModal').modal('show');
+                    }
+                }
             });
         });
 
