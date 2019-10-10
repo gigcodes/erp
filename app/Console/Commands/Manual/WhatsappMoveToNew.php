@@ -44,9 +44,16 @@ class WhatsappMoveToNew extends Command
     {
         // Set number to change
         $number = '91915273148%';
-        $newNumber = '971562744570';
-        $days = 30;
-        $message = "Greetings from Solo Luxury  , we have moved our customer service to Dubai and you will receive all further messages from our Dubai number , in case you have sent any messages to us in the last 6  hours please resend it  , so that we can respond to it as some messages may have been missed out .";
+
+        // Settings
+        $newNumber = [
+            '971547763482', // 04
+            '971545889192',
+            '971562744570' // 06
+        ];
+        $message = "Greetings from Solo Luxury , our offices have moved to Dubai , and this is our new whats app number , Best Wishes - Solo Luxury "; // MESSAGE FOR ACTIVE CUSTOMERS OVER 60 DAYS
+        $days = 365;
+        $maxPerNumber = 10;
 
         // Query to find all customers of $number
         $sql = "
@@ -61,31 +68,45 @@ class WhatsappMoveToNew extends Command
                     FROM
                         customers c
                     WHERE
-                        c.whatsapp_number LIKE '" . $number . "' AND 
+                        c.whatsapp_number LIKE '" . $number . "' AND
                         do_not_disturb=0 AND
-                        is_blocked=0                
-                ) AND 
-                number IS NOT NULL AND 
-                whatsapp_number LIKE '" . $number . "' AND
+                        is_blocked=0
+                ) AND
+                number IS NOT NULL AND
                 created_at > DATE_SUB(NOW(), INTERVAL " . $days . " DAY)
+            LIMIT
+                0," . count($newNumber) * $maxPerNumber . "
         ";
+        // echo $sql;
         $rs = DB::select(DB::raw($sql));
+
+        // Set current number
+        $currentNewNumber = $newNumber[ 0 ];
+
+        // Set count to 0
+        $count = 0;
+        $arrCount = 0;
 
         // Loop over customers
         if ($rs !== null) {
             foreach ($rs as $result) {
                 // Find customer
                 $customer = Customer::find($result->customer_id);
-                $customer->whatsapp_number = $newNumber;
+//                $customer = Customer::find(44); // For testing
+                $customer->whatsapp_number = $currentNewNumber;
                 $customer->save();
+
+                // Output customer information
+                echo $customer->id . ' ' . $customer->phone . "\n";
 
                 // Send messages
                 $params = [
                     'number' => null,
                     'user_id' => 6,
                     'approved' => 1,
-                    'status' => 1,
+                    'status' => 8,
                     'customer_id' => $result->customer_id,
+                    // 'customer_id' => 44, // FOR TESTING
                     'message' => $message
                 ];
                 $chat_message = ChatMessage::create($params);
@@ -94,7 +115,21 @@ class WhatsappMoveToNew extends Command
                 $myRequest = new Request();
                 $myRequest->setMethod('POST');
                 $myRequest->request->add(['messageId' => $chat_message->id]);
+                echo " ... SENDING from " . $currentNewNumber . "\n";
                 app(WhatsAppController::class)->approveMessage('customer', $myRequest);
+
+                // Check if we have reached the max
+                $count++;
+                if ($count == 10 && $count < (count($newNumber) * $maxPerNumber)) {
+                    // Update array counter
+                    $arrCount++;
+
+                    // Set counter to 0
+                    $count = 0;
+
+                    // Set current new number
+                    $currentNewNumber = $newNumber[ $arrCount ];
+                }
             }
         }
     }

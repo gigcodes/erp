@@ -332,6 +332,8 @@
                                                     <a class="dropdown-item" href="{{ route('productselection.create') }}">Add New</a>
                                                 @endif
                                                 <a class="dropdown-item" href="{{ url('/excel-importer') }}">Excel Import </a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/mapping') }}">Add Mapping For Master </a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/tools-brand') }}">Add Mapping For Excel</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -359,7 +361,8 @@
                                                 @endif
                                                 @if(auth()->user()->isAdmin())
                                                     <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
-
+                                                    <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=2">Listings awaiting scraping</a>
+                                                    <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=13">Listings unable to scrape</a>
                                                     <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
                                                     <a class="dropdown-item" href="{{ action('AttributeReplacementController@index') }}">Attribute Replacement</a>
 
@@ -412,19 +415,15 @@
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ url('scrap/statistics') }}">Statistics</a>
+                                                <a class="dropdown-item" href="{{ action('CategoryController@brandMinMaxPricing') }}">Min/Max Pricing</a>
+                                                <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
+                                                <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>SKU<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('sku-format.index') }}">SKU Format</a>
-                                            </ul>
-                                        </li>
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Sub Category Scraping<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
-                                                <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
                                             </ul>
                                         </li>
                                     </ul>
@@ -957,6 +956,9 @@
                                                 <a class="dropdown-item" href="{{ url('page-notes') }}">Page Notes</a>
                                             </li>
 
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
+                                            </li>
 
                                         </ul>
                                     </li>
@@ -1011,6 +1013,11 @@
                                         <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
                                     </li>
 
+                                    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 65 || Auth::id() == 90)
+                                        <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
+                                        <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
+                                        <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
+                                    @endif
 
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
@@ -1215,6 +1222,13 @@
                         <label for="note">Notes:</label>
                         <textarea class="form-control" name="note" id="note"></textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="category_id">Category:</label>
+                        <?php
+                            $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
+                        ?>
+                        {!! Form::select('category_id', ['' => "-- select --"] + $category, null, ['class'=>'form-control', 'id'=> 'category_id']) !!}
+                    </div>
                     <button type="button" class="btn btn-secondary ml-3 save-user-notes">Submit</button>
                 </form>
                 <table class="table table-fixed-page-notes page-notes-header-fixed" style="min-width: 402px;">
@@ -1222,6 +1236,7 @@
                     <tr>
                         <th class="col-xs-1" scope="col">#</th>
                         <th class="col-xs-3" scope="col">Note</th>
+                        <th class="col-xs-3" scope="col">Category</th>
                         <th class="col-xs-2" scope="col">Created By</th>
                         <th class="col-xs-3" scope="col">Created At</th>
                     </tr>
@@ -1302,6 +1317,7 @@
             data: {
                 _token: window.token,
                 note: $form.find("#note").val(),
+                category_id: $form.find("#category_id").val(),
                 url: "<?php echo request()->url() ?>"
             },
             dataType: "json",
@@ -1311,6 +1327,7 @@
                     var listOfN = "<tr>";
                     listOfN += "<td scope='row'>" + data.notes.id + "</td>";
                     listOfN += "<td>" + data.notes.note + "</td>";
+                    listOfN += "<td>" + data.notes.category_name + "</td>";
                     listOfN += "<td>" + data.notes.name + "</td>";
                     listOfN += "<td>" + data.notes.created_at + "</td>";
                     listOfN += "</tr>";
@@ -1337,6 +1354,7 @@
                         listOfN += "<tr>";
                         listOfN += "<td scope='row'>" + v.id + "</td>";
                         listOfN += "<td>" + v.note + "</td>";
+                        listOfN += "<td>" + v.category_name + "</td>";
                         listOfN += "<td>" + v.name + "</td>";
                         listOfN += "<td>" + v.created_at + "</td>";
                         listOfN += "</tr>";
@@ -1371,35 +1389,36 @@
     //     }
     // });
     @if (Auth::check())
-    $(document).ready(function(){
-       var url = window.location.href;
-       var user_id = {{ Auth::id() }};
-      user_name = "{{ Auth::user()->name }}";
-      $.ajax({
-                type: "POST",
-                url: "/api/userLogs",
-                data: {"_token": "{{ csrf_token() }}","url": url ,"user_id" : user_id , "user_name" : user_name },
-                dataType: "json",
-                success: function(message) {
-                }
-            });
-       });
+    $(document).ready(function () {
+        var url = window.location.href;
+        var user_id = {{ Auth::id() }};
+        user_name = "{{ Auth::user()->name }}";
+        $.ajax({
+            type: "POST",
+            url: "/api/userLogs",
+            data: {"_token": "{{ csrf_token() }}", "url": url, "user_id": user_id, "user_name": user_name},
+            dataType: "json",
+            success: function (message) {
+            }
+        });
+    });
     @endif
 </script>
-{{--  <script src="{{ asset('js/tracker.js') }}"></script>--}}
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
+@if ( !empty($_SERVER['HTTP_HOST']) && !stristr($_SERVER['HTTP_HOST'], '.mac') )
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
 
-    function gtag() {
-        dataLayer.push(arguments);
-    }
+        function gtag() {
+            dataLayer.push(arguments);
+        }
 
-    gtag('js', new Date());
+        gtag('js', new Date());
+        gtag('config', 'UA-147736165-1');
+    </script>
+@endif
 
-    gtag('config', 'UA-147736165-1');
-</script>
 </body>
 
 </html>

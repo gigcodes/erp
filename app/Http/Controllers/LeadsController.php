@@ -99,6 +99,18 @@ class LeadsController extends Controller
             $rating = $request->rating;
         }
 
+        $category = request()->get("multi_category",null);
+
+        if(!is_null($category) && $category != '' && $category != 1) {
+            $leads->where('multi_category', 'LIKE', '%"'.$category.'"%');
+        }
+
+        $status = request()->get("status",null);
+
+        if(!is_null($status) && $status != '') {
+            $leads->where('status', '=', $status);
+        }
+
         if (helpers::getadminorsupervisor()) {
             if ($sortby != 'communication') {
                 $leads = $leads->orderBy($sortby, $orderby);
@@ -157,7 +169,11 @@ class LeadsController extends Controller
             return response()->json(['html' => $html]);
         }
 
-        return view('leads.index', compact('leads', 'leads_array', 'term', 'orderby', 'brand', 'rating', 'type'))
+        $category_select = Category::attr(['name' => 'multi_category', 'class' => 'form-control', 'id' => 'multi_category'])->selected()->renderAsDropdown();
+        $status = array_flip((New status)->all());
+
+
+        return view('leads.index', compact('leads', 'leads_array', 'term', 'orderby', 'brand', 'rating', 'type','category_select','status'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
 
     }
@@ -281,7 +297,7 @@ class LeadsController extends Controller
                     "category_id"       => $product->category,
                     "color"             => $product->color,
                     "size"              => $product->size_value,
-                    "lead_status_id"    => 1   
+                    "lead_status_id"    => 1
                 ]);
 
                 if ($request->hasfile('image')) {
@@ -308,7 +324,7 @@ class LeadsController extends Controller
             }
         }
 
-        
+
 
 
         // if(!empty($request->input('assigned_user'))){
@@ -561,7 +577,7 @@ class LeadsController extends Controller
             'number' => null,
             'user_id' => Auth::id() ?? 6,
             'approved' => 0,
-            'status' => 1,
+            'status' => 8,
         ];
 
         $customer = Customer::find($request->customer_id);
@@ -822,7 +838,7 @@ class LeadsController extends Controller
     public function erpLeadsEdit()
     {
         $id = request()->get("id",0);
-        $erpLeads = \App\ErpLeads::where("id",$id)->first();    
+        $erpLeads = \App\ErpLeads::where("id",$id)->first();
         if($erpLeads) {
             $customerList = [$erpLeads->customer_id => $erpLeads->customer->name];//\App\Customer::pluck("name","id")->toArray();
             $brands = Brand::pluck("name","id")->toArray();
@@ -838,11 +854,11 @@ class LeadsController extends Controller
     {
         $id = request()->get("id",0);
         $productId =  request()->get("product_id",0);
-        
+
         $customer = \App\Customer::where("id",request()->get("customer_id",0))->first();
         if(!$customer) {
             return response()->json(["code"=> 0 , "data" => [], "message" => "Please select valid customer"]);
-        }    
+        }
 
         $product = \App\Product::where("id",$productId)->first();
         $productId = null;

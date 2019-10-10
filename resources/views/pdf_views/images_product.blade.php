@@ -3,8 +3,9 @@
     <title>Images</title>
     <style>
         body {
-            background: #eeeeee;
+            background: #F4E7DF;
         }
+
         * {
             padding: 0;
             margin: 0
@@ -17,20 +18,34 @@
 
         .row {
             display: block;
+            max-width: 90%;
+            max-height: 90%;
         }
 
         .box_0 {
-            width: 75%;
+<<<<<<< HEAD
+            width: 99%;
+=======
+            width: 70%;
+>>>>>>> remotes/origin/master
             display: block;
             border-radius: 10px;
             margin: 0 auto 5px;
+            margin-top: 10px;
         }
 
         .box_1 {
-            width: 75%;
+            width: 99%;
             display: block;
             border-radius: 10px;
             margin: 0 auto 5px;
+            margin-top: 10px;
+        }
+
+        img {
+            margin-top: 100px;
+            max-width: 800px;
+            max-height: 800px;
         }
     </style>
 </head>
@@ -40,30 +55,34 @@
         @php $key = 0 @endphp
         <div class="row">
             @foreach($subMedias as $subMedia)
+                @php $first = false @endphp
                 <div class="box_{{$key}}">
-                    <img src="{{ $subMedia->getAbsolutePath() }}" alt="Image" style="width: 100%; border-bottom: 10px solid #cccccc">
+                    <img src="{{ $subMedia->getAbsolutePath() }}" alt="Image" style="width: 100%; border: 1px solid #cccccc">
                     <?php
-                        $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
-                        if ($mediable) {
-                            $product_id = $mediable->mediable_id;
-                            $product = App\Product::find($product_id);
-                        } else {
-                            $product = null;
-                        }
+                    $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
+                    if ($mediable) {
+                        $product_id = $mediable->mediable_id;
+                        $product = App\Product::find($product_id);
+                    } else {
+                        $product = null;
+                    }
                     ?>
                     @if($product)
-                        <div style="padding: 10px; text-align: justify">
+                        <div style="margin-top: -40px;  margin-left: 10px; position: relative; text-align: justify">
                             <p><strong>{{ $product->name }}</strong></p>
                             @if($product->brands)
                                 <p style="color: #1a60aa"><strong>{{ $product->brands->name }}</strong></p>
                             @endif
+                            <p><strong>Price: </strong> <span style="text-decoration: line-through">Rs. {{ $product->price_inr }}</span> Rs. {{ $product->price_special }}</p>
                             <p><strong>Code: </strong> {{ $product->sku }}</p>
-                            @if($product->lmeasurement)
-                                <p><strong>Dimension: </strong> {{ $product->lmeasurement }} x {{ $product->heasurement }} x {{ $product->dmeasurement }}</p>
+                            @if($product->lmeasurement && $product->hmeasurement && $product->dmeasurement)
+                                <p><strong>Dimension: </strong> {{ \App\Helpers\ProductHelper::getMeasurements($product) }}</p>
                             @endif
                         </div>
                     @else
-                        <strong>Details Unavailable</strong>
+                        <div style="margin-top: -40px; margin-left: 10px; position: relative; text-align: justify">
+                            <strong>Details Unavailable</strong>
+                        </div>
                     @endif
                 </div>
                 @php $key++ @endphp

@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\DocumentReciever;
 use App\Console\Commands\DoubleFProductDetailScraper;
 use App\Console\Commands\DoubleFScraper;
 use App\Console\Commands\EnrichWiseProducts;
@@ -49,6 +50,7 @@ use App\Console\Commands\DeleteWiseProducts;
 use App\Console\Commands\UpdateWiseProducts;
 use App\Console\Commands\UpdateWiseCategory;
 use App\Console\Commands\UpdateDoubleProducts;
+
 
 use App\Console\Commands\SendHourlyReports;
 use App\Console\Commands\RunMessageQueue;
@@ -146,8 +148,8 @@ class Kernel extends ConsoleKernel
         SendReminderToSupplierIfTheyHaventReplied::class,
         SendReminderToVendorIfTheyHaventReplied::class,
         SendReminderToDubbizlesIfTheyHaventReplied::class,
-        UpdateShoeAndClothingSizeFromChatMessages::class
-
+        UpdateShoeAndClothingSizeFromChatMessages::class,
+        DocumentReciever::class,
     ];
 
     /**
@@ -169,6 +171,9 @@ class Kernel extends ConsoleKernel
 
         //This will run every  five minutes checking and making keyword-customer relationship...
         $schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();
+
+        //This will run every fifteen minutes checking if new mail is recieved for email importer...
+        $schedule->command('excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
 
         //Flag customer if they have a complaint
         $schedule->command('flag:customers-with-complaints')->daily();
@@ -265,7 +270,7 @@ class Kernel extends ConsoleKernel
         // Fetches Emails
         $schedule->command('fetch:emails')->everyFifteenMinutes();
         $schedule->command('check:emails-errors')->dailyAt('03:00')->timezone('Asia/Kolkata');
-
+        $schedule->command('document:email')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         $schedule->command('send:daily-planner-report')->dailyAt('08:00')->timezone('Asia/Kolkata');
         $schedule->command('send:daily-planner-report')->dailyAt('22:00')->timezone('Asia/Kolkata');
         $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');

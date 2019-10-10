@@ -2,9 +2,11 @@
 
 namespace App;
 
+use App\SupplierCategoryCount;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Nestable\NestableTrait;
+
 
 class Category extends Model
 {
@@ -208,6 +210,97 @@ class Category extends Model
 
         // Return reverse array
         return array_reverse( $categoryTree );
+    }
+
+    public static function getCroppingGridImageByCategoryId($categoryId)
+    {
+        $imagesForGrid = [
+            'Shoes' => 'shoes_grid.png',
+            'Backpacks' => 'Backpack.png',
+            'Bags' => 'Backpack.png',
+            'Beach' => 'Backpack.png',
+            'Travel' => 'Backpack.png',
+            'Travel Bag' => 'Backpack.png',
+            'Travel Bags' => 'Backpack.png',
+            'Belt' => 'belt.png',
+            'Belts' => 'belt.png',
+            'Clothing' => 'Clothing.png',
+            'Skirts' => 'Clothing.png',
+            'Pullovers' => 'Clothing.png',
+            'Shirt' => 'Clothing.png',
+            'Dresses' => 'Clothing.png',
+            'Kaftan' => 'Clothing.png',
+            'Tops' => 'Clothing.png',
+            'Jumpers & Jump Suits' => 'Clothing.png',
+            'Pant' => 'Clothing.png',
+            'Pants' => 'Clothing.png',
+            'Dress' => 'Clothing.png',
+            'Sweatshirt/s & Hoodies' => 'Clothing.png',
+            'Shirts' => 'Clothing.png',
+            'Denim' => 'Clothing.png',
+            'Sweat Pants' => 'Clothing.png',
+            'T-Shirts' => 'Clothing.png',
+            'Sweater' => 'Clothing.png',
+            'Sweaters' => 'Clothing.png',
+            'Clothings' => 'Clothing.png',
+            'Coats & Jackets' => 'Clothing.png',
+            'Tie & Bow Ties' => 'Bow.png',
+            'Clutches' => 'Clutch.png',
+            'Clutches & Slings' => 'Clutch.png',
+            'Document Holder' => 'Clutch.png',
+            'Clutch Bags' => 'Clutch.png',
+            'Crossbody Bag' => 'Clutch.png',
+            'Wristlets' => 'Clutch.png',
+            'Crossbody Bags' => 'Clutch.png',
+            'Make-Up Bags' => 'Clutch.png',
+            'Belt Bag' => 'Clutch.png',
+            'Belt Bags' => 'Clutch.png',
+            'Hair Accessories' => 'Hair_accessories.png',
+            'Beanies & Caps' => 'Hair_accessories.png',
+            'Handbags' => 'Handbag.png',
+            'Duffle Bags' => 'Handbag.png',
+            'Laptop Bag' => 'Handbag.png',
+            'Bucket Bags' => 'Handbag.png',
+            'Laptop Bags' => 'Handbag.png',
+            'Jewelry' => 'Jewellery.png',
+            'Shoulder Bags' => 'Shoulder_bag.png',
+            'Sunglasses & Frames' => 'Sunglasses.png',
+            'Gloves' => 'Sunglasses.png', //need to be made for gloves
+            'Tote Bags' => 'Tote.png',
+            'Wallet' => 'Wallet.png',
+            'Wallets & Cardholder' => 'Wallet.png',
+            'Wallets & Cardholders' => 'Wallet.png',
+            'Key Pouches' => 'Wallet.png',
+            'Key Pouch' => 'Wallet.png',
+            'Coin Case / Purse' => 'Wallet.png',
+            'Shawls And Scarves' => 'Shawl.png',
+            'Shawls And Scarve' => 'Shawl.png',
+            'Scarves & Wraps' => 'Shawl.png',
+            'Key Rings & Chains' => 'Keychains.png',
+            'Key Rings & Chain' => 'Keychains.png',
+            'Watches' => 'Keychains.png',
+            'Watch' => 'Keychains.png',
+        ];
+
+        $category = Category::find($categoryId);
+        if ( isset($category->title) ) {
+            $catName = $category->title;
+
+            if (array_key_exists($catName, $imagesForGrid)) {
+                return $imagesForGrid[ $catName ];
+            }
+
+            if ($category->parent_id > 1) {
+                $category = Category::find($category->parent_id);
+                return $imagesForGrid[ trim($category->title) ] ?? '';
+            }
+        }
+
+        return '';
+    }
+
+    public function suppliercategorycount(){
+        return $this->hasOne(SupplierCategoryCount::class,'category_id','id');
     }
 
 }
