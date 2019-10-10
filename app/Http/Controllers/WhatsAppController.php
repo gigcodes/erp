@@ -2073,7 +2073,7 @@ class WhatsAppController extends FindByNumberController
 
         if ($request->images) {
             $imagesDecoded = json_decode($request->images);
-            if (count($imagesDecoded) >= 1) {
+            if (count($imagesDecoded) >= 10) {
 
                 $temp_chat_message = ChatMessage::create($data);
                 foreach ($imagesDecoded as $image) {
@@ -2086,20 +2086,24 @@ class WhatsAppController extends FindByNumberController
                 if ($context == 'customer') {
                     $fn = '_product';
                 }
-                $medias = Media::whereIn('id', $imagesDecoded)->get();
-                $pdfView = view('pdf_views.images' . $fn, compact('medias'));
-                /*$pdf = new Dompdf();
-                $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
-                $pdf->loadHtml($pdfView);*/
-                $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
-                //$pdf->render();
                 
-                \PDF::loadHTML($pdfView)->setPaper('a4')->setOrientation('landscape')->setOption('margin-bottom', 0)->save($fileName);
+                $folder = "temppdf_view_".time();
 
-                //File::put($fileName, $pdf->output());
+                $medias = Media::whereIn('id', $imagesDecoded)->get();
+                $pdfView = view('pdf_views.images' . $fn, compact('medias','folder'));
+                $pdf = new Dompdf();
+                $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
+                $pdf->loadHtml($pdfView);
+                $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
+                $pdf->render();
+
+                File::put($fileName, $pdf->output());
+                if (strpos($folder, 'temppdf_view_') !== false) {
+                    File::deleteDirectory(public_path('uploads/'.$folder));
+                }
+
                 $media = MediaUploader::fromSource($fileName)->upload();
                 $chat_message->attachMedia($media, 'gallery');
-                die;
             } else {
                 foreach (array_unique($imagesDecoded) as $image) {
                     $media = Media::find($image);
