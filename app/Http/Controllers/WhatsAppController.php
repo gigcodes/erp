@@ -976,8 +976,8 @@ class WhatsAppController extends FindByNumberController
     {
         $data = $request->json()->all();
 
-        file_put_contents(__DIR__ . "/webhook.txt", json_encode($data));
-        file_put_contents(__DIR__ . "/test_aayo.txt", json_encode($data), FILE_APPEND);
+//        file_put_contents(__DIR__ . "/webhook.txt", json_encode($data));
+//        file_put_contents(__DIR__ . "/test_aayo.txt", json_encode($data), FILE_APPEND);
 
         // $to = str_replace('+', '', $data['data']['toNumber']);
         if (!array_key_exists('messages', $data)) {
@@ -1033,7 +1033,7 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'media_url' ] = $media->getUrl();
 
             } catch (\Exception $exception) {
-                file_put_contents(__DIR__ . "/test_aayo.txt", $exception->getMessage());
+//                file_put_contents(__DIR__ . "/test_aayo.txt", $exception->getMessage());
             }
 
         } else {
