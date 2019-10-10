@@ -74,8 +74,6 @@ class WhatsappMoveToNew extends Command
                 ) AND
                 number IS NOT NULL AND
                 created_at > DATE_SUB(NOW(), INTERVAL " . $days . " DAY)
-            LIMIT
-                0," . count($newNumber) * $maxPerNumber . "
         ";
         // echo $sql;
         $rs = DB::select(DB::raw($sql));
@@ -120,12 +118,14 @@ class WhatsappMoveToNew extends Command
 
                 // Check if we have reached the max
                 $count++;
-                if ($count == 10) {
+                if ($count % $maxPerNumber == 0) {
                     // Update array counter
                     $arrCount++;
 
-                    // Set counter to 0
-                    $count = 0;
+                    // Count is numbers times max per number?
+                    if ($count == ($maxPerNumber * count($newNumber))) {
+                        exit("DONE");
+                    }
 
                     // Set current new number
                     $currentNewNumber = $newNumber[ $arrCount ];
