@@ -406,16 +406,19 @@ class PurchaseController extends Controller
 
 
       $new_orders = [];
+      $includedOrders = [];
       foreach ($orders as $order) {
         array_push($new_orders, $order['id']);
+        array_push($includedOrders, $order['order_id']);
       }
 
-      $products = Product::with(['orderproducts' => function($query) use ($page,$not_include_products) {
+      $products = Product::with(['orderproducts' => function($query) use ($page,$not_include_products,$includedOrders) {
         if($page != 'ordered') {
             $query->whereNotIn("id",$not_include_products);
         }
-        $query->with(['order' => function($q){
+        $query->with(['order' => function($q) use($includedOrders){
             $q->with("customer");
+            $q->whereIn("id",array_unique($includedOrders));
         }]);
       }, 'purchases', 'suppliers','brands'])->whereIn('id', $new_orders);
 
@@ -473,7 +476,7 @@ class PurchaseController extends Controller
 	    }
 
       $new_products = [];
-      $products = $products->select(['id', 'sku', 'supplier', 'brand'])->get()->sortBy('supplier');
+      $products = $products->select(['id', 'sku', 'supplier', 'brand', 'category'])->get()->sortBy('supplier');
       $count = 0;
 
       foreach($products as $key => $product) {
@@ -511,6 +514,8 @@ class PurchaseController extends Controller
         $new_products[$count]['supplier_list'] = $supplier_list;
         $new_products[$count]['single_supplier'] = $single_supplier;
         $new_products[$count]['brand'] = $product->brands ? $product->brands->name : 'No Brand';
+        $new_products[$count]['brand_id'] = $product->brands ? $product->brands->id : '';
+        $new_products[$count]['category'] = $product->category;
         $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
         $new_products[$count]['abs_img_url'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
         $new_products[$count]['customer_id'] = !empty($product->orderproducts->first()->order) ? ( !empty($product->orderproducts->first()->order->customer) ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
@@ -576,6 +581,7 @@ class PurchaseController extends Controller
         ]);
 
        //echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';//exit; 
+      $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control'])->selected(1)->renderAsDropdown();
 
       return view('purchase.purchase-grid')->with([
         'products'      => $new_products,
@@ -587,7 +593,8 @@ class PurchaseController extends Controller
         'status'        => $status,
         'supplier'      => $supplier,
         'brand'         => $brand,
-        'page'          => $page
+        'page'          => $page,
+        'category_selection' => $category_selection,
       ]);
     }
 

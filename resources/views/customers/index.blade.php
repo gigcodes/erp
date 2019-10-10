@@ -362,19 +362,19 @@
 
 
                             @if (array_key_exists($customer->id, $orders))
-                                @if (count($orders[$customer->id]) >= 1)
-                                    <?php
-                                    $order = $orders[ $customer->id ][ 0 ];
-                                    ?>
-                                    <div>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Follow up for advance' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Follow up for advance" data-id="Follow up for advance" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #666666;"></span>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Advance received' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Advance received" data-id="Advance received" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #4c4c4c;"></span>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Delivered' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Delivered" data-id="Delivered" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #323232;"></span>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Cancel' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Cancel" data-id="Cancel" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #191919;"></span>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Product shiped to Client' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Product shiped to Client" data-id="Product shiped to Client" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #414a4c;"></span>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Refund to be processed' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Refund to be processed" data-id="Refund to be processed" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #CCCCCC;"></span>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Refund Credited' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Refund Credited" data-id="Refund Credited" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #95a5a6;"></span>
-                                    </div>
+                                @if(!empty($orders[$customer->id]))
+                                    @foreach($orders[$customer->id] as $customerOrder)
+                                        <div>
+                                            <a target="_blank" href="/order/{{ $customerOrder['id'] }}"><b>#{{ $customerOrder['id'] }}</b></a>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Follow up for advance' ? 'active-bullet-status' : '' }}"  title="Follow up for advance" data-id="Follow up for advance" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #666666;"></span>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Advance received' ? 'active-bullet-status' : '' }}"  title="Advance received" data-id="Advance received" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #4c4c4c;"></span>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Delivered' ? 'active-bullet-status' : '' }}"  title="Delivered" data-id="Delivered" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #323232;"></span>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Cancel' ? 'active-bullet-status' : '' }}"  title="Cancel" data-id="Cancel" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #191919;"></span>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Product shiped to Client' ? 'active-bullet-status' : '' }}"  title="Product shiped to Client" data-id="Product shiped to Client" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #414a4c;"></span>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Refund to be processed' ? 'active-bullet-status' : '' }}"  title="Refund to be processed" data-id="Refund to be processed" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #CCCCCC;"></span>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Refund Credited' ? 'active-bullet-status' : '' }}"  title="Refund Credited" data-id="Refund Credited" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #95a5a6;"></span>
+                                        </div>
+                                    @endforeach
                                 @endif
                             @endif
 
@@ -979,7 +979,6 @@
         $(document).on('click', '.change-order-status', function () {
             let orderId = $(this).attr('data-orderid');
             let status = $(this).attr('title');
-
             let url = '/order/' + orderId + '/changestatus';
 
             let thiss = $(this);
