@@ -418,6 +418,7 @@
                                                 <a class="dropdown-item" href="{{ action('CategoryController@brandMinMaxPricing') }}">Min/Max Pricing</a>
                                                 <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
                                                 <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
+                                                <a class="dropdown-item" href="{{ url('price-comparison-scraper') }}">Price comparison</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
