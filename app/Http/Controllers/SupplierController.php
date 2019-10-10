@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\ProductQuickshellGroup;
 
 class SupplierController extends Controller
 {
@@ -718,45 +719,115 @@ class SupplierController extends Controller
     }
 
     public function saveImage(Request $request){
-        //dd($request);
-        $images = $request->checkbox;
-        if($images) {
-            foreach ($images as $image) {
-                $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->orderBy('id', 'desc')->first();
-                if ($product) {
-                    preg_match('/QUICKSELL(.*)/', $product->sku, $output_array);
-                    if ($number = $output_array) {
-                        $number = $output_array[1];
-                        $number++;
-                    }
-                }else {
-                    $number = 1;
-                    }
+        // Only create Product
+       if($request->type == 1){
+           $images = $request->checkbox;
+           if($images) {
+               foreach ($images as $image) {
+                   //getting prodct
+                   $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->orderBy('id', 'desc')->first();
+                   if ($product != null) {
+                       preg_match('/QUICKSELL(.*)/', $product->sku, $output_array);
+                       if ($number = $output_array) {
+                           $number = $output_array[1];
+                           $number++;
+                       }
+                   }else {
+                       $number = 1;
+                   }
 
-                $res = new \stdClass();
-                $res->website = 'QUICKSELL';
-                $res->images = [$image];
-                $res->sku = 'QuickSell' . $number;
-                $res->original_sku = 'QUICKSELL' . $number;
-                $res->title = 'QUICKSELL' . $number;
-                $res->brand_id = 3;
-                $res->properties = array('composition' => '', 'measurement_size_type' => '', 'size' => '', 'color' => '');
-                $res->url = '';
-                $res->stock = 1;
-                $res->size = '';
-                $res->description = '';
-                $res->currency = '';
-                $res->price = 0;
-                $res->discounted_price = '';
-                $res->is_sale = 0;
-                $product = new Product();
-                $product->createProductByJson($res, 0);
+                   $res = new \stdClass();
+                   $res->website = 'QUICKSELL';
+                   $res->images = [$image];
+                   $res->sku = 'QuickSell' . $number;
+                   $res->original_sku = 'QUICKSELL' . $number;
+                   $res->title = 'QUICKSELL' . $number;
+                   $res->brand_id = 3;
+                   $res->properties = array('composition' => '', 'measurement_size_type' => '', 'size' => '', 'color' => '');
+                   $res->url = '';
+                   $res->stock = 1;
+                   $res->size = '';
+                   $res->description = '';
+                   $res->currency = '';
+                   $res->price = 0;
+                   $res->discounted_price = '';
+                   $res->is_sale = 0;
+                   $product = new Product();
+                   $product->createProductByJson($res, 0);
 
+               }
+               return redirect()->back()->withSuccess('You have successfully saved product(s)!');
+           }
+           return redirect()->back()->withSuccess('Please Select Image');
+       }else{
+           // Create Group ID with Product
+           $images = $request->checkbox;
+           if($images) {
+               // Loop Over Images
+               foreach ($images as $image) {
+                   //Getting the last created QUICKSHELL
+                   $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->orderBy('id', 'desc')->first();
+                   if ($product) {
+                       //Pregmatch to find product
+                       preg_match('/QUICKSELL(.*)/', $product->sku, $output_array);
+                       //getting output
+                       if ($number = $output_array) {
+                           $number = $output_array[1];
+                           //Increment the count
+                           $number++;
+                       }
+                   }else {
+                       $number = 1;
+                   }
+
+                   $res = new \stdClass();
+                   $res->website = 'QUICKSELL';
+                   $res->images = [$image];
+                   $res->sku = 'QuickSell' . $number;
+                   $res->original_sku = 'QUICKSELL' . $number;
+                   $res->title = 'QUICKSELL' . $number;
+                   $res->brand_id = 3;
+                   $res->properties = array('composition' => '', 'measurement_size_type' => '', 'size' => '', 'color' => '');
+                   $res->url = '';
+                   $res->stock = 1;
+                   $res->size = '';
+                   $res->description = '';
+                   $res->currency = '';
+                   $res->price = 0;
+                   $res->discounted_price = '';
+                   $res->is_sale = 0;
+                   $product = new Product();
+                   $product->createProductByJson($res, 0);
+                   // if Product is true
+                   if($product == true) {
+                       //Finding last created Product using sku
+                       $product_id = Product::where('sku', $res->sku)->first();
+                        if($product_id != null){
+                            $id = $product_id->id;
+                            //getting last group id
+                            $group_id = ProductQuickshellGroup::select('quicksell_group_id')->orderBy('id', 'desc')->first();
+                       if ($group_id != null) {
+                           $number = $group_id->quicksell_group_id;
+                          //Increment Group id
+                           $number++;
+                       } else {
+                           $number = 1;
+                       }
+                       $group = new ProductQuickshellGroup();
+                       $group->product_id = $id;
+                       $group->quicksell_group_id = $number;
+                       $group->save();
+
+                        }
+                      }
+                    }
+                    return redirect()->back()->withSuccess('You have successfully saved product(s)!');
+                }
+                    return redirect()->back()->withSuccess('Please Select Image');
             }
-            return redirect()->back()->withSuccess('You have successfully saved product(s)!');
-        }
-        return redirect()->back()->withSuccess('Please Select Image');
-    }
+       }
+
+
 
 
 }

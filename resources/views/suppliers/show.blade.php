@@ -407,7 +407,8 @@
       <div class="row">
         <form action="{{ route('supplier.image') }}" method="post">
           @csrf
-        <button type="submit" class="btn btn-xs btn-secondary">Save</button>
+        <button type="submit" class="btn btn-xs btn-secondary" value="1" name="type">Create Product</button>
+        <button type="submit" class="btn btn-xs btn-secondary" value="2" name="type">Create Product Group</button>
         <div class="col-12 my-3" id="message-wrapper">
             <div id="message-container"></div>
         </div>
@@ -2184,8 +2185,6 @@
             }
         });
     });
-
-    //
 
   </script>
 @endsection
