@@ -120,7 +120,7 @@ class WhatsappMoveToNew extends Command
 
                 // Check if we have reached the max
                 $count++;
-                if ($count == 10) {
+                if ($count == 10 && $count < (count($newNumber) * $maxPerNumber)) {
                     // Update array counter
                     $arrCount++;
 
