@@ -45,7 +45,7 @@
                             <p style="width:50%;display: inline-block;">
                                 <a href="{{ route('development.overview') }}?status={{$task->status}}">Back to {{$task->status}}</a>
                             </p>
-                            <p style="width:50%;display: inline-block; float:right;">
+                            <p style="width:50%;display: inline-block; float:right;display: none;">
                                 <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Task </a>
                             </p>
                             <h4 class="media-heading mb-0 mt-0">{{$task->task_type .'-'.$task->id}}
