@@ -462,7 +462,7 @@
                 type: "GET",
                 url: "{{ url('chat-messages') }}/vendor/" + vendor_id + "/loadMoreMessages",
                 data: {
-                    limit: 30
+                    limit: 1000
                 },
                 beforeSend: function () {
                     //$(thiss).text('Loading...');
@@ -470,10 +470,21 @@
             }).done(function (response) {
                 var li = '<div class="speech-wrapper">';
                 (response.messages).forEach(function (message) {
+                    // Set empty image var
+                    var media = '';
+
+                    // Check for media
+                    if ( message.media.length > 0 ) {
+                        for (i=0; i<message.media.length; i++) {
+                            media = '<a href="' + message.media[i] + '" target="_blank">link</a>';
+                        }
+                    }
+
+
                     if (message.inout == 'in' ) {
-                        li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0,19) + '</span></div><div class="bubble-arrow"></div></div>';
+                        li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0,19) + '</span></div><div class="bubble-arrow"></div></div>';
                     } else if (message.inout == 'out' ) {
-                        li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0,19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+                        li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + media + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0,19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
                     } else {
                         li += '<div>' + index + '</div>';
                     }
