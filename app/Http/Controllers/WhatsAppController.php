@@ -976,6 +976,8 @@ class WhatsAppController extends FindByNumberController
     {
         $data = $request->json()->all();
 
+        \Log::channel('chatapi')->debug(json_encode($data));
+
 //        file_put_contents(__DIR__ . "/webhook.txt", json_encode($data));
 //        file_put_contents(__DIR__ . "/test_aayo.txt", json_encode($data), FILE_APPEND);
 
