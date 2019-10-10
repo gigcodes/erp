@@ -75,7 +75,10 @@
         ],
         "psr-4": {
             "App\\": "app/"
-        }
+        },
+        "files" : [
+            "app/comman_functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
