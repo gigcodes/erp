@@ -826,8 +826,4 @@ class SupplierController extends Controller
                     return redirect()->back()->withSuccess('Please Select Image');
             }
        }
-
-
-
-
 }
