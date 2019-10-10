@@ -79,7 +79,7 @@ class VendorController extends Controller
                   (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
                   (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
 
-                  FROM (SELECT vendors.id, vendors.frequency, vendors.reminder_message, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.account_swift,
+                  FROM (SELECT vendors.id, vendors.frequency, vendors.is_blocked ,vendors.reminder_message, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.account_swift,
                   category_name,
                   chat_messages.message_id FROM vendors
 
@@ -650,5 +650,18 @@ class VendorController extends Controller
                 Email::create($params);
             }
         }
+    }
+    public function block(Request $request){
+        $vendor = Vendor::find($request->vendor_id);
+
+        if ($vendor->is_blocked == 0) {
+            $vendor->is_blocked = 1;
+        } else {
+            $vendor->is_blocked = 0;
+        }
+
+        $vendor->save();
+
+        return response()->json(['is_blocked' => $vendor->is_blocked]);
     }
 }

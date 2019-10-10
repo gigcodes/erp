@@ -77,7 +77,7 @@ class SupplierController extends Controller
         }
 
         $suppliers = DB::select('
-									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, suppliers.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, suppliers.inventory_lifetime,
+									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, suppliers.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, suppliers.inventory_lifetime,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -714,6 +714,20 @@ class SupplierController extends Controller
             SupplierBrandCount::destroy($id);
         }
         return 'Data Deleted';
+    }
+
+    public function block(Request $request){
+        $supplier = Supplier::find($request->supplier_id);
+
+        if ($supplier->is_blocked == 0) {
+            $supplier->is_blocked = 1;
+        } else {
+            $supplier->is_blocked = 0;
+        }
+
+        $supplier->save();
+
+        return response()->json(['is_blocked' => $supplier->is_blocked]);
     }
 
 

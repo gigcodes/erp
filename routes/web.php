@@ -672,7 +672,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::put('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendor.payments.update');
     Route::delete('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendor.payments.destroy');
     Route::resource('vendor', 'VendorController');
-
+    Route::post('vendot/block', 'VendorController@block')->name('vendor.block');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
     Route::resource('vendor_category', 'VendorCategoryController');
 
@@ -693,6 +693,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
     Route::resource('supplier', 'SupplierController');
+    Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
 
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
