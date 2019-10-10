@@ -5,7 +5,12 @@
         .users {
             display: none;
         }
+
     </style>
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+
 @endsection
 
 
@@ -15,20 +20,25 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Passwords Manager</h2>
             <div class="pull-left">
-              {{-- <form action="/order/" method="GET">
-                  <div class="form-group">
-                      <div class="row">
-                          <div class="col-md-12">
-                              <input name="term" type="text" class="form-control"
-                                     value="{{ isset($term) ? $term : '' }}"
-                                     placeholder="Search">
-                          </div>
-                          <div class="col-md-4">
-                              <button hidden type="submit" class="btn btn-primary">Submit</button>
-                          </div>
-                      </div>
-                  </div>
-              </form> --}}
+                <form action="{{ route('password.index') }}" method="GET" class="form-inline align-items-start">
+                    <div class="form-group mr-3 mb-3">
+                        <input name="term" type="text" class="form-control" id="product-search"
+                               value="{{ isset($term) ? $term : '' }}"
+                               placeholder="website , username, password">
+                    </div>
+                    <div class="form-group ml-3">
+                        <div class='input-group date' id='filter-date'>
+                            <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" />
+
+                            <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
+                        </div>
+                    </div>
+
+
+                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                </form>
             </div>
             <div class="pull-right">
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</a>
@@ -66,7 +76,18 @@
         </thead>
 
         <tbody>
+
+        @if($passwords->isEmpty())
+
+            <tr>
+                <td>
+                    No Result Found
+                </td>
+            </tr>
+        @else
+
           @foreach ($passwords as $password)
+
             <tr>
               <td>
                 {{ $password->website }}
@@ -79,12 +100,16 @@
                 <td><button onclick="changePassword({{ $password->id }})" class="btn btn-secondary btn-sm">Change</button>
                 <button onclick="getData({{ $password->id }})" class="btn btn-secondary btn-sm">History</button></td>
             </tr>
+
+
           @endforeach
+          {!! $passwords->appends(Request::except('page'))->links() !!}
+          @endif
         </tbody>
       </table>
     </div>
 
-    {!! $passwords->appends(Request::except('page'))->links() !!}
+
 
     <div id="passwordCreateModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -136,11 +161,9 @@
               </div>
               <div class="form-group">
                     <strong>Registered With:</strong>
-                    <input type="text" name="registered_with" class="form-control" value="{{ $password->registered_with }}" required>
+                    <input type="text" name="registered_with" class="form-control"  required>
 
-                    @if ($errors->has('password'))
-                        <div class="alert alert-danger" >{{$errors->first('password')}}</div>
-                    @endif
+
               </div>
 
             </div>
@@ -153,6 +176,10 @@
 
       </div>
     </div>
+    @if($passwords->isEmpty())
+
+
+    @else
     @foreach($passwords as $password)
     <div id="passwordEditModal{{$password->id}}" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -231,6 +258,7 @@
         </div>
     </div>
     @endforeach
+    @endif
     <div id="getHistory" class="modal fade" role="dialog">
         <div class="modal-dialog">
 
@@ -272,7 +300,20 @@
 
 
 @section('scripts')
-<script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+
+        $(document).ready(function() {
+            $(".select-multiple").multiselect();
+            $(".select-multiple2").select2();
+        });
+
+        $('#filter-date').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+
+
     function changePassword(password_id) {
         $("#passwordEditModal"+ password_id +"" ).modal('show');
     }
