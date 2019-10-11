@@ -85,44 +85,46 @@ class WhatsappMoveToNew extends Command
         if ($rs !== null) {
             foreach ($rs as $result) {
                 $customer = Customer::find($result->id);
-                $customer->whatsapp_number = $currentNewNumber;
-                $customer->save();
+                if ( $customer !== null ) {
+                    $customer->whatsapp_number = $currentNewNumber;
+                    $customer->save();
 
-                // Output customer information
-                echo $customer->id . ' ' . $customer->phone . "\n";
+                    // Output customer information
+                    echo $customer->id . ' ' . $customer->phone . "\n";
 
-                // Send messages
-                $params = [
-                    'number' => null,
-                    'user_id' => 6,
-                    'approved' => 1,
-                    'status' => 8,
-                    'customer_id' => $result->id,
-                    // 'customer_id' => 44, // FOR TESTING
-                    'message' => $message
-                ];
-                $chat_message = ChatMessage::create($params);
+                    // Send messages
+                    $params = [
+                        'number' => null,
+                        'user_id' => 6,
+                        'approved' => 1,
+                        'status' => 8,
+                        'customer_id' => $result->id,
+                        // 'customer_id' => 44, // FOR TESTING
+                        'message' => $message
+                    ];
+                    $chat_message = ChatMessage::create($params);
 
-                // Approve message
-                $myRequest = new Request();
-                $myRequest->setMethod('POST');
-                $myRequest->request->add(['messageId' => $chat_message->id]);
-                echo " ... SENDING from " . $currentNewNumber . "\n";
-                app(WhatsAppController::class)->approveMessage('customer', $myRequest);
+                    // Approve message
+                    $myRequest = new Request();
+                    $myRequest->setMethod('POST');
+                    $myRequest->request->add(['messageId' => $chat_message->id]);
+                    echo " ... SENDING from " . $currentNewNumber . "\n";
+                    app(WhatsAppController::class)->approveMessage('customer', $myRequest);
 
-                // Check if we have reached the max
-                $count++;
-                if ($count % $maxPerNumber == 0) {
-                    // Update array counter
-                    $arrCount++;
+                    // Check if we have reached the max
+                    $count++;
+                    if ($count % $maxPerNumber == 0) {
+                        // Update array counter
+                        $arrCount++;
 
-                    // Count is numbers times max per number?
-                    if ($count == ($maxPerNumber * count($newNumber))) {
-                        exit("DONE");
+                        // Count is numbers times max per number?
+                        if ($count == ($maxPerNumber * count($newNumber))) {
+                            exit("DONE");
+                        }
+
+                        // Set current new number
+                        $currentNewNumber = $newNumber[ $arrCount ];
                     }
-
-                    // Set current new number
-                    $currentNewNumber = $newNumber[ $arrCount ];
                 }
             }
         }

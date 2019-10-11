@@ -1148,7 +1148,7 @@ class WhatsAppController extends FindByNumberController
                     $user = User::find($category->user_id);
                     $sendResult = $this->sendWithThirdApi($user->phone, null, 'V-' . $vendor->id . '-(' . $vendor->name . ')=> ' . $params[ 'message' ]);
                     if ( $sendResult ) {
-                        $message->unique_id = $sendResult->id ?? '';
+                        $message->unique_id = $sendResult['id'] ?? '';
                         $message->save();
                     }
                 }
@@ -2707,7 +2707,7 @@ class WhatsAppController extends FindByNumberController
 
                 $sendResult = $this->sendWithThirdApi($message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, null, $additional_message->id);
                 if ( $sendResult ) {
-                    $additional_message->unique_id = $sendResult->id ?? '';
+                    $additional_message->unique_id = $sendResult['id'] ?? '';
                     $additional_message->save();
                 }
 
