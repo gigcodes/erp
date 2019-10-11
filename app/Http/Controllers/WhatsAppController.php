@@ -1147,8 +1147,8 @@ class WhatsAppController extends FindByNumberController
                 if ($category && $category->user_id && $params[ 'message' ]) {
                     $user = User::find($category->user_id);
                     $sendResult = $this->sendWithThirdApi($user->phone, null, 'V-' . $vendor->id . '-(' . $vendor->name . ')=> ' . $params[ 'message' ]);
-                    if ( $sendResult ) {
-                        $message->unique_id = $sendResult['id'] ?? '';
+                    if ($sendResult) {
+                        $message->unique_id = $sendResult[ 'id' ] ?? '';
                         $message->save();
                     }
                 }
@@ -2706,8 +2706,8 @@ class WhatsAppController extends FindByNumberController
                 $additional_message = ChatMessage::create($params);
 
                 $sendResult = $this->sendWithThirdApi($message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, null, $additional_message->id);
-                if ( $sendResult ) {
-                    $additional_message->unique_id = $sendResult['id'] ?? '';
+                if ($sendResult) {
+                    $additional_message->unique_id = $sendResult[ 'id' ] ?? '';
                     $additional_message->save();
                 }
 
@@ -2832,42 +2832,34 @@ class WhatsAppController extends FindByNumberController
         if ($message->message != '') {
 
             if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger') {
-                $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
+                $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
             } else {
-//                if ( $whatsapp_number == '919152731483' ) {
-//                $data = $this->sendWithNewApi($phone, $whatsapp_number, $message->message, null, $message->id);
-                $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, $message->message, null, $message->id);
-//                } else {
-//               $this->sendWithWhatsApp($phone, $whatsapp_number, $message->message, FALSE, $message->id);
-//               $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, $message->message, NULL, $message->id);
-//                    $data = $this->sendWithNewApi( $phone, $whatsapp_number, $message->message, NULL, $message->id );
+                $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, $message->message, null, $message->id);
+            }
 
-
-//                }
+            // Store send result
+            if ($sendResult) {
+                $additional_message->unique_id = $sendResult[ 'id' ] ?? '';
+                $additional_message->save();
             }
         }
 
         $sendMediaFile = true;
         if ($message->media_url != '') {
-
-
-            // if ($whatsapp_number == '919152731483') {
-            if (1 == 2) {
-                $data = $this->sendWithNewApi($phone, $whatsapp_number, null, $message->media_url, $message->id);
-//              $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
-
-            } else {
-//             $this->sendWithWhatsApp($phone, $whatsapp_number, $message->media_url, FALSE, $message->id);
-                $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, null, $message->media_url);
-                // check here that image media url is temp created if so we can delete that
-                if (strpos($message->media_url, 'instant_message_') !== false) {
-                    $sendMediaFile = false;
-                    $path = parse_url($message->media_url, PHP_URL_PATH);
-                    if (file_exists(public_path($path)) && strpos($message->media_url, $path) !== false) {
-                        @unlink(public_path($path));
-                        $message->media_url = null;
-                        $message->save();
-                    }
+            $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, null, $message->media_url);
+            // Store send result
+            if ($sendResult) {
+                $additional_message->unique_id = $sendResult[ 'id' ] ?? '';
+                $additional_message->save();
+            }
+            // check here that image media url is temp created if so we can delete that
+            if (strpos($message->media_url, 'instant_message_') !== false) {
+                $sendMediaFile = false;
+                $path = parse_url($message->media_url, PHP_URL_PATH);
+                if (file_exists(public_path($path)) && strpos($message->media_url, $path) !== false) {
+                    @unlink(public_path($path));
+                    $message->media_url = null;
+                    $message->save();
                 }
             }
         }
@@ -2890,22 +2882,13 @@ class WhatsAppController extends FindByNumberController
                         $count = 0;
                     }
 
-//              if ($whatsapp_number == '919152731483') {
-                    if (1 == 2) {
-//                  $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
-
-                        SendImagesWithWhatsapp::dispatchNow($phone, $whatsapp_number, $image->getUrl(), $message->id);
-                    } else {
-//                  $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
-                        $this->sendWithThirdApi($phone, $whatsapp_number ?? 919152731483, null, $send);
+                    $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number ?? 919152731483, null, $send);
+                    // Store send result
+                    if ( $sendResult ) {
+                        $additional_message->unique_id = $sendResult['id'] ?? '';
+                        $additional_message->save();
                     }
-
-
                 }
-                // else if ($whatsapp_number == '919152731483') {
-                // } else {
-                //   $this->sendWithWhatsApp($phone, $whatsapp_number, $send, FALSE, $message->id);
-                // }
             }
         }
 
