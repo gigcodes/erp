@@ -487,7 +487,7 @@
                                 imgSrc = message.media[i];
                             } else if (imageType == 'pdf') {
                                 imgSrc = '/images/icon-pdf.svg';
-                            } else if (imageType == 'zip' || image_type == 'tgz' || image_type == '.gz') {
+                            } else if (imageType == 'zip' || imageType == 'tgz' || imageType == '.gz') {
                                 imgSrc = '/images/icon-zip.svg';
                             } else {
                                 imgSrc = '/images/icon-file-unknown.svg';
