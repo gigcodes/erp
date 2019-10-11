@@ -980,6 +980,11 @@ class WhatsAppController extends FindByNumberController
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
 
+        // Check for ack
+        if (array_key_exists('ack', $data)) {
+            ChatMessage::handleChatApiAck($data);
+        }
+
         // Check for messages
         if (!array_key_exists('messages', $data)) {
             return response('ACK', 200);
@@ -1499,17 +1504,6 @@ class WhatsAppController extends FindByNumberController
         if ($request->erpUser) {
             $messages = $messages->whereNull('task_id');
         }
-        // ->join(DB::raw('(SELECT mediables.media_id, mediables.mediable_type, mediables.mediable_id FROM `mediables`) as mediables'), 'chat_messages.id', '=', 'mediables.mediable_id', 'RIGHT')
-        // ->selectRaw('id, customer_id, number, user_id, assigned_to, approved, status, sent, created_at, media_url, message, mediables.media_id, mediables.mediable_id')->where('customer_id', $request->customerId)->latest();
-
-
-        // foreach ($messages->get() as $message) {
-        //   foreach ($message->media_id as $med) {
-        //     dump($med);
-        //   }
-        // }
-
-        // dd('stap');
 
         // IS IT NECESSARY ?
         if ($request->get("elapse")) {
@@ -2303,17 +2297,6 @@ class WhatsAppController extends FindByNumberController
         }
 
         $messages = ChatMessage::select(['id', "$column", 'number', 'user_id', 'assigned_to', 'approved', 'status', 'sent', 'resent', 'created_at', 'media_url', 'message'])->where($column, $column_value)->latest();
-        // ->join(DB::raw('(SELECT mediables.media_id, mediables.mediable_type, mediables.mediable_id FROM `mediables`) as mediables'), 'chat_messages.id', '=', 'mediables.mediable_id', 'RIGHT')
-        // ->selectRaw('id, customer_id, number, user_id, assigned_to, approved, status, sent, created_at, media_url, message, mediables.media_id, mediables.mediable_id')->where('customer_id', $request->customerId)->latest();
-
-
-        // foreach ($messages->get() as $message) {
-        //   foreach ($message->media_id as $med) {
-        //     dump($med);
-        //   }
-        // }
-
-        // dd('stap');
 
         // IS IT NECESSARY ?
         if ($request->get("elapse")) {
@@ -2392,41 +2375,6 @@ class WhatsAppController extends FindByNumberController
 
             $result[] = array_merge($params, $messageParams);
         }
-
-        // $messages = Message::where('moduleid','=', $id)->where('moduletype','=', $model_type)->orderBy("created_at", 'desc')->get();
-        // foreach ($messages->toArray() as $key => $message) {
-        //   $images_array = [];
-        //   if ($images = $messages[$key]->getMedia(config('constants.media_tags'))) {
-        //     foreach ($images as $image) {
-        //       $temp_image = [
-        //         'key'          => $image->getKey(),
-        //         'image'        => $image->getUrl(),
-        //         'product_id'   => '',
-        //         'special_price'=> '',
-        //         'size'         => ''
-        //       ];
-        //
-        //       $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
-        //                           $q->where('media.id', $image->getKey());
-        //                         })->first();
-        //       if ($product_image) {
-        //         $temp_image['product_id'] = $product_image->id;
-        //         $temp_image['special_price'] = $product_image->price_special;
-        //
-        //         if ($product_image->size != NULL) {
-        //           $temp_image['size'] = $product_image->size;
-        //         } else {
-        //           $temp_image['size'] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
-        //         }
-        //       }
-        //
-        //       array_push($images_array, $temp_image);
-        //     }
-        //   }
-        //
-        //   $message['images'] = $images_array;
-        //   array_push($result, $message);
-        // }
 
         $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -2617,52 +2565,6 @@ class WhatsAppController extends FindByNumberController
             $result[] = array_merge($params, $messageParams);
         }
 
-        // $messages = Message::select(['id', 'customer_id', 'userid', 'status', 'assigned_to', 'body', 'created_at'])->where('customer_id', $request->customerId)->latest()->get();
-        //
-        // foreach ($messages->toArray() as $key => $message) {
-        //   $images_array = [];
-        //
-        //   if ($images = $messages[$key]->getMedia(config('constants.media_tags'))) {
-        //     foreach ($images as $image) {
-        //       $temp_image = [
-        //       'key'          => $image->getKey(),
-        //       'image'        => $image->getUrl(),
-        //       'product_id'   => '',
-        //       'special_price'=> '',
-        //       'size'         => ''
-        //       ];
-        //
-        //       $product_image = Product::with('Media')->whereHas('Media', function($q) use($image) {
-        //         $q->where('media.id', $image->getKey());
-        //       })->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
-        //
-        //       if ($product_image) {
-        //         $temp_image['product_id'] = $product_image->id;
-        //         $temp_image['special_price'] = $product_image->price_special;
-        //
-        //         $string = $product_image->supplier;
-        //         $expr = '/(?<=\s|^)[a-z]/i';
-        //         preg_match_all($expr, $string, $matches);
-        //         $supplier_initials = implode('', $matches[0]);
-        //         $temp_image['supplier_initials'] = strtoupper($supplier_initials);
-        //
-        //         if ($product_image->size != NULL) {
-        //           $temp_image['size'] = $product_image->size;
-        //         } else {
-        //           $temp_image['size'] = (string) $product_image->lmeasurement . ', ' . (string) $product_image->hmeasurement . ', ' . (string) $product_image->dmeasurement;
-        //         }
-        //       }
-        //
-        //       array_push($images_array, $temp_image);
-        //     }
-        //   }
-        //
-        //   $message['images'] = $images_array;
-        //   array_push($result, $message);
-        // }
-        // $messages = $messages->paginate(24);
-        // dd('stap');
-
         $result = array_values(collect($result)->sortBy('created_at')->reverse()->toArray());
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = 10000;
@@ -2732,11 +2634,10 @@ class WhatsAppController extends FindByNumberController
 
                     $sendResult = $this->sendWithThirdApi($customer->phone, $default_api->number, $additional_message->message, null, $additional_message->id);
                     // Store send result
-                    if ( $sendResult ) {
-                        $additional_message->unique_id = $sendResult['id'] ?? '';
+                    if ($sendResult) {
+                        $additional_message->unique_id = $sendResult[ 'id' ] ?? '';
                         $additional_message->save();
                     }
-
 
 
                     sleep(5);
@@ -2837,8 +2738,8 @@ class WhatsAppController extends FindByNumberController
             }
 
             // Store send result
-            if ( $sendResult ) {
-                $message->unique_id = $sendResult['id'] ?? '';
+            if ($sendResult) {
+                $message->unique_id = $sendResult[ 'id' ] ?? '';
                 $message->save();
             }
         }
@@ -2847,8 +2748,8 @@ class WhatsAppController extends FindByNumberController
         if ($message->media_url != '') {
             $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, null, $message->media_url);
             // Store send result
-            if ( $sendResult ) {
-                $message->unique_id = $sendResult['id'] ?? '';
+            if ($sendResult) {
+                $message->unique_id = $sendResult[ 'id' ] ?? '';
                 $message->save();
             }
             // check here that image media url is temp created if so we can delete that
@@ -2872,8 +2773,8 @@ class WhatsAppController extends FindByNumberController
                 if ($context == 'task' || $context == 'vendor' || $context == 'supplier') {
                     $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, null, $send);
                     // Store send result
-                    if ( $sendResult ) {
-                        $message->unique_id = $sendResult['id'] ?? '';
+                    if ($sendResult) {
+                        $message->unique_id = $sendResult[ 'id' ] ?? '';
                         $message->save();
                     }
                 } else {
@@ -2888,8 +2789,8 @@ class WhatsAppController extends FindByNumberController
 
                     $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number ?? 919152731483, null, $send);
                     // Store send result
-                    if ( $sendResult ) {
-                        $message->unique_id = $sendResult['id'] ?? '';
+                    if ($sendResult) {
+                        $message->unique_id = $sendResult[ 'id' ] ?? '';
                         $message->save();
                     }
                 }

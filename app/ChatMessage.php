@@ -16,8 +16,31 @@ class ChatMessage extends Model
         "approved" => "boolean"
     );
 
-    public static function markMessageDelivered() {
-        //
+    public static function handleChatApiAck($json)
+    {
+        // Loop over ack
+        if (isset($json[ 'ack' ])) {
+            foreach ($json[ 'ack' ] as $chatApiAck) {
+                // Find message
+                $chatMessage = self::where('unique_id', $chatApiAck['id']);
+
+                // Chat Message found and status is set
+                if ( $chatMessage && isset($chatApiAck['status'])) {
+                    // Set delivered
+                    if ( $chatApiAck['status'] == 'delivered' ) {
+                        $chatMessage->is_delivered = 1;
+                        $chatMessage->save();
+                    }
+
+                    // Set views
+                    if ( $chatApiAck['status'] == 'viewed' ) {
+                        $chatMessage->is_delivered = 1;
+                        $chatMessage->is_read = 1;
+                        $chatMessage->save();
+                    }
+                }
+            }
+        }
     }
 
     public function customer()
