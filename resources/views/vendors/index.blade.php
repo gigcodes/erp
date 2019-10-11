@@ -474,7 +474,7 @@
                     var media = '';
                     var imgSrc = '';
 
-                    // Check for media
+                    // Check for attached media (ERP attached media)
                     if (message.media.length > 0) {
                         for (i = 0; i < message.media.length; i++) {
                             // Set image type
@@ -501,6 +501,11 @@
                         if ( media != '' ) {
                             media = '<div style="max-width: 100%;"><div class="row">' + media + '</div></div>';
                         }
+                    }
+
+                    // Check for media URL
+                    if ( message.media_url != '' ) {
+                        media = '<a href="' + message.media_url + '" target="_blank"><img src="' + message.media_url + '" style="max-width: 100%;"></a>' + media;
                     }
 
 
