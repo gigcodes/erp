@@ -3599,7 +3599,7 @@ class WhatsAppController extends FindByNumberController
             }
         }
 
-        return json_decode($result);
+        return $result;
     }
 
     private function getWhatsAppNumberConfig($target)
