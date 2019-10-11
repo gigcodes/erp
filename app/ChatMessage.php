@@ -22,7 +22,7 @@ class ChatMessage extends Model
         if (isset($json[ 'ack' ])) {
             foreach ($json[ 'ack' ] as $chatApiAck) {
                 // Find message
-                $chatMessage = self::where('unique_id', $chatApiAck['id']);
+                $chatMessage = self::where('unique_id', $chatApiAck['id'])->first();
 
                 // Chat Message found and status is set
                 if ( $chatMessage && isset($chatApiAck['status'])) {
