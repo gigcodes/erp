@@ -498,13 +498,13 @@
                         }
 
                         // Do we have media?
-                        if ( media != '' ) {
+                        if (media != '') {
                             media = '<div style="max-width: 100%;"><div class="row">' + media + '</div></div>';
                         }
                     }
 
                     // Check for media URL
-                    if ( message.media_url != '' ) {
+                    if (message.media_url != '' && media.url != null) {
                         media = '<a href="' + message.media_url + '" target="_blank"><img src="' + message.media_url + '" style="max-width: 100%;"></a>' + media;
                     }
 
