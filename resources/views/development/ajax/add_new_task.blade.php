@@ -4,9 +4,9 @@
 
         <!-- Modal content-->
         <div class="modal-content">
-            <div class="modal-header">
+            <div  style="padding: 10px;border-bottom: 1px solid #e5e5e5;">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">Add Development Task</h4>
             </div>
             <form action="{{ route('development.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -15,8 +15,8 @@
                         <div class="form-group">
                             <strong>User:</strong>
                             <select class="form-control" name="user_id" required>
-                                @foreach ($users as $id => $name)
-                                    <option value="{{ $id }}" {{ old('user_id') == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                @foreach ($users as $key => $obj)
+                                    <option value="{{ $obj->id }}" {{ old('user_id') == $obj->id ? 'selected' : '' }}>{{ $obj->name }}</option>
                                 @endforeach
                             </select>
 

@@ -900,7 +900,8 @@ class DevelopmentController extends Controller
     {
         $status = "ok";
         // Get all developers
-        $users = Helpers::getUserArray(User::role('Developer')->get());
+        //$users = Helpers::getUserArray(User::role('Developer')->get());
+        $users = Helpers::getUsersByRoleName('Developer');
         // Get all task types
         $tasksTypes = TaskTypes::all();
         $moduleNames = [];

@@ -504,6 +504,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/{id}/status', 'DevelopmentController@updateStatus')->name('development.update.status');
     Route::post('development/{id}/updateTask', 'DevelopmentController@updateTask')->name('development.update.task');
     Route::post('development/{id}/updatePriority', 'DevelopmentController@updatePriority')->name('development.update.priority');
+    Route::post('development/upload-attachments', 'DevelopmentController@uploadAttachDocuments')->name('development.upload.files');
 
     Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
