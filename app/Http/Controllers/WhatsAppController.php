@@ -978,7 +978,7 @@ class WhatsAppController extends FindByNumberController
         $data = $request->json()->all();
 
         // Log incoming webhook
-        \Log::channel('chatapi')->debug(json_encode($data));
+        \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
 
         // Check for ack - TODO: Do this once we start logging the unique IDs
 
@@ -3619,7 +3619,7 @@ class WhatsAppController extends FindByNumberController
             return false;
         } else {
             // Log curl response
-            \Log::channel('chatapi')->debug($response);
+            \Log::channel('chatapi')->debug('cUrl:' . $response);
 
             // Json decode response into result
             $result = json_decode($response, true);
