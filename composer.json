@@ -77,7 +77,7 @@
             "App\\": "app/"
         },
         "files" : [
-            "app/comman_functions.php"
+            "app/Helpers/common_functions.php"
         ]
     },
     "autoload-dev": {
