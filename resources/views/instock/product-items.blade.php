@@ -31,6 +31,9 @@
       <p>Size : {{ $product->size}}</p>
       <p>Price : {{ $product->price_special }}</p>
 
+      <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-instruction"><img src="/images/support.png"></button>
+      <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-instruction-history"><img src="/images/remark.png"></button>
+
       <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
 
       @if ($type == 'private_viewing')
