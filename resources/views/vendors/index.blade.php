@@ -504,7 +504,7 @@
                     }
 
                     // Check for media URL
-                    if (message.media_url.indexOf('http') > 0) {
+                    if (message.media_url != null) {
                         media = '<a href="' + message.media_url + '" target="_blank"><img src="' + message.media_url + '" style="max-width: 100%;"></a>' + media;
                     }
 
