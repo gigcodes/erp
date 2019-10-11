@@ -30,7 +30,7 @@ function createProductTextImage($path,$uploadPath = "", $text = "", $color = "54
     $name = round(microtime(true) * 1000) . "_watermarked";
 
     if (!file_exists(public_path('uploads'.DIRECTORY_SEPARATOR.$uploadPath.DIRECTORY_SEPARATOR))) {
-        mkdir(public_path('uploads'.DIRECTORY_SEPARATOR.$uploadPath.DIRECTORY_SEPARATOR), 666, true);
+        mkdir(public_path('uploads'.DIRECTORY_SEPARATOR.$uploadPath.DIRECTORY_SEPARATOR), 0666, true);
     }
 
     $path = 'uploads'.DIRECTORY_SEPARATOR.$uploadPath.DIRECTORY_SEPARATOR. $name . '.jpg';
