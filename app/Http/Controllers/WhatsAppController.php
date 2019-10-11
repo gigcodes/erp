@@ -1127,7 +1127,9 @@ class WhatsAppController extends FindByNumberController
                 $this->sendRealTime($message, 'supplier_' . $supplier->id, $client);
             }
 
+            // Check for vendor
             if ($vendor) {
+                // Set vendor_id param and remove others
                 $params[ 'erp_user' ] = null;
                 $params[ 'task_id' ] = null;
                 $params[ 'contact_id' ] = null;
@@ -1135,15 +1137,23 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'supplier_id' ] = null;
                 $params[ 'vendor_id' ] = $vendor->id;
 
+                // Create new message
                 $message = ChatMessage::create($params);
 
+                // Set vendor category
                 $category = $vendor->category;
 
+                // Send message if all required data is set
                 if ($category && $category->user_id && $params[ 'message' ]) {
                     $user = User::find($category->user_id);
-                    $this->sendWithThirdApi($user->phone, null, 'V-' . $vendor->id . '-(' . $vendor->name . ')=> ' . $params[ 'message' ]);
+                    $sendResult = $this->sendWithThirdApi($user->phone, null, 'V-' . $vendor->id . '-(' . $vendor->name . ')=> ' . $params[ 'message' ]);
+                    if ( $sendResult ) {
+                        $message->unique_id = $sendResult->id ?? '';
+                        $message->save();
+                    }
                 }
 
+                // Send realtime (???)
                 $this->sendRealTime($message, 'vendor_' . $vendor->id, $client);
             }
 
@@ -3592,7 +3602,7 @@ class WhatsAppController extends FindByNumberController
             }
         }
 
-        return $result;
+        return json_decode($result);
     }
 
     private function getWhatsAppNumberConfig($target)
