@@ -53,7 +53,7 @@ composer.lock
 
 /public/*.zip
 /public/*.pdf
+public/uploads
 public/uploads/*
-!public/uploads/.gitkeep
 public/zoom/*
 !public/zoom/.gitkeep
