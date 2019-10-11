@@ -237,7 +237,7 @@ class WhatsAppController extends FindByNumberController
                         $latest_broadcast_message = ChatMessage::where('customer_id', $customer->id)->where('created_at', '>', $two_hours)->where('status', 8)->orderBy('id', 'DESC')->first();
 
                         if ($latest_broadcast_message) {
-                            if (!$latest_broadcast_message->is_sent_broadcast_price()) {
+                            if (!$latest_broadcast_message->isSentBroadcastPrice()) {
                                 if ($latest_broadcast_message->hasMedia(config('constants.media_tags'))) {
                                     $selected_products = [];
 
@@ -751,7 +751,7 @@ class WhatsAppController extends FindByNumberController
                         $latest_broadcast_message = ChatMessage::where('customer_id', $customer->id)->where('created_at', '>', $two_hours)->where('status', 8)->latest()->first();
 
                         if ($latest_broadcast_message) {
-                            if (!$latest_broadcast_message->is_sent_broadcast_price()) {
+                            if (!$latest_broadcast_message->isSentBroadcastPrice()) {
                                 if ($latest_broadcast_message->hasMedia(config('constants.media_tags'))) {
                                     $selected_products = [];
 
@@ -974,12 +974,13 @@ class WhatsAppController extends FindByNumberController
 
     public function webhook(Request $request, GuzzleClient $client)
     {
+        // Get json object
         $data = $request->json()->all();
 
+        // Log incoming webhook
         \Log::channel('chatapi')->debug(json_encode($data));
 
-//        file_put_contents(__DIR__ . "/webhook.txt", json_encode($data));
-//        file_put_contents(__DIR__ . "/test_aayo.txt", json_encode($data), FILE_APPEND);
+        // Check for ack - TODO: Do this once we start logging the unique IDs
 
         // $to = str_replace('+', '', $data['data']['toNumber']);
         if (!array_key_exists('messages', $data)) {
@@ -3617,7 +3618,12 @@ class WhatsAppController extends FindByNumberController
             \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
             return false;
         } else {
+            // Log curl response
+            \Log::channel('chatapi')->debug($response);
+
+            // Json decode response into result
             $result = json_decode($response, true);
+
             // throw new \Exception("Something was wrong with message: " . $response);
             if (!is_array($result) || array_key_exists('sent', $result) && !$result[ 'sent' ]) {
                 // DON'T THROW EXCEPTION
