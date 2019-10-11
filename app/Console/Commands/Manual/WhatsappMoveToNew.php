@@ -52,28 +52,22 @@ class WhatsappMoveToNew extends Command
             '971562744570' // 06
         ];
         $message = "Greetings from Solo Luxury , our offices have moved to Dubai , and this is our new whats app number , Best Wishes - Solo Luxury "; // MESSAGE FOR ACTIVE CUSTOMERS OVER 60 DAYS
-        $days = 365;
         $maxPerNumber = 10;
 
         // Query to find all customers of $number
         $sql = "
             SELECT
-                DISTINCT(customer_id)
+                c.id
             FROM
-                chat_messages
+                customers c
             WHERE
-                customer_id IN (
-                    SELECT
-                        c.id
-                    FROM
-                        customers c
-                    WHERE
-                        c.whatsapp_number LIKE '" . $number . "' AND
-                        do_not_disturb=0 AND
-                        is_blocked=0
-                ) AND
-                number IS NOT NULL AND
-                created_at > DATE_SUB(NOW(), INTERVAL " . $days . " DAY)
+                c.whatsapp_number LIKE '" . $number . "' AND
+                do_not_disturb=0 AND
+                is_blocked=0
+            ORDER BY
+                RAND()
+            LIMIT
+                0," . (count($newNumber) * $maxPerNumber) . "
         ";
         // echo $sql;
         $rs = DB::select(DB::raw($sql));
