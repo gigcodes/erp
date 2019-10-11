@@ -472,19 +472,42 @@
                 (response.messages).forEach(function (message) {
                     // Set empty image var
                     var media = '';
+                    var imgSrc = '';
 
                     // Check for media
-                    if ( message.media.length > 0 ) {
-                        for (i=0; i<message.media.length; i++) {
-                            media = '<a href="' + message.media[i] + '" target="_blank">link</a>';
+                    if (message.media.length > 0) {
+                        for (i = 0; i < message.media.length; i++) {
+                            // Set image type
+                            var imageType = message.media[i].substr(-3).toLowerCase();
+                            if (imageType == 'jpg') {
+                                imgSrc = message.media[i];
+                            } else if (imageType == 'png') {
+                                imgSrc = message.media[i];
+                            } else if (imageType == 'gif') {
+                                imgSrc = message.media[i];
+                            } else if (imageType == 'pdf') {
+                                imgSrc = '/images/icon-pdf.svg';
+                            } else if (imageType == 'zip') {
+                                imgSrc = '/images/icon-zip.svg';
+                            }
+
+                            // Set media
+                            if (imgSrc != '') {
+                                media = media + '<div class="col-4"><a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a></div>';
+                            }
+                        }
+
+                        // Do we have media?
+                        if ( media != '' ) {
+                            media = '<div style="max-width: 100%;"><div class="row">' + media + '</div></div>';
                         }
                     }
 
 
-                    if (message.inout == 'in' ) {
-                        li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0,19) + '</span></div><div class="bubble-arrow"></div></div>';
-                    } else if (message.inout == 'out' ) {
-                        li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + media + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0,19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+                    if (message.inout == 'in') {
+                        li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+                    } else if (message.inout == 'out') {
+                        li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + media + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
                     } else {
                         li += '<div>' + index + '</div>';
                     }
