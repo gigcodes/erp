@@ -814,9 +814,9 @@ class DevelopmentController extends Controller
         // Get tasks
         $task = DeveloperTask::where('developer_tasks.id', $taskId)
             ->select('developer_tasks.*', 'task_types.name as task_type', 'users.name as username', 'u.name as reporter')
-            ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
-            ->join('users', 'users.id', '=', 'developer_tasks.user_id')
-            ->join('users AS u', 'u.id', '=', 'developer_tasks.created_by')
+            ->leftjoin('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
+            ->leftjoin('users', 'users.id', '=', 'developer_tasks.user_id')
+            ->leftjoin('users AS u', 'u.id', '=', 'developer_tasks.created_by')
             ->first();
 
         // Get subtasks
