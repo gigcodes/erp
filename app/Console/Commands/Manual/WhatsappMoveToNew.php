@@ -57,11 +57,13 @@ class WhatsappMoveToNew extends Command
         // Query to find all customers of $number
         $sql = "
             SELECT
-                c.id
+                *
             FROM
-                customers c
+                customers
             WHERE
-                c.whatsapp_number LIKE '" . $number . "' AND
+                whatsapp_number LIKE '" . $number . "' AND
+                phone IS NOT NULL AND
+                phone != '' AND
                 do_not_disturb=0 AND
                 is_blocked=0
             ORDER BY
