@@ -83,7 +83,7 @@ class WhatsappMoveToNew extends Command
         if ($rs !== null) {
             foreach ($rs as $result) {
                 // Find customer
-                $customer = Customer::find($result->customer_id);
+                $customer = Customer::find($result->id);
 //                $customer = Customer::find(44); // For testing
                 $customer->whatsapp_number = $currentNewNumber;
                 $customer->save();
