@@ -1001,6 +1001,7 @@ class WhatsAppController extends FindByNumberController
 
         $params = [
             'number' => $from,
+            'unique_id' => $data['messages'][0]['id'],
             'message' => '',
             'approved' => $data[ 'messages' ][ 0 ][ 'fromMe' ] ? 1 : 0,
             'status' => $data[ 'messages' ][ 0 ][ 'fromMe' ] ? 2 : 0
@@ -1009,20 +1010,8 @@ class WhatsAppController extends FindByNumberController
         if (filter_var($text, FILTER_VALIDATE_URL)) {
             $exploded = explode('//', $text);
             $http = array_shift($exploded);
-
             $formatted_url = $http . "//" . implode('/', $exploded);
-//        $formatted_url = str_replace_last('.jpeg', '.jpg', $formatted_url);
 
-
-            // $paths = explode("/", $text);
-            // $file = $paths[count($paths) - 1];
-            // $extension = explode(".", $file)[1];
-            // $fileName = uniqid(TRUE).".".$extension;
-            // $contents = file_get_contents($text);
-            // if (file_put_contents(implode(DIRECTORY_SEPARATOR, array(\Config::get("apiwha.media_path"), $fileName)), $contents ) ==  FALSE) {
-            //     return FALSE;
-            // }
-            // $url = implode("/", array( \Config::get("app.url"), "uploads", $fileName));
             $file_path = public_path() . '/uploads' . '/one.jpg';
             $params[ 'media_url' ] = '';
 
@@ -1036,26 +1025,12 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'media_url' ] = $media->getUrl();
 
             } catch (\Exception $exception) {
-//                file_put_contents(__DIR__ . "/test_aayo.txt", $exception->getMessage());
+                //
             }
 
         } else {
             $params[ 'message' ] = $text;
         }
-
-        // if ($data['messages'][0]['fromMe'] == false) {
-        // if ($data['data']['type'] == 'text') {
-
-        // }
-        // else if ($data['data']['type'] == 'image') {
-        //   $image_data = $data['data']['media']['preview']['image'];
-        //   $image_path = public_path() . '/uploads/temp_image.png';
-        //   $img = Image::make(base64_decode($image_data))->encode('jpeg')->save($image_path);
-        //
-        //   $media = MediaUploader::fromSource($image_path)->upload();
-        //
-        //   File::delete('uploads/temp_image.png');
-        // }
 
         if ($user) {
             // $instruction = Instruction::where('assigned_to', $user->id)->latest()->first();
