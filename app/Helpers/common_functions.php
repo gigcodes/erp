@@ -29,11 +29,11 @@ function createProductTextImage($path,$uploadPath = "", $text = "", $color = "54
 
     $name = round(microtime(true) * 1000) . "_watermarked";
 
-    if (!file_exists(public_path('uploads/'.$uploadPath.'/'))) {
-        mkdir(public_path('uploads/'.$uploadPath.'/'), 666, true);
+    if (!file_exists(public_path('uploads'.DIRECTORY_SEPARATOR.$uploadPath.DIRECTORY_SEPARATOR))) {
+        mkdir(public_path('uploads'.DIRECTORY_SEPARATOR.$uploadPath.DIRECTORY_SEPARATOR), 666, true);
     }
 
-    $path = 'uploads/'.$uploadPath.'/'. $name . '.jpg';
+    $path = 'uploads'.DIRECTORY_SEPARATOR.$uploadPath.DIRECTORY_SEPARATOR. $name . '.jpg';
 
     $img->save(public_path($path));
 
