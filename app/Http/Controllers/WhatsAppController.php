@@ -1037,6 +1037,7 @@ class WhatsAppController extends FindByNumberController
 
                         // Update media URL
                         $params[ 'media_url' ] = $media->getUrl();
+                        $params[ 'message' ] = $chatapiMessage[ 'caption' ] ?? '';
                     } catch (\Exception $exception) {
                         //
                     }
