@@ -2730,14 +2730,13 @@ class WhatsAppController extends FindByNumberController
 
                     $additional_message = ChatMessage::create($params);
 
-//                    if ( $default_api->number == '919152731483' ) {
-                    $data = $this->sendWithThirdApi($customer->phone, $default_api->number, $additional_message->message, null, $additional_message->id);
-//                    $data = $this->sendWithNewApi($customer->phone, $default_api->number, $additional_message->message, null, $additional_message->id);
-//                    } else {
-//                        $data = $this->sendWithNewApi( $customer->phone, $default_api->number, $additional_message->message, NULL, $additional_message->id );
+                    $sendResult = $this->sendWithThirdApi($customer->phone, $default_api->number, $additional_message->message, null, $additional_message->id);
+                    // Store send result
+                    if ( $sendResult ) {
+                        $additional_message->unique_id = $sendResult['id'] ?? '';
+                        $additional_message->save();
+                    }
 
-//                   $this->sendWithWhatsApp($customer->phone, $default_api->number, $additional_message->message, TRUE, $additional_message->id);
-//                    }
 
 
                     sleep(5);
@@ -2838,9 +2837,9 @@ class WhatsAppController extends FindByNumberController
             }
 
             // Store send result
-            if ($sendResult) {
-                $additional_message->unique_id = $sendResult[ 'id' ] ?? '';
-                $additional_message->save();
+            if ( $sendResult ) {
+                $message->unique_id = $sendResult['id'] ?? '';
+                $message->save();
             }
         }
 
@@ -2848,9 +2847,9 @@ class WhatsAppController extends FindByNumberController
         if ($message->media_url != '') {
             $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, null, $message->media_url);
             // Store send result
-            if ($sendResult) {
-                $additional_message->unique_id = $sendResult[ 'id' ] ?? '';
-                $additional_message->save();
+            if ( $sendResult ) {
+                $message->unique_id = $sendResult['id'] ?? '';
+                $message->save();
             }
             // check here that image media url is temp created if so we can delete that
             if (strpos($message->media_url, 'instant_message_') !== false) {
@@ -2871,7 +2870,12 @@ class WhatsAppController extends FindByNumberController
                 $send = str_replace(' ', '%20', $image->getUrl());
 
                 if ($context == 'task' || $context == 'vendor' || $context == 'supplier') {
-                    $this->sendWithThirdApi($phone, $whatsapp_number, null, $send);
+                    $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, null, $send);
+                    // Store send result
+                    if ( $sendResult ) {
+                        $message->unique_id = $sendResult['id'] ?? '';
+                        $message->save();
+                    }
                 } else {
                     // $data = $this->sendWithNewApi($phone, $whatsapp_number, NULL, $image->getUrl(), $message->id);
                     if ($count < 5) {
@@ -2885,8 +2889,8 @@ class WhatsAppController extends FindByNumberController
                     $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number ?? 919152731483, null, $send);
                     // Store send result
                     if ( $sendResult ) {
-                        $additional_message->unique_id = $sendResult['id'] ?? '';
-                        $additional_message->save();
+                        $message->unique_id = $sendResult['id'] ?? '';
+                        $message->save();
                     }
                 }
             }
