@@ -204,7 +204,11 @@
              $("#instruction-model").find(".modal-body").prepend('<div class="alert alert-danger" role="alert">'+errors+'</div>');
            }else if(data.code == 1) {
               instructionForm.find(".alert-danger").remove();
-              $("#instruction-model").modal("hide");
+              $("#instruction-model").find(".modal-body").prepend('<div class="alert alert-success" role="alert">Instruction created successfully</div>');
+              setTimeout(function(){ 
+                instructionForm.find(".alert-success").remove();
+                $("#instruction-model").modal("hide");
+              }, 3000);
            }
         }).fail(function() {
           
