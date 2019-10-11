@@ -1013,7 +1013,7 @@ class WhatsAppController extends FindByNumberController
                 'number' => $from,
                 'unique_id' => $chatapiMessage[ 'id' ],
                 'message' => '',
-                'media_url' => '',
+                'media_url' => null,
                 'approved' => $chatapiMessage[ 'fromMe' ] ? 1 : 0,
                 'status' => $chatapiMessage[ 'fromMe' ] ? 2 : 0
             ];
@@ -1152,7 +1152,7 @@ class WhatsAppController extends FindByNumberController
                 // Send message if all required data is set
                 if ($category && $category->user_id && $params[ 'message' ]) {
                     $user = User::find($category->user_id);
-                    $sendResult = $this->sendWithThirdApi($user->phone, null, 'V-' . $vendor->id . '-(' . $vendor->name . ')=> ' . $params[ 'message' ]);
+                    $sendResult = $this->sendWithThirdApi($user->phone, null, 'V-' . $vendor->id . '-(' . $vendor->name . ')=> ' . $params[ 'message' ], $params[ 'media_url' ]);
                     if ($sendResult) {
                         $message->unique_id = $sendResult[ 'id' ] ?? '';
                         $message->save();
@@ -3428,7 +3428,7 @@ class WhatsAppController extends FindByNumberController
             'phone' => $encodedNumber
         ];
 
-        if ($encodedText != null) {
+        if ($encodedText != null && $file == null) {
             $array[ 'body' ] = $encodedText;
             $link = 'sendMessage';
         } else {
@@ -3437,6 +3437,7 @@ class WhatsAppController extends FindByNumberController
             $array[ 'body' ] = $file;
             $array[ 'filename' ] = $filename;
             $link = 'sendFile';
+            $array['caption'] = $encodedText;
         }
 
 
