@@ -57,7 +57,7 @@ class WhatsappMoveToNew extends Command
         // Query to find all customers of $number
         $sql = "
             SELECT
-                *
+                id
             FROM
                 customers
             WHERE
@@ -84,9 +84,7 @@ class WhatsappMoveToNew extends Command
         // Loop over customers
         if ($rs !== null) {
             foreach ($rs as $result) {
-                // Find customer
                 $customer = Customer::find($result->id);
-//                $customer = Customer::find(44); // For testing
                 $customer->whatsapp_number = $currentNewNumber;
                 $customer->save();
 
