@@ -2705,14 +2705,11 @@ class WhatsAppController extends FindByNumberController
 
                 $additional_message = ChatMessage::create($params);
 
-//                if ( $customer->whatsapp_number == '919152731483' || $customer->whatsapp_number == '971562744570' ) {
-                $this->sendWithThirdApi($message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, null, $additional_message->id);
-
-                //$this->sendWithNewApi($message->customer->phone, $customer->whatsapp_number, $additional_message->message, null, $additional_message->id);
-//                } else {
-//               $this->sendWithThirdApi($message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, NULL, $additional_message->id);
-//                    $this->sendWithNewApi( $message->customer->phone, $customer->whatsapp_number, $additional_message->message, NULL, $additional_message->id );
-//                }
+                $sendResult = $this->sendWithThirdApi($message->customer->phone, $customer->whatsapp_number ?? $defCustomer, $additional_message->message, null, $additional_message->id);
+                if ( $sendResult ) {
+                    $additional_message->unique_id = $sendResult->id ?? '';
+                    $additional_message->save();
+                }
 
                 sleep(5);
             }
