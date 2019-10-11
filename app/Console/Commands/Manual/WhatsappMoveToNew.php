@@ -97,7 +97,7 @@ class WhatsappMoveToNew extends Command
                     'user_id' => 6,
                     'approved' => 1,
                     'status' => 8,
-                    'customer_id' => $result->customer_id,
+                    'customer_id' => $result->id,
                     // 'customer_id' => 44, // FOR TESTING
                     'message' => $message
                 ];
