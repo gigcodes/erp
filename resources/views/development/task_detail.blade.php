@@ -42,8 +42,11 @@
                 <div class="card-box task-detail">
                     <div class="media mt-0 m-b-30">
                         <div class="media-body">
-                            <p>
+                            <p style="width:50%;display: inline-block;">
                                 <a href="{{ route('development.overview') }}?status={{$task->status}}">Back to {{$task->status}}</a>
+                            </p>
+                            <p style="width:50%;display: inline-block; float:right;display: none;">
+                                <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Task </a>
                             </p>
                             <h4 class="media-heading mb-0 mt-0">{{$task->task_type .'-'.$task->id}}
                                 <span class="badge badge-danger" style="{{$bg_color}}">{{$task_type}}</span>
@@ -80,6 +83,36 @@
                         </div>
                     </div>
 
+                    <!-- Attachments -->
+                    <div class="attachment" style="background: #ccc;padding: 8px;border-radius: 5px;margin-top: 12px;">
+                        <h3>Attachments
+                            <label class="btn btn-default pull-right" style="display: none;">
+                                Choose File <input id="browse" type="file" name="upload_file[]" onchange="previewFiles()" multiple hidden>
+                            </label>
+                        </h3>
+
+                        <div class="col-md-12">
+                            @if(!empty($attachments))
+                                @foreach($attachments as $attachment)
+                                    <div class="col-md-3">
+                                        <img src="{{ asset("images/task_files/$attachment->name") }}" class="img-responsive">
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+
+                        <form action="{{ route('development.upload.files') }}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            Choose File <input id="browse" type="file" name="attached_document[]" onchange="previewFiles()" multiple >
+                            <input type="hidden" name="task_id" id="task_id" value="{{$task->id}}">
+                            <input type="submit" name='submit_image' id="uplaod_images" value="Upload Image" />
+                        </form>
+
+                        {{--<div id="image_preview"></div>--}}
+
+                        <div id="preview"></div>
+                    </div>
+
                     <h3>Activity</h3>
                     <div class="dev_comments">
                         @if(!empty($comments))
@@ -97,7 +130,8 @@
                     <div class="media m-b-20">
                         <div class="d-flex mr-3"> <a href="#"><img class="media-object rounded-circle thumb-sm" alt="64x64" src="https://bootdey.com/img/Content/avatar/avatar1.png"></a></div>
                         <div class="media-body">
-                            <input type="text" name="comment" id="comment" class="form-control input-sm" placeholder="Some text value...">
+                            <textarea name="comment" id="comment" class="form-control input-sm" placeholder="Some text value..."></textarea>
+                            {{--<input type="text" name="comment" id="comment" class="form-control input-sm" placeholder="Some text value...">--}}
                             <div class="mt-2 text-right"> <button type="button" class="btn btn-sm btn-custom waves-effect waves-light" id="add_comment">Send</button></div>
                         </div>
                     </div>
@@ -169,6 +203,7 @@
 
 @section('scripts')
     <script type="text/javascript">
+
         $(document).on('click', '#create_subtask_link', function () {
             $(".add_subtask_div").toggle();
         });
@@ -200,7 +235,6 @@
             }
         });
 
-
         $(document).on('click', '#add_comment', function () {
 
             var comment     = $("#comment").val();
@@ -225,6 +259,8 @@
                                         '</div>'+
                                     '</div>';
                         $(".dev_comments").append(html);
+                        $("#comment").val('');
+                        sendMessageWhatsapp("{{$task->user_id}}",comment,'user',"{{csrf_token()}}");
                         toastr['success']('Subtask Added successfully!')
                     }
                 });
@@ -270,6 +306,58 @@
                 },
                 success: function () {
                     toastr['success']('Status Changed successfully!')
+                }
+            });
+        });
+
+
+        function previewFiles() {
+
+            var preview = document.querySelector('#preview');
+            var files   = document.querySelector('input[type=file]').files;
+            //console.log(files['0'].name);
+            function readAndPreview(file) {
+                //console.log(file.name);
+
+                // Make sure `file.name` matches our extensions criteria
+                if ( /\.(jpe?g|png|gif)$/i.test(file.name) ) {
+                    var reader = new FileReader();
+
+                    reader.addEventListener("load", function () {
+                        var image = new Image();
+                        image.height = 100;
+                        image.title = file.name;
+                        image.src = this.result;
+                        preview.appendChild( image );
+                    }, false);
+
+                    reader.readAsDataURL(file);
+                }
+
+            }
+
+            if (files) {
+                [].forEach.call(files, readAndPreview);
+            }
+
+        }
+
+        //Popup for add new task
+        $(document).on('click', '#newTaskModalBtn', function () {
+            if ($("#newTaskModal").length > 0) {
+                $("#newTaskModal").remove();
+            }
+
+            $.ajax({
+                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                type: 'GET',
+                dataType: "JSON",
+                success: function (resp) {
+                    console.log(resp);
+                    if(resp.status == 'ok') {
+                        $("body").append(resp.html);
+                        $('#newTaskModal').modal('show');
+                    }
                 }
             });
         });

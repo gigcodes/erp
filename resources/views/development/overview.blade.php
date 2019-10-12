@@ -29,7 +29,9 @@
     </style>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Development {{ $status }}</h2>
+            <h2 class="page-heading">Development {{ $status }}
+                    <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Task </a>
+            </h2>
         </div>
     </div>
 
@@ -104,6 +106,27 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('.overview-container').width(<?= $count * 210 ?>);
+        });
+
+
+        //Popup for add new task
+        $(document).on('click', '#newTaskModalBtn', function () {
+            if ($("#newTaskModal").length > 0) {
+                $("#newTaskModal").remove();
+            }
+
+            $.ajax({
+                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                type: 'GET',
+                dataType: "JSON",
+                success: function (resp) {
+                    console.log(resp);
+                    if(resp.status == 'ok') {
+                        $("body").append(resp.html);
+                        $('#newTaskModal').modal('show');
+                    }
+                }
+            });
         });
     </script>
 @endsection
