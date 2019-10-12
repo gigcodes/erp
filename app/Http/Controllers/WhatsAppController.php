@@ -1024,7 +1024,7 @@ class WhatsAppController extends FindByNumberController
                     // Try to download the image
                     try {
                         // Get file extension
-                        $extension = preg_replace("#\?.*#", "", pathinfo($url, PATHINFO_EXTENSION)) . "\n";
+                        $extension = preg_replace("#\?.*#", "", pathinfo($text, PATHINFO_EXTENSION)) . "\n";
 
                         // Set tmp file
                         $filePath = public_path() . '/uploads/tmp_' . rand(0, 100000) . '.' . $extension;
