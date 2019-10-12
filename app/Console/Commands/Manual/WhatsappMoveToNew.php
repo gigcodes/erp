@@ -47,9 +47,10 @@ class WhatsappMoveToNew extends Command
 
         // Settings
         $newNumber = [
-            '971547763482', // 04
-            '971545889192',
-            '971562744570' // 06
+            '971547763482' => 10, // 04
+            '971545889192' => 10,
+            '971562744570' => 10, // 06
+            ''
         ];
         $message = "Greetings from Solo Luxury , our offices have moved to Dubai , and this is our new whats app number , Best Wishes - Solo Luxury "; // MESSAGE FOR ACTIVE CUSTOMERS OVER 60 DAYS
         $maxPerNumber = 10;
