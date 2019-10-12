@@ -1020,12 +1020,15 @@ class WhatsAppController extends FindByNumberController
 
             // Check if the message is a URL
             if (filter_var($text, FILTER_VALIDATE_URL)) {
-                if (stristr($text, 'firebasestorage.googleapis.com')) {
-                    // Set tmp file path
-                    $filePath = public_path() . '/uploads/tmp.jpg';
-
+                if (substr($text, 0, 23) == 'https://firebasestorage') {
                     // Try to download the image
                     try {
+                        // Get file extension
+                        $extension = preg_replace("#\?.*#", "", pathinfo($url, PATHINFO_EXTENSION)) . "\n";
+
+                        // Set tmp file
+                        $filePath = public_path() . '/uploads/tmp_' . rand(0,100000) . '.' . $extension;
+
                         // Copy URL to file path
                         copy($text, $filePath);
 
@@ -1037,7 +1040,10 @@ class WhatsAppController extends FindByNumberController
 
                         // Update media URL
                         $params[ 'media_url' ] = $media->getUrl();
-                        $params[ 'message' ] = $chatapiMessage[ 'caption' ] ?? '';
+                        $params[ 'message' ] = isset($chatapiMessage[ 'caption' ]) ? $chatapiMessage[ 'caption' ] : '';
+
+                        // Set text to empty
+                        $text = '';
                     } catch (\Exception $exception) {
                         //
                     }
@@ -3445,7 +3451,7 @@ class WhatsAppController extends FindByNumberController
             $array[ 'body' ] = $file;
             $array[ 'filename' ] = $filename;
             $link = 'sendFile';
-            $array['caption'] = $encodedText;
+            $array[ 'caption' ] = $encodedText;
         }
 
 

@@ -478,16 +478,22 @@
                     if (message.media.length > 0) {
                         for (i = 0; i < message.media.length; i++) {
                             // Set image type
-                            var imageType = message.media[i].substr(-3).toLowerCase();
-                            if (imageType == 'jpg') {
+                            var imageType = message.media[i].substr(-4).toLowerCase();
+
+                            // Set correct icon/image
+                            if (imageType == '.jpg' || imageType == 'jpeg') {
                                 imgSrc = message.media[i];
-                            } else if (imageType == 'png') {
+                            } else if (imageType == '.png') {
                                 imgSrc = message.media[i];
-                            } else if (imageType == 'gif') {
+                            } else if (imageType == '.gif') {
                                 imgSrc = message.media[i];
-                            } else if (imageType == 'pdf') {
+                            } else if (imageType == 'docx' || imageType == '.doc') {
+                                imgSrc = '/images/icon-word.svg';
+                            } else if (imageType == '.xlsx' || imageType == '.xls' || imageType == '.csv') {
+                                imgSrc = '/images/icon-excel.svg';
+                            } else if (imageType == '.pdf') {
                                 imgSrc = '/images/icon-pdf.svg';
-                            } else if (imageType == 'zip' || imageType == 'tgz' || imageType == '.gz') {
+                            } else if (imageType == '.zip' || imageType == '.tgz' || imageType == 'r.gz') {
                                 imgSrc = '/images/icon-zip.svg';
                             } else {
                                 imgSrc = '/images/icon-file-unknown.svg';
@@ -501,7 +507,7 @@
 
                         // Do we have media?
                         if (media != '') {
-                            media = '<div style="max-width: 100%;"><div class="row">' + media + '</div></div>';
+                            media = '<div style="max-width: 100%; margin-bottom: 10px;"><div class="row">' + media + '</div></div>';
                         }
                     }
 
