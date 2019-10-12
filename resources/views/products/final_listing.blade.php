@@ -106,7 +106,7 @@
                         <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brand..">
                             <optgroup label="Brands">
                                 @foreach ($brands as $key => $name)
-                                    <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
+                                    <option value="{{ $key }}" {{ !empty(request()->get('brand')) && in_array($key, request()->get('brand', [])) ? 'selected' : '' }}>{{ $name }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
@@ -116,7 +116,7 @@
                         <select class="form-control select-multiple" name="color[]" multiple data-placeholder="Color..">
                             <optgroup label="Colors">
                                 @foreach ($colors as $key => $col)
-                                    <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
+                                    <option value="{{ $key }}" {{ !empty(request()->get('color')) && in_array($key, request()->get('color', [])) ? 'selected' : '' }}>{{ $col }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
@@ -126,7 +126,7 @@
                         <select class="form-control select-multiple" name="supplier[]" multiple data-placeholder="Supplier..">
                             <optgroup label="Suppliers">
                                 @foreach ($suppliers as $key => $item)
-                                    <option value="{{ $item->id }}" {{ isset($supplier) && in_array($item->id, $supplier) ? 'selected' : '' }}>{{ $item->supplier }}</option>
+                                    <option value="{{ $item->id }}" {{ !empty(request()->get('supplier')) && in_array($item->id, request()->get('supplier', [])) ? 'selected' : '' }}>{{ $item->supplier }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
@@ -186,6 +186,7 @@
                                         @php
                                             $product = \App\Product::find($product->id)
                                         @endphp
+                                        <?php $gridImage = ''; ?>
                                         @if ($product->hasMedia(config('constants.media_tags')))
                                             @foreach($product->getMedia('gallery') as $media)
                                                 @if(stripos($media->filename, 'crop') !== false)
