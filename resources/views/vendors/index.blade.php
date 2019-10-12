@@ -481,7 +481,7 @@
                             var imageType = message.media[i].substr(-4).toLowerCase();
 
                             // Set correct icon/image
-                            if (imageType == 'jpg') {
+                            if (imageType == '.jpg' || imageType == 'jpeg') {
                                 imgSrc = message.media[i];
                             } else if (imageType == '.png') {
                                 imgSrc = message.media[i];
