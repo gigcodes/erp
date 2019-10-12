@@ -187,12 +187,17 @@
 
     $(document).on('click', '.create-instruction-receipt', function(e) {
       e.preventDefault();
+      var $this = $(this);
       var instructionForm = $("#instruction-model").find("form");
       $.ajax({
           url: "<?php echo route('productinventory.instruction'); ?>",
           method : "post",
-          data : instructionForm.serialize()
+          data : instructionForm.serialize(),
+          beforeSend : function(){
+            $this.html('Sending Request..');
+          }
         }).done(function(data) {
+          $this.html('Save');
            if(data.code == 0) {
              var errors = "";
              $.each(data.errors,function(kE,vE){

@@ -543,14 +543,16 @@ class ProductInventoryController extends Controller
 		$productId = request()->get("product_id",0);
 		$users = \App\User::all()->pluck("name","id");
 		$product = \App\Product::where("id",$productId)->first();
+		$locations = \App\ProductLocation::all()->pluck("name","name");
+		$couriers = \App\Courier::all()->pluck("name","name");
 		$order = [];
 		if($product) {
-		   $order = \App\OrderProduct::/*where("sku",$product->sku)
-		   ->*/join("orders as o","o.id","order_products.order_id")
+		   $order = \App\OrderProduct::where("sku",$product->sku)
+		   ->join("orders as o","o.id","order_products.order_id")
 		   ->select(["o.id",\DB::raw("concat(o.id,' => ',o.client_name) as client_name")])->pluck("client_name",'id');
 		}
 
-		return view("instock.instruction_create",compact(['productId','users','customers','order']));
+		return view("instock.instruction_create",compact(['productId','users','customers','order','locations','couriers']));
 
 	}
 
@@ -575,21 +577,57 @@ class ProductInventoryController extends Controller
         }
 
         // start to store first location as per the request
-		
+		$product = \App\Product::where("id",$params["product_id"])->first();
 		$instruction = new \App\Instruction();
 
 		if($params['instruction_type'] == "dispatch") {
 			$order = \App\Order::where("id",$params["order_id"])->first();
 			if($order) {
-			  $instruction->customer_id = $order->customer_id;
-			  $order->order_status = "Delivered";
-			  $order->save();
+			  	
+			  	$instruction->customer_id = $order->customer_id;
+			  	$order->order_status = "Delivered";
+			  	$order->save();
+
+			  	if($order->customer) {
+			  		$messageData = implode("\n",[
+				  		"We have dispatched your parcel",
+				  		$params["courier_name"],
+				  		$params["courier_details"]	
+				  	]);
+
+				    $params['approved'] = 1;
+				    $params['message']  = $messageData;
+				    $params['status']   = 2;
+				    $params['customer_id'] = $order->customer->id;
+
+				    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($order->customer->phone,$order->customer->whatsapp_number,$messageData);
+				    $chat_message = \App\ChatMessage::create($params);
+				    $product->location =  null;
+				    $product->save();
+			  	}
 			}
 		}elseif ($params['instruction_type'] == "location") {
-			$product = \App\Product::where("id",$params["product_id"])->first();
 			if($product) {
 				$product->location = $params["location_name"];
 				$product->save();
+
+				$user = \App\User::where("id",$params["assign_to"])->first();
+				if($user) {
+					// send location message 
+					$messageData = implode("\n",[
+				  		$params['instruction_message'],
+				  		$params["courier_name"],
+				  		$params["courier_details"]	
+				  	]);
+
+				    $params['approved'] = 1;
+				    $params['message']  = $messageData;
+				    $params['status']   = 2;
+				    $params['user_id'] = $user->id;
+
+				    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
+				    $chat_message = \App\ChatMessage::create($params);
+				}
 			}
 		}
 

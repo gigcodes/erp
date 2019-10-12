@@ -17,12 +17,12 @@
       <?php echo Form::select("order_id",$order,null,["class" => "form-control"]); ?>
     </div>
     <div class="form-group">
-      <label>Location</label>
-      <?php echo Form::text("location_name",null,["class" => "form-control"]); ?>
+      <label>New Location</label>
+      <?php echo Form::select("location_name",$locations,null,["class" => "form-control"]); ?>
     </div>
     <div class="form-group">
       <label>Courier Name</label>
-      <?php echo Form::text("courier_name",null,["class" => "form-control"]); ?>
+      <?php echo Form::select("courier_name",$couriers,null,["class" => "form-control"]); ?>
     </div>
     <div class="form-group">
       <label>Courier Details</label>

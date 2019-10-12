@@ -39,6 +39,8 @@ Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew
 //Route::resource('/chat','ChatController@getmessages');
 
 Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
+Route::resource('courier', 'CourierController');
+Route::resource('product-location', 'ProductLocationController');
 
 Route::prefix('product')->middleware('auth')->group(static function () {
     Route::get('manual-crop/assign-products', 'Products\ManualCroppingController@assignProductsToUser');

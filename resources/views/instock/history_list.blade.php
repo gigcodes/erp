@@ -2,7 +2,7 @@
   <table class="table">
     <thead>
       <tr>
-        <th scope="col">Location Name</th>
+        <th scope="col">New Location Name</th>
         <th scope="col">Courier Name</th>
         <th scope="col">Courier Details</th>
         <th scope="col">Date time</th>
