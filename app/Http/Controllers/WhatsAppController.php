@@ -1021,11 +1021,14 @@ class WhatsAppController extends FindByNumberController
             // Check if the message is a URL
             if (filter_var($text, FILTER_VALIDATE_URL)) {
                 if (substr($text, 0, 23) == 'https://firebasestorage') {
-                    // Set tmp file path
-                    $filePath = public_path() . '/uploads/tmp.jpg';
-
                     // Try to download the image
                     try {
+                        // Get file extension
+                        $extension = preg_replace("#\?.*#", "", pathinfo($url, PATHINFO_EXTENSION)) . "\n";
+
+                        // Set tmp file
+                        $filePath = public_path() . '/uploads/tmp_' . rand(0,100000) . '.' . $extension;
+
                         // Copy URL to file path
                         copy($text, $filePath);
 
