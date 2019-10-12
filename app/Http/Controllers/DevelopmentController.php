@@ -21,6 +21,7 @@ use App\PushNotification;
 use App\User;
 use App\Helpers;
 use App\Issue;
+use Response;
 
 class DevelopmentController extends Controller
 {
@@ -878,9 +879,17 @@ class DevelopmentController extends Controller
     public function uploadAttachDocuments(Request $request)
     {
         $task_id = $request->input('task_id');
+        $task = DeveloperTask::find($task_id);
+        if ($request->hasfile('attached_document')) {
+            foreach ($request->file('attached_document') as $image) {
+                $media = MediaUploader::fromSource($image)->upload();
+                $task->attachMedia($media, config('constants.media_tags'));
+            }
+        }
         if (!empty($request->file('attached_document'))) {
 
             foreach ($request->file('attached_document') as $file) {
+
                 $name = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('images/task_files/'), $name);
                 $filepath[] = 'images/task_files/' . $name;
@@ -895,6 +904,45 @@ class DevelopmentController extends Controller
             return redirect(url("/development/task-detail/$task_id"));
         }
     }
+
+    public function downloadFile(Request $request)
+    {
+        $file_name = $request->input('file_name');
+        //PDF file is stored under project/public/download/info.pdf
+        $file= public_path(). "/images/task_files/".$file_name;
+
+        $ext = substr($file_name, strrpos($file_name, '.') + 1);
+
+        $headers = array();
+        if($ext == 'pdf') {
+            $headers = array(
+                'Content-Type: application/pdf',
+            );
+
+            //$download_file = $file_name.'.pdf';
+        }
+
+        return Response::download($file, $file_name, $headers);
+    }
+
+//    public function downloadFile($path) {
+//        if (file_exists($path) && is_file($path)) {
+//            // file exist
+//            header('Content-Description: File Transfer');
+//            header('Content-Type: application/octet-stream');
+//            header('Content-Disposition: attachment; filename=' . basename($path));
+//            header('Content-Transfer-Encoding: binary');
+//            header('Expires: 0');
+//            header('Cache-Control: must-revalidate');
+//            header('Pragma: public');
+//            header('Content-Length: ' . filesize($path));
+//            set_time_limit(0);
+//            @readfile($path);//"@" is an error control operator to suppress errors
+//        } else {
+//            // file doesn't exist
+//            die('Error: The file ' . basename($path) . ' does not exist!');
+//        }
+//    }
 
     public function openNewTaskPopup(Request $request)
     {

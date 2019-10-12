@@ -23,6 +23,52 @@
             top: 0;
             right: 0;
         }
+
+        /*.img-hover {*/
+            /*position: relative;*/
+            /*margin-top: 10px;*/
+            /*width: 300px;*/
+            /*height: 300px;*/
+        /*}*/
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.5s ease;
+        }
+
+
+        .img-hover:hover .overlay {
+            display: block;
+            background: rgba(0, 0, 0, .3);
+        }
+
+        .button {
+            position: absolute;
+            width: 200px;
+            left:-30px;
+            top: 60px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity .35s ease;
+        }
+
+        .button a {
+            width: 200px;
+            padding: 12px 18px;
+            text-align: center;
+            color: white;
+            border: solid 2px white;
+            z-index: 1;
+        }
+
+        .img-hover:hover .button {
+            opacity: 1;
+        }
     </style>
 
     @if($task->priority == 1)
@@ -94,8 +140,21 @@
                         <div class="col-md-12">
                             @if(!empty($attachments))
                                 @foreach($attachments as $attachment)
-                                    <div class="col-md-3">
-                                        <img src="{{ asset("images/task_files/$attachment->name") }}" class="img-responsive">
+                                    <div class="col-md-3 img-hover">
+                                        <?php $ext = substr($attachment->name, strrpos($attachment->name, '.') + 1);
+                                        if($ext == 'pdf'){ ?>
+                                            <img src="{{ asset("images/pdf_icon.png") }}" class="img-responsive">
+                                        <?php
+                                        }else if ($ext == 'doc' || $ext == 'docx'){
+                                        ?>
+                                            <img src="{{ asset("images/docs_icon.png") }}" class="img-responsive">
+                                        <?php
+                                        }else{
+                                        ?>
+                                            <img src="{{ asset("images/task_files/$attachment->name") }}" class="img-responsive">
+                                        <?php } ?>
+                                        <div class="overlay"></div>
+                                        <div class="button"><a href="{{ route('download.file').'?file_name='.$attachment->name }}"> Download </a></div>
                                     </div>
                                 @endforeach
                             @endif
@@ -261,7 +320,7 @@
                         $(".dev_comments").append(html);
                         $("#comment").val('');
                         sendMessageWhatsapp("{{$task->user_id}}",comment,'user',"{{csrf_token()}}");
-                        toastr['success']('Subtask Added successfully!')
+                        toastr['success']('Comment Added successfully!')
                     }
                 });
             }else{
