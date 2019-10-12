@@ -1027,7 +1027,7 @@ class WhatsAppController extends FindByNumberController
                         $extension = preg_replace("#\?.*#", "", pathinfo($url, PATHINFO_EXTENSION)) . "\n";
 
                         // Set tmp file
-                        $filePath = public_path() . '/uploads/tmp_' . rand(0,100000) . '.' . $extension;
+                        $filePath = public_path() . '/uploads/tmp_' . rand(0, 100000) . '.' . $extension;
 
                         // Copy URL to file path
                         copy($text, $filePath);
@@ -1043,7 +1043,7 @@ class WhatsAppController extends FindByNumberController
                         $params[ 'message' ] = isset($chatapiMessage[ 'caption' ]) ? $chatapiMessage[ 'caption' ] : '';
 
                         // Set text to empty
-                        $text = '';
+                        $text = isset($chatapiMessage[ 'caption' ]) ? $chatapiMessage[ 'caption' ] : '';
                     } catch (\Exception $exception) {
                         //
                     }
@@ -1241,7 +1241,7 @@ class WhatsAppController extends FindByNumberController
                 }
             }
 
-            if ($customer && ($to == '971547763482' || $to == '971562744570')) {
+            if ($customer && substr($to, 0, 3) == '971') {
                 $params[ 'erp_user' ] = null;
                 $params[ 'supplier_id' ] = null;
                 $params[ 'task_id' ] = null;
@@ -1255,12 +1255,7 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 if ($contentType === 'image') {
-                    $message->message = '';
-                    File::put(public_path('uploads') . '/downloaded.jpg', file_get_contents($params[ 'message' ]));
-                    $media = MediaUploaderFacade::fromSource(public_path('uploads') . '/downloaded.jpg')
-                        ->useFilename(uniqid('whatsapp_', true))
-                        ->upload();
-                    $message->attachMedia($media, 'gallery');
+                    $message->attachMedia($media, $contentType);
                     $message->save();
                 }
 
