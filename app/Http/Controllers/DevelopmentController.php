@@ -266,9 +266,10 @@ class DevelopmentController extends Controller
 
         $data = $request->except('_token');
         $data[ 'user_id' ] = $request->user_id ? $request->user_id : Auth::id();
+        $data[ 'created_by' ] = Auth::id();
 
-        $module = $request->get( 'module_id' );
-        if(!empty($module)) {
+        $module = $request->get('module_id');
+        if (!empty($module)) {
             $module = DeveloperModule::find($module);
             if (!$module) {
                 $module = new DeveloperModule();
@@ -812,9 +813,10 @@ class DevelopmentController extends Controller
     {
         // Get tasks
         $task = DeveloperTask::where('developer_tasks.id', $taskId)
-            ->select('developer_tasks.*', 'task_types.name as task_type', 'users.name as username')
-            ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
-            ->join('users', 'users.id', '=', 'developer_tasks.user_id')
+            ->select('developer_tasks.*', 'task_types.name as task_type', 'users.name as username', 'u.name as reporter')
+            ->leftjoin('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
+            ->leftjoin('users', 'users.id', '=', 'developer_tasks.user_id')
+            ->leftjoin('users AS u', 'u.id', '=', 'developer_tasks.created_by')
             ->first();
 
         // Get subtasks
@@ -826,7 +828,7 @@ class DevelopmentController extends Controller
             ->get();
 
         //Get Attachments
-        $attachments = TaskAttachment::where('task_id',$taskId)->get();
+        $attachments = TaskAttachment::where('task_id', $taskId)->get();
         $developers = Helpers::getUserArray(User::role('Developer')->get());
 
         // Return view
@@ -873,7 +875,8 @@ class DevelopmentController extends Controller
         }
     }
 
-    public function uploadAttachDocuments(Request $request){
+    public function uploadAttachDocuments(Request $request)
+    {
         $task_id = $request->input('task_id');
         if (!empty($request->file('attached_document'))) {
 
@@ -883,15 +886,33 @@ class DevelopmentController extends Controller
                 $filepath[] = 'images/task_files/' . $name;
 
                 $task_attachment = new TaskAttachment;
-                $task_attachment->task_id   = $task_id;
-                $task_attachment->name      = $name;
+                $task_attachment->task_id = $task_id;
+                $task_attachment->name = $name;
                 $task_attachment->save();
             }
             return redirect(url("/development/task-detail/$task_id"));
-        }else{
+        } else {
             return redirect(url("/development/task-detail/$task_id"));
         }
+    }
 
+    public function openNewTaskPopup(Request $request)
+    {
+        $status = "ok";
+        // Get all developers
+        //$users = Helpers::getUserArray(User::role('Developer')->get());
+        $users = Helpers::getUsersByRoleName('Developer');
+        // Get all task types
+        $tasksTypes = TaskTypes::all();
+        $moduleNames = [];
+        // Get all modules
+        $modules = DeveloperModule::all();
+        // Loop over all modules and store them
+        foreach ($modules as $module) {
+            $moduleNames[ $module->id ] = $module->name;
+        }
 
+        $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames"))->render();
+        return json_encode(compact("html", "status"));
     }
 }

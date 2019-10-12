@@ -51,6 +51,7 @@ class ChatMessagesController extends Controller
             $messages[] = [
                 'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
                 'message' => $chatMessage->message,
+                'media_url' => $chatMessage->media_url,
                 'datetime' => $chatMessage->created_at,
                 'media' => is_array($media) ? $media : null
             ];
