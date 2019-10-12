@@ -54,6 +54,8 @@
                   .row > .column {
                     padding: 5px 5px 5px 5px;
                     position: relative;
+                    page-break-after: always;
+                    padding-top: 10px;
                   }
 
                   .row:after {
@@ -67,10 +69,7 @@
                   }
                  
                   .thumbnail {
-                     border: 1px solid #ddd; /* Gray border */
-                    border-radius: 4px;  /* Rounded border */
-                    padding: 5px; /* Some padding */
-                    width: 500px; /* Set a small width */
+                    width: auto; /* Set a small width */
                   }
             </style>
         </meta>
@@ -79,8 +78,8 @@
         <div class="container">
             @php $key = 0 @endphp
             @foreach($medias->chunk(2) as $subMedias)
-                <div class="row">
                     @foreach($subMedias as $subMedia)
+                <div class="row">
                     <?php
                         $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
                         if ($mediable) {
@@ -109,8 +108,8 @@
                             </div>
                         @php $key++ @endphp
                       @endif
+                    </div>
                     @endforeach
-              </div>
               <div style="clear:both"></div>
             @endforeach  
         </div>
