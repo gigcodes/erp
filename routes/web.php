@@ -39,6 +39,8 @@ Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew
 //Route::resource('/chat','ChatController@getmessages');
 
 Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
+Route::resource('courier', 'CourierController');
+Route::resource('product-location', 'ProductLocationController');
 
 Route::prefix('product')->middleware('auth')->group(static function () {
     Route::get('manual-crop/assign-products', 'Products\ManualCroppingController@assignProductsToUser');
@@ -276,6 +278,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/productapprover/isFinal/{product}', 'ProductApproverController@isFinal')->name('productapprover.isfinal');
 
     Route::get('/productinventory/in/stock', 'ProductInventoryController@instock')->name('productinventory.instock');
+    Route::get('/productinventory/in/stock/instruction-create', 'ProductInventoryController@instructionCreate')->name('productinventory.instruction.create');
+    Route::post('/productinventory/in/stock/instruction', 'ProductInventoryController@instruction')->name('productinventory.instruction');
+    Route::get('/productinventory/in/stock/location-hisotory', 'ProductInventoryController@locationHistory')->name('productinventory.location.history');
     Route::post('/productinventory/stock/{product}', 'ProductInventoryController@stock')->name('productinventory.stock');
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
