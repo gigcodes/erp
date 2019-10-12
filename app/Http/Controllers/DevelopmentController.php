@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\TaskAttachment;
+use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Auth;
@@ -876,13 +877,41 @@ class DevelopmentController extends Controller
         }
     }
 
+    public function makeDirectory($path, $mode = 0777, $recursive = false, $force = false){
+        if ($force)
+        {
+            return @mkdir($path, $mode, $recursive);
+        }
+        else
+        {
+            return mkdir($path, $mode, $recursive);
+        }
+    }
+
     public function uploadAttachDocuments(Request $request)
     {
         $task_id = $request->input('task_id');
         $task = DeveloperTask::find($task_id);
         if ($request->hasfile('attached_document')) {
             foreach ($request->file('attached_document') as $image) {
-                $media = MediaUploader::fromSource($image)->upload();
+                $name = time() . '_' . $image->getClientOriginalName();
+                $new_id = floor($task_id/1000);
+//                $path = public_path().'/developer-task' . $task_id;
+//                if (!file_exists($path)) {
+//                    $this->makeDirectory($path);
+//                }
+
+                $dirname =  public_path().'/uploads/developer-task/'.$new_id;
+                if(file_exists($dirname)){
+                    $dirname2 = public_path().'/uploads/developer-task/'.$new_id.'/'.$task_id;
+                    if(file_exists($dirname2)==false){
+                        mkdir($dirname2,0777);
+                    }
+                }else{
+                    mkdir($dirname,0777);
+                }
+
+                $media = MediaUploader::fromSource($image)->toDirectory("developer-task/$new_id/$task_id")->upload();
                 $task->attachMedia($media, config('constants.media_tags'));
             }
         }
