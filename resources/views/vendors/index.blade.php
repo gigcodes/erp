@@ -501,7 +501,7 @@
 
                         // Do we have media?
                         if (media != '') {
-                            media = '<div style="max-width: 100%;"><div class="row">' + media + '</div></div>';
+                            media = '<div style="max-width: 100%; margin-bottom: 10px;"><div class="row">' + media + '</div></div>';
                         }
                     }
 
