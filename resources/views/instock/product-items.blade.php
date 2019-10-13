@@ -36,6 +36,7 @@
 
       <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-instruction"><img src="/images/support.png"></button>
       <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-instruction-history"><img src="/images/remark.png"></button>
+      <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-product-dispatch"><img src="/images/resend.png"></button>
 
       <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
 

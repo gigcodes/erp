@@ -17,6 +17,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\InventoryImport;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ProductInventoryController extends Controller
 {
@@ -581,31 +582,45 @@ class ProductInventoryController extends Controller
 		$instruction = new \App\Instruction();
 
 		if($params['instruction_type'] == "dispatch") {
-			$order = \App\Order::where("id",$params["order_id"])->first();
-			if($order) {
-			  	
-			  	$instruction->customer_id = $order->customer_id;
-			  	$order->order_status = "Delivered";
-			  	$order->save();
+			$orderId = request()->get("order_id",0);
+			if($orderId > 0) {
+				$order = \App\Order::where("id",$params["order_id"])->first();
+				if($order) {
+				  	
+				  	$instruction->customer_id = $order->customer_id;
+				  	$order->order_status = "Delivered";
+				  	$order->save();
 
-			  	if($order->customer) {
-			  		$messageData = implode("\n",[
-				  		"We have dispatched your parcel",
-				  		$params["courier_name"],
-				  		$params["courier_details"]	
-				  	]);
-
-				    $params['approved'] = 1;
-				    $params['message']  = $messageData;
-				    $params['status']   = 2;
-				    $params['customer_id'] = $order->customer->id;
-
-				    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($order->customer->phone,$order->customer->whatsapp_number,$messageData);
-				    $chat_message = \App\ChatMessage::create($params);
-				    $product->location =  null;
-				    $product->save();
-			  	}
+				  	if($order->customer) {
+				  		$customer = $order->customer;
+				  		$product->location =  null;
+					    $product->save();
+				  	}
+				}
 			}
+
+			$customerId = request()->get("customer_id",0);
+
+			if($customerId > 0) {
+				$customer = \App\Customer::where('id',$customerId)->first();
+			}
+			// if customer object found then send message
+			if(!empty($customer)) {
+				$messageData = implode("\n",[
+			  		"We have dispatched your parcel",
+			  		$params["courier_name"],
+			  		$params["courier_details"]	
+			  	]);
+
+			    $params['approved'] = 1;
+			    $params['message']  = $messageData;
+			    $params['status']   = 2;
+			    $params['customer_id'] = $customer->id;
+
+			    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,$messageData);
+			    $chat_message = \App\ChatMessage::create($params);
+			}
+
 		}elseif ($params['instruction_type'] == "location") {
 			if($product) {
 				$product->location = $params["location_name"];
@@ -656,5 +671,52 @@ class ProductInventoryController extends Controller
 		->orderBy("date_time","desc")
 		->get();
 		return view("instock.history_list",compact(['history']));
+	}
+
+	public function dispatchCreate()
+	{
+
+		$productId = request()->get("product_id",0);
+		$users = \App\User::all()->pluck("name","id");
+		$product = \App\Product::where("id",$productId)->first();
+
+		return view("instock.dispatch_create",compact(['productId','users','order']));
+
+	}
+
+	public function dispatchStore(Request $request)
+	{
+		$validator = Validator::make($request->all(), [
+           'product_id' => 'required',
+           'modeof_shipment' => 'required',
+           'awb' => 'required',
+           'eta' => 'required',
+           //'date_time' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json(["code" => 0, "errors" => $validator->messages()]);
+        }
+
+        $productDispatch = new \App\ProductDispatch;
+        $productDispatch->fill($request->all());
+        $productDispatch->save();
+			
+		$uploaded_images = [];	
+
+        if ($request->hasFile('file')) {
+            try{
+                foreach ($request->file('file') as $image) {
+                    $media = MediaUploader::fromSource($image)->toDirectory('dispatch-images')->upload();
+                    array_push($uploaded_images, $media);
+                    $productDispatch->attachMedia($media,config('constants.media_tags'));
+                }
+            }catch (\Exception $exception){
+               // return response($exception->getMessage(), $exception->getCode());
+            }
+        }
+
+        return response()->json(["code" => 1, "message" => "Done"]);
+
 	}
 }
