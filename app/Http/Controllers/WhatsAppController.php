@@ -1001,11 +1001,11 @@ class WhatsAppController extends FindByNumberController
             $numberPath = substr($from, 0, 3) . '/' . substr($from, 3, 1);
 
             // Find connection with this number in our database
-//            if ($chatapiMessage[ 'fromMe' ] == true) {
-//                $searchNumber = str_replace('@c.us', '', $chatapiMessage[ 'chatId' ]);
-//            } else {
+            if ($chatapiMessage[ 'fromMe' ] == true) {
+                $searchNumber = str_replace('@c.us', '', $chatapiMessage[ 'chatId' ]);
+            } else {
                 $searchNumber = $from;
-//            }
+            }
 
             // Find objects by number
             $supplier = $this->findSupplierByNumber($searchNumber);
