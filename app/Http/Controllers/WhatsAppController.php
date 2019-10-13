@@ -2041,7 +2041,7 @@ class WhatsAppController extends FindByNumberController
 
         if ($request->images) {
             $imagesDecoded = json_decode($request->images);
-            if (count($imagesDecoded) >= 10) {
+            if (count($imagesDecoded) >= 1) {
 
                 $temp_chat_message = ChatMessage::create($data);
                 foreach ($imagesDecoded as $image) {
@@ -2066,9 +2066,9 @@ class WhatsAppController extends FindByNumberController
                 $pdf->render();
 
                 File::put($fileName, $pdf->output());
-                if (strpos($folder, 'temppdf_view_') !== false) {
+                /*if (strpos($folder, 'temppdf_view_') !== false) {
                     File::deleteDirectory(public_path('uploads/'.$folder));
-                }
+                }*/
 
                 $media = MediaUploader::fromSource($fileName)->upload();
                 $chat_message->attachMedia($media, 'gallery');

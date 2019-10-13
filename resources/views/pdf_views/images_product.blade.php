@@ -1,12 +1,17 @@
-<!DOCTYPE html>
 <html>
     <head>
-        <meta content="width=device-width, initial-scale=1" name="viewport">
             <style>
-                 .container {
-                    text-align: center;
+                .container {
                     color: white;
                     padding-top: 20px;
+                    page-break-after: always;
+                    border: 10px;
+                    color: grey;
+                    background-color: grey; 
+                    padding: 20px;
+                    margin: auto;
+                    margin-bottom: 10px;
+                    width: 1000px;
                   }
 
                   .row {
@@ -30,8 +35,11 @@
 
                   .top-right {
                     position: absolute;
-                    top: 8px;
-                    right: 16px;
+                    top: 70px;
+                    right: -45px;
+                    -ms-transform: rotate(270deg);
+                    -webkit-transform: rotate(270deg);
+                    transform: rotate(270deg);
                   }
 
                   .bottom-right {
@@ -51,67 +59,55 @@
                     box-sizing: border-box;
                   }
 
-                  .row > .column {
-                    padding: 5px 5px 5px 5px;
-                    position: relative;
-                    page-break-after: always;
-                    padding-top: 10px;
-                  }
-
-                  .row:after {
-                    content: "";
-                    display: table;
-                    clear: both;
-                  }
-
                   .column {
-                    float: left;
+                    float: none;
+                    position: relative;
+                    display: inline-block;
                   }
                  
                   .thumbnail {
-                    width: auto; /* Set a small width */
+                    width: 100%; /* Set a small width */
+                    max-height: 800px;
                   }
             </style>
         </meta>
     </head>
     <body>
-        <div class="container">
-            @php $key = 0 @endphp
-            @foreach($medias->chunk(2) as $subMedias)
-                    @foreach($subMedias as $subMedia)
-                <div class="row">
-                    <?php
-                        $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
-                        if ($mediable) {
-                            $product_id = $mediable->mediable_id;
-                            $product = App\Product::find($product_id);
-                        } else {
-                            $product = null;
-                        }
-                    ?>
-                      @if($product)
-                            <?php
-                                $textToSend = [];
-                                $textToSend[] = $product->name." ";
-                                if($product->brands) {
-                                    $textToSend[] = $product->brands->name;
-                                }
-                                if($product->lmeasurement && $product->hmeasurement && $product->dmeasurement) {
-                                    $textToSend[] = "Dimension: ".\App\Helpers\ProductHelper::getMeasurements($product)."";
-                                }
-                                $textToSend[] = "Price: Rs. ".$product->price_special."<br>";
-                             ?>
-                            <div class="column">
-                                <img class="hover-shadow cursor thumbnail" src="<?php echo $subMedia->getAbsolutePath(); ?>" >
-                                </img>
-                                <div class="top-left"><?php echo implode("<br>",$textToSend); ?></div>
+            @foreach($medias as $subMedia)
+            <div class="container">
+                  <?php
+                          $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
+                          if ($mediable) {
+                              $product_id = $mediable->mediable_id;
+                              $product = App\Product::find($product_id);
+                          } else {
+                              $product = null;
+                          }
+                     
+                       if($product) {
+                          $textToSend = [];
+                          $textToSend[] = $product->name." ";
+                          if($product->brands) {
+                              $textToSend[] = $product->brands->name;
+                          }
+                          if($product->lmeasurement && $product->hmeasurement && $product->dmeasurement) {
+                              $textToSend[] = "Dimension: ".\App\Helpers\ProductHelper::getMeasurements($product)."";
+                          }
+                          $textToSend[] = "Price: Rs. ".$product->price_special; ?>
+                        <div class="column">
+                            <img class="hover-shadow cursor thumbnail" src="<?php echo $subMedia->getAbsolutePath(); ?>">
+                            </img>
+                            <div class="top-left">
+                                <?php echo implode("<br>
+                                ",$textToSend); ?>
                             </div>
-                        @php $key++ @endphp
-                      @endif
-                    </div>
-                    @endforeach
-              <div style="clear:both"></div>
-            @endforeach  
-        </div>
+                            <div class="top-right">
+                                <?php echo  DNS1D::getBarcodeHTML($product->sku, "CODE11",1,30,"black", true); ?>
+                            </div>
+                            
+                        </div>
+                      <?php } ?>
+            </div>
+         @endforeach
     </body>
 </html>
