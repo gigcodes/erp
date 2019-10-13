@@ -21,7 +21,7 @@ return [
         "919004780634" => [
             "instance_id" => 43281,
             "token" => "yi841xjhrwyrwrc7",
-            "customer_number" => true,
+            "customer_number" => false,
         ],
         "971504289967" => [
             "instance_id" => 43111,
