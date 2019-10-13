@@ -37,7 +37,7 @@
       <select class="form-control select-multiple" name="brand[]" multiple>
         <optgroup label="Brands">
           @foreach ($brands_select as $id => $name)
-            <option value="{{ $id }}" {{ isset($brand) && $brand == $name ? 'selected' : '' }}>{{ $name }}</option>
+            <option value="{{ $id }}" {{ !empty(request()->get('brand')) && in_array($id, request()->get('brand', [])) ? 'selected' : '' }}>{{ $name }}</option>
           @endforeach
         </optgroup>
       </select>

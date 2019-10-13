@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\TaskAttachment;
+use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Auth;
@@ -21,6 +22,7 @@ use App\PushNotification;
 use App\User;
 use App\Helpers;
 use App\Issue;
+use Response;
 
 class DevelopmentController extends Controller
 {
@@ -266,9 +268,10 @@ class DevelopmentController extends Controller
 
         $data = $request->except('_token');
         $data[ 'user_id' ] = $request->user_id ? $request->user_id : Auth::id();
+        $data[ 'created_by' ] = Auth::id();
 
-        $module = $request->get( 'module_id' );
-        if(!empty($module)) {
+        $module = $request->get('module_id');
+        if (!empty($module)) {
             $module = DeveloperModule::find($module);
             if (!$module) {
                 $module = new DeveloperModule();
@@ -812,9 +815,10 @@ class DevelopmentController extends Controller
     {
         // Get tasks
         $task = DeveloperTask::where('developer_tasks.id', $taskId)
-            ->select('developer_tasks.*', 'task_types.name as task_type', 'users.name as username')
-            ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
-            ->join('users', 'users.id', '=', 'developer_tasks.user_id')
+            ->select('developer_tasks.*', 'task_types.name as task_type', 'users.name as username', 'u.name as reporter')
+            ->leftjoin('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
+            ->leftjoin('users', 'users.id', '=', 'developer_tasks.user_id')
+            ->leftjoin('users AS u', 'u.id', '=', 'developer_tasks.created_by')
             ->first();
 
         // Get subtasks
@@ -826,7 +830,7 @@ class DevelopmentController extends Controller
             ->get();
 
         //Get Attachments
-        $attachments = TaskAttachment::where('task_id',$taskId)->get();
+        $attachments = TaskAttachment::where('task_id', $taskId)->get();
         $developers = Helpers::getUserArray(User::role('Developer')->get());
 
         // Return view
@@ -873,25 +877,119 @@ class DevelopmentController extends Controller
         }
     }
 
-    public function uploadAttachDocuments(Request $request){
+    public function makeDirectory($path, $mode = 0777, $recursive = false, $force = false){
+        if ($force)
+        {
+            return @mkdir($path, $mode, $recursive);
+        }
+        else
+        {
+            return mkdir($path, $mode, $recursive);
+        }
+    }
+
+    public function uploadAttachDocuments(Request $request)
+    {
         $task_id = $request->input('task_id');
+        $task = DeveloperTask::find($task_id);
+        if ($request->hasfile('attached_document')) {
+            foreach ($request->file('attached_document') as $image) {
+                $name = time() . '_' . $image->getClientOriginalName();
+                $new_id = floor($task_id/1000);
+//                $path = public_path().'/developer-task' . $task_id;
+//                if (!file_exists($path)) {
+//                    $this->makeDirectory($path);
+//                }
+
+                $dirname =  public_path().'/uploads/developer-task/'.$new_id;
+                if(file_exists($dirname)){
+                    $dirname2 = public_path().'/uploads/developer-task/'.$new_id.'/'.$task_id;
+                    if(file_exists($dirname2)==false){
+                        mkdir($dirname2,0777);
+                    }
+                }else{
+                    mkdir($dirname,0777);
+                }
+
+                $media = MediaUploader::fromSource($image)->toDirectory("developer-task/$new_id/$task_id")->upload();
+                $task->attachMedia($media, config('constants.media_tags'));
+            }
+        }
         if (!empty($request->file('attached_document'))) {
 
             foreach ($request->file('attached_document') as $file) {
+
                 $name = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('images/task_files/'), $name);
                 $filepath[] = 'images/task_files/' . $name;
 
                 $task_attachment = new TaskAttachment;
-                $task_attachment->task_id   = $task_id;
-                $task_attachment->name      = $name;
+                $task_attachment->task_id = $task_id;
+                $task_attachment->name = $name;
                 $task_attachment->save();
             }
             return redirect(url("/development/task-detail/$task_id"));
-        }else{
+        } else {
             return redirect(url("/development/task-detail/$task_id"));
         }
+    }
 
+    public function downloadFile(Request $request)
+    {
+        $file_name = $request->input('file_name');
+        //PDF file is stored under project/public/download/info.pdf
+        $file= public_path(). "/images/task_files/".$file_name;
 
+        $ext = substr($file_name, strrpos($file_name, '.') + 1);
+
+        $headers = array();
+        if($ext == 'pdf') {
+            $headers = array(
+                'Content-Type: application/pdf',
+            );
+
+            //$download_file = $file_name.'.pdf';
+        }
+
+        return Response::download($file, $file_name, $headers);
+    }
+
+//    public function downloadFile($path) {
+//        if (file_exists($path) && is_file($path)) {
+//            // file exist
+//            header('Content-Description: File Transfer');
+//            header('Content-Type: application/octet-stream');
+//            header('Content-Disposition: attachment; filename=' . basename($path));
+//            header('Content-Transfer-Encoding: binary');
+//            header('Expires: 0');
+//            header('Cache-Control: must-revalidate');
+//            header('Pragma: public');
+//            header('Content-Length: ' . filesize($path));
+//            set_time_limit(0);
+//            @readfile($path);//"@" is an error control operator to suppress errors
+//        } else {
+//            // file doesn't exist
+//            die('Error: The file ' . basename($path) . ' does not exist!');
+//        }
+//    }
+
+    public function openNewTaskPopup(Request $request)
+    {
+        $status = "ok";
+        // Get all developers
+        //$users = Helpers::getUserArray(User::role('Developer')->get());
+        $users = Helpers::getUsersByRoleName('Developer');
+        // Get all task types
+        $tasksTypes = TaskTypes::all();
+        $moduleNames = [];
+        // Get all modules
+        $modules = DeveloperModule::all();
+        // Loop over all modules and store them
+        foreach ($modules as $module) {
+            $moduleNames[ $module->id ] = $module->name;
+        }
+
+        $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames"))->render();
+        return json_encode(compact("html", "status"));
     }
 }

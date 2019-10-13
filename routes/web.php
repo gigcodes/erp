@@ -39,6 +39,8 @@ Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew
 //Route::resource('/chat','ChatController@getmessages');
 
 Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
+Route::resource('courier', 'CourierController');
+Route::resource('product-location', 'ProductLocationController');
 
 Route::prefix('product')->middleware('auth')->group(static function () {
     Route::get('manual-crop/assign-products', 'Products\ManualCroppingController@assignProductsToUser');
@@ -276,6 +278,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/productapprover/isFinal/{product}', 'ProductApproverController@isFinal')->name('productapprover.isfinal');
 
     Route::get('/productinventory/in/stock', 'ProductInventoryController@instock')->name('productinventory.instock');
+    Route::get('/productinventory/in/stock/instruction-create', 'ProductInventoryController@instructionCreate')->name('productinventory.instruction.create');
+    Route::post('/productinventory/in/stock/instruction', 'ProductInventoryController@instruction')->name('productinventory.instruction');
+    Route::get('/productinventory/in/stock/location-hisotory', 'ProductInventoryController@locationHistory')->name('productinventory.location.history');
+    Route::post('/productinventory/in/stock/dispatch-store', 'ProductInventoryController@dispatchStore')->name('productinventory.dispatch.store');
+    Route::get('/productinventory/in/stock/dispatch', 'ProductInventoryController@dispatchCreate')->name('productinventory.dispatch.create');
     Route::post('/productinventory/stock/{product}', 'ProductInventoryController@stock')->name('productinventory.stock');
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
@@ -489,14 +496,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('imported/leads/save', 'ColdLeadsController@addLeadToCustomer');
 
     // Development
-    Route::post('development/task/move-to-progress', 'DevelopmentController@moveTaskToProgress');
-    Route::post('development/task/complete-task', 'DevelopmentController@completeTask');
-    Route::post('development/task/assign-task', 'DevelopmentController@updateAssignee');
-    Route::post('development/task/relist-task', 'DevelopmentController@relistTask');
-    Route::post('development/task/update-status', 'DevelopmentController@changeTaskStatus');
+    Route::post( 'development/task/move-to-progress', 'DevelopmentController@moveTaskToProgress' );
+    Route::post( 'development/task/complete-task', 'DevelopmentController@completeTask' );
+    Route::post( 'development/task/assign-task', 'DevelopmentController@updateAssignee' );
+    Route::post( 'development/task/relist-task', 'DevelopmentController@relistTask' );
+    Route::post( 'development/task/update-status', 'DevelopmentController@changeTaskStatus' );
 
-
-    Route::resource('task-types', 'TaskTypesController');
+    Route::resource( 'task-types', 'TaskTypesController' );
 
     Route::resource('development-messages-schedules', 'DeveloperMessagesAlertSchedulesController');
     Route::get('development', 'DevelopmentController@index')->name('development.index');
@@ -509,6 +515,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/{id}/status', 'DevelopmentController@updateStatus')->name('development.update.status');
     Route::post('development/{id}/updateTask', 'DevelopmentController@updateTask')->name('development.update.task');
     Route::post('development/{id}/updatePriority', 'DevelopmentController@updatePriority')->name('development.update.priority');
+    Route::post('development/upload-attachments', 'DevelopmentController@uploadAttachDocuments')->name('development.upload.files');
+    Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
     Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
@@ -522,6 +530,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('development/{id}/issueDestroy', 'DevelopmentController@issueDestroy')->name('development.issue.destroy');
     Route::get('development/overview', 'DevelopmentController@overview')->name('development.overview');
     Route::get('development/task-detail/{id}', 'DevelopmentController@taskDetail')->name('taskDetail');
+    Route::get('development/new-task-popup', 'DevelopmentController@openNewTaskPopup')->name('openNewTaskPopup');
 
     Route::post('development/module/create', 'DevelopmentController@moduleStore')->name('development.module.store');
     Route::delete('development/module/{id}/destroy', 'DevelopmentController@moduleDestroy')->name('development.module.destroy');

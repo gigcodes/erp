@@ -31,7 +31,7 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
-        $chatMessages = $object->whatsappAll()->where("message", "!=", "")->skip(0)->take($limit)->get();
+        $chatMessages = $object->whatsappAll()->whereRaw("(message!='' or media_url!='')")->skip(0)->take($limit)->get();
 
         // Set empty array with messages
         $messages = [];
@@ -51,6 +51,7 @@ class ChatMessagesController extends Controller
             $messages[] = [
                 'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
                 'message' => $chatMessage->message,
+                'media_url' => $chatMessage->media_url,
                 'datetime' => $chatMessage->created_at,
                 'media' => is_array($media) ? $media : null
             ];

@@ -38,7 +38,7 @@
                 <select class="form-control select-multiple" name="status[]" multiple>
                   <optgroup label="Order Status">
                     @foreach ($order_status as $key => $name)
-                      <option value="{{ $key }}" {{ !empty($status) && in_array($key, $status) ? 'selected' : '' }}>{{ $name }}</option>
+                      <option value="{{ $key }}" {{ in_array(strtolower($key), array_map("strtolower",request()->get('status', []))) ? 'selected' : '' }}>{{ $name }}</option>
                     @endforeach
                 </optgroup>
                 </select>
@@ -46,7 +46,7 @@
             @endif
 
             <div class="form-group mr-3">
-              {!! Form::select('supplier[]', $suppliers_array, (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple']) !!}
+              {!! Form::select('supplier[]', $suppliers_array, (!empty(request()->get('supplier')[0]) ? request()->get('supplier')[0] : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple']) !!}
             </div>
 
             <div class="form-group mr-3">

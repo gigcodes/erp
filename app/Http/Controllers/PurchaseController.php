@@ -238,10 +238,9 @@ class PurchaseController extends Controller
             ->join("products as p","p.sku","order_products.sku")
             ->whereIn("o.order_status",$status)
             ->where('qty', '>=', 1)
-            ->select(["sku","p.id"])
+            ->select(["order_products.sku","p.id"])
             ->get();
   		}
-
         $status_list = implode("','", $request->status ?? []);
 
       if ($request->supplier[0] != null) {
@@ -310,9 +309,11 @@ class PurchaseController extends Controller
         if ($request->status[0] != null || $request->supplier[0] != null) {
             $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])
             ->join("orders as o","o.id","order_products.order_id")
-            ->join("products as p","p.sku","order_products.sku")
-            ->whereIn("o.order_status",$request->status)
-            ->where('brand', $brand)->where('qty', '>=', 1)->get();
+            ->join("products as p","p.sku","order_products.sku");
+            if ($request->status[0] != null) {
+              $orders = $orders->whereIn("o.order_status",$request->status);
+            }
+            $orders = $orders->where('brand', $brand)->where('qty', '>=', 1)->get();
 
           /*$orders = OrderProduct::select('sku')->with(['Order', 'Product'])
           ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
@@ -548,7 +549,8 @@ class PurchaseController extends Controller
           ON suppliers.id = product_suppliers.supplier_id
           LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and product_id = :product_id', ['product_id' =>$product['id']]);                    
       }
-
+      //echo '<pre>'; print_r($status) ;die;
+      
       if ($request->get('in_pdf') === 'on') {
           set_time_limit(0);
 
