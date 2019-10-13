@@ -3484,7 +3484,7 @@ class WhatsAppController extends FindByNumberController
             return false;
         } else {
             // Log curl response
-            \Log::channel('chatapi')->debug('cUrl:' . $response);
+            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file ."\n");
 
             // Json decode response into result
             $result = json_decode($response, true);
