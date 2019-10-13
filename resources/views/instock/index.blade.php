@@ -120,6 +120,25 @@
     </div>
   </div>
 
+  <div id="instruction-dispatch-model" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Create Dispatch</h4>
+        </div>
+        <form id="store-dispatch-stock" action="<?php echo route("productinventory.dispatch.store") ?>" enctype="multipart/form-data" method="post">
+          <?php echo csrf_field(); ?>
+          <div class="modal-body">    
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary create-dispatch-store">Save</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </form>  
+      </div>
+    </div>
+  </div>
+
   <div id="instruction-model-dynamic" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -149,6 +168,51 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script>
+
+     var customerSearch = function() {
+        $(".customer-search-box").select2({
+          tags : true,
+          ajax: {
+              url: '/erp-leads/customer-search',
+              dataType: 'json',
+              delay: 750,
+              data: function (params) {
+                  return {
+                      q: params.term, // search term
+                  };
+              },
+              processResults: function (data,params) {
+
+                  params.page = params.page || 1;
+
+                  return {
+                      results: data,
+                      pagination: {
+                          more: (params.page * 30) < data.total_count
+                      }
+                  };
+              },
+          },
+          placeholder: 'Search for Customer by id, Name, No',
+          escapeMarkup: function (markup) { return markup; },
+          minimumInputLength: 2,
+          templateResult: formatCustomer,
+          templateSelection: (customer) => customer.text || customer.name,
+
+      });
+    };
+
+    function formatCustomer (customer) {
+        if (customer.loading) {
+            return customer.name;
+        }
+
+        if(customer.name) {
+            return "<p> <b>Id:</b> " +customer.id  + (customer.name ? " <b>Name:</b> "+customer.name : "" ) +  (customer.phone ? " <b>Phone:</b> "+customer.phone : "" ) + "</p>";
+        }
+
+    }
+
     $(document).on('click', '.crt-instruction', function(e) {
       e.preventDefault();
 
@@ -167,6 +231,9 @@
            $('.date-time-picker').datetimepicker({
               format: 'YYYY-MM-DD HH:mm'
            });
+
+           customerSearch();
+
            instructionModal.modal("show");
         }).fail(function() {
           
@@ -175,6 +242,78 @@
       /*var model = $("#instruction-model");
           model.find(".instruction-pr-id").val($(this).data("product-id"));
           model.modal("show");*/
+    });
+
+    $(document).on('click', '.crt-product-dispatch', function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+      var instructionModal = $("#instruction-dispatch-model");
+
+      $.ajax({
+          url: "<?php echo route('productinventory.dispatch.create'); ?>",
+          data : {
+            product_id : $this.data("product-id")
+          },
+          method : "get"
+        }).done(function(data) {
+
+           instructionModal.find(".modal-body").html(data);
+
+           $('.date-time-picker').datetimepicker({
+              format: 'YYYY-MM-DD HH:mm'
+           });
+
+           instructionModal.modal("show");
+        }).fail(function() {
+          
+        });
+    });
+
+    $(document).on('click', '.create-dispatch-store', function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+      var instructionModal = $("#instruction-dispatch-model");
+      var instructionForm = $("#store-dispatch-stock");
+
+      var formData = new FormData(instructionForm[0]);
+
+      $.ajax({
+          headers: {
+             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: instructionForm.attr("action"),
+          data : formData,
+          method : "post",
+          processData: false,
+          contentType: false,
+          beforeSend : function(){
+            $this.html('Sending Request..');
+          }
+        }).done(function(data) {
+           $this.html('Save');
+           if(data.code == 0) {
+             var errors = "";
+             $.each(data.errors,function(kE,vE){
+                $.each(vE,function(eK, Ev){
+                  errors += Ev+"<br>";
+                })
+             });
+             $("#instruction-dispatch-model").find(".alert-danger").remove();
+             $("#instruction-dispatch-model").find(".modal-body").prepend('<div class="alert alert-danger" role="alert">'+errors+'</div>');
+           }else if(data.code == 1) {
+              instructionForm.find(".alert-danger").remove();
+              $("#instruction-dispatch-model").find(".modal-body").prepend('<div class="alert alert-success" role="alert">Instruction created successfully</div>');
+              setTimeout(function(){ 
+                instructionForm.find(".alert-success").remove();
+                $("#instruction-dispatch-model").modal("hide");
+              }, 3000);
+           }
+
+        }).fail(function() {
+          
+        });
     });
 
     $(document).on('change', '.instruction-type-select', function(e) {
@@ -197,7 +336,7 @@
             $this.html('Sending Request..');
           }
         }).done(function(data) {
-          $this.html('Save');
+           $this.html('Save');
            if(data.code == 0) {
              var errors = "";
              $.each(data.errors,function(kE,vE){
