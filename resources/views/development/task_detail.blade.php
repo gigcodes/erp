@@ -23,6 +23,57 @@
             top: 0;
             right: 0;
         }
+
+        /*.img-hover {*/
+            /*position: relative;*/
+            /*margin-top: 10px;*/
+            /*width: 300px;*/
+            /*height: 300px;*/
+        /*}*/
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 15px;
+            width: 100px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.5s ease;
+        }
+
+
+        .img-hover:hover .overlay {
+            display: block;
+            background: rgba(0, 0, 0, .3);
+        }
+
+        .button {
+            position: absolute;
+            width: 100px;
+            left:15px;
+            top: 60px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity .35s ease;
+        }
+
+        .button a {
+            width: 100px;
+            padding: 7px 7px;
+            text-align: center;
+            color: white;
+            border: solid 2px white;
+            z-index: 1;
+        }
+
+        .img-hover:hover .button {
+            opacity: 1;
+        }
+
+        .img-wh{
+            width: 100px;
+            height: 100px;
+        }
     </style>
 
     @if($task->priority == 1)
@@ -54,34 +105,10 @@
                         </div>
                     </div>
                     <h2 class="m-b-20">{{ucfirst($task->subject)}}</h2>
-                    <p class="text-muted">{{$task->task}}</p>
+                    <p >{{$task->task}}</p>
 
                     <div class="clearfix"></div>
-                    <div class="sub_tasks" style="background: #ccc;padding: 8px;border-radius: 5px;">
-                        <div class="task-list">
-                            <h3>Subtasks <span style="float: right;font-size: 16px;"><a href="javascript:" id="create_subtask_link">+ Create SubTasks</a></span></h3>
-                            <div class="add_subtask_div" style="display: none;">
-                                <input type="text" id="subtask_detail" name="subtask" class="form-control input-sm" placeholder="What needs to be done?" style="padding: 20px;">
-                                <button type="button" id="subtask_create">Create</button>
-                                <input type="hidden" id="task_id" value="{{$task->id}}">
-                            </div>
 
-                            @if(!empty($subtasks) && count($subtasks) > 0)
-                                @foreach($subtasks as $subtask)
-                                    <div class="task high" style="background: white;">
-                                        <div class="desc">
-                                            <div class="title">{{$subtask->task}}</div>
-                                        </div>
-                                        <div class="time">
-                                            <div class="date">Todo</div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @else
-                                <div style="text-align: center;"> No Subtask yet</div>
-                            @endif
-                        </div>
-                    </div>
 
                     <!-- Attachments -->
                     <div class="attachment" style="background: #ccc;padding: 8px;border-radius: 5px;margin-top: 12px;">
@@ -94,8 +121,21 @@
                         <div class="col-md-12">
                             @if(!empty($attachments))
                                 @foreach($attachments as $attachment)
-                                    <div class="col-md-3">
-                                        <img src="{{ asset("images/task_files/$attachment->name") }}" class="img-responsive">
+                                    <div class="col-md-3 img-hover" style="    height: 130px;">
+                                        <?php $ext = substr($attachment->name, strrpos($attachment->name, '.') + 1);
+                                        if($ext == 'pdf'){ ?>
+                                            <img src="{{ asset("images/pdf_icon.png") }}" class="img-responsive img-wh">
+                                        <?php
+                                        }else if ($ext == 'doc' || $ext == 'docx'){
+                                        ?>
+                                            <img src="{{ asset("images/docs_icon.png") }}" class="img-responsive img-wh">
+                                        <?php
+                                        }else{
+                                        ?>
+                                            <img src="{{ asset("images/task_files/$attachment->name") }}" class="img-responsive img-wh">
+                                        <?php } ?>
+                                        <div class="overlay"></div>
+                                        <div class="button"><a href="{{ route('download.file').'?file_name='.$attachment->name }}"> Download </a></div>
                                     </div>
                                 @endforeach
                             @endif
@@ -190,6 +230,33 @@
                         <h4 class="header-title m-b-30">Priority</h4>
                         <h4 style="{{$priority_clr}}">&nbsp; {{$task_type}}</h4>
                     </div>
+
+                    <div class="sub_tasks" style="border: 1px solid #ccc;padding: 8px;border-radius: 5px;">
+                        <div class="task-list">
+                            <h3>Subtasks <span style="float: right;font-size: 16px;"><a href="javascript:" id="create_subtask_link">+ Create SubTasks</a></span></h3>
+                            <div class="add_subtask_div" style="display: none;">
+                                <input type="text" id="subtask_detail" name="subtask" class="form-control input-sm" placeholder="What needs to be done?" style="padding: 20px;">
+                                <button type="button" id="subtask_create">Create</button>
+                                <input type="hidden" id="task_id" value="{{$task->id}}">
+                            </div>
+
+                            @if(!empty($subtasks) && count($subtasks) > 0)
+                                @foreach($subtasks as $subtask)
+                                    <div class="task high" style="background: white;">
+                                        <div class="desc">
+                                            <div class="title">{{$subtask->task}}</div>
+                                        </div>
+                                        <div class="time">
+                                            <div class="date">Todo</div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div style="text-align: center;"> No Subtask yet</div>
+                            @endif
+                        </div>
+                    </div>
+
                 </div>
             </div>
             <!-- end col -->
@@ -261,7 +328,7 @@
                         $(".dev_comments").append(html);
                         $("#comment").val('');
                         sendMessageWhatsapp("{{$task->user_id}}",comment,'user',"{{csrf_token()}}");
-                        toastr['success']('Subtask Added successfully!')
+                        toastr['success']('Comment Added successfully!')
                     }
                 });
             }else{

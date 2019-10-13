@@ -47,12 +47,24 @@ class WhatsappMoveToNew extends Command
 
         // Settings
         $newNumber = [
-            '971547763482', // 04
-            '971545889192',
-            '971562744570' // 06
+            [
+                'number' => '971547763482', // 04
+                'count' => 10
+            ],
+            [
+                'number' => '971545889192',
+                'count' => 10
+            ],
+            [
+                'number' => '971562744570', // 06
+                'count' => 10
+            ],
+            [
+                'number' => '971504289967',
+                'count' => 1
+            ],
         ];
         $message = "Greetings from Solo Luxury , our offices have moved to Dubai , and this is our new whats app number , Best Wishes - Solo Luxury "; // MESSAGE FOR ACTIVE CUSTOMERS OVER 60 DAYS
-        $maxPerNumber = 10;
 
         // Query to find all customers of $number
         $sql = "
@@ -65,17 +77,18 @@ class WhatsappMoveToNew extends Command
                 phone IS NOT NULL AND
                 phone != '' AND
                 do_not_disturb=0 AND
-                is_blocked=0
+                is_blocked=0 AND
+                deleted_at IS NULL
             ORDER BY
                 RAND()
             LIMIT
-                0," . (count($newNumber) * $maxPerNumber) . "
+                0,31
         ";
         // echo $sql;
         $rs = DB::select(DB::raw($sql));
 
         // Set current number
-        $currentNewNumber = $newNumber[ 0 ];
+        $currentNewNumber = $newNumber[ 0 ][ 'number' ];
 
         // Set count to 0
         $count = 0;
@@ -84,13 +97,20 @@ class WhatsappMoveToNew extends Command
         // Loop over customers
         if ($rs !== null) {
             foreach ($rs as $result) {
+                // Get customer from database
                 $customer = Customer::find($result->id);
-                if ( $customer !== null ) {
+
+                // Update count
+                $count++;
+
+                // Update number if we have a customer
+                if ($customer !== null) {
+                    // Output customer information
+                    echo $count . " " . $customer->id . ' ' . $customer->phone . " moved from " . $customer->whatsapp_number . " => " . $currentNewNumber . "\n";
+
+                    // Update WhatsApp number
                     $customer->whatsapp_number = $currentNewNumber;
                     $customer->save();
-
-                    // Output customer information
-                    echo $customer->id . ' ' . $customer->phone . "\n";
 
                     // Send messages
                     $params = [
@@ -111,20 +131,25 @@ class WhatsappMoveToNew extends Command
                     echo " ... SENDING from " . $currentNewNumber . "\n";
                     app(WhatsAppController::class)->approveMessage('customer', $myRequest);
 
-                    // Check if we have reached the max
-                    $count++;
-                    if ($count % $maxPerNumber == 0) {
-                        // Update array counter
-                        $arrCount++;
+                } else {
+                    echo $count . " Customer ID " . $result->id . " ERROR\n";
+                }
 
-                        // Count is numbers times max per number?
-                        if ($count == ($maxPerNumber * count($newNumber))) {
-                            exit("DONE");
-                        }
+                // Check if we have reached the max
+                if ($count == $newNumber[ $arrCount ][ 'count' ]) {
+                    // Update array counter
+                    $arrCount++;
 
-                        // Set current new number
-                        $currentNewNumber = $newNumber[ $arrCount ];
+                    // Reset count
+                    $count = 0;
+
+                    // Exit
+                    if ( count($newNumber) <= $arrCount ) {
+                        exit("DONE");
                     }
+
+                    // Set current new number
+                    $currentNewNumber = $newNumber[ $arrCount ][ 'number' ];
                 }
             }
         }

@@ -1153,7 +1153,7 @@ class WhatsAppController extends FindByNumberController
                 $category = $vendor->category;
 
                 // Send message if all required data is set
-                if ($category && $category->user_id && $params[ 'message' ]) {
+                if ($category && $category->user_id && ($params[ 'message' ] || $params[ 'media_url' ])) {
                     $user = User::find($category->user_id);
                     $sendResult = $this->sendWithThirdApi($user->phone, null, 'V-' . $vendor->id . '-(' . $vendor->name . ')=> ' . $params[ 'message' ], $params[ 'media_url' ]);
                     if ($sendResult) {
@@ -1186,10 +1186,14 @@ class WhatsAppController extends FindByNumberController
             // Get all numbers from config
             $config = \Config::get("apiwha.instances");
 
+            // Set isCustomerNumber to false by default
+            $isCustomerNumber = false;
+
             // Loop over instance IDs
             foreach ($config as $whatsAppNumber => $arrNumber) {
                 if ($arrNumber[ 'instance_id' ] == $instanceId) {
                     $to = $whatsAppNumber;
+                    $isCustomerNumber = $arrNumber['customer_number'];
                 }
             }
 
@@ -1199,7 +1203,7 @@ class WhatsAppController extends FindByNumberController
             }
 
             // Is this message from a customer?
-            if ($customer) {
+            if ($customer && $isCustomerNumber) {
                 $params[ 'erp_user' ] = null;
                 $params[ 'supplier_id' ] = null;
                 $params[ 'task_id' ] = null;
@@ -1374,7 +1378,7 @@ class WhatsAppController extends FindByNumberController
                 }
             }
 
-            // Moves to the bottom of this loop, since it overwrites the message
+            // Moved to the bottom of this loop, since it overwrites the message
             $fromMe = $chatapiMessage[ 'fromMe' ] ?? true;
             $params[ 'message' ] = $originalMessage;
             if (!$fromMe && $params[ 'message' ] && strpos($originalMessage, 'V-') === 0) {
@@ -1394,10 +1398,9 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'message' ] = $message;
                 $params[ 'status' ] = 2;
 
-                $this->sendWithThirdApi($vendor->phone, null, $params[ 'message' ]);
+                $this->sendWithThirdApi($vendor->phone, null, $params[ 'message' ], $params['media_url']);
 
                 ChatMessage::create($params);
-
             }
 
             if (!$fromMe && strpos($originalMessage, '#ISSUE-') === 0) {
