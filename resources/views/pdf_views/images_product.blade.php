@@ -73,6 +73,7 @@
         </meta>
     </head>
     <body>
+            @if(!empty($medias))
             @foreach($medias as $subMedia)
             <div class="container">
                   <?php
@@ -109,5 +110,6 @@
                       <?php } ?>
             </div>
          @endforeach
+         @endif
     </body>
 </html>
