@@ -22,7 +22,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\ProductQuickshellGroup;
+use App\ProductQuicksellGroup;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class SupplierController extends Controller
 {
@@ -728,34 +729,28 @@ class SupplierController extends Controller
                 foreach ($images as $image) {
                     //getting prodct
                     $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->orderBy('id', 'desc')->first();
-                    if ($product != null) {
-                        preg_match('/QUICKSELL(.*)/', $product->sku, $output_array);
-                        if ($number = $output_array) {
-                            $number = $output_array[ 1 ];
-                            $number++;
-                        }
+                    if ($product) {
+                        @$number = 'QUICKSELL' . (int) str_replace('QUICKSELL', '', $product->sku) + 1;
                     } else {
-                        $number = 1;
+                        $number = date('yz') . sprintf('%02d', 1);
                     }
 
-                    $res = new \stdClass();
-                    $res->website = 'QUICKSELL';
-                    $res->images = [$image];
-                    $res->sku = 'QuickSell' . $number;
-                    $res->original_sku = 'QUICKSELL' . $number;
-                    $res->title = 'QUICKSELL' . $number;
-                    $res->brand_id = 3;
-                    $res->properties = array('composition' => '', 'measurement_size_type' => '', 'size' => '', 'color' => '');
-                    $res->url = '';
-                    $res->stock = 1;
-                    $res->size = '';
-                    $res->description = '';
-                    $res->currency = '';
-                    $res->price = 0;
-                    $res->discounted_price = '';
-                    $res->is_sale = 0;
-                    $product = new Product();
-                    $product->createProductByJson($res, 0);
+                    $product = new Product;
+
+                    $product->name = 'QUICKSELL';
+                    $product->sku = 'QuickSell' . $number;
+                    $product->size = '';
+                    $product->brand = 3;
+                    $product->color = '';
+                    $product->location = '';
+                    $product->category = '';
+                    $product->supplier = 'QUICKSELL';
+                    $product->price = 0;
+                    $product->stock = 1;
+                    $product->quick_product = 1;
+                    $product->is_Pending = 1;
+                    $product->save();
+                    return redirect()->back()->withSuccess('You have successfully saved product(s)!');
 
                 }
                 return redirect()->back()->withSuccess('You have successfully saved product(s)!');
@@ -767,40 +762,37 @@ class SupplierController extends Controller
             if ($images) {
                 // Loop Over Images
                 foreach ($images as $image) {
-                    //Getting the last created QUICKSHELL
+                    //Getting the last created QUICKSELL
                     // MariaDB 10.0.5 and higher: $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->whereRaw("REGEXP_REPLACE(products.sku, '[a-zA-Z]+', '') > 0")->orderBy('id', 'desc')->first();
                     $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
                     if ($product) {
-                        $number = 'QUICKSELL' . (int) str_replace('QUICKSELL', '', $product->sku) + 1;
+                        @$number = 'QUICKSELL' . (int) str_replace('QUICKSELL', '', $product->sku) + 1;
                     } else {
                         $number = date('yz') . sprintf('%02d', 1);
                     }
-                    $res = new \stdClass();
-                    $res->website = 'QUICKSELL';
-                    $res->images = [$image];
-                    $res->sku = 'QuickSell' . $number;
-                    $res->original_sku = 'QUICKSELL' . $number;
-                    $res->title = 'QUICKSELL' . $number;
-                    $res->brand_id = 3;
-                    $res->properties = array('composition' => '', 'measurement_size_type' => '', 'size' => '', 'color' => '');
-                    $res->url = '';
-                    $res->stock = 1;
-                    $res->size = '';
-                    $res->description = '';
-                    $res->currency = '';
-                    $res->price = 0;
-                    $res->discounted_price = '';
-                    $res->is_sale = 0;
-                    $product = new Product();
-                    $product->createProductByJson($res, 0);
+                    $product = new Product;
+
+                    $product->name = 'QUICKSELL';
+                    $product->sku = 'QuickSell' . $number;
+                    $product->size = '';
+                    $product->brand = 3;
+                    $product->color = '';
+                    $product->location = '';
+                    $product->category = '';
+                    $product->supplier = 'QUICKSELL';
+                    $product->price = 0;
+                    $product->stock = 1;
+                    $product->quick_product = 1;
+                    $product->is_Pending = 1;
+                    $product->save();
                     // if Product is true
                     if ($product == true) {
                         //Finding last created Product using sku
-                        $product_id = Product::where('sku', $res->sku)->first();
+                        $product_id = Product::where('sku', $product->sku)->first();
                         if ($product_id != null) {
                             $id = $product_id->id;
                             //getting last group id
-                            $group_id = ProductQuickshellGroup::select('quicksell_group_id')->orderBy('id', 'desc')->first();
+                            $group_id = ProductQuicksellGroup::select('quicksell_group_id')->orderBy('id', 'desc')->first();
                             if ($group_id != null) {
                                 $number = $group_id->quicksell_group_id;
                                 //Increment Group id
@@ -808,7 +800,7 @@ class SupplierController extends Controller
                             } else {
                                 $number = 1;
                             }
-                            $group = new ProductQuickshellGroup();
+                            $group = new ProductQuicksellGroup();
                             $group->product_id = $id;
                             $group->quicksell_group_id = $number;
                             $group->save();

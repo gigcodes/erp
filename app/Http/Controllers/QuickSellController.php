@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\ApiKey;
+use App\Customer;
+use App\ProductQuicksellGroup;
 use Illuminate\Http\Request;
 use App\Product;
 use App\Setting;
@@ -78,7 +81,7 @@ class QuickSellController extends Controller
                                          ->where('quick_product', 1);
       }
 
-      $products = $products->latest()->paginate(Setting::get('pagination'));
+      $products = $products->where('is_Pending',0)->latest()->paginate(Setting::get('pagination'));
       $brands_all = Brand::all();
       $categories_all = Category::all();
       $brands = [];
@@ -122,6 +125,8 @@ class QuickSellController extends Controller
 
       $new_category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'product-category'])
   		                                        ->renderAsDropdown();
+        $api_keys = ApiKey::select('number')->get();
+        $customers = Customer::orderBy('name','asc')->get();
 
       return view('quicksell.index', [
         'products'  => $products,
@@ -137,6 +142,8 @@ class QuickSellController extends Controller
         'category_tree'  => $category_tree,
         'categories_array'  => $categories_array,
         'new_category_selection'  => $new_category_selection,
+        'api_keys' =>  $api_keys,
+        'customers' => $customers,
       ]);
     }
 
@@ -175,7 +182,7 @@ class QuickSellController extends Controller
   		$product->category = $request->category;
   		$product->price = $request->price;
   		$product->stock = 1;
-      $product->quick_product = 1;
+        $product->quick_product = 1;
 
   		$brand = Brand::find($request->brand);
 
@@ -297,4 +304,161 @@ class QuickSellController extends Controller
 
       return 'QCKPRO-000001';
     }
+    public function saveGroup(Request $request){
+
+        $group_id = ProductQuicksellGroup::select('quicksell_group_id')->orderBy('id', 'desc')->first();
+        if($group_id == null){
+            $number = 1;
+        }else{
+            $number = $group_id->quicksell_group_id;
+            $number++;
+
+        }
+        foreach ($request->products as $id){
+
+            $group = new ProductQuicksellGroup();
+            $group->product_id = $id;
+            $group->quicksell_group_id = $number;
+            $group->save();
+        }
+
+        return redirect()->route('quicksell.index')->with('success', 'You have successfully saved Quick Product Group');
+
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function pending(Request $request)
+    {
+        if ($request->brand[0] != null) {
+            $products = (new Product())->newQuery()
+                ->where('quick_product', 1)->whereIn('brand', $request->brand);
+
+            $brand = $request->brand;
+        }
+
+        if ($request->category != 1) {
+            $is_parent = Category::isParent($request->category);
+            $category_children = [];
+
+            if ($is_parent) {
+                $childs = Category::find($request->category)->childs()->get();
+
+                foreach ($childs as $child) {
+                    $is_parent = Category::isParent($child->id);
+
+                    if ($is_parent) {
+                        $children = Category::find($child->id)->childs()->get();
+
+                        foreach ($children as $chili) {
+                            array_push($category_children, $chili->id);
+                        }
+                    } else {
+                        array_push($category_children, $child->id);
+                    }
+                }
+            } else {
+                array_push($category_children, $request->category);
+            }
+
+            if ($request->brand[0] != null) {
+                $products = $products->whereIn('category', $category_children);
+            } else {
+                $products = (new Product())->newQuery()
+                    ->where('quick_product', 1)->whereIn('category', $category_children);
+            }
+
+            $category = $request->category;
+        }
+
+        if ($request->location[0] != null) {
+            if ($request->brand[0] != null || $request->category != 1) {
+                $products = $products->whereIn('location', $request->location);
+            } else {
+                $products = (new Product())->newQuery()
+                    ->where('quick_product', 1)->whereIn('location', $request->location);
+            }
+
+            $location = $request->location[0];
+        }
+
+        if ($request->brand[0] == null && ($request->category == null || $request->category == 1) && $request->location[0] == null) {
+            $products = (new Product())->newQuery()
+                ->where('quick_product', 1);
+        }
+
+        $products = $products->where('is_Pending',1)->latest()->paginate(Setting::get('pagination'));
+        $brands_all = Brand::all();
+        $categories_all = Category::all();
+        $brands = [];
+        $categories = [];
+
+        foreach ($brands_all as $brand) {
+            $brands[$brand->id] = $brand->name;
+        }
+
+        foreach ($categories_all as $category) {
+            $categories[$category->id] = $category->title;
+        }
+
+        $category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id'  => 'category_selection'])
+            ->renderAsDropdown();
+
+        $selected_categories = $request->category ? $request->category : 1;
+
+        $filter_categories_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'filter_categories_selection'])
+            ->selected($selected_categories)
+            ->renderAsDropdown();
+
+        $locations = (new LocationList)->all();
+        $suppliers = Supplier::select(['id', 'supplier'])->get();
+
+        $category_tree = [];
+        $categories_array = [];
+
+        foreach (Category::all() as $category) {
+            if ($category->parent_id != 0) {
+                $parent = $category->parent;
+                if ($parent->parent_id != 0) {
+                    $category_tree[$parent->parent_id][$parent->id][$category->id];
+                } else {
+                    $category_tree[$parent->id][$category->id] = $category->id;
+                }
+            }
+
+            $categories_array[$category->id] = $category->parent_id;
+        }
+
+        $new_category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'product-category'])
+            ->renderAsDropdown();
+
+        return view('quicksell.pending', [
+            'products'  => $products,
+            'brands'  => $brands,
+            'categories'  => $categories,
+            'category_selection'  => $category_selection,
+            'brand'         => $brand,
+            'category'      => $category,
+            'location'      => $location ?? '',
+            'suppliers'      => $suppliers,
+            'filter_categories_selection'  => $filter_categories_selection,
+            'locations'  => $locations,
+            'category_tree'  => $category_tree,
+            'categories_array'  => $categories_array,
+            'new_category_selection'  => $new_category_selection,
+        ]);
+    }
+
+    public function activate(Request $request){
+        $product = Product::findorfail($request->id);
+        $product->is_Pending = 0;
+        $product->update();
+        return redirect()->route('quicksell.pending')->with('success', 'You have activated Quick Product');
+    }
+
+
+
 }

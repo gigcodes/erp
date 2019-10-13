@@ -1769,6 +1769,7 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context)
     {
+
         $this->validate($request, [
             // 'message'         => 'nullable|required_without:image,images,screenshot_path|string',
 //        'image'           => 'nullable|required_without:message',
@@ -1783,6 +1784,7 @@ class WhatsAppController extends FindByNumberController
             'case_id' => 'sometimes|nullable|numeric',
             'blogger_id' => 'sometimes|nullable|numeric',
             'document_id' => 'sometimes|nullable|numeric',
+            'quicksell_id' => 'sometimes|nullable|numeric',
         ]);
 
         $data = $request->except('_token');
@@ -1975,6 +1977,29 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 return redirect()->back()->with('message', 'Document Send SucessFully');
+
+            }elseif($context == 'quicksell'){
+                $product = Product::findorfail($request->quicksell_id);
+                $image = $product->getMedia(config('constants.media_tags'))->first()
+                    ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                    : '';
+                foreach ($request->customers as $key) {
+                    $customer =  Customer::findOrFail($key);
+
+                    // User ID For Chat Message
+                    $data[ 'customer_id' ] = $customer->id;
+
+                    //Creating Chat Message
+                    $chat_message = ChatMessage::create($data);
+                    //$image = 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png';
+                    //Sending Document
+                    if($customer->whatsapp_number == null){
+                        $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '' , $image,'','');
+                    }else{
+                        $this->sendWithThirdApi($customer->phone, $request->whatsapp_number, '' , $image,'','');
+                    }
+                }
+                return redirect()->back()->with('message', 'Images Send SucessFully');
 
             } else {
                 if ($context == 'developer_task') {

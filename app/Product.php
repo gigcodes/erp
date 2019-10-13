@@ -505,4 +505,5 @@ class Product extends Model
     {
         return $this->hasMany(ProductStatus::class, 'product_id', 'id');
     }
+
 }

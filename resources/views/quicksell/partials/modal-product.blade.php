@@ -235,8 +235,18 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           <button type="submit" class="btn btn-secondary">Update</button>
-        </div>
       </form>
+          @if(auth()->user()->isAdmin())
+          @if(isset($product) && $product->is_Pending == 1)
+            {!! Form::open(['method' => 'POST','route' => ['quicksell.activate'],'style'=>'display:inline']) !!}
+          <input type="hidden" value="{{ $product->id }}" name="id">
+          <button type="submit" class="btn btn-secondary">Activate</button>
+            {!! Form::close() !!}
+          @endif
+          @endif
+
+        </div>
+
     </div>
 
   </div>
