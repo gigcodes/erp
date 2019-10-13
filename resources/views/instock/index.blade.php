@@ -149,6 +149,51 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script>
+
+     var customerSearch = function() {
+        $(".customer-search-box").select2({
+          tags : true,
+          ajax: {
+              url: '/erp-leads/customer-search',
+              dataType: 'json',
+              delay: 750,
+              data: function (params) {
+                  return {
+                      q: params.term, // search term
+                  };
+              },
+              processResults: function (data,params) {
+
+                  params.page = params.page || 1;
+
+                  return {
+                      results: data,
+                      pagination: {
+                          more: (params.page * 30) < data.total_count
+                      }
+                  };
+              },
+          },
+          placeholder: 'Search for Customer by id, Name, No',
+          escapeMarkup: function (markup) { return markup; },
+          minimumInputLength: 2,
+          templateResult: formatCustomer,
+          templateSelection: (customer) => customer.text || customer.name,
+
+      });
+    };
+
+    function formatCustomer (customer) {
+        if (customer.loading) {
+            return customer.name;
+        }
+
+        if(customer.name) {
+            return "<p> <b>Id:</b> " +customer.id  + (customer.name ? " <b>Name:</b> "+customer.name : "" ) +  (customer.phone ? " <b>Phone:</b> "+customer.phone : "" ) + "</p>";
+        }
+
+    }
+
     $(document).on('click', '.crt-instruction', function(e) {
       e.preventDefault();
 
@@ -167,6 +212,9 @@
            $('.date-time-picker').datetimepicker({
               format: 'YYYY-MM-DD HH:mm'
            });
+
+           customerSearch();
+
            instructionModal.modal("show");
         }).fail(function() {
           

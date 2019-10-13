@@ -16,6 +16,10 @@
       <label>Dispatch To:</label>
       <?php echo Form::select("order_id",$order,null,["class" => "form-control"]); ?>
     </div>
+    <div class="form-group dispatch-instruction dis-none">
+      <label>Dispatch Direct to Customer:</label>
+      <?php echo Form::select("customer_id",[],null,["class" => "form-control customer-search-box", "style"=>"width:100%;"]); ?>
+    </div>
     <div class="form-group">
       <label>New Location <a target="_blank" href="<?php echo url("product-location") ?>">Create new?</a></label>
       <?php echo Form::select("location_name",$locations,null,["class" => "form-control"]); ?>

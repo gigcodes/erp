@@ -581,31 +581,45 @@ class ProductInventoryController extends Controller
 		$instruction = new \App\Instruction();
 
 		if($params['instruction_type'] == "dispatch") {
-			$order = \App\Order::where("id",$params["order_id"])->first();
-			if($order) {
-			  	
-			  	$instruction->customer_id = $order->customer_id;
-			  	$order->order_status = "Delivered";
-			  	$order->save();
+			$orderId = request()->get("order_id",0);
+			if($orderId > 0) {
+				$order = \App\Order::where("id",$params["order_id"])->first();
+				if($order) {
+				  	
+				  	$instruction->customer_id = $order->customer_id;
+				  	$order->order_status = "Delivered";
+				  	$order->save();
 
-			  	if($order->customer) {
-			  		$messageData = implode("\n",[
-				  		"We have dispatched your parcel",
-				  		$params["courier_name"],
-				  		$params["courier_details"]	
-				  	]);
-
-				    $params['approved'] = 1;
-				    $params['message']  = $messageData;
-				    $params['status']   = 2;
-				    $params['customer_id'] = $order->customer->id;
-
-				    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($order->customer->phone,$order->customer->whatsapp_number,$messageData);
-				    $chat_message = \App\ChatMessage::create($params);
-				    $product->location =  null;
-				    $product->save();
-			  	}
+				  	if($order->customer) {
+				  		$customer = $order->customer;
+				  		$product->location =  null;
+					    $product->save();
+				  	}
+				}
 			}
+
+			$customerId = request()->get("customer_id",0);
+
+			if($customerId > 0) {
+				$customer = \App\Customer::where('id',$customerId)->first();
+			}
+			// if customer object found then send message
+			if(!empty($customer)) {
+				$messageData = implode("\n",[
+			  		"We have dispatched your parcel",
+			  		$params["courier_name"],
+			  		$params["courier_details"]	
+			  	]);
+
+			    $params['approved'] = 1;
+			    $params['message']  = $messageData;
+			    $params['status']   = 2;
+			    $params['customer_id'] = $customer->id;
+
+			    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,$messageData);
+			    $chat_message = \App\ChatMessage::create($params);
+			}
+
 		}elseif ($params['instruction_type'] == "location") {
 			if($product) {
 				$product->location = $params["location_name"];
