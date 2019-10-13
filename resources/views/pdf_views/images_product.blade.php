@@ -73,7 +73,7 @@
         </meta>
     </head>
     <body>
-            @if(!empty($medias))
+            @if(!$medias->isEmpty())
             @foreach($medias as $subMedia)
             <div class="container">
                   <?php
