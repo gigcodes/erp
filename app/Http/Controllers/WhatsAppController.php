@@ -1010,7 +1010,7 @@ class WhatsAppController extends FindByNumberController
 //                    return;
 //                }
 //            } else {
-                $searchNumber = $from;
+            $searchNumber = $from;
 //            }
 
             // Find objects by number
@@ -1960,13 +1960,13 @@ class WhatsAppController extends FindByNumberController
 
                 return redirect()->back()->with('message', 'Document Send SucessFully');
 
-            }elseif($context == 'quicksell'){
+            } elseif ($context == 'quicksell') {
                 $product = Product::findorfail($request->quicksell_id);
                 $image = $product->getMedia(config('constants.media_tags'))->first()
                     ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
                     : '';
                 foreach ($request->customers as $key) {
-                    $customer =  Customer::findOrFail($key);
+                    $customer = Customer::findOrFail($key);
 
                     // User ID For Chat Message
                     $data[ 'customer_id' ] = $customer->id;
@@ -1975,10 +1975,10 @@ class WhatsAppController extends FindByNumberController
                     $chat_message = ChatMessage::create($data);
                     //$image = 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png';
                     //Sending Document
-                    if($customer->whatsapp_number == null){
-                        $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '' , $image,'','');
-                    }else{
-                        $this->sendWithThirdApi($customer->phone, $request->whatsapp_number, '' , $image,'','');
+                    if ($customer->whatsapp_number == null) {
+                        $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $image, '', '');
+                    } else {
+                        $this->sendWithThirdApi($customer->phone, $request->whatsapp_number, '', $image, '', '');
                     }
                 }
                 return redirect()->back()->with('message', 'Images Send SucessFully');
@@ -2091,11 +2091,11 @@ class WhatsAppController extends FindByNumberController
                 if ($context == 'customer') {
                     $fn = '_product';
                 }
-                
-                $folder = "temppdf_view_".time();
+
+                $folder = "temppdf_view_" . time();
 
                 $medias = Media::whereIn('id', $imagesDecoded)->get();
-                $pdfView = view('pdf_views.images' . $fn, compact('medias','folder'));
+                $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
                 $pdf = new Dompdf();
                 $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
                 $pdf->loadHtml($pdfView);
@@ -2914,9 +2914,21 @@ class WhatsAppController extends FindByNumberController
         }
 
         if ($request->to_all || $request->moduletype == 'customers') {
+            // Create empty array for checking numbers
+            $arrCustomerNumbers = [];
+
+            // Get all numbers from config
+            $config = \Config::get("apiwha.instances");
+
+            // Loop over numbers
+            foreach ($config as $whatsAppNumber => $arrNumber) {
+                if ($arrNumber[ 'customer_number' ]) {
+                    $arrCustomerNumbers[] = $arrNumber[ 'customer_number' ];
+                }
+            }
+
             $minutes = round(60 / $frequency);
             $max_group_id = MessageQueue::max('group_id') + 1;
-
 
             $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0);
 
@@ -2943,7 +2955,7 @@ class WhatsAppController extends FindByNumberController
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
 
-                if ($whatsapp_number == '971562744570') {
+                if (in_array($whatsapp_number, $arrCustomerNumbers)) {
                     foreach ($customers as $customer) {
                         if (!$now->between($morning, $evening, true)) {
                             if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
@@ -2954,39 +2966,6 @@ class WhatsAppController extends FindByNumberController
                                 $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
                             } else {
                                 // dont add day
-                                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
-                            }
-                        }
-
-                        MessageQueue::create([
-                            'user_id' => Auth::id(),
-                            'customer_id' => $customer->id,
-                            'phone' => null,
-                            'type' => 'message_all',
-                            'data' => json_encode($content),
-                            'sending_time' => $now,
-                            'group_id' => $max_group_id
-                        ]);
-
-                        $now->addMinutes($minutes);
-                    }
-                }
-
-                if ($whatsapp_number == '919152731483') {
-                    foreach ($customers as $customer) {
-                        if (!$now->between($morning, $evening, true)) {
-                            if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
-                                // add day
-
-                                $now->addDay();
-                                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
-                            } else {
-                                // dont add day
-
                                 $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                                 $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
