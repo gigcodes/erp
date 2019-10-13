@@ -1153,7 +1153,7 @@ class WhatsAppController extends FindByNumberController
                 $category = $vendor->category;
 
                 // Send message if all required data is set
-                if ($category && $category->user_id && $params[ 'message' ]) {
+                if ($category && $category->user_id && ($params[ 'message' ] || $params[ 'media_url' ])) {
                     $user = User::find($category->user_id);
                     $sendResult = $this->sendWithThirdApi($user->phone, null, 'V-' . $vendor->id . '-(' . $vendor->name . ')=> ' . $params[ 'message' ], $params[ 'media_url' ]);
                     if ($sendResult) {
