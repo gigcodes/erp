@@ -2036,7 +2036,7 @@ class WhatsAppController extends FindByNumberController
 
         if ($request->images) {
             $imagesDecoded = json_decode($request->images);
-            if (count($imagesDecoded) >= 2) {
+            if (count($imagesDecoded) >= 10) {
 
                 $temp_chat_message = ChatMessage::create($data);
                 foreach ($imagesDecoded as $image) {
