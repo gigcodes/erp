@@ -81,7 +81,7 @@ class QuickSellController extends Controller
                                          ->where('quick_product', 1);
       }
 
-      $products = $products->where('is_Pending',0)->latest()->paginate(Setting::get('pagination'));
+      $products = $products->where('isPending',0)->latest()->paginate(Setting::get('pagination'));
       $brands_all = Brand::all();
       $categories_all = Category::all();
       $brands = [];
@@ -390,7 +390,7 @@ class QuickSellController extends Controller
                 ->where('quick_product', 1);
         }
 
-        $products = $products->where('is_Pending',1)->latest()->paginate(Setting::get('pagination'));
+        $products = $products->where('isPending',1)->latest()->paginate(Setting::get('pagination'));
         $brands_all = Brand::all();
         $categories_all = Category::all();
         $brands = [];
@@ -454,7 +454,7 @@ class QuickSellController extends Controller
 
     public function activate(Request $request){
         $product = Product::findorfail($request->id);
-        $product->is_Pending = 0;
+        $product->isPending = 0;
         $product->update();
         return redirect()->route('quicksell.pending')->with('success', 'You have activated Quick Product');
     }

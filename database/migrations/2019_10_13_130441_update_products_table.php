@@ -14,7 +14,7 @@ class UpdateProductsTable extends Migration
     public function up()
     {
         Schema::table('products',function ($table){
-            $table->integer('is_Pending')->default(0);
+            $table->integer('isPending')->default(0);
         });
     }
 

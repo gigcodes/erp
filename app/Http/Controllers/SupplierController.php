@@ -748,7 +748,7 @@ class SupplierController extends Controller
                     $product->price = 0;
                     $product->stock = 1;
                     $product->quick_product = 1;
-                    $product->is_Pending = 1;
+                    $product->isPending = 1;
                     $product->save();
                     return redirect()->back()->withSuccess('You have successfully saved product(s)!');
 
@@ -783,7 +783,7 @@ class SupplierController extends Controller
                     $product->price = 0;
                     $product->stock = 1;
                     $product->quick_product = 1;
-                    $product->is_Pending = 1;
+                    $product->isPending = 1;
                     $product->save();
                     // if Product is true
                     if ($product == true) {
