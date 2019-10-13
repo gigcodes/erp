@@ -1001,12 +1001,25 @@ class WhatsAppController extends FindByNumberController
             $numberPath = substr($from, 0, 3) . '/' . substr($from, 3, 1);
 
             // Find connection with this number in our database
-            $supplier = $this->findSupplierByNumber($from);
-            $vendor = $this->findVendorByNumber($from);
-            $user = $this->findUserByNumber($from);
-            $dubbizle = $this->findDubbizleByNumber($from);
-            $contact = $this->findContactByNumber($from);
-            $customer = $this->findCustomerByNumber($from);
+//            if ($chatapiMessage[ 'fromMe' ] == true) {
+//                $searchNumber = str_replace('@c.us', '', $chatapiMessage[ 'chatId' ]);
+//
+//                // Check if message already exists
+//                $chatMessage = ChatMessage::where('unique_id', $chatapiMessage[ 'id' ]);
+//                if ($chatMessage != null) {
+//                    return;
+//                }
+//            } else {
+                $searchNumber = $from;
+//            }
+
+            // Find objects by number
+            $supplier = $this->findSupplierByNumber($searchNumber);
+            $vendor = $this->findVendorByNumber($searchNumber);
+            $user = $this->findUserByNumber($searchNumber);
+            $dubbizle = $this->findDubbizleByNumber($searchNumber);
+            $contact = $this->findContactByNumber($searchNumber);
+            $customer = $this->findCustomerByNumber($searchNumber);
 
             // Set params
             $params = [
@@ -1193,7 +1206,7 @@ class WhatsAppController extends FindByNumberController
             foreach ($config as $whatsAppNumber => $arrNumber) {
                 if ($arrNumber[ 'instance_id' ] == $instanceId) {
                     $to = $whatsAppNumber;
-                    $isCustomerNumber = $arrNumber['customer_number'];
+                    $isCustomerNumber = $arrNumber[ 'customer_number' ];
                 }
             }
 
@@ -1208,6 +1221,7 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'supplier_id' ] = null;
                 $params[ 'task_id' ] = null;
                 $params[ 'dubbizle_id' ] = null;
+                $params[ 'vendor_id' ] = null;
                 $params[ 'customer_id' ] = $customer->id;
 
                 $message = ChatMessage::create($params);
@@ -1398,7 +1412,7 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'message' ] = $message;
                 $params[ 'status' ] = 2;
 
-                $this->sendWithThirdApi($vendor->phone, null, $params[ 'message' ], $params['media_url']);
+                $this->sendWithThirdApi($vendor->phone, null, $params[ 'message' ], $params[ 'media_url' ]);
 
                 ChatMessage::create($params);
             }
@@ -3476,7 +3490,7 @@ class WhatsAppController extends FindByNumberController
             return false;
         } else {
             // Log curl response
-            \Log::channel('chatapi')->debug('cUrl:' . $response);
+            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file . "\n");
 
             // Json decode response into result
             $result = json_decode($response, true);
