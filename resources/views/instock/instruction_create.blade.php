@@ -17,11 +17,11 @@
       <?php echo Form::select("order_id",$order,null,["class" => "form-control"]); ?>
     </div>
     <div class="form-group">
-      <label>New Location</label>
+      <label>New Location <a target="_blank" href="<?php echo url("product-location") ?>">Create new?</a></label>
       <?php echo Form::select("location_name",$locations,null,["class" => "form-control"]); ?>
     </div>
     <div class="form-group">
-      <label>Courier Name</label>
+      <label>Courier Name <a target="_blank" href="<?php echo url("courier") ?>">Create new?</a></label>
       <?php echo Form::select("courier_name",$couriers,null,["class" => "form-control"]); ?>
     </div>
     <div class="form-group">
