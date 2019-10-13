@@ -2066,14 +2066,22 @@ class WhatsAppController extends FindByNumberController
                 if ($context == 'customer') {
                     $fn = '_product';
                 }
+                
+                $folder = "temppdf_view_".time();
+
                 $medias = Media::whereIn('id', $imagesDecoded)->get();
-                $pdfView = view('pdf_views.images' . $fn, compact('medias'));
+                $pdfView = view('pdf_views.images' . $fn, compact('medias','folder'));
                 $pdf = new Dompdf();
                 $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
                 $pdf->loadHtml($pdfView);
                 $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
                 $pdf->render();
+
                 File::put($fileName, $pdf->output());
+                /*if (strpos($folder, 'temppdf_view_') !== false) {
+                    File::deleteDirectory(public_path('uploads/'.$folder));
+                }*/
+
                 $media = MediaUploader::fromSource($fileName)->upload();
                 $chat_message->attachMedia($media, 'gallery');
             } else {
