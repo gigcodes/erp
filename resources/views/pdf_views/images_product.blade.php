@@ -73,43 +73,43 @@
         </meta>
     </head>
     <body>
-            @if(!$medias->isEmpty())
-            @foreach($medias as $subMedia)
-            <div class="container">
-                  <?php
-                          $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
-                          if ($mediable) {
-                              $product_id = $mediable->mediable_id;
-                              $product = App\Product::find($product_id);
-                          } else {
-                              $product = null;
-                          }
-                     
-                       if($product) {
-                          $textToSend = [];
-                          $textToSend[] = $product->name." ";
-                          if($product->brands) {
-                              $textToSend[] = $product->brands->name;
-                          }
-                          if($product->lmeasurement && $product->hmeasurement && $product->dmeasurement) {
-                              $textToSend[] = "Dimension: ".\App\Helpers\ProductHelper::getMeasurements($product)."";
-                          }
-                          $textToSend[] = "Price: Rs. ".$product->price_special; ?>
-                        <div class="column">
-                            <img class="hover-shadow cursor thumbnail" src="<?php echo $subMedia->getAbsolutePath(); ?>">
-                            </img>
-                            <div class="top-left">
-                                <?php echo implode("<br>
-                                ",$textToSend); ?>
+            @foreach($medias->chunk(2) as $subMedias)
+              @foreach($subMedias as $subMedia)
+                <div class="container">
+                      <?php
+                              $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
+                              if ($mediable) {
+                                  $product_id = $mediable->mediable_id;
+                                  $product = App\Product::find($product_id);
+                              } else {
+                                  $product = null;
+                              }
+                         
+                           if($product) {
+                              $textToSend = [];
+                              $textToSend[] = $product->name." ";
+                              if($product->brands) {
+                                  $textToSend[] = $product->brands->name;
+                              }
+                              if($product->lmeasurement && $product->hmeasurement && $product->dmeasurement) {
+                                  $textToSend[] = "Dimension: ".\App\Helpers\ProductHelper::getMeasurements($product)."";
+                              }
+                              $textToSend[] = "Price: Rs. ".$product->price_special; ?>
+                            <div class="column">
+                                <img class="hover-shadow cursor thumbnail" src="<?php echo $subMedia->getAbsolutePath(); ?>">
+                                </img>
+                                <div class="top-left">
+                                    <?php echo implode("<br>
+                                    ",$textToSend); ?>
+                                </div>
+                                <div class="top-right">
+                                    <?php echo  DNS1D::getBarcodeHTML($product->sku, "CODE11",1,30,"black", true); ?>
+                                </div>
+                                
                             </div>
-                            <div class="top-right">
-                                <?php echo  DNS1D::getBarcodeHTML($product->sku, "CODE11",1,30,"black", true); ?>
-                            </div>
-                            
-                        </div>
-                      <?php } ?>
-            </div>
+                          <?php } ?>
+                </div>
+              @endforeach
          @endforeach
-         @endif
     </body>
 </html>
