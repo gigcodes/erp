@@ -120,6 +120,25 @@
     </div>
   </div>
 
+  <div id="instruction-dispatch-model" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Create Dispatch</h4>
+        </div>
+        <form id="store-dispatch-stock" action="<?php echo route("productinventory.dispatch.store") ?>" enctype="multipart/form-data" method="post">
+          <?php echo csrf_field(); ?>
+          <div class="modal-body">    
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary create-dispatch-store">Save</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </form>  
+      </div>
+    </div>
+  </div>
+
   <div id="instruction-model-dynamic" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -225,6 +244,78 @@
           model.modal("show");*/
     });
 
+    $(document).on('click', '.crt-product-dispatch', function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+      var instructionModal = $("#instruction-dispatch-model");
+
+      $.ajax({
+          url: "<?php echo route('productinventory.dispatch.create'); ?>",
+          data : {
+            product_id : $this.data("product-id")
+          },
+          method : "get"
+        }).done(function(data) {
+
+           instructionModal.find(".modal-body").html(data);
+
+           $('.date-time-picker').datetimepicker({
+              format: 'YYYY-MM-DD HH:mm'
+           });
+
+           instructionModal.modal("show");
+        }).fail(function() {
+          
+        });
+    });
+
+    $(document).on('click', '.create-dispatch-store', function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+      var instructionModal = $("#instruction-dispatch-model");
+      var instructionForm = $("#store-dispatch-stock");
+
+      var formData = new FormData(instructionForm[0]);
+
+      $.ajax({
+          headers: {
+             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: instructionForm.attr("action"),
+          data : formData,
+          method : "post",
+          processData: false,
+          contentType: false,
+          beforeSend : function(){
+            $this.html('Sending Request..');
+          }
+        }).done(function(data) {
+           $this.html('Save');
+           if(data.code == 0) {
+             var errors = "";
+             $.each(data.errors,function(kE,vE){
+                $.each(vE,function(eK, Ev){
+                  errors += Ev+"<br>";
+                })
+             });
+             $("#instruction-dispatch-model").find(".alert-danger").remove();
+             $("#instruction-dispatch-model").find(".modal-body").prepend('<div class="alert alert-danger" role="alert">'+errors+'</div>');
+           }else if(data.code == 1) {
+              instructionForm.find(".alert-danger").remove();
+              $("#instruction-dispatch-model").find(".modal-body").prepend('<div class="alert alert-success" role="alert">Instruction created successfully</div>');
+              setTimeout(function(){ 
+                instructionForm.find(".alert-success").remove();
+                $("#instruction-dispatch-model").modal("hide");
+              }, 3000);
+           }
+
+        }).fail(function() {
+          
+        });
+    });
+
     $(document).on('change', '.instruction-type-select', function(e) {
        if($(this).val() == "dispatch") {
          $("#instruction-model").find(".dispatch-instruction").removeClass("dis-none");
@@ -245,7 +336,7 @@
             $this.html('Sending Request..');
           }
         }).done(function(data) {
-          $this.html('Save');
+           $this.html('Save');
            if(data.code == 0) {
              var errors = "";
              $.each(data.errors,function(kE,vE){
