@@ -2,8 +2,13 @@
 
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
-
+<style type="text/css">
+  .dis-none {
+    display: none;
+  }
+</style>
 @section('content')
   <div class="row">
     <div class="col-lg-12 margin-tb">
@@ -95,6 +100,42 @@
     @include('instock.product-items')
   </div>
 
+  <div id="instruction-model" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Create Dispatch / Location Change</h4>
+        </div>
+        <form id="store-instruction-stock" action="<?php echo route("productinventory.instruction") ?>" method="post">
+          <?php echo csrf_field(); ?>
+          <div class="modal-body">
+                                      
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary create-instruction-receipt">Save</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </form>  
+      </div>
+    </div>
+  </div>
+
+  <div id="instruction-model-dynamic" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title"></h4>
+        </div>
+          <div class="modal-body">
+                                      
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+    </div>
+  </div>
+
   <form action="{{ route('stock.privateViewing.store') }}" method="POST" id="selectProductForm">
     @csrf
     <input type="hidden" name="date" value="{{ $date }}">
@@ -106,7 +147,105 @@
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script>
+    $(document).on('click', '.crt-instruction', function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+      var instructionModal = $("#instruction-model");
+
+      $.ajax({
+          url: "<?php echo route('productinventory.instruction.create'); ?>",
+          data : {
+            product_id : $this.data("product-id")
+          },
+          method : "get"
+        }).done(function(data) {
+
+           instructionModal.find(".modal-body").html(data);
+           $('.date-time-picker').datetimepicker({
+              format: 'YYYY-MM-DD HH:mm'
+           });
+           instructionModal.modal("show");
+        }).fail(function() {
+          
+        });
+
+      /*var model = $("#instruction-model");
+          model.find(".instruction-pr-id").val($(this).data("product-id"));
+          model.modal("show");*/
+    });
+
+    $(document).on('change', '.instruction-type-select', function(e) {
+       if($(this).val() == "dispatch") {
+         $("#instruction-model").find(".dispatch-instruction").removeClass("dis-none");
+       }else{
+         $("#instruction-model").find(".dispatch-instruction").addClass("dis-none");
+       }
+    });
+
+    $(document).on('click', '.create-instruction-receipt', function(e) {
+      e.preventDefault();
+      var $this = $(this);
+      var instructionForm = $("#instruction-model").find("form");
+      $.ajax({
+          url: "<?php echo route('productinventory.instruction'); ?>",
+          method : "post",
+          data : instructionForm.serialize(),
+          beforeSend : function(){
+            $this.html('Sending Request..');
+          }
+        }).done(function(data) {
+          $this.html('Save');
+           if(data.code == 0) {
+             var errors = "";
+             $.each(data.errors,function(kE,vE){
+                $.each(vE,function(eK, Ev){
+                  errors += Ev+"<br>";
+                })
+             });
+             $("#instruction-model").find(".alert-danger").remove();
+             $("#instruction-model").find(".modal-body").prepend('<div class="alert alert-danger" role="alert">'+errors+'</div>');
+           }else if(data.code == 1) {
+              instructionForm.find(".alert-danger").remove();
+              $("#instruction-model").find(".modal-body").prepend('<div class="alert alert-success" role="alert">Instruction created successfully</div>');
+              setTimeout(function(){ 
+                instructionForm.find(".alert-success").remove();
+                $("#instruction-model").modal("hide");
+              }, 3000);
+           }
+        }).fail(function() {
+          
+        });
+
+    });
+
+    $(document).on('click', '.crt-instruction-history', function(e) {
+      e.preventDefault();
+      var $this = $(this);
+      var instructionModal = $("#instruction-model-dynamic");
+      instructionModal.find(".modal-title").html("Product Location History");
+      $.ajax({
+          url: "<?php echo route('productinventory.location.history'); ?>",
+          data : {
+            product_id : $this.data("product-id")
+          },
+          method : "get"
+        }).done(function(data) {
+
+           instructionModal.find(".modal-body").html(data);
+           instructionModal.modal("show");
+        }).fail(function() {
+          
+        });
+
+    });
+
+    
+
+    
+
     var product_array = [];
 
     $(document).ready(function() {
