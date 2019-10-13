@@ -1003,6 +1003,12 @@ class WhatsAppController extends FindByNumberController
             // Find connection with this number in our database
             if ($chatapiMessage[ 'fromMe' ] == true) {
                 $searchNumber = str_replace('@c.us', '', $chatapiMessage[ 'chatId' ]);
+
+                // Check if message already exists
+                $chatMessage = ChatMessage::where('unique_id', $chatapiMessage[ 'id' ]);
+                if ($chatMessage != null) {
+                    return;
+                }
             } else {
                 $searchNumber = $from;
             }
@@ -3484,7 +3490,7 @@ class WhatsAppController extends FindByNumberController
             return false;
         } else {
             // Log curl response
-            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file ."\n");
+            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file . "\n");
 
             // Json decode response into result
             $result = json_decode($response, true);
