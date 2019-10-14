@@ -1082,10 +1082,10 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'customer_id' ] = isset($customer->id) ? $customer->id : null;
 
                 // Remove number
-                $params['number'] = NULL;
+                $params[ 'number' ] = null;
 
                 // Set unique ID
-                $params['unique_id'] = $chatapiMessage['id'];
+                $params[ 'unique_id' ] = $chatapiMessage[ 'id' ];
 
                 // Create message
                 $message = ChatMessage::create($params);
@@ -1140,7 +1140,7 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 // Send realtime message (???) if there is a task ID
-                if (array_key_exists('task_id', $params)) {
+                if (array_key_exists('task_id', $params) && !empty($params[ 'task_id' ])) {
                     $this->sendRealTime($message, 'task_' . $task->id, $client);
                 } else {
                     $this->sendRealTime($message, 'user_' . $user->id, $client);
