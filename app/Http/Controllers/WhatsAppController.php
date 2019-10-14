@@ -1074,6 +1074,9 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'vendor_id' ] = isset($vendor->id) ? $vendor->id : null;
                 $params[ 'customer_id' ] = isset($customer->id) ? $customer->id : null;
 
+                // Set unique ID
+                $params['unique_id'] = $chatapiMessage['id'];
+
                 // Create message
                 $message = ChatMessage::create($params);
 
