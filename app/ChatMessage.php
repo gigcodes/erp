@@ -16,6 +16,14 @@ class ChatMessage extends Model
         "approved" => "boolean"
     );
 
+    /**
+     * Send WhatsApp message via Chat-Api
+     * @param $number
+     * @param null $whatsAppNumber
+     * @param null $message
+     * @param null $file
+     * @return bool|mixed
+     */
     public static function sendWithChatApi($number, $whatsAppNumber = null, $message = null, $file = null)
     {
         // Get configs
@@ -131,14 +139,12 @@ class ChatMessage extends Model
         }
     }
 
-    public
-    function customer()
+    public function customer()
     {
         return $this->belongsTo('App\Customer');
     }
 
-    public
-    function lawyer()
+    public function lawyer()
     {
         return $this->belongsTo('App\Lawyer');
     }
@@ -147,8 +153,7 @@ class ChatMessage extends Model
      * Check if the message has received a broadcast price reply
      * @return bool
      */
-    public
-    function isSentBroadcastPrice()
+    public function isSentBroadcastPrice()
     {
         // Get count
         $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\ChatMessage')->where('type', 'broadcast-prices')->count();
