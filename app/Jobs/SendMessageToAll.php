@@ -117,7 +117,7 @@ class SendMessageToAll implements ShouldQueue
 
                 try {
                     dump('sending message with NEW API');
-                    $sendResult = app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $sendNumber, $message, false, $chatMessage->id);
+                    $sendResult = ChatMessage::sendWithChatApi($this->customer->phone, $sendNumber, $message, false, $chatMessage->id);
                     if ($sendResult) {
                         $chatMessage->unique_id = $sendResult[ 'id' ] ?? '';
                         $chatMessage->save();
@@ -141,8 +141,11 @@ class SendMessageToAll implements ShouldQueue
 
                         try {
                             dump('sending linked images with NEW API');
-                            $sendResult = app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $sendNumber, null, str_replace(' ', '%20', $image[ 'url' ]), $chatMessage->id);
-
+                            $sendResult = ChatMessage::sendWithChatApi($this->customer->phone, $sendNumber, null, str_replace(' ', '%20', $image[ 'url' ]), $chatMessage->id);
+                            if ($sendResult) {
+                                $chatMessage->unique_id = $sendResult[ 'id' ] ?? '';
+                                $chatMessage->save();
+                            }
                         } catch (\Exception $e) {
 
                         }
@@ -155,13 +158,12 @@ class SendMessageToAll implements ShouldQueue
 
                                 try {
                                     dump('sending images with NEW API');
-                                    $sendResult = app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $sendNumber, null, str_replace(' ', '%20', $brod_image->getUrl()), $chatMessage->id);
+                                    $sendResult = ChatMessage::sendWithChatApi($this->customer->phone, $sendNumber, null, str_replace(' ', '%20', $brod_image->getUrl()), $chatMessage->id);
                                     if ($sendResult) {
                                         $chatMessage->unique_id = $sendResult[ 'id' ] ?? '';
                                         $chatMessage->save();
                                     }
                                 } catch (\Exception $e) {
-
                                 }
                             }
                         }
