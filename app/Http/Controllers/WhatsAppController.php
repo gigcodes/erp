@@ -1001,17 +1001,17 @@ class WhatsAppController extends FindByNumberController
             $numberPath = substr($from, 0, 3) . '/' . substr($from, 3, 1);
 
             // Find connection with this number in our database
-//            if ($chatapiMessage[ 'fromMe' ] == true) {
-//                $searchNumber = str_replace('@c.us', '', $chatapiMessage[ 'chatId' ]);
-//
-//                // Check if message already exists
-//                $chatMessage = ChatMessage::where('unique_id', $chatapiMessage[ 'id' ]);
-//                if ($chatMessage != null) {
-//                    return;
-//                }
-//            } else {
-            $searchNumber = $from;
-//            }
+            if ($chatapiMessage[ 'fromMe' ] == true) {
+                $searchNumber = str_replace('@c.us', '', $chatapiMessage[ 'chatId' ]);
+
+                // Check if message already exists
+                $chatMessage = ChatMessage::where('unique_id', $chatapiMessage[ 'id' ]);
+                if ($chatMessage != null) {
+                    return;
+                }
+            } else {
+                $searchNumber = $from;
+            }
 
             // Find objects by number
             $supplier = $this->findSupplierByNumber($searchNumber);
@@ -1062,6 +1062,23 @@ class WhatsAppController extends FindByNumberController
                 }
             } else {
                 $params[ 'message' ] = $text;
+            }
+
+            // From me? Only store, nothing else
+            if ($chatapiMessage[ 'fromMe' ] == true) {
+                // Set objects
+                $params[ 'erp_user' ] = isset($user->id) ? $user->id : null;
+                $params[ 'supplier_id' ] = isset($supplier->id) ? $supplier->id : null;
+                $params[ 'task_id' ] = null;
+                $params[ 'dubbizle_id' ] = isset($dubbizle->id) ? $dubbizle->id : null;
+                $params[ 'vendor_id' ] = isset($vendor->id) ? $vendor->id : null;
+                $params[ 'customer_id' ] = isset($customer->id) ? $customer->id : null;
+
+                // Create message
+                $message = ChatMessage::create($params);
+
+                // Return
+                return;
             }
 
             // Is there a user linked to this number?
