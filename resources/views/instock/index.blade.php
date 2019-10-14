@@ -150,7 +150,7 @@
             <div class="modal-body">    
                <div class="form-group">
                 <label for="customer_id">Customer:</label>
-                <?php echo Form::select("customer_id", $customerList, null,["class"=> "form-control customer-search-box", "style"=>"width:100%;"]);  ?>
+                <?php echo Form::select("customer_id", [], null,["class"=> "form-control customer-search-box", "style"=>"width:100%;"]);  ?>
               </div>
             </div>
             <div class="modal-body">    
@@ -164,7 +164,7 @@
             <input type="hidden" name="screenshot_path" value="">
             <input type="hidden" name="status" value="2">
             <div class="modal-footer">
-              <button type="submit" class="btn btn-secondary">Send</button>
+              <button type="submit" class="btn btn-secondary btn-send-attached-img">Send</button>
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
           </form>  
@@ -234,6 +234,8 @@
 
       });
     };
+
+    customerSearch();
 
     function formatCustomer (customer) {
         if (customer.loading) {
@@ -314,15 +316,21 @@
 
     $(document).on('submit', '#crt-attach-images-frm', function(e) {
         e.preventDefault();
+        var $this = $(this);
         $.ajax({
           url: "<?php echo route('whatsapp.send', 'customer'); ?>",
           data : $("#crt-attach-images-frm").serialize(),
-          method : "post"
+          method : "post",
+          beforeSend : function(){
+            $this.find(".btn-send-attached-img").html('Sending Request..');
+          }
         }).done(function(data) {
            $("#crt-attach-images-model").modal("hide");
         }).fail(function() {
           
         });
+
+        $this.find(".btn-send-attached-img").html('Send');
         return false;
     });
     
