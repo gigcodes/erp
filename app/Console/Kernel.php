@@ -42,8 +42,6 @@ use App\Console\Commands\UpdateInventory;
 use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\CreateScrapedProducts;
 use App\Console\Commands\UploadProductsToMagento;
-use App\Console\Commands\WiseboutiqueProductDetailScraper;
-use App\Console\Commands\WiseBoutiqueScraper;
 use App\Console\Commands\UpdateGnbPrice;
 use App\Console\Commands\DeleteGnbProducts;
 use App\Console\Commands\DeleteWiseProducts;
@@ -107,8 +105,6 @@ class Kernel extends ConsoleKernel
         MakeApprovedImagesSchedule::class,
         UpdateSkuInGnb::class,
         CreateScrapedProducts::class,
-        WiseBoutiqueScraper::class,
-        WiseboutiqueProductDetailScraper::class,
         UpdateGnbPrice::class,
         DeleteGnbProducts::class,
         DeleteWiseProducts::class,

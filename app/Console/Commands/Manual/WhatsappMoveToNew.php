@@ -64,7 +64,7 @@ class WhatsappMoveToNew extends Command
                 'count' => 5
             ],
         ];
-        $message = "Greetings from Solo Luxury , our offices have moved to Dubai , and this is our new whats app number , Best Wishes - Solo Luxury "; // MESSAGE FOR ACTIVE CUSTOMERS OVER 60 DAYS
+        $message = "Greetings from Solo Luxury , our offices have moved to Dubai , and this is our new whats app number , Best Wishes - Solo Luxury ";
 
         // Query to find all customers of $number
         $sql = "
