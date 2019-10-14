@@ -31,10 +31,10 @@ class SendMessageToSelected implements ShouldQueue
      */
     public function __construct(string $number, array $content, int $message_queue_id, string $whatsapp_number)
     {
-      $this->number = $number;
-      $this->whatsapp_number = $whatsapp_number;
-      $this->content = $content;
-      $this->message_queue_id = $message_queue_id;
+        $this->number = $number;
+        $this->whatsapp_number = $whatsapp_number;
+        $this->content = $content;
+        $this->message_queue_id = $message_queue_id;
     }
 
     /**
@@ -44,26 +44,21 @@ class SendMessageToSelected implements ShouldQueue
      */
     public function handle()
     {
-      if ($this->content['message']) {
-        $message = $this->content['message'];
+        if ($this->content[ 'message' ]) {
+            $message = $this->content[ 'message' ];
 
-        // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->number, $this->whatsapp_number, $message, false);
-//        app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->number, $this->whatsapp_number, $message);
-        app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsapp_number, $message, false);
-
-      }
-
-      if (isset($this->content['image'])) {
-        foreach ($this->content['image'] as $image) {
-          // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($this->number, $this->whatsapp_number, str_replace(' ', '%20', $image['url']), false);
-//          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($this->number, $this->whatsapp_number, NULL, str_replace(' ', '%20', $image['url']));
-            app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsapp_number, NULL, str_replace(' ', '%20', $image['url']));
-
+            app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsapp_number, $message, false);
         }
-      }
 
-      $message_queue = MessageQueue::find($this->message_queue_id);
-      $message_queue->sent = 1;
-      $message_queue->save();
+        if (isset($this->content[ 'image' ])) {
+            foreach ($this->content[ 'image' ] as $image) {
+                app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsapp_number, null, str_replace(' ', '%20', $image[ 'url' ]));
+
+            }
+        }
+
+        $message_queue = MessageQueue::find($this->message_queue_id);
+        $message_queue->sent = 1;
+        $message_queue->save();
     }
 }
