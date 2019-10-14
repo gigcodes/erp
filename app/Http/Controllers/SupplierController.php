@@ -22,7 +22,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\ProductQuickshellGroup;
+use App\ProductQuicksellGroup;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\SupplierBrandCountHistory;
 
 class SupplierController extends Controller
 {
@@ -504,7 +506,7 @@ class SupplierController extends Controller
         $suppliercount = SupplierCategoryCount::all();
         $category_parent = Category::where('parent_id', 0)->get();
         $category_child = Category::where('parent_id', '!=', 0)->get();
-        $supplier = Supplier::where('supplier_status_id', 1)->get();
+        $supplier = Supplier::where('supplier_status_id', 1)->orderby('supplier','asc')->get();
 
         return view('suppliers.supplier_category_count', compact('supplier', 'suppliercount', 'category_parent', 'category_child'));
     }
@@ -525,8 +527,9 @@ class SupplierController extends Controller
 
     public function getSupplierCategoryCount()
     {
+
         $suppliercount = SupplierCategoryCount::all();
-        $supplier_list = Supplier::where('supplier_status_id', 1)->get();
+        $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier','asc')->get();
         $category_parent = Category::where('parent_id', 0)->get();
         $category_child = Category::where('parent_id', '!=', 0)->get();
 
@@ -623,9 +626,11 @@ class SupplierController extends Controller
 
         $suppliercount = SupplierBrandCount::all();
         $brand = Brand::orderby('name', 'asc')->get();
-        $supplier = Supplier::where('supplier_status_id', 1)->get();
+        $supplier = Supplier::where('supplier_status_id', 1)->orderby('supplier','asc')->get();
+        $category_parent = Category::where('parent_id', 0)->get();
+        $category_child = Category::where('parent_id', '!=', 0)->get();
 
-        return view('suppliers.supplier_brand_count', compact('supplier', 'suppliercount', 'brand'));
+        return view('suppliers.supplier_brand_count', compact('supplier', 'suppliercount', 'brand','category_parent','category_child'));
     }
 
     public function saveSupplierBrandCount(Request $request)
@@ -633,10 +638,15 @@ class SupplierController extends Controller
         $brand_id = $request->brand_id;
         $supplier_id = $request->supplier_id;
         $count = $request->count;
+        $url = $request->url;
+        $category_id = $request->category_id;
 
         $data[ 'brand_id' ] = $brand_id;
         $data[ 'supplier_id' ] = $supplier_id;
         $data[ 'cnt' ] = $count;
+        $data[ 'url' ] = $url;
+        $data[ 'category_id' ] = $category_id;
+
         SupplierBrandCount::create($data);
 
         return 'Saved SucessFully';
@@ -645,13 +655,17 @@ class SupplierController extends Controller
     public function getSupplierBrandCount()
     {
         $suppliercount = SupplierBrandCount::all();
-        $supplier_list = Supplier::where('supplier_status_id', 1)->get();
+        $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier','asc')->get();
         $brand_list = Brand::orderby('name', 'asc')->get();
+        $category_parent = Category::where('parent_id', 0)->orderby('title','asc')->get();
+        $category_child = Category::where('parent_id', '!=', 0)->orderby('title','asc')->get();
 
 
         foreach ($suppliercount as $supplier) {
             $sup = "";
+
             foreach ($supplier_list as $v) {
+
                 if ($v->id == $supplier->supplier_id) {
                     $sup .= '<option value="' . $v->id . '" selected>' . $v->supplier . '</option>';
                 } else {
@@ -668,11 +682,40 @@ class SupplierController extends Controller
                 }
             }
 
+            $cat = "";
+            $cat .=  '<option>Select Category</option>';
+            foreach ($category_parent as $c) {
+                if ($c->id == $supplier->category_id) {
+                    $cat .= '<option value="' . $c->id . '" selected>' . $c->title . '</option>';
+                } else {
+                    $cat .= '<option value="' . $c->id . '">' . $c->title . '</option>';
+                    if ($c->childs) {
+                        foreach ($c->childs as $categ) {
+                            $cat .= '<option value="' . $categ->id . '">-&nbsp;' . $categ->title . '</option>';
+                        }
+                    }
+                }
+            }
+            foreach ($category_child as $c) {
+                if ($c->id == $supplier->category_id) {
+                    $cat .= '<option value="' . $c->id . '" selected>' . $c->title . '</option>';
+                } else {
+                    $cat .= '<option value="' . $c->id . '">' . $c->title . '</option>';
+                    if ($c->childs) {
+                        foreach ($c->childs as $categ) {
+                            $cat .= '<option value="' . $categ->id . '">-&nbsp;' . $categ->title . '</option>';
+                        }
+                    }
+                }
+            }
+
 
             $sub_array = array();
-            $sub_array[] = '<select class="form-control update" data-column="supplier_id" data-id="' . $supplier[ "id" ] . '">' . $sup . '</select>';
-            $sub_array[] = '<select class="form-control update" data-id="' . $supplier[ "id" ] . '" data-column="brand_id">' . $brands . '</select>';
+            $sub_array[] = '<select disabled class="form-control">' . $sup . '</select>';
+            $sub_array[] = '<select class="form-control" disabled>' . $cat . '</select>';
+            $sub_array[] = '<select disabled class="form-control">' . $brands . '</select>';
             $sub_array[] = '<input type="number"  data-id="' . $supplier[ "id" ] . '" data-column="cnt" value="' . $supplier[ "cnt" ] . '"  class="form-control update">';
+            $sub_array[] = $supplier[ "url" ];
             $sub_array[] = '<button type="button" name="delete" class="btn btn-danger btn-xs delete" id="' . $supplier[ "id" ] . '">Delete</button>';
             $data[] = $sub_array;
         }
@@ -703,6 +746,17 @@ class SupplierController extends Controller
         $column_name = $request->column_name;
         $value = $request->value;
         $suppliercount = SupplierBrandCount::findorfail($request->id);
+
+        // Update in history
+        $history = new SupplierBrandCountHistory();
+        $history->supplier_brand_count_id = $suppliercount->id;
+        $history->supplier_id = $suppliercount->supplier_id;
+        $history->brand_id = $suppliercount->brand_id;
+        $history->cnt = $suppliercount->cnt;
+        $history->url = $suppliercount->url;
+        $history->category_id = $suppliercount->category_id;
+        $history->save();
+        //Update the value
         $suppliercount->$column_name = $value;
         $suppliercount->update();
         return 'Data Updated';
@@ -712,8 +766,17 @@ class SupplierController extends Controller
     public function deleteSupplierBrandCount(Request $request)
     {
         $id = $request->id;
-        $suppliercpunt = SupplierBrandCount::findorfail($id);
-        if ($suppliercpunt) {
+        $suppliercount = SupplierBrandCount::findorfail($id);
+        if ($suppliercount) {
+            // Update in history
+            $history = new SupplierBrandCountHistory();
+            $history->supplier_brand_count_id = $suppliercount->id;
+            $history->supplier_id = $suppliercount->supplier_id;
+            $history->brand_id = $suppliercount->brand_id;
+            $history->cnt = $suppliercount->cnt;
+            $history->url = $suppliercount->url;
+            $history->category_id = $suppliercount->category_id;
+            $history->save();
             SupplierBrandCount::destroy($id);
         }
         return 'Data Deleted';
@@ -728,34 +791,28 @@ class SupplierController extends Controller
                 foreach ($images as $image) {
                     //getting prodct
                     $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->orderBy('id', 'desc')->first();
-                    if ($product != null) {
-                        preg_match('/QUICKSELL(.*)/', $product->sku, $output_array);
-                        if ($number = $output_array) {
-                            $number = $output_array[ 1 ];
-                            $number++;
-                        }
+                    if ($product) {
+                        @$number = 'QUICKSELL' . (int) str_replace('QUICKSELL', '', $product->sku) + 1;
                     } else {
-                        $number = 1;
+                        $number = date('yz') . sprintf('%02d', 1);
                     }
 
-                    $res = new \stdClass();
-                    $res->website = 'QUICKSELL';
-                    $res->images = [$image];
-                    $res->sku = 'QuickSell' . $number;
-                    $res->original_sku = 'QUICKSELL' . $number;
-                    $res->title = 'QUICKSELL' . $number;
-                    $res->brand_id = 3;
-                    $res->properties = array('composition' => '', 'measurement_size_type' => '', 'size' => '', 'color' => '');
-                    $res->url = '';
-                    $res->stock = 1;
-                    $res->size = '';
-                    $res->description = '';
-                    $res->currency = '';
-                    $res->price = 0;
-                    $res->discounted_price = '';
-                    $res->is_sale = 0;
-                    $product = new Product();
-                    $product->createProductByJson($res, 0);
+                    $product = new Product;
+
+                    $product->name = 'QUICKSELL';
+                    $product->sku = 'QuickSell' . $number;
+                    $product->size = '';
+                    $product->brand = 3;
+                    $product->color = '';
+                    $product->location = '';
+                    $product->category = '';
+                    $product->supplier = 'QUICKSELL';
+                    $product->price = 0;
+                    $product->stock = 1;
+                    $product->quick_product = 1;
+                    $product->isPending = 1;
+                    $product->save();
+                    return redirect()->back()->withSuccess('You have successfully saved product(s)!');
 
                 }
                 return redirect()->back()->withSuccess('You have successfully saved product(s)!');
@@ -767,40 +824,37 @@ class SupplierController extends Controller
             if ($images) {
                 // Loop Over Images
                 foreach ($images as $image) {
-                    //Getting the last created QUICKSHELL
+                    //Getting the last created QUICKSELL
                     // MariaDB 10.0.5 and higher: $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->whereRaw("REGEXP_REPLACE(products.sku, '[a-zA-Z]+', '') > 0")->orderBy('id', 'desc')->first();
                     $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
                     if ($product) {
-                        $number = 'QUICKSELL' . (int) str_replace('QUICKSELL', '', $product->sku) + 1;
+                        @$number = 'QUICKSELL' . (int) str_replace('QUICKSELL', '', $product->sku) + 1;
                     } else {
                         $number = date('yz') . sprintf('%02d', 1);
                     }
-                    $res = new \stdClass();
-                    $res->website = 'QUICKSELL';
-                    $res->images = [$image];
-                    $res->sku = 'QuickSell' . $number;
-                    $res->original_sku = 'QUICKSELL' . $number;
-                    $res->title = 'QUICKSELL' . $number;
-                    $res->brand_id = 3;
-                    $res->properties = array('composition' => '', 'measurement_size_type' => '', 'size' => '', 'color' => '');
-                    $res->url = '';
-                    $res->stock = 1;
-                    $res->size = '';
-                    $res->description = '';
-                    $res->currency = '';
-                    $res->price = 0;
-                    $res->discounted_price = '';
-                    $res->is_sale = 0;
-                    $product = new Product();
-                    $product->createProductByJson($res, 0);
+                    $product = new Product;
+
+                    $product->name = 'QUICKSELL';
+                    $product->sku = 'QuickSell' . $number;
+                    $product->size = '';
+                    $product->brand = 3;
+                    $product->color = '';
+                    $product->location = '';
+                    $product->category = '';
+                    $product->supplier = 'QUICKSELL';
+                    $product->price = 0;
+                    $product->stock = 1;
+                    $product->quick_product = 1;
+                    $product->isPending = 1;
+                    $product->save();
                     // if Product is true
                     if ($product == true) {
                         //Finding last created Product using sku
-                        $product_id = Product::where('sku', $res->sku)->first();
+                        $product_id = Product::where('sku', $product->sku)->first();
                         if ($product_id != null) {
                             $id = $product_id->id;
                             //getting last group id
-                            $group_id = ProductQuickshellGroup::select('quicksell_group_id')->orderBy('id', 'desc')->first();
+                            $group_id = ProductQuicksellGroup::select('quicksell_group_id')->orderBy('id', 'desc')->first();
                             if ($group_id != null) {
                                 $number = $group_id->quicksell_group_id;
                                 //Increment Group id
@@ -808,7 +862,7 @@ class SupplierController extends Controller
                             } else {
                                 $number = 1;
                             }
-                            $group = new ProductQuickshellGroup();
+                            $group = new ProductQuicksellGroup();
                             $group->product_id = $id;
                             $group->quicksell_group_id = $number;
                             $group->save();

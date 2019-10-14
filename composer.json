@@ -12,6 +12,7 @@
         "ext-json": "*",
         "atayahmet/laravel-nestable": "^0.8.7",
         "barryvdh/laravel-ide-helper": "^2.4",
+        "barryvdh/laravel-snappy": "*",
         "bugsnag/bugsnag-laravel": "^2.0",
         "chumper/zipper": "^1.0",
         "doctrine/dbal": "^2.9",
@@ -33,6 +34,7 @@
         "maatwebsite/excel": "^3.1",
         "macsidigital/zoom-laravel": "^1.0",
         "mgp25/instagram-php": "dev-master",
+        "milon/barcode": "^6.0",
         "nunomaduro/laravel-console-dusk": "^1.0",
         "ourcodeworld/name-that-color": "dev-master",
         "php-ai/php-ml": "^0.8.0",
@@ -76,7 +78,7 @@
             "App\\": "app/"
         },
         "files" : [
-            "app/comman_functions.php"
+            "app/Helpers/common_functions.php"
         ]
     },
     "autoload-dev": {
