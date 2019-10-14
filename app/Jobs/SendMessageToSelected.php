@@ -30,13 +30,13 @@ class SendMessageToSelected implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(string $number, array $content, int $messageQueueId, string $whatsAppNumber, $groupId=NULL)
+    public function __construct(string $number, array $content, int $messageQueueId, string $whatsAppNumber, $groupId = null)
     {
         $this->number = $number;
         $this->whatsAppNumber = $whatsAppNumber;
         $this->content = $content;
         $this->messageQueueId = $messageQueueId;
-        $this->groupId= $groupId;
+        $this->groupId = $groupId;
     }
 
     /**

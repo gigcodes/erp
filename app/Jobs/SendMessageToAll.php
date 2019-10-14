@@ -38,7 +38,7 @@ class SendMessageToAll implements ShouldQueue
      * @param array $content
      * @param int $messageQueueId
      */
-    public function __construct(int $userId, Customer $customer, array $content, int $messageQueueId, $groupId)
+    public function __construct(int $userId, Customer $customer, array $content, int $messageQueueId, $groupId=null)
     {
         $this->userId = $userId;
         $this->customer = $customer;
