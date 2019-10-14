@@ -18,9 +18,10 @@ class SendMessageToSelected implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $number;
-    protected $whatsapp_number;
+    protected $whatsAppNumber;
     protected $content;
-    protected $message_queue_id;
+    protected $messageQueueId;
+    protected $groupId;
 
     public $tries = 5;
 
@@ -29,12 +30,13 @@ class SendMessageToSelected implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(string $number, array $content, int $message_queue_id, string $whatsapp_number)
+    public function __construct(string $number, array $content, int $messageQueueId, string $whatsAppNumber, $groupId = null)
     {
         $this->number = $number;
-        $this->whatsapp_number = $whatsapp_number;
+        $this->whatsAppNumber = $whatsAppNumber;
         $this->content = $content;
-        $this->message_queue_id = $message_queue_id;
+        $this->messageQueueId = $messageQueueId;
+        $this->groupId = $groupId;
     }
 
     /**
@@ -47,17 +49,17 @@ class SendMessageToSelected implements ShouldQueue
         if ($this->content[ 'message' ]) {
             $message = $this->content[ 'message' ];
 
-            app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsapp_number, $message, false);
+            app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsAppNumber, $message, false);
         }
 
         if (isset($this->content[ 'image' ])) {
             foreach ($this->content[ 'image' ] as $image) {
-                app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsapp_number, null, str_replace(' ', '%20', $image[ 'url' ]));
+                app(WhatsAppController::class)->sendWithThirdApi($this->customer->phone, $this->whatsAppNumber, null, str_replace(' ', '%20', $image[ 'url' ]));
 
             }
         }
 
-        $message_queue = MessageQueue::find($this->message_queue_id);
+        $message_queue = MessageQueue::find($this->messageQueueId);
         $message_queue->sent = 1;
         $message_queue->save();
     }
