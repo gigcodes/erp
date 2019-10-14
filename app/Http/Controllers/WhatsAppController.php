@@ -1140,6 +1140,10 @@ class WhatsAppController extends FindByNumberController
             // Is there a contact linked to this number?
             if ($contact) {
                 // Set contact_id parameter
+                $params[ 'erp_user' ] = null;
+                $params[ 'task_id' ] = null;
+                $params[ 'user_id' ] = null;
+                $params[ 'supplier_id' ] = null;
                 $params[ 'contact_id' ] = $contact->id;
 
                 // Check for task ID
