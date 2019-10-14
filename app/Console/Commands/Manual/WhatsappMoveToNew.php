@@ -124,13 +124,15 @@ class WhatsappMoveToNew extends Command
                     ];
                     $chat_message = ChatMessage::create($params);
 
-                    // Approve message
-                    $myRequest = new Request();
-                    $myRequest->setMethod('POST');
-                    $myRequest->request->add(['messageId' => $chat_message->id]);
+                    // Send message
                     echo " ... SENDING from " . $currentNewNumber . "\n";
-                    app(WhatsAppController::class)->approveMessage('customer', $myRequest);
+                    $sendResult = ChatMessage::sendWithChatApi($customer->phone, $currentNewNumber, $message);
 
+                    // Store sendResult
+                    if ($sendResult) {
+                        $message->unique_id = $sendResult[ 'id' ] ?? '';
+                        $message->save();
+                    }
                 } else {
                     echo $count . " Customer ID " . $result->id . " ERROR\n";
                 }

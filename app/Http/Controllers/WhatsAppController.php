@@ -2665,7 +2665,6 @@ class WhatsAppController extends FindByNumberController
 
     public function approveMessage($context, Request $request)
     {
-        $user = \Auth::user();
         $defCustomer = '971547763482';
         $message = ChatMessage::findOrFail($request->get("messageId"));
         $today_date = Carbon::now()->format('Y-m-d');
