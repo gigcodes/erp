@@ -310,6 +310,7 @@ class ProductInventoryController extends Controller
 		$data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
 		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';
+		$data['customerList'] = \App\Customer::pluck("name","id")->toArray();
 
 		$data['locations'] = (new LocationList)->all();
 

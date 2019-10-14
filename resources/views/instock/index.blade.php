@@ -139,6 +139,39 @@
     </div>
   </div>
 
+    <div id="crt-attach-images-model" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create Dispatch</h4>
+          </div>
+          <form id="crt-attach-images-frm">
+           <?php echo csrf_field(); ?>
+            <div class="modal-body">    
+               <div class="form-group">
+                <label for="customer_id">Customer:</label>
+                <?php echo Form::select("customer_id", $customerList, null,["class"=> "form-control customer-search-box", "style"=>"width:100%;"]);  ?>
+              </div>
+            </div>
+            <div class="modal-body">    
+               <div class="form-group">
+                <label for="customer_id">Message:</label>
+                <textarea name="message" class="form-control"></textarea>
+              </div>
+            </div>
+            <input type="hidden" name="images" id="images" value="">
+            <input type="hidden" name="image" value="">
+            <input type="hidden" name="screenshot_path" value="">
+            <input type="hidden" name="status" value="2">
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-secondary">Send</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </form>  
+        </div>
+    </div>
+  </div>
+
   <div id="instruction-model-dynamic" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -270,6 +303,29 @@
         });
     });
 
+    $(document).on('click', '.crt-attach-images', function(e) {
+      e.preventDefault();
+
+      var $this = $(this);
+      var instructionModal = $("#crt-attach-images-model");
+      instructionModal.find("#images").val(JSON.stringify($this.data('media-ids').split(",")));
+      instructionModal.modal("show");
+    });
+
+    $(document).on('submit', '#crt-attach-images-frm', function(e) {
+        e.preventDefault();
+        $.ajax({
+          url: "<?php echo route('whatsapp.send', 'customer'); ?>",
+          data : $("#crt-attach-images-frm").serialize(),
+          method : "post"
+        }).done(function(data) {
+           $("#crt-attach-images-model").modal("hide");
+        }).fail(function() {
+          
+        });
+        return false;
+    });
+    
     $(document).on('click', '.create-dispatch-store', function(e) {
       e.preventDefault();
 
@@ -292,7 +348,8 @@
             $this.html('Sending Request..');
           }
         }).done(function(data) {
-           $this.html('Save');
+           $this.html('Save')
+            ;
            if(data.code == 0) {
              var errors = "";
              $.each(data.errors,function(kE,vE){
@@ -325,7 +382,8 @@
     });
 
     $(document).on('click', '.create-instruction-receipt', function(e) {
-      e.preventDefault();
+      e.preventDefault
+        ();
       var $this = $(this);
       var instructionForm = $("#instruction-model").find("form");
       $.ajax({
