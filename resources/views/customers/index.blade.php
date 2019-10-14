@@ -584,13 +584,12 @@
                                 <span class="btn btn-image"><img src="/images/flagged.png"/></span>
                             @endif
 
-                            <button data-toggle="tooltip" title="Load More..." type="button" class="btn btn-xs btn-image load-more-communication" data-id="{{ $customer->id }}">
-                                <img src="{{ asset('/images/chat.png') }}" alt="">
-                            </button>
+                            aaa
+                            <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='customer' data-id="{{ $customer->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
 
                             <ul class="more-communication-container">
-
                             </ul>
+
 
                             @if(isset($complaints[$customer->id]))
                                 <p style="cursor: pointer;" class="show-complaint" data-complaint="{{ $complaints[$customer->id] }}">

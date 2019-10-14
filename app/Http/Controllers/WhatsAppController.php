@@ -1028,7 +1028,14 @@ class WhatsAppController extends FindByNumberController
                 'message' => '',
                 'media_url' => null,
                 'approved' => $chatapiMessage[ 'fromMe' ] ? 1 : 0,
-                'status' => $chatapiMessage[ 'fromMe' ] ? 2 : 0
+                'status' => $chatapiMessage[ 'fromMe' ] ? 2 : 0,
+                'contact_id' => null,
+                'erp_user' => null,
+                'supplier_id' => null,
+                'task_id' => null,
+                'dubizzle_id' => null,
+                'vendor_id' => null,
+                'customer_id' => null,
             ];
 
             // Check if the message is a URL

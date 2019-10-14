@@ -32,7 +32,7 @@ class ChatMessagesController extends Controller
                 $object = Vendor::find($request->object_id);
                 break;
             default:
-                $object = Customer::find($request->customer_id);
+                $object = Customer::find($request->object);
         }
 
         // Get chat messages
