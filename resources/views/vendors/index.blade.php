@@ -136,7 +136,7 @@
                     <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
                         <span class="td-full-container">
                             {{ $vendor->message }}
-                            <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-message-modal" data-id="{{ $vendor->id }}" title="Load More..."><img src="/images/chat.png" alt=""></button>
+                            <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='vendor' data-id="{{ $vendor->id }}" title="Load More..."><img src="/images/chat.png" alt=""></button>
                         </span>
                     </td>
                     <td>
@@ -219,7 +219,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Communication (Last 30)</h4>
+                    <h4 class="modal-title">Communication</h4>
                 </div>
                 <div class="modal-body" style="background-color: #999999;">
                 </div>

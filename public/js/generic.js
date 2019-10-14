@@ -1,11 +1,12 @@
-$(document).on('click', '.load-message-modal', function () {
+$(document).on('click', '.load-communication-modal', function () {
     var thiss = $(this);
-    var vendor_id = $(this).data('id');
+    var object_type = $(this).data('object');
+    var object_id = $(this).data('id');
     var load_attached = $(this).data('attached');
 
     $.ajax({
         type: "GET",
-        url: "/chat-messages/vendor/" + vendor_id + "/loadMoreMessages",
+        url: "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages",
         data: {
             limit: 1000,
             load_attached: load_attached

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Customer;
+use App\User;
 use App\Vendor;
 use Illuminate\Http\Request;
 
@@ -21,11 +22,14 @@ class ChatMessagesController extends Controller
 
         // Get object (customer, vendor, etc.)
         switch ($request->object) {
-            case 'vendor':
-                $object = Vendor::find($request->object_id);
-                break;
             case 'customer':
                 $object = Customer::find($request->object_id);
+                break;
+            case 'user':
+                $object = User::find($request->object_id);
+                break;
+            case 'vendor':
+                $object = Vendor::find($request->object_id);
                 break;
             default:
                 $object = Customer::find($request->customer_id);
