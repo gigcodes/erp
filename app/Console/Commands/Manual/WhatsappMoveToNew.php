@@ -122,7 +122,7 @@ class WhatsappMoveToNew extends Command
                         // 'customer_id' => 44, // FOR TESTING
                         'message' => $message
                     ];
-                    $chat_message = ChatMessage::create($params);
+                    $chatMessage = ChatMessage::create($params);
 
                     // Send message
                     echo " ... SENDING from " . $currentNewNumber . "\n";
@@ -130,8 +130,8 @@ class WhatsappMoveToNew extends Command
 
                     // Store sendResult
                     if ($sendResult) {
-                        $message->unique_id = $sendResult[ 'id' ] ?? '';
-                        $message->save();
+                        $chatMessage->unique_id = $sendResult[ 'id' ] ?? '';
+                        $chatMessage->save();
                     }
                 } else {
                     echo $count . " Customer ID " . $result->id . " ERROR\n";
