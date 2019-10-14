@@ -583,7 +583,7 @@
                             @if ($customer->is_error_flagged == 1)
                                 <span class="btn btn-image"><img src="/images/flagged.png"/></span>
                             @endif
-                            
+
                             <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='customer' data-id="{{ $customer->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
 
                             <ul class="more-communication-container">
@@ -836,14 +836,14 @@
             </div>
         </div>
     </div>
+
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Communication (Last 30)</h4>
+                    <h4 class="modal-title">Communication</h4>
                 </div>
-                <div class="modal-body">
-
+                <div class="modal-body" style="background-color: #999999;">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
