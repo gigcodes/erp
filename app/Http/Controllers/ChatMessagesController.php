@@ -16,7 +16,8 @@ class ChatMessagesController extends Controller
     public function loadMoreMessages(Request $request)
     {
         // Set limit of messages
-        $limit = request()->get("limit", 3);
+        $limit = $request->get("limit", 3);
+        $loadAttached = $request->get("load_attached", 0);
 
         // Get object (customer, vendor, etc.)
         switch ($request->object) {
@@ -42,7 +43,7 @@ class ChatMessagesController extends Controller
             $media = [];
 
             // Check for media
-            if ($chatMessage->hasMedia(config('constants.media_tags'))) {
+            if ($loadAttached == 1 && $chatMessage->hasMedia(config('constants.media_tags'))) {
                 foreach ($chatMessage->getMedia(config('constants.media_tags')) as $key => $image) {
                     $media[] = $image->getUrl();
                 }

@@ -1,12 +1,14 @@
 $(document).on('click', '.load-message-modal', function () {
     var thiss = $(this);
     var vendor_id = $(this).data('id');
+    var load_attached = $(this).data('attached');
 
     $.ajax({
         type: "GET",
         url: "/chat-messages/vendor/" + vendor_id + "/loadMoreMessages",
         data: {
-            limit: 1000
+            limit: 1000,
+            load_attached: load_attached
         },
         beforeSend: function () {
             //$(thiss).text('Loading...');
@@ -19,7 +21,7 @@ $(document).on('click', '.load-message-modal', function () {
             var imgSrc = '';
 
             // Check for attached media (ERP attached media)
-            if (message.media.length > 0) {
+            if (load_attached == 1 && message.media.length > 0) {
                 for (i = 0; i < message.media.length; i++) {
                     // Set image type
                     var imageType = message.media[i].substr(-4).toLowerCase();
@@ -48,11 +50,11 @@ $(document).on('click', '.load-message-modal', function () {
                         media = media + '<div class="col-4"><a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a></div>';
                     }
                 }
+            }
 
-                // Do we have media?
-                if (media != '') {
-                    media = '<div style="max-width: 100%; margin-bottom: 10px;"><div class="row">' + media + '</div></div>';
-                }
+            // Do we have media sent with the message?
+            if (media != '') {
+                media = '<div style="max-width: 100%; margin-bottom: 10px;"><div class="row">' + media + '</div></div>';
             }
 
             // Check for media URL
