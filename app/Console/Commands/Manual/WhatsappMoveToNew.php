@@ -47,17 +47,17 @@ class WhatsappMoveToNew extends Command
 
         // Settings
         $newNumber = [
-            [
-                'number' => '971547763482', // 04
-                'count' => 10
-            ],
+//            [
+//                'number' => '971547763482', // 04
+//                'count' => 10
+//            ],
             [
                 'number' => '971545889192',
-                'count' => 10
+                'count' => 15
             ],
             [
                 'number' => '971562744570', // 06
-                'count' => 10
+                'count' => 15
             ],
             [
                 'number' => '971504289967',
