@@ -1005,7 +1005,7 @@ class WhatsAppController extends FindByNumberController
                 $searchNumber = str_replace('@c.us', '', $chatapiMessage[ 'chatId' ]);
 
                 // Check if message already exists
-                $chatMessage = ChatMessage::where('unique_id', $chatapiMessage[ 'id' ]);
+                $chatMessage = ChatMessage::where('unique_id', $chatapiMessage[ 'id' ])->first();
                 if ($chatMessage != null) {
                     return;
                 }
@@ -1080,8 +1080,8 @@ class WhatsAppController extends FindByNumberController
                 // Create message
                 $message = ChatMessage::create($params);
 
-                // Return
-                return response('success', 200);
+                // Continue to the next record
+                continue;
             }
 
             // Is there a user linked to this number?
