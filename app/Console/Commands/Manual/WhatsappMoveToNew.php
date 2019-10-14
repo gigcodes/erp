@@ -61,7 +61,7 @@ class WhatsappMoveToNew extends Command
             ],
             [
                 'number' => '971504289967',
-                'count' => 3
+                'count' => 5
             ],
         ];
         $message = "Greetings from Solo Luxury , our offices have moved to Dubai , and this is our new whats app number , Best Wishes - Solo Luxury "; // MESSAGE FOR ACTIVE CUSTOMERS OVER 60 DAYS
@@ -82,7 +82,7 @@ class WhatsappMoveToNew extends Command
             ORDER BY
                 RAND()
             LIMIT
-                0,33
+                0,35
         ";
         // echo $sql;
         $rs = DB::select(DB::raw($sql));
