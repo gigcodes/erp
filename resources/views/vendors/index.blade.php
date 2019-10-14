@@ -133,39 +133,11 @@
                             <button class="btn btn-sm btn-image send-message" data-vendorid="{{ $vendor->id }}"><img src="/images/filled-sent.png"/></button>
                         </div>
                     </td>
-                    {{-- <td>
-                      @if ($supplier->agents)
-                        <ul>
-                          @foreach ($supplier->agents as $agent)
-                            <li>
-                              <strong>{{ $agent->name }}</strong> <br>
-                              {{ $agent->phone }} - {{ $agent->email }} <br>
-                              <span class="text-muted">{{ $agent->address }}</span> <br>
-                              <button type="button" class="btn btn-xs btn-secondary edit-agent-button" data-toggle="modal" data-target="#editAgentModal" data-agent="{{ $agent }}">Edit</button>
-                            </li>
-                          @endforeach
-                        </ul>
-                      @endif
-                    </td> --}}
-
-                    {{-- <td>{{ $supplier->gst }}</td> --}}
-                    {{-- <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}"  style="word-break: break-all;">
-                      {{ strlen(strip_tags($supplier->email_message)) > 0 ? 'Email' : '' }}
-                    </td> --}}
                     <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
                         <span class="td-full-container">
                             {{ $vendor->message }}
-                            <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-more-communication" data-id="{{ $vendor->id }}" title="Load More..."><img src="/images/chat.png" alt=""></button>
-                </span>
-
-                        {{-- @if ($supplier->message != '')
-                          <br>
-                          <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $supplier->id }}">Load More</button>
-
-                          <ul class="more-communication-container">
-
-                          </ul>
-                        @endif --}}
+                            <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-message-modal" data-id="{{ $vendor->id }}" title="Load More..."><img src="/images/chat.png" alt=""></button>
+                        </span>
                     </td>
                     <td>
                         <div class="d-flex">
@@ -452,93 +424,6 @@
                 }
             });
 
-        });
-
-        $(document).on('click', '.load-more-communication', function () {
-            var thiss = $(this);
-            var vendor_id = $(this).data('id');
-
-            $.ajax({
-                type: "GET",
-                url: "{{ url('chat-messages') }}/vendor/" + vendor_id + "/loadMoreMessages",
-                data: {
-                    limit: 1000
-                },
-                beforeSend: function () {
-                    //$(thiss).text('Loading...');
-                }
-            }).done(function (response) {
-                var li = '<div class="speech-wrapper">';
-                (response.messages).forEach(function (message) {
-                    // Set empty image var
-                    var media = '';
-                    var imgSrc = '';
-
-                    // Check for attached media (ERP attached media)
-                    if (message.media.length > 0) {
-                        for (i = 0; i < message.media.length; i++) {
-                            // Set image type
-                            var imageType = message.media[i].substr(-4).toLowerCase();
-
-                            // Set correct icon/image
-                            if (imageType == '.jpg' || imageType == 'jpeg') {
-                                imgSrc = message.media[i];
-                            } else if (imageType == '.png') {
-                                imgSrc = message.media[i];
-                            } else if (imageType == '.gif') {
-                                imgSrc = message.media[i];
-                            } else if (imageType == 'docx' || imageType == '.doc') {
-                                imgSrc = '/images/icon-word.svg';
-                            } else if (imageType == '.xlsx' || imageType == '.xls' || imageType == '.csv') {
-                                imgSrc = '/images/icon-excel.svg';
-                            } else if (imageType == '.pdf') {
-                                imgSrc = '/images/icon-pdf.svg';
-                            } else if (imageType == '.zip' || imageType == '.tgz' || imageType == 'r.gz') {
-                                imgSrc = '/images/icon-zip.svg';
-                            } else {
-                                imgSrc = '/images/icon-file-unknown.svg';
-                            }
-
-                            // Set media
-                            if (imgSrc != '') {
-                                media = media + '<div class="col-4"><a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a></div>';
-                            }
-                        }
-
-                        // Do we have media?
-                        if (media != '') {
-                            media = '<div style="max-width: 100%; margin-bottom: 10px;"><div class="row">' + media + '</div></div>';
-                        }
-                    }
-
-                    // Check for media URL
-                    if (message.media_url != null) {
-                        media = '<a href="' + message.media_url + '" target="_blank"><img src="' + message.media_url + '" style="max-width: 100%;"></a>' + media;
-                    }
-
-
-                    if (message.inout == 'in') {
-                        li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
-                    } else if (message.inout == 'out') {
-                        li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + media + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
-                    } else {
-                        li += '<div>' + index + '</div>';
-                    }
-                });
-
-                li += '</div>';
-
-                $("#chat-list-history").find(".modal-body").html(li);
-                $(thiss).html("<img src='/images/chat.png' alt=''>");
-                $("#chat-list-history").modal("show");
-
-            }).fail(function (response) {
-                $(thiss).text('Load More');
-
-                alert('Could not load more messages');
-
-                console.log(response);
-            });
         });
 
         $(document).on('click', '.add-cc', function (e) {
