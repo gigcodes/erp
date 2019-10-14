@@ -1,7 +1,10 @@
 @extends('layouts.app')
 
 @section('styles')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+@section("styles")
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+@endsection
 @endsection
 
 @section('content')
@@ -10,20 +13,40 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Documents Manager</h2>
             <div class="pull-left">
-                {{-- <form action="/order/" method="GET">
+                <form action="{{ route('document.index') }}" method="GET">
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-4">
                                 <input name="term" type="text" class="form-control"
                                        value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="Search">
+                                       placeholder="user,department,filename">
                             </div>
                             <div class="col-md-4">
-                                <button hidden type="submit" class="btn btn-primary">Submit</button>
+                                <select class="form-control select-multiple2" name="category[]" data-placeholder="Select Category.." multiple>
+                                    <option>Select Category</option>
+                                    @foreach($category as $cat)
+                                        <option value="{{ $cat->id }}" data-list="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
+
+                            <div class="col-md-3">
+                                <div class='input-group date' id='filter-date'>
+                                    <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" />
+
+                                    <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-1">
+                            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                            </div>
+
                         </div>
                     </div>
-                </form> --}}
+                </form>
             </div>
             <div class="pull-right">
                 <a href="{{ route('document.email') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
@@ -210,6 +233,12 @@
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+        $('#filter-date').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+    </script>
     <script type="text/javascript">
         $(document).ready(function(){
             $(".category").change(function() {

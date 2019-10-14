@@ -25,10 +25,35 @@ class DocumentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+            if($request->term || $request->date || $request->category) {
 
-            $documents = Document::where('status',1)->latest()->paginate(Setting::get('pagination'));
+                if($request->date){
+
+                    $documents  = Document::query()
+                        ->whereDate('created_at', $request->date)
+                        ->paginate(10);
+
+                }
+
+                if($request->term){
+
+                    $documents  = Document::query()
+                        ->where('filename', 'LIKE', "%{$request->term}%")
+                        ->orWhere('name', 'LIKE', "%{$request->term}%")
+                        ->paginate(10);
+
+                }
+
+                if($request->category){
+                    $documents = Document::whereIn('category_id', $request->category)->paginate(10);
+
+                    }
+
+            }else{
+                $documents = Document::where('status',1)->latest()->paginate(Setting::get('pagination'));
+            }
             $users = User::select(['id', 'name', 'email', 'agent_role'])->get();
             $category = DocumentCategory::select('id', 'name')->get();
             $api_keys = ApiKey::select('number')->get();
