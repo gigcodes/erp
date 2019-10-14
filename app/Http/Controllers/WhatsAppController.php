@@ -1081,7 +1081,7 @@ class WhatsAppController extends FindByNumberController
                 $message = ChatMessage::create($params);
 
                 // Return
-                return;
+                return response('success', 200);
             }
 
             // Is there a user linked to this number?
