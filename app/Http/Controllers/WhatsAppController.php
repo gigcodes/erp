@@ -1182,6 +1182,7 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'erp_user' ] = null;
                 $params[ 'task_id' ] = null;
                 $params[ 'contact_id' ] = null;
+                $params[ 'customer_id' ] = null;
                 $params[ 'user_id' ] = null;
                 $params[ 'supplier_id' ] = null;
                 $params[ 'vendor_id' ] = $vendor->id;
