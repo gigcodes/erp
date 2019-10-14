@@ -95,7 +95,7 @@ class RunMessageQueue extends Command
 
                             if (!$this->isWaitingFull($number)) {
                                 if ($customer && $customer->do_not_disturb == 0 && substr($number,0,3) == '971') {
-                                    SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id, $message->group_id);
+                                    SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id, $group->group_id);
 
                                     dump('sent to all');
                                 } else {
