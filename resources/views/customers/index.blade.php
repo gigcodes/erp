@@ -583,8 +583,7 @@
                             @if ($customer->is_error_flagged == 1)
                                 <span class="btn btn-image"><img src="/images/flagged.png"/></span>
                             @endif
-
-                            aaa
+                            
                             <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='customer' data-id="{{ $customer->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
 
                             <ul class="more-communication-container">
