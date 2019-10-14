@@ -143,7 +143,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title">Create Dispatch</h4>
+            <h4 class="modal-title">Attach Images to Message</h4>
           </div>
           <form id="crt-attach-images-frm">
            <?php echo csrf_field(); ?>
