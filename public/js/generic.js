@@ -74,11 +74,17 @@ $(document).on('click', '.load-communication-modal', function () {
 });
 
 function getImageToDisplay(imageUrl) {
+    // Trim imageUrl
+    imageUrl = imageUrl.trim();
+
     // Set empty imgSrc
     var imgSrc = '';
 
     // Set image type
-    var imageType = imageUrl.substr(-4).toLowerCase();
+    var imageType = imageUrl.substr(imageUrl.length-4).toLowerCase();
+    console.log(imageUrl);
+    console.log(imageUrl.length);
+    console.log(imageType);
 
     // Set correct icon/image
     if (imageType == '.jpg' || imageType == 'jpeg') {
