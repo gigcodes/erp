@@ -335,6 +335,7 @@
                                                 <a class="dropdown-item" href="{{ url('/excel-importer') }}">Excel Import </a>
                                                 <a class="dropdown-item" href="{{ url('/excel-importer/mapping') }}">Add Mapping For Master </a>
                                                 <a class="dropdown-item" href="{{ url('/excel-importer/tools-brand') }}">Add Mapping For Excel</a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer-log') }}">Excel Importer Log</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
