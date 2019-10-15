@@ -495,7 +495,7 @@ class PurchaseController extends Controller
       $new_products = [];
       $products = $products->select(['id', 'sku', 'supplier', 'brand', 'category'])->get()->sortBy('supplier');
       $count = 0;
-
+      $productIds = [];
       foreach($products as $key => $product) {
         $supplier_list = '';
         $single_supplier = '';
@@ -524,6 +524,8 @@ class PurchaseController extends Controller
             $customers[] = $order_product->order->customer;
           }
         }
+        
+        $productIds[] = $product->id;
 
         $new_products[$count]['id'] = $product->id;
         $new_products[$count]['sku'] = $product->sku;
@@ -556,14 +558,14 @@ class PurchaseController extends Controller
       $suppliersQuery = DB::select('SELECT sp.id FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website inner join order_products op on op.sku = sp.sku where last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY)');
       $cnt = count($suppliersQuery);
               
-      if($cnt > 0) {
+      if($cnt > 0 && !empty($productIds)) {
         $suppliers_all = DB::select('SELECT id, supplier, product_id
           FROM suppliers
           INNER JOIN (
             SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
             ) as product_suppliers
           ON suppliers.id = product_suppliers.supplier_id
-          LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and product_id = :product_id', ['product_id' =>$product['id']]);                    
+          LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and product_id in ( :product_id )', ['product_id' => implode(',', $productIds)]);                    
       }
       //echo '<pre>'; print_r($status) ;die;
       
