@@ -364,6 +364,9 @@
                         </optgroup>
                         </select>
                       </div>
+                      <div class="form-group mr-3 mb-3">
+                          <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
+                      </div>
                       <div class="form-group mr-3">
                         <strong class="mr-3">Price</strong>
                           <input type="text" name="price_min" class="form-control" placeholder="min. price" value="{{ isset($_GET['price_min']) ? (int) $_GET['price_min'] : '' }}">
