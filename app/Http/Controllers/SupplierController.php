@@ -850,7 +850,7 @@ class SupplierController extends Controller
                     // MariaDB 10.0.5 and higher: $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->whereRaw("REGEXP_REPLACE(products.sku, '[a-zA-Z]+', '') > 0")->orderBy('id', 'desc')->first();
                     $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
                     if ($product) {
-                        $number = 'QUICKSELL' . (int) str_replace('QUICKSELL', '', $product->sku) + 1;
+                        $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
                     } else {
                         $number = date('yz') . sprintf('%02d', 1);
                     }
