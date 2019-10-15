@@ -45,7 +45,7 @@ $(document).on('click', '.load-communication-modal', function () {
                 imgSrc = getImageToDisplay(message.media_url);
 
                 // Display media in chat
-                media = '<a href="' + message.media_url + '" target="_blank"><img src="' + message.media_url + '" style="max-width: 100%;"></a>'; // + media;
+                media = '<a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
             }
 
 
