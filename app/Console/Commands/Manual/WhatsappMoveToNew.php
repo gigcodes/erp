@@ -47,17 +47,17 @@ class WhatsappMoveToNew extends Command
 
         // Settings
         $newNumber = [
-            [
-                'number' => '971547763482', // 04
-                'count' => 10
-            ],
+//            [
+//                'number' => '971547763482', // 04
+//                'count' => 10
+//            ],
             [
                 'number' => '971545889192',
-                'count' => 10
+                'count' => 15
             ],
             [
                 'number' => '971562744570', // 06
-                'count' => 10
+                'count' => 15
             ],
             [
                 'number' => '971504289967',
@@ -122,15 +122,17 @@ class WhatsappMoveToNew extends Command
                         // 'customer_id' => 44, // FOR TESTING
                         'message' => $message
                     ];
-                    $chat_message = ChatMessage::create($params);
+                    $chatMessage = ChatMessage::create($params);
 
-                    // Approve message
-                    $myRequest = new Request();
-                    $myRequest->setMethod('POST');
-                    $myRequest->request->add(['messageId' => $chat_message->id]);
+                    // Send message
                     echo " ... SENDING from " . $currentNewNumber . "\n";
-                    app(WhatsAppController::class)->approveMessage('customer', $myRequest);
+                    $sendResult = ChatMessage::sendWithChatApi($customer->phone, $currentNewNumber, $message);
 
+                    // Store sendResult
+                    if ($sendResult) {
+                        $chatMessage->unique_id = $sendResult[ 'id' ] ?? '';
+                        $chatMessage->save();
+                    }
                 } else {
                     echo $count . " Customer ID " . $result->id . " ERROR\n";
                 }

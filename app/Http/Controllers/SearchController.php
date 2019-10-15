@@ -154,18 +154,30 @@ class SearchController extends Controller
         }
 
         //dd($productQuery->get());
+        $inStockSupplier = false;
+        $stockSupplier = 11;
         if ($request->supplier[ 0 ] != null) {
-            $suppliers_list = implode(',', $request->supplier);
-
-            if (isset($productQuery)) {
-                $productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
-            } else {
-                $productQuery = (new Product())->newQuery()->with('Suppliers')
-                    ->latest()->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+            
+            $supplierList = $request->supplier;
+            
+            if(in_array($stockSupplier,$supplierList)) {
+               $inStockSupplier = true; 
+               $key = array_search($stockSupplier, $supplierList);
+               unset($supplierList[$key]);
             }
+            if(!empty($supplierList)) {
+                $suppliers_list = implode(',', $supplierList);
+               
+                if (isset($productQuery)) {
+                    $productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+                } else {
+                    $productQuery = (new Product())->newQuery()->with('Suppliers')
+                        ->latest()->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+                }
 
-            $data[ 'supplier' ] = $request->supplier;
-            Cache::put('filter-supplier-' . Auth::id(), $data[ 'supplier' ], 120);
+                $data[ 'supplier' ] = $request->supplier;
+                Cache::put('filter-supplier-' . Auth::id(), $data[ 'supplier' ], 120);
+            }
         } else {
             Cache::forget('filter-supplier-' . Auth::id());
         }
@@ -334,7 +346,13 @@ class SearchController extends Controller
 
         // assing product to varaible so can use as per condition for join table media
         if ($request->quick_product !== 'true') {
-            $products = $productQuery->where('stock', '>=', 1);
+            if($inStockSupplier) {
+                $products = $productQuery->where(function($query){
+                    $query->where('stock', '>=', 1)->orwhereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN (11))");
+                });
+            }else{
+                $products = $productQuery->where('stock', '>=', 1);
+            }
         } else {
             $products = $productQuery;
         }
