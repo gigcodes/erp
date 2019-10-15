@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\ApiKey;
 use App\Customer;
 use App\ProductQuicksellGroup;
+use App\QuickSellGroup;
 use Illuminate\Http\Request;
 use App\Product;
 use App\Setting;
@@ -81,7 +82,7 @@ class QuickSellController extends Controller
                                          ->where('quick_product', 1);
       }
 
-      $products = $products->where('isPending',0)->latest()->paginate(Setting::get('pagination'));
+      $products = $products->where('is_pending',0)->latest()->paginate(Setting::get('pagination'));
       $brands_all = Brand::all();
       $categories_all = Category::all();
       $brands = [];
@@ -165,14 +166,15 @@ class QuickSellController extends Controller
      */
     public function store(Request $request)
     {
+
       $this->validate($request,[
   			'sku'    => 'required|unique:products',
   			'images.*' => 'required | mimes:jpeg,bmp,png,jpg',
   		]);
 
-      $product = new Product;
+        $product = new Product;
 
-      $product->name = $request->name;
+        $product->name = $request->name;
   		$product->sku = $request->sku;
   		$product->size = $request->size ? implode(',', $request->size) : $request->other_size;
   		$product->brand = $request->brand;
@@ -208,8 +210,8 @@ class QuickSellController extends Controller
       if ($request->hasfile('images')) {
         foreach ($request->file('images') as $image) {
           $filename = str_slug($image->getClientOriginalName());
-      		$media = MediaUploader::fromSource($image)->useFilename($filename)->upload();
-      		$product->attachMedia($media,config('constants.media_tags'));
+          $media = MediaUploader::fromSource($image)->useFilename($filename)->upload();
+          $product->attachMedia($media,config('constants.media_tags'));
         }
       }
 
@@ -305,22 +307,39 @@ class QuickSellController extends Controller
       return 'QCKPRO-000001';
     }
     public function saveGroup(Request $request){
-
-        $group_id = ProductQuicksellGroup::select('quicksell_group_id')->orderBy('id', 'desc')->first();
-        if($group_id == null){
-            $number = 1;
+        if($request->type != null && $request->products){
+        if($request->type == 1){
+            foreach ($request->products as $id){
+                $group = new ProductQuicksellGroup();
+                $group->product_id = $id;
+                $group->quicksell_group_id = $request->group;
+                $group->save();
+            }
         }else{
-            $number = $group_id->quicksell_group_id;
-            $number++;
-
+            $group = QuickSellGroup::orderBy('id', 'desc')->first();
+            if ($group != null) {
+                $group_create =  new QuickSellGroup();
+                $incrementId = ($group->group+1);
+                $group_create->group = $incrementId;
+                $group_create->save();
+                $group_id = $group_create->group;
+            } else {
+                $group =  new QuickSellGroup();
+                $group->group = 1;
+                $group->save();
+                $group_id = $group->group;
+            }
+            foreach ($request->products as $id){
+                $group = new ProductQuicksellGroup();
+                $group->product_id = $id;
+                $group->quicksell_group_id = $group_id;
+                $group->save();
+            }
         }
-        foreach ($request->products as $id){
-
-            $group = new ProductQuicksellGroup();
-            $group->product_id = $id;
-            $group->quicksell_group_id = $number;
-            $group->save();
+        }else{
+            return redirect()->route('quicksell.index')->with('success', 'Failed saving Quick Product Group');
         }
+
 
         return redirect()->route('quicksell.index')->with('success', 'You have successfully saved Quick Product Group');
 
@@ -390,7 +409,7 @@ class QuickSellController extends Controller
                 ->where('quick_product', 1);
         }
 
-        $products = $products->where('isPending',1)->latest()->paginate(Setting::get('pagination'));
+        $products = $products->where('is_pending',1)->latest()->paginate(Setting::get('pagination'));
         $brands_all = Brand::all();
         $categories_all = Category::all();
         $brands = [];
@@ -453,8 +472,9 @@ class QuickSellController extends Controller
     }
 
     public function activate(Request $request){
+
         $product = Product::findorfail($request->id);
-        $product->isPending = 0;
+        $product->is_pending = 0;
         $product->update();
         return redirect()->route('quicksell.pending')->with('success', 'You have activated Quick Product');
     }
