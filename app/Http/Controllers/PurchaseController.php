@@ -363,8 +363,24 @@ class PurchaseController extends Controller
       }
 
 
+      if (!empty($request->order_id)) {
+         $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id','p.id'])
+         ->join("orders as o","o.id","order_products.order_id")
+         ->join("products as p","p.sku","order_products.sku");
+          if ($page == 'canceled-refunded') {
+            $orders = $orders->whereIn("o.order_status",['Cancel', 'Refund to be processed']);
+          } elseif ($page == 'ordered') {
+          } elseif ($page == 'delivered') {
+            $orders = $orders->whereIn("o.order_status",['Delivered']);
+          } else {
+            $orders = $orders->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
+          }
 
-      if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null) {
+          $orders = $orders->where('qty', '>=', 1)->where('o.id', '=', $request->order_id)->get();
+
+      }
+
+      if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null && empty($request->order_id)) {
         /*if ($page == 'canceled-refunded') {
           $orders = OrderProduct::with('Order')
           ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");

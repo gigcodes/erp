@@ -530,7 +530,7 @@
                                         @endforeach
                                     </select>
                                     @foreach($orders[$customer->id] as $order)
-                                        <a href="/order/{{ $order['id'] }}"><img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt=""></a>
+                                        <a href="{{route('purchase.grid')}}?order_id={{$order['id']}}"><img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt=""></a>
                                     @endforeach
                                 @endif
                             @else
