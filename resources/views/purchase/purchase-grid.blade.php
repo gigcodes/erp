@@ -132,21 +132,19 @@
                       LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and purchase_product_supplier.product_id = ps.product_id', ['product_id' =>$product['id']]);
                       $cnt2 = count($suppliers_array2);
                   @endphp
-                  @if($cnt2 == 0)
-                    @php
-                      $suppliers_array2 = $activSuppliers;
-                    @endphp
-                  @endif
-                  @if($cnt2 > 0)
-                     <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple" multiple>
-                        @foreach($suppliers_array2 as $sup)
-                          <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
-                        @endforeach
-                    </select>
-                    <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message" >
-                    <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
-                  @endif
                 @endif
+                @if(empty($cnt2))
+                  @php
+                    $suppliers_array2 = $activSuppliers;
+                  @endphp
+                @endif
+                <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple" multiple>
+                    @foreach($suppliers_array2 as $sup)
+                      <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
+                    @endforeach
+                </select>
+                <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message" >
+                <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
                 </td>
                 <td>{{ $product['brand'] }}</td>
                 <td>
