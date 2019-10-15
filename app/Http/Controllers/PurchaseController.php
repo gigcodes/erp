@@ -568,7 +568,14 @@ class PurchaseController extends Controller
           LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and product_id in ( :product_id )', ['product_id' => implode(',', $productIds)]);                    
       }
       //echo '<pre>'; print_r($status) ;die;
-      
+      $activSuppliers = DB::select('SELECT 
+                                        suppliers.id, 
+                                        supplier,
+                                        "" as product_id
+                                    FROM 
+                                        suppliers
+                                    WHERE
+                                        suppliers.status=1 and  deleted_at is null');
       if ($request->get('in_pdf') === 'on') {
           set_time_limit(0);
 
@@ -615,6 +622,7 @@ class PurchaseController extends Controller
         'brand'         => $brand,
         'page'          => $page,
         'category_selection' => $category_selection,
+        'activSuppliers' => $activSuppliers,
       ]);
     }
 
