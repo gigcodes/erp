@@ -98,7 +98,6 @@
               <th>Product</th>
               <th>SKU</th>
               <th>Supplier</th>
-              <th>Suppliers</th>
               <th>Brand</th>
               <th>Remarks</th>
             </tr>
@@ -147,7 +146,6 @@
                     <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
                 @endif
                 </td>
-                <td>{{ $product['supplier_list'] }}</td>
                 <td>{{ $product['brand'] }}</td>
                 <td>
                   <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $product['id'] }}">Add</a>

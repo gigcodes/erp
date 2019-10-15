@@ -500,7 +500,7 @@ class PurchaseController extends Controller
         $supplier_list = '';
         $single_supplier = '';
 
-        foreach ($product->suppliers as $key2 => $supplier) {
+        /*foreach ($product->suppliers as $key2 => $supplier) {
           
           if ($key2 == 0) {
             $supplier_list .= "$supplier->supplier";
@@ -510,7 +510,7 @@ class PurchaseController extends Controller
 
           $single_supplier = $supplier->id;
         
-        }
+        }*/
 
         $customer_names = '';
         $customers = [];
