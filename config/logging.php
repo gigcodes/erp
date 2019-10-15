@@ -93,6 +93,12 @@ return [
             'path' => storage_path('logs/product-updates.log'),
         ],
 
+        'chatapi' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/chatapi/chatapi.log'),
+            'level' => 'debug',
+            'days' => 7,
+        ],
 
         'whatsapp'=> [
             'driver' => 'single',
