@@ -1161,7 +1161,7 @@ class WhatsAppController extends FindByNumberController
                 // Create chat message
                 $message = ChatMessage::create($params);
 
-                if (array_key_exists('task_id', $params)) {
+                if (array_key_exists('task_id', $params) && !empty($params[ 'task_id' ])) {
                     $this->sendRealTime($message, 'task_' . $match[ 1 ][ 0 ], $client);
                 } else {
                     $this->sendRealTime($message, 'user_' . $contact->id, $client);
@@ -2008,30 +2008,31 @@ class WhatsAppController extends FindByNumberController
                 }
                 return redirect()->back()->with('message', 'Images Send SucessFully');
 
-            }elseif($context = 'quicksell_group'){
+            } elseif ($context = 'quicksell_group') {
                 $products = $request->products;
-                if($products != null){
-                    $products =  explode(",",$products);
-                    foreach ($products as $product){
+                if ($products != null) {
+                    $products = explode(",", $products);
+                    foreach ($products as $product) {
                         $product = Product::findorfail($product);
                         $image = $product->getMedia(config('constants.media_tags'))->first()
                             ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
                             : '';
                         //$image = 'https://cdn.vox-cdn.com/thumbor/Pkmq1nm3skO0-j693JTMd7RL0Zk=/0x0:2012x1341/1200x800/filters:focal(0x0:2012x1341)/cdn.vox-cdn.com/uploads/chorus_image/image/47070706/google2.0.0.jpg';
-                        if(isset($request->to_all)){
+                        if (isset($request->to_all)) {
                             $customers = Customer::all();
-                         }elseif($request->rating != null && $request->gender == null){
-                            $customers = Customer::where('rating',$request->rating)->get();
-                        }elseif ($request->rating != null && $request->gender != null){
-                            $customers = Customer::where('rating',$request->rating)->where('gender',$request->gender)->get();
-                        }else{
+                        } elseif ($request->rating != null && $request->gender == null) {
+                            $customers = Customer::where('rating', $request->rating)->get();
+                        } elseif ($request->rating != null && $request->gender != null) {
+                            $customers = Customer::where('rating', $request->rating)->where('gender', $request->gender)->get();
+                        } else {
                             return redirect()->back()->with('message', 'Please select Category');
                         }
 
 
-                        if($customers != null) {
-                            foreach ($customers as $customer)
-                                $data['customer_id'] = $customer->id;
+                        if ($customers != null) {
+                            foreach ($customers as $customer) {
+                                $data[ 'customer_id' ] = $customer->id;
+                            }
 
                             //Creating Chat Message
                             $chat_message = ChatMessage::create($data);
@@ -2042,11 +2043,11 @@ class WhatsAppController extends FindByNumberController
                                 $this->sendWithThirdApi($customer->phone, $request->whatsapp_number, '', $image, '', '');
                             }
                         }
-                      }
-                    }else{
-                    return redirect()->back()->with('message', 'Please Select Products');
                     }
-                    return redirect()->back()->with('message', 'Images Send SucessFully');
+                } else {
+                    return redirect()->back()->with('message', 'Please Select Products');
+                }
+                return redirect()->back()->with('message', 'Images Send SucessFully');
 
             } else {
                 if ($context == 'developer_task') {
