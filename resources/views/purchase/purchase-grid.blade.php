@@ -60,6 +60,10 @@
                 </select>
             </div>
 
+            <div class="form-group mr-3">
+              <?php echo Form::select("customer_id", [], request()->get('customer',null),["class"=> "form-control customer-search-box",'placeholder' => 'Select a Customer', "style"=>"width:100%;"]);  ?>
+            </div>
+
             <input type="checkbox" name="in_pdf" id="in_pdf"> <label for="in_pdf">Download PDF</label>
 
             <button type="submit" class="btn btn-image"><img src="/images/search.png" /></button>
@@ -98,7 +102,7 @@
               <th>Product</th>
               <th>SKU</th>
               <th>Supplier</th>
-              <th>Suppliers</th>
+              <!-- <th>Suppliers</th> -->
               <th>Brand</th>
               <th>Remarks</th>
             </tr>
@@ -127,27 +131,23 @@
                 @if($cnt > 0)
 
                 @php
-                 $suppliers_array2 = DB::select('SELECT id, supplier, product_id
+                 $suppliers_array2 = DB::select('SELECT suppliers.id, supplier, ps.product_id
                     FROM suppliers
-                    INNER JOIN (
-                      SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-                      ) as product_suppliers
-                    ON suppliers.id = product_suppliers.supplier_id
-                    LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and product_id = :product_id', ['product_id' =>$product['id']]);
+                    INNER JOIN product_suppliers as ps on suppliers.id = ps.supplier_id and ps.product_id = :product_id 
+                    LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and purchase_product_supplier.product_id = ps.product_id', ['product_id' =>$product['id']]);
                     $cnt2 = count($suppliers_array2);
                 @endphp
-                   <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple" multiple>
                       @if($cnt2 > 0)
-                        @foreach($suppliers_array2 as $sup)
-                          <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
-                        @endforeach
-                      @endif
-                    </select>
-                    <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message" >
-                    <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
+                       <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple" multiple>
+                          @foreach($suppliers_array2 as $sup)
+                            <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
+                          @endforeach
+                      </select>
+                      <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message" >
+                      <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
+                    @endif
                 @endif
                 </td>
-                <td>{{ $product['supplier_list'] }}</td>
                 <td>{{ $product['brand'] }}</td>
                 <td>
                   <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $product['id'] }}">Add</a>
@@ -925,6 +925,51 @@
                 }
             });
         });
+
+      var customerSearch = function() {
+          $(".customer-search-box").select2({
+            tags : true,
+            ajax: {
+                url: '/erp-leads/customer-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data,params) {
+
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Customer by id, Name, No',
+            escapeMarkup: function (markup) { return markup; },
+            minimumInputLength: 2,
+            templateResult: formatCustomer,
+            templateSelection: (customer) => customer.text || customer.name,
+
+        });
+      };
+
+      function formatCustomer (customer) {
+        if (customer.loading) {
+            return customer.name;
+        }
+
+        if(customer.name) {
+            return "<p> <b>Id:</b> " +customer.id  + (customer.name ? " <b>Name:</b> "+customer.name : "" ) +  (customer.phone ? " <b>Phone:</b> "+customer.phone : "" ) + "</p>";
+        }
+      }
+
+      customerSearch();
     </script>
 
 @endsection

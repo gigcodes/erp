@@ -229,7 +229,8 @@ class PurchaseController extends Controller
       $skuNeed = Db::select("select p.id from order_products as op join products as p on p.sku = op.sku left join purchase_products as pp on pp.order_product_id = op.id  where pp.order_product_id is null group by op.sku");
       $skuNeed = collect($skuNeed)->pluck("id")->toArray();
 
-      $ignoreSku = array_diff($includedPurchases, $skuNeed);  
+      $ignoreSku = array_diff($includedPurchases, $skuNeed);
+      $customerId = request()->get("customer_id",0);  
     
       if ($request->status[0] != null && $request->supplier[0] == null && $request->brand[0] == null) {
         $status = $request->status;
@@ -237,9 +238,13 @@ class PurchaseController extends Controller
   			$orders = OrderProduct::join("orders as o","o.id","order_products.order_id")
             ->join("products as p","p.sku","order_products.sku")
             ->whereIn("o.order_status",$status)
-            ->where('qty', '>=', 1)
-            ->select(["order_products.sku","p.id"])
-            ->get();
+            ->where('qty', '>=', 1);
+            
+        if($customerId > 0) {
+          $orders = $orders->where("o.customer_id",$customerId);
+        }   
+
+        $orders = $orders->select(["order_products.sku","p.id"])->get(); 
   		}
         $status_list = implode("','", $request->status ?? []);
 
@@ -254,7 +259,12 @@ class PurchaseController extends Controller
           ->join("products as p","p.sku","order_products.sku")
           ->join("product_suppliers as ps","ps.product_id","p.id")
           ->whereIn("o.order_status",$request->status)
-          ->whereIn("ps.supplier_id",$request->supplier)->where('qty', '>=', 1)->get();
+          ->whereIn("ps.supplier_id",$request->supplier)->where('qty', '>=', 1);
+          if($customerId > 0) {
+            $orders = $orders->where("o.customer_id",$customerId);
+          }
+
+          $orders = $orders->get();
 
           /*$orders = OrderProduct::select(['sku', 'order_id'])->with(['Order', 'Product'])
           ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
@@ -296,7 +306,12 @@ class PurchaseController extends Controller
           // ->whereHas('Product', function($q) use ($supplier_list) {
           //   $q->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
           // })
-          ->where('qty', '>=', 1)->get();
+          ->where('qty', '>=', 1);
+          if($customerId > 0) {
+            $orders = $orders->where("o.customer_id",$customerId);
+          }
+
+          $orders = $orders->get();
           // dd($orders);
         }
       }
@@ -313,7 +328,12 @@ class PurchaseController extends Controller
             if ($request->status[0] != null) {
               $orders = $orders->whereIn("o.order_status",$request->status);
             }
-            $orders = $orders->where('brand', $brand)->where('qty', '>=', 1)->get();
+            $orders = $orders->where('brand', $brand)->where('qty', '>=', 1);
+            if($customerId > 0) {
+              $orders = $orders->where("o.customer_id",$customerId);
+            }
+
+            $orders = $orders->get();
 
           /*$orders = OrderProduct::select('sku')->with(['Order', 'Product'])
           ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('$status_list'))")
@@ -358,7 +378,12 @@ class PurchaseController extends Controller
             $orders = $orders->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
           }
 
-          $orders = $orders->join("products as p","p.sku","order_products.sku")->where('brand', $brand)->where('qty', '>=', 1)->get();
+          $orders = $orders->join("products as p","p.sku","order_products.sku")->where('brand', $brand)->where('qty', '>=', 1);
+          if($customerId > 0) {
+            $orders = $orders->where("o.customer_id",$customerId);
+          }
+
+          $orders = $orders->get();
         }
       }
 
@@ -399,7 +424,12 @@ class PurchaseController extends Controller
             $orders = $orders->whereNotIn("o.order_status",['Cancel', 'Refund to be processed', 'Delivered']);
           }
 
-          $orders = $orders->where('qty', '>=', 1)->get();
+          $orders = $orders->where('qty', '>=', 1);
+          if($customerId > 0) {
+            $orders = $orders->where("o.customer_id",$customerId);
+          }
+
+          $orders = $orders->get();
 
           //$orders = $orders->select(['qty', 'sku'])->where('qty', '>=', 1)->get()->toArray();
       }
