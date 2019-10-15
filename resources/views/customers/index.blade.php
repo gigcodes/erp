@@ -545,7 +545,7 @@
                                         @endforeach
                                     </select>
                                     @foreach($orders[$customer->id] as $order)
-                                        <a href="{{route('purchase.grid')}}?order_id={{$order['id']}}"><img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt=""></a>
+                                        <a href="{{route('purchase.grid')}}?order_id={{$order['id']}}" style="{{in_array($order['order_status'], ['Cancel', 'Refund to be processed', 'Delivered']) ? 'background-color: #808080;' : ''}}"><img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt=""></a>
                                     @endforeach
                                 @endif
                             @else
