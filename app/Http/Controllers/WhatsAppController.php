@@ -2009,7 +2009,7 @@ class WhatsAppController extends FindByNumberController
                 }elseif (isset($request->contact) && $request->contact != null){
                     $document = Document::findOrFail($module_id);
                     $document_url = $document->getDocumentPathById($document->id);
-                    $document_url = 'http://www.africau.edu/images/default/sample.pdf';
+                   // $document_url = 'http://www.africau.edu/images/default/sample.pdf';
 
                     foreach ($request->contact as $contacts) {
 
