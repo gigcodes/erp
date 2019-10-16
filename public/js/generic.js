@@ -68,11 +68,20 @@ $(document).on('click', '.load-communication-modal', function () {
 
             }
 
+            var button = ""; 
+            if(message.type == "task") {
+                if (message.status == 0 || message.status == 5 || message.status == 6) {
+                } else if (message.status == 4) {
+                } else {
+                    button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
+                    button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
+                }
+            }
 
             if (message.inout == 'in') {
-                li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+                li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
             } else if (message.inout == 'out') {
-                li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + media + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+                li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
             } else {
                 li += '<div>' + index + '</div>';
             }

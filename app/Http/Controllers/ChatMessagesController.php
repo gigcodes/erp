@@ -6,6 +6,7 @@ use App\Customer;
 use App\User;
 use App\Vendor;
 use App\Supplier;
+use App\Task;
 use Illuminate\Http\Request;
 
 class ChatMessagesController extends Controller
@@ -32,6 +33,9 @@ class ChatMessagesController extends Controller
             case 'vendor':
                 $object = Vendor::find($request->object_id);
                 break;
+            case 'task':
+                $object = Task::find($request->object_id);
+                break;  
             case 'supplier':
                 $object = Supplier::find($request->object_id);
                 break;    
@@ -88,13 +92,16 @@ class ChatMessagesController extends Controller
             }
 
             $messages[] = [
+                'id' => $chatMessage->id,
                 'type'  => $request->object,
                 'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
                 'message' => $chatMessage->message,
                 'media_url' => $chatMessage->media_url,
                 'datetime' => $chatMessage->created_at,
                 'media' => is_array($media) ? $media : null,
-                'mediaWithDetails' => is_array($mediaWithDetails) ? $mediaWithDetails : null
+                'mediaWithDetails' => is_array($mediaWithDetails) ? $mediaWithDetails : null,
+                'status' => $chatMessage->status,
+                'resent' => $chatMessage->resent,
             ];
         }
 
