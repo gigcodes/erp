@@ -2644,7 +2644,7 @@ class PurchaseController extends Controller
                         $media = $product->getMedia(config('constants.media_tags'))->first()->getUrl();;
                     }
 
-                    $message = $request->input('message');
+                    $message = $request->input('message') . ' (' . $product->sku . ')';
 
                     try {
                         dump("Sending message");
