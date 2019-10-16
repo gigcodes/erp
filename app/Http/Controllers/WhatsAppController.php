@@ -2059,7 +2059,7 @@ class WhatsAppController extends FindByNumberController
                 }
                 return redirect()->back()->with('message', 'Images Send SucessFully');
 
-            } elseif ($context = 'quicksell_group') {
+            } elseif ($context == 'quicksell_group') {
                 $products = $request->products;
                 if ($products != null) {
                     $products = explode(",", $products);
