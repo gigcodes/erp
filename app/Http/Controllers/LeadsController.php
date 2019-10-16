@@ -31,6 +31,8 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use GuzzleHttp\Client as GuzzleClient;
 
 use App\CallBusyMessage;
+use App\MessageQueue;
+use App\BroadcastImage;
 use App\Http\Controllers\WhatsAppController;
 
 
@@ -810,19 +812,64 @@ class LeadsController extends Controller
 
     public function erpLeads()
     {
-        return view("leads.erp.index");
+        $shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
+                                    ->whereNotNull('shoe_size')
+                                    ->groupBy('shoe_size')
+                                    ->pluck('counts', 'shoe_size');
+
+        $clothing_size_group = Customer::selectRaw('clothing_size, count(id) as counts')
+                                        ->whereNotNull('clothing_size')
+                                        ->groupBy('clothing_size')
+                                        ->pluck('counts', 'clothing_size');
+        return view("leads.erp.index", [
+            'shoe_size_group' => $shoe_size_group,
+            'clothing_size_group' => $clothing_size_group
+        ]);
     }
 
-    public function erpLeadsResponse()
+    public function erpLeadsResponse(Request $request)
     {
-        return datatables()->of(\App\ErpLeads::leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
-            ->leftJoin("customers as c","c.id","erp_leads.customer_id")
-            ->leftJoin("erp_lead_status as els","els.id","erp_leads.lead_status_id")
-            ->leftJoin("categories as cat","cat.id","erp_leads.category_id")
-            ->leftJoin("brands as br","br.id","erp_leads.brand_id")
-            ->orderBy("erp_leads.id","desc")
-            ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name"]
-        )->get())->make();
+
+        $source = \App\ErpLeads::leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
+                                ->leftJoin("customers as c","c.id","erp_leads.customer_id")
+                                ->leftJoin("erp_lead_status as els","els.id","erp_leads.lead_status_id")
+                                ->leftJoin("categories as cat","cat.id","erp_leads.category_id")
+                                ->leftJoin("brands as br","br.id","erp_leads.brand_id")
+                                ->orderBy("erp_leads.id","desc")
+                                ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name","c.id as customer_id"]);
+
+        $term = $request->get('term');
+        if (!empty($term)) {
+            $source = $source->where(function($q) use($term){
+                $q->where("c.name","like","%{$term}%")
+                  ->orWhere("c.phone","like","%{$term}%")
+                  ->orWhere("c.instahandler","like","%{$term}%")
+                  ->orWhere("products.name","like","%{$term}%")
+                  ->orWhere("products.name","like","%{$term}%")
+                  ->orWhere("erp_leads.id","like","%{$term}%");
+            });
+        }
+
+        if ($request->get('shoe_size')) {
+            $source = $source->where('c.shoe_size', '=', $request->get('shoe_size'));
+        }
+
+        if ($request->get('clothing_size')) {
+            $source = $source->where('c.clothing_size', '=', $request->get('clothing_size'));
+        }
+
+        if ($request->get('shoe_size_group')) {
+            $source = $source->where('c.shoe_size', '=', $request->get('shoe_size_group'));
+        }
+
+        if ($request->get('clothing_size_group')) {
+            $source = $source->where('c.clothing_size', '=', $request->get('clothing_size_group'));
+        }
+
+        $source = $source->get();
+        return datatables()
+            ->of($source)
+            ->make();
     }
 
     public function erpLeadsCreate()
@@ -895,6 +942,34 @@ class LeadsController extends Controller
         $term = request()->get("q",null);
         $search = \App\Customer::where("name","like","%{$term}%")->orWhere("phone","like","%{$term}%")->get();
         return $search;
+    }
+
+    public function sendMessage(Request $request)
+    {
+        $customerIds = array_unique($request->get('customers', []));
+        $customerArr = Customer::whereIn('id', $customerIds)->where('do_not_disturb', 0)->get();
+        if (!empty($customerArr)) {
+            $productIds = array_unique($request->get('products', []));
+            $broadcast_image =  new BroadcastImage();
+            $broadcast_image->products =  json_encode($productIds);
+            $broadcast_image->save();
+            $max_group_id = MessageQueue::max('group_id') + 1;
+            $params = [
+                'sending_time'  => $request->get('sending_time', ''),
+                'user_id' => Auth::id(),
+                'phone' => null,
+                'type' => 'message_all',
+                'data' => json_encode(['message' => $request->get('message', ''), 'linked_images' => [$broadcast_image->id]]),
+                'group_id' => $max_group_id
+            ];
+
+            foreach ($customerArr as  $customer) {
+                $params['customer_id'] = $customer->id;
+                MessageQueue::create($params);
+            }
+        }
+
+        return response()->json(["code"=> 1 , "data" => []]);
     }
 
 }

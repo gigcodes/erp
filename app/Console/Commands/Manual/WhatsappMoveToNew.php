@@ -42,117 +42,43 @@ class WhatsappMoveToNew extends Command
      */
     public function handle()
     {
-        // Set number to change
-        $number = '91915273148%';
 
-        // Settings
-        $newNumber = [
-//            [
-//                'number' => '971547763482', // 04
-//                'count' => 10
-//            ],
-            [
-                'number' => '971545889192',
-                'count' => 15
-            ],
-            [
-                'number' => '971562744570', // 06
-                'count' => 15
-            ],
-            [
-                'number' => '971504289967',
-                'count' => 5
-            ],
-        ];
-        $message = "Greetings from Solo Luxury , our offices have moved to Dubai , and this is our new whats app number , Best Wishes - Solo Luxury ";
+        // Set variables
+        $newNumber = '971545889192';
+        $days = 60;
 
         // Query to find all customers of $number
         $sql = "
             SELECT
-                id
+                DISTINCT(customer_id)
             FROM
-                customers
+                chat_messages
             WHERE
-                whatsapp_number LIKE '" . $number . "' AND
-                phone IS NOT NULL AND
-                phone != '' AND
-                do_not_disturb=0 AND
-                is_blocked=0 AND
-                deleted_at IS NULL
-            ORDER BY
-                RAND()
-            LIMIT
-                0,35
+                customer_id IN (
+                    SELECT
+                        c.id
+                    FROM
+                        customers c
+                    WHERE
+                        do_not_disturb=0 AND
+                        is_blocked=0
+                ) AND
+                number IS NOT NULL AND
+                created_at > DATE_SUB(NOW(), INTERVAL " . $days . " DAY)
         ";
         // echo $sql;
         $rs = DB::select(DB::raw($sql));
 
-        // Set current number
-        $currentNewNumber = $newNumber[ 0 ][ 'number' ];
-
-        // Set count to 0
-        $count = 0;
-        $arrCount = 0;
-
         // Loop over customers
         if ($rs !== null) {
             foreach ($rs as $result) {
-                // Get customer from database
-                $customer = Customer::find($result->id);
+                // Find customer
+                $customer = Customer::find($result->customer_id);
+                $customer->whatsapp_number = $newNumber;
+                $customer->save();
 
-                // Update count
-                $count++;
-
-                // Update number if we have a customer
-                if ($customer !== null) {
-                    // Output customer information
-                    echo $count . " " . $customer->id . ' ' . $customer->phone . " moved from " . $customer->whatsapp_number . " => " . $currentNewNumber . "\n";
-
-                    // Update WhatsApp number
-                    $customer->whatsapp_number = $currentNewNumber;
-                    $customer->save();
-
-                    // Send messages
-                    $params = [
-                        'number' => null,
-                        'user_id' => 6,
-                        'approved' => 1,
-                        'status' => 8,
-                        'customer_id' => $result->id,
-                        // 'customer_id' => 44, // FOR TESTING
-                        'message' => $message
-                    ];
-                    $chatMessage = ChatMessage::create($params);
-
-                    // Send message
-                    echo " ... SENDING from " . $currentNewNumber . "\n";
-                    $sendResult = ChatMessage::sendWithChatApi($customer->phone, $currentNewNumber, $message);
-
-                    // Store sendResult
-                    if ($sendResult) {
-                        $chatMessage->unique_id = $sendResult[ 'id' ] ?? '';
-                        $chatMessage->save();
-                    }
-                } else {
-                    echo $count . " Customer ID " . $result->id . " ERROR\n";
-                }
-
-                // Check if we have reached the max
-                if ($count == $newNumber[ $arrCount ][ 'count' ]) {
-                    // Update array counter
-                    $arrCount++;
-
-                    // Reset count
-                    $count = 0;
-
-                    // Exit
-                    if ( count($newNumber) <= $arrCount ) {
-                        exit("DONE");
-                    }
-
-                    // Set current new number
-                    $currentNewNumber = $newNumber[ $arrCount ][ 'number' ];
-                }
+                // Output customer information
+                echo $customer->id . ' ' . $customer->phone . "\n";
             }
         }
     }

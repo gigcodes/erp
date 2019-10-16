@@ -61,6 +61,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use File;
 use App\Document;
 use App\WhatsAppGroup;
+use App\DocumentSendHistory;
 
 
 class WhatsAppController extends FindByNumberController
@@ -1934,6 +1935,14 @@ class WhatsAppController extends FindByNumberController
                         //Creating Chat Message
                         $chat_message = ChatMessage::create($data);
 
+                        //History
+                        $history[ 'send_by' ] = Auth::id();
+                        $history[ 'send_to' ] = $user->id;
+                        $history[ 'type' ] = 'User';
+                        $history[ 'via' ] = 'WhatsApp';
+                        $history[ 'document_id' ] = $document->id;
+                        DocumentSendHistory::create($history);
+
                         //Sending Document
                         $this->sendWithThirdApi($user->phone, $request->whatsapp_number, '', $document_url, '', '');
                         //Sending Text
@@ -1953,6 +1962,14 @@ class WhatsAppController extends FindByNumberController
 
                         //Creating Chat Message
                         $chat_message = ChatMessage::create($data);
+
+                        //History
+                        $history[ 'send_by' ] = Auth::id();
+                        $history[ 'send_to' ] = $vendor->id;
+                        $history[ 'type' ] = 'Vendor';
+                        $history[ 'via' ] = 'WhatsApp';
+                        $history[ 'document_id' ] = $document->id;
+                        DocumentSendHistory::create($history);
 
                         //Sending Document
                         $this->sendWithThirdApi($vendor->phone, $request->whatsapp_number, '', $document_url, '', '');
@@ -1974,6 +1991,14 @@ class WhatsAppController extends FindByNumberController
                         //Creating Chat Message
                         $chat_message = ChatMessage::create($data);
 
+                        //History
+                        $history[ 'send_by' ] = Auth::id();
+                        $history[ 'send_to' ] = $contact->id;
+                        $history[ 'type' ] = 'Contact';
+                        $history[ 'via' ] = 'WhatsApp';
+                        $history[ 'document_id' ] = $document->id;
+                        DocumentSendHistory::create($history);
+
                         //Sending Document
                         $this->sendWithThirdApi($contact->phone, $request->whatsapp_number, '', $document_url, '', '');
                         //Sending Text
@@ -1981,6 +2006,32 @@ class WhatsAppController extends FindByNumberController
                     }
 
 
+                }elseif (isset($request->contact) && $request->contact != null){
+                    $document = Document::findOrFail($module_id);
+                    $document_url = $document->getDocumentPathById($document->id);
+                   // $document_url = 'http://www.africau.edu/images/default/sample.pdf';
+
+                    foreach ($request->contact as $contacts) {
+
+                        // Contact ID For Chat Message
+                       $data[ 'number' ] = $contacts;
+
+//                        //Creating Chat Message
+                       $chat_message = ChatMessage::create($data);
+
+                        //History
+                        $history[ 'send_by' ] = Auth::id();
+                        $history[ 'send_to' ] = $contacts;
+                        $history[ 'type' ] = 'Manual Contact';
+                        $history[ 'via' ] = 'WhatsApp';
+                        $history[ 'document_id' ] = $document->id;
+                        DocumentSendHistory::create($history);
+
+                        //Sending Document
+                        $this->sendWithThirdApi($contacts, $request->whatsapp_number, '', $document_url, '', '');
+                        //Sending Text
+                        $this->sendWithThirdApi($contacts, $request->whatsapp_number, $request->message, '', '', '');
+                    }
                 }
 
                 return redirect()->back()->with('message', 'Document Send SucessFully');
