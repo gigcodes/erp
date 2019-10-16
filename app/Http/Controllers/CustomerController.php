@@ -2445,7 +2445,8 @@ class CustomerController extends Controller
         $this->validate($request, [
             'id'  => 'required'
         ]);
-
+        
+        Reply::where('category_id', $request->get('id'))->delete();
         ReplyCategory::where('id', $request->get('id'))->delete();
 
         return response()->json(["code" => 1 , "message" => "Deleted successfully"]);

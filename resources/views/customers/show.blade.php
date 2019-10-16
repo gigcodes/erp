@@ -1510,29 +1510,36 @@
 
         <div class="pb-4 mt-3">
           <div class="row">
-            <div class="col">
+            <div class="col-md-8">
               <div class="d-inline form-inline">
                   <input style="width: 75%" type="text" name="category_name" placeholder="Add Category" class="form-control mb-3 quick_category">
                   <button class="btn btn-secondary quick_category_add">+</button>
               </div>
               <div>
-                <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
-                  <option value="">Select Category</option>
-                  @foreach($reply_categories as $category)
-                    <option value="{{ $category->approval_leads }}" data-id="{{ $category->id }}">{{ $category->name }}</option>
-                  @endforeach
-                </select>
-                <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>  
+                <div style="float: left; width: 76%;">
+                  <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
+                    <option value="">Select Category</option>
+                    @foreach($reply_categories as $category)
+                      <option value="{{ $category->approval_leads }}" data-id="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                  </select>  
+                </div>
+                <div style="float: right;">
+                  <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>  
+                </div>
               </div>
               <div>
-                <select name="quickComment" id="quickComment" class="form-control input-sm">
-                  <option value="">Quick Reply</option>
-                </select>
-                <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>  
+                <div style="float: left; width: 76%;">
+                  <select name="quickComment" id="quickComment" class="form-control input-sm">
+                    <option value="">Quick Reply</option>
+                  </select>
+                  </div>
+                  <div style="float: right;">
+                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>  
+                  </div>
               </div>
-              
             </div>
-            <div class="col">
+            <div class="col-md-4">
               <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
             </div>
           </div>
@@ -2277,7 +2284,7 @@
   <script type="text/javascript">
       $(document).on('click', '.quick_category_add', function (e) {
             e.preventDefault();
-            var textBox = $(this).closest( "div" ).find(".quick_category");
+            var textBox = $(".quick_category");
 
             if (textBox.val() == "") {
                 alert("Please Enter Category!!");
@@ -2308,16 +2315,17 @@
             return false;
         });
         $(document).on('click', '.delete_category', function () {
-              var quickCategory = $(this).closest( "div" ).find("#quickCategory");
+              var quickCategory = $("#quickCategory");
 
               if (quickCategory.val() == "") {
                   alert("Please Select Category!!");
                   return false;
               }
-              console.log(quickCategory, quickCategory.children("option:selected"), quickCategory.children("option:selected").data('id'));
 
               var quickCategoryId = quickCategory.children("option:selected").data('id');
-
+              if (! confirm("Are sure you want to delete category?")) {
+                return false;
+              }
               $.ajax({
                   type: "POST",
                   url: "{{ route('destroy.reply.category') }}",
@@ -2331,7 +2339,7 @@
           });
 
           $(document).on('click', '.delete_quick_comment', function () {
-              var quickComment = $(this).closest( "div" ).find("#quickComment");
+              var quickComment = $("#quickComment");
 
               if (quickComment.val() == "") {
                   alert("Please Select Quick Comment!!");
@@ -2339,7 +2347,9 @@
               }
               
               var quickCommentId = quickComment.children("option:selected").data('id');
-
+              if (! confirm("Are sure you want to delete comment?")) {
+                return false;
+              }
               $.ajax({
                   type: "DELETE",
                   url: "/reply/"+quickCommentId,

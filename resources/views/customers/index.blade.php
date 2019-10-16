@@ -623,31 +623,45 @@
                                     <input style="width: 87%" type="text" name="category_name" placeholder="Enter New Category" class="form-control mb-3 quick_category">
                                     <button class="btn btn-secondary quick_category_add">+</button>
                                 </div>
-                                <select name="quickCategory" class="form-control mb-3 quickCategory">
-                                    <option value="">Select Category</option>
-                                    @foreach($reply_categories as $category)
-                                        <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
-                                    @endforeach
-                                </select>
-                                <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
+                                <div>
+                                    <div style="float: left; width: 86%">
+                                        <select name="quickCategory" class="form-control mb-3 quickCategory">
+                                        <option value="">Select Category</option>
+                                        @foreach($reply_categories as $category)
+                                            <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    </div>
+                                    <div style="float: right;">
+                                        <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>  
+                                    </div>
+                                </div>
                                 <div class="d-inline form-inline">
                                     <input style="width: 87%" type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control mb-3 quick_comment">
                                     <button class="btn btn-secondary quick_comment_add">+</button>
                                 </div>
-                                <select name="quickComment" class="form-control quickComment">
-                                    <option value="">Quick Reply</option>
-                                </select>
-                                <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
+                                <div>
+                                    <div style="float: left; width: 86%">
+                                        <select name="quickComment" class="form-control quickComment">
+                                            <option value="">Quick Reply</option>
+                                        </select>
+                                    </div>
+                                    <div style="float: right;">
+                                        <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
+                                    </div>
+                                </div>
                             </p>
-                            <p>
-                                <?php
-                                if(!empty($broadcasts)) {
-                                    foreach($broadcasts as $broadcast) {
-                                        echo "<a href='javascript:;' class='fetch-broad-cast-spn' data-id='".$broadcast."' data-customer-id='".$customer->id."'>#".$broadcast."</a> ";
+                            <div>
+                                <p>
+                                    <?php
+                                    if(!empty($broadcasts)) {
+                                        foreach($broadcasts as $broadcast) {
+                                            echo "<a href='javascript:;' class='fetch-broad-cast-spn' data-id='".$broadcast."' data-customer-id='".$customer->id."'>#".$broadcast."</a> ";
+                                        }
                                     }
-                                }
-                                ?>
-                            </p>
+                                    ?>
+                                </p>    
+                            </div>
                         </td>
                         <td>
                             {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send images"><img src="/images/attach.png" /></button> --}}
@@ -944,7 +958,9 @@
             }
             
             var quickCategoryId = quickCategory.children("option:selected").data('id');
-
+            if (! confirm("Are sure you want to delete category?")) {
+                return false;
+              }
             $.ajax({
                 type: "POST",
                 url: "{{ route('destroy.reply.category') }}",
@@ -966,7 +982,9 @@
             }
             
             var quickCommentId = quickComment.children("option:selected").data('id');
-
+            if (! confirm("Are sure you want to delete comment?")) {
+                return false;
+              }
             $.ajax({
                 type: "DELETE",
                 url: "/reply/"+quickCommentId,
