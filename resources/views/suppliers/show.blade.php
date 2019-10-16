@@ -24,14 +24,14 @@
       display: none;
     }
 
-    label {
+    .label-attached-img {
       border: 1px solid #fff;
       display: block;
       position: relative;
       cursor: pointer;
     }
 
-    label:before {
+    .label-attached-img:before {
       background-color: white;
       color: white;
       content: " ";
@@ -49,17 +49,17 @@
       transform: scale(0);
     }
     
-    :checked + label {
+    :checked + .label-attached-img {
       border-color: #ddd;
     }
 
-    :checked + label:before {
+    :checked + .label-attached-img:before {
       content: "✓";
       background-color: grey;
       transform: scale(1);
     }
 
-    :checked + label img {
+    :checked + .label-attached-img img {
       transform: scale(0.9);
       box-shadow: 0 0 5px #333;
       z-index: -1;
@@ -457,8 +457,9 @@
         <button type="submit" class="btn btn-xs btn-secondary" value="2" name="type">Create Product Group</button>
         <div class="col-12 my-3" id="message-wrapper">
             <!-- <div id="message-container"></div> -->
-            <div id="chat-history" class="load-communication-modal" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}" style="max-height: 80vh; overflow-x: scroll;">
-                
+            <div class="load-communication-modal" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}"></div>
+            <div id="chat-history" style="max-height: 80vh; overflow-x: scroll;">
+
             </div>
         </div>
         </form>
@@ -616,7 +617,7 @@
   <script type="text/javascript">
 
      $(document).ready(function() {
-          $('#chat-history').trigger('click');
+          $('.load-communication-modal').trigger('click');
       });
 
     $(document).on('keyup', '.add-new-remark', function(event) {

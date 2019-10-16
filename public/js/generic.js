@@ -30,7 +30,7 @@ $(document).on('click', '.load-communication-modal', function () {
 
                     // Set media
                     if (imgSrc != '') {
-                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank"><input type="checkbox" name="product[]" value="'+productId+'" id="cb1_'+i+'" /><label for="cb1_'+i+'"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
+                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank"><input type="checkbox" name="product[]" value="'+productId+'" id="cb1_'+i+'" /><label class="label-attached-img" for="cb1_'+i+'"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
                     }
                 }
             }
