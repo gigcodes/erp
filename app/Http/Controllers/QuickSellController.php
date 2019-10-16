@@ -26,49 +26,8 @@ class QuickSellController extends Controller
     public function index(Request $request)
     {
 
-        if($request->selected_products || $request->term  || $request->category || $request->brand || $request->color || $request->supplier ||
-        $request->location || $request->size || $request->price ){
+      $products = Product::where('quick_product',1)->where('is_pending',0)->latest()->paginate(Setting::get('pagination'));
 
-            $query  = Product::query();
-            if (request('term') != null) {
-                $query->where('sku', '=', request('term',0))->orWhere('sku', 'LIKE', request('term',0));
-            }
-            if (request('category') != null) {
-                $query->whereIn('category', request('category',0));
-            }
-            if (request('brand') != null) {
-                $query->whereIn('brand', request('brand'));
-            }
-            if (request('color') != null) {
-                $query->whereIn('color', request('color'));
-            }
-            if (request('supplier') != null) {
-                $query->whereIn('supplier', request('supplier'));
-            }
-            if (request('location') != null) {
-                $query->where('location','LIKE', request('location',0));
-            }
-            if (request('size') != null) {
-                $query->where('size','LIKE', request('size'));
-            }
-            if (request('price') != null) {
-                $price = (explode(",",$request->price));
-                $from = $price[0];
-                $to = $price[1];
-                $query->whereBetween('price',[ $from , $to ]);
-            }
-
-            if(request('per_page') != null){
-                $per_page = request('per_page');
-            }else{
-                $per_page = Setting::get('pagination');
-            }
-
-            $products = $query->where('quick_product',1)->paginate($per_page);
-
-        }else{
-            $products = Product::where('is_pending',0)->latest()->paginate(Setting::get('pagination'));
-        }
 
 
       $brands_all = Brand::all();
