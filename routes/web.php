@@ -184,6 +184,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('leads/permanentDelete/{leads}', 'LeadsController@permanentDelete')->name('leads.permanentDelete');
     Route::resource('chat', 'ChatController');
     Route::get('erp-leads', 'LeadsController@erpLeads');
+    Route::post('erp-leads-send-message', 'LeadsController@sendMessage')->name('erp-leads-send-message');
     Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
     Route::get('erp-leads/edit', 'LeadsController@erpLeadsEdit')->name('leads.erpLeads.edit');
     Route::get('erp-leads/create', 'LeadsController@erpLeadsCreate')->name('leads.erpLeads.create');
@@ -317,6 +318,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('quickSell/saveGroup', 'QuickSellController@saveGroup')->name('quicksell.save.group');
     Route::get('quickSell/pending', 'QuickSellController@pending')->name('quicksell.pending');
     Route::post('quickSell/activate', 'QuickSellController@activate')->name('quicksell.activate');
+    Route::post('quickSell/search', 'QuickSellController@search')->name('quicksell.search');
 
 
     // Chat messages
@@ -369,6 +371,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('customer/sendScraped/images', 'CustomerController@sendScraped')->name('customer.send.scraped');
     Route::post('customer/change-whatsapp-no', 'CustomerController@changeWhatsappNo')->name('customer.change.whatsapp');
     Route::post('customer/send-contact-details', 'CustomerController@sendContactDetails')->name('customer.send.contact');
+    Route::post('customer/contact-download-donload', 'CustomerController@downloadContactDetails')->name('customer.download.contact');
 
     Route::get('broadcast', '<<<<<< HEAD@index')->name('broadcast.index');
     Route::get('broadcast/images', 'BroadcastMessageController@images')->name('broadcast.images');

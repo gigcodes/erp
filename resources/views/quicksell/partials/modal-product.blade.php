@@ -237,9 +237,9 @@
           <button type="submit" class="btn btn-secondary">Update</button>
       </form>
           @if(auth()->user()->isAdmin())
-          @if(isset($product) && $product->isPending == 1)
+          @if(isset($product) && $product->is_pending == 1)
             {!! Form::open(['method' => 'POST','route' => ['quicksell.activate'],'style'=>'display:inline']) !!}
-          <input type="hidden" value="{{ $product->id }}" name="id">
+          <input type="hidden" id="productId" name="id">
           <button type="submit" class="btn btn-secondary">Activate</button>
             {!! Form::close() !!}
           @endif

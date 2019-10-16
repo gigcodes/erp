@@ -372,7 +372,9 @@ class SearchController extends Controller
             $data[ 'is_on_sale' ] = 1;
             $products = $products->where('is_on_sale', 1);
         }
-
+        if ($request->get('shoe_size', false)) {
+            $products = $products->where('products.size', 'like', "%".$request->get('shoe_size')."%");
+        }
         $products_count = $products->get()->count();
         $data[ 'products_count' ] = $products_count;
         $data[ 'all_products_ids' ] = $products->pluck('id')->toArray();

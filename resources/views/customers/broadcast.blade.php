@@ -63,6 +63,22 @@
                                    <div class="alert alert-danger">{{$errors->first('customer')}}</div>
                                @endif
                              </div> --}}
+                             <div class="form-group ml-3">
+                                  <select class="form-control" name="shoe_size_group">
+                                      <option value="">Select</option>
+                                      <?php foreach ($shoe_size_group as $shoe_size => $customerCount) {
+                                          echo '<option value="'.$shoe_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$shoe_size.' Size) '.$customerCount.' Customers</option>';
+                                      } ?>
+                                  </select>
+                              </div>
+                              <div class="form-group ml-3">
+                                  <select class="form-control" name="clothing_size_group">
+                                      <option value="">Select</option>
+                                      <?php foreach ($clothing_size_group as $clothing_size => $customerCount) {
+                                          echo '<option value="'.$clothing_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$clothing_size.' Size) '.$customerCount.' Customers</option>';
+                                      } ?>
+                                  </select>
+                              </div>
 
 
                             {{-- </div>

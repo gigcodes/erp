@@ -73,17 +73,9 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
 
 
-    {{-- @if( str_contains(Route::current()->getName(),['sales','activity','leads','task','home', 'customer'] ) ) --}}
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet"/>
 
-    <script type="text/javascript"
-
-            src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
-
-    {{-- @endif --}}
-
-
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 
     @if(Auth::user())
 
@@ -335,6 +327,7 @@
                                                 <a class="dropdown-item" href="{{ url('/excel-importer') }}">Excel Import </a>
                                                 <a class="dropdown-item" href="{{ url('/excel-importer/mapping') }}">Add Mapping For Master </a>
                                                 <a class="dropdown-item" href="{{ url('/excel-importer/tools-brand') }}">Add Mapping For Excel</a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/log') }}">Excel Importer Log</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -498,16 +491,12 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Leeds<span class="caret"></span></a>
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Leads<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Leads<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
-                                                <a class="dropdown-item" href="{{ route('leads.create') }}">Add New</a>
-                                                <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image grid</a>
-                                            </ul>
-                                        </li>
+                                        <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
+                                        <a class="dropdown-item" href="{{ action('LeadsController@erpLeads') }}">Leads (new)</a>
+                                        <a class="dropdown-item" href="{{ route('leads.create') }}">Add new lead</a>
+                                        <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image grid</a>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1227,7 +1216,7 @@
                     <div class="form-group">
                         <label for="category_id">Category:</label>
                         <?php
-                            $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
+                        $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
                         ?>
                         {!! Form::select('category_id', ['' => "-- select --"] + $category, null, ['class'=>'form-control', 'id'=> 'category_id']) !!}
                     </div>

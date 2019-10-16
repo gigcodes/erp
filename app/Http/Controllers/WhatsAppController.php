@@ -61,6 +61,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use File;
 use App\Document;
 use App\WhatsAppGroup;
+use App\DocumentSendHistory;
 
 
 class WhatsAppController extends FindByNumberController
@@ -1161,7 +1162,7 @@ class WhatsAppController extends FindByNumberController
                 // Create chat message
                 $message = ChatMessage::create($params);
 
-                if (array_key_exists('task_id', $params)) {
+                if (array_key_exists('task_id', $params) && !empty($params[ 'task_id' ])) {
                     $this->sendRealTime($message, 'task_' . $match[ 1 ][ 0 ], $client);
                 } else {
                     $this->sendRealTime($message, 'user_' . $contact->id, $client);
@@ -1934,6 +1935,14 @@ class WhatsAppController extends FindByNumberController
                         //Creating Chat Message
                         $chat_message = ChatMessage::create($data);
 
+                        //History
+                        $history[ 'send_by' ] = Auth::id();
+                        $history[ 'send_to' ] = $user->id;
+                        $history[ 'type' ] = 'User';
+                        $history[ 'via' ] = 'WhatsApp';
+                        $history[ 'document_id' ] = $document->id;
+                        DocumentSendHistory::create($history);
+
                         //Sending Document
                         $this->sendWithThirdApi($user->phone, $request->whatsapp_number, '', $document_url, '', '');
                         //Sending Text
@@ -1953,6 +1962,14 @@ class WhatsAppController extends FindByNumberController
 
                         //Creating Chat Message
                         $chat_message = ChatMessage::create($data);
+
+                        //History
+                        $history[ 'send_by' ] = Auth::id();
+                        $history[ 'send_to' ] = $vendor->id;
+                        $history[ 'type' ] = 'Vendor';
+                        $history[ 'via' ] = 'WhatsApp';
+                        $history[ 'document_id' ] = $document->id;
+                        DocumentSendHistory::create($history);
 
                         //Sending Document
                         $this->sendWithThirdApi($vendor->phone, $request->whatsapp_number, '', $document_url, '', '');
@@ -1974,6 +1991,14 @@ class WhatsAppController extends FindByNumberController
                         //Creating Chat Message
                         $chat_message = ChatMessage::create($data);
 
+                        //History
+                        $history[ 'send_by' ] = Auth::id();
+                        $history[ 'send_to' ] = $contact->id;
+                        $history[ 'type' ] = 'Contact';
+                        $history[ 'via' ] = 'WhatsApp';
+                        $history[ 'document_id' ] = $document->id;
+                        DocumentSendHistory::create($history);
+
                         //Sending Document
                         $this->sendWithThirdApi($contact->phone, $request->whatsapp_number, '', $document_url, '', '');
                         //Sending Text
@@ -1981,6 +2006,32 @@ class WhatsAppController extends FindByNumberController
                     }
 
 
+                }elseif (isset($request->contact) && $request->contact != null){
+                    $document = Document::findOrFail($module_id);
+                    $document_url = $document->getDocumentPathById($document->id);
+                   // $document_url = 'http://www.africau.edu/images/default/sample.pdf';
+
+                    foreach ($request->contact as $contacts) {
+
+                        // Contact ID For Chat Message
+                       $data[ 'number' ] = $contacts;
+
+//                        //Creating Chat Message
+                       $chat_message = ChatMessage::create($data);
+
+                        //History
+                        $history[ 'send_by' ] = Auth::id();
+                        $history[ 'send_to' ] = $contacts;
+                        $history[ 'type' ] = 'Manual Contact';
+                        $history[ 'via' ] = 'WhatsApp';
+                        $history[ 'document_id' ] = $document->id;
+                        DocumentSendHistory::create($history);
+
+                        //Sending Document
+                        $this->sendWithThirdApi($contacts, $request->whatsapp_number, '', $document_url, '', '');
+                        //Sending Text
+                        $this->sendWithThirdApi($contacts, $request->whatsapp_number, $request->message, '', '', '');
+                    }
                 }
 
                 return redirect()->back()->with('message', 'Document Send SucessFully');
@@ -2005,6 +2056,47 @@ class WhatsAppController extends FindByNumberController
                     } else {
                         $this->sendWithThirdApi($customer->phone, $request->whatsapp_number, '', $image, '', '');
                     }
+                }
+                return redirect()->back()->with('message', 'Images Send SucessFully');
+
+            } elseif ($context = 'quicksell_group') {
+                $products = $request->products;
+                if ($products != null) {
+                    $products = explode(",", $products);
+                    foreach ($products as $product) {
+                        $product = Product::findorfail($product);
+                        $image = $product->getMedia(config('constants.media_tags'))->first()
+                            ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                            : '';
+                        //$image = 'https://cdn.vox-cdn.com/thumbor/Pkmq1nm3skO0-j693JTMd7RL0Zk=/0x0:2012x1341/1200x800/filters:focal(0x0:2012x1341)/cdn.vox-cdn.com/uploads/chorus_image/image/47070706/google2.0.0.jpg';
+                        if (isset($request->to_all)) {
+                            $customers = Customer::all();
+                        } elseif ($request->rating != null && $request->gender == null) {
+                            $customers = Customer::where('rating', $request->rating)->get();
+                        } elseif ($request->rating != null && $request->gender != null) {
+                            $customers = Customer::where('rating', $request->rating)->where('gender', $request->gender)->get();
+                        } else {
+                            return redirect()->back()->with('message', 'Please select Category');
+                        }
+
+
+                        if ($customers != null) {
+                            foreach ($customers as $customer) {
+                                $data[ 'customer_id' ] = $customer->id;
+                            }
+
+                            //Creating Chat Message
+                            $chat_message = ChatMessage::create($data);
+
+                            if ($customer->whatsapp_number == null) {
+                                $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $image, '', '');
+                            } else {
+                                $this->sendWithThirdApi($customer->phone, $request->whatsapp_number, '', $image, '', '');
+                            }
+                        }
+                    }
+                } else {
+                    return redirect()->back()->with('message', 'Please Select Products');
                 }
                 return redirect()->back()->with('message', 'Images Send SucessFully');
 

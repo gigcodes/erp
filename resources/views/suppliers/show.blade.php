@@ -405,7 +405,7 @@
       {{-- <h4>Messages</h4> --}}
 
       <div class="row">
-        <form action="{{ route('supplier.image') }}" method="post">
+        <form action="{{ route('supplier.image') }}" method="post" enctype="multipart/form-data">
           @csrf
         <button type="submit" class="btn btn-xs btn-secondary" value="1" name="type">Create Product</button>
         <button type="submit" class="btn btn-xs btn-secondary" value="2" name="type">Create Product Group</button>
