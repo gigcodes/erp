@@ -230,7 +230,12 @@
                 }
               },
               {data: 'status_name', name: 'status_name'},
-              {data: 'customer_name', name: 'customer_name'},
+              {
+                  data: null,
+                  render : function ( data, type, row ) {
+                      return '<a href="/customers/' + data.customer_id + '" target="_blank">' + data.customer_name + '</a>';
+                  }
+              },
               {data: 'product_name', name: 'product_name'},
               {data: 'brand_name', name: 'brand_name'},
               {data: 'cat_title', name: 'cat_title'},
