@@ -62,8 +62,8 @@
             <div class="top-right">
                 <?php 
                  $generatorHTML = new Picqer\Barcode\BarcodeGeneratorHTML();
-                 echo $generator->getBarcode('081231723897', $generator::TYPE_CODE_11);   
-                // echo DNS1D::getBarcodeHTML($product->sku, "CODE11",1,30,"black", true); ?>
+                 echo $generatorHTML->getBarcode($product->sku, $generatorHTML::TYPE_CODE_11);
+                 ?>
             </div>
 
             <?php } ?>
