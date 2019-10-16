@@ -380,10 +380,18 @@
 
                                 $('.user_select_id').html(data);
                                 $('.user_select_id').multiselect('rebuild');
+
                             }
                         })
                     }
                 }
+            });
+            $('.user_select_id').multiselect({
+                nonSelectedText:'Please Select',
+                buttonWidth:'300px',
+                includeSelectAllOption: true,
+                enableFiltering: true,
+                enableCaseInsensitiveFiltering: true,
             });
         });
 
@@ -465,6 +473,82 @@
             });
         });
 
-        //
+        $(document).on('click', '.add-contact', function (e) {
+            e.preventDefault();
+
+            if ($('#contact-label').is(':hidden')) {
+                $('#contact-label').fadeIn();
+            }
+
+            var el = `<div class="row contact-input">
+            <div class="col-md-10">
+                <input type="integer" name="contact[]" class="form-control mb-3" placeholder="Please enter country code with number">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image contact-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+            $('#contact-list').append(el);
+        });
+
+        $(document).on('click', '.contact-delete-button', function (e) {
+            e.preventDefault();
+            var parent = $(this).parent().parent();
+
+            parent.hide(300, function () {
+                parent.remove();
+                var n = 0;
+
+                $('.contact-input').each(function () {
+                    n++;
+                });
+
+                if (n == 0) {
+                    $('#contact-label').fadeOut();
+                }
+            });
+        });
+
+        $(document).on('click', '.add-email-contact', function (e) {
+            e.preventDefault();
+
+            if ($('#contact-email-label').is(':hidden')) {
+                $('#contact-email-label').fadeIn();
+            }
+
+            var el = `<div class="row contact-email-input">
+            <div class="col-md-10">
+                <input type="email" name="emailcontact[]" class="form-control mb-3" placeholder="Please Enter Email">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image contact-email-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+            $('#contact-email-list').append(el);
+        });
+
+        $(document).on('click', '.contact-email-delete-button', function (e) {
+            e.preventDefault();
+            var parent = $(this).parent().parent();
+
+            parent.hide(300, function () {
+                parent.remove();
+                var n = 0;
+
+                $('.contact-email-input').each(function () {
+                    n++;
+                });
+
+                if (n == 0) {
+                    $('#contact-email-label').fadeOut();
+                }
+            });
+        });
+
+
     </script>
+
+
 @endsection
