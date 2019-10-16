@@ -348,7 +348,7 @@ class SearchController extends Controller
         if ($request->quick_product !== 'true') {
             if($inStockSupplier) {
                 $products = $productQuery->where(function($query){
-                    $query->where('stock', '>=', 1)->orwhereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN (11))");
+                    $query->where('stock', '>=', 1)->orwhereRaw("products.supplier like '%In-stock%'");
                 });
             }else{
                 $products = $productQuery->where('stock', '>=', 1);
