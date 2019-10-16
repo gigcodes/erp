@@ -10,6 +10,37 @@
       <h2 class="page-heading">Erp Leads <a class="btn btn-secondary editor_create" href="javascript:;">+</a></h2>
       
   </div>
+  <div class="col-lg-12 margin-tb">
+    <form id="search" method="GET" class="form-inline">
+        <input name="term" type="text" class="form-control"
+               value="{{request()->get('term')}}"
+               placeholder="Search" id="customer-search">
+
+        <div class="form-group ml-3">
+            <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
+        </div>
+        <div class="form-group ml-3">
+            <input placeholder="Clothing Size" type="text" name="clothing_size" value="{{request()->get('clothing_size')}}" class="form-control-sm form-control">
+        </div>
+        <div class="form-group ml-3">
+            <select class="form-control" name="shoe_size_group">
+                <option value="">Select</option>
+                <?php foreach ($shoe_size_group as $shoe_size => $customerCount) {
+                    echo '<option value="'.$shoe_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$shoe_size.' Size) '.$customerCount.' Customers</option>';
+                } ?>
+            </select>
+        </div>
+        <div class="form-group ml-3">
+            <select class="form-control" name="clothing_size_group">
+                <option value="">Select</option>
+                <?php foreach ($clothing_size_group as $clothing_size => $customerCount) {
+                    echo '<option value="'.$clothing_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$clothing_size.' Size) '.$customerCount.' Customers</option>';
+                } ?>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+    </form>
+  </div>
   <div class="col-md-12">
     <div class="table-responsive">
       <table cellspacing="0" role="grid" class="table table-striped table-bordered datatable mdl-data-table dataTable" style="width:100%">
@@ -55,10 +86,19 @@
   <script src="//cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
-      $('.datatable').DataTable({
+      var table = $('.datatable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{{ route('leads.erpLeadsResponse') }}',
+            searching: false,
+            ajax: {
+              "url" : '{{ route('leads.erpLeadsResponse') }}',
+              data: function ( d ) {
+                var from = $('#search').serializeArray();
+                $.each(from, function( index, value ) {
+                   d[value.name] = value.value; 
+                });
+              }
+            },
             columns: [
               {data: 'id', name: 'id'},
               {data: 'status_name', name: 'status_name'},
@@ -80,6 +120,11 @@
               }
           ]
         });
+    $('#search').on('submit', function(e){
+        e.preventDefault(); 
+        table.draw();
+        return false;
+     });
   });
 
     // start to search for customer   
