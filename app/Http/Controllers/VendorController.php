@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Customer;
+use App\Email;
+use App\Mail\PurchaseEmail;
+use App\Supplier;
 use App\Vendor;
 use App\VendorProduct;
 use App\VendorCategory;
@@ -9,11 +13,14 @@ use App\Setting;
 use App\ReplyCategory;
 use App\Helpers;
 use App\User;
+use Carbon\Carbon;
+use Mail;
 use Illuminate\Http\Request;
 use Plank\Mediable\Media;
 use Illuminate\Support\Facades\DB;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Webklex\IMAP\Client;
 
 class VendorController extends Controller
 {
@@ -106,6 +113,7 @@ class VendorController extends Controller
   		]);
 
       $vendor_categories = VendorCategory::all();
+
 
       $users = User::all();
 
@@ -225,6 +233,7 @@ class VendorController extends Controller
       $vendor = Vendor::find($id);
       $vendor_categories = VendorCategory::all();
       $vendor_show = true;
+      $emails = [];
       $reply_categories = ReplyCategory::all();
       $users_array = Helpers::getUserArray(User::all());
 
@@ -233,7 +242,8 @@ class VendorController extends Controller
         'vendor_categories'  => $vendor_categories,
         'vendor_show'  => $vendor_show,
         'reply_categories'  => $reply_categories,
-        'users_array'  => $users_array
+        'users_array'  => $users_array,
+        'emails' => $emails,
       ]);
     }
 
@@ -344,5 +354,301 @@ class VendorController extends Controller
       $product->delete();
 
       return redirect()->back()->withSuccess('You have successfully deleted a vendor product!');
+    }
+
+    public function sendEmailBulk(Request $request){
+        $this->validate($request, [
+            'subject' => 'required|min:3|max:255',
+            'message' => 'required',
+            'cc.*' => 'nullable|email',
+            'bcc.*' => 'nullable|email'
+        ]);
+
+        if ($request->vendors) {
+            $vendors = Vendor::where('id', $request->vendors)->get();
+        } else {
+            if ($request->not_received != 'on' && $request->received != 'on') {
+                return redirect()->route('vendor.index')->withErrors(['Please select vendors']);
+            }
+        }
+
+        if ($request->not_received == 'on') {
+            $vendors = Vendor::doesnthave('emails')->where(function ($query) {
+                $query->whereNotNull('email');
+            })->get();
+        }
+
+        if ($request->received == 'on') {
+            $vendors = Vendor::whereDoesntHave('emails', function ($query) {
+                $query->where('type', 'incoming');
+            })->where(function ($query) {
+                $query->orWhereNotNull('email');
+            })->where('has_error', 0)->get();
+        }
+
+        $file_paths = [];
+
+        if ($request->hasFile('file')) {
+            foreach ($request->file('file') as $file) {
+                $filename = $file->getClientOriginalName();
+
+                $file->storeAs("documents", $filename, 'files');
+
+                $file_paths[] = "documents/$filename";
+            }
+        }
+
+        $cc = $bcc = [];
+        if ($request->has('cc')) {
+            $cc = array_values(array_filter($request->cc));
+        }
+        if ($request->has('bcc')) {
+            $bcc = array_values(array_filter($request->bcc));
+        }
+
+        foreach ($vendors as $vendor) {
+            $mail = Mail::to($vendor->email);
+
+            if ($cc) {
+                $mail->cc($cc);
+            }
+            if ($bcc) {
+                $mail->bcc($bcc);
+            }
+
+            $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+
+            $params = [
+                'model_id'        => $vendor->id,
+                'model_type'      => Vendor::class,
+                'from'            => 'buying@amourint.com',
+                'seen'            => 1,
+                'to'              => $vendor->email,
+                'subject'         => $request->subject,
+                'message'         => $request->message,
+                'template'		=> 'customer-simple',
+                'additional_data'	=> json_encode(['attachment' => $file_paths]),
+                'cc'              => $cc ?: null,
+                'bcc'             => $bcc ?: null,
+            ];
+
+            Email::create($params);
+        }
+
+        return redirect()->route('vendor.index')->withSuccess('You have successfully sent emails in bulk!');
+    }
+
+    public function sendEmail(Request $request)
+    {
+        $this->validate($request, [
+            'subject' => 'required|min:3|max:255',
+            'message' => 'required',
+            'email.*' => 'required|email',
+            'cc.*' => 'nullable|email',
+            'bcc.*' => 'nullable|email'
+        ]);
+
+        $vendor = Vendor::find($request->vendor_id);
+
+        if ($vendor->email != '') {
+            $file_paths = [];
+
+            if ($request->hasFile('file')) {
+                foreach ($request->file('file') as $file) {
+                    $filename = $file->getClientOriginalName();
+
+                    $file->storeAs("documents", $filename, 'files');
+
+                    $file_paths[] = "documents/$filename";
+                }
+            }
+
+            $cc = $bcc = [];
+            $emails = $request->email;
+
+            if ($request->has('cc')) {
+                $cc = array_values(array_filter($request->cc));
+            }
+            if ($request->has('bcc')) {
+                $bcc = array_values(array_filter($request->bcc));
+            }
+
+            if (is_array($emails) && !empty($emails)) {
+                $to = array_shift($emails);
+                $cc = array_merge($emails, $cc);
+
+                $mail = Mail::to($to);
+
+                if ($cc) {
+                    $mail->cc($cc);
+                }
+                if ($bcc) {
+                    $mail->bcc($bcc);
+                }
+
+                $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+            } else {
+                return redirect()->back()->withErrors('Please select an email');
+            }
+
+            $params = [
+                'model_id' => $vendor->id,
+                'model_type' => Vendor::class,
+                'from' => 'buying@amourint.com',
+                'to' => $request->email[0],
+                'seen' => 1,
+                'subject' => $request->subject,
+                'message' => $request->message,
+                'template' => 'customer-simple',
+                'additional_data' => json_encode(['attachment' => $file_paths]),
+                'cc' => $cc ?: null,
+                'bcc' => $bcc ?: null
+            ];
+
+            Email::create($params);
+
+            return redirect()->route('vendor.show', $vendor->id)->withSuccess('You have successfully sent an email!');
+
+        }
+    }
+
+    public function emailInbox(Request $request){
+        $imap = new Client([
+            'host'          => env('IMAP_HOST_PURCHASE'),
+            'port'          => env('IMAP_PORT_PURCHASE'),
+            'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
+            'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
+            'username'      => env('IMAP_USERNAME_PURCHASE'),
+            'password'      => env('IMAP_PASSWORD_PURCHASE'),
+            'protocol'      => env('IMAP_PROTOCOL_PURCHASE')
+        ]);
+
+        $imap->connect();
+
+        $vendor = Vendor::find($request->vendor_id);
+
+        if ($request->type == 'inbox') {
+            $inbox_name = 'INBOX';
+            $direction = 'from';
+            $type = 'incoming';
+        } else {
+            $inbox_name = 'INBOX.Sent';
+            $direction = 'to';
+            $type = 'outgoing';
+        }
+
+        $inbox = $imap->getFolder($inbox_name);
+
+        $latest_email = Email::where('type', $type)->where('model_id', $vendor->id)->where('model_type', 'App\Vendor')->latest()->first();
+
+        $latest_email_date = $latest_email
+            ? Carbon::parse($latest_email->created_at)
+            : Carbon::parse('1990-01-01');
+
+        $vendorAgentsCount = $vendor->agents()->count();
+
+        if ($vendorAgentsCount == 0) {
+            $emails = $inbox->messages()->where($direction, $vendor->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+            $emails = $emails->leaveUnread()->get();
+            $this->createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails);
+        }
+        else if($vendorAgentsCount == 1) {
+            $emails = $inbox->messages()->where($direction, $vendor->agents[0]->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+            $emails = $emails->leaveUnread()->get();
+            $this->createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails);
+        }
+        else {
+            foreach ($vendor->agents as $key => $agent) {
+                if ($key == 0) {
+                    $emails = $inbox->messages()->where($direction, $agent->email)->where([
+                        ['SINCE', $latest_email_date->format('d M y H:i')]
+                    ]);
+                    $emails = $emails->leaveUnread()->get();
+                    $this->createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails);
+                } else {
+                    $additional = $inbox->messages()->where($direction, $agent->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+                    $additional = $additional->leaveUnread()->get();
+                    $this->createEmailsForEmailInbox($vendor, $type, $latest_email_date, $additional);
+                    // $emails = $emails->merge($additional);
+                }
+            }
+        }
+
+        $db_emails = $vendor->emails()->with('model')->where('type', $type)->get();
+
+        $emails_array = []; $count = 0;
+        foreach ($db_emails as $key2 => $email) {
+            $dateCreated = $email->created_at->format('D, d M Y');
+            $timeCreated = $email->created_at->format('H:i');
+            $userName = null;
+            if ($email->model instanceof Supplier) {
+                $userName = $email->model->supplier;
+            } elseif ($email->model instanceof Customer) {
+                $userName = $email->model->name;
+            }
+
+            $emails_array[$count + $key2]['id'] = $email->id;
+            $emails_array[$count + $key2]['subject'] = $email->subject;
+            $emails_array[$count + $key2]['seen'] = $email->seen;
+            $emails_array[$count + $key2]['type'] = $email->type;
+            $emails_array[$count + $key2]['date'] = $email->created_at;
+            $emails_array[$count + $key2]['from'] = $email->from;
+            $emails_array[$count + $key2]['to'] = $email->to;
+            $emails_array[$count + $key2]['message'] = $email->message;
+            $emails_array[$count + $key2]['cc'] = $email->cc;
+            $emails_array[$count + $key2]['bcc'] = $email->bcc;
+            $emails_array[$count + $key2]['replyInfo'] = "On {$dateCreated} at {$timeCreated}, $userName <{$email->from}> wrote:";
+            $emails_array[$count + $key2]['dateCreated'] = $dateCreated;
+            $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
+        }
+
+        $emails_array = array_values(array_sort($emails_array, function ($value) {
+            return $value['date'];
+        }));
+
+        $emails_array = array_reverse($emails_array);
+
+        $perPage = 10;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
+        $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
+
+        $view = view('vendors.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
+
+        return response()->json(['emails' => $view]);
+    }
+
+    private function createEmailsForEmailInbox($vendor, $type, $latest_email_date, $emails)
+    {
+        foreach ($emails as $email) {
+            $content = $email->hasHTMLBody() ? $email->getHTMLBody() : $email->getTextBody();
+
+            if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                $attachments_array = [];
+                $attachments = $email->getAttachments();
+
+                $attachments->each(function ($attachment) use (&$attachments_array) {
+                    file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                    $path = "email-attachments/" . $attachment->name;
+                    $attachments_array[] = $path;
+                });
+
+                $params = [
+                    'model_id'        => $vendor->id,
+                    'model_type'      => Vendor::class,
+                    'type'            => $type,
+                    'seen'            => $email->getFlags()['seen'],
+                    'from'            => $email->getFrom()[0]->mail,
+                    'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                    'subject'         => $email->getSubject(),
+                    'message'         => $content,
+                    'template'		  => 'customer-simple',
+                    'additional_data' => json_encode(['attachment' => $attachments_array]),
+                    'created_at'      => $email->getDate()
+                ];
+
+                Email::create($params);
+            }
+        }
     }
 }

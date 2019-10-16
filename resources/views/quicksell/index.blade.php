@@ -2,6 +2,12 @@
 
 @section("styles")
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css" />
+<style>
+  .checkbox_select{
+    display: none;
+  }
+</style>
 @endsection
 
 @section('content')
@@ -16,6 +22,11 @@
   <div class="pull-right">
     {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</button> --}}
     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">Upload</button>
+    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroup">Create Group</button>
+    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroupExist">Add Existing Group</button>
+    <button type="button" class="btn btn-secondary" id="multiple">Send Multiple Images</button>
+    <a href="{{ url('/quickSell/pending') }}"><button type="button" class="btn btn-secondary">Product Pending</button></a>
+
   </div>
 
   <form action="{{ route('quicksell.index') }}" method="GET" class="form-inline align-items-start mb-5">
@@ -33,7 +44,7 @@
       <select class="form-control select-multiple" name="brand[]" multiple>
         <optgroup label="Brands">
           @foreach ($brands_select as $id => $name)
-            <option value="{{ $id }}" {{ isset($brand) && $brand == $name ? 'selected' : '' }}>{{ $name }}</option>
+            <option value="{{ $id }}" {{ !empty(request()->get('brand')) && in_array($id, request()->get('brand', [])) ? 'selected' : '' }}>{{ $name }}</option>
           @endforeach
         </optgroup>
       </select>
@@ -61,6 +72,7 @@
 <div class="row mt-6">
   @foreach ($products as $index => $product)
   <div class="col-md-3 col-xs-6 text-center">
+    <input type="checkbox" class="checkbox_select" name="quick" value="{{ $product->id }}"/>
     {{-- <a href="{{ route('leads.show', $lead['id']) }}"> --}}
     <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
               ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
@@ -70,6 +82,12 @@
     <p>Size : {{ $product->size }}</p>
     <p>Brand : {{ $product->brand ? $brands[$product->brand] : '' }}</p>
     <p>Category : {{ $product->category ? $categories[$product->category] : '' }}</p>
+    @if($product->groups)
+
+    <p>Group : @foreach($product->groups as $group) {{ $group->quicksell_group_id }}, @endforeach</p>
+
+    @endif
+    <button type="button" class="btn btn-image sendWhatsapp" data-id="{{ $product->id }}"><img src="/images/send.png" /></button>
 
     <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
     {!! Form::open(['method' => 'POST','route' => ['products.archive', $product->id],'style'=>'display:inline']) !!}
@@ -89,17 +107,22 @@
 {!! $products->links() !!}
 
 @include('quicksell.partials.modal-product')
+@include('quicksell.partials.modal-create-group')
+@include('quicksell.partials.modal-add-existing-group')
+@include('quicksell.partials.modal-whats-app')
+@include('quicksell.partials.modal-multiple-whats-app')
 
 @endsection
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"></script>
   <script type="text/javascript">
     $(".select-multiple").multiselect();
 
     $(document).on('click', '.edit-modal-button', function() {
       var product = $(this).data('product');
-      var url = 'quickSell/' + product.id + '/edit';
+      var url = '/quickSell/' + product.id + '/edit';
 
       $('#updateForm').attr('action', url);
       $('#supplier_select').val(product.supplier);
@@ -214,5 +237,35 @@
         }
       }
     }
+
+    $(document).ready(function() {
+      $('.sendWhatsapp').on('click', function(e) {
+        e.preventDefault(e);
+        id = $(this).attr("data-id");
+        $('#quicksell_id').val(id);
+        $("#whatsappModal").modal();
+      });
+    });
+
+    $(document).ready(
+            function(){
+              $("#multiple").click(function () {
+                $(".checkbox_select").toggle();
+                $(this).text("Please Select Checkbox");
+                $(this).click(function () {
+                  $('#multipleWhatsappModal').modal('show');
+                  val = $('input[name="quick"]:checked');
+                  $("#selected_checkbox").text(val.length);
+                  var list = [];
+                  $('input[name="quick"]:checked').each(function() {
+                    list.push(this.value);
+                  });
+                  $("#products").val(list);
+                });
+              });
+
+            });
+
+
   </script>
 @endsection

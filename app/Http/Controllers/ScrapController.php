@@ -67,6 +67,7 @@ class ScrapController extends Controller
 
     public function syncProductsFromNodeApp(Request $request)
     {
+
         // Update request data with common mistakes
         $request = ProductHelper::fixCommonMistakesInRequest($request);
 

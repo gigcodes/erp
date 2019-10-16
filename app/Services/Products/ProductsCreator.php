@@ -13,7 +13,8 @@ use App\ScrapActivity;
 use App\Supplier;
 use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
-
+use App\SupplierBrandCount;
+use App\SupplierCategoryCount;
 
 class ProductsCreator
 {
@@ -33,6 +34,7 @@ class ProductsCreator
             // Return false
             return false;
         } else {
+            $supplierId = $supplier->id;
             $supplier = $supplier->supplier;
         }
 
@@ -45,6 +47,16 @@ class ProductsCreator
         $validator = Validator::make($data, [
             'sku' => 'unique:products,sku'
         ]);
+
+        // Store count
+        try {
+            SupplierBrandCount::firstOrCreate(['supplier_id' => $supplierId, 'brand_id' => $image->brand_id]);
+            if ( !empty($formattedDetails[ 'category' ]) ) {
+                SupplierCategoryCount::firstOrCreate(['supplier_id' => $supplierId, 'category_id' => $formattedDetails[ 'category' ]]);
+            }
+        } catch (\Exception $e) {
+            //
+        }
 
         // Product validated
         if ($validator->fails()) {

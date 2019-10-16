@@ -628,3 +628,28 @@ function copyTextToClipboard(text) {
     }
     document.body.removeChild(textArea);
 }
+
+
+function sendMessageWhatsapp(developer_task_id,message,context,token){
+    var app_url = 'http://localhost/sololux-erp/public/';
+    $.ajax({
+        url: app_url+ "whatsapp/sendMessage/"+context,
+        type: 'POST',
+        data: {
+            _token: token,
+            message: message,
+            user_id: developer_task_id,
+            status: 2
+        },
+        success: function () {
+            $(self).removeAttr('disabled');
+            $("#message_" + developer_task_id).removeAttr('disabled');
+            $(self).val('');
+            $("#message_" + developer_task_id).val('');
+            toastr['success']('Message sent successfully!', 'Message');
+        },
+        error: function () {
+            $(self).removeAttr('disabled');
+        }
+    });
+}

@@ -12,7 +12,7 @@
 */
 
 Auth::routes();
-
+Route::get('/test/test','TestController@index');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -39,6 +39,8 @@ Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew
 //Route::resource('/chat','ChatController@getmessages');
 
 Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
+Route::resource('courier', 'CourierController');
+Route::resource('product-location', 'ProductLocationController');
 
 Route::prefix('product')->middleware('auth')->group(static function () {
     Route::get('manual-crop/assign-products', 'Products\ManualCroppingController@assignProductsToUser');
@@ -231,9 +233,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
-    Route::post('meeting/create', 'Meeting\ZoomMeetingController@createMeeting');
-    Route::get('meeting/allmeetings', 'Meeting\ZoomMeetingController@getMeetings');
-    Route::get('meetings/{type}/show-data', 'Meeting\ZoomMeetingController@showData')->name('meetings.show.data');
+    Route::post( 'meeting/create', 'Meeting\ZoomMeetingController@createMeeting' );
+    Route::get( 'meeting/allmeetings', 'Meeting\ZoomMeetingController@getMeetings' );
+    Route::get( 'meetings/show-data', 'Meeting\ZoomMeetingController@showData' )->name( 'meetings.show.data' );
+    Route::get( 'meetings/show', 'Meeting\ZoomMeetingController@show' )->name( 'meetings.show' );
 
     Route::get('task/list', 'TaskModuleController@list')->name('task.list');
     Route::post('task/flag', 'TaskModuleController@flag')->name('task.flag');
@@ -276,6 +279,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/productapprover/isFinal/{product}', 'ProductApproverController@isFinal')->name('productapprover.isfinal');
 
     Route::get('/productinventory/in/stock', 'ProductInventoryController@instock')->name('productinventory.instock');
+    Route::get('/productinventory/in/stock/instruction-create', 'ProductInventoryController@instructionCreate')->name('productinventory.instruction.create');
+    Route::post('/productinventory/in/stock/instruction', 'ProductInventoryController@instruction')->name('productinventory.instruction');
+    Route::get('/productinventory/in/stock/location-hisotory', 'ProductInventoryController@locationHistory')->name('productinventory.location.history');
+    Route::post('/productinventory/in/stock/dispatch-store', 'ProductInventoryController@dispatchStore')->name('productinventory.dispatch.store');
+    Route::get('/productinventory/in/stock/dispatch', 'ProductInventoryController@dispatchCreate')->name('productinventory.dispatch.create');
     Route::post('/productinventory/stock/{product}', 'ProductInventoryController@stock')->name('productinventory.stock');
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
@@ -307,6 +315,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('quickSell', 'QuickSellController@index')->name('quicksell.index');
     Route::post('quickSell', 'QuickSellController@store')->name('quicksell.store');
     Route::post('quickSell/{id}/edit', 'QuickSellController@update')->name('quicksell.update');
+    Route::post('quickSell/saveGroup', 'QuickSellController@saveGroup')->name('quicksell.save.group');
+    Route::get('quickSell/pending', 'QuickSellController@pending')->name('quicksell.pending');
+    Route::post('quickSell/activate', 'QuickSellController@activate')->name('quicksell.activate');
+
+
+    // Chat messages
+    Route::get('chat-messages/{object}/{object_id}/loadMoreMessages', 'ChatMessagesController@loadMoreMessages');
 
     // Customers
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
@@ -483,14 +498,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('imported/leads/save', 'ColdLeadsController@addLeadToCustomer');
 
     // Development
-    Route::post('development/task/move-to-progress', 'DevelopmentController@moveTaskToProgress');
-    Route::post('development/task/complete-task', 'DevelopmentController@completeTask');
-    Route::post('development/task/assign-task', 'DevelopmentController@updateAssignee');
-    Route::post('development/task/relist-task', 'DevelopmentController@relistTask');
-    Route::post('development/task/update-status', 'DevelopmentController@changeTaskStatus');
+    Route::post( 'development/task/move-to-progress', 'DevelopmentController@moveTaskToProgress' );
+    Route::post( 'development/task/complete-task', 'DevelopmentController@completeTask' );
+    Route::post( 'development/task/assign-task', 'DevelopmentController@updateAssignee' );
+    Route::post( 'development/task/relist-task', 'DevelopmentController@relistTask' );
+    Route::post( 'development/task/update-status', 'DevelopmentController@changeTaskStatus' );
 
-
-    Route::resource('task-types', 'TaskTypesController');
+    Route::resource( 'task-types', 'TaskTypesController' );
 
     Route::resource('development-messages-schedules', 'DeveloperMessagesAlertSchedulesController');
     Route::get('development', 'DevelopmentController@index')->name('development.index');
@@ -503,6 +517,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/{id}/status', 'DevelopmentController@updateStatus')->name('development.update.status');
     Route::post('development/{id}/updateTask', 'DevelopmentController@updateTask')->name('development.update.task');
     Route::post('development/{id}/updatePriority', 'DevelopmentController@updatePriority')->name('development.update.priority');
+    Route::post('development/upload-attachments', 'DevelopmentController@uploadAttachDocuments')->name('development.upload.files');
+    Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
     Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
@@ -516,6 +532,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('development/{id}/issueDestroy', 'DevelopmentController@issueDestroy')->name('development.issue.destroy');
     Route::get('development/overview', 'DevelopmentController@overview')->name('development.overview');
     Route::get('development/task-detail/{id}', 'DevelopmentController@taskDetail')->name('taskDetail');
+    Route::get('development/new-task-popup', 'DevelopmentController@openNewTaskPopup')->name('openNewTaskPopup');
 
     Route::post('development/module/create', 'DevelopmentController@moduleStore')->name('development.module.store');
     Route::delete('development/module/{id}/destroy', 'DevelopmentController@moduleDestroy')->name('development.module.destroy');
@@ -607,7 +624,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Documents Manager
     Route::get('documents', 'DocumentController@index')->name('document.index');
+    Route::get('documents-email', 'DocumentController@email')->name('document.email');
     Route::post('document/store', 'DocumentController@store')->name('document.store');
+    Route::post('document/{id}/update', 'DocumentController@update')->name('document.update');
     Route::get('document/{id}/download', 'DocumentController@download')->name('document.download');
     Route::delete('document/{id}/destroy', 'DocumentController@destroy')->name('document.destroy');
     Route::post('document/send/emailBulk', 'DocumentController@sendEmailBulk')->name('document.email.send.bulk');
@@ -657,9 +676,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Vendor Module
     Route::get('vendor/product', 'VendorController@product')->name('vendor.product.index');
+    Route::post('vendor/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendor.email.send.bulk');
+    Route::post('vendor/send/email', 'VendorController@sendEmail')->name('vendor.email.send');
+    Route::get('vendor/email/inbox', 'VendorController@emailInbox')->name('vendor.email.inbox');
     Route::post('vendor/product', 'VendorController@productStore')->name('vendor.product.store');
     Route::put('vendor/product/{id}', 'VendorController@productUpdate')->name('vendor.product.update');
-    Route::delete('vendor/product/{id}', 'VendorController@productDestroy')->name('vendor.product.destroy');
+    Route::delete('vendor/product/{id}', 'vendorVendorController@productDestroy')->name('vendor.product.destroy');
     Route::get('vendor/{vendor}/payments', 'VendorPaymentController@index')->name('vendor.payments');
     Route::post('vendor/{vendor}/payments', 'VendorPaymentController@store')->name('vendor.payments.store');
     Route::put('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendor.payments.update');
@@ -686,7 +708,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
     Route::resource('supplier', 'SupplierController');
-
+    Route::post('supplier/saveImage' , 'SupplierController@saveImage')->name('supplier.image');;
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
 

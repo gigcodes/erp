@@ -26,6 +26,7 @@
                 </form> --}}
             </div>
             <div class="pull-right">
+                <a href="{{ route('document.email') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a>
 
             </div>
@@ -148,7 +149,7 @@
                                 <div class="alert alert-danger">{{$errors->first('category')}}</div>
                             @endif
                         </div>
-
+                        <input type="hidden" name="status" value="1">
                         <div class="form-group">
                             <strong>File:</strong>
                             <input type="file" name="file[]" class="form-control" value="" multiple required>

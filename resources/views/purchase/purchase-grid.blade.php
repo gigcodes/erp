@@ -4,6 +4,15 @@
 
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <style type="text/css">
+      .modal-xl {
+        width: 90%;
+       max-width:1200px;
+      }
+      .select2-container {
+        width: 215px !important;
+      }
+    </style>
 @endsection
 
 
@@ -29,7 +38,7 @@
                 <select class="form-control select-multiple" name="status[]" multiple>
                   <optgroup label="Order Status">
                     @foreach ($order_status as $key => $name)
-                      <option value="{{ $key }}" {{ !empty($status) && in_array($key, $status) ? 'selected' : '' }}>{{ $name }}</option>
+                      <option value="{{ $key }}" {{ in_array(strtolower($key), array_map("strtolower",request()->get('status', []))) ? 'selected' : '' }}>{{ $name }}</option>
                     @endforeach
                 </optgroup>
                 </select>
@@ -37,7 +46,7 @@
             @endif
 
             <div class="form-group mr-3">
-              {!! Form::select('supplier[]', $suppliers_array, (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple']) !!}
+              {!! Form::select('supplier[]', $suppliers_array, (!empty(request()->get('supplier')[0]) ? request()->get('supplier')[0] : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple']) !!}
             </div>
 
             <div class="form-group mr-3">
@@ -49,6 +58,10 @@
                     @endforeach
                 </optgroup>
                 </select>
+            </div>
+
+            <div class="form-group mr-3">
+              <?php echo Form::select("customer_id", [], request()->get('customer',null),["class"=> "form-control customer-search-box",'placeholder' => 'Select a Customer', "style"=>"width:100%;"]);  ?>
             </div>
 
             <input type="checkbox" name="in_pdf" id="in_pdf"> <label for="in_pdf">Download PDF</label>
@@ -89,7 +102,7 @@
               <th>Product</th>
               <th>SKU</th>
               <th>Supplier</th>
-              <th>Suppliers</th>
+              <!-- <th>Suppliers</th> -->
               <th>Brand</th>
               <th>Remarks</th>
             </tr>
@@ -118,27 +131,23 @@
                 @if($cnt > 0)
 
                 @php
-                 $suppliers_array2 = DB::select('SELECT id, supplier, product_id
+                 $suppliers_array2 = DB::select('SELECT suppliers.id, supplier, ps.product_id
                     FROM suppliers
-                    INNER JOIN (
-                      SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-                      ) as product_suppliers
-                    ON suppliers.id = product_suppliers.supplier_id
-                    LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and product_id = :product_id', ['product_id' =>$product['id']]);
+                    INNER JOIN product_suppliers as ps on suppliers.id = ps.supplier_id and ps.product_id = :product_id 
+                    LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and purchase_product_supplier.product_id = ps.product_id', ['product_id' =>$product['id']]);
                     $cnt2 = count($suppliers_array2);
                 @endphp
-                   <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple" multiple>
                       @if($cnt2 > 0)
-                        @foreach($suppliers_array2 as $sup)
-                          <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
-                        @endforeach
-                      @endif
-                    </select>
-                    <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message" >
-                    <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
+                       <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple" multiple>
+                          @foreach($suppliers_array2 as $sup)
+                            <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
+                          @endforeach
+                      </select>
+                      <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message" >
+                      <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
+                    @endif
                 @endif
                 </td>
-                <td>{{ $product['supplier_list'] }}</td>
                 <td>{{ $product['brand'] }}</td>
                 <td>
                   <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $product['id'] }}">Add</a>
@@ -156,6 +165,9 @@
                       <th>Price In Order</th>
                       <th>Order Date</th>
                       <th>Order Advance</th>
+                      <th>Ordered Size</th>
+                      <th>Ordered Status</th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -187,6 +199,27 @@
                             {{ $order_product->order->advance_detail }}</li>
                           @else
                             No Order
+                          @endif
+                        </td>
+                        <td>
+                          {{ $order_product->size }}
+                        </td>
+                        <td>
+                            <?php if(isset($order_product->order) && !empty($order_product->order)) { ?>
+                            <div>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Follow up for advance' ? 'active-bullet-status' : '' }}"  title="Follow up for advance" data-id="Follow up for advance" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #666666;"></span>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Advance received' ? 'active-bullet-status' : '' }}"  title="Advance received" data-id="Advance received" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #4c4c4c;"></span>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Delivered' ? 'active-bullet-status' : '' }}"  title="Delivered" data-id="Delivered" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #323232;"></span>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Cancel' ? 'active-bullet-status' : '' }}"  title="Cancel" data-id="Cancel" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #191919;"></span>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Product shiped to Client' ? 'active-bullet-status' : '' }}"  title="Product shiped to Client" data-id="Product shiped to Client" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #414a4c;"></span>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Refund to be processed' ? 'active-bullet-status' : '' }}"  title="Refund to be processed" data-id="Refund to be processed" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #CCCCCC;"></span>
+                               <span class="order-status change-order-status {{ $order_product->order->order_status == 'Refund Credited' ? 'active-bullet-status' : '' }}"  title="Refund Credited" data-id="Refund Credited" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #95a5a6;"></span>
+                             </div>
+                           <?php } ?>
+                        </td>
+                        <td>
+                          @if ( isset($order_product->order->customer) )
+                            <button type="submit" class="btn btn-secondary alternative_offers" data-brand="{{$product['brand_id']}}" data-category="{{$product['category']}}" data-price="{{$product['order_price']}}" data-customer_id="{{$order_product->order->customer->id}}">Alternative Offers</button>
                           @endif
                         </td>
                     </tr>
@@ -280,6 +313,8 @@
       </div>
     </div>
 
+  
+
     <!-- Modal -->
     <div id="viewRemarkModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -304,14 +339,234 @@
       </div>
     </div>
 
+      <!-- Modal -->
+    <div id="alternative_offers" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-xl">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Alternative Offers</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+          </div>
+          <div class="modal-body">
+              <div class="row" id="alternative_offers_con">
+                <div class="col-lg-12">
+                  <form action="{{ route('search') }}" method="GET" class="form-inline align-items-start" id="alternative_offers_search_form">                    
+                      <div class="form-group mr-3 mb-3">
+                        {!! $category_selection !!}
+                      </div>
+                      <div class="form-group mr-3">
+                        <select class="form-control select-multiple2" name="brand[]" data-placeholder="Select brand.." multiple>
+                          <optgroup label="Brands">
+                            @foreach ($brands as $key => $name)
+                              <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
+                            @endforeach
+                        </optgroup>
+                        </select>
+                      </div>
+                      <div class="form-group mr-3">
+                        <strong class="mr-3">Price</strong>
+                          <input type="text" name="price_min" class="form-control" placeholder="min. price" value="{{ isset($_GET['price_min']) ? (int) $_GET['price_min'] : '' }}">
+                          <input type="text" name="price_max" class="form-control" placeholder="max. price" value="{{ isset($_GET['price_max']) ? (int) $_GET['price_max'] : '' }}">
+                      </div>
+                      <input type="hidden" name="selected_products" value="" id="selected_products">
+                      <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                  </form>
+                </div>
+                <div class="col-lg-6">
+                  <form method="POST" id="attachImageForm">
+                    @csrf
+                    <input type="hidden" name="images" id="images" value="">
+                    <input type="hidden" name="image" value="">
+                    <input type="hidden" name="screenshot_path" value="">
+                    <textarea name="message" placeholder="Message" class="form-control" ></textarea>
+                    <input type="hidden" name="customer_id" value="" class="customer_id">
+                    <input type="hidden" name="status" value="1">
+                </form>
+                </div>
+                <div class="col-lg-12">
+                  <div class="productGrid" id="productGrid"></div>
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     {{-- {!! $leads->links() !!} --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script>
     $(document).ready(function() {
        $(".select-multiple").multiselect();
+       $(".select-multiple2").select2();
     });
 
+    $(".alternative_offers").click(function() {
+        $('#alternative_offers_search_form').find("select[name='category[]']").val($(this).data('category'));
+        $('#alternative_offers_search_form').find("select[name='brand[]']").val($(this).data('brand'));
+        $('#alternative_offers_search_form').find("input[name='price_min']").val($(this).data('price'));
+        $('#attachImageForm').find(".customer_id").val($(this).data('customer_id'));
+        $.ajax({
+            url: "{{ route('search') }}",
+            data: $('#alternative_offers_search_form').serialize()
+        }).done(function (data) {
+            all_product_ids = data.all_product_ids;
+            $('#productGrid').html(data.html);
+            $(".page-goto").remove();
+            $('.lazy').Lazy({
+                effect: 'fadeIn'
+            });
+            $('#alternative_offers').modal('show');
+        }).fail(function () {
+            alert('Error searching for products');
+        });
+    });
+    var image_array = [];
+    function unique(list) {
+        var result = [];
+        $.each(list, function (i, e) {
+            if ($.inArray(e, result) == -1) result.push(e);
+        });
+        return result;
+    }
+
+    $("#alternative_offers_con").on('change', '.select-pr-list-chk', function (e) {
+        var $this = $(this);
+        var productCard = $this.closest(".product-list-card").find(".attach-photo-all");
+        if (productCard.length > 0) {
+            var image = productCard.data("image");
+            if ($this.is(":checked") === true) {
+                Object.keys(image).forEach(function (index) {
+                    image_array.push(image[index]);
+                });
+
+                image_array = unique(image_array);
+
+            } else {
+                Object.keys(image).forEach(function (key) {
+                    var index = image_array.indexOf(image[key]);
+                    image_array.splice(index, 1);
+                });
+                image_array = unique(image_array);
+            }
+        }
+    });
+
+    $("#alternative_offers_con").on('click', '.pagination a', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href') + '&selected_products=' + JSON.stringify(image_array);
+
+        getProducts(url);
+    });
+
+    function getProducts(url) {
+        $.ajax({
+            url: url
+        }).done(function (data) {
+            $('#productGrid').html(data.html);
+            $('.lazy').Lazy({
+                effect: 'fadeIn'
+            });
+        }).fail(function () {
+            alert('Error loading more products');
+        });
+    }
+
+    $("#alternative_offers_con").on('click', '.attach-photo', function (e) {
+          e.preventDefault();
+          var image = $(this).data('image');
+
+          if ($(this).data('attached') == 0) {
+              $(this).data('attached', 1);
+              image_array.push(image);
+          } else {
+              var index = image_array.indexOf(image);
+
+              $(this).data('attached', 0);
+              image_array.splice(index, 1);
+          }
+
+          $(this).toggleClass('btn-success');
+          $(this).toggleClass('btn-secondary');
+
+          console.log(image_array);
+      });
+
+      $("#alternative_offers_con").on('click', '.attach-photo-all', function (e) {
+          e.preventDefault();
+          var image = $(this).data('image');
+
+          if ($(this).data('attached') == 0) {
+              $(this).data('attached', 1);
+
+              Object.keys(image).forEach(function (index) {
+                  image_array.push(image[index]);
+              });
+          } else {
+              Object.keys(image).forEach(function (key) {
+                  var index = image_array.indexOf(image[key]);
+
+                  image_array.splice(index, 1);
+              });
+
+              $(this).data('attached', 0);
+          }
+
+          $(this).toggleClass('btn-success');
+          $(this).toggleClass('btn-secondary');
+
+          console.log(image_array);
+      });
+
+      $('#alternative_offers_search_form').on('submit', function (e) {
+            e.preventDefault();
+
+            $('#selected_products').val(JSON.stringify(image_array));
+
+            var url = "{{ route('search') }}";
+            var formData = $('#alternative_offers_search_form').serialize();
+
+            $.ajax({
+                url: url,
+                data: formData
+            }).done(function (data) {
+                $('#productGrid').html(data.html);
+                $('#products_count').text(data.products_count);
+                $(".page-goto").remove();
+                $('.lazy').Lazy({
+                    effect: 'fadeIn'
+                });
+            }).fail(function () {
+                alert('Error searching for products');
+            });
+        });
+
+      $(document).on('click', '#sendImageMessage', function (e) {
+          e.preventDefault();
+          if (image_array.length == 0) {
+              alert('Please select some images');
+          } else {
+              $('#images').val(JSON.stringify(image_array));
+
+              $.ajax({
+                method:'post',
+                url: "{{ route('whatsapp.send', 'customer') }}",
+                data: $('#attachImageForm').serialize()
+            }).done(function (data) {
+                alert('You have successfully send message!');
+                $('#alternative_offers').modal('hide');
+            }).fail(function () {
+                alert('Error searching for products');
+            });
+          }
+      });
 
         // Array.prototype.groupBy = function (prop) {
         //     return this.reduce(function (groups, item) {
@@ -644,6 +899,77 @@
             }
         });
     });
+
+    $(document).on('click', '.change-order-status', function () {
+            let orderId = $(this).attr('data-orderid');
+            let status = $(this).attr('title');
+
+            let url = '/order/' + orderId + '/changestatus';
+
+            let thiss = $(this);
+
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    status: status
+                },
+                success: function () {
+                    toastr['success']('Status changed successfully!', 'Success');
+                    $(thiss).siblings('.change-order-status').removeClass('active-bullet-status');
+                    $(thiss).addClass('active-bullet-status');
+                    if (status == 'Product shiped to Client') {
+                        $('#tracking-wrapper-' + id).css({'display': 'block'});
+                    }
+                }
+            });
+        });
+
+      var customerSearch = function() {
+          $(".customer-search-box").select2({
+            tags : true,
+            ajax: {
+                url: '/erp-leads/customer-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data,params) {
+
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Customer by id, Name, No',
+            escapeMarkup: function (markup) { return markup; },
+            minimumInputLength: 2,
+            templateResult: formatCustomer,
+            templateSelection: (customer) => customer.text || customer.name,
+
+        });
+      };
+
+      function formatCustomer (customer) {
+        if (customer.loading) {
+            return customer.name;
+        }
+
+        if(customer.name) {
+            return "<p> <b>Id:</b> " +customer.id  + (customer.name ? " <b>Name:</b> "+customer.name : "" ) +  (customer.phone ? " <b>Phone:</b> "+customer.phone : "" ) + "</p>";
+        }
+      }
+
+      customerSearch();
     </script>
 
 @endsection

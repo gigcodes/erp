@@ -218,7 +218,7 @@
         <select name="whatsapp_number" class="form-control input-sm">
           <option value>Whatsapp Number</option>
           <option value="919004780634" {{ '919004780634' == $user->whatsapp_number ? ' selected' : '' }}>919004780634 Indian</option>
-          <option value="971545889192" {{ '971545889192' == $user->whatsapp_number ? ' selected' : '' }}>971545889192 Dubai</option>
+          <option value="971502609192" {{ '971502609192' == $user->whatsapp_number ? ' selected' : '' }}>971502609192 Dubai</option>
           {{-- @foreach ($api_keys as $api_key)
             <option value="{{ $api_key->number }}" {{ $user->whatsapp_number == $api_key->number ? 'selected' : '' }}>{{ $api_key->number }}</option>
           @endforeach --}}

@@ -21,9 +21,36 @@ class PasswordController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        if($request->term || $request->date ){
+            if($request->term && $request->date){
+               $passwords =  Password::query()
+                                   ->where('website', 'LIKE', "%{$request->term}%")
+                                   ->orWhere('username', 'LIKE', "%{$request->term}%")
+                                   ->orWhere('password', 'LIKE', "%{$request->term}%")
+                                   ->whereDate('created_at', '=', "%{$request->date}%")
+                                   ->paginate(Setting::get('pagination'));
+
+            }
+
+        if($request->term){
+
+            $passwords =  Password::query()
+                ->where('website', 'LIKE', "%{$request->term}%")
+                ->orWhere('username', 'LIKE', "%{$request->term}%")
+                ->orWhere('password', 'LIKE', "%{$request->term}%")
+                ->paginate(Setting::get('pagination'));
+
+        }
+        if($request->date){
+            $passwords =  Password::query()
+                ->whereDate('created_at', $request->date)
+                ->paginate(Setting::get('pagination'));
+            }
+        }else{
        $passwords = Password::latest()->paginate(Setting::get('pagination'));
+        }
         $users = User::orderBy('name','asc')->get();
         return view('passwords.index', [
           'passwords' => $passwords,
@@ -121,7 +148,7 @@ class PasswordController extends Controller
             $user_id = $request->user_id;
             $user = User::findorfail($user_id);
             $number = $user->phone;
-            $whatsappnumber = '971545889192';
+            $whatsappnumber = '971502609192';
             $message = 'Password Change For '. $request->website .'is, Old Password  : ' . Crypt::decrypt($old_password) . ' New Password is : ' . $request->password;
 
             $whatsappmessage = new WhatsAppController();
