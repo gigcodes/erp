@@ -869,7 +869,6 @@ class LeadsController extends Controller
         $source = $source->get();
         return datatables()
             ->of($source)
-            ->editColumn('name', '<a href="{{ route("customer",["id"=>$customer_id]) }}" >{{$customer}}</a>')
             ->make();
     }
 
