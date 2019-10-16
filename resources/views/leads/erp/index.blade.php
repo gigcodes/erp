@@ -233,7 +233,7 @@
               {
                   data: null,
                   render : function ( data, type, row ) {
-                      return '<a href="/customers/' + data.customer_id + '" target="_blank">' + data.customer_name + '</a>';
+                      return '<a href="/customer/' + data.customer_id + '" target="_blank">' + data.customer_name + '</a>';
                   }
               },
               {data: 'product_name', name: 'product_name'},
