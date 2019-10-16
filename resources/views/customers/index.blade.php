@@ -619,17 +619,25 @@
                             </div>
 
                             <p class="pb-4 mt-3" style="display: block;">
+                                <div class="d-inline form-inline">
+                                    <input style="width: 87%" type="text" name="category_name" placeholder="Enter New Category" class="form-control mb-3 quick_category">
+                                    <button class="btn btn-secondary quick_category_add">+</button>
+                                </div>
                                 <select name="quickCategory" class="form-control mb-3 quickCategory">
                                     <option value="">Select Category</option>
                                     @foreach($reply_categories as $category)
-                                        <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                                        <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
                                     @endforeach
                                 </select>
-
+                                <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
+                                <div class="d-inline form-inline">
+                                    <input style="width: 87%" type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control mb-3 quick_comment">
+                                    <button class="btn btn-secondary quick_comment_add">+</button>
+                                </div>
                                 <select name="quickComment" class="form-control quickComment">
                                     <option value="">Quick Reply</option>
-                                    }}
                                 </select>
+                                <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
                             </p>
                             <p>
                                 <?php
@@ -905,6 +913,111 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
     <script src="{{asset('js/zoom-meetings.js')}}"></script>
     <script type="text/javascript">
+
+        $(document).on('click', '.quick_category_add', function () {
+            var textBox = $(this).closest( "div" ).find(".quick_category");
+
+            if (textBox.val() == "") {
+                alert("Please Enter Category!!");
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('add.reply.category') }}",
+                data: {
+                    '_token'    : "{{ csrf_token() }}",
+                    'name'      : textBox.val()
+                }
+            }).done(function (response) {
+                textBox.val('');
+                $(".quickCategory").append('<option value="[]" data-id="'+response.data.id+'">'+response.data.name+'</option>');
+            })
+        });
+
+        $(document).on('click', '.delete_category', function () {
+            var quickCategory = $(this).closest( "td" ).find(".quickCategory");
+
+            if (quickCategory.val() == "") {
+                alert("Please Select Category!!");
+                return false;
+            }
+            
+            var quickCategoryId = quickCategory.children("option:selected").data('id');
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('destroy.reply.category') }}",
+                data: {
+                    '_token'    : "{{ csrf_token() }}",
+                    'id'      : quickCategoryId
+                }
+            }).done(function (response) {
+                location.reload();
+            })
+        });
+
+        $(document).on('click', '.delete_quick_comment', function () {
+            var quickComment = $(this).closest( "td" ).find(".quickComment");
+
+            if (quickComment.val() == "") {
+                alert("Please Select Quick Comment!!");
+                return false;
+            }
+            
+            var quickCommentId = quickComment.children("option:selected").data('id');
+
+            $.ajax({
+                type: "DELETE",
+                url: "/reply/"+quickCommentId,
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+            }).done(function (response) {
+                location.reload();
+            })
+        });
+
+        
+
+        $(document).on('click', '.quick_comment_add', function () {
+            var textBox = $(this).closest( "div" ).find(".quick_comment");
+            var quickCategory = $(this).closest( "td" ).find(".quickCategory");
+
+            if (textBox.val() == "") {
+                alert("Please Enter New Quick Comment!!");
+                return false;
+            }
+
+            if (quickCategory.val() == "") {
+                alert("Please Select Category!!");
+                return false;
+            }
+            
+            var quickCategoryId = quickCategory.children("option:selected").data('id');
+            
+            var formData = new FormData();
+
+           formData.append("_token", "{{ csrf_token() }}");
+           formData.append("reply", textBox.val());
+           formData.append("category_id", quickCategoryId);
+           formData.append("model", 'Approval Lead');
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('reply.store') }}",
+                data: formData,
+                processData: false,
+                contentType: false
+            }).done(function (reply) {
+                textBox.val('');
+                $('.quickComment').append($('<option>', {
+                    value: reply,
+                    text: reply
+                }));
+            })
+        });
+
         var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
 
         var cached_suggestions = localStorage['message_suggestions'];
@@ -1311,13 +1424,14 @@
             replies.forEach(function (reply) {
                 $(thiss).siblings('.quickComment').append($('<option>', {
                     value: reply.reply,
-                    text: reply.reply
+                    text: reply.reply,
+                    'data-id' : reply.id
                 }));
             });
         });
 
         $(document).on('change', '.quickComment', function () {
-            $(this).closest('td').find('input').val($(this).val());
+            $(this).closest('td').find('.quick-message-field').val($(this).val());
         });
         $('.change_status').on('change', function () {
             var thiss = $(this);

@@ -1511,16 +1511,26 @@
         <div class="pb-4 mt-3">
           <div class="row">
             <div class="col">
-              <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
-                <option value="">Select Category</option>
-                @foreach($reply_categories as $category)
-                  <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
-                @endforeach
-              </select>
-
-              <select name="quickComment" id="quickComment" class="form-control input-sm">
-                <option value="">Quick Reply</option>
-              </select>
+              <div class="d-inline form-inline">
+                  <input style="width: 75%" type="text" name="category_name" placeholder="Add Category" class="form-control mb-3 quick_category">
+                  <button class="btn btn-secondary quick_category_add">+</button>
+              </div>
+              <div>
+                <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
+                  <option value="">Select Category</option>
+                  @foreach($reply_categories as $category)
+                    <option value="{{ $category->approval_leads }}" data-id="{{ $category->id }}">{{ $category->name }}</option>
+                  @endforeach
+                </select>
+                <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>  
+              </div>
+              <div>
+                <select name="quickComment" id="quickComment" class="form-control input-sm">
+                  <option value="">Quick Reply</option>
+                </select>
+                <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>  
+              </div>
+              
             </div>
             <div class="col">
               <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
@@ -2265,7 +2275,81 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.min.js" integrity="sha256-Y1rRlwTzT5K5hhCBfAFWABD4cU13QGuRN6P5apfWzVs=" crossorigin="anonymous"></script>
 
   <script type="text/javascript">
+      $(document).on('click', '.quick_category_add', function (e) {
+            e.preventDefault();
+            var textBox = $(this).closest( "div" ).find(".quick_category");
 
+            if (textBox.val() == "") {
+                alert("Please Enter Category!!");
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('add.reply.category') }}",
+                data: {
+                    '_token'    : "{{ csrf_token() }}",
+                    'name'      : textBox.val()
+                }
+            }).done(function (response) {
+                textBox.val('');
+                $("#quickCategory").append($('<option>', {
+                    value: "[]",
+                    text: response.data.name
+                }));
+
+                $("#category_id_field").append($('<option>', {
+                    value: response.data.id,
+                    text: response.data.name
+                }));
+                
+            })
+
+            return false;
+        });
+        $(document).on('click', '.delete_category', function () {
+              var quickCategory = $(this).closest( "div" ).find("#quickCategory");
+
+              if (quickCategory.val() == "") {
+                  alert("Please Select Category!!");
+                  return false;
+              }
+              console.log(quickCategory, quickCategory.children("option:selected"), quickCategory.children("option:selected").data('id'));
+
+              var quickCategoryId = quickCategory.children("option:selected").data('id');
+
+              $.ajax({
+                  type: "POST",
+                  url: "{{ route('destroy.reply.category') }}",
+                  data: {
+                      '_token'  : "{{ csrf_token() }}",
+                      'id'      : quickCategoryId
+                  }
+              }).done(function (response) {
+                  location.reload();
+              })
+          });
+
+          $(document).on('click', '.delete_quick_comment', function () {
+              var quickComment = $(this).closest( "div" ).find("#quickComment");
+
+              if (quickComment.val() == "") {
+                  alert("Please Select Quick Comment!!");
+                  return false;
+              }
+              
+              var quickCommentId = quickComment.children("option:selected").data('id');
+
+              $.ajax({
+                  type: "DELETE",
+                  url: "/reply/"+quickCommentId,
+                  headers: {
+                      'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                  },
+              }).done(function (response) {
+                  location.reload();
+              })
+          });
       $(document).on('keyup', '.add-new-remark', function(event) {
           let note = $(this).val();
           let self = this;
@@ -3951,7 +4035,8 @@
         replies.forEach(function(reply) {
           $('#quickComment').append($('<option>', {
             value: reply.reply,
-            text: reply.reply
+            text: reply.reply,
+            "data-id": reply.id
           }));
         });
       });

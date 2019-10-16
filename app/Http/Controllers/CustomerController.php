@@ -2423,4 +2423,34 @@ class CustomerController extends Controller
 
 
     }
+
+    public function addReplyCategory(Request $request)
+    {
+
+        $this->validate($request, [
+            'name'  => 'required|string'
+        ]);
+
+        $category = new ReplyCategory;
+        $category->name = $request->name;
+        $category->save();
+
+        return response()->json(["code" => 1 , "data" => $category]);
+
+    }
+
+    public function destroyReplyCategory(Request $request)
+    {
+
+        $this->validate($request, [
+            'id'  => 'required'
+        ]);
+
+        ReplyCategory::where('id', $request->get('id'))->delete();
+
+        return response()->json(["code" => 1 , "message" => "Deleted successfully"]);
+
+    }
+
+    
 }
