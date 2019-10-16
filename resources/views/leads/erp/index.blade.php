@@ -9,7 +9,38 @@
 <div class="row">
   <div class="col-lg-12 margin-tb">
       <h2 class="page-heading">Erp Leads <a class="btn btn-secondary editor_create" href="javascript:;">+</a></h2>
-      
+
+  </div>
+  <div class="col-lg-12 margin-tb">
+    <form id="search" method="GET" class="form-inline">
+        <input name="term" type="text" class="form-control"
+               value="{{request()->get('term')}}"
+               placeholder="Search" id="customer-search">
+
+        <div class="form-group ml-3">
+            <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
+        </div>
+        <div class="form-group ml-3">
+            <input placeholder="Clothing Size" type="text" name="clothing_size" value="{{request()->get('clothing_size')}}" class="form-control-sm form-control">
+        </div>
+        <div class="form-group ml-3">
+            <select class="form-control" name="shoe_size_group">
+                <option value="">Select</option>
+                <?php foreach ($shoe_size_group as $shoe_size => $customerCount) {
+                    echo '<option value="'.$shoe_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$shoe_size.' Size) '.$customerCount.' Customers</option>';
+                } ?>
+            </select>
+        </div>
+        <div class="form-group ml-3">
+            <select class="form-control" name="clothing_size_group">
+                <option value="">Select</option>
+                <?php foreach ($clothing_size_group as $clothing_size => $customerCount) {
+                    echo '<option value="'.$clothing_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$clothing_size.' Size) '.$customerCount.' Customers</option>';
+                } ?>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+    </form>
   </div>
   <div class="col-md-12">
     <div class="table-responsive">
@@ -48,7 +79,7 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
-        
+
       </div>
     </div>
   </div>
@@ -81,7 +112,7 @@
                     <div class="form-group">
                         <strong>Message</strong>
                         <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
-                    </div> 
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -180,7 +211,16 @@
       $('.datatable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{{ route('leads.erpLeadsResponse') }}',
+            searching: false,
+            ajax: {
+              "url" : '{{ route('leads.erpLeadsResponse') }}',
+              data: function ( d ) {
+                var from = $('#search').serializeArray();
+                $.each(from, function( index, value ) {
+                   d[value.name] = value.value;
+                });
+              }
+            },
             columns: [
               {
                 data: 'id',
@@ -208,6 +248,11 @@
               }
           ]
         });
+    $('#search').on('submit', function(e){
+        e.preventDefault();
+        table.draw();
+        return false;
+     });
   });
 
     $(document).on('click', '.create_broadcast', function () {
@@ -224,7 +269,7 @@
        $("#create_broadcast").modal("show");
     });
 
-    // start to search for customer   
+    // start to search for customer
 
     var customerSearch = function() {
         $(".customer-search-box").select2({
@@ -327,11 +372,11 @@
                location.reload(true);
            }else{
               alert(data.message);
-           } 
+           }
         }).fail(function (response) {
             console.log(response);
         });
-    });  
+    });
 
     var productSelect = function()
     {
@@ -389,7 +434,7 @@
 
     }
 
-    
+
 
   </script>
 @endsection

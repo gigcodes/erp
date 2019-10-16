@@ -47,7 +47,9 @@
               </optgroup>
             </select>
           </div>
-
+          <div class="form-group mr-3 mb-3">
+              <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
+          </div>
           <div class="form-group mr-3">
             @php $colors = new \App\Colors();
             @endphp

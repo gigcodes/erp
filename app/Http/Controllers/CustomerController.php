@@ -203,6 +203,15 @@ class CustomerController extends Controller
             }
         }
 
+        $shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
+                                    ->whereNotNull('shoe_size')
+                                    ->groupBy('shoe_size')
+                                    ->pluck('counts', 'shoe_size');
+
+        $clothing_size_group = Customer::selectRaw('clothing_size, count(id) as counts')
+                                        ->whereNotNull('clothing_size')
+                                        ->groupBy('clothing_size')
+                                        ->pluck('counts', 'clothing_size');
 
         return view('customers.index', [
             'customers' => $results[ 0 ],
@@ -226,6 +235,8 @@ class CustomerController extends Controller
             'leads_data' => $results[ 2 ],
             'order_stats' => $order_stats,
             'complaints' => $complaints,
+            'shoe_size_group' => $shoe_size_group,
+            'clothing_size_group' => $clothing_size_group,
             'broadcasts' => $broadcasts
         ]);
     }
@@ -265,6 +276,14 @@ class CustomerController extends Controller
 
         if ($request->get('clothing_size')) {
             $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size')."'";
+        }
+
+        if ($request->get('shoe_size_group')) {
+            $searchWhereClause .= " AND customers.shoe_size = '".$request->get('shoe_size_group')."'";
+        }
+
+        if ($request->get('clothing_size_group')) {
+            $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size_group')."'";
         }
 
         $orderby = 'DESC';

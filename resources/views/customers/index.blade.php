@@ -178,7 +178,22 @@
                     <div class="form-group ml-3">
                         <input placeholder="Clothing Size" type="text" name="clothing_size" value="{{request()->get('clothing_size')}}" class="form-control-sm form-control">
                     </div>
-
+                    <div class="form-group ml-3">
+                        <select class="form-control" name="shoe_size_group">
+                            <option value="">Select</option>
+                            <?php foreach ($shoe_size_group as $shoe_size => $customerCount) {
+                                echo '<option value="'.$shoe_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$shoe_size.' Size) '.$customerCount.' Customers</option>';
+                            } ?>
+                        </select>
+                    </div>
+                    <div class="form-group ml-3">
+                        <select class="form-control" name="clothing_size_group">
+                            <option value="">Select</option>
+                            <?php foreach ($clothing_size_group as $clothing_size => $customerCount) {
+                                echo '<option value="'.$clothing_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$clothing_size.' Size) '.$customerCount.' Customers</option>';
+                            } ?>
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
             </div>
@@ -531,7 +546,7 @@
                                         @endforeach
                                     </select>
                                     @foreach($orders[$customer->id] as $order)
-                                        <a href="/order/{{ $order['id'] }}"><img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt=""></a>
+                                        <a href="{{route('purchase.grid')}}?order_id={{$order['id']}}" style="{{in_array($order['order_status'], ['Cancel', 'Refund to be processed', 'Delivered']) ? 'background-color: #808080;' : ''}}"><img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt=""></a>
                                     @endforeach
                                 @endif
                             @else
