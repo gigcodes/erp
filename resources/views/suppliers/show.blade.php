@@ -456,9 +456,9 @@
         <button type="submit" class="btn btn-xs btn-secondary" value="1" name="type">Create Product</button>
         <button type="submit" class="btn btn-xs btn-secondary" value="2" name="type">Create Product Group</button>
         <div class="col-12 my-3" id="message-wrapper">
-            <div id="message-container"></div>
+            <!-- <div id="message-container"></div> -->
             <div id="chat-history" class="load-communication-modal" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}" style="max-height: 80vh; overflow-x: scroll;">
-
+                
             </div>
         </div>
         </form>
@@ -469,23 +469,6 @@
     </div>
   </div>
 </div>
-
-<div class="modal fade" id="chat-list-history" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Message History</h4>
-      </div>
-      <div class="modal-body">
-        <p>This is a large modal.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 @include('suppliers.partials.modal-email')
 
 @include('customers.partials.modal-reply')

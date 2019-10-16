@@ -75,9 +75,13 @@ $(document).on('click', '.load-communication-modal', function () {
 
         li += '</div>';
 
-        $("#chat-list-history").find(".modal-body").html(li);
-        $(thiss).html("<img src='/images/chat.png' alt=''>");
-        $("#chat-list-history").modal("show");
+        if ($('#chat-list-history').length > 0 ) {
+            $("#chat-list-history").find(".modal-body").html(li);
+            $(thiss).html("<img src='/images/chat.png' alt=''>");
+            $("#chat-list-history").modal("show");
+        } else {
+            $("#chat-history").html(li);
+        }
 
     }).fail(function (response) {
         $(thiss).text('Load More');
