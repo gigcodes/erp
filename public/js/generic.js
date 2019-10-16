@@ -30,7 +30,7 @@ $(document).on('click', '.load-communication-modal', function () {
 
                     // Set media
                     if (imgSrc != '') {
-                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank"><input type="checkbox" name="product[]" value="'+productId+'" id="cb1_'+i+'" /><label class="label-attached-img" for="cb1_'+i+'"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
+                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank"><input type="checkbox" name="product" value="'+productId+'" id="cb1_'+i+'" /><label class="label-attached-img" for="cb1_'+i+'"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
                     }
                 }
             }
@@ -60,7 +60,12 @@ $(document).on('click', '.load-communication-modal', function () {
                 imgSrc = getImageToDisplay(message.media_url);
 
                 // Display media in chat
-                media = '<a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
+                if(message.type == "supplier") {
+                    media = '<a href="' + message.media_url + '" target="_blank"><input type="checkbox" name="checkbox[]" value="'+imgSrc+'" id="cb1_m_'+i+'" /><label class="label-attached-img" for="cb1_m_'+i+'"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a>';
+                }else{
+                    media = '<a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
+                }
+
             }
 
 
