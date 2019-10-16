@@ -829,15 +829,15 @@ class LeadsController extends Controller
 
     public function erpLeadsResponse(Request $request)
     {
-        
+
         $source = \App\ErpLeads::leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
                                 ->leftJoin("customers as c","c.id","erp_leads.customer_id")
                                 ->leftJoin("erp_lead_status as els","els.id","erp_leads.lead_status_id")
                                 ->leftJoin("categories as cat","cat.id","erp_leads.category_id")
                                 ->leftJoin("brands as br","br.id","erp_leads.brand_id")
                                 ->orderBy("erp_leads.id","desc")
-                                ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name"]);
-        
+                                ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name","c.id as customer_id"]);
+
         $term = $request->get('term');
         if (!empty($term)) {
             $source = $source->where(function($q) use($term){
@@ -867,7 +867,10 @@ class LeadsController extends Controller
         }
 
         $source = $source->get();
-        return datatables()->of($source)->make();
+        return datatables()
+            ->of($source)
+            ->editColumn('name', '<a href="{{ route("customer",["id"=>$customer_id]) }}" >{{$customer}}</a>')
+            ->make();
     }
 
     public function erpLeadsCreate()
@@ -952,13 +955,13 @@ class LeadsController extends Controller
             $broadcast_image->products =  json_encode($productIds);
             $broadcast_image->save();
             $max_group_id = MessageQueue::max('group_id') + 1;
-            $params = [ 
+            $params = [
                 'sending_time'  => $request->get('sending_time', ''),
                 'user_id' => Auth::id(),
                 'phone' => null,
                 'type' => 'message_all',
                 'data' => json_encode(['message' => $request->get('message', ''), 'linked_images' => [$broadcast_image->id]]),
-                'group_id' => $max_group_id 
+                'group_id' => $max_group_id
             ];
 
             foreach ($customerArr as  $customer) {
