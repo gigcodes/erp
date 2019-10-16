@@ -373,7 +373,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('customer/send-contact-details', 'CustomerController@sendContactDetails')->name('customer.send.contact');
     Route::post('customer/contact-download-donload', 'CustomerController@downloadContactDetails')->name('customer.download.contact');
 
-    Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
+    Route::get('broadcast', '<<<<<< HEAD@index')->name('broadcast.index');
     Route::get('broadcast/images', 'BroadcastMessageController@images')->name('broadcast.images');
     Route::post('broadcast/imagesUpload', 'BroadcastMessageController@imagesUpload')->name('broadcast.images.upload');
     Route::post('broadcast/imagesLink', 'BroadcastMessageController@imagesLink')->name('broadcast.images.link');
@@ -688,7 +688,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::put('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendor.payments.update');
     Route::delete('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendor.payments.destroy');
     Route::resource('vendor', 'VendorController');
-
+    Route::post('vendot/block', 'VendorController@block')->name('vendor.block');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
     Route::resource('vendor_category', 'VendorCategoryController');
 
@@ -709,7 +709,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
     Route::resource('supplier', 'SupplierController');
+    Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
     Route::post('supplier/saveImage' , 'SupplierController@saveImage')->name('supplier.image');;
+
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
 
