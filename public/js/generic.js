@@ -22,6 +22,20 @@ $(document).on('click', '.load-communication-modal', function () {
             var imgSrc = '';
 
             // Check for attached media (ERP attached media)
+            if (load_attached == 1 && message.mediaWithDetails.length > 0) {
+                for (i = 0; i < message.mediaWithDetails.length; i++) {
+                    // Get image to display
+                    imgSrc = getImageToDisplay(message.mediaWithDetails[i].image);
+                    var productId = message.mediaWithDetails[i].product_id;
+
+                    // Set media
+                    if (imgSrc != '') {
+                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank"><input type="checkbox" name="product[]" value="'+productId+'" id="cb1_'+i+'" /><label for="cb1_'+i+'"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
+                    }
+                }
+            }
+
+            // check for media with details
             if (load_attached == 1 && message.media.length > 0) {
                 for (i = 0; i < message.media.length; i++) {
                     // Get image to display
@@ -33,6 +47,7 @@ $(document).on('click', '.load-communication-modal', function () {
                     }
                 }
             }
+
 
             // Do we have media sent with the message?
             if (media != '') {

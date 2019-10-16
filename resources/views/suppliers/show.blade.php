@@ -19,6 +19,52 @@
       align-items: center;
       flex-wrap: wrap;
     }
+
+    input[type="checkbox"][id^="cb"] {
+      display: none;
+    }
+
+    label {
+      border: 1px solid #fff;
+      display: block;
+      position: relative;
+      cursor: pointer;
+    }
+
+    label:before {
+      background-color: white;
+      color: white;
+      content: " ";
+      display: block;
+      border-radius: 50%;
+      border: 1px solid grey;
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      width: 25px;
+      height: 25px;
+      text-align: center;
+      line-height: 28px;
+      transition-duration: 0.4s;
+      transform: scale(0);
+    }
+    
+    :checked + label {
+      border-color: #ddd;
+    }
+
+    :checked + label:before {
+      content: "✓";
+      background-color: grey;
+      transform: scale(1);
+    }
+
+    :checked + label img {
+      transform: scale(0.9);
+      box-shadow: 0 0 5px #333;
+      z-index: -1;
+    }
+
   </style>
 @endsection
 
@@ -411,11 +457,30 @@
         <button type="submit" class="btn btn-xs btn-secondary" value="2" name="type">Create Product Group</button>
         <div class="col-12 my-3" id="message-wrapper">
             <div id="message-container"></div>
+            <div id="chat-history" class="load-communication-modal" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}" style="max-height: 80vh; overflow-x: scroll;">
+
+            </div>
         </div>
         </form>
         <div class="col-xs-12 text-center hidden">
           <button type="button" id="load-more-messages" data-nextpage="1" class="btn btn-secondary">Load More</button>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="chat-list-history" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Message History</h4>
+      </div>
+      <div class="modal-body">
+        <p>This is a large modal.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -566,6 +631,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
 
   <script type="text/javascript">
+
+     $(document).ready(function() {
+          $('#chat-history').trigger('click');
+      });
 
     $(document).on('keyup', '.add-new-remark', function(event) {
       let note = $(this).val();
