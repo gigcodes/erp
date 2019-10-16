@@ -103,9 +103,9 @@
         $(document).on('click', '.edit-modal-button', function() {
             var product = $(this).data('product');
             var url = '/quickSell/' + product.id + '/edit';
-
             $('#updateForm').attr('action', url);
             $('#supplier_select').val(product.supplier);
+            $('#productId').val(product.id);
             $('#price_field').val(product.price);
             $('#price_special_field').val(product.price_special);
             $('#size_field').val(product.size);

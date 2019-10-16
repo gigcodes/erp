@@ -24,27 +24,8 @@ $(document).on('click', '.load-communication-modal', function () {
             // Check for attached media (ERP attached media)
             if (load_attached == 1 && message.media.length > 0) {
                 for (i = 0; i < message.media.length; i++) {
-                    // Set image type
-                    var imageType = message.media[i].substr(-4).toLowerCase();
-
-                    // Set correct icon/image
-                    if (imageType == '.jpg' || imageType == 'jpeg') {
-                        imgSrc = message.media[i];
-                    } else if (imageType == '.png') {
-                        imgSrc = message.media[i];
-                    } else if (imageType == '.gif') {
-                        imgSrc = message.media[i];
-                    } else if (imageType == 'docx' || imageType == '.doc') {
-                        imgSrc = '/images/icon-word.svg';
-                    } else if (imageType == '.xlsx' || imageType == '.xls' || imageType == '.csv') {
-                        imgSrc = '/images/icon-excel.svg';
-                    } else if (imageType == '.pdf') {
-                        imgSrc = '/images/icon-pdf.svg';
-                    } else if (imageType == '.zip' || imageType == '.tgz' || imageType == 'r.gz') {
-                        imgSrc = '/images/icon-zip.svg';
-                    } else {
-                        imgSrc = '/images/icon-file-unknown.svg';
-                    }
+                    // Get image to display
+                    imgSrc = getImageToDisplay(message.media[i]);
 
                     // Set media
                     if (imgSrc != '') {
@@ -60,7 +41,11 @@ $(document).on('click', '.load-communication-modal', function () {
 
             // Check for media URL
             if (message.media_url != null) {
-                media = '<a href="' + message.media_url + '" target="_blank"><img src="' + message.media_url + '" style="max-width: 100%;"></a>'; // + media;
+                // Get image to display
+                imgSrc = getImageToDisplay(message.media_url);
+
+                // Display media in chat
+                media = '<a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
             }
 
 
@@ -87,3 +72,39 @@ $(document).on('click', '.load-communication-modal', function () {
         console.log(response);
     });
 });
+
+function getImageToDisplay(imageUrl) {
+    // Trim imageUrl
+    imageUrl = imageUrl.trim();
+
+    // Set empty imgSrc
+    var imgSrc = '';
+
+    // Set image type
+    var imageType = imageUrl.substr(imageUrl.length-4).toLowerCase();
+    console.log(imageUrl);
+    console.log(imageUrl.length);
+    console.log(imageType);
+
+    // Set correct icon/image
+    if (imageType == '.jpg' || imageType == 'jpeg') {
+        imgSrc = imageUrl;
+    } else if (imageType == '.png') {
+        imgSrc = imageUrl;
+    } else if (imageType == '.gif') {
+        imgSrc = imageUrl;
+    } else if (imageType == 'docx' || imageType == '.doc') {
+        imgSrc = '/images/icon-word.svg';
+    } else if (imageType == '.xlsx' || imageType == '.xls' || imageType == '.csv') {
+        imgSrc = '/images/icon-excel.svg';
+    } else if (imageType == '.pdf') {
+        imgSrc = '/images/icon-pdf.svg';
+    } else if (imageType == '.zip' || imageType == '.tgz' || imageType == 'r.gz') {
+        imgSrc = '/images/icon-zip.svg';
+    } else {
+        imgSrc = '/images/icon-file-unknown.svg';
+    }
+
+    // Return imgSrc
+    return imgSrc;
+}

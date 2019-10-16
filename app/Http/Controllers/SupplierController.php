@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Category;
 use App\Product;
+use App\QuickSellGroup;
 use App\SupplierCategoryCount;
 use App\Brand;
 use App\SupplierBrandCount;
@@ -784,36 +785,45 @@ class SupplierController extends Controller
 
     public function saveImage(Request $request)
     {
+//dd($request);
         // Only create Product
         if ($request->type == 1) {
             $images = $request->checkbox;
             if ($images) {
                 foreach ($images as $image) {
-                    //getting prodct
-                    $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->orderBy('id', 'desc')->first();
-                    if ($product) {
-                        @$number = 'QUICKSELL' . (int) str_replace('QUICKSELL', '', $product->sku) + 1;
-                    } else {
-                        $number = date('yz') . sprintf('%02d', 1);
+                    if($image != null) {
+                        //Getting the last created QUICKSELL
+                        // MariaDB 10.0.5 and higher: $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->whereRaw("REGEXP_REPLACE(products.sku, '[a-zA-Z]+', '') > 0")->orderBy('id', 'desc')->first();
+                        $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
+                        if ($product) {
+                            $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
+                        } else {
+                            $number = date('yz') . sprintf('%02d', 1);
+                        }
+
+                        $product = new Product;
+
+                        $product->name = 'QUICKSELL';
+                        $product->sku = 'QuickSell' . $number;
+                        $product->size = '';
+                        $product->brand = 3;
+                        $product->color = '';
+                        $product->location = '';
+                        $product->category = '';
+                        $product->supplier = 'QUICKSELL';
+                        $product->price = 0;
+                        $product->stock = 1;
+                        $product->quick_product = 1;
+                        $product->is_pending = 1;
+                        $product->save();
+                        $jpg = \Image::make($image)->encode('jpg');
+                        $filename = substr($image, strrpos($image, '/'));
+                        $filename = str_replace("/","",$filename);
+                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                        $product->attachMedia($media, config('constants.media_tags'));
+
+                        return redirect()->back()->withSuccess('You have successfully saved product(s)!');
                     }
-
-                    $product = new Product;
-
-                    $product->name = 'QUICKSELL';
-                    $product->sku = 'QuickSell' . $number;
-                    $product->size = '';
-                    $product->brand = 3;
-                    $product->color = '';
-                    $product->location = '';
-                    $product->category = '';
-                    $product->supplier = 'QUICKSELL';
-                    $product->price = 0;
-                    $product->stock = 1;
-                    $product->quick_product = 1;
-                    $product->isPending = 1;
-                    $product->save();
-                    return redirect()->back()->withSuccess('You have successfully saved product(s)!');
-
                 }
                 return redirect()->back()->withSuccess('You have successfully saved product(s)!');
             }
@@ -823,12 +833,25 @@ class SupplierController extends Controller
             $images = $request->checkbox;
             if ($images) {
                 // Loop Over Images
+                $group = QuickSellGroup::orderBy('id', 'desc')->first();
+                if ($group != null) {
+                    $group_create =  new QuickSellGroup();
+                    $incrementId = ($group->group+1);
+                    $group_create->group = $incrementId;
+                    $group_create->save();
+                    $group_id = $group_create->group;
+                } else {
+                   $group =  new QuickSellGroup();
+                   $group->group = 1;
+                   $group->save();
+                   $group_id = $group->group;
+                }
                 foreach ($images as $image) {
                     //Getting the last created QUICKSELL
                     // MariaDB 10.0.5 and higher: $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->whereRaw("REGEXP_REPLACE(products.sku, '[a-zA-Z]+', '') > 0")->orderBy('id', 'desc')->first();
                     $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
                     if ($product) {
-                        @$number = 'QUICKSELL' . (int) str_replace('QUICKSELL', '', $product->sku) + 1;
+                        $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
                     } else {
                         $number = date('yz') . sprintf('%02d', 1);
                     }
@@ -845,8 +868,13 @@ class SupplierController extends Controller
                     $product->price = 0;
                     $product->stock = 1;
                     $product->quick_product = 1;
-                    $product->isPending = 1;
+                    $product->is_pending = 1;
                     $product->save();
+                    $jpg = \Image::make($image)->encode('jpg');
+                    $filename = substr($image, strrpos($image, '/'));
+                    $filename = str_replace("/","",$filename);
+                    $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                    $product->attachMedia($media, config('constants.media_tags'));
                     // if Product is true
                     if ($product == true) {
                         //Finding last created Product using sku
@@ -854,17 +882,10 @@ class SupplierController extends Controller
                         if ($product_id != null) {
                             $id = $product_id->id;
                             //getting last group id
-                            $group_id = ProductQuicksellGroup::select('quicksell_group_id')->orderBy('id', 'desc')->first();
-                            if ($group_id != null) {
-                                $number = $group_id->quicksell_group_id;
-                                //Increment Group id
-                                $number++;
-                            } else {
-                                $number = 1;
-                            }
+
                             $group = new ProductQuicksellGroup();
                             $group->product_id = $id;
-                            $group->quicksell_group_id = $number;
+                            $group->quicksell_group_id = $group_id;
                             $group->save();
 
                         }

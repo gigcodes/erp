@@ -300,6 +300,10 @@ class ProductInventoryController extends Controller
 
 
 //		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
+		
+		if ($request->get('shoe_size', false)) {
+            $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
+        }
 
         if ($request->get('in_pdf') === 'on') {
             $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->get();
@@ -310,7 +314,6 @@ class ProductInventoryController extends Controller
 		$data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
 		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';
-
 		$data['locations'] = (new LocationList)->all();
 
 		$data['new_category_selection'] = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'product-category'])

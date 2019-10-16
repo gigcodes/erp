@@ -4,7 +4,7 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Send Images Through Images</h4>
+                <h4 class="modal-title">Send Product Images Through Whats App</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <form action="{{action('WhatsAppController@sendMessage', 'quicksell')}}" method="POST" enctype="multipart/form-data">
