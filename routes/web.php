@@ -317,6 +317,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('quickSell/saveGroup', 'QuickSellController@saveGroup')->name('quicksell.save.group');
     Route::get('quickSell/pending', 'QuickSellController@pending')->name('quicksell.pending');
     Route::post('quickSell/activate', 'QuickSellController@activate')->name('quicksell.activate');
+    Route::post('quickSell/search', 'QuickSellController@search')->name('quicksell.search');
 
 
     // Chat messages
