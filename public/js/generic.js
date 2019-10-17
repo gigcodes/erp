@@ -15,6 +15,7 @@ $(document).on('click', '.load-communication-modal', function () {
             //$(thiss).text('Loading...');
         }
     }).done(function (response) {
+        var j = 0;
         var li = '<div class="speech-wrapper">';
         (response.messages).forEach(function (message) {
             // Set empty image var
@@ -30,7 +31,7 @@ $(document).on('click', '.load-communication-modal', function () {
 
                     // Set media
                     if (imgSrc != '') {
-                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank"><input type="checkbox" name="product" value="'+productId+'" id="cb1_'+i+'" /><label class="label-attached-img" for="cb1_'+i+'"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
+                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank"><input type="checkbox" name="product" value="' + productId + '" id="cb1_' + i + '" /><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
                     }
                 }
             }
@@ -60,16 +61,18 @@ $(document).on('click', '.load-communication-modal', function () {
                 imgSrc = getImageToDisplay(message.media_url);
 
                 // Display media in chat
-                if(message.type == "supplier") {
-                    media = '<a href="' + message.media_url + '" target="_blank"><input type="checkbox" name="checkbox[]" value="'+imgSrc+'" id="cb1_m_'+i+'" /><label class="label-attached-img" for="cb1_m_'+i+'"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a>';
-                }else{
+                if (message.type == "supplier") {
+                    media = '<input type="checkbox" name="checkbox[]" value="' + imgSrc + '" id="cb1_m_' + j + '" style="border: 3px solid black;"/><a href="' + message.media_url + '" target="_blank"><label class="label-attached-img" for="cb1_m_' + j + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a>';
+                    j++;
+                } else {
                     media = '<a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
                 }
 
             }
 
-            var button = ""; 
-            if(message.type == "task") {
+            // Set empty button var
+            var button = "";
+            if (message.type == "task") {
                 if (message.status == 0 || message.status == 5 || message.status == 6) {
                 } else if (message.status == 4) {
                 } else {
@@ -89,7 +92,7 @@ $(document).on('click', '.load-communication-modal', function () {
 
         li += '</div>';
 
-        if ($('#chat-list-history').length > 0 ) {
+        if ($('#chat-list-history').length > 0) {
             $("#chat-list-history").find(".modal-body").html(li);
             $(thiss).html("<img src='/images/chat.png' alt=''>");
             $("#chat-list-history").modal("show");
@@ -114,7 +117,7 @@ function getImageToDisplay(imageUrl) {
     var imgSrc = '';
 
     // Set image type
-    var imageType = imageUrl.substr(imageUrl.length-4).toLowerCase();
+    var imageType = imageUrl.substr(imageUrl.length - 4).toLowerCase();
     console.log(imageUrl);
     console.log(imageUrl.length);
     console.log(imageType);
