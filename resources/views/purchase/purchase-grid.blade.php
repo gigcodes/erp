@@ -20,7 +20,7 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Purchase {{ $page == 'canceled-refunded' ? 'Canceled / Refunded' : ($page == 'delivered' ? 'Delivered' : ($page == 'ordered' ? 'Ordered' : '')) }} Grid</h2>
+            <h2 class="page-heading">Purchase {{ $page == 'canceled-refunded' ? 'Canceled / Refunded' : ($page == 'delivered' ? 'Delivered' : ($page == 'ordered' ? 'Ordered' : ( $page == 'non_ordered' ? 'Non Ordered' : ''))) }} Grid</h2>
         </div>
     </div>
 
@@ -34,7 +34,7 @@
                                placeholder="name, sku, supplier">
                     </div>
 
-                    @if (!$page)
+                    @if (!$page || $page=='non_ordered')
                         <div class="form-group mr-3">
                             <select class="form-control select-multiple" name="status[]" multiple>
                                 <optgroup label="Order Status">
@@ -175,57 +175,59 @@
                                 </thead>
                                 <tbody>
                                 @foreach ($product['order_products'] as $order_product)
-                                    <tr>
-                                        <td>
-                                            @if ( isset($order_product->order->customer) )
-                                                <input type="hidden" class="select-product-dis" name="products[]" value="{{ $product['id'] }}" data-customer="{{ $order_product->order->customer->id }}" data-supplier="{{ $product['single_supplier'] }}"/>
-                                                <input type="hidden" name="customer[]" value="{{ $order_product->order->customer->id }}"/>
-                                                <input type="checkbox" class="select-product" name="purchase_products[]" value="{{ $order_product->id }}#{{ $product['single_supplier'] }}">
-                                            @endif
-                                        </td>
+                                    @if ( isset($order_product->order) )
+                                        <tr>
+                                            <td>
+                                                @if ( isset($order_product->order->customer) )
+                                                    <input type="hidden" class="select-product-dis" name="products[]" value="{{ $product['id'] }}" data-customer="{{ $order_product->order->customer->id }}" data-supplier="{{ $product['single_supplier'] }}"/>
+                                                    <input type="hidden" name="customer[]" value="{{ $order_product->order->customer->id }}"/>
+                                                    <input type="checkbox" class="select-product" name="purchase_products[]" value="{{ $order_product->id }}#{{ $product['single_supplier'] }}">
+                                                @endif
+                                            </td>
 
-                                        <td>
-                                            @if ( isset($order_product->order->customer) )
-                                                <a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a>
-                                            @endif
-                                        </td>
-                                        <td>{{ $order_product->product_price }}</td>
-                                        <td>
-                                            @if ($order_product->order)
-                                                {{ \Carbon\Carbon::parse($order_product->order->order_date)->format('d-m') }}
-                                            @else
-                                                No Order
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ( isset($order_product->order) )
-                                            {{ $order_product->order->advance_detail }}</li>
-                                            @else
-                                                No Order
-                                            @endif
-                                        </td>
-                                        <td>
-                                            {{ $order_product->size }}
-                                        </td>
-                                        <td>
-                                            <?php if(isset($order_product->order) && !empty($order_product->order)) { ?>
-                                            <div>
-                                                <span class="order-status change-order-status {{ $order_product->order->order_status == 'Follow up for advance' ? 'active-bullet-status' : '' }}" title="Follow up for advance" data-id="Follow up for advance" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #666666;"></span>
-                                                <span class="order-status change-order-status {{ $order_product->order->order_status == 'Advance received' ? 'active-bullet-status' : '' }}" title="Advance received" data-id="Advance received" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #4c4c4c;"></span>
-                                                <span class="order-status change-order-status {{ $order_product->order->order_status == 'Delivered' ? 'active-bullet-status' : '' }}" title="Delivered" data-id="Delivered" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #323232;"></span>
-                                                <span class="order-status change-order-status {{ $order_product->order->order_status == 'Cancel' ? 'active-bullet-status' : '' }}" title="Cancel" data-id="Cancel" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #191919;"></span>
-                                                <span class="order-status change-order-status {{ $order_product->order->order_status == 'Product shiped to Client' ? 'active-bullet-status' : '' }}" title="Product shiped to Client" data-id="Product shiped to Client" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #414a4c;"></span>
-                                                <span class="order-status change-order-status {{ $order_product->order->order_status == 'Refund to be processed' ? 'active-bullet-status' : '' }}" title="Refund to be processed" data-id="Refund to be processed" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #CCCCCC;"></span>
-                                                <span class="order-status change-order-status {{ $order_product->order->order_status == 'Refund Credited' ? 'active-bullet-status' : '' }}" title="Refund Credited" data-id="Refund Credited" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #95a5a6;"></span>
-                                            </div>
-                                            <?php } ?>
-                                        </td>
-                                        <td>
-                                            @if ( isset($order_product->order->customer) )
-                                                <button type="submit" class="btn btn-secondary alternative_offers" data-brand="{{$product['brand_id']}}" data-category="{{$product['category']}}" data-price="{{$product['order_price']}}" data-customer_id="{{$order_product->order->customer->id}}">Alternative Offers</button>
-                                            @endif
-                                        </td>
-                                    </tr>
+                                            <td>
+                                                @if ( isset($order_product->order->customer) )
+                                                    <a href="{{ route('customer.show', $order_product->order->customer->id) }}" target="_blank">{{ $order_product->order->customer->name }}</a>
+                                                @endif
+                                            </td>
+                                            <td>{{ $order_product->product_price }}</td>
+                                            <td>
+                                                @if ($order_product->order)
+                                                    {{ \Carbon\Carbon::parse($order_product->order->order_date)->format('d-m') }}
+                                                @else
+                                                    No Order
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ( isset($order_product->order) )
+                                                {{ $order_product->order->advance_detail }}</li>
+                                                @else
+                                                    No Order
+                                                @endif
+                                            </td>
+                                            <td>
+                                                {{ $order_product->size }}
+                                            </td>
+                                            <td>
+                                                <?php if(isset($order_product->order) && !empty($order_product->order)) { ?>
+                                                <div>
+                                                    <span class="order-status change-order-status {{ $order_product->order->order_status == 'Follow up for advance' ? 'active-bullet-status' : '' }}" title="Follow up for advance" data-id="Follow up for advance" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #666666;"></span>
+                                                    <span class="order-status change-order-status {{ $order_product->order->order_status == 'Advance received' ? 'active-bullet-status' : '' }}" title="Advance received" data-id="Advance received" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #4c4c4c;"></span>
+                                                    <span class="order-status change-order-status {{ $order_product->order->order_status == 'Delivered' ? 'active-bullet-status' : '' }}" title="Delivered" data-id="Delivered" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #323232;"></span>
+                                                    <span class="order-status change-order-status {{ $order_product->order->order_status == 'Cancel' ? 'active-bullet-status' : '' }}" title="Cancel" data-id="Cancel" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #191919;"></span>
+                                                    <span class="order-status change-order-status {{ $order_product->order->order_status == 'Product shiped to Client' ? 'active-bullet-status' : '' }}" title="Product shiped to Client" data-id="Product shiped to Client" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #414a4c;"></span>
+                                                    <span class="order-status change-order-status {{ $order_product->order->order_status == 'Refund to be processed' ? 'active-bullet-status' : '' }}" title="Refund to be processed" data-id="Refund to be processed" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #CCCCCC;"></span>
+                                                    <span class="order-status change-order-status {{ $order_product->order->order_status == 'Refund Credited' ? 'active-bullet-status' : '' }}" title="Refund Credited" data-id="Refund Credited" data-orderid="{{ $order_product->order->id }}" style="cursor:pointer; background-color: #95a5a6;"></span>
+                                                </div>
+                                                <?php } ?>
+                                            </td>
+                                            <td>
+                                                @if ( isset($order_product->order->customer) )
+                                                    <button type="submit" class="btn btn-secondary alternative_offers" data-brand="{{$product['brand_id']}}" data-category="{{$product['category']}}" data-price="{{$product['order_price']}}" data-customer_id="{{$order_product->order->customer->id}}">Alternative Offers</button>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endif
                                 @endforeach
                                 </tbody>
                             </table>
