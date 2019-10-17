@@ -22,8 +22,8 @@ $(document).on('click', '.load-communication-modal', function () {
             var imgSrc = '';
 
             // Check for attached media (ERP attached media)
-            if (load_attached == 1 && message.mediaWithDetails.length > 0) {
-                for (i = 0; i < message.mediaWithDetails.length; i++) {
+            if (load_attached == 1 && message.mediaWithDetails && message.mediaWithDetails.length > 0) {
+                for (var i = 0; i < message.mediaWithDetails.length; i++) {
                     // Get image to display
                     imgSrc = getImageToDisplay(message.mediaWithDetails[i].image);
                     var productId = message.mediaWithDetails[i].product_id;
@@ -36,8 +36,8 @@ $(document).on('click', '.load-communication-modal', function () {
             }
 
             // check for media with details
-            if (load_attached == 1 && message.media.length > 0) {
-                for (i = 0; i < message.media.length; i++) {
+            if (load_attached == 1 && message.media && message.media.length > 0) {
+                for (var i = 0; i < message.media.length; i++) {
                     // Get image to display
                     imgSrc = getImageToDisplay(message.media[i]);
 
