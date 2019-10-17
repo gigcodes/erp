@@ -48,10 +48,13 @@ $(document).on('click', '.load-communication-modal', function () {
                     if (imgSrc != '') {
                         media = media + '<div class="col-12">';
                         media = media + '<a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                        media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension">+ Dimensions</a>';
-                        media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead">+ Lead</a>';
-                        media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image">Detailed Images</a>';
-                        media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order">+ Order</a>';
+                        if (message.product_id > 0) {
+                            media = media + '<br />';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension">+ Dimensions</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead">+ Lead</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image">Detailed Images</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order" data-id="' + message.product_id + '">+ Order</a>';
+                        }
                         media = media + '</div>';
                     }
                 }
@@ -126,9 +129,6 @@ function getImageToDisplay(imageUrl) {
 
     // Set image type
     var imageType = imageUrl.substr(imageUrl.length - 4).toLowerCase();
-    console.log(imageUrl);
-    console.log(imageUrl.length);
-    console.log(imageType);
 
     // Set correct icon/image
     if (imageType == '.jpg' || imageType == 'jpeg') {
@@ -152,3 +152,113 @@ function getImageToDisplay(imageUrl) {
     // Return imgSrc
     return imgSrc;
 }
+
+$(document).on('click', '.complete-call', function (e) {
+    e.preventDefault();
+
+    var thiss = $(this);
+    var token = $('meta[name="csrf-token"]').attr('content');
+    var url = route.instruction_complete;
+    var id = $(this).data('id');
+    var assigned_from = $(this).data('assignedfrom');
+    var current_user = current_user;
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: {
+            _token: token,
+            id: id
+        },
+        beforeSend: function () {
+            $(thiss).text('Loading');
+        }
+    }).done(function (response) {
+        // $(thiss).parent().html(moment(response.time).format('DD-MM HH:mm'));
+        $(thiss).parent().html('Completed');
+        location.reload();
+    }).fail(function (errObj) {
+        console.log(errObj);
+        alert("Could not mark as completed");
+    });
+});
+
+$(document).on('click', '.pending-call', function (e) {
+    e.preventDefault();
+
+    var thiss = $(this);
+    var url = route.instruction_pending;
+    var id = $(this).data('id');
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: {
+            _token: token,
+            id: id
+        },
+        beforeSend: function () {
+            $(thiss).text('Loading');
+        }
+    }).done(function (response) {
+        $(thiss).parent().html('Pending');
+        $(thiss).remove();
+        location.reload();
+    }).fail(function (errObj) {
+        console.log(errObj);
+        alert("Could not mark as completed");
+    });
+});
+
+$(document).on('click', '.create-product-lead', function (e) {
+    e.preventDefault();
+
+    var thiss = $(this);
+
+    if (selected_product_images.length > 0) {
+        var created_at = moment().format('YYYY-MM-DD HH:mm');
+
+        $.ajax({
+            type: 'POST',
+            url: route.leads_store,
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                customer_id: customer_id,
+                rating: 1,
+                status: 3,
+                assigned_user: 6,
+                selected_product: selected_product_images,
+                type: "product-lead",
+                created_at: created_at
+            },
+            beforeSend: function () {
+                $(thiss).text('Creating...');
+            },
+            success: function (response) {
+                $.ajax({
+                    type: "POST",
+                    url: route.leads_send_prices,
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        customer_id: customer_id,
+                        lead_id: response.lead.id,
+                        selected_product: selected_product_images,
+                        auto_approve: true
+                    }
+                }).done(function () {
+                    location.reload();
+                }).fail(function (response) {
+                    console.log(response);
+                    alert('Could not send product prices to customer!');
+                });
+            }
+        }).fail(function (error) {
+            console.log(error);
+            alert('There was an error creating a lead');
+        });
+    } else {
+        alert('Please select at least 1 product first');
+    }
+});
+
+var token = $('meta[name="csrf-token"]').attr('content');

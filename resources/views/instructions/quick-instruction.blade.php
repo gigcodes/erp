@@ -10,6 +10,62 @@
         <h1>Quick Instruction</h1>
         @if ( $instruction != null )
             <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <tbody>
+                        <tr>
+                            <th>Number</th>
+                            <th>Category</th>
+                            <th>Instructions</th>
+                            <th colspan="3" class="text-center">Action</th>
+                            <th>Created at</th>
+                            <th>Remark</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span data-twilio-call data-context="customers" data-id="{{ $instruction->customer->id }}">{{ $instruction->customer->phone }}</span>
+                            </td>
+                            <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
+                            <td>{{ $instruction->instruction }}</td>
+                            <td>
+                                @if ($instruction->completed_at)
+                                    {{ Carbon\Carbon::parse($instruction->completed_at)->format('d-m H:i') }}
+                                @else
+                                    <a href="#" class="btn-link complete-call" data-id="{{ $instruction->id }}" data-assignedfrom="{{ $instruction->assigned_from }}">Complete</a>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($instruction->completed_at)
+                                    Completed
+                                @else
+                                    @if ($instruction->pending == 0)
+                                        <a href="#" class="btn-link pending-call" data-id="{{ $instruction->id }}">Mark as Pending</a>
+                                    @else
+                                        Pending
+                                    @endif
+                                @endif
+                            </td>
+                            <td>
+                                @if ($instruction->verified == 1)
+                                    <span class="badge">Verified</span>
+                                @elseif ($instruction->assigned_from == Auth::id() && $instruction->verified == 0)
+                                    <a href="#" class="btn btn-xs btn-secondary verify-btn" data-id="{{ $instruction->id }}">Verify</a>
+                                @else
+                                    <span class="badge">Not Verified</span>
+                                @endif
+                            </td>
+                            <td>{{ $instruction->created_at->diffForHumans() }}</td>
+                            <td>
+                                <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $instruction->id }}">Add</a>
+                                <span> | </span>
+                                <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $instruction->id }}">View</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-md-5">
                     <h3>Customer</h3>
                     <table class="table table-striped">
@@ -44,7 +100,14 @@
 
 @section('scripts')
     <script>
-        $(document).ready(function() {
+        var customer_id = {{ $instruction->customer-> id}};
+        var current_user = {{ Auth::id() }};
+        var route = [];
+        route.instruction_complete = "{{ route('instruction.complete') }}";
+        route.instruction_pending = "{{ route('instruction.pending') }}";
+        route.leads_store = "{{ route('leads.store') }}";
+        route.leads_send_prices = "{{ route('leads.send.prices') }}";
+        $(document).ready(function () {
             $('#chat-history').trigger('click');
         });
     </script>

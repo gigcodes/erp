@@ -8,6 +8,7 @@ use App\Vendor;
 use App\Supplier;
 use App\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ChatMessagesController extends Controller
 {
@@ -64,11 +65,12 @@ class ChatMessagesController extends Controller
             // Create empty media array
             $media = [];
             $mediaWithDetails = [];
+            $productId = null;
 
             // Check for media
             if ($loadAttached == 1 && $chatMessage->hasMedia(config('constants.media_tags'))) {
                 foreach ($chatMessage->getMedia(config('constants.media_tags')) as $key => $image) {
-
+                    // Supplier checkbox
                     if (in_array($request->object, ["supplier"])) {
                         $tempImage = [
                             'key' => $image->getKey(),
@@ -94,7 +96,16 @@ class ChatMessagesController extends Controller
 
                         $mediaWithDetails[] = $tempImage;
                     } else {
+                        // Get media URL
                         $media[] = $image->getUrl();
+
+                        // Check for product
+                        if (empty($productId)) {
+                            $product = DB::table('mediables')->where('mediable_type', 'App\Product')->where('media_id', $image->id)->get(['mediable_id'])->first();
+                            if ($product != null) {
+                                $productId = $product->mediable_id;
+                            }
+                        }
                     }
 
                 }
@@ -109,6 +120,7 @@ class ChatMessagesController extends Controller
                 'datetime' => $chatMessage->created_at,
                 'media' => is_array($media) ? $media : null,
                 'mediaWithDetails' => is_array($mediaWithDetails) ? $mediaWithDetails : null,
+                'product_id' => !empty($productId) ? $productId : null,
                 'status' => $chatMessage->status,
                 'resent' => $chatMessage->resent,
             ];
