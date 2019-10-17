@@ -150,7 +150,23 @@
                             </select>
                             <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message">
                             <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
-                            <div class="supplier_msg_con" style="margin-top: 10px;"></div>
+                            <div class="supplier_msg_con" style="margin-top: 10px;">
+                                <?php foreach ($product['supplier_msg'] as $supplier_msg) { ?>
+                                    <b>{{$supplier_msg['supplier']}}</b>
+                                    <?php foreach ($supplier_msg['chat_messages'] as $chat_messages) { ?>
+                                        <div class="talk-bubble">
+                                            <div class="talktext">
+                                                <span>
+                                                    <p class="collapsible-message">{{$chat_messages['message']}}</p>
+                                                </span>
+                                                <em>{{$chat_messages['created_at']}}</em>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
+                                    <br>
+                                <?php } ?>
+                                <br>
+                            </div>
                         </td>
                         <td>{{ $product['brand'] }}</td>
                         <td>
@@ -412,9 +428,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script>
-        $(document).on('change', '.supplier_msg', function(){
+        /*$(document).on('change', '.supplier_msg', function(){
             supplier_msg($(this));
-        })
+        })*/
 
         function supplier_msg (_this) {
             var suppliers =  _this.val();

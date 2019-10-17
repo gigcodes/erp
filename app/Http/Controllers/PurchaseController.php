@@ -600,6 +600,30 @@ class PurchaseController extends Controller
                 continue;
             }
 
+            $supplier_msg = DB::table('purchase_product_supplier')
+                        ->select('suppliers.id', 'suppliers.supplier', 'chat_messages.id as chat_messages_id', 'chat_messages.message', 'chat_messages.created_at')
+                        ->leftJoin('suppliers', 'suppliers.id', '=', 'purchase_product_supplier.supplier_id')
+                        ->leftJoin('chat_messages', 'chat_messages.id', '=', 'purchase_product_supplier.chat_message_id')
+                        ->where('purchase_product_supplier.product_id', '=', $product->id)
+                        ->orderBy('chat_messages.created_at', 'DESC')
+                        ->get();
+
+            $supplier_msg_data = [];
+            foreach ($supplier_msg as $key => $value) {
+                $supplier_msg_data[$value->id]['supplier'] = $value->supplier;
+                
+                if (!isset($data[$value->id]['chat_messages'])) {
+                    $supplier_msg_data[$value->id]['chat_messages'] = [];
+                }
+
+                if (!empty($value->chat_messages_id)) {
+                    $supplier_msg_data[$value->id]['chat_messages'][] = [
+                        'message'       => $value->message,
+                        'created_at'    => $value->created_at,
+                    ];
+                }
+            }
+
             $productIds[] = $product->id;
 
             $new_products[ $count ][ 'id' ] = $product->id;
@@ -619,6 +643,7 @@ class PurchaseController extends Controller
             $new_products[ $count ][ 'order_price' ] = !empty($product->orderproducts->first()->product_price) ? $product->orderproducts->first()->product_price : 0;
             $new_products[ $count ][ 'order_date' ] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->order_date : 'No Order';
             $new_products[ $count ][ 'order_advance' ] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->advance_detail : 'No Order';
+            $new_products[ $count ][ 'supplier_msg' ] = $supplier_msg_data;
 
             $count++;
         }
@@ -2711,14 +2736,11 @@ class PurchaseController extends Controller
         $productId = $request->get('product_id', 0);
         $suppliers = $request->get('suppliers', []);
 
-        $suppliers = DB::table('suppliers')
+        $suppliers = DB::table('purchase_product_supplier')
                         ->select('suppliers.id', 'suppliers.supplier', 'chat_messages.id as chat_messages_id', 'chat_messages.message', 'chat_messages.created_at')
-                        ->leftJoin('purchase_product_supplier', function($query) use($productId) {
-                            $query->on('suppliers.id', '=', 'purchase_product_supplier.supplier_id');
-                            $query->where('purchase_product_supplier.product_id', '=', $productId);
-                        })
+                        ->leftJoin('suppliers', 'suppliers.id', '=', 'purchase_product_supplier.supplier_id')
                         ->leftJoin('chat_messages', 'chat_messages.id', '=', 'purchase_product_supplier.chat_message_id')
-                        ->whereIn('suppliers.id', $suppliers)
+                        ->where('purchase_product_supplier.product_id', '=', $productId)
                         ->orderBy('chat_messages.created_at', 'DESC')
                         ->get();
         $data = [];
