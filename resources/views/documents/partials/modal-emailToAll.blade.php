@@ -29,6 +29,18 @@
                         </div>
                     </div>
                     <input type="hidden" name="document_id" id="document_email_id">
+
+                    <div class="form-group text-right">
+                        <a class="add-email-contact mr-3" href="#">Send Document To Contact</a>
+                    </div>
+                    <div id="contact-email-label" class="form-group" style="display:none;">
+                        <strong class="mr-3">New Email</strong>
+                        <button type="button" class="add-email-contact">+</button>
+                    </div>
+                    <div id="contact-email-list" class="form-group">
+
+                    </div>
+
                     <div class="form-group text-right">
                         <a class="add-cc mr-3" href="#">Cc</a>
                         <a class="add-bcc" href="#">Bcc</a>

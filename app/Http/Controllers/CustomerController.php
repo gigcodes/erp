@@ -2445,7 +2445,7 @@ class CustomerController extends Controller
         $this->validate($request, [
             'id'  => 'required'
         ]);
-        
+
         Reply::where('category_id', $request->get('id'))->delete();
         ReplyCategory::where('id', $request->get('id'))->delete();
 
@@ -2453,5 +2453,23 @@ class CustomerController extends Controller
 
     }
 
-    
+    public function downloadContactDetails()
+    {
+        $userID = request()->get("user_id",0);
+        $customerID = request()->get("customer_id",0);
+
+        $user = \App\User::where("id", $userID)->first();
+        $customer = \App\Customer::where("id", $customerID)->first();
+
+        // if found customer and  user
+        if($user && $customer) {
+            // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
+            $html = view( 'customers.customer_pdf', compact('customer') );
+
+            $pdf = new Dompdf();
+            $pdf->loadHtml($html);
+            $pdf->render();
+            $pdf->stream('orders.pdf');
+        }
+    }
 }

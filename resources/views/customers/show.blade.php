@@ -380,6 +380,7 @@
 
                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#advancePaymentModal"><img src="/images/advance-link.png" /></button>
                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#sendContacts"><img src="/images/details.png" /></button>
+                <button type="button" class="btn btn-image" data-toggle="modal" data-target="#downloadContacts"><img src="/images/download.png" /></button>
 
                 @include('customers.partials.modal-advance-link')
               </div>
@@ -2247,6 +2248,31 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default send-contact-user-btn"><img style="width: 17px;" src="/images/filled-sent.png"></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="downloadContacts" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+        <label for="sel1">Select User for send contact data:</label>
+        <form method="post" id="download-contact-to-user">
+            {{ Form::open(array('url' => '', 'id' => 'download-contact-user-form')) }}
+            {!! Form::hidden('customer_id',$customer->id) !!}
+            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list select2', 'style'=> 'width:100%']) !!}
+            {{ Form::close() }}
+        </form>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default download-contact-user-btn"><img style="width: 17px;" src="/images/filled-sent.png"></button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
@@ -4908,6 +4934,24 @@
             }).done(function () {
                 $this.html('<img style="width: 17px;" src="/images/filled-sent.png">');
                 $("#sendContacts").modal("hide");
+            }).fail(function (response) {
+                console.log(response);
+            });
+        });
+
+        $(document).on('click', '.download-contact-user-btn', function () {
+            var $form = $("#download-contact-to-user");
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('customer.download.contact') }}",
+                data: $form.serialize(),
+                beforeSend : function(){
+                  $this.html("Sending message...");
+                }
+            }).done(function () {
+                $this.html('<img style="width: 17px;" src="/images/filled-sent.png">');
+                $("#downloadContacts").modal("hide");
             }).fail(function (response) {
                 console.log(response);
             });

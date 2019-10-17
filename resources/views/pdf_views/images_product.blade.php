@@ -60,7 +60,11 @@
                                     ", $textToSend); ?>
             </div>
             <div class="top-right">
-                <?php // echo DNS1D::getBarcodeHTML($product->sku, "CODE11",1,30,"black", true); ?>
+                <?php 
+                 $generatorHTML = new Picqer\Barcode\BarcodeGeneratorHTML();
+                 
+                 echo $generatorHTML->getBarcode($product->id, $generatorHTML::TYPE_CODE_11);
+                 ?>
             </div>
 
             <?php } ?>

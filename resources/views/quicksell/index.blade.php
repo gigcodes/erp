@@ -19,53 +19,106 @@
 
   {{-- @include('quicksell.partials.modal-image') --}}
 
-  <div class="pull-right">
-    {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</button> --}}
-    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">Upload</button>
-    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroup">Create Group</button>
-    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroupExist">Add Existing Group</button>
-    <button type="button" class="btn btn-secondary" id="multiple">Send Multiple Images</button>
-    <a href="{{ url('/quickSell/pending') }}"><button type="button" class="btn btn-secondary">Product Pending</button></a>
 
-  </div>
 
-  <form action="{{ route('quicksell.index') }}" method="GET" class="form-inline align-items-start mb-5">
-    {{-- <div class="form-group mr-3 mb-3">
-      <input name="term" type="text" class="form-control" id="product-search" value="{{ isset($term) ? $term : '' }}" placeholder="sku,brand,category,status,stage">
-    </div> --}}
-
-    <div class="form-group mr-3 mb-3">
-      {!! $filter_categories_selection !!}
+<form action="{{ route('quicksell.search') }}" method="POST" id="searchForm" class="form-inline align-items-start">
+  @csrf
+  {{-- <div class="form-group">
+      <div class="row"> --}}
+  <input type="hidden" name="selected_products" id="selected_products" value="">
+  <div class="form-group mr-3 mb-3">
+    <input name="term" type="text" class="form-control" id="product-search"
+           value="{{ isset($term) ? $term : '' }}"
+           placeholder="sku,brand,category,status,stage">
     </div>
-
     <div class="form-group mr-3">
-      @php $brands_select = \App\Brand::getAll();
-      @endphp
-      <select class="form-control select-multiple" name="brand[]" multiple>
-        <optgroup label="Brands">
-          @foreach ($brands_select as $id => $name)
-            <option value="{{ $id }}" {{ !empty(request()->get('brand')) && in_array($id, request()->get('brand', [])) ? 'selected' : '' }}>{{ $name }}</option>
+      @php $category = \App\Category::all(); @endphp
+      <select class="form-control select-multiple" name="category[]" multiple data-placeholder="Category...">
+        <optgroup label="Category">
+          @foreach ($category as $key => $name)
+            <option value="{{ $key }}">{{ $name->title }}</option>
           @endforeach
         </optgroup>
       </select>
     </div>
 
-    @if (Auth::user()->hasRole('Admin'))
-      <div class="form-group mr-3">
-        <select class="form-control select-multiple" name="location[]" multiple>
-          <optgroup label="Locations">
-            @foreach ($locations as $name)
-              <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
-            @endforeach
-          </optgroup>
-        </select>
-      </div>
-    @endif
+  <div class="form-group mr-3">
+    @php $brands = \App\Brand::getAll(); @endphp
+    <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brands...">
+      <optgroup label="Brands">
+        @foreach ($brands as $key => $name)
+          <option value="{{ $key }}">{{ $name }}</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
 
-    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-  </form>
+  <div class="form-group mr-3">
+    {{-- <strong>Color</strong> --}}
+    @php $colors = new \App\Colors(); @endphp
+    {{-- {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
+    <select class="form-control select-multiple" name="color[]" multiple data-placeholder="Colors...">
+      <optgroup label="Colors">
+        @foreach ($colors->all() as $key => $col)
+          <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
 
+  <div class="form-group mr-3">
+    <select class="form-control select-multiple" name="supplier[]" multiple data-placeholder="Supplier...">
+      <optgroup label="Suppliers">
+        @foreach ($suppliers as $key => $supp)
+          <option value="{{ $supp->supplier }}" {{ isset($supplier) && $supplier == $supp->id ? 'selected' : '' }}>{{ $supp->supplier }}</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
 
+  @if (Auth::user()->hasRole('Admin'))
+    <div class="form-group mr-3">
+      <select class="form-control select-multiple" name="location[]" multiple data-placeholder="Location...">
+        <optgroup label="Locations">
+          @foreach ($locations as $name)
+            <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
+          @endforeach
+        </optgroup>
+      </select>
+    </div>
+  @endif
+
+  <div class="form-group mr-3">
+    <input name="size" type="text" class="form-control"
+           value="{{ isset($size) ? $size : '' }}"
+           placeholder="Size">
+  </div>
+  <div class="form-group mr-3">
+    {!! Form::select('per_page',[
+    "20" => "20 Images Per Page",
+    "30" => "30 Images Per Page",
+    "50" => "50 Images Per Page",
+    "100" => "100 Images Per Page",
+    ], request()->get("per_page",null), ['placeholder' => '-- Select Images Per Page --','class' => 'form-control']) !!}
+  </div>
+  <div class="form-group mr-3">
+    <strong class="mr-3">Price</strong>
+    <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '400000' }}]"/>
+  </div>
+  <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+  <button type="button" class="btn btn-image"><a href="/quickSell"><img src="/images/icons-refresh.png"/></a></button>
+  {{-- </div>
+</div> --}}
+</form>
+<br>
+<div>
+  {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</button> --}}
+  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">Upload</button>
+  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroup">Create Group</button>
+  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroupExist">Add Existing Group</button>
+  <button type="button" class="btn btn-secondary" id="multiple">Send Multiple Images</button>
+  <a href="{{ url('/quickSell/pending') }}"><button type="button" class="btn btn-secondary">Product Pending</button></a>
+</div>
 
 @include('partials.flash_messages')
 
@@ -266,6 +319,8 @@
 
             });
 
-
+    $(function() {
+      $('.selectpicker').selectpicker();
+    });
   </script>
 @endsection
