@@ -53,7 +53,7 @@ class QuickSellController extends Controller
   		                                        ->renderAsDropdown();
 
       $locations = (new LocationList)->all();
-      $suppliers = Supplier::select(['id', 'supplier'])->get();
+      $suppliers = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier','asc')->get();
 
       $category_tree = [];
   		$categories_array = [];
@@ -71,8 +71,7 @@ class QuickSellController extends Controller
   			$categories_array[$category->id] = $category->parent_id;
   		}
 
-      $new_category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'product-category'])
-  		                                        ->renderAsDropdown();
+      $new_category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'product-category'])->renderAsDropdown();
         $api_keys = ApiKey::select('number')->get();
         $customers = Customer::orderBy('name','asc')->get();
 

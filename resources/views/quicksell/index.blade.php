@@ -33,7 +33,7 @@
     </div>
     <div class="form-group mr-3">
       @php $category = \App\Category::all(); @endphp
-      <select class="form-control select-multiple" name="category[]" multiple data-placeholder="Category...">
+      <select class="form-control select-multiple2" name="category[]" multiple data-placeholder="Category...">
         <optgroup label="Category">
           @foreach ($category as $key => $name)
             <option value="{{ $key }}">{{ $name->title }}</option>
@@ -44,7 +44,7 @@
 
   <div class="form-group mr-3">
     @php $brands = \App\Brand::getAll(); @endphp
-    <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brands...">
+    <select class="form-control select-multiple2" name="brand[]" multiple data-placeholder="Brands...">
       <optgroup label="Brands">
         @foreach ($brands as $key => $name)
           <option value="{{ $key }}">{{ $name }}</option>
@@ -56,8 +56,7 @@
   <div class="form-group mr-3">
     {{-- <strong>Color</strong> --}}
     @php $colors = new \App\Colors(); @endphp
-    {{-- {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
-    <select class="form-control select-multiple" name="color[]" multiple data-placeholder="Colors...">
+    <select class="form-control select-multiple2" name="color[]" multiple data-placeholder="Colors...">
       <optgroup label="Colors">
         @foreach ($colors->all() as $key => $col)
           <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
@@ -67,7 +66,7 @@
   </div>
 
   <div class="form-group mr-3">
-    <select class="form-control select-multiple" name="supplier[]" multiple data-placeholder="Supplier...">
+    <select class="form-control select-multiple2" name="supplier[]" multiple data-placeholder="Supplier...">
       <optgroup label="Suppliers">
         @foreach ($suppliers as $key => $supp)
           <option value="{{ $supp->supplier }}" {{ isset($supplier) && $supplier == $supp->id ? 'selected' : '' }}>{{ $supp->supplier }}</option>
@@ -78,7 +77,7 @@
 
   @if (Auth::user()->hasRole('Admin'))
     <div class="form-group mr-3">
-      <select class="form-control select-multiple" name="location[]" multiple data-placeholder="Location...">
+      <select class="form-control select-multiple2" name="location[]" multiple data-placeholder="Location...">
         <optgroup label="Locations">
           @foreach ($locations as $name)
             <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
@@ -319,8 +318,9 @@
 
             });
 
-    $(function() {
-      $('.selectpicker').selectpicker();
+   $(document).ready(function() {
+       $(".select-multiple").multiselect();
+       $(".select-multiple2").select2();
     });
   </script>
 @endsection
