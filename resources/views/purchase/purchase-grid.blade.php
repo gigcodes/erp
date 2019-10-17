@@ -712,6 +712,8 @@
                     contentSelector: 'div.infinite-scroll',
                     callback: function () {
                         // $('ul.pagination').remove();
+                         $(".select-multiple").multiselect();
+                         $(".select-multiple2").select2();
                     }
                 });
             });
