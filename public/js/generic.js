@@ -62,7 +62,7 @@ $(document).on('click', '.load-communication-modal', function () {
 
                 // Display media in chat
                 if (message.type == "supplier") {
-                    media = '<input type="checkbox" name="checkbox[]" value="' + imgSrc + '" id="cb1_m_' + j + '" style="border: 3px solid black;"/><a href="' + message.media_url + '" target="_blank"><label class="label-attached-img" for="cb1_m_' + j + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a>';
+                    media = '<input type="checkbox" name="checkbox[]" value="' + imgSrc + '" id="cb1_m_' + j + '" style="border: 3px solid black;"/><a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                     j++;
                 } else {
                     media = '<a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
