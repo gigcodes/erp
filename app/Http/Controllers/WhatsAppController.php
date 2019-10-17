@@ -1185,6 +1185,7 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'user_id' ] = null;
                 $params[ 'contact_id' ] = null;
                 $params[ 'supplier_id' ] = null;
+                $params[ 'customer_id' ] = null;
                 $params[ 'vendor_id' ] = $vendor->id;
 
                 // Create new message
