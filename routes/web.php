@@ -420,6 +420,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts');
 
     Route::post('purchase/sendmsgsupplier', 'PurchaseController@sendmsgsupplier')->name('purchase.sendmsgsupplier');
+    Route::get('get-supplier-msg', 'PurchaseController@getMsgSupplier')->name('get.msg.supplier');
     Route::post('purchase/send/emailBulk', 'PurchaseController@sendEmailBulk')->name('purchase.email.send.bulk');
     Route::resource('purchase-status', 'PurchaseStatusController');
 

@@ -102,7 +102,7 @@
                 <tr>
                     <th>Product</th>
                     <th>SKU</th>
-                    <th>Supplier</th>
+                    <th width="366px">Supplier</th>
                     <!-- <th>Suppliers</th> -->
                     <th>Brand</th>
                     <th>Remarks</th>
@@ -143,13 +143,14 @@
                                     $suppliers_array2 = $activSuppliers;
                                 @endphp
                             @endif
-                            <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple" multiple>
+                            <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple supplier_msg" multiple data-product-id="{{$product['id']}}">
                                 @foreach($suppliers_array2 as $sup)
                                     <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
                                 @endforeach
                             </select>
                             <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message">
                             <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
+                            <div class="supplier_msg_con" style="margin-top: 10px;"></div>
                         </td>
                         <td>{{ $product['brand'] }}</td>
                         <td>
@@ -411,6 +412,41 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script>
+        $(document).on('change', '.supplier_msg', function(){
+            supplier_msg($(this));
+        })
+
+        function supplier_msg (_this) {
+            var suppliers =  _this.val();
+            var product_id =  _this.data('product-id');
+            $.ajax({
+                url: "{{ route('get.msg.supplier') }}",
+                data: {'suppliers' : suppliers, 'product_id' : product_id}
+            }).done(function (data) {
+                var html = '';
+                $.each( data, function( key, value ) {
+                    html += '<b>'+value.supplier+'</b>'; 
+                    $.each( value.chat_messages, function( key, value ) {
+                        html += '<div class="talk-bubble">'
+                        html += '   <div class="talktext">'
+                        html += '       <span>'
+                        html += '           <p class="collapsible-message">'+value.message+'</p>'
+                        html += '       </span>'
+                        html += '       <em>'+value.created_at+' </em>'
+                        html += '   </div>'
+                        html += '</div>'
+                    });
+                    html += '<br>'; 
+                });
+                _this.closest('td').find('.supplier_msg_con').html(html);
+            }).fail(function () {
+                _this.closest('td').find('.supplier_msg_con').html('');
+            });
+
+            /*'
+                '*/
+        }
+
         $(document).ready(function () {
             $(".select-multiple").multiselect();
             $(".select-multiple2").select2();
@@ -819,7 +855,7 @@
                 $('#btnmsg_' + id).val('SendSMG');
                 $('#btnmsg_' + id).removeClass('btn-secondary');
                 $('#btnmsg_' + id).addClass('btn-success');
-
+                supplier_msg ($('#supplier_' + id));
                 setTimeout(function () {
                     $('#btnmsg_' + id).addClass('btn-secondary');
                     $('#btnmsg_' + id).removeClass('btn-success');

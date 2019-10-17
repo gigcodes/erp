@@ -2675,7 +2675,7 @@ class PurchaseController extends Controller
                         $media = $product->getMedia(config('constants.media_tags'))->first()->getUrl();;
                     }
 
-                    $message = $request->input('message') . ' (' . $product->sku . ')';
+                    $message = $request->input('message') . ' (' . $product->sku . ')'.' size '.$product->size;
 
                     try {
                         dump("Sending message");
@@ -2704,6 +2704,40 @@ class PurchaseController extends Controller
                 }
             }
         }
+    }
+
+    public function getMsgSupplier(Request $request)
+    {
+        $productId = $request->get('product_id', 0);
+        $suppliers = $request->get('suppliers', []);
+
+        $suppliers = DB::table('suppliers')
+                        ->select('suppliers.id', 'suppliers.supplier', 'chat_messages.id as chat_messages_id', 'chat_messages.message', 'chat_messages.created_at')
+                        ->leftJoin('purchase_product_supplier', function($query) use($productId) {
+                            $query->on('suppliers.id', '=', 'purchase_product_supplier.supplier_id');
+                            $query->where('purchase_product_supplier.product_id', '=', $productId);
+                        })
+                        ->leftJoin('chat_messages', 'chat_messages.id', '=', 'purchase_product_supplier.chat_message_id')
+                        ->whereIn('suppliers.id', $suppliers)
+                        ->orderBy('chat_messages.created_at', 'DESC')
+                        ->get();
+        $data = [];
+        foreach ($suppliers as $key => $value) {
+            $data[$value->id]['supplier'] = $value->supplier;
+            
+            if (!isset($data[$value->id]['chat_messages'])) {
+                $data[$value->id]['chat_messages'] = [];
+            }
+
+            if (!empty($value->chat_messages_id)) {
+                $data[$value->id]['chat_messages'][] = [
+                    'message'       => $value->message,
+                    'created_at'    => $value->created_at,
+                ];
+            }
+        }
+
+        return response()->json($data);
     }
 
     public function sendEmailBulk(Request $request)
