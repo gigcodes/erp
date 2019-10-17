@@ -269,4 +269,51 @@ $(document).on('click', '.create-product-lead', function (e) {
     }
 });
 
+$('#addRemarkButton').on('click', function() {
+    var id = $('#add-remark input[name="id"]').val();
+    var remark = $('#add-remark textarea[name="remark"]').val();
+
+    $.ajax({
+        type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+        },
+        url: route.task_add_remark,
+        data: {
+        id:id,
+            remark:remark,
+            module_type: 'instruction'
+    },
+}).done(response => {
+        alert('Remark Added Success!')
+        window.location.reload();
+    }).fail(function(response) {
+        console.log(response);
+    });
+});
+
+$(".view-remark").click(function () {
+    var id = $(this).attr('data-id');
+
+    $.ajax({
+        type: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+        },
+        url: route.task_get_remark,
+        data: {
+        id:id,
+            module_type: "instruction"
+    },
+}).done(response => {
+        var html='';
+
+        $.each(response, function( index, value ) {
+            html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+            html+"<hr>";
+        });
+        $("#viewRemarkModal").find('#remark-list').html(html);
+    });
+});
+
 var token = $('meta[name="csrf-token"]').attr('content');

@@ -96,6 +96,7 @@
         @endif
 
     </div>
+    @include('customers.partials.modal-remark')
 @endsection
 
 @section('scripts')
@@ -107,6 +108,8 @@
         route.instruction_pending = "{{ route('instruction.pending') }}";
         route.leads_store = "{{ route('leads.store') }}";
         route.leads_send_prices = "{{ route('leads.send.prices') }}";
+        route.task_add_remark = "{{ route('task.addRemark') }}";
+        route.task_get_remark = "{{ route('task.gettaskremark') }}";
         $(document).ready(function () {
             $('#chat-history').trigger('click');
         });
