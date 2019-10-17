@@ -33,7 +33,9 @@
                                value="{{ isset($term) ? $term : '' }}"
                                placeholder="name, sku, supplier">
                     </div>
-
+                    <div class="form-group mr-3">
+                        {!! $category_filter !!}
+                    </div>
                     @if (!$page)
                         <div class="form-group mr-3">
                             <select class="form-control select-multiple" name="status[]" multiple>
