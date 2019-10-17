@@ -50,9 +50,9 @@ $(document).on('click', '.load-communication-modal', function () {
                         media = media + '<a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         if (message.product_id > 0) {
                             media = media + '<br />';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension">+ Dimensions</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead">+ Lead</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image">Detailed Images</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension" data-id="' + message.product_id + '">+ Dimensions</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead" data-id="' + message.product_id + '">+ Lead</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image" data-id="' + message.product_id + '">Detailed Images</a>';
                             media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order" data-id="' + message.product_id + '">+ Order</a>';
                         }
                         media = media + '</div>';
@@ -214,8 +214,16 @@ $(document).on('click', '.create-product-lead', function (e) {
     e.preventDefault();
 
     var thiss = $(this);
+    var selected_products = [];
+    var product_id = $(this).data('id');
 
-    if (selected_product_images.length > 0) {
+    if (product_id > 0) {
+        selected_products.push(product_id);
+    }
+
+    console.log(selected_products);
+
+    if ( selected_products.length > 0 ) {
         var created_at = moment().format('YYYY-MM-DD HH:mm');
 
         $.ajax({
@@ -227,7 +235,7 @@ $(document).on('click', '.create-product-lead', function (e) {
                 rating: 1,
                 status: 3,
                 assigned_user: 6,
-                selected_product: selected_product_images,
+                selected_product: selected_products,
                 type: "product-lead",
                 created_at: created_at
             },
@@ -242,7 +250,7 @@ $(document).on('click', '.create-product-lead', function (e) {
                         _token: $('meta[name="csrf-token"]').attr('content'),
                         customer_id: customer_id,
                         lead_id: response.lead.id,
-                        selected_product: selected_product_images,
+                        selected_product: selected_products,
                         auto_approve: true
                     }
                 }).done(function () {
