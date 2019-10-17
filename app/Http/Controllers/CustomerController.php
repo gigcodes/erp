@@ -2424,6 +2424,35 @@ class CustomerController extends Controller
 
     }
 
+    public function addReplyCategory(Request $request)
+    {
+
+        $this->validate($request, [
+            'name'  => 'required|string'
+        ]);
+
+        $category = new ReplyCategory;
+        $category->name = $request->name;
+        $category->save();
+
+        return response()->json(["code" => 1 , "data" => $category]);
+
+    }
+
+    public function destroyReplyCategory(Request $request)
+    {
+
+        $this->validate($request, [
+            'id'  => 'required'
+        ]);
+
+        Reply::where('category_id', $request->get('id'))->delete();
+        ReplyCategory::where('id', $request->get('id'))->delete();
+
+        return response()->json(["code" => 1 , "message" => "Deleted successfully"]);
+
+    }
+
     public function downloadContactDetails()
     {
         $userID = request()->get("user_id",0);
@@ -2433,10 +2462,10 @@ class CustomerController extends Controller
         $customer = \App\Customer::where("id", $customerID)->first();
 
         // if found customer and  user
-        if($user && $customer) {           
+        if($user && $customer) {
             // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
             $html = view( 'customers.customer_pdf', compact('customer') );
-            
+
             $pdf = new Dompdf();
             $pdf->loadHtml($html);
             $pdf->render();

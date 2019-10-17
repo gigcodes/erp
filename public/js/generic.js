@@ -15,6 +15,7 @@ $(document).on('click', '.load-communication-modal', function () {
             //$(thiss).text('Loading...');
         }
     }).done(function (response) {
+        var j = 0;
         var li = '<div class="speech-wrapper">';
         (response.messages).forEach(function (message) {
             // Set empty image var
@@ -22,8 +23,22 @@ $(document).on('click', '.load-communication-modal', function () {
             var imgSrc = '';
 
             // Check for attached media (ERP attached media)
-            if (load_attached == 1 && message.media.length > 0) {
-                for (i = 0; i < message.media.length; i++) {
+            if (load_attached == 1 && message.mediaWithDetails && message.mediaWithDetails.length > 0) {
+                for (var i = 0; i < message.mediaWithDetails.length; i++) {
+                    // Get image to display
+                    imgSrc = getImageToDisplay(message.mediaWithDetails[i].image);
+                    var productId = message.mediaWithDetails[i].product_id;
+
+                    // Set media
+                    if (imgSrc != '') {
+                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank"><input type="checkbox" name="product" value="' + productId + '" id="cb1_' + i + '" /><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
+                    }
+                }
+            }
+
+            // check for media with details
+            if (load_attached == 1 && message.media && message.media.length > 0) {
+                for (var i = 0; i < message.media.length; i++) {
                     // Get image to display
                     imgSrc = getImageToDisplay(message.media[i]);
 
@@ -33,6 +48,7 @@ $(document).on('click', '.load-communication-modal', function () {
                     }
                 }
             }
+
 
             // Do we have media sent with the message?
             if (media != '') {
@@ -45,14 +61,30 @@ $(document).on('click', '.load-communication-modal', function () {
                 imgSrc = getImageToDisplay(message.media_url);
 
                 // Display media in chat
-                media = '<a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
+                if (message.type == "supplier") {
+                    media = '<input type="checkbox" name="checkbox[]" value="' + imgSrc + '" id="cb1_m_' + j + '" style="border: 3px solid black;"/><a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                    j++;
+                } else {
+                    media = '<a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
+                }
+
             }
 
+            // Set empty button var
+            var button = "";
+            if (message.type == "task") {
+                if (message.status == 0 || message.status == 5 || message.status == 6) {
+                } else if (message.status == 4) {
+                } else {
+                    button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
+                    button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
+                }
+            }
 
             if (message.inout == 'in') {
-                li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+                li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
             } else if (message.inout == 'out') {
-                li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + media + message.message + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+                li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
             } else {
                 li += '<div>' + index + '</div>';
             }
@@ -60,9 +92,13 @@ $(document).on('click', '.load-communication-modal', function () {
 
         li += '</div>';
 
-        $("#chat-list-history").find(".modal-body").html(li);
-        $(thiss).html("<img src='/images/chat.png' alt=''>");
-        $("#chat-list-history").modal("show");
+        if ($('#chat-list-history').length > 0) {
+            $("#chat-list-history").find(".modal-body").html(li);
+            $(thiss).html("<img src='/images/chat.png' alt=''>");
+            $("#chat-list-history").modal("show");
+        } else {
+            $("#chat-history").html(li);
+        }
 
     }).fail(function (response) {
         $(thiss).text('Load More');
@@ -81,7 +117,7 @@ function getImageToDisplay(imageUrl) {
     var imgSrc = '';
 
     // Set image type
-    var imageType = imageUrl.substr(imageUrl.length-4).toLowerCase();
+    var imageType = imageUrl.substr(imageUrl.length - 4).toLowerCase();
     console.log(imageUrl);
     console.log(imageUrl.length);
     console.log(imageType);

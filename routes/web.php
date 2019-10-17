@@ -338,6 +338,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customers/{id}/loadMoreMessages', 'CustomerController@loadMoreMessages');
     Route::get('customer/search', 'CustomerController@search');
     Route::get('customers', 'CustomerController@index')->name('customer.index');
+    Route::post('add-reply-category', 'CustomerController@addReplyCategory')->name('add.reply.category');
+    Route::post('destroy-reply-category', 'CustomerController@destroyReplyCategory')->name('destroy.reply.category');
     Route::get('customers-load', 'CustomerController@load')->name('customer.load');
     Route::post('customer/{id}/initiateFollowup', 'CustomerController@initiateFollowup')->name('customer.initiate.followup');
     Route::post('customer/{id}/stopFollowup', 'CustomerController@stopFollowup')->name('customer.stop.followup');
