@@ -13,6 +13,7 @@
             background-color: #EEEEEE;
             height: 450px;
             overflow-y: scroll;
+            overflow-x: hidden;
         }
 
         .speech-wrapper .bubble.alt {
