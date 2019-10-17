@@ -54,7 +54,7 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
-        $chatMessages = $object->whatsappAll()->whereRaw($rawWhere)->skip(0)->take($limit)->get();
+        $chatMessages = $object->whatsappAll()->whereRaw($rawWhere)->where('status', '!=', 10)->skip(0)->take($limit)->get();
 
         // Set empty array with messages
         $messages = [];

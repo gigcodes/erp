@@ -46,7 +46,13 @@ $(document).on('click', '.load-communication-modal', function () {
 
                     // Set media
                     if (imgSrc != '') {
-                        media = media + '<div class="col-4"><a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a></div>';
+                        media = media + '<div class="col-12">';
+                        media = media + '<a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                        media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension">+ Dimensions</a>';
+                        media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead">+ Lead</a>';
+                        media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image">Detailed Images</a>';
+                        media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order">+ Order</a>';
+                        media = media + '</div>';
                     }
                 }
             }
@@ -105,7 +111,7 @@ $(document).on('click', '.load-communication-modal', function () {
     }).fail(function (response) {
         $(thiss).text('Load More');
 
-        alert('Could not load more messages');
+        alert('Could not load messages');
 
         console.log(response);
     });
