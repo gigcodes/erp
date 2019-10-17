@@ -56,4 +56,9 @@ class Supplier extends Model
         return $this->belongsToMany('App\SupplierStatus', 'supplier_status', 'supplier_status_id', 'id');
         //return $this->hasMany('App\SupplierStatus');
     }
+
+    public function whatsappAll()
+    {
+        return $this->hasMany('App\ChatMessage', 'supplier_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+    }
 }
