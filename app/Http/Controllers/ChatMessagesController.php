@@ -18,9 +18,10 @@ class ChatMessagesController extends Controller
      */
     public function loadMoreMessages(Request $request)
     {
-        // Set limit of messages
+        // Set variables
         $limit = $request->get("limit", 3);
         $loadAttached = $request->get("load_attached", 0);
+        $loadAllMessages = $request->get("load_all", 0);
 
         // Get object (customer, vendor, etc.)
         switch ($request->object) {
@@ -35,16 +36,25 @@ class ChatMessagesController extends Controller
                 break;
             case 'task':
                 $object = Task::find($request->object_id);
-                break;  
+                break;
             case 'supplier':
                 $object = Supplier::find($request->object_id);
-                break;    
+                break;
             default:
                 $object = Customer::find($request->object);
         }
 
+        // Set raw where query
+        $rawWhere = "(message!='' or media_url!='')";
+
+        // Do we want all?
+        if ($loadAllMessages == 1) {
+            $loadAttached = 1;
+            $rawWhere = "1=1";
+        }
+
         // Get chat messages
-        $chatMessages = $object->whatsappAll()->whereRaw("(message!='' or media_url!='')")->skip(0)->take($limit)->get();
+        $chatMessages = $object->whatsappAll()->whereRaw($rawWhere)->skip(0)->take($limit)->get();
 
         // Set empty array with messages
         $messages = [];
@@ -58,10 +68,9 @@ class ChatMessagesController extends Controller
             // Check for media
             if ($loadAttached == 1 && $chatMessage->hasMedia(config('constants.media_tags'))) {
                 foreach ($chatMessage->getMedia(config('constants.media_tags')) as $key => $image) {
-                    
-                    if(in_array($request->object,["supplier"])) {
 
-                        $temp_image = [
+                    if (in_array($request->object, ["supplier"])) {
+                        $tempImage = [
                             'key' => $image->getKey(),
                             'image' => $image->getUrl(),
                             'product_id' => '',
@@ -69,22 +78,22 @@ class ChatMessagesController extends Controller
                             'size' => ''
                         ];
 
-                        $image_key = $image->getKey();
-                        $mediable_type = "Product";
+                        $imageKey = $image->getKey();
+                        $mediableType = "Product";
 
-                        $product_image =\App\Product::with('Media')
-                        ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $image_key AND mediables.mediable_type LIKE '%$mediable_type%')")
-                        ->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+                        $productImage = \App\Product::with('Media')
+                            ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $imageKey AND mediables.mediable_type LIKE '%$mediableType%')")
+                            ->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
-                        if ($product_image) {
-                            $temp_image[ 'product_id' ] = $product_image->id;
-                            $temp_image[ 'special_price' ] = $product_image->price_special;
-                            $temp_image[ 'supplier_initials' ] = $this->getSupplierIntials($product_image->supplier);
-                            $temp_image[ 'size' ] = $this->getSize($product_image);
+                        if ($productImage) {
+                            $tempImage[ 'product_id' ] = $productImage->id;
+                            $tempImage[ 'special_price' ] = $productImage->price_special;
+                            $tempImage[ 'supplier_initials' ] = $this->getSupplierIntials($productImage->supplier);
+                            $tempImage[ 'size' ] = $this->getSize($productImage);
                         }
 
-                        $mediaWithDetails[] = $temp_image;
-                    }else{
+                        $mediaWithDetails[] = $tempImage;
+                    } else {
                         $media[] = $image->getUrl();
                     }
 
@@ -93,7 +102,7 @@ class ChatMessagesController extends Controller
 
             $messages[] = [
                 'id' => $chatMessage->id,
-                'type'  => $request->object,
+                'type' => $request->object,
                 'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
                 'message' => $chatMessage->message,
                 'media_url' => $chatMessage->media_url,
@@ -113,10 +122,10 @@ class ChatMessagesController extends Controller
 
     public function getSupplierIntials($string)
     {
-        
+
         $expr = '/(?<=\s|^)[a-z]/i';
         preg_match_all($expr, $string, $matches);
-        
+
         return strtoupper(implode('', $matches[ 0 ]));
     }
 

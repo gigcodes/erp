@@ -3,12 +3,14 @@ $(document).on('click', '.load-communication-modal', function () {
     var object_type = $(this).data('object');
     var object_id = $(this).data('id');
     var load_attached = $(this).data('attached');
+    var load_all = $(this).data('all');
 
     $.ajax({
         type: "GET",
         url: "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages",
         data: {
             limit: 1000,
+            load_all: load_all,
             load_attached: load_attached
         },
         beforeSend: function () {
