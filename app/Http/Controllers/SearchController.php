@@ -307,7 +307,7 @@ class SearchController extends Controller
         // $search_suggestions = [];
         //
         //  $sku_suggestions = ( new Product() )->newQuery()
-        // 																	 ->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
+        // 									 ->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
         //
         // $brand_suggestions = Brand::getAll();
         //
