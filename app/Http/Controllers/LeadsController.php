@@ -866,6 +866,27 @@ class LeadsController extends Controller
             $source = $source->where('c.clothing_size', '=', $request->get('clothing_size_group'));
         }
 
+        if ($request->get('lead_customer')) {
+            $source = $source->where('c.name', 'like', "%".$request->get('lead_customer')."%");
+        }
+
+        if ($request->get('lead_brand')) {
+            $source = $source->where('br.name', 'like', "%".$request->get('lead_brand')."%");
+        }
+
+        if ($request->get('lead_category')) {
+            $source = $source->where('cat.title', 'like', "%".$request->get('lead_category')."%");
+        }
+
+        if ($request->get('lead_color')) {
+            $source = $source->where('erp_leads.color', '=', $request->get('lead_color'));
+        }
+
+        if ($request->get('lead_shoe_size')) {
+            $source = $source->where('erp_leads.size', 'like', $request->get('lead_shoe_size'));
+        }
+
+
         $source = $source->get();
         foreach ($source as $key => $value) {
             $source[$key]->media_url = null;

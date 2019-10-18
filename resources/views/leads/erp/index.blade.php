@@ -39,6 +39,11 @@
                 } ?>
             </select>
         </div>
+        <input type="hidden" name="lead_customer">
+        <input type="hidden" name="lead_brand">
+        <input type="hidden" name="lead_category">
+        <input type="hidden" name="lead_color">
+        <input type="hidden" name="lead_shoe_size">
         <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
     </form>
   </div>
@@ -171,13 +176,8 @@
       });
 
       $( '.field_search' ).on( 'keyup change', function () {
-          var i = $(this).data("key");
-          if ( table.column(i).search() !== this.value ) {
-              table
-                  .column(i)
-                  .search( this.value )
-                  .draw();
-          }
+          $("#search").find('input[name="'+$(this).attr('name')+'"]').val($(this).val());
+          table.draw();
       });
       
       $("#send_message").submit(function(e){

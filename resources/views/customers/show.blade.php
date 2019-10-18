@@ -652,7 +652,7 @@
                           </div>
                           <div class="form-group">
                             <strong>Brand Segment:</strong>
-                            <input type="text" name="brand_segment" value="{{ $lead->brand_segment }}" class="form-control" placeholder="Brand Segment">
+                            {{ App\Helpers\ProductHelper::getBrandSegment('brand_segment', $lead->brand_segment, ['class' => "form-control"])}}
                           </div>
                           <?php /*
                           <div class="form-group">
