@@ -2921,6 +2921,21 @@
           e.preventDefault();
           var thiss = $(this);
           var url = "{{ route('leads.erpLeads.store') }}";
+          
+          if ($(this).find('.multi_brand"]').val() == "") {
+            alert('Please Select Brand');
+            return false;
+          }
+
+          if ($(this).find('input[name="category_id"]').val() == "") {
+            alert('Please Select Category');
+            return false;
+          }
+
+          if ($(this).find('input[name="status"]').val() == "") {
+            alert('Please Select Status');
+            return false;
+          }
 
           var formData = new FormData(this);
 
