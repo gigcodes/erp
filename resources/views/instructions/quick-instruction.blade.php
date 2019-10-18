@@ -163,7 +163,7 @@
         $('#add-remark input[name="id"]').val({{ $instruction->id }});
         $('.modal').on('shown.bs.modal', function () {
             $(this).find('iframe').attr('src', '/attachImages/customer/{{ $instruction->customer->id }}/1')
-        })
+        });
         $(document).ready(function () {
             $('#chat-history').trigger('click');
         });
