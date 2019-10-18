@@ -81,6 +81,14 @@
                             <td>Address</td>
                             <td>{{ $instruction->customer->address }}</td>
                         </tr>
+                        <tr>
+                            <td>Shoe size</td>
+                            <td>{{ $instruction->customer->shoe_size }}</td>
+                        </tr>
+                        <tr>
+                            <td>Clothing size</td>
+                            <td>{{ $instruction->customer->clothing_size }}</td>
+                        </tr>
                     </table>
                 </div>
                 <div class="col-md-6">
@@ -109,7 +117,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <iframe></iframe>
+                    <iframe id="iFrameModal"></iframe>
                 </div>
             </div>
         </div>
@@ -163,9 +171,19 @@
         $('#add-remark input[name="id"]').val({{ $instruction->id }});
         $('.modal').on('shown.bs.modal', function () {
             $(this).find('iframe').attr('src', '/attachImages/customer/{{ $instruction->customer->id }}/1')
+            // $(this).find('iframe').attr('src', '/attachImages/customer/44/1')
         });
         $(document).ready(function () {
             $('#chat-history').trigger('click');
+        });
+        $('#iFrameModal').on('load', function() {
+            // console.log(window.location.protocol + '//' + document.domain + '/customer/44');
+            // console.log(document.getElementById("iFrameModal").contentWindow.location.href);
+            if ( document.getElementById("iFrameModal").contentWindow.location.href == window.location.protocol + '//' + document.domain + '/customer/{{ $instruction->customer->id }}' ) {
+                $(function () {
+                    $('#attachImagesModal').modal('toggle');
+                });
+            }
         });
     </script>
 @endsection
