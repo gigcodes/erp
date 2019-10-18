@@ -51,10 +51,10 @@
   */?>
   <div class="col-md-12">
     <div class="table-responsive">
-      <table cellspacing="0" role="grid" class="table table-striped table-bordered datatable mdl-data-table dataTable" `:100%">
+      <table style="font-size: 12px;" cellspacing="0" role="grid" class="table table-striped table-bordered datatable mdl-data-table dataTable" `:100%">
         <thead>
             <tr>
-                <th>#</th>
+                <th width="2%">#</th>
                 <th>Status</th>
                 <th>Customer</th>
                 <th width="140px">Image</th>
@@ -65,7 +65,11 @@
             </tr>
             <tr>
                 <th></th>
-                <th></th>
+                <th>
+                  <select style="width: 100%" name="status_id[]" class="lead_status multi_lead_status" multiple="">
+                    <option value="">Brand</option>
+                  </select>
+                </th>
                 <th><input type="text" style="width: 138px;" class="field_search lead_customer" name="lead_customer" placeholder="Search Customer" /></th>
                 <th></th>
                 <th>
@@ -162,6 +166,7 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $('.multi_brand').select2();
+      $('.multi_lead_status').select2();
       $(".all_customer_check").click(function(){
           $('.customer_message').prop('checked', this.checked);
       });
@@ -280,8 +285,8 @@
                 data: 'id',
                 render : function ( data, type, row ) {
                       // Combine the first and last names into a single table field
-                      return '<input type="checkbox" name="customer_message[]" class="customer_message" value="'+row.customer_id+'"> ' + data;
-                }
+                      return '<div class="checkbox"><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'">'+data+'</label></div>';
+               }       
               },
               {data: 'status_name', name: 'status_name'},
               {
