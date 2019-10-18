@@ -59,6 +59,7 @@
                 <th>Customer</th>
                 <th width="140px">Image</th>
                 <th>Brand</th>
+                <th>Brand Segment</th>
                 <th>Category</th>
                 <th>Color</th>
                 <th>Size</th>
@@ -66,23 +67,27 @@
             <tr>
                 <th></th>
                 <th>
-                  <select style="width: 100%" name="status_id[]" class="lead_status multi_lead_status" multiple="">
-                    <option value="">Brand</option>
+                  <select style="width:138px; font-size: 12px;" name="status_id[]" class="lead_status multi_lead_status" multiple="">
+                    <option value="">Status</option>
+                    @foreach($erpLeadStatus as $status)
+                      <option value="{{$status['id']}}">{{$status['name']}}</option>
+                    @endforeach
                   </select>
                 </th>
-                <th><input type="text" style="width: 138px;" class="field_search lead_customer" name="lead_customer" placeholder="Search Customer" /></th>
-                <th></th>
+                <th><input type="text" style="width: 138px;" class="field_search lead_customer" name="lead_customer" placeholder="" /></th>
+                <th style="width: 138px;"></th>
                 <th>
-                  <select name="brand_id[]" class="lead_brand multi_brand" multiple="">
+                  <select name="brand_id[]" class="lead_brand multi_brand" multiple="" style="width: 138px;">
                     <option value="">Brand</option>
                     @foreach($brands as $brand_item)
                       <option value="{{$brand_item['id']}}">{{$brand_item['name']}}</option>
                     @endforeach
                   </select>
                 </th>
-                <th><input type="text" style="width: 138px;" class="field_search lead_category" name="lead_category" placeholder="Search Category" /></th>
-                <th><input type="text" style="width: 138px;" class="field_search lead_color" name="lead_color" placeholder="Search Color" /></th>
-                <th><input type="text" style="width: 100px;" class="field_search lead_shoe_size" name="lead_shoe_size" placeholder="Search Size" /></th>
+                <th><input type="text" class="field_search brand_segment" name="brand_segment"/></th>
+                <th><input type="text" class="field_search lead_category" name="lead_category" /></th>
+                <th><input type="text" class="field_search lead_color" name="lead_color" /></th>
+                <th><input type="text" class="field_search lead_shoe_size" name="lead_shoe_size"/></th>
             </tr>
         </thead>
         <tbody>
@@ -278,6 +283,8 @@
                 d.lead_category = $('.lead_category').val();
                 d.lead_color = $('.lead_color').val();
                 d.lead_shoe_size = $('.lead_shoe_size').val();
+                d.brand_segment = $('.brand_segment').val();
+                d.lead_status = $('.lead_status').val();
               }
             },
             columns: [
@@ -298,10 +305,11 @@
               {
                   data: null,
                   render : function ( data, type, row ) {
-                      return data.media_url ? '<img class="lazy img-responsive grid-image" alt="" src="' + data.media_url + '" style="" width="100%">' : '';
+                      return data.media_url ? '<img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;">' : '';
                   }
               },
               {data: 'brand_name', name: 'brand_name'},
+              {data: 'brand_segment', name: 'brand_segment'},
               {data: 'cat_title', name: 'cat_title'},
               {data: 'color', name: 'color'},
               {data: 'size', name: 'size'}
@@ -376,6 +384,8 @@
            $("#erp-leads").find(".modal-body").html(data);
            productSelect();
            customerSearch();
+           $('.multi_brand_select').select2({width: '100%'});
+           $('#category_id').select2({width: '100%'});
            $("#erp-leads").modal("show");
         }).fail(function (response) {
             console.log(response);

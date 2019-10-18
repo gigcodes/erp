@@ -10,7 +10,7 @@
   </div>
   <div class="form-group">
     <label for="brand_id">Brand:</label>
-    <?php echo Form::select("brand_id", ["" => "-- Select an option --"] + $brands , null,["class"=> "form-control"]);  ?>
+    <?php echo Form::select("brand_id", ["" => "-- Select an option --"] + $brands , null,["class"=> "form-control multi_brand_select"]);  ?>
   </div>
   <div class="form-group">
     <label for="category_id">Category:</label>
@@ -18,7 +18,7 @@
   </div>
   <div class="form-group">
     <strong>Brand Segment:</strong>
-    {{ App\Helpers\ProductHelper::getBrandSegment('brand_segment', null, ['class' => "form-control"])}}
+    {{ App\Helpers\ProductHelper::getBrandSegment('brand_segment', null, ['class' => "form-control multi_brand_select"])}}
   </div>
   <div class="form-group">
     <label for="color">Color:</label>
@@ -27,15 +27,6 @@
   <div class="form-group">
     <label for="size">Size:</label>
     <?php echo Form::text("size",null,["class"=> "form-control"]);  ?>
-  </div>
-
-  <div class="form-group">
-    <label for="min_price">Min price:</label>
-    <?php echo Form::text("min_price",null,["class"=> "form-control"]);  ?>
-  </div>
-  <div class="form-group">
-    <label for="max_price">Max price:</label>
-    <?php echo Form::text("max_price",null,["class"=> "form-control"]);  ?>
   </div>
   <div class="form-group">
     <label for="lead_status_id">Status:</label>

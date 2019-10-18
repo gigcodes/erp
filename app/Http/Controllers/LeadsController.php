@@ -822,10 +822,12 @@ class LeadsController extends Controller
                                         ->groupBy('clothing_size')
                                         ->pluck('counts', 'clothing_size');*/
         $brands = Brand::all()->toArray();
+        $erpLeadStatus = \App\ErpLeadStatus::all()->toArray();
         return view("leads.erp.index", [
             //'shoe_size_group' => $shoe_size_group,
             //'clothing_size_group' => $clothing_size_group,
-            'brands'   => $brands
+            'brands'   => $brands,
+            'erpLeadStatus'   => $erpLeadStatus,
         ]);
     }
 
@@ -876,6 +878,10 @@ class LeadsController extends Controller
             $source = $source->whereIn('erp_leads.brand_id', $request->get('lead_brand'));
         }
 
+        if ($request->get('lead_status')) {
+            $source = $source->whereIn('erp_leads.lead_status_id', $request->get('lead_status'));
+        }
+
         if ($request->get('lead_category')) {
             $source = $source->where('cat.title', 'like', "%".$request->get('lead_category')."%");
         }
@@ -885,7 +891,11 @@ class LeadsController extends Controller
         }
 
         if ($request->get('lead_shoe_size')) {
-            $source = $source->where('erp_leads.size', 'like', $request->get('lead_shoe_size'));
+            $source = $source->where('erp_leads.size', '=', $request->get('lead_shoe_size'));
+        }
+
+        if ($request->get('brand_segment')) {
+            $source = $source->where('erp_leads.brand_segment', '=', $request->get('brand_segment'));
         }
 
         $total = $source->count();
