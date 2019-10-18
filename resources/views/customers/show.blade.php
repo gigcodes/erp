@@ -2933,7 +2933,9 @@
           }).done( function(response) {
             
             $(thiss).find('.erp_update_message').fadeIn(400);
-
+            $('html, body').animate({
+                scrollTop: $(thiss).find('.erp_update_message').offset().top-150
+            }, 1000);
             setTimeout(function () {
               $(thiss).find('.erp_update_message').fadeOut(400);
             }, 5000);
