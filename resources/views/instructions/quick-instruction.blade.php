@@ -66,7 +66,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-5">
+                <div class="col-md-6">
                     <h3>Customer</h3>
                     <table class="table table-striped">
                         <tr>
@@ -83,19 +83,69 @@
                         </tr>
                     </table>
                 </div>
-                <div class="col-md-7">
+                <div class="col-md-6">
                     <h3>Instruction</h3>
                     <span style="background-color: #FFFF00; padding: 3px; font-size: 1.5em;">{!! nl2br($instruction->instruction) !!}</span>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#attachImagesModal">
+                        Attach Images
+                    </button>
                     <h3>Chat</h3>
-                    <div id="chat-history" class="load-communication-modal" data-object="customer" data-all="1" data-attached="1" data-id="{{ $instruction->customer_id }}" style="max-height: 80vh; overflow-x: scroll;">
+                    <div id="chat-history" class="load-communication-modal" data-object="customer" data-all="1" data-attached="1" data-id="{{ $instruction->customer_id }}" style="max-height: 80vh; overflow-x: hidden; overflow-y: scroll;">
                     </div>
                 </div>
             </div>
         @else
             <h2>No more instructions</h2>
         @endif
-
     </div>
+
+    <div class="modal fade" style="width: 95vw; height: 95vh;" id="attachImagesModal" tabindex="-1" role="dialog" aria-labelledby="attachImagesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Attach Images</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <iframe></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        iframe {
+            margin: 0px auto;
+            border: none;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .modal {
+            margin: 0px auto;
+            width: 95vw;
+        }
+
+        .modal-dialog {
+            width: 100vw;
+            height: 95vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .modal-content {
+            height: auto;
+            min-height: 95vh;
+            width: 95vw;
+            border-radius: 0;
+        }
+
+        .modal-body {
+            height: 80vh !important;
+        }
+    </style>
+
     @include('customers.partials.modal-remark')
 @endsection
 
@@ -110,6 +160,11 @@
         route.leads_send_prices = "{{ route('leads.send.prices') }}";
         route.task_add_remark = "{{ route('task.addRemark') }}";
         route.task_get_remark = "{{ route('task.gettaskremark') }}";
+        $('#add-remark input[name="id"]').val({{ $instruction->id }});
+        $('.modal').on('shown.bs.modal', function () {
+            // $(this).find('iframe').attr('src', '/attachImages/{{ $instruction->customer->id }}/1')
+            $(this).find('iframe').attr('src', '/attachImages/44/1')
+        })
         $(document).ready(function () {
             $('#chat-history').trigger('click');
         });
