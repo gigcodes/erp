@@ -293,7 +293,7 @@
               {
                   data: null,
                   render : function ( data, type, row ) {
-                      return '<img class="lazy img-responsive grid-image" alt="" src="' + data.media_url + '" style="" width="100%">';
+                      return data.media_url ? '<img class="lazy img-responsive grid-image" alt="" src="' + data.media_url + '" style="" width="100%">' : '';
                   }
               },
               {data: 'brand_name', name: 'brand_name'},
