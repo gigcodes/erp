@@ -910,6 +910,14 @@ class LeadsController extends Controller
             if ($media) {
                 $source[$key]->media_url = $media->getUrl();
             }
+
+            if (empty($source[$key]->media_url) && $value->product_id) {
+                $product = Product::find($value->product_id);
+                $media = $product->getMedia(config('constants.media_tags'))->first();
+                if ($media) {
+                    $source[$key]->media_url = $media->getUrl();
+                }
+            }
         }
         return response()->json([
             'draw' => $request->get('draw'),
