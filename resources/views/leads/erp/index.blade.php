@@ -382,7 +382,6 @@
             url: "{{ route('leads.erpLeads.create') }}"
         }).done(function (data) {
            $("#erp-leads").find(".modal-body").html(data);
-           productSelect();
            customerSearch();
            $('.multi_brand_select').select2({width: '100%'});
            $('#category_id').select2({width: '100%'});
@@ -422,7 +421,6 @@
             url: "{{ route('leads.erpLeads.edit') }}"
         }).done(function (data) {
            $("#erp-leads").find(".modal-body").html(data);
-           productSelect();
            customerSearch();
            $("#erp-leads").modal("show");
         }).fail(function (response) {
@@ -452,40 +450,6 @@
             console.log(response);
         });
     });
-
-    var productSelect = function()
-    {
-       $("#select2-product").select2({
-          tags : true,
-          ajax: {
-              url: '/productSearch/',
-              dataType: 'json',
-              delay: 750,
-              data: function (params) {
-                  return {
-                      q: params.term, // search term
-                  };
-              },
-              processResults: function (data,params) {
-
-                  params.page = params.page || 1;
-
-                  return {
-                      results: data,
-                      pagination: {
-                          more: (params.page * 30) < data.total_count
-                      }
-                  };
-              },
-          },
-          placeholder: 'Search for Product by id, Name, Sku',
-          escapeMarkup: function (markup) { return markup; },
-          minimumInputLength: 2,
-          templateResult: formatProduct,
-          templateSelection: (product) => product.text || product.name,
-
-      });
-    };
 
     function formatProduct (product) {
         if (product.loading) {

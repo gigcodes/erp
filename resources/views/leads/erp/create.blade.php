@@ -5,10 +5,6 @@
     <?php echo Form::select("customer_id", $customerList, null,["class"=> "form-control customer-search-box", "style"=>"width:100%;"]);  ?>
   </div>
   <div class="form-group">
-    <label for="product_id">Products:</label>
-    <?php echo Form::select("product_id", [] , null,["class"=> "form-control" ,"id" => "select2-product", "style"=>"width:100%;"]);  ?>
-  </div>
-  <div class="form-group">
     <label for="brand_id">Brand:</label>
     <?php echo Form::select("brand_id", ["" => "-- Select an option --"] + $brands , null,["class"=> "form-control multi_brand_select"]);  ?>
   </div>
