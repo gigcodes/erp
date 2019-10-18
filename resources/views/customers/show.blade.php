@@ -2922,7 +2922,7 @@
           var thiss = $(this);
           var url = "{{ route('leads.erpLeads.store') }}";
           
-          if ($(this).find('.multi_brand"]').val() == "") {
+          if ($(this).find('.multi_brand').val() == "") {
             alert('Please Select Brand');
             return false;
           }
