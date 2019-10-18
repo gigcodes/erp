@@ -78,7 +78,7 @@
                 </th>
                 <th><input type="text" style="width: 138px;" class="field_search lead_category" name="lead_category" placeholder="Search Category" /></th>
                 <th><input type="text" style="width: 138px;" class="field_search lead_color" name="lead_color" placeholder="Search Color" /></th>
-                <th><input type="text" style="width: 138px;" class="field_search lead_shoe_size" name="lead_shoe_size" placeholder="Search Size" /></th>
+                <th><input type="text" style="width: 100px;" class="field_search lead_shoe_size" name="lead_shoe_size" placeholder="Search Size" /></th>
             </tr>
         </thead>
         <tbody>
@@ -418,11 +418,13 @@
     $(document).on('click', '.lead-button-submit-form', function (e) {
       e.preventDefault();
       var $this = $(this);
-      var $form  = $this.closest("form");
+      var formData = new FormData(document.getElementById("lead_create"));
       $.ajax({
             type: "POST",
-            data : $form.serialize(),
-            url: "{{ route('leads.erpLeads.store') }}"
+            data : formData,
+            url: "{{ route('leads.erpLeads.store') }}",
+            contentType: false,
+            processData: false
         }).done(function (data) {
            if(data.code == 1) {
                $("#erp-leads").find(".modal-body").html("");
