@@ -154,30 +154,18 @@ class SearchController extends Controller
         }
 
         //dd($productQuery->get());
-        $inStockSupplier = false;
-        $stockSupplier = 11;
         if ($request->supplier[ 0 ] != null) {
-            
-            $supplierList = $request->supplier;
-            
-            if(in_array($stockSupplier,$supplierList)) {
-               $inStockSupplier = true; 
-               $key = array_search($stockSupplier, $supplierList);
-               unset($supplierList[$key]);
-            }
-            if(!empty($supplierList)) {
-                $suppliers_list = implode(',', $supplierList);
-               
-                if (isset($productQuery)) {
-                    $productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
-                } else {
-                    $productQuery = (new Product())->newQuery()->with('Suppliers')
-                        ->latest()->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
-                }
+            $suppliers_list = implode(',', $request->supplier);
 
-                $data[ 'supplier' ] = $request->supplier;
-                Cache::put('filter-supplier-' . Auth::id(), $data[ 'supplier' ], 120);
+            if (isset($productQuery)) {
+                $productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+            } else {
+                $productQuery = (new Product())->newQuery()->with('Suppliers')
+                    ->latest()->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
             }
+
+            $data[ 'supplier' ] = $request->supplier;
+            Cache::put('filter-supplier-' . Auth::id(), $data[ 'supplier' ], 120);
         } else {
             Cache::forget('filter-supplier-' . Auth::id());
         }
@@ -319,7 +307,7 @@ class SearchController extends Controller
         // $search_suggestions = [];
         //
         //  $sku_suggestions = ( new Product() )->newQuery()
-        // 																	 ->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
+        // 									 ->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
         //
         // $brand_suggestions = Brand::getAll();
         //
@@ -346,13 +334,7 @@ class SearchController extends Controller
 
         // assing product to varaible so can use as per condition for join table media
         if ($request->quick_product !== 'true') {
-            if($inStockSupplier) {
-                $products = $productQuery->where(function($query){
-                    $query->where('stock', '>=', 1)->orwhereRaw("products.supplier like '%In-stock%'");
-                });
-            }else{
-                $products = $productQuery->where('stock', '>=', 1);
-            }
+            $products = $productQuery->whereRaw("(stock>0 OR (supplier LIKE '%In-Stock%'))");
         } else {
             $products = $productQuery;
         }
@@ -372,9 +354,7 @@ class SearchController extends Controller
             $data[ 'is_on_sale' ] = 1;
             $products = $products->where('is_on_sale', 1);
         }
-        if ($request->get('shoe_size', false)) {
-            $products = $products->where('products.size', 'like', "%".$request->get('shoe_size')."%");
-        }
+
         $products_count = $products->get()->count();
         $data[ 'products_count' ] = $products_count;
         $data[ 'all_products_ids' ] = $products->pluck('id')->toArray();
