@@ -44,27 +44,41 @@
   </div>
   <div class="col-md-12">
     <div class="table-responsive">
-      <table cellspacing="0" role="grid" class="table table-striped table-bordered datatable mdl-data-table dataTable" style="width:100%">
+      <table cellspacing="0" role="grid" class="table table-striped table-bordered datatable mdl-data-table dataTable" `:100%">
         <thead>
             <tr>
                 <th>#</th>
                 <th>Status</th>
                 <th>Customer</th>
-                <th>Product</th>
+                <th width="140px">Image</th>
                 <th>Brand</th>
                 <th>Category</th>
                 <th>Color</th>
                 <th>Size</th>
-                <th>Min Price</th>
-                <th>Max Price</th>
-                <th>Action</th>
+            </tr>
+            <tr>
+                <th></th>
+                <th></th>
+                <th><input type="text" style="width: 138px;" class="field_search" data-key="2" name="lead_customer" placeholder="Search Customer" /></th>
+                <th></th>
+                <th><input type="text" style="width: 138px;" class="field_search" data-key="4" name="lead_brand" placeholder="Search Brand" /></th>
+                <th><input type="text" style="width: 138px;" class="field_search" data-key="5" name="lead_category" placeholder="Search Category" /></th>
+                <th><input type="text" style="width: 138px;" class="field_search" data-key="6" name="lead_color" placeholder="Search Color" /></th>
+                <th><input type="text" style="width: 138px;" class="field_search" data-key="7" name="lead_shoe_size" placeholder="Search Size" /></th>
             </tr>
         </thead>
         <tbody>
         </tbody>
         <thead>
             <tr>
-                <th colspan="11"><a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a></h2></th>
+                <th colspan="8">
+                  <label>
+                    <input type="checkbox" class="all_customer_check"> Select All
+                  </label> 
+                  <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
+                  <a href="javascript:;" class="btn btn-image px-1 images_attach"><img src="/images/attach.png"></a>
+                </h2>
+              </th>
             </tr>
         </thead>
       </table>
@@ -133,6 +147,39 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
+      $(".all_customer_check").click(function(){
+          $('.customer_message').prop('checked', this.checked);
+      });
+
+      $(".images_attach").click(function(e){
+          e.preventDefault();
+          var customers = [];
+          $(".customer_message").each(function() {
+              if ($(this).prop("checked") == true) {
+                customers.push($(this).val());
+              }
+          });
+          if (customers.length == 0) {
+            alert('Please select costomer');
+            return false;
+          }
+          url = "{{ route('attachImages', ['selected_customer', 'CUSTOMER_IDS', 1]) }}";
+          url = url.replace("CUSTOMER_IDS", customers.toString());
+
+          window.location.href = url;
+
+      });
+
+      $( '.field_search' ).on( 'keyup change', function () {
+          var i = $(this).data("key");
+          if ( table.column(i).search() !== this.value ) {
+              table
+                  .column(i)
+                  .search( this.value )
+                  .draw();
+          }
+      });
+      
       $("#send_message").submit(function(e){
           e.preventDefault();
           var customers = [];
@@ -207,11 +254,12 @@
         },
 
       });
-
-      $('.datatable').DataTable({
+     
+      var table = $('.datatable').DataTable({
             processing: true,
             serverSide: true,
             searching: false,
+            orderCellsTop: true,
             ajax: {
               "url" : '{{ route('leads.erpLeadsResponse') }}',
               data: function ( d ) {
@@ -236,21 +284,16 @@
                       return '<a href="/customer/' + data.customer_id + '" target="_blank">' + data.customer_name + '</a>';
                   }
               },
-              {data: 'product_name', name: 'product_name'},
-              {data: 'brand_name', name: 'brand_name'},
-              {data: 'cat_title', name: 'cat_title'},
-              {data: 'color', name: 'color'},
-              {data: 'size', name: 'size'},
-              {data: 'min_price', name: 'min_price'},
-              {data: 'max_price', name: 'max_price'},
               {
                   data: null,
                   render : function ( data, type, row ) {
-                      // Combine the first and last names into a single table field
-                      return '<a href="javascript:;" data-lead-id = "'+data.id+'" class="editor_edit btn btn-image"><img src="/images/edit.png"></a><a data-lead-id = "'+data.id+'" href="javascript:;" class="editor_remove btn btn-image"><img src="/images/delete.png"></a>';
-                  },
-                  className: "center"
-              }
+                      return '<img class="lazy img-responsive grid-image" alt="" src="' + data.media_url + '" style="" width="100%">';
+                  }
+              },
+              {data: 'brand_name', name: 'brand_name'},
+              {data: 'cat_title', name: 'cat_title'},
+              {data: 'color', name: 'color'},
+              {data: 'size', name: 'size'}
           ]
         });
     $('#search').on('submit', function(e){

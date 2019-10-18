@@ -867,6 +867,13 @@ class LeadsController extends Controller
         }
 
         $source = $source->get();
+        foreach ($source as $key => $value) {
+            $source[$key]->media_url = null;
+            $media = $value->getMedia(config('constants.media_tags'))->first();
+            if ($media) {
+                $source[$key]->media_url = $media->getUrl();
+            }
+        }
         return datatables()
             ->of($source)
             ->make();
@@ -897,7 +904,7 @@ class LeadsController extends Controller
         }
     }
 
-    public function erpLeadsStore()
+    public function erpLeadsStore(Request $request)
     {
         $id = request()->get("id",0);
         $productId =  request()->get("product_id",0);
@@ -921,6 +928,32 @@ class LeadsController extends Controller
         }
         $erpLeads->fill($params);
         $erpLeads->save();
+
+        $count = 0;
+        if ($request->oldImage) {
+            foreach ($request->oldImage as $old) {
+                if ($old > 0) {
+                    self::removeImage($old);
+                } elseif ($old == -1) {
+                    foreach ($request->file('image') as $image) {
+                        $media = MediaUploader::fromSource($image)->upload();
+                        $erpLeads->attachMedia($media, config('constants.media_tags'));
+                    }
+                } elseif ($old == 0) {
+                    $count++;
+                }
+            }    
+        }
+
+        if ($count > 0) {
+            if ($request->hasFile('image')) {
+                foreach ($request->file('image') as $image) {
+                    $media = MediaUploader::fromSource($image)->upload();
+                    $erpLeads->attachMedia($media, config('constants.media_tags'));
+                }
+            }
+
+        }
 
         return response()->json(["code"=> 1 , "data" => []]);
     }
@@ -972,4 +1005,21 @@ class LeadsController extends Controller
         return response()->json(["code"=> 1 , "data" => []]);
     }
 
+    public function updateErpStatus(Request $request, $id)
+    {
+        $lead = \App\ErpLeads::find($id);
+        if ($lead->lead_status_id != $request->status) {
+            $lead_status = \App\ErpLeadStatus::pluck("name","id")->toArray();
+            StatusChange::create([
+                'model_id' => $id,
+                'model_type' => \App\ErpLeads::class,
+                'user_id' => Auth::id(),
+                'from_status' => $lead_status[$lead->lead_status_id],
+                'to_status' => $lead_status[$request->status]
+            ]);
+
+            $lead->lead_status_id = $request->status;
+            $lead->save();
+        }
+    }
 }

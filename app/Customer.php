@@ -23,7 +23,7 @@ class Customer extends Model
 
     public function leads()
     {
-        return $this->hasMany('App\ErpLeads');
+        return $this->hasMany('App\ErpLeads')->orderBy('created_at', 'DESC');
     }
 
     public function orders()
