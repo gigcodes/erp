@@ -6,7 +6,11 @@
   </div>
   <div class="form-group">
     <label for="brand_id">Brand:</label>
-    <?php echo Form::select("brand_id", ["" => "-- Select an option --"] + $brands , null,["class"=> "form-control multi_brand_select"]);  ?>
+    <select class="form-control multi_brand_select" name="brand_id" multiple>
+        <?php foreach ($brands as $brand) {
+            echo '<option value="'.$brand->id.'" data-brand-segment="'.$brand->brand_segment.'">'.$brand->name.'</option>';
+        } ?>
+    </select>
   </div>
   <div class="form-group">
     <label for="category_id">Category:</label>
@@ -14,7 +18,7 @@
   </div>
   <div class="form-group">
     <strong>Brand Segment:</strong>
-    {{ App\Helpers\ProductHelper::getBrandSegment('brand_segment', null, ['class' => "form-control multi_brand_select"])}}
+    {{ App\Helpers\ProductHelper::getBrandSegment('brand_segment[]', null, ['class' => "form-control brand_segment_select" , 'multiple' => ''])}}
   </div>
   <div class="form-group">
     <label for="color">Color:</label>

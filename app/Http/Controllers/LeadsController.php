@@ -930,7 +930,7 @@ class LeadsController extends Controller
     public function erpLeadsCreate()
     {
         $customerList = [];//\App\Customer::pluck("name","id")->toArray();
-        $brands = Brand::pluck("name","id")->toArray();
+        $brands = Brand::all();
         $category = Category::attr(['name' => 'category_id', 'class' => 'form-control', 'id' => 'category_id'])->selected()->renderAsDropdown();
         $colors = \App\ColorNamesReference::pluck("erp_name","erp_name")->toArray();
         $status = \App\ErpLeadStatus::pluck("name","id")->toArray();
@@ -969,6 +969,9 @@ class LeadsController extends Controller
         }
         $params = request()->all();
         $params["product_id"] = $productId;
+        if (isset($params["brand_segment"])) {
+            $params["brand_segment"] = implode(",", (array)$params["brand_segment"]);
+        }
 
         $erpLeads = \App\ErpLeads::where("id",$id)->first();
         if(!$erpLeads) {
@@ -1002,7 +1005,6 @@ class LeadsController extends Controller
             }
 
         }
-
         return response()->json(["code"=> 1 , "data" => []]);
     }
 

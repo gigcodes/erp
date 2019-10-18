@@ -632,10 +632,10 @@
                         <div class="col-xs-12">
                           <div class="form-group">
                             <strong>Brand:</strong>
-                            <select name="brand[]" class="form-control multi_brand">
+                            <select name="brand_id" class="form-control multi_brand multi_brand_select" multiple>
                               <option value="">Brand</option>
                               @foreach($brands as $brand_item)
-                                <option value="{{$brand_item['id']}}" {{ $brand_item['id'] == $lead->brand_id ? "selected" : ''}}>{{$brand_item['name']}}</option>
+                                <option value="{{$brand_item['id']}}" {{ $brand_item['id'] == $lead->brand_id ? "selected" : ''}} data-brand-segment="{{$brand_item['brand_segment']}}">{{$brand_item['name']}}</option>
                               @endforeach
                             </select>
 
@@ -652,7 +652,7 @@
                           </div>
                           <div class="form-group">
                             <strong>Brand Segment:</strong>
-                            {{ App\Helpers\ProductHelper::getBrandSegment('brand_segment', $lead->brand_segment, ['class' => "form-control"])}}
+                            {{ App\Helpers\ProductHelper::getBrandSegment('brand_segment[]', explode(",", $lead->brand_segment), ['class' => "form-control brand_segment_select", 'multiple' => ''])}}
                           </div>
                           <?php /*
                           <div class="form-group">
@@ -777,7 +777,7 @@
                             </div>
                           @endif
 
-                          <Select name="status" class="form-control change_status" data-leadid="{{ $lead->id }}">
+                          <Select name="lead_status_id" class="form-control change_status" data-leadid="{{ $lead->id }}">
                             @foreach($lead_status as $key => $value)
                               <option value="{{$value}}" {{$value == $lead->lead_status_id ? 'selected':''}}>{{$key}}</option>
                             @endforeach
@@ -2320,6 +2320,22 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.min.js" integrity="sha256-Y1rRlwTzT5K5hhCBfAFWABD4cU13QGuRN6P5apfWzVs=" crossorigin="anonymous"></script>
 
   <script type="text/javascript">
+      jQuery(document).ready(function( $ ) {
+        //$('.multi_brand_select').select2({width: '100%'});
+        //$('.brand_segment_select').select2({width: '100%'});
+         
+        $(".multi_brand_select").change(function() {
+            var brand_segment = [];
+            $(this).find(':selected').each(function() {
+                if ($(this).data('brand-segment') && brand_segment.indexOf($(this).data('brand-segment')) == '-1') {
+                  brand_segment.push($(this).data('brand-segment'));
+                }
+            })
+            $(this).closest('form').find(".brand_segment_select").val(brand_segment).trigger('change');
+        });
+      })
+      
+
       $(document).on('click', '.quick_category_add', function (e) {
             e.preventDefault();
             var textBox = $(".quick_category");
@@ -2932,7 +2948,7 @@
             return false;
           }
 
-          if ($(this).find('input[name="status"]').val() == "") {
+          if ($(this).find('input[name="lead_status_id"]').val() == "") {
             alert('Please Select Status');
             return false;
           }

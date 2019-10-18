@@ -384,6 +384,18 @@
            $("#erp-leads").find(".modal-body").html(data);
            customerSearch();
            $('.multi_brand_select').select2({width: '100%'});
+           $('.brand_segment_select').select2({width: '100%'});
+           
+           $(".multi_brand_select").change(function() {
+                var brand_segment = [];
+                $(this).find(':selected').each(function() {
+                    if ($(this).data('brand-segment') && brand_segment.indexOf($(this).data('brand-segment')) == '-1') {
+                      brand_segment.push($(this).data('brand-segment'));
+                    }
+                })
+                $(".brand_segment_select").val(brand_segment).trigger('change');
+            });
+
            $('#category_id').select2({width: '100%'});
            $("#erp-leads").modal("show");
         }).fail(function (response) {
