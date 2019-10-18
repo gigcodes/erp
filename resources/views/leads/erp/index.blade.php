@@ -11,6 +11,7 @@
       <h2 class="page-heading">Erp Leads <a class="btn btn-secondary editor_create" href="javascript:;">+</a></h2>
 
   </div>
+  <?php /*
   <div class="col-lg-12 margin-tb">
     <form id="search" method="GET" class="form-inline">
         <input name="term" type="text" class="form-control"
@@ -47,6 +48,7 @@
         <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
     </form>
   </div>
+  */?>
   <div class="col-md-12">
     <div class="table-responsive">
       <table cellspacing="0" role="grid" class="table table-striped table-bordered datatable mdl-data-table dataTable" `:100%">
@@ -64,12 +66,19 @@
             <tr>
                 <th></th>
                 <th></th>
-                <th><input type="text" style="width: 138px;" class="field_search" data-key="2" name="lead_customer" placeholder="Search Customer" /></th>
+                <th><input type="text" style="width: 138px;" class="field_search lead_customer" name="lead_customer" placeholder="Search Customer" /></th>
                 <th></th>
-                <th><input type="text" style="width: 138px;" class="field_search" data-key="4" name="lead_brand" placeholder="Search Brand" /></th>
-                <th><input type="text" style="width: 138px;" class="field_search" data-key="5" name="lead_category" placeholder="Search Category" /></th>
-                <th><input type="text" style="width: 138px;" class="field_search" data-key="6" name="lead_color" placeholder="Search Color" /></th>
-                <th><input type="text" style="width: 138px;" class="field_search" data-key="7" name="lead_shoe_size" placeholder="Search Size" /></th>
+                <th>
+                  <select name="brand_id[]" class="lead_brand multi_brand" multiple="">
+                    <option value="">Brand</option>
+                    @foreach($brands as $brand_item)
+                      <option value="{{$brand_item['id']}}">{{$brand_item['name']}}</option>
+                    @endforeach
+                  </select>
+                </th>
+                <th><input type="text" style="width: 138px;" class="field_search lead_category" name="lead_category" placeholder="Search Category" /></th>
+                <th><input type="text" style="width: 138px;" class="field_search lead_color" name="lead_color" placeholder="Search Color" /></th>
+                <th><input type="text" style="width: 138px;" class="field_search lead_shoe_size" name="lead_shoe_size" placeholder="Search Size" /></th>
             </tr>
         </thead>
         <tbody>
@@ -152,6 +161,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
+      $('.multi_brand').select2();
       $(".all_customer_check").click(function(){
           $('.customer_message').prop('checked', this.checked);
       });
@@ -175,11 +185,6 @@
 
       });
 
-      $( '.field_search' ).on( 'keyup change', function () {
-          $("#search").find('input[name="'+$(this).attr('name')+'"]').val($(this).val());
-          table.draw();
-      });
-      
       $("#send_message").submit(function(e){
           e.preventDefault();
           var customers = [];
@@ -259,14 +264,15 @@
             processing: true,
             serverSide: true,
             searching: false,
-            orderCellsTop: true,
+            ordering: false,
             ajax: {
               "url" : '{{ route('leads.erpLeadsResponse') }}',
               data: function ( d ) {
-                var from = $('#search').serializeArray();
-                $.each(from, function( index, value ) {
-                   d[value.name] = value.value;
-                });
+                d.lead_customer = $('.lead_customer').val();
+                d.lead_brand = $('.lead_brand').val();
+                d.lead_category = $('.lead_category').val();
+                d.lead_color = $('.lead_color').val();
+                d.lead_shoe_size = $('.lead_shoe_size').val();
               }
             },
             columns: [
@@ -296,12 +302,16 @@
               {data: 'size', name: 'size'}
           ]
         });
-    $('#search').on('submit', function(e){
-        e.preventDefault();
-        table.draw();
-        return false;
-     });
-  });
+
+        $( '.field_search' ).on( 'keyup change', function () {
+            table.draw();
+        });
+
+        $( '.multi_brand' ).on( 'change', function () {
+            table.draw();
+        });
+        
+    });
 
     $(document).on('click', '.create_broadcast', function () {
       var customers = [];

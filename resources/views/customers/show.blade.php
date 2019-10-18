@@ -632,7 +632,7 @@
                         <div class="col-xs-12">
                           <div class="form-group">
                             <strong>Brand:</strong>
-                            <select name="brand_id" class="form-control multi_brand">
+                            <select name="brand[]" class="form-control multi_brand">
                               <option value="">Brand</option>
                               @foreach($brands as $brand_item)
                                 <option value="{{$brand_item['id']}}" {{ $brand_item['id'] == $lead->brand_id ? "selected" : ''}}>{{$brand_item['name']}}</option>

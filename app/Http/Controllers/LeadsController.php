@@ -812,7 +812,7 @@ class LeadsController extends Controller
 
     public function erpLeads()
     {
-        $shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
+        /*$shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
                                     ->whereNotNull('shoe_size')
                                     ->groupBy('shoe_size')
                                     ->pluck('counts', 'shoe_size');
@@ -820,10 +820,12 @@ class LeadsController extends Controller
         $clothing_size_group = Customer::selectRaw('clothing_size, count(id) as counts')
                                         ->whereNotNull('clothing_size')
                                         ->groupBy('clothing_size')
-                                        ->pluck('counts', 'clothing_size');
+                                        ->pluck('counts', 'clothing_size');*/
+        $brands = Brand::all()->toArray();
         return view("leads.erp.index", [
-            'shoe_size_group' => $shoe_size_group,
-            'clothing_size_group' => $clothing_size_group
+            //'shoe_size_group' => $shoe_size_group,
+            //'clothing_size_group' => $clothing_size_group,
+            'brands'   => $brands
         ]);
     }
 
@@ -838,7 +840,7 @@ class LeadsController extends Controller
                                 ->orderBy("erp_leads.id","desc")
                                 ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name","c.id as customer_id"]);
 
-        $term = $request->get('term');
+        /*$term = $request->get('term');
         if (!empty($term)) {
             $source = $source->where(function($q) use($term){
                 $q->where("c.name","like","%{$term}%")
@@ -864,14 +866,14 @@ class LeadsController extends Controller
 
         if ($request->get('clothing_size_group')) {
             $source = $source->where('c.clothing_size', '=', $request->get('clothing_size_group'));
-        }
+        }*/
 
         if ($request->get('lead_customer')) {
             $source = $source->where('c.name', 'like', "%".$request->get('lead_customer')."%");
         }
 
         if ($request->get('lead_brand')) {
-            $source = $source->where('br.name', 'like', "%".$request->get('lead_brand')."%");
+            $source = $source->whereIn('erp_leads.brand_id', $request->get('lead_brand'));
         }
 
         if ($request->get('lead_category')) {
@@ -886,8 +888,12 @@ class LeadsController extends Controller
             $source = $source->where('erp_leads.size', 'like', $request->get('lead_shoe_size'));
         }
 
+        $total = $source->count();
 
+        $source = $source->offset($request->get('start', 0));
+        $source = $source->limit($request->get('length', 10));
         $source = $source->get();
+
         foreach ($source as $key => $value) {
             $source[$key]->media_url = null;
             $media = $value->getMedia(config('constants.media_tags'))->first();
@@ -895,9 +901,12 @@ class LeadsController extends Controller
                 $source[$key]->media_url = $media->getUrl();
             }
         }
-        return datatables()
-            ->of($source)
-            ->make();
+        return response()->json([
+            'draw' => $request->get('draw'),
+            'recordsTotal' => $total,
+            'recordsFiltered' => $total,
+            'data' => $source
+        ]);
     }
 
     public function erpLeadsCreate()
