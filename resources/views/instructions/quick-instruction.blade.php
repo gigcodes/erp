@@ -162,8 +162,8 @@
         route.task_get_remark = "{{ route('task.gettaskremark') }}";
         $('#add-remark input[name="id"]').val({{ $instruction->id }});
         $('.modal').on('shown.bs.modal', function () {
-            // $(this).find('iframe').attr('src', '/attachImages/{{ $instruction->customer->id }}/1')
-            $(this).find('iframe').attr('src', '/attachImages/44/1')
+            // $(this).find('iframe').attr('src', '/attachImages/customer/{{ $instruction->customer->id }}/1')
+            $(this).find('iframe').attr('src', '/attachImages/customer/44/1')
         })
         $(document).ready(function () {
             $('#chat-history').trigger('click');
