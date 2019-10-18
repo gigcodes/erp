@@ -449,4 +449,29 @@ class InstructionController extends Controller
     {
         //
     }
+
+    public function quickInstruction(Request $request)
+    {
+        // Load first open instruction
+        $instructions = Instruction::where('verified', 0)->where('pending', 0)->whereNull('completed_at');
+
+        // Set type
+        if ( $request->type != null ) {
+            $instructions = $instructions->where('instruction', 'like', '%' . $request->type . '%');
+        }
+
+        // For non-admins
+        if (!Auth::user()->hasRole('Admin')) {
+            $instructions = $instructions->where('assigned_to', Auth::id());
+        }
+
+        // Get the first instruction
+        $instruction = $instructions->orderBy('id', 'desc')->first();
+
+        // Return the view with the first instruction
+        return view('instructions.quick-instruction')->with([
+            'instruction' => $instruction,
+            'type' => $request->type ?? ''
+        ]);
+    }
 }
