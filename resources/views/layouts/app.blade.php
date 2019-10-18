@@ -433,6 +433,7 @@
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'canceled-refunded') }}">Cancel/Refund Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
+                                            <a class="dropdown-item" href="{{ route('purchase.grid', 'non_ordered') }}">Non Ordered Grid</a>
                                         </li>
                                     </ul>
                                 </li>

@@ -303,8 +303,11 @@ class PurchaseController extends Controller
                     // ->whereHas('Order', function($q) {
                     //   $q->whereIn('order_status', ['Delivered']);
                     // });
+                } elseif ($page == 'non_ordered') {
+                    $orders = $orders->whereNotIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
                 } else {
-                    $orders = $orders->whereNotIn("o.order_status", ['Cancel', 'Refund to be processed', 'Delivered']);
+                    $orders = $orders->whereIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
+
                     /*$orders = $orders
                     ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status NOT IN ('Cancel', 'Refund to be processed', 'Delivered'))");*/
                     // ->whereHas('Order', function($q) {
@@ -385,8 +388,10 @@ class PurchaseController extends Controller
                 } elseif ($page == 'ordered') {
                 } elseif ($page == 'delivered') {
                     $orders = $orders->whereIn("o.order_status", ['Delivered']);
+                } elseif ($page == 'non_ordered') {
+                    $orders = $orders->whereNotIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
                 } else {
-                    $orders = $orders->whereNotIn("o.order_status", ['Cancel', 'Refund to be processed', 'Delivered']);
+                    $orders = $orders->whereIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
                 }
 
                 $orders = $orders->join("products as p", "p.sku", "order_products.sku")->where('brand', $brand)->where('qty', '>=', 1);
@@ -408,8 +413,10 @@ class PurchaseController extends Controller
             } elseif ($page == 'ordered') {
             } elseif ($page == 'delivered') {
                 $orders = $orders->whereIn("o.order_status", ['Delivered']);
+            } elseif ($page == 'non_ordered') {
+                $orders = $orders->whereNotIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
             } else {
-                $orders = $orders->whereNotIn("o.order_status", ['Cancel', 'Refund to be processed', 'Delivered']);
+                $orders = $orders->whereIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
             }
 
             $orders = $orders->where('qty', '>=', 1)->where('o.id', '=', $request->order_id)->get();
@@ -447,8 +454,10 @@ class PurchaseController extends Controller
             } elseif ($page == 'ordered') {
             } elseif ($page == 'delivered') {
                 $orders = $orders->whereIn("o.order_status", ['Delivered']);
+            } elseif ($page == 'non_ordered') {
+                $orders = $orders->whereNotIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
             } else {
-                $orders = $orders->whereNotIn("o.order_status", ['Cancel', 'Refund to be processed', 'Delivered']);
+                $orders = $orders->whereIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
             }
 
             $orders = $orders->where('qty', '>=', 1);
@@ -501,6 +510,19 @@ class PurchaseController extends Controller
         $supplier = isset($supplier) ? $supplier : '';
         $brand = isset($brand) ? $brand : '';
         $order_status = (new OrderStatus)->all();
+
+        foreach ($order_status as $key => $value) {
+            if (!$page) {
+                if (!in_array($key, ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid'])) {
+                    unset($order_status[$key]);
+                }
+            } else if ($page=='non_ordered') {
+                if (in_array($key, ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid'])) {
+                    unset($order_status[$key]);
+                }
+            }
+        }
+        
         $supplier_list = (new SupplierList)->all();
         // $suppliers = Supplier::select(['id', 'supplier'])->whereHas('products')->get();
         /*$suppliers = DB::select('
@@ -558,6 +580,7 @@ class PurchaseController extends Controller
 
             $customer_names = '';
             $customers = [];
+            $orderCount = 0;
             foreach ($product->orderproducts as $key => $order_product) {
                 if ($order_product->order && $order_product->order->customer) {
                     // if ($count == 0) {
@@ -566,6 +589,38 @@ class PurchaseController extends Controller
                     //   $customer_names .= ", " . $order_product->order->customer->name;
                     // }
                     $customers[] = $order_product->order->customer;
+                }
+
+                if (!empty($order_product->order)) {
+                    $orderCount++;
+                }
+            }
+
+            if (!$orderCount) {
+                continue;
+            }
+
+            $supplier_msg = DB::table('purchase_product_supplier')
+                        ->select('suppliers.id', 'suppliers.supplier', 'chat_messages.id as chat_messages_id', 'chat_messages.message', 'chat_messages.created_at')
+                        ->leftJoin('suppliers', 'suppliers.id', '=', 'purchase_product_supplier.supplier_id')
+                        ->leftJoin('chat_messages', 'chat_messages.id', '=', 'purchase_product_supplier.chat_message_id')
+                        ->where('purchase_product_supplier.product_id', '=', $product->id)
+                        ->orderBy('chat_messages.created_at', 'DESC')
+                        ->get();
+
+            $supplier_msg_data = [];
+            foreach ($supplier_msg as $key => $value) {
+                $supplier_msg_data[$value->id]['supplier'] = $value->supplier;
+                
+                if (!isset($data[$value->id]['chat_messages'])) {
+                    $supplier_msg_data[$value->id]['chat_messages'] = [];
+                }
+
+                if (!empty($value->chat_messages_id)) {
+                    $supplier_msg_data[$value->id]['chat_messages'][] = [
+                        'message'       => $value->message,
+                        'created_at'    => $value->created_at,
+                    ];
                 }
             }
 
@@ -588,6 +643,7 @@ class PurchaseController extends Controller
             $new_products[ $count ][ 'order_price' ] = !empty($product->orderproducts->first()->product_price) ? $product->orderproducts->first()->product_price : 0;
             $new_products[ $count ][ 'order_date' ] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->order_date : 'No Order';
             $new_products[ $count ][ 'order_advance' ] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->advance_detail : 'No Order';
+            $new_products[ $count ][ 'supplier_msg' ] = $supplier_msg_data;
 
             $count++;
         }
@@ -2644,7 +2700,7 @@ class PurchaseController extends Controller
                         $media = $product->getMedia(config('constants.media_tags'))->first()->getUrl();;
                     }
 
-                    $message = $request->input('message') . ' (' . $product->sku . ')';
+                    $message = $request->input('message') . ' (' . $product->sku . ')'.' size '.$product->size;
 
                     try {
                         dump("Sending message");
@@ -2664,7 +2720,7 @@ class PurchaseController extends Controller
 
                         $chat_message = ChatMessage::create($params);
 
-                        $values = array('product_id' => $id, 'supplier_id' => $supplier_id, 'chat_message_id' => $chat_message->id);
+                        $values = array('product_id' => $id, 'supplier_id' => $supplier->id, 'chat_message_id' => $chat_message->id);
                         DB::table('purchase_product_supplier')->insert($values);
 
                     } catch (\Exception $e) {
@@ -2673,6 +2729,37 @@ class PurchaseController extends Controller
                 }
             }
         }
+    }
+
+    public function getMsgSupplier(Request $request)
+    {
+        $productId = $request->get('product_id', 0);
+        $suppliers = $request->get('suppliers', []);
+
+        $suppliers = DB::table('purchase_product_supplier')
+                        ->select('suppliers.id', 'suppliers.supplier', 'chat_messages.id as chat_messages_id', 'chat_messages.message', 'chat_messages.created_at')
+                        ->leftJoin('suppliers', 'suppliers.id', '=', 'purchase_product_supplier.supplier_id')
+                        ->leftJoin('chat_messages', 'chat_messages.id', '=', 'purchase_product_supplier.chat_message_id')
+                        ->where('purchase_product_supplier.product_id', '=', $productId)
+                        ->orderBy('chat_messages.created_at', 'DESC')
+                        ->get();
+        $data = [];
+        foreach ($suppliers as $key => $value) {
+            $data[$value->id]['supplier'] = $value->supplier;
+            
+            if (!isset($data[$value->id]['chat_messages'])) {
+                $data[$value->id]['chat_messages'] = [];
+            }
+
+            if (!empty($value->chat_messages_id)) {
+                $data[$value->id]['chat_messages'][] = [
+                    'message'       => $value->message,
+                    'created_at'    => $value->created_at,
+                ];
+            }
+        }
+
+        return response()->json($data);
     }
 
     public function sendEmailBulk(Request $request)
