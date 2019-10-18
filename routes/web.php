@@ -196,7 +196,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 //	Route::resource('task','TaskController');
 
     // Instruction
-
+    Route::get('instruction/quick-instruction', 'InstructionController@quickInstruction');
     Route::get('instruction/list', 'InstructionController@list')->name('instruction.list');
     Route::resource('instruction', 'InstructionController');
     Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
