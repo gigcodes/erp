@@ -3993,7 +3993,9 @@
           data: {
             _token: token,
             customer_id: customer_id,
-            status: 3
+            rating: 1,
+            lead_status_id: 3,
+            assigned_user: 6
           },
           beforeSend: function() {
             $(thiss).text('Creating...');
