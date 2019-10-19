@@ -6,8 +6,9 @@
           <h4 class="modal-title">Create Product Template</h4>
         </div>
         <div class="modal-body">
-          <form method="post" enctype="multipart/form-data">
+          <form method="post" enctype="multipart/form-data" id="product-template-from">
              <?php echo csrf_field(); ?>
+             <?php echo Form::hidden('product_id', '', ['class' => 'product_id']) ?>
              <div class="form-group row">
                 <label for="template_no" class="col-sm-3 col-form-label">Template No</label>
                 <div class="col-sm-6">
@@ -17,13 +18,13 @@
              <div class="form-group row">
                 <label for="product_title" class="col-sm-3 col-form-label">Product Title</label>
                 <div class="col-sm-6">
-                   <?php echo Form::text("product_title",null,["class" => "form-control"]); ?>
+                   <?php echo Form::select("product_title",[],null,["class" => "form-control ddl-select-product"]); ?>
                 </div>
              </div>
              <div class="form-group row">
                 <label for="brand_id" class="col-sm-3 col-form-label">Brand</label>
                 <div class="col-sm-6">
-                   <?php echo Form::select("brand_id",\App\Brand::all()->pluck("name","id"),null,["class" => "form-control"]); ?>
+                   <?php echo Form::select("brand_id",\App\Brand::all()->pluck("name","id"),null,["class" => "form-control select-2-brand"]); ?>
                 </div>
              </div>
              <div class="form-group row">

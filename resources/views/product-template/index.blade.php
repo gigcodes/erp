@@ -49,6 +49,9 @@
 	  cursor:pointer;
 	  font-size:15px;
 	}
+	.error {
+		color: #FF0000;
+	}
 </style>
 <div class="row" id="product-template-page">
 	<div class="col-lg-12 margin-tb">
@@ -68,6 +71,7 @@
 @include("product-template.partials.list-template")
 @include("product-template.partials.create-form-template")
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/1.0.5/jsrender.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
 <script type="text/javascript" src="js/common-helper.js"></script>
 <script type="text/javascript" src="js/product-template.js"></script>
 <script type="text/javascript">

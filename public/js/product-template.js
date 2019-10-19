@@ -7,9 +7,6 @@ var productTemplate = {
         
         $.extend(productTemplate.config, settings);
         
-        console.log("Product Template init :", productTemplate);
-        console.log("Start page request : ", [1]);
-        
         this.getResults();
 
         //initialize pagination
@@ -59,8 +56,34 @@ var productTemplate = {
         });
 
         $(document).on("click",".create-product-template",function(e){
-            productTemplate.submitForm($(this));
-        });   
+            if ($("#product-template-from").valid()) {
+                productTemplate.submitForm($(this));
+            }
+        });
+    },
+    validationRule : function() {
+         $(document).find("#product-template-from").validate({
+            rules: {
+                template_no     : "required",
+                product_title   : "required",
+                brand_id        : "required",
+                currency        : {
+                                    required: true,
+                                    minlength: 3,
+                                    maxlength: 3
+                                }
+            },
+            messages: {
+                template_no     : "Please Select Template No",
+                product_title   : "Please Enter Product Title",
+                brand_id        : "Please Select Brand",
+                currency        : {
+                                    required: "Please Enter Currency",
+                                    minlength: "Please Enter least {0} characters",
+                                    maxlength: "Please Enter {0} characters"
+                                }
+            }
+        })
     },
     getResults: function(href) {
     	var _z = {
@@ -74,18 +97,21 @@ var productTemplate = {
     	var addProductTpl = $.templates("#product-templates-result-block");
         var tplHtml       = addProductTpl.render(response);
     	productTemplate.config.bodyView.find("#page-view-result").html(tplHtml);
-    	
-    	console.log("Result Intialized .. ", []);
+
     },
     openForm : function() {
         var addProductTpl = $.templates("#product-templates-create-block");
         var tplHtml       = addProductTpl.render({});
         $("#display-area").html(tplHtml);
         $("#product-template-create-modal").modal("show");
+        productTemplate.validationRule();
+        $(".select-2-brand").select2({
+            width:"100%"
+        });
+        productTemplate.productSearch();
     },
     submitForm : function(ele) {
         var form = ele.closest("#product-template-create-modal").find("form");
-        console.log("Form intialized:",true);
         var formData = new FormData(form[0]);
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/product-templates/create",
@@ -95,7 +121,7 @@ var productTemplate = {
         this.sendFormDataAjax(_z, "closeForm");
     },
     closeForm : function(response) {
-        if(request.code == 1) {
+        if(response.code == 1) {
             location.reload();
         }
     },
@@ -104,9 +130,62 @@ var productTemplate = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/product-templates/destroy/"+ele.data("id"),
             method: "get",
         }
-        this.sendAjax(_z, null);
+        this.sendAjax(_z, 'getResults', true);
+    },
+    productSearch : function() {
+        $('.ddl-select-product').select2({
+            ajax: {
+                url: '/productSearch/',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
 
-        this.getResults();
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Product by id, Name, Sku',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 2,
+            width: '100%',
+            templateResult: function (product) {
+                if (product.loading) {
+                    return product.sku;
+                }
+
+                if (product.sku) {
+                    return "<p> <b>Id:</b> " + product.id + (product.name ? " <b>Name:</b> " + product.name : "") + " <b>Sku:</b> " + product.sku + " </p>";
+                }
+
+            },
+            templateSelection: function (product) {
+                
+                $(document).find("#product-template-from").find('.product_id').val('');
+                if (product.id) {
+                    $(document).find("#product-template-from").find('.product_id').val(product.id);
+                }
+
+                $(document).find("#product-template-from").find('.select-2-brand').val('').trigger('change');
+                if (product.brand) {
+                    $(document).find("#product-template-from").find('.select-2-brand').val(product.brand).trigger('change');
+                }
+
+                return product.name;
+            }
+        });
     }
 }
 

@@ -1,5 +1,5 @@
 var common = {
-    sendAjax: function(params, callback, fallback) {
+    sendAjax: function(params, callback, isPassArg) {
         var self = this;
         var sendUrl = this.checkTypeOf(params, 'url', null);
         if (!sendUrl) {
@@ -17,11 +17,16 @@ var common = {
                 //$(".loading").hide();
             }
         }).done(function(result) {
-            self[callback](result);
+            if (callback) {
+                if (isPassArg) {
+                    self[callback]()
+                } else {
+                    self[callback](result);
+                }
+            }
         }).fail(function(jqXhr) {});
     },
     sendFormDataAjax: function(params, callback, fallback) {
-        console.log(params);
         var self = this;
         var sendUrl = this.checkTypeOf(params, 'url', null);
         if (!sendUrl) {
