@@ -171,7 +171,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"></script>
   <script type="text/javascript">
-    $(".select-multiple").multiselect();
+    $(".select-multiple").select2();
 
     $(document).on('click', '.edit-modal-button', function() {
       var product = $(this).data('product');
