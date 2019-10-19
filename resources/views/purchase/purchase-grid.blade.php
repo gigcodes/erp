@@ -33,32 +33,45 @@
                                value="{{ isset($term) ? $term : '' }}"
                                placeholder="name, sku, supplier">
                     </div>
-
+                    <div class="form-group mr-3 mb-3">
+                        {!! $categoryFilter !!}
+                    </div>
                     @if (!$page || $page=='non_ordered')
                         <div class="form-group mr-3">
-                            <select class="form-control select-multiple" name="status[]" multiple>
-                                <optgroup label="Order Status">
-                                    @foreach ($order_status as $key => $name)
-                                        <option value="{{ $key }}" {{ in_array(strtolower($key), array_map("strtolower",request()->get('status', []))) ? 'selected' : '' }}>{{ $name }}</option>
-                                    @endforeach
-                                </optgroup>
+                            <select class="form-control select-multiple2" name="status[]" multiple placeholder="Order Status">
+                                @foreach ($order_status as $key => $name)
+                                    <option value="{{ $key }}" {{ in_array(strtolower($key), array_map("strtolower",request()->get('status', []))) ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     @endif
 
                     <div class="form-group mr-3">
-                        {!! Form::select('supplier[]', $suppliers_array, (!empty(request()->get('supplier')[0]) ? request()->get('supplier')[0] : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple']) !!}
+                        {!! Form::select('supplier[]', $suppliers_array, (!empty(request()->get('supplier')[0]) ? request()->get('supplier')[0] : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2']) !!}
                     </div>
 
                     <div class="form-group mr-3">
                         @php $brands = \App\Brand::getAll(); @endphp
-                        <select class="form-control select-multiple" name="brand[]" multiple>
-                            <optgroup label="Brands">
-                                @foreach ($brands as $key => $name)
-                                    <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
-                                @endforeach
-                            </optgroup>
+                        <select class="form-control select-multiple2" name="brand[]" multiple placeholder="Brands">
+                            @foreach ($brands as $key => $name)
+                                <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
+                            @endforeach
                         </select>
+                    </div>
+
+                    <div class="form-group mr-3">
+                        @php $colors = new \App\Colors(); @endphp
+                        <select class="form-control select-multiple2" name="color[]" multiple placeholder="Colors...">
+                            @foreach ($colors->all() as $key => $col)
+                                <option value="{{ $key }}" {{ in_array($key, request()->get('color', [])) ? 'selected' : '' }}>{{ $col }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group mr-3">
+                        <input name="size" type="text" class="form-control"
+                               value="{{ request()->get('size') }}"
+                               placeholder="Size">
                     </div>
 
                     <div class="form-group mr-3">
@@ -68,6 +81,8 @@
                     <input type="checkbox" name="in_pdf" id="in_pdf"> <label for="in_pdf">Download PDF</label>
 
                     <button type="submit" class="btn btn-image"><img src="/images/search.png"/></button>
+
+                    <a href="{{url()->current()}}" class="btn btn-image"><img src="/images/clear-filters.png"/></a>
             </div>
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
@@ -143,7 +158,7 @@
                                     $suppliers_array2 = $activSuppliers;
                                 @endphp
                             @endif
-                            <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple supplier_msg" multiple data-product-id="{{$product['id']}}">
+                            <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple2 supplier_msg" multiple data-product-id="{{$product['id']}}" placeholder="supplier">
                                 @foreach($suppliers_array2 as $sup)
                                     <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
                                 @endforeach
@@ -380,12 +395,10 @@
                                     {!! $category_selection !!}
                                 </div>
                                 <div class="form-group mr-3">
-                                    <select class="form-control select-multiple2" name="brand[]" data-placeholder="Select brand.." multiple>
-                                        <optgroup label="Brands">
-                                            @foreach ($brands as $key => $name)
-                                                <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
-                                            @endforeach
-                                        </optgroup>
+                                    <select class="form-control select-multiple2" name="brand[]" placeholder="Select brand.." multiple>
+                                        @foreach ($brands as $key => $name)
+                                            <option value="{{ $key }}">{{ $name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="form-group mr-3 mb-3">
@@ -464,13 +477,16 @@
         }
 
         $(document).ready(function () {
-            $(".select-multiple").multiselect();
-            $(".select-multiple2").select2();
+            $(".select-multiple2").each(function(){
+                $(this).select2({
+                    placeholder: $(this).attr('placeholder')
+                });
+            })
         });
 
         $(".alternative_offers").click(function () {
-            $('#alternative_offers_search_form').find("select[name='category[]']").val($(this).data('category'));
-            $('#alternative_offers_search_form').find("select[name='brand[]']").val($(this).data('brand'));
+            $('#alternative_offers_search_form').find("select[name='category[]']").val($(this).data('category')).trigger('change');;
+            $('#alternative_offers_search_form').find("select[name='brand[]']").val($(this).data('brand')).trigger('change');;
             $('#alternative_offers_search_form').find("input[name='price_min']").val($(this).data('price'));
             $('#attachImageForm').find(".customer_id").val($(this).data('customer_id'));
             $.ajax({
@@ -766,8 +782,11 @@
                     contentSelector: 'div.infinite-scroll',
                     callback: function () {
                         // $('ul.pagination').remove();
-                         $(".select-multiple").multiselect();
-                         $(".select-multiple2").select2();
+                         $(".select-multiple2").each(function(){
+                            $(this).select2({
+                                placeholder: $(this).attr('placeholder')
+                            });
+                        })
                     }
                 });
             });

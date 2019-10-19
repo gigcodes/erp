@@ -50,6 +50,7 @@ use Storage;
 use Auth;
 use Webklex\IMAP\Client;
 use App\Mail\ReplyToEmail;
+use App\Category;
 
 class PurchaseController extends Controller
 {
@@ -478,8 +479,10 @@ class PurchaseController extends Controller
             array_push($includedOrders, $order[ 'order_id' ]);
         }
 
+        $color = $request->get('color');
+        $size = $request->get('size');
         $products = Product::with([
-            'orderproducts' => function ($query) use ($page, $not_include_products, $includedOrders) {
+            'orderproducts' => function ($query) use ($page, $not_include_products, $includedOrders, $color, $size) {
                 if ($page != 'ordered') {
                     $query->whereNotIn("id", $not_include_products);
                 }
@@ -489,6 +492,14 @@ class PurchaseController extends Controller
                         $q->whereIn("id", array_unique($includedOrders));
                     }
                 ]);
+
+                if (!empty($color) && is_array($color)) {
+                    $query = $query->whereIn('color', $color);
+                }
+
+                if (!empty($size)) {
+                    $query = $query->where('size', $size);
+                }
             },
             'purchases',
             'suppliers',
@@ -556,6 +567,34 @@ class PurchaseController extends Controller
                     ->orWhere('sku', 'like', '%' . $term . '%')
                     ->orWhere('supplier', 'like', '%' . $term . '%');
             });
+        }
+
+        if ($request->category_id != null && $request->category_id != 1) {
+            $category_children = [];
+
+            $is_parent = Category::isParent($request->category_id);
+
+            if ($is_parent) {
+                $childs = Category::find($request->category_id)->childs()->get();
+
+                foreach ($childs as $child) {
+                    $is_parent = Category::isParent($child->id);
+
+                    if ($is_parent) {
+                        $children = Category::find($child->id)->childs()->get();
+
+                        foreach ($children as $chili) {
+                            array_push($category_children, $chili->id);
+                        }
+                    } else {
+                        array_push($category_children, $child->id);
+                    }
+                }
+            } else {
+                array_push($category_children, $request->category_id );
+            }
+
+            $products = $products->whereIn('category', $category_children);
         }
 
         $new_products = [];
@@ -708,7 +747,8 @@ class PurchaseController extends Controller
         ]);
 
         //echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';//exit;
-        $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control'])->selected(1)->renderAsDropdown();
+        $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2'])->selected(1)->renderAsDropdown();
+        $categoryFilter = \App\Category::attr(['name' => 'category_id', 'class' => 'form-control select-multiple2'])->selected(request()->get('category_id', 1))->renderAsDropdown();
 
         return view('purchase.purchase-grid')->with([
             'products' => $new_products,
@@ -723,6 +763,7 @@ class PurchaseController extends Controller
             'page' => $page,
             'category_selection' => $category_selection,
             'activSuppliers' => $activSuppliers,
+            'categoryFilter' => $categoryFilter,
         ]);
     }
 
