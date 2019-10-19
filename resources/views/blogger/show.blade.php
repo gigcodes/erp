@@ -79,8 +79,8 @@
                                     <option value="919004780634" {{ '919004780634' == $blogger_product->whatsapp_number ? ' selected' : '' }}>
                                         919004780634 Indian
                                     </option>
-                                    <option value="971545889192" {{ '971545889192' == $blogger_product->whatsapp_number ? ' selected' : '' }}>
-                                        971545889192 Dubai
+                                    <option value="971502609192" {{ '971502609192' == $blogger_product->whatsapp_number ? ' selected' : '' }}>
+                                        971502609192 Dubai
                                     </option>
                                 </select>
                             </div>

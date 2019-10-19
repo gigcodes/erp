@@ -50,6 +50,7 @@
                     </form>
                 </div>
             @endcan
+            <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Task </a>
         </div>
     </div>
 
@@ -70,7 +71,7 @@
                         Please enter the estimated completion time so that we can alert you when the time is about to end or is expired.
                     </p>
                     <div class="form-group">
-                        <input type="date" name="progress_date" id="progress_date" placeholder="Enter Date..." class="form-control">
+                        <input type="date" name="progress_date" id="progress_date" placeholder="Enter Date..." class="form-control" value="<?= date('Y-m-d') ?>">
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -139,7 +140,7 @@
             <div class="tab-content">
                 <div id="pending" class="tab-pane fade in active">
                     <div class="panel-group" style="margin-top: 10px;">
-                        <div class="panel panel-default">
+                        <div class="panel panel-default" style="display: none;">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
                                     <a data-toggle="collapse" href="#collapse1">
@@ -202,6 +203,19 @@
                                                     <div class="alert alert-danger">{{$errors->first('priority')}}</div>
                                                 @endif
                                             </div>
+
+                                                <div class="form-group">
+                                                    <label for="priority">Type:</label>
+                                                    <select class="form-control" name="task_type_id" id="task_type_id" required>
+                                                        @foreach($tasksTypes as $taskType)
+                                                            <option value="{{$taskType->id}}">{{$taskType->name}}</option>
+                                                        @endforeach
+                                                    </select>
+
+                                                    @if ($errors->has('priority'))
+                                                        <div class="alert alert-danger">{{$errors->first('priority')}}</div>
+                                                    @endif
+                                                </div>
 
                                             <div class="form-group">
                                                 <strong>Subject:</strong>
@@ -688,7 +702,7 @@
         let r_s = '{{ $start }}';
         let r_e = '{{ $end }}';
 
-        let start = r_s ? moment(r_s, 'YYYY-MM-DD') : moment().subtract(6, 'days');
+        let start = r_s ? moment(r_s, 'YYYY-MM-DD') : '2018-01-01';
         let end = r_e ? moment(r_e, 'YYYY-MM-DD') : moment();
 
         jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
@@ -1248,6 +1262,27 @@
         $(document).ready(function () {
             $('.select2').select2({
                 tags: true
+            });
+        });
+
+
+        //Popup for add new task
+        $(document).on('click', '#newTaskModalBtn', function () {
+            if ($("#newTaskModal").length > 0) {
+                $("#newTaskModal").remove();
+            }
+
+            $.ajax({
+                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                type: 'GET',
+                dataType: "JSON",
+                success: function (resp) {
+                    console.log(resp);
+                    if(resp.status == 'ok') {
+                        $("body").append(resp.html);
+                        $('#newTaskModal').modal('show');
+                    }
+                }
             });
         });
 

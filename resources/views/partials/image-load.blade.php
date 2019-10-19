@@ -5,11 +5,11 @@
   $query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
 ?>
 
-<div class="row">
+<div class="row page-goto">
     <div class="col-2">
         <div class="form-group">
             Goto :
-            <select onchange="location.href = this.value;" class="form-control">
+            <select onchange="location.href = this.value;" class="form-control page-goto">
                 @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
                     <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
                 @endfor
@@ -76,7 +76,7 @@
 
 {!! $products->appends(Request::except('page'))->links() !!}
 
-<div class="row">
+<div class="row page-goto">
     <div class="col-2">
         <div class="form-group">
             Goto :

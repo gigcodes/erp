@@ -8,155 +8,170 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
-  use SoftDeletes;
-  // protected $appends = ['communication'];
-  protected $fillable = [
-    'name', 'phone', 'city', 'whatsapp_number'
-  ];
+    use SoftDeletes;
+    // protected $appends = ['communication'];
+    protected $fillable = [
+        'name',
+        'phone',
+        'city',
+        'whatsapp_number'
+    ];
 
-  protected $casts = [
-      'notes' => 'array'
-  ];
+    protected $casts = [
+        'notes' => 'array'
+    ];
 
-  public function leads()
-  {
-    return $this->hasMany('App\Leads');
-  }
-
-  public function orders()
-  {
-    return $this->hasMany('App\Order');
-  }
-
-  public function latestOrder() {
-      return $this->hasMany('App\Order')->orderBy('created_at', 'DESC')->first();
-  }
-
-  public function suggestion()
-  {
-    return $this->hasOne('App\Suggestion');
-  }
-
-  public function instructions()
-  {
-    return $this->hasMany('App\Instruction');
-  }
-
-  public function private_views()
-  {
-    return $this->hasMany('App\PrivateView');
-  }
-
-  public function latest_order()
-  {
-    return $this->hasMany('App\Order')->latest()->first();
-  }
-
-  public function many_reports()
-	{
-		return $this->hasMany('App\OrderReport', 'customer_id')->latest();
-	}
-
-	public function allMessages() {
-      return $this->hasMany(ChatMessage::class, 'customer_id', 'id');
+    public function leads()
+    {
+        return $this->hasMany('App\ErpLeads');
     }
 
-  public function messages()
-	{
-		return $this->hasMany('App\Message', 'customer_id')->latest()->first();
-	}
+    public function orders()
+    {
+        return $this->hasMany('App\Order');
+    }
 
-  public function messages_all()
-	{
-		return $this->hasMany('App\Message', 'customer_id')->latest();
-	}
+    public function latestOrder()
+    {
+        return $this->hasMany('App\Order')->orderBy('created_at', 'DESC')->first();
+    }
 
-  public function emails()
-  {
-    return $this->hasMany('App\Email', 'model_id')->where('model_type', 'App\Customer');
-  }
+    public function suggestion()
+    {
+        return $this->hasOne('App\Suggestion');
+    }
 
-	public function whatsapps()
-	{
-		return $this->hasMany('App\ChatMessage', 'customer_id')->where('status', '!=', '7')->latest()->first();
-	}
+    public function instructions()
+    {
+        return $this->hasMany('App\Instruction');
+    }
 
-  public function call_recordings()
-	{
-		return $this->hasMany('App\CallRecording', 'customer_id')->latest();
-	}
+    public function private_views()
+    {
+        return $this->hasMany('App\PrivateView');
+    }
 
-  public function whatsapps_all()
-	{
-		return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9'])->latest();
-	}
+    public function latest_order()
+    {
+        return $this->hasMany('App\Order')->latest()->first();
+    }
 
-	public function messageHistory($count = 3) {
+    public function many_reports()
+    {
+        return $this->hasMany('App\OrderReport', 'customer_id')->latest();
+    }
+
+    public function allMessages()
+    {
+        return $this->hasMany(ChatMessage::class, 'customer_id', 'id');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany('App\Message', 'customer_id')->latest()->first();
+    }
+
+    public function messages_all()
+    {
+        return $this->hasMany('App\Message', 'customer_id')->latest();
+    }
+
+    public function emails()
+    {
+        return $this->hasMany('App\Email', 'model_id')->where('model_type', 'App\Customer');
+    }
+
+    public function whatsapps()
+    {
+        return $this->hasMany('App\ChatMessage', 'customer_id')->where('status', '!=', '7')->latest()->first();
+    }
+
+    public function call_recordings()
+    {
+        return $this->hasMany('App\CallRecording', 'customer_id')->latest();
+    }
+
+    public function whatsapps_all()
+    {
+        return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+    }
+
+    public function messageHistory($count = 3)
+    {
         return $this->hasMany(ChatMessage::class, 'customer_id')->whereNotIn('status', ['7', '8', '9', '10'])->take($count)->latest();
     }
 
-    public function bulkMessagesKeywords() {
-      return $this->belongsToMany(BulkCustomerRepliesKeyword::class, 'bulk_customer_replies_keyword_customer', 'customer_id', 'keyword_id');
+    public function bulkMessagesKeywords()
+    {
+        return $this->belongsToMany(BulkCustomerRepliesKeyword::class, 'bulk_customer_replies_keyword_customer', 'customer_id', 'keyword_id');
     }
 
-    public function latestMessage() {
+    public function latestMessage()
+    {
         return $this->hasMany(ChatMessage::class, 'customer_id')->whereNotIn('status', ['7', '8', '9'])->latest()->first();
     }
 
-  public function credits_issued()
-	{
-		return $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Customer')->where('type', 'issue-credit')->where('method', 'email');
-	}
-
-	public function instagramThread() {
-      return $this->hasOne(InstagramThread::class);
+    public function credits_issued()
+    {
+        return $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Customer')->where('type', 'issue-credit')->where('method', 'email');
     }
 
-  public function is_initiated_followup()
-	{
-		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Customer')->where('type', 'initiate-followup')->where('is_stopped', 0)->count();
+    public function instagramThread()
+    {
+        return $this->hasOne(InstagramThread::class);
+    }
 
-		return $count > 0 ? TRUE : FALSE;
-	}
+    public function is_initiated_followup()
+    {
+        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Customer')->where('type', 'initiate-followup')->where('is_stopped', 0)->count();
 
-  public function whatsapp_number_change_notified()
-  {
-    $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Customer')->where('type', 'number-change')->count();
+        return $count > 0 ? true : false;
+    }
 
-		return $count > 0 ? TRUE : FALSE;
-  }
+    public function whatsappAll()
+    {
+        return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+    }
 
-	public function getCommunicationAttribute()
-	{
-		$message = $this->messages();
-		$whatsapp = $this->whatsapps();
+    public function whatsapp_number_change_notified()
+    {
+        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Customer')->where('type', 'number-change')->count();
 
-		if ($message && $whatsapp) {
-			if ($message->created_at > $whatsapp->created_at) {
-				return $message;
-			}
+        return $count > 0 ? true : false;
+    }
 
-			return $whatsapp;
-		}
+    public function getCommunicationAttribute()
+    {
+        $message = $this->messages();
+        $whatsapp = $this->whatsapps();
 
-		if ($message) {
-			return $message;
-		}
+        if ($message && $whatsapp) {
+            if ($message->created_at > $whatsapp->created_at) {
+                return $message;
+            }
 
-		return $whatsapp;
-	}
+            return $whatsapp;
+        }
 
-  public function getLeadAttribute()
-	{
-		return $this->leads()->latest()->first();
-	}
+        if ($message) {
+            return $message;
+        }
 
-  public function getOrderAttribute()
-	{
-		return $this->orders()->latest()->first();
-	}
+        return $whatsapp;
+    }
 
-	public function facebookMessages() {
-      return $this->hasMany(FacebookMessages::class);
+    public function getLeadAttribute()
+    {
+        return $this->leads()->latest()->first();
+    }
+
+    public function getOrderAttribute()
+    {
+        return $this->orders()->latest()->first();
+    }
+
+    public function facebookMessages()
+    {
+        return $this->hasMany(FacebookMessages::class);
     }
 }

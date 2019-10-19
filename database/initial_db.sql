@@ -8934,3 +8934,23 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+INSERT INTO `erp_lead_status` (`id`, `name`) VALUES
+(1, 'Cold Lead'),
+(2, 'Cold / Important Lead'),
+(3, 'Hot Lead'),
+(4, 'Very Hot Lead'),
+(5, 'Advance Follow Up'),
+(6, 'HIGH PRIORITY');
+
+
+INSERT INTO `product_location` (`id`, `name`, `created_at`, `updated_at`) VALUES
+(1, 'Mulund', '2019-10-10 18:30:00', '2019-10-10 18:30:00'),
+(2, 'Jogeshwari', '2019-10-10 18:30:00', '2019-10-10 18:30:00'),
+(3, 'Malad', '2019-10-10 18:30:00', '2019-10-10 18:30:00'),
+(4, 'Pune', '2019-10-10 18:30:00', '2019-10-10 18:30:00'),
+(5, 'Dubai', '2019-10-10 18:30:00', '2019-10-10 18:30:00'),
+(6, 'Customs', '2019-10-10 18:30:00', '2019-10-10 18:30:00'),
+(7, 'Mumbai', '2019-10-10 18:30:00', '2019-10-10 18:30:00'),
+(8, 'Rajkot', '2019-10-11 16:59:14', '2019-10-11 16:59:14');

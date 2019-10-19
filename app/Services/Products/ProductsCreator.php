@@ -13,7 +13,8 @@ use App\ScrapActivity;
 use App\Supplier;
 use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
-
+use App\SupplierBrandCount;
+use App\SupplierCategoryCount;
 
 class ProductsCreator
 {
@@ -33,6 +34,7 @@ class ProductsCreator
             // Return false
             return false;
         } else {
+            $supplierId = $supplier->id;
             $supplier = $supplier->supplier;
         }
 
@@ -45,6 +47,16 @@ class ProductsCreator
         $validator = Validator::make($data, [
             'sku' => 'unique:products,sku'
         ]);
+
+        // Store count
+        try {
+            SupplierBrandCount::firstOrCreate(['supplier_id' => $supplierId, 'brand_id' => $image->brand_id]);
+            if ( !empty($formattedDetails[ 'category' ]) ) {
+                SupplierCategoryCount::firstOrCreate(['supplier_id' => $supplierId, 'category_id' => $formattedDetails[ 'category' ]]);
+            }
+        } catch (\Exception $e) {
+            //
+        }
 
         // Product validated
         if ($validator->fails()) {
@@ -65,24 +77,25 @@ class ProductsCreator
 
             // Is the product not approved yet?
             if (!StatusHelper::isApproved($image->status_id)) {
-                // Check if we can update - not manually entered
+                // Check if we can update the title - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_TITLE')->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->name = ProductHelper::getRedactedText($image->title);
                 }
 
-                // Check if we can update - not manually entered
+                // Check if we can update the short description - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->short_description = ProductHelper::getRedactedText($image->description);
                 }
 
-                // Check if we can update - not manually entered
+                // Check if we can update the color - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_COLOR')->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->color = ColorNamesReference::getProductColorFromObject($image);
                 }
 
+                // Check if we can update the composition - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_COMPOSITION')->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     // Check for composition key
@@ -95,22 +108,26 @@ class ProductsCreator
                         $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'material_used' ] ?? ''));
                     }
                 }
+
+                // Update the category
+                $product->category = $formattedDetails[ 'category' ];
             }
 
             // Get current sizes
-            $sizes = $product->size;
-            $product->size = [];
+            $allSize = [];
 
             // Update with scraped sizes
-            if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) >= 1) {
-                $sizes = implode(',', $image->properties[ 'sizes' ] ?? []);
+            if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) > 0) {
+                $sizes = $image->properties[ 'sizes' ];
 
                 // Loop over sizes and redactText
                 if (is_array($sizes) && $sizes > 0) {
                     foreach ($sizes as $size) {
-                        $product->size[] = ProductHelper::getRedactedText($size);
+                        $allSize[] = ProductHelper::getRedactedText($size);
                     }
                 }
+
+                $product->size = implode(',', $allSize);
             }
 
             // Store measurement
@@ -305,7 +322,7 @@ class ProductsCreator
         if (array_key_exists('dimension', $properties_array)) {
             if (is_array($properties_array[ 'dimension' ])) {
                 $exploded = $properties_array[ 'dimension' ];
-                if (count($exploded) == 3) {
+                if (count($exploded) > 0) {
                     if (array_key_exists('0', $exploded)) {
                         $lmeasurement = (int)$exploded[ 0 ];
                         $measurement_size_type = 'measurement';
@@ -322,45 +339,29 @@ class ProductsCreator
             }
         }
 
+        // Get category
         if (array_key_exists('category', $properties_array)) {
-            $categories = Category::all();
-            $category_id = 1;
-
+            // Check if category is an array
             if (is_array($properties_array[ 'category' ])) {
-                foreach ($properties_array[ 'category' ] as $key => $cat) {
-                    $up_cat = strtoupper($cat);
+                // Set gender to null
+                $gender = null;
 
-                    if ($up_cat == 'WOMAN') {
-                        $up_cat = 'WOMEN';
+                // Loop over categories to find gender
+                foreach ($properties_array[ 'category' ] as $category) {
+                    // Check for gender man
+                    if (in_array(strtoupper($category), ['MAN', 'MEN', 'UOMO', 'MALE'])) {
+                        $gender = 'MEN';
                     }
 
-                    if ($key == 0 && $up_cat == 'WOMEN') {
-                        $wchildren = Category::where('title', $up_cat)->first()->childs;
-                    }
-
-                    if (isset($wchildren)) {
-                        foreach ($wchildren as $children) {
-                            if (strtoupper($children->title) == $up_cat) {
-                                $category_id = $children->id;
-                            }
-
-                            foreach ($children->childs as $child) {
-                                if (strtoupper($child->title) == $up_cat) {
-                                    $category_id = $child->id;
-                                }
-                            }
-                        }
-                    } else {
-                        foreach ($categories as $category) {
-                            if (strtoupper($category->title) == $up_cat) {
-                                $category_id = $category->id;
-                            }
-                        }
+                    // Check for gender woman
+                    if (in_array(strtoupper($category), ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'])) {
+                        $gender = 'WOMEN';
                     }
                 }
-            }
 
-            $category = $category_id;
+                // Try to get category ID
+                $category = Category::getCategoryIdByKeyword(end($properties_array[ 'category' ]), $gender);
+            }
         }
 
         if (array_key_exists('country', $properties_array)) {

@@ -35,7 +35,7 @@ class StatusHelper extends Model
         // Update status to AI
         if ($newStatus == 3) {
             // Queue for AI
-            ProductAi::dispatch($product)->onQueue('product');;
+            ProductAi::dispatch($product)->onQueue('product');
         }
 
         // Return
@@ -124,7 +124,6 @@ class StatusHelper extends Model
     public static function isApproved($statusId) {
         // Check if status ID is matching approved product statuses
         switch($statusId) {
-            case self::$finalApproval:
             case self::$pushToMagento;
             case self::$inMagento;
                 return true;
@@ -132,5 +131,8 @@ class StatusHelper extends Model
             default:
                 return false;
         }
+
+        // Return false by default
+        return false;
     }
 }

@@ -2,23 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\DeveloperMessagesAlertSchedules;
+use App\TaskAttachment;
+use File;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Auth;
+use Carbon\Carbon;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 use App\TasksHistory;
 use App\TaskTypes;
-use Illuminate\Http\Request;
 use App\DeveloperTask;
 use App\DeveloperModule;
 use App\DeveloperComment;
+use App\DeveloperTaskComment;
 use App\DeveloperCost;
 use App\PushNotification;
 use App\User;
 use App\Helpers;
 use App\Issue;
-use Auth;
-use Carbon\Carbon;
-use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Response;
 
 class DevelopmentController extends Controller
 {
@@ -37,7 +41,7 @@ class DevelopmentController extends Controller
     {
         // Set required data
         $user = $request->user ?? Auth::id();
-        $start = $request->range_start ? "$request->range_start 00:00" : Carbon::now()->startOfWeek();
+        $start = $request->range_start ? "$request->range_start 00:00" : '2018-01-01 00:00';
         $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
         $id = null;
 
@@ -264,15 +268,17 @@ class DevelopmentController extends Controller
 
         $data = $request->except('_token');
         $data[ 'user_id' ] = $request->user_id ? $request->user_id : Auth::id();
+        $data[ 'created_by' ] = Auth::id();
 
         $module = $request->get('module_id');
-
-        $module = DeveloperModule::find($module);
-        if (!$module) {
-            $module = new DeveloperModule();
-            $module->name = $request->get('module_id');
-            $module->save();
-            $data[ 'module_id' ] = $module->id;
+        if (!empty($module)) {
+            $module = DeveloperModule::find($module);
+            if (!$module) {
+                $module = new DeveloperModule();
+                $module->name = $request->get('module_id');
+                $module->save();
+                $data[ 'module_id' ] = $module->id;
+            }
         }
 
         $task = DeveloperTask::create($data);
@@ -795,18 +801,201 @@ class DevelopmentController extends Controller
 
     }
 
-    public function kanbanBoard(Request $request)
+    public function overview(Request $request)
     {
+        // Get status
+        $status = $request->get('status');
+        if (empty($status)) {
+            $status = 'In Progress';
+        }
 
-        $users = Helpers::getUserArray(User::role('Developer')->get());
+        $users = Helpers::getUsersByRoleName('Developer');
 
-        return view('development.kanban_board', [
+        return view('development.overview', [
             'users' => $users,
+            'status' => $status
         ]);
     }
 
-//    public function developerTasks($developer_id){
-//        $developerTasks = DeveloperTask::where('user_id',$developer_id)->get();
-//
+    public function taskDetail($taskId)
+    {
+        // Get tasks
+        $task = DeveloperTask::where('developer_tasks.id', $taskId)
+            ->select('developer_tasks.*', 'task_types.name as task_type', 'users.name as username', 'u.name as reporter')
+            ->leftjoin('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
+            ->leftjoin('users', 'users.id', '=', 'developer_tasks.user_id')
+            ->leftjoin('users AS u', 'u.id', '=', 'developer_tasks.created_by')
+            ->first();
+
+        // Get subtasks
+        $subtasks = DeveloperTask::where('developer_tasks.parent_id', $taskId)->get();
+
+        // Get comments
+        $comments = DeveloperTaskComment::where('task_id', $taskId)
+            ->join('users', 'users.id', '=', 'developer_task_comments.user_id')
+            ->get();
+
+        //Get Attachments
+        $attachments = TaskAttachment::where('task_id', $taskId)->get();
+        $developers = Helpers::getUserArray(User::role('Developer')->get());
+
+        // Return view
+        return view('development.task_detail', [
+            'task' => $task,
+            'subtasks' => $subtasks,
+            'comments' => $comments,
+            'developers' => $developers,
+            'attachments' => $attachments,
+        ]);
+    }
+
+    public function taskComment(Request $request)
+    {
+        $response = array();
+        $this->validate($request, [
+            'comment' => 'required|string|min:1'
+        ]);
+
+        $data = $request->except('_token');
+        $data[ 'user_id' ] = Auth::id();
+
+        $created = DeveloperTaskComment::create($data);
+        if ($created) {
+            $response[ 'status' ] = 'ok';
+            $response[ 'msg' ] = 'Comment stored successfully';
+            echo json_encode($response);
+        } else {
+            $response[ 'status' ] = 'error';
+            $response[ 'msg' ] = 'Error';
+        }
+    }
+
+    public function changeTaskStatus(Request $request)
+    {
+
+        if (!empty($request->input('task_id'))) {
+
+            $task = DeveloperTask::find($request->input('task_id'));
+            $task->status = $request->input('status');
+            $task->save();
+
+            return response()->json(['success']);
+        }
+    }
+
+    public function makeDirectory($path, $mode = 0777, $recursive = false, $force = false){
+        if ($force)
+        {
+            return @mkdir($path, $mode, $recursive);
+        }
+        else
+        {
+            return mkdir($path, $mode, $recursive);
+        }
+    }
+
+    public function uploadAttachDocuments(Request $request)
+    {
+        $task_id = $request->input('task_id');
+        $task = DeveloperTask::find($task_id);
+        if ($request->hasfile('attached_document')) {
+            foreach ($request->file('attached_document') as $image) {
+                $name = time() . '_' . $image->getClientOriginalName();
+                $new_id = floor($task_id/1000);
+//                $path = public_path().'/developer-task' . $task_id;
+//                if (!file_exists($path)) {
+//                    $this->makeDirectory($path);
+//                }
+
+                $dirname =  public_path().'/uploads/developer-task/'.$new_id;
+                if(file_exists($dirname)){
+                    $dirname2 = public_path().'/uploads/developer-task/'.$new_id.'/'.$task_id;
+                    if(file_exists($dirname2)==false){
+                        mkdir($dirname2,0777);
+                    }
+                }else{
+                    mkdir($dirname,0777);
+                }
+
+                $media = MediaUploader::fromSource($image)->toDirectory("developer-task/$new_id/$task_id")->upload();
+                $task->attachMedia($media, config('constants.media_tags'));
+            }
+        }
+        if (!empty($request->file('attached_document'))) {
+
+            foreach ($request->file('attached_document') as $file) {
+
+                $name = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('images/task_files/'), $name);
+                $filepath[] = 'images/task_files/' . $name;
+
+                $task_attachment = new TaskAttachment;
+                $task_attachment->task_id = $task_id;
+                $task_attachment->name = $name;
+                $task_attachment->save();
+            }
+            return redirect(url("/development/task-detail/$task_id"));
+        } else {
+            return redirect(url("/development/task-detail/$task_id"));
+        }
+    }
+
+    public function downloadFile(Request $request)
+    {
+        $file_name = $request->input('file_name');
+        //PDF file is stored under project/public/download/info.pdf
+        $file= public_path(). "/images/task_files/".$file_name;
+
+        $ext = substr($file_name, strrpos($file_name, '.') + 1);
+
+        $headers = array();
+        if($ext == 'pdf') {
+            $headers = array(
+                'Content-Type: application/pdf',
+            );
+
+            //$download_file = $file_name.'.pdf';
+        }
+
+        return Response::download($file, $file_name, $headers);
+    }
+
+//    public function downloadFile($path) {
+//        if (file_exists($path) && is_file($path)) {
+//            // file exist
+//            header('Content-Description: File Transfer');
+//            header('Content-Type: application/octet-stream');
+//            header('Content-Disposition: attachment; filename=' . basename($path));
+//            header('Content-Transfer-Encoding: binary');
+//            header('Expires: 0');
+//            header('Cache-Control: must-revalidate');
+//            header('Pragma: public');
+//            header('Content-Length: ' . filesize($path));
+//            set_time_limit(0);
+//            @readfile($path);//"@" is an error control operator to suppress errors
+//        } else {
+//            // file doesn't exist
+//            die('Error: The file ' . basename($path) . ' does not exist!');
+//        }
 //    }
+
+    public function openNewTaskPopup(Request $request)
+    {
+        $status = "ok";
+        // Get all developers
+        //$users = Helpers::getUserArray(User::role('Developer')->get());
+        $users = Helpers::getUsersByRoleName('Developer');
+        // Get all task types
+        $tasksTypes = TaskTypes::all();
+        $moduleNames = [];
+        // Get all modules
+        $modules = DeveloperModule::all();
+        // Loop over all modules and store them
+        foreach ($modules as $module) {
+            $moduleNames[ $module->id ] = $module->name;
+        }
+
+        $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames"))->render();
+        return json_encode(compact("html", "status"));
+    }
 }

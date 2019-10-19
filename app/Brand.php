@@ -10,6 +10,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\SupplierBrandCount;
 
 class Brand extends Model
 {
@@ -73,6 +74,10 @@ class Brand extends Model
     public function products()
     {
         return $this->hasMany( Product::class, 'brand', 'id' );
+    }
+
+    public function supplierbrandcount(){
+        return $this->hasOne(SupplierBrandCount::class,'brand_id','id');
     }
 
 }
