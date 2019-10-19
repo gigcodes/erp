@@ -1184,7 +1184,7 @@ class PurchaseController extends Controller
 
   		$product->detachMediaTags(config('constants.media_tags'));
   		$media = MediaUploader::fromSource($request->file('image'))
-                            ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                            ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                             ->upload();
   		$product->attachMedia($media,config('constants.media_tags'));
 

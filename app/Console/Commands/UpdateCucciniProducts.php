@@ -224,7 +224,7 @@ class UpdateCucciniProducts extends Command
 
             $path = public_path('uploads') . '/social-media/' . $image_name;
             $media = MediaUploader::fromSource($path)
-                                    ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                                    ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                     ->upload();
             $product->attachMedia($media,config('constants.media_tags'));
           }

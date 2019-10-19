@@ -286,7 +286,7 @@ class DevelopmentController extends Controller
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
-                        ->toDirectory('developertask/'.floor($task->id / config('constants.image_par_folder')))
+                        ->toDirectory('developertask/'.floor($task->id / config('constants.image_per_folder')))
                         ->upload();
                 $task->attachMedia($media, config('constants.media_tags'));
             }
@@ -348,7 +348,7 @@ class DevelopmentController extends Controller
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
-                                        ->toDirectory('issue/'.floor($issue->id / config('constants.image_par_folder')))
+                                        ->toDirectory('issue/'.floor($issue->id / config('constants.image_per_folder')))
                                         ->upload();
                 $issue->attachMedia($media, config('constants.media_tags'));
             }
@@ -497,7 +497,7 @@ class DevelopmentController extends Controller
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
-                                        ->toDirectory('developertask/'.floor($task->id / config('constants.image_par_folder')))
+                                        ->toDirectory('developertask/'.floor($task->id / config('constants.image_per_folder')))
                                         ->upload();
                 $task->attachMedia($media, config('constants.media_tags'));
             }

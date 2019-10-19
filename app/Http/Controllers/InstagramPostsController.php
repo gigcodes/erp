@@ -78,7 +78,7 @@ class InstagramPostsController extends Controller
 
         $media = MediaUploader::fromSource($image)
                                 ->useFilename(md5(time()))
-                                ->toDirectory('instagramposts/'.floor($instagramPost->id / config('constants.image_par_folder')))
+                                ->toDirectory('instagramposts/'.floor($instagramPost->id / config('constants.image_per_folder')))
                                 ->upload();
 
         $instagramPost->attachMedia($media,  'gallery');

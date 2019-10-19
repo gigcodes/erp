@@ -322,7 +322,7 @@ class LeadsController extends Controller
             if ($request->hasfile('image')) {
                 foreach ($request->file('image') as $image) {
                     $media = MediaUploader::fromSource($image)
-                                            ->toDirectory('leads/'.floor($lead->id / config('constants.image_par_folder')))
+                                            ->toDirectory('leads/'.floor($lead->id / config('constants.image_per_folder')))
                                             ->upload();
                     $lead->attachMedia($media, config('constants.media_tags'));
                 }
@@ -556,7 +556,7 @@ class LeadsController extends Controller
             } elseif ($old == -1) {
                 foreach ($request->file('image') as $image) {
                     $media = MediaUploader::fromSource($image)
-                                            ->toDirectory('leads/'.floor($leads->id / config('constants.image_par_folder')))
+                                            ->toDirectory('leads/'.floor($leads->id / config('constants.image_per_folder')))
                                             ->upload();
                     $leads->attachMedia($media, config('constants.media_tags'));
                 }
@@ -569,7 +569,7 @@ class LeadsController extends Controller
             if ($request->hasFile('image')) {
                 foreach ($request->file('image') as $image) {
                     $media = MediaUploader::fromSource($image)
-                                            ->toDirectory('leads/'.floor($leads->id / config('constants.image_par_folder')))
+                                            ->toDirectory('leads/'.floor($leads->id / config('constants.image_per_folder')))
                                             ->upload();
                     $leads->attachMedia($media, config('constants.media_tags'));
                 }

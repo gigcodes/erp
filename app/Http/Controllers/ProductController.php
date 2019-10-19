@@ -1141,7 +1141,7 @@ class ProductController extends Controller
 
             foreach ($request->file('images') as $key => $image) {
                 $media = MediaUploader::fromSource($image)
-                                        ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                                        ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                         ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
 
@@ -1553,7 +1553,7 @@ class ProductController extends Controller
 
         $product->detachMediaTags(config('constants.media_tags'));
         $media = MediaUploader::fromSource($request->file('image'))
-                                ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                                ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                 ->upload();
         $product->attachMedia($media, config('constants.media_tags'));
 
@@ -1658,7 +1658,7 @@ class ProductController extends Controller
             $image = $request->file('file');
             $media = MediaUploader::fromSource($image)
                                     ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
-                                    ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                                    ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                     ->upload();
             $product->attachMedia($media, 'gallery');
             $product->crop_count = $product->crop_count + 1;

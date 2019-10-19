@@ -108,7 +108,7 @@ class SaleController extends Controller {
 		if( $request->has('image')) {
 			$sale_instance = $sale->find( $sale_id );
 			$media         = MediaUploader::fromSource( $request->file( 'image' ) )
-											->toDirectory('sale/'.floor($sale_instance->id / config('constants.image_par_folder')))
+											->toDirectory('sale/'.floor($sale_instance->id / config('constants.image_per_folder')))
 											->upload();
 			$sale_instance->attachMedia( $media, config( 'constants.media_tags' ) );
 		}
@@ -353,7 +353,7 @@ class SaleController extends Controller {
 			if( !empty($request->file('image') ) ) {
 
 				$media = MediaUploader::fromSource( $request->file( 'image' ) )
-										->toDirectory('sale/'.floor($sale->id / config('constants.image_par_folder')))
+										->toDirectory('sale/'.floor($sale->id / config('constants.image_per_folder')))
 										->upload();
 				$sale->attachMedia( $media, config( 'constants.media_tags' ) );
 			}

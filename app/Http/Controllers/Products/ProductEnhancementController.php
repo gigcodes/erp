@@ -94,7 +94,7 @@ class ProductEnhancementController extends Controller
                 // Upload media
                 $media = MediaUploader::fromSource($file)
                                         ->useFilename(uniqid('cropped_', true))
-                                        ->toDirectory('product/'.floor($product->id / config('constants.image_par_folder')))
+                                        ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                         ->upload();
 
                 // Attach media to product

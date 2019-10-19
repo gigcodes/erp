@@ -86,7 +86,7 @@ class MessageController extends Controller
 
             if ($request->hasFile('image')) {
               $media = MediaUploader::fromSource($request->file('image'))
-                                      ->toDirectory('message/'.floor($message->id / config('constants.image_par_folder')))
+                                      ->toDirectory('message/'.floor($message->id / config('constants.image_per_folder')))
                                       ->upload();
               $message->attachMedia($media,config('constants.media_tags'));
             }
@@ -106,7 +106,7 @@ class MessageController extends Controller
               $img = Image::make(base64_decode($img))->encode('png')->save($image_path);
 
               $media = MediaUploader::fromSource($image_path)
-                                      ->toDirectory('message/'.floor($message->id / config('constants.image_par_folder')))
+                                      ->toDirectory('message/'.floor($message->id / config('constants.image_per_folder')))
                                       ->upload();
               $message->attachMedia($media,config('constants.media_tags'));
 

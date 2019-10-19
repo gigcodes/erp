@@ -957,7 +957,7 @@ class WhatsAppController extends FindByNumberController
             }
 
             if ($data[ 'data' ][ 'type' ] == 'image') {
-                $media->move('chatmessage/'.floor($message->id / config('constants.image_par_folder')));
+                $media->move('chatmessage/'.floor($message->id / config('constants.image_per_folder')));
                 $message->attachMedia($media, config('constants.media_tags'));
             }
         } else {
@@ -2154,7 +2154,7 @@ class WhatsAppController extends FindByNumberController
 
         if ($request->hasFile('image')) {
             $media = MediaUploader::fromSource($request->file('image'))
-                                    ->toDirectory('chatmessage/'.floor($chat_message->id / config('constants.image_par_folder')))
+                                    ->toDirectory('chatmessage/'.floor($chat_message->id / config('constants.image_per_folder')))
                                     ->upload();
             $chat_message->attachMedia($media, config('constants.media_tags'));
 
@@ -2225,7 +2225,7 @@ class WhatsAppController extends FindByNumberController
 
                 File::put($fileName, $pdf->output());
                 $media = MediaUploader::fromSource($fileName)
-                                        ->toDirectory('chatmessage/'.floor($chat_message->id / config('constants.image_par_folder')))
+                                        ->toDirectory('chatmessage/'.floor($chat_message->id / config('constants.image_per_folder')))
                                         ->upload();
                 $chat_message->attachMedia($media, 'gallery');
             } else {
@@ -2243,7 +2243,7 @@ class WhatsAppController extends FindByNumberController
             $img = Image::make(base64_decode($img))->encode('png')->save($image_path);
 
             $media = MediaUploader::fromSource($image_path)
-                                    ->toDirectory('chatmessage/'.floor($chat_message->id / config('constants.image_par_folder')))
+                                    ->toDirectory('chatmessage/'.floor($chat_message->id / config('constants.image_per_folder')))
                                     ->upload();
             $chat_message->attachMedia($media, config('constants.media_tags'));
 
