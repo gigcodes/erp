@@ -752,6 +752,12 @@ Route::post('whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError
 Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
 
+//Hubstaff
+Route::get('hubstaff/members', 'HubstaffController@index');
+Route::get('hubstaff/projects', 'HubstaffController@getProjects');
+Route::get('hubstaff/tasks', 'HubstaffController@getTasks');
+
+
 
 /*
  * @date 1/13/2019

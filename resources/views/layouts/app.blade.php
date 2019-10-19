@@ -992,6 +992,7 @@
                                 </ul>
                             </li>
                         @endif
+
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Username <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
@@ -1092,6 +1093,25 @@
                             </ul>
                         </li>
                     @endif
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Hubstaff <span class="caret"></span></a>
+                        <ul class="dropdown-menu multi-level">
+                            {{-- Sub Menu Product --}}
+
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ url('hubstaff/members')  }}">Members</a>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ url('hubstaff/projects') }}">Projects</a>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ url('hubstaff/tasks') }}">Tasks</a>
+                            </li>
+                        </ul>
+                    </li>
 
                 </ul>
 
