@@ -60,9 +60,13 @@ class ProductTemplatesController extends Controller
      */
     public function destroy($id)
     {
-        Agent::find($id)->delete();
-
-        return redirect()->back()->withSuccess('You have successfully deleted and agent!');
+        $template = \App\ProductTemplate::where("id",$id)->first();
+        
+        if($template) {
+            $template->delete();
+        }
+        
+        return response()->json(["code" => 1, "message" => "Product Template Deleted successfully!"]);
     }
 
     public function apiIndex(Request $request)

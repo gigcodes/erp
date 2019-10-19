@@ -23,6 +23,15 @@ var productTemplate = {
             productTemplate.openForm();
         });
 
+        // delete product templates
+        productTemplate.config.bodyView.on("click",".btn-delete-template",function(e) {
+            if(!confirm("Are you sure you want to delete record?")) {
+                return false;
+            }else {
+                productTemplate.deleteRecord($(this));
+            }
+        });
+
         $(document).on("click",".imgAdd",function(e) {
             $(this).closest(".row").find('.imgAdd').before('<div class="col-sm-3 imgUp"><div class="imagePreview"></div><label class="btn btn-primary">Upload<input type="file" class="uploadFile img" value="Upload Photo" style="width:0px;height:0px;overflow:hidden;"></label><i class="fa fa-times del"></i></div>');
         });
@@ -30,6 +39,8 @@ var productTemplate = {
         $(document).on("click","i.del",function(e) {
             $(this).parent().remove();
         });
+
+
 
         $(document).on("change",".uploadFile", function() {
             var uploadFile = $(this);
@@ -87,6 +98,15 @@ var productTemplate = {
         if(request.code == 1) {
             location.reload();
         }
+    },
+    deleteRecord : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/product-templates/destroy/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, null);
+
+        this.getResults();
     }
 }
 
