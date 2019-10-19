@@ -27,7 +27,7 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
-                <form action="{{ route('purchase.grid') }}" method="GET" class="form-inline align-items-start">
+                <form action="{{url()->current()}}" method="GET" class="form-inline align-items-start">
                     <div class="form-group mr-3 mb-3">
                         <input name="term" type="text" class="form-control" id="product-search"
                                value="{{ isset($term) ? $term : '' }}"
