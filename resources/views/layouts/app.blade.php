@@ -35,8 +35,8 @@
     <script>
         jQuery('.readmore').readmore({
             speed: 75,
-            moreLink: '<a href="#">Read more</a>'
-            lessLink: '<a href="#">Read less</a>',
+            moreLink: '<a href="#">Read more</a>',
+            lessLink: '<a href="#">Read less</a>'
         });
     </script>
     <script src="{{ asset('js/app.js') }}"></script>
