@@ -3,12 +3,14 @@ $(document).on('click', '.load-communication-modal', function () {
     var object_type = $(this).data('object');
     var object_id = $(this).data('id');
     var load_attached = $(this).data('attached');
+    var load_all = $(this).data('all');
 
     $.ajax({
         type: "GET",
         url: "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages",
         data: {
             limit: 1000,
+            load_all: load_all,
             load_attached: load_attached
         },
         beforeSend: function () {
@@ -44,7 +46,16 @@ $(document).on('click', '.load-communication-modal', function () {
 
                     // Set media
                     if (imgSrc != '') {
-                        media = media + '<div class="col-4"><a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a></div>';
+                        media = media + '<div class="col-12">';
+                        media = media + '<a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                        if (message.product_id > 0) {
+                            media = media + '<br />';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension" data-id="' + message.product_id + '">+ Dimensions</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead" data-id="' + message.product_id + '">+ Lead</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image" data-id="' + message.product_id + '">Detailed Images</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order" data-id="' + message.product_id + '">+ Order</a>';
+                        }
+                        media = media + '</div>';
                     }
                 }
             }
@@ -103,7 +114,7 @@ $(document).on('click', '.load-communication-modal', function () {
     }).fail(function (response) {
         $(thiss).text('Load More');
 
-        alert('Could not load more messages');
+        alert('Could not load messages');
 
         console.log(response);
     });
@@ -118,9 +129,6 @@ function getImageToDisplay(imageUrl) {
 
     // Set image type
     var imageType = imageUrl.substr(imageUrl.length - 4).toLowerCase();
-    console.log(imageUrl);
-    console.log(imageUrl.length);
-    console.log(imageType);
 
     // Set correct icon/image
     if (imageType == '.jpg' || imageType == 'jpeg') {
@@ -144,3 +152,168 @@ function getImageToDisplay(imageUrl) {
     // Return imgSrc
     return imgSrc;
 }
+
+$(document).on('click', '.complete-call', function (e) {
+    e.preventDefault();
+
+    var thiss = $(this);
+    var token = $('meta[name="csrf-token"]').attr('content');
+    var url = route.instruction_complete;
+    var id = $(this).data('id');
+    var assigned_from = $(this).data('assignedfrom');
+    var current_user = current_user;
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: {
+            _token: token,
+            id: id
+        },
+        beforeSend: function () {
+            $(thiss).text('Loading');
+        }
+    }).done(function (response) {
+        // $(thiss).parent().html(moment(response.time).format('DD-MM HH:mm'));
+        $(thiss).parent().html('Completed');
+        location.reload();
+    }).fail(function (errObj) {
+        console.log(errObj);
+        alert("Could not mark as completed");
+    });
+});
+
+$(document).on('click', '.pending-call', function (e) {
+    e.preventDefault();
+
+    var thiss = $(this);
+    var url = route.instruction_pending;
+    var id = $(this).data('id');
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: {
+            _token: token,
+            id: id
+        },
+        beforeSend: function () {
+            $(thiss).text('Loading');
+        }
+    }).done(function (response) {
+        $(thiss).parent().html('Pending');
+        $(thiss).remove();
+        location.reload();
+    }).fail(function (errObj) {
+        console.log(errObj);
+        alert("Could not mark as completed");
+    });
+});
+
+$(document).on('click', '.create-product-lead', function (e) {
+    e.preventDefault();
+
+    var thiss = $(this);
+    var selected_products = [];
+    var product_id = $(this).data('id');
+
+    if (product_id > 0) {
+        selected_products.push(product_id);
+    }
+
+    console.log(selected_products);
+
+    if ( selected_products.length > 0 ) {
+        var created_at = moment().format('YYYY-MM-DD HH:mm');
+
+        $.ajax({
+            type: 'POST',
+            url: route.leads_store,
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                customer_id: customer_id,
+                rating: 1,
+                status: 3,
+                assigned_user: 6,
+                selected_product: selected_products,
+                type: "product-lead",
+                created_at: created_at
+            },
+            beforeSend: function () {
+                $(thiss).text('Creating...');
+            },
+            success: function (response) {
+                $.ajax({
+                    type: "POST",
+                    url: route.leads_send_prices,
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        customer_id: customer_id,
+                        lead_id: response.lead.id,
+                        selected_product: selected_products,
+                        auto_approve: true
+                    }
+                }).done(function () {
+                    location.reload();
+                }).fail(function (response) {
+                    console.log(response);
+                    alert('Could not send product prices to customer!');
+                });
+            }
+        }).fail(function (error) {
+            console.log(error);
+            alert('There was an error creating a lead');
+        });
+    } else {
+        alert('Please select at least 1 product first');
+    }
+});
+
+$('#addRemarkButton').on('click', function() {
+    var id = $('#add-remark input[name="id"]').val();
+    var remark = $('#add-remark textarea[name="remark"]').val();
+
+    $.ajax({
+        type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+        },
+        url: route.task_add_remark,
+        data: {
+        id:id,
+            remark:remark,
+            module_type: 'instruction'
+    },
+}).done(response => {
+        alert('Remark Added Success!')
+        window.location.reload();
+    }).fail(function(response) {
+        console.log(response);
+    });
+});
+
+$(".view-remark").click(function () {
+    var id = $(this).attr('data-id');
+
+    $.ajax({
+        type: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+        },
+        url: route.task_get_remark,
+        data: {
+        id:id,
+            module_type: "instruction"
+    },
+}).done(response => {
+        var html='';
+
+        $.each(response, function( index, value ) {
+            html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
+            html+"<hr>";
+        });
+        $("#viewRemarkModal").find('#remark-list').html(html);
+    });
+});
+
+var token = $('meta[name="csrf-token"]').attr('content');
