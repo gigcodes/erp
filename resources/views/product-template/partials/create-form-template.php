@@ -6,11 +6,12 @@
           <h4 class="modal-title">Create Product Template</h4>
         </div>
         <div class="modal-body">
-          <form>
+          <form method="post" enctype="multipart/form-data">
+             <?php echo csrf_field(); ?>
              <div class="form-group row">
-                <label for="tempalte_id" class="col-sm-3 col-form-label">Template ID</label>
+                <label for="template_no" class="col-sm-3 col-form-label">Template No</label>
                 <div class="col-sm-6">
-                   <?php echo Form::select("tempalte_id",range(1,30),null,["class" => "form-control"]); ?>
+                   <?php echo Form::select("template_no",range(1,30),null,["class" => "form-control"]); ?>
                 </div>
              </div>
              <div class="form-group row">
@@ -47,7 +48,7 @@
               <div class="col-sm-3 imgUp">
                  <div class="imagePreview"></div>
                  <label class="btn btn-primary">
-                 Upload<input type="file" class="uploadFile img" value="Upload Photo" style="width: 0px;height: 0px;overflow: hidden;">
+                 Upload<input type="file" name="files[]" class="uploadFile img" value="Upload Photo" style="width: 0px;height: 0px;overflow: hidden;">
                  </label>
               </div>
               <i class="fa fa-plus imgAdd"></i>
@@ -55,6 +56,7 @@
           </form>
         </div>
         <div class="modal-footer">
+          <button type="button" class="btn btn-secondary create-product-template">Create Template</button>
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>

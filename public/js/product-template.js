@@ -45,11 +45,15 @@ var productTemplate = {
                     uploadFile.closest(".imgUp").find('.imagePreview').css("background-image", "url("+this.result+")");
                 }
             }
-        });    
+        });
+
+        $(document).on("click",".create-product-template",function(e){
+            productTemplate.submitForm($(this));
+        });   
     },
     getResults: function(href) {
     	var _z = {
-            url: (href) ? href : this.config.baseUrl + "/product-templates/response",
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/product-templates/response",
             method: "get",
         }
         this.sendAjax(_z, "showResults");
@@ -67,6 +71,22 @@ var productTemplate = {
         var tplHtml       = addProductTpl.render({});
         $("#display-area").html(tplHtml);
         $("#product-template-create-modal").modal("show");
+    },
+    submitForm : function(ele) {
+        var form = ele.closest("#product-template-create-modal").find("form");
+        console.log("Form intialized:",true);
+        var formData = new FormData(form[0]);
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/product-templates/create",
+            method: "post",
+            data : formData
+        }
+        this.sendFormDataAjax(_z, "closeForm");
+    },
+    closeForm : function(response) {
+        if(request.code == 1) {
+            location.reload();
+        }
     }
 }
 

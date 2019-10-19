@@ -725,6 +725,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::prefix('product-templates')->middleware('auth')->group(function () {
         Route::get('/', 'ProductTemplatesController@index');
         Route::get('response', 'ProductTemplatesController@response');
+        Route::post('create', 'ProductTemplatesController@create');
     });
 
 });

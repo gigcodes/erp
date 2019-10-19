@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Agent;
+use File;
 use Illuminate\Http\Request;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ProductTemplatesController extends Controller
 {
@@ -14,14 +16,13 @@ class ProductTemplatesController extends Controller
      */
     public function index()
     {
-        $productTemplates = \App\ProductTemplate::paginate(10);
+        $productTemplates = \App\ProductTemplate::orderBy("id", "desc")->paginate(10);
         return view("product-template.index");
-
     }
 
     public function response()
     {
-        $records = \App\ProductTemplate::paginate(1);
+        $records = \App\ProductTemplate::orderBy("id", "desc")->paginate(5);
         return response()->json([
             "code"       => 1,
             "result"     => $records,
@@ -34,91 +35,21 @@ class ProductTemplatesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
-    }
+        $template = new \App\ProductTemplate;
+        $template->fill(request()->all());
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-
-    public function store(Request $request)
-    {
-        $this->validate($request, [
-            'model_id'        => 'required|numeric',
-            'model_type'      => 'required|string',
-            'name'            => 'required|string||max:255',
-            'phone'           => 'sometimes|nullable|numeric',
-            'whatsapp_number' => 'sometimes|nullable|numeric',
-            'address'         => 'sometimes|nullable|string',
-            'email'           => 'sometimes|nullable|email',
-        ]);
-
-        $data = $request->except('_token');
-
-        Agent::create($data);
-
-        if ($request->model_type == 'App\Supplier') {
-            return redirect()->route('supplier.show', $request->model_id)->withSuccess('You have successfully added an agent!');
-        } else if ($request->model_type == 'App\Vendor') {
-            return redirect()->route('vendor.show', $request->model_id)->withSuccess('You have successfully added an agent!');
+        if ($template->save()) {
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $image) {
+                    $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
+                    $template->attachMedia($media, config('constants.media_tags'));
+                }
+            }
         }
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $this->validate($request, [
-            'name'            => 'required|string||max:255',
-            'phone'           => 'sometimes|nullable|numeric',
-            'whatsapp_number' => 'sometimes|nullable|numeric',
-            'address'         => 'sometimes|nullable|string',
-            'email'           => 'sometimes|nullable|email',
-        ]);
-
-        $data = $request->except('_token');
-
-        $agent = Agent::find($id);
-        $agent->update($data);
-
-        if ($agent->model_type == 'App\Supplier') {
-            return redirect()->back()->withSuccess('You have successfully updated an agent!');
-            // return redirect()->route('supplier.index')->withSuccess('You have successfully updated an agent!');
-        } else if ($agent->model_type == 'App\Vendor') {
-            return redirect()->back()->withSuccess('You have successfully updated an agent!');
-        }
+        return response()->json(["code" => 1, "message" => "Product Template Created successfully!"]);
     }
 
     /**
@@ -132,5 +63,52 @@ class ProductTemplatesController extends Controller
         Agent::find($id)->delete();
 
         return redirect()->back()->withSuccess('You have successfully deleted and agent!');
+    }
+
+    public function apiIndex(Request $request)
+    {
+        $limit   = $request->get("limit", 10);
+        $records = \App\ProductTemplate::leftJoin("brands as b", "b.id", "product_templates.brand_id")
+            ->select(["product_templates.*", "b.name as brand_name"]);
+
+        if ($request->get("id", null) != null) {
+            $records->where("id",$request->get("id"));
+        }
+
+        if ($request->get("productTitle", null) != null) {
+            $q = $request->get('productTitle');
+            $records->where("product_title", "like", "%$q%");
+        }
+
+        if ($request->get("productBrand", null) != null) {
+            $q = $request->get('productBrand');
+            $records->where("b.name", "like", "%$q%");
+        }
+
+        $records = $records->orderBy("product_templates.id", "desc")->paginate($limit);
+
+        $data = [];
+        foreach ($records as $record) {
+            $array = [
+                "id"                     => $record->id,
+                "productTitle"           => $record->product_title,
+                "productBrand"           => $record->brand_name,
+                "productPrice"           => $record->price,
+                "productDiscountedPrice" => $record->discounted_price,
+                "productCurrency"        => $record->currency,
+            ];
+
+            if ($record->hasMedia(config('constants.media_tags'))) {
+                foreach ($record->getMedia(config('constants.media_tags')) as $i => $media) {
+                    $array["image" . ($i + 1)] = $media->getUrl();
+                }
+            }
+
+            $data[] = $array;
+
+        }
+
+        return response()->json(["code" => 1, "data" => $data]);
+
     }
 }
