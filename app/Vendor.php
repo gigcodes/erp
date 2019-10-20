@@ -24,7 +24,8 @@ class Vendor extends Model
         'gst',
         'account_name',
         'account_swift',
-        'account_iban'
+        'account_iban',
+        'is_blocked'
     ];
 
     public function products()

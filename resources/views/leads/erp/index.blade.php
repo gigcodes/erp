@@ -11,6 +11,7 @@
       <h2 class="page-heading">Erp Leads <a class="btn btn-secondary editor_create" href="javascript:;">+</a></h2>
 
   </div>
+  <?php /*
   <div class="col-lg-12 margin-tb">
     <form id="search" method="GET" class="form-inline">
         <input name="term" type="text" class="form-control"
@@ -39,32 +40,68 @@
                 } ?>
             </select>
         </div>
+        <input type="hidden" name="lead_customer">
+        <input type="hidden" name="lead_brand">
+        <input type="hidden" name="lead_category">
+        <input type="hidden" name="lead_color">
+        <input type="hidden" name="lead_shoe_size">
         <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
     </form>
   </div>
+  */?>
   <div class="col-md-12">
     <div class="table-responsive">
-      <table cellspacing="0" role="grid" class="table table-striped table-bordered datatable mdl-data-table dataTable" style="width:100%">
+      <table style="font-size: 12px;" cellspacing="0" role="grid" class="table table-striped table-bordered datatable mdl-data-table dataTable" `:100%">
         <thead>
             <tr>
-                <th>#</th>
+                <th width="2%">#</th>
                 <th>Status</th>
                 <th>Customer</th>
-                <th>Product</th>
+                <th width="140px">Image</th>
                 <th>Brand</th>
+                <th>Brand Segment</th>
                 <th>Category</th>
                 <th>Color</th>
                 <th>Size</th>
-                <th>Min Price</th>
-                <th>Max Price</th>
-                <th>Action</th>
+            </tr>
+            <tr>
+                <th></th>
+                <th>
+                  <select style="width:138px; font-size: 12px;" name="status_id[]" class="lead_status multi_lead_status" multiple="">
+                    <option value="">Status</option>
+                    @foreach($erpLeadStatus as $status)
+                      <option value="{{$status['id']}}">{{$status['name']}}</option>
+                    @endforeach
+                  </select>
+                </th>
+                <th><input type="text" style="width: 138px;" class="field_search lead_customer" name="lead_customer" placeholder="" /></th>
+                <th style="width: 138px;"></th>
+                <th>
+                  <select name="brand_id[]" class="lead_brand multi_brand" multiple="" style="width: 138px;">
+                    <option value="">Brand</option>
+                    @foreach($brands as $brand_item)
+                      <option value="{{$brand_item['id']}}">{{$brand_item['name']}}</option>
+                    @endforeach
+                  </select>
+                </th>
+                <th><input type="text" class="field_search brand_segment" name="brand_segment"/></th>
+                <th><input type="text" class="field_search lead_category" name="lead_category" /></th>
+                <th><input type="text" class="field_search lead_color" name="lead_color" /></th>
+                <th><input type="text" class="field_search lead_shoe_size" name="lead_shoe_size"/></th>
             </tr>
         </thead>
         <tbody>
         </tbody>
         <thead>
             <tr>
-                <th colspan="11"><a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a></h2></th>
+                <th colspan="8">
+                  <label>
+                    <input type="checkbox" class="all_customer_check"> Select All
+                  </label> 
+                  <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
+                  <a href="javascript:;" class="btn btn-image px-1 images_attach"><img src="/images/attach.png"></a>
+                </h2>
+              </th>
             </tr>
         </thead>
       </table>
@@ -133,6 +170,31 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
+      $('.multi_brand').select2();
+      $('.multi_lead_status').select2();
+      $(".all_customer_check").click(function(){
+          $('.customer_message').prop('checked', this.checked);
+      });
+
+      $(".images_attach").click(function(e){
+          e.preventDefault();
+          var customers = [];
+          $(".customer_message").each(function() {
+              if ($(this).prop("checked") == true) {
+                customers.push($(this).val());
+              }
+          });
+          if (customers.length == 0) {
+            alert('Please select costomer');
+            return false;
+          }
+          url = "{{ route('attachImages', ['selected_customer', 'CUSTOMER_IDS', 1]) }}";
+          url = url.replace("CUSTOMER_IDS", customers.toString());
+
+          window.location.href = url;
+
+      });
+
       $("#send_message").submit(function(e){
           e.preventDefault();
           var customers = [];
@@ -207,18 +269,22 @@
         },
 
       });
-
-      $('.datatable').DataTable({
+     
+      var table = $('.datatable').DataTable({
             processing: true,
             serverSide: true,
             searching: false,
+            ordering: false,
             ajax: {
               "url" : '{{ route('leads.erpLeadsResponse') }}',
               data: function ( d ) {
-                var from = $('#search').serializeArray();
-                $.each(from, function( index, value ) {
-                   d[value.name] = value.value;
-                });
+                d.lead_customer = $('.lead_customer').val();
+                d.lead_brand = $('.lead_brand').val();
+                d.lead_category = $('.lead_category').val();
+                d.lead_color = $('.lead_color').val();
+                d.lead_shoe_size = $('.lead_shoe_size').val();
+                d.brand_segment = $('.brand_segment').val();
+                d.lead_status = $('.lead_status').val();
               }
             },
             columns: [
@@ -226,8 +292,8 @@
                 data: 'id',
                 render : function ( data, type, row ) {
                       // Combine the first and last names into a single table field
-                      return '<input type="checkbox" name="customer_message[]" class="customer_message" value="'+row.customer_id+'"> ' + data;
-                }
+                      return '<div class="checkbox"><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'">'+data+'</label></div>';
+               }       
               },
               {data: 'status_name', name: 'status_name'},
               {
@@ -236,29 +302,29 @@
                       return '<a href="/customer/' + data.customer_id + '" target="_blank">' + data.customer_name + '</a>';
                   }
               },
-              {data: 'product_name', name: 'product_name'},
-              {data: 'brand_name', name: 'brand_name'},
-              {data: 'cat_title', name: 'cat_title'},
-              {data: 'color', name: 'color'},
-              {data: 'size', name: 'size'},
-              {data: 'min_price', name: 'min_price'},
-              {data: 'max_price', name: 'max_price'},
               {
                   data: null,
                   render : function ( data, type, row ) {
-                      // Combine the first and last names into a single table field
-                      return '<a href="javascript:;" data-lead-id = "'+data.id+'" class="editor_edit btn btn-image"><img src="/images/edit.png"></a><a data-lead-id = "'+data.id+'" href="javascript:;" class="editor_remove btn btn-image"><img src="/images/delete.png"></a>';
-                  },
-                  className: "center"
-              }
+                      return data.media_url ? '<img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;">' : '';
+                  }
+              },
+              {data: 'brand_name', name: 'brand_name'},
+              {data: 'brand_segment', name: 'brand_segment'},
+              {data: 'cat_title', name: 'cat_title'},
+              {data: 'color', name: 'color'},
+              {data: 'size', name: 'size'}
           ]
         });
-    $('#search').on('submit', function(e){
-        e.preventDefault();
-        table.draw();
-        return false;
-     });
-  });
+
+        $( '.field_search' ).on( 'keyup change', function () {
+            table.draw();
+        });
+
+        $( '.multi_brand' ).on( 'change', function () {
+            table.draw();
+        });
+        
+    });
 
     $(document).on('click', '.create_broadcast', function () {
       var customers = [];
@@ -316,8 +382,21 @@
             url: "{{ route('leads.erpLeads.create') }}"
         }).done(function (data) {
            $("#erp-leads").find(".modal-body").html(data);
-           productSelect();
            customerSearch();
+           $('.multi_brand_select').select2({width: '100%'});
+           $('.brand_segment_select').select2({width: '100%'});
+           
+           $(".multi_brand_select").change(function() {
+                var brand_segment = [];
+                $(this).find(':selected').each(function() {
+                    if ($(this).data('brand-segment') && brand_segment.indexOf($(this).data('brand-segment')) == '-1') {
+                      brand_segment.push($(this).data('brand-segment'));
+                    }
+                })
+                $(".brand_segment_select").val(brand_segment).trigger('change');
+            });
+
+           $('#category_id').select2({width: '100%'});
            $("#erp-leads").modal("show");
         }).fail(function (response) {
             console.log(response);
@@ -354,7 +433,6 @@
             url: "{{ route('leads.erpLeads.edit') }}"
         }).done(function (data) {
            $("#erp-leads").find(".modal-body").html(data);
-           productSelect();
            customerSearch();
            $("#erp-leads").modal("show");
         }).fail(function (response) {
@@ -365,11 +443,13 @@
     $(document).on('click', '.lead-button-submit-form', function (e) {
       e.preventDefault();
       var $this = $(this);
-      var $form  = $this.closest("form");
+      var formData = new FormData(document.getElementById("lead_create"));
       $.ajax({
             type: "POST",
-            data : $form.serialize(),
-            url: "{{ route('leads.erpLeads.store') }}"
+            data : formData,
+            url: "{{ route('leads.erpLeads.store') }}",
+            contentType: false,
+            processData: false
         }).done(function (data) {
            if(data.code == 1) {
                $("#erp-leads").find(".modal-body").html("");
@@ -382,40 +462,6 @@
             console.log(response);
         });
     });
-
-    var productSelect = function()
-    {
-       $("#select2-product").select2({
-          tags : true,
-          ajax: {
-              url: '/productSearch/',
-              dataType: 'json',
-              delay: 750,
-              data: function (params) {
-                  return {
-                      q: params.term, // search term
-                  };
-              },
-              processResults: function (data,params) {
-
-                  params.page = params.page || 1;
-
-                  return {
-                      results: data,
-                      pagination: {
-                          more: (params.page * 30) < data.total_count
-                      }
-                  };
-              },
-          },
-          placeholder: 'Search for Product by id, Name, Sku',
-          escapeMarkup: function (markup) { return markup; },
-          minimumInputLength: 2,
-          templateResult: formatProduct,
-          templateSelection: (product) => product.text || product.name,
-
-      });
-    };
 
     function formatProduct (product) {
         if (product.loading) {

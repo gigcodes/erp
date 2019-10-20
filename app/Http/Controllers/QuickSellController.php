@@ -27,9 +27,8 @@ class QuickSellController extends Controller
     {
 
       $products = Product::where('quick_product',1)->where('is_pending',0)->latest()->paginate(Setting::get('pagination'));
-
-
-
+      $allSize  = Product::where('quick_product',1)->where('is_pending',0)->groupBy("size")->select("size")->pluck("size")->toArray();
+      
       $brands_all = Brand::all();
       $categories_all = Category::all();
       $brands = [];

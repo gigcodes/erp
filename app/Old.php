@@ -3,6 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\OldCategory;
+use App\OldPayment;
+use App\Email;
 
 class Old extends Model
 {
@@ -17,9 +20,7 @@ class Old extends Model
      * @var array $fillable
      */
     protected $fillable = array(
-        'name', 'description', 'amount',
-        'commitment', 'communication',
-        'status'
+        'name', 'description', 'amount','commitment', 'communication','status','is_blocked','phone','gst','account_number','account_iban','account_swift','catgory_id','pending_payment','currency','account_name','is_payable'
     );
 
     /**
@@ -33,56 +34,7 @@ class Old extends Model
         'updated_at',
     ];
 
-    /**
-     * Saving categories
-     *
-     * @param string $request Request attributes
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function saveRecord($request)
-    {
-        if (!empty($request)) {
-            $this->name = filter_var($request['name'], FILTER_SANITIZE_STRING);
-            $this->description = filter_var($request['description'], FILTER_SANITIZE_STRING);
-            $this->amount = filter_var($request['amount'], FILTER_SANITIZE_STRING);
-            $this->commitment = filter_var($request['commitment'], FILTER_SANITIZE_STRING);
-            $this->communication = filter_var($request['communication'], FILTER_SANITIZE_STRING);
-            $this->status = filter_var($request['status'], FILTER_SANITIZE_STRING);
-            $this->email = filter_var($request['email'], FILTER_SANITIZE_STRING);
-            $this->number = filter_var($request['number'], FILTER_SANITIZE_STRING);
-            $this->address = filter_var($request['address'], FILTER_SANITIZE_STRING);
-            $this->save();
-            return 'sucess';
-        }
-    }
-
-    /**
-     * Saving categories
-     *
-     * @param string $request Request attributes
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function updateRecord($request, $serial_no)
-    {
-        if (!empty($request) || !empty($serial_no)) {
-            $incoming = self::findOrFail($serial_no);
-            $incoming->name = filter_var($request['name'], FILTER_SANITIZE_STRING);
-            $incoming->description = filter_var($request['description'], FILTER_SANITIZE_STRING);
-            $incoming->amount = filter_var($request['amount'], FILTER_SANITIZE_STRING);
-            $incoming->commitment = filter_var($request['commitment'], FILTER_SANITIZE_STRING);
-            $incoming->communication = filter_var($request['communication'], FILTER_SANITIZE_STRING);
-            $incoming->status = filter_var($request['status'], FILTER_SANITIZE_STRING);
-            $incoming->email = filter_var($request['email'], FILTER_SANITIZE_STRING);
-            $incoming->number = filter_var($request['number'], FILTER_SANITIZE_STRING);
-            $incoming->address = filter_var($request['address'], FILTER_SANITIZE_STRING);
-            $incoming->save();
-            return 'sucess';
-        }
-    }
-
-    /**
+   /**
      * Get Status
      *
      * @return \Illuminate\Http\Response
@@ -98,5 +50,33 @@ class Old extends Model
         );
         return $types;
     }
+
+     public function emails()
+    {
+        return $this->hasMany(Email::class, 'model_id', 'serial_no');
+    }
+
+    public function category()
+    {
+         return $this->hasOne(OldCategory::class, 'id', 'category_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(OldPayment::class,'old_id','serial_no');
+    }
+
+    public function whatsappAll()
+    {
+        return $this->hasMany('App\ChatMessage', 'old_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+    }
+
+    public function agents()
+    {
+        return $this->hasMany('App\Agent', 'model_id')->where('model_type', 'App\Old');
+    }
+
+    
+
 
 }

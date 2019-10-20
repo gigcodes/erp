@@ -2065,4 +2065,22 @@ class ProductController extends Controller
         return response()->json(["code" => 0, "data" => [], "message" => "No media found"]);
 
     }
+
+    public function sendMessageSelectedCustomer(Request $request)
+    {
+        $customerIds = $request->get('customers_id', '');
+        $customerIds = explode(',', $customerIds);
+        foreach ($customerIds as $customerId) {
+            $requestData = new Request();
+            $requestData->setMethod('POST');
+            $params = $request->except(['_token', 'customers_id']);
+            $params['customer_id'] = $customerId;
+            $requestData->request->add($params);
+
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+        }
+
+        return redirect('/erp-leads');
+        
+    }
 }

@@ -15,7 +15,7 @@ class Supplier extends Model
     ];
 
     protected $fillable = [
-        'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id', 'scraper_name', 'supplier_status_id', 'inventory_lifetime'
+        'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id', 'scraper_name', 'supplier_status_id','is_blocked','inventory_lifetime'
     ];
 
     public function agents()
@@ -55,5 +55,10 @@ class Supplier extends Model
     {
         return $this->belongsToMany('App\SupplierStatus', 'supplier_status', 'supplier_status_id', 'id');
         //return $this->hasMany('App\SupplierStatus');
+    }
+
+    public function whatsappAll()
+    {
+        return $this->hasMany('App\ChatMessage', 'supplier_id')->whereNotIn('status', ['7', '8', '9'])->latest();
     }
 }
