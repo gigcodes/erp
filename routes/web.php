@@ -186,6 +186,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('erp-leads', 'LeadsController@erpLeads');
     Route::post('erp-leads-send-message', 'LeadsController@sendMessage')->name('erp-leads-send-message');
     Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
+    Route::post('erp-leads/{id}/changestatus', 'LeadsController@updateErpStatus');
     Route::get('erp-leads/edit', 'LeadsController@erpLeadsEdit')->name('leads.erpLeads.edit');
     Route::get('erp-leads/create', 'LeadsController@erpLeadsCreate')->name('leads.erpLeads.create');
     Route::post('erp-leads/store', 'LeadsController@erpLeadsStore')->name('leads.erpLeads.store');
@@ -196,7 +197,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 //	Route::resource('task','TaskController');
 
     // Instruction
-
+    Route::get('instruction/quick-instruction', 'InstructionController@quickInstruction');
     Route::get('instruction/list', 'InstructionController@list')->name('instruction.list');
     Route::resource('instruction', 'InstructionController');
     Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
@@ -310,6 +311,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('deleteOrderProduct/{order_product}', 'OrderController@deleteOrderProduct')->name('deleteOrderProduct');
 
     Route::get('attachImages/{model_type}/{model_id?}/{status?}/{assigned_user?}', 'ProductController@attachImages')->name('attachImages');
+    Route::post('selected_customer/sendMessage', 'ProductController@sendMessageSelectedCustomer')->name('whatsapp.send_selected_customer');
     Route::post('download', 'MessageController@downloadImages')->name('download.images');
 
     Route::get('quickSell', 'QuickSellController@index')->name('quicksell.index');
@@ -375,7 +377,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('customer/send-contact-details', 'CustomerController@sendContactDetails')->name('customer.send.contact');
     Route::post('customer/contact-download-donload', 'CustomerController@downloadContactDetails')->name('customer.download.contact');
 
-    Route::get('broadcast', '<<<<<< HEAD@index')->name('broadcast.index');
+    Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
     Route::get('broadcast/images', 'BroadcastMessageController@images')->name('broadcast.images');
     Route::post('broadcast/imagesUpload', 'BroadcastMessageController@imagesUpload')->name('broadcast.images.upload');
     Route::post('broadcast/imagesLink', 'BroadcastMessageController@imagesLink')->name('broadcast.images.link');
@@ -422,6 +424,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts');
 
     Route::post('purchase/sendmsgsupplier', 'PurchaseController@sendmsgsupplier')->name('purchase.sendmsgsupplier');
+    Route::get('get-supplier-msg', 'PurchaseController@getMsgSupplier')->name('get.msg.supplier');
     Route::post('purchase/send/emailBulk', 'PurchaseController@sendEmailBulk')->name('purchase.email.send.bulk');
     Route::resource('purchase-status', 'PurchaseStatusController');
 

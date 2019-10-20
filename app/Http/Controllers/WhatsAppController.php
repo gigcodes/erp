@@ -2010,18 +2010,18 @@ class WhatsAppController extends FindByNumberController
                     }
 
 
-                }elseif (isset($request->contact) && $request->contact != null){
+                } elseif (isset($request->contact) && $request->contact != null) {
                     $document = Document::findOrFail($module_id);
                     $document_url = $document->getDocumentPathById($document->id);
-                   // $document_url = 'http://www.africau.edu/images/default/sample.pdf';
+                    // $document_url = 'http://www.africau.edu/images/default/sample.pdf';
 
                     foreach ($request->contact as $contacts) {
 
                         // Contact ID For Chat Message
-                       $data[ 'number' ] = $contacts;
+                        $data[ 'number' ] = $contacts;
 
 //                        //Creating Chat Message
-                       $chat_message = ChatMessage::create($data);
+                        $chat_message = ChatMessage::create($data);
 
                         //History
                         $history[ 'send_by' ] = Auth::id();
@@ -2342,6 +2342,7 @@ class WhatsAppController extends FindByNumberController
     public function updateAndCreate(Request $request)
     {
         $result = 'success';
+
         $message = Message::find($request->message_id);
         $params = [
             'number' => null,
@@ -2430,7 +2431,7 @@ class WhatsAppController extends FindByNumberController
                 }
             }
 
-            return redirect('/' . $request->moduletype . '/' . $request->moduleid);
+            return redirect('/' . (!empty($request->moduletype) ? $request->moduletype : 'customer') . '/' . $request->moduleid);
         }
 
         return response()->json(['status' => $result]);

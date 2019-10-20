@@ -94,7 +94,7 @@ class ImageController extends Controller
 
       $brands = Brand::getAll();
       $selected_categories = $request->category ? $request->category : 1;
-  		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
+  		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
   		                                        ->selected($selected_categories)
   		                                        ->renderAsDropdown();
 
@@ -174,7 +174,7 @@ class ImageController extends Controller
 
       $brands = Brand::getAll();
       $selected_categories = $request->category ? $request->category : 1;
-  		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
+  		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
   		                                        ->selected($selected_categories)
   		                                        ->renderAsDropdown();
 

@@ -13,7 +13,7 @@
 @section('content')
 <div class="row">
   <div class="col">
-    <h2 class="page-heading">Quick Sell</h2>
+    <h2 class="page-heading">quick Sell</h2>
   </div>
 </div>
 
@@ -118,13 +118,14 @@
   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroupExist">Add Existing Group</button>
   <button type="button" class="btn btn-secondary" id="multiple">Send Multiple Images</button>
   <a href="{{ url('/quickSell/pending') }}"><button type="button" class="btn btn-secondary">Product Pending</button></a>
+  <button type="button" class="btn btn-secondary" id="attached-all-quick">Attached-ALL</button>
 </div>
 
 @include('partials.flash_messages')
 
-<div class="row mt-6">
+<div class="row mt-6" style="margin: 10px;">
   @foreach ($products as $index => $product)
-  <div class="col-md-3 col-xs-6 text-center">
+  <div class="col-md-3 col-xs-6 text-left">
     <input type="checkbox" class="checkbox_select" name="quick" value="{{ $product->id }}"/>
     {{-- <a href="{{ route('leads.show', $lead['id']) }}"> --}}
     <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
@@ -171,7 +172,17 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"></script>
   <script type="text/javascript">
-    $(".select-multiple").multiselect();
+    $(".select-multiple").select2();
+
+    $(document).on("click","#attached-all-quick",function(){
+        if($(this).html() == "Attached-ALL") {
+          $(this).html('Uncheck Attached-ALL');
+          $("input[name='quick']").attr('checked','checked');
+        }else{
+          $(this).html('Attached-ALL');
+          $("input[name='quick']").removeAttr('checked');
+        }
+    });
 
     $(document).on('click', '.edit-modal-button', function() {
       var product = $(this).data('product');
