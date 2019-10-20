@@ -171,7 +171,7 @@ class LeadsController extends Controller
             return response()->json(['html' => $html]);
         }
 
-        $category_select = Category::attr(['name' => 'multi_category', 'class' => 'form-control', 'id' => 'multi_category'])->selected()->renderAsDropdown();
+        $category_select = Category::attr(['name' => 'multi_category', 'class' => 'form-control select-multiple', 'id' => 'multi_category'])->selected()->renderAsDropdown();
         $status = array_flip((New status)->all());
 
 
