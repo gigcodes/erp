@@ -52,7 +52,7 @@ class QuickSellController extends Controller
   		                                        ->renderAsDropdown();
 
       $locations = (new LocationList)->all();
-      $suppliers = Supplier::select(['id', 'supplier'])->where('status', 1)->orderby('supplier','asc')->get();
+      $suppliers = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier','asc')->get();
 
       $category_tree = [];
   		$categories_array = [];
