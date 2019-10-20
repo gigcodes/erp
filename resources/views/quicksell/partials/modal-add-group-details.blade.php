@@ -97,7 +97,7 @@
                     </div>
                     <div class="form-group">
                         <strong>Group Id:</strong>
-                        <input type="text" class="form-control" name="group_id" placeholder="Enter Buying Price">
+                        <input type="text" class="form-control" name="group_id" placeholder="Enter Group Name">
                         </select>
                     </div>
                 </div>
