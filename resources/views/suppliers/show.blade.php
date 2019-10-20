@@ -456,7 +456,8 @@
                         @csrf
                         <button type="submit" class="btn btn-xs btn-secondary" value="1" name="type">Create Product</button>
                         <button type="submit" class="btn btn-xs btn-secondary" value="2" name="type">Create Product Group</button>
-                        <div class="col-12 load-communication-modal" id="chat-history" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}"></div>
+                        <div class="load-communication-modal" style="display: none;" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}"></div>
+                        <div class="col-12" id="chat-history"></div>
                     </form>
                 </div>
             </div>

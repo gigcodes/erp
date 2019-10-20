@@ -209,4 +209,10 @@ class ProductHelper extends Model
         // Still here?
         return;
     }
+
+    public static function getBrandSegment($name, $select, $attr = array())
+    {
+        $brandSegment = ["A" => "A", "B" => "B", "C" => "C"];
+        return \Form::select($name, $brandSegment , $select, $attr);
+    }
 }
