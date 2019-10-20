@@ -948,11 +948,22 @@ Route::middleware('auth')->group(function () {
     Route::get('edit/old-incomings/{id}', 'OldIncomingController@edit')->name('editOldIncomings');
     Route::post('update/old-incomings/{id}', 'OldIncomingController@update')->name('updateOldIncomings');
 
-    Route::get('old', 'OldController@index')->name('old');
-    Route::get('old', 'OldController@index')->name('filteredOld');
-    Route::post('store/old', 'OldController@store')->name('storeOld');
-    Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
-    Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
+   // Old Module
+    Route::post('old/send/emailBulk', 'OldController@sendEmailBulk')->name('old.email.send.bulk');
+    Route::post('old/send/email', 'OldController@sendEmail')->name('old.email.send');
+    Route::get('old/gettaskremark', 'OldController@getTaskRemark')->name('old.gettaskremark');
+    Route::post('old/addremark', 'OldController@addRemark')->name('old.addRemark');
+    Route::get('old/email/inbox', 'OldController@emailInbox')->name('old.email.inbox');
+    Route::get('old/{old}/payments','OldController@paymentindex')->name('old.payments');
+    Route::post('old/{old}/payments', 'OldController@paymentStore')->name('old.payments.store');
+    Route::put('old/{old}/payments/{old_payment}', 'OldController@paymentUpdate')->name('old.payments.update');
+    Route::delete('old/{old}/payments/{old_payment}', 'OldController@paymentDestroy')->name('old.payments.destroy');
+    Route::resource('old', 'OldController');
+    Route::post('old/block', 'OldController@block')->name('old.block');
+    Route::post('old/category/create', 'OldController@createCategory')->name('old.category.create');
+    Route::post('old/update/status', 'OldController@updateOld')->name('old.update.status');
+
+
 
     Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
 
