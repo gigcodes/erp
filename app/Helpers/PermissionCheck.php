@@ -22,7 +22,7 @@ class PermissionCheck {
 		}
 		//Return False When user doesnt have permission
 		return false;
-		
+
 
     }
 
