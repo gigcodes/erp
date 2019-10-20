@@ -171,7 +171,7 @@ class LeadsController extends Controller
             return response()->json(['html' => $html]);
         }
 
-        $category_select = Category::attr(['name' => 'multi_category', 'class' => 'form-control', 'id' => 'multi_category'])->selected()->renderAsDropdown();
+        $category_select = Category::attr(['name' => 'multi_category', 'class' => 'form-control select-multiple', 'id' => 'multi_category'])->selected()->renderAsDropdown();
         $status = array_flip((New status)->all());
 
 
@@ -812,7 +812,7 @@ class LeadsController extends Controller
 
     public function erpLeads()
     {
-        $shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
+        /*$shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
                                     ->whereNotNull('shoe_size')
                                     ->groupBy('shoe_size')
                                     ->pluck('counts', 'shoe_size');
@@ -820,10 +820,14 @@ class LeadsController extends Controller
         $clothing_size_group = Customer::selectRaw('clothing_size, count(id) as counts')
                                         ->whereNotNull('clothing_size')
                                         ->groupBy('clothing_size')
-                                        ->pluck('counts', 'clothing_size');
+                                        ->pluck('counts', 'clothing_size');*/
+        $brands = Brand::all()->toArray();
+        $erpLeadStatus = \App\ErpLeadStatus::all()->toArray();
         return view("leads.erp.index", [
-            'shoe_size_group' => $shoe_size_group,
-            'clothing_size_group' => $clothing_size_group
+            //'shoe_size_group' => $shoe_size_group,
+            //'clothing_size_group' => $clothing_size_group,
+            'brands'   => $brands,
+            'erpLeadStatus'   => $erpLeadStatus,
         ]);
     }
 
@@ -838,7 +842,7 @@ class LeadsController extends Controller
                                 ->orderBy("erp_leads.id","desc")
                                 ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name","c.id as customer_id"]);
 
-        $term = $request->get('term');
+        /*$term = $request->get('term');
         if (!empty($term)) {
             $source = $source->where(function($q) use($term){
                 $q->where("c.name","like","%{$term}%")
@@ -864,18 +868,69 @@ class LeadsController extends Controller
 
         if ($request->get('clothing_size_group')) {
             $source = $source->where('c.clothing_size', '=', $request->get('clothing_size_group'));
+        }*/
+
+        if ($request->get('lead_customer')) {
+            $source = $source->where('c.name', 'like', "%".$request->get('lead_customer')."%");
         }
 
+        if ($request->get('lead_brand')) {
+            $source = $source->whereIn('erp_leads.brand_id', $request->get('lead_brand'));
+        }
+
+        if ($request->get('lead_status')) {
+            $source = $source->whereIn('erp_leads.lead_status_id', $request->get('lead_status'));
+        }
+
+        if ($request->get('lead_category')) {
+            $source = $source->where('cat.title', 'like', "%".$request->get('lead_category')."%");
+        }
+
+        if ($request->get('lead_color')) {
+            $source = $source->where('erp_leads.color', '=', $request->get('lead_color'));
+        }
+
+        if ($request->get('lead_shoe_size')) {
+            $source = $source->where('erp_leads.size', '=', $request->get('lead_shoe_size'));
+        }
+
+        if ($request->get('brand_segment')) {
+            $source = $source->where('erp_leads.brand_segment', '=', $request->get('brand_segment'));
+        }
+
+        $total = $source->count();
+
+        $source = $source->offset($request->get('start', 0));
+        $source = $source->limit($request->get('length', 10));
         $source = $source->get();
-        return datatables()
-            ->of($source)
-            ->make();
+
+        foreach ($source as $key => $value) {
+            $source[$key]->media_url = null;
+            $media = $value->getMedia(config('constants.media_tags'))->first();
+            if ($media) {
+                $source[$key]->media_url = $media->getUrl();
+            }
+
+            if (empty($source[$key]->media_url) && $value->product_id) {
+                $product = Product::find($value->product_id);
+                $media = $product->getMedia(config('constants.media_tags'))->first();
+                if ($media) {
+                    $source[$key]->media_url = $media->getUrl();
+                }
+            }
+        }
+        return response()->json([
+            'draw' => $request->get('draw'),
+            'recordsTotal' => $total,
+            'recordsFiltered' => $total,
+            'data' => $source
+        ]);
     }
 
     public function erpLeadsCreate()
     {
         $customerList = [];//\App\Customer::pluck("name","id")->toArray();
-        $brands = Brand::pluck("name","id")->toArray();
+        $brands = Brand::all();
         $category = Category::attr(['name' => 'category_id', 'class' => 'form-control', 'id' => 'category_id'])->selected()->renderAsDropdown();
         $colors = \App\ColorNamesReference::pluck("erp_name","erp_name")->toArray();
         $status = \App\ErpLeadStatus::pluck("name","id")->toArray();
@@ -897,7 +952,7 @@ class LeadsController extends Controller
         }
     }
 
-    public function erpLeadsStore()
+    public function erpLeadsStore(Request $request)
     {
         $id = request()->get("id",0);
         $productId =  request()->get("product_id",0);
@@ -914,6 +969,9 @@ class LeadsController extends Controller
         }
         $params = request()->all();
         $params["product_id"] = $productId;
+        if (isset($params["brand_segment"])) {
+            $params["brand_segment"] = implode(",", (array)$params["brand_segment"]);
+        }
 
         $erpLeads = \App\ErpLeads::where("id",$id)->first();
         if(!$erpLeads) {
@@ -922,6 +980,31 @@ class LeadsController extends Controller
         $erpLeads->fill($params);
         $erpLeads->save();
 
+        $count = 0;
+        if ($request->oldImage) {
+            foreach ($request->oldImage as $old) {
+                if ($old > 0) {
+                    self::removeImage($old);
+                } elseif ($old == -1) {
+                    foreach ($request->file('image') as $image) {
+                        $media = MediaUploader::fromSource($image)->upload();
+                        $erpLeads->attachMedia($media, config('constants.media_tags'));
+                    }
+                } elseif ($old == 0) {
+                    $count++;
+                }
+            }    
+        }
+
+        if ($count > 0) {
+            if ($request->hasFile('image')) {
+                foreach ($request->file('image') as $image) {
+                    $media = MediaUploader::fromSource($image)->upload();
+                    $erpLeads->attachMedia($media, config('constants.media_tags'));
+                }
+            }
+
+        }
         return response()->json(["code"=> 1 , "data" => []]);
     }
 
@@ -972,4 +1055,21 @@ class LeadsController extends Controller
         return response()->json(["code"=> 1 , "data" => []]);
     }
 
+    public function updateErpStatus(Request $request, $id)
+    {
+        $lead = \App\ErpLeads::find($id);
+        if ($lead->lead_status_id != $request->status) {
+            $lead_status = \App\ErpLeadStatus::pluck("name","id")->toArray();
+            StatusChange::create([
+                'model_id' => $id,
+                'model_type' => \App\ErpLeads::class,
+                'user_id' => Auth::id(),
+                'from_status' => $lead_status[$lead->lead_status_id],
+                'to_status' => $lead_status[$request->status]
+            ]);
+
+            $lead->lead_status_id = $request->status;
+            $lead->save();
+        }
+    }
 }
