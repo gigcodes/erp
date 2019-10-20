@@ -117,7 +117,7 @@
   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroupExist">Add Existing Group</button>
   <button type="button" class="btn btn-secondary" id="multiple">Send Multiple Images</button>
   <a href="{{ url('/quickSell/pending') }}"><button type="button" class="btn btn-secondary">Product Pending</button></a>
-  <button type="button" class="btn btn-secondary" id="attached-all-quick">Attached-ALL</button>
+  <button type="button" class="btn btn-secondary" id="selet-all-multiple">Attached All</button>
 </div>
 
 @include('partials.flash_messages')
@@ -132,12 +132,12 @@
               : '' }}" class="img-responsive grid-image" alt="" />
     <p>Supplier : {{ $product->supplier }}</p>
     <p>Price : {{ $product->price }}</p>
-    <p>Size : {{ $product->size }}</p>
+    @if($product->size != null) <p>Size :  {{ $product->size }} </p>@endif
     <p>Brand : {{ $product->brand ? $brands[$product->brand] : '' }}</p>
     <p>Category : {{ $product->category ? $categories[$product->category] : '' }}</p>
     @if($product->groups)
 
-    <p>Group : @foreach($product->groups as $group) {{ $group->quicksell_group_id }}, @endforeach</p>
+    <p>Group :@if($product->groups->count() == 0) <input type="checkbox" name="blank" class="form-control checkbox" data-id="{{ $product->id }}"> @else @foreach($product->groups as $group) {{ $group->quicksell_group_id }}, @endforeach @endif </p>
 
     @endif
     <button type="button" class="btn btn-image sendWhatsapp" data-id="{{ $product->id }}"><img src="/images/send.png" /></button>
@@ -164,6 +164,7 @@
 @include('quicksell.partials.modal-add-existing-group')
 @include('quicksell.partials.modal-whats-app')
 @include('quicksell.partials.modal-multiple-whats-app')
+@include('quicksell.partials.modal-add-group-details')
 
 @endsection
 
@@ -333,5 +334,41 @@
        $(".select-multiple").multiselect();
        $(".select-multiple2").select2();
     });
+
+    $(function() {
+      $('.selectpicker').selectpicker();
+    });
+
+   $(document).ready(function() {
+      $(".checkbox").change(function() {
+        if(this.checked) {
+            id = $(this).attr("data-id");
+            $('#product_id').val(id);
+            $("#productGroupDetails").modal();
+        }
+      });
+    });
+
+    $(document).ready(
+            function(){
+              $("#selet-all-multiple").click(function () {
+                $(".checkbox_select").toggle();
+                var checkBoxes = $(".checkbox_select");
+                checkBoxes.prop("checked", !checkBoxes.prop("checked"));
+                $("#multiple").text("Please Select Checkbox");
+                $("#multiple").click(function () {
+                  $('#multipleWhatsappModal').modal('show');
+                  val = $('input[name="quick"]:checked');
+                  $("#selected_checkbox").text(val.length);
+                  var list = [];
+                  $('input[name="quick"]:checked').each(function() {
+                    list.push(this.value);
+                  });
+                  $("#products").val(list);
+                });
+              });
+
+            });  
+
   </script>
 @endsection

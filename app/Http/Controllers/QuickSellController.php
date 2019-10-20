@@ -52,7 +52,7 @@ class QuickSellController extends Controller
   		                                        ->renderAsDropdown();
 
       $locations = (new LocationList)->all();
-      $suppliers = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier','asc')->get();
+      $suppliers = Supplier::select(['id', 'supplier'])->where('status', 1)->orderby('supplier','asc')->get();
 
       $category_tree = [];
   		$categories_array = [];
@@ -541,6 +541,61 @@ class QuickSellController extends Controller
             'api_keys' =>  $api_keys,
             'customers' => $customers,
         ]);
+    }
+
+    public function groupUpdate(Request $request)
+    {
+      //dd($request);
+      if($request->groups != null){
+
+           $product = new ProductQuicksellGroup();
+           $product->product_id = $request->product_id;
+           $product->quicksell_group_id = $request->groups;
+           $product->save();
+
+           $group = QuickSellGroup::findorfail($request->groups);
+           $group->suppliers = json_encode($request->suppliers);
+           $group->brands = json_encode($request->brands);
+           $group->price = $request->buying_price;
+           $group->special_price = $request->special_price;
+           $group->categories =  json_encode($request->categories);
+           $group->update();
+
+
+      }else{
+         // dd($request);
+            $group = QuickSellGroup::orderBy('id', 'desc')->first();
+                if ($group != null) {
+                    $group_create =  new QuickSellGroup();
+                    $incrementId = ($group->group+1);
+                    $group_create->group = $incrementId;
+                    $group_create->name = $request->group_id.$incrementId;
+                    $group_create->suppliers = json_encode($request->suppliers);
+                    $group_create->brands = json_encode($request->brands);
+                    $group_create->price = $request->buying_price;
+                    $group_create->special_price = $request->special_price;
+                    $group_create->categories =  json_encode($request->categories);
+                    $group_create->save();
+                    $group_id = $group_create->group;
+                } else {
+                   $group =  new QuickSellGroup();
+                   $group->group = 1;
+                   $group->save();
+                   $group_id = $group->group;
+                }
+                if($group_id != null && $group_id != 0){
+                $product = new ProductQuicksellGroup();
+                $product->product_id = $request->product_id;
+                $product->quicksell_group_id = $group_id;
+                $product->save();
+              }
+
+      }
+
+      return redirect()->back()->with('success', 'Group Got Updated');
+
+
+
     }
 
 
