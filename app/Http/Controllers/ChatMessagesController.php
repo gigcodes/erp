@@ -7,6 +7,7 @@ use App\User;
 use App\Vendor;
 use App\Supplier;
 use App\Task;
+use App\Old;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -41,6 +42,9 @@ class ChatMessagesController extends Controller
             case 'supplier':
                 $object = Supplier::find($request->object_id);
                 break;
+            case 'old':
+                $object = Old::find($request->object_id);
+                break;        
             default:
                 $object = Customer::find($request->object);
         }

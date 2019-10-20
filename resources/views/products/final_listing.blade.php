@@ -75,7 +75,7 @@
 
                     <div class="form-group mr-3 mb-3">
                         {{-- {!! $category_search !!} --}}
-                        <select class="form-control" name="category[]">
+                        <select class="form-control select-multiple" name="category[]" data-placeholder="Category..">
                             @foreach ($category_array as $data)
                                 <option value="{{ $data['id'] }}" {{ in_array($data['id'], $selected_categories) ? 'selected' : '' }}>{{ $data['title'] }}</option>
                                 @if ($data['title'] == 'Men')
@@ -143,7 +143,7 @@
                     </div>
 
                     <div class="form-group mr-3">
-                        <select class="form-control" name="user_id" id="user_id">
+                        <select class="form-control select-multiple" name="user_id" id="user_id">
                             @foreach($users as $user)
                                 <option value="">Select user...</option>
                                 <option value="{{$user->id}}">{{ $user->name }}</option>
@@ -152,6 +152,7 @@
                     </div>
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+                    <a href="{{url()->current()}}" class="btn btn-image"><img src="/images/clear-filters.png"/></a>
                 </form>
             </div>
         </div>
