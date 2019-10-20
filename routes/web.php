@@ -722,6 +722,15 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Agent Routes
     Route::resource('agent', 'AgentController');
+    //Route::resource('product-templates', 'ProductTemplatesController');
+
+    Route::prefix('product-templates')->middleware('auth')->group(function () {
+        Route::get('/', 'ProductTemplatesController@index');
+        Route::get('response', 'ProductTemplatesController@response');
+        Route::post('create', 'ProductTemplatesController@create');
+        Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
+    });
+
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
