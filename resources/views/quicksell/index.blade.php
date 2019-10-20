@@ -7,6 +7,9 @@
   .checkbox_select{
     display: none;
   }
+  .align {
+    padding: 0px 10px 10px 10px !important;
+  }
 </style>
 @endsection
 
@@ -92,6 +95,18 @@
            value="{{ isset($size) ? $size : '' }}"
            placeholder="Size">
   </div>
+
+  <div class="form-group mr-3">
+    @php $groups = \App\QuickSellGroup::all(); @endphp
+    <select class="form-control select-multiple2" name="group[]" multiple data-placeholder="Groups...">
+      <optgroup label="Brands">
+        @foreach ($groups as $key => $group)
+          <option value="{{ $key }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }} @endif</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
+
   <div class="form-group mr-3">
     {!! Form::select('per_page',[
     "20" => "20 Images Per Page",
@@ -130,6 +145,7 @@
     <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
               ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
               : '' }}" class="img-responsive grid-image" alt="" />
+    <div class="align">       
     <p>Supplier : {{ $product->supplier }}</p>
     <p>Price : {{ $product->price }}</p>
     @if($product->size != null) <p>Size :  {{ $product->size }} </p>@endif
@@ -140,6 +156,7 @@
     <p>Group :@if($product->groups->count() == 0) <input type="checkbox" name="blank" class="form-control checkbox" data-id="{{ $product->id }}"> @else @foreach($product->groups as $group) {{ $group->quicksell_group_id }}, @endforeach @endif </p>
 
     @endif
+    </div>   
     <button type="button" class="btn btn-image sendWhatsapp" data-id="{{ $product->id }}"><img src="/images/send.png" /></button>
 
     <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>

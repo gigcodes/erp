@@ -206,6 +206,7 @@ class SupplierController extends Controller
     public function show($id)
     {
         $supplier = Supplier::find($id);
+        $suppliers = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier','asc')->get();
         $reply_categories = ReplyCategory::all();
         $users_array = Helpers::getUserArray(User::all());
         $emails = [];
@@ -219,6 +220,7 @@ class SupplierController extends Controller
             'emails' => $emails,
             'suppliercategory' => $suppliercategory,
             'supplierstatus' => $supplierstatus,
+            'suppliers' => $suppliers,
         ]);
     }
 
@@ -799,7 +801,7 @@ class SupplierController extends Controller
 
     public function saveImage(Request $request)
     {
-//dd($request);
+
         // Only create Product
         if ($request->type == 1) {
             $images = $request->checkbox;
@@ -820,7 +822,7 @@ class SupplierController extends Controller
                         $product->name = 'QUICKSELL';
                         $product->sku = 'QuickSell' . $number;
                         $product->size = '';
-                        $product->brand = 3;
+                        $product->brand = '';
                         $product->color = '';
                         $product->location = '';
                         $product->category = '';
@@ -843,20 +845,39 @@ class SupplierController extends Controller
             }
             return redirect()->back()->withSuccess('Please Select Image');
         } else {
+
             // Create Group ID with Product
-            $images = $request->checkbox;
+            $images = explode(",",$request->checkbox[0]);
+
             if ($images) {
                 // Loop Over Images
+
                 $group = QuickSellGroup::orderBy('id', 'desc')->first();
                 if ($group != null) {
-                    $group_create =  new QuickSellGroup();
-                    $incrementId = ($group->group+1);
-                    $group_create->group = $incrementId;
-                    $group_create->save();
-                    $group_id = $group_create->group;
+                    if($request->groups != null){
+                        $group_create =   QuickSellGroup::findorfail($request->groups);
+                        $group_id = $group_create->group;
+                    }else{
+                        $group_create =  new QuickSellGroup();
+                        $incrementId = ($group->group+1);
+                        $group_create->suppliers = json_encode($request->supplier);
+                        $group_create->brands = json_encode($request->brand);
+                        $group_create->price = $request->buying_price;
+                        $group_create->special_price = $request->special_price;
+                        $group_create->categories =  json_encode($request->category);
+                        $group_create->group = $incrementId;
+                        $group_create->save();
+                        $group_id = $group_create->group;
+                      }
                 } else {
                    $group =  new QuickSellGroup();
                    $group->group = 1;
+                   $group_create->name = $request->group_id.$group->group;
+                   $group_create->suppliers = json_encode($request->suppliers);
+                   $group_create->brands = json_encode($request->brand);
+                   $group_create->price = $request->buying_price;
+                   $group_create->special_price = $request->special_price;
+                   $group_create->categories =  json_encode($request->categories);
                    $group->save();
                    $group_id = $group->group;
                 }
@@ -874,17 +895,40 @@ class SupplierController extends Controller
                     $product->name = 'QUICKSELL';
                     $product->sku = 'QuickSell' . $number;
                     $product->size = '';
-                    $product->brand = 3;
+                    $product->brand = $request->brand;
                     $product->color = '';
                     $product->location = '';
-                    $product->category = '';
-                    $product->supplier = 'QUICKSELL';
-                    $product->price = 0;
+                    if($request->category == null){
+                        $product->category = '';
+                    }else{
+                        $product->category = $request->category;
+                    }
+                    
+                    if($request->supplier == null){
+                      $product->supplier = 'QUICKSELL';
+                    }else{
+                      $sup = Supplier::findorfail($request->supplier);
+                      $product->supplier = $sup->supplier;
+                    }
+                    if($request->buying_price == null){
+                        $product->price = 0;
+                    }else{
+                        $product->price = $request->buying_price;
+                    }
+                    if($request->special_price == null){
+                        $product->price_special = 0;
+                    }else{
+                         $product->price_special = $request->special_price;
+                    }
+                    
                     $product->stock = 1;
                     $product->quick_product = 1;
                     $product->is_pending = 1;
                     $product->save();
+                    preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
+                    $image = $match[0][0];
                     $jpg = \Image::make($image)->encode('jpg');
+                    
                     $filename = substr($image, strrpos($image, '/'));
                     $filename = str_replace("/","",$filename);
                     $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();

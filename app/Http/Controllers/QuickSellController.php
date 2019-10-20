@@ -459,6 +459,13 @@ class QuickSellController extends Controller
             if (request('size') != null) {
                 $query->where('size','LIKE', request('size'));
             }
+
+            if (request('group') != null) {
+                $query->orWhereHas('groups', function ($qu) use ($request) {
+                    $qu->whereIn('quicksell_group_id',$request->group);
+                    });
+            }
+            
             if (request('price') != null) {
                 $price = (explode(",",$request->price));
                 $from = $price[0];
@@ -473,6 +480,7 @@ class QuickSellController extends Controller
             }
 
             $products = $query->where('quick_product',1)->paginate($per_page);
+             
         }else{
             $products = Product::where('is_pending',0)->latest()->paginate(Setting::get('pagination'));
         }
