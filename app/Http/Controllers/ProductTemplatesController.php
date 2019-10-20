@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Agent;
 use File;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -37,13 +36,13 @@ class ProductTemplatesController extends Controller
      */
     public function create(Request $request)
     {
-        $template = new \App\ProductTemplate;
-        $param = request()->all();
+        $template      = new \App\ProductTemplate;
+        $param         = request()->all();
         $product_title = null;
         if (request()->get('product_title')) {
             $product_title = \App\Product::where('id', request()->get('product_title'))->value('name');
         }
-        $param['product_title'] = $product_title; 
+        $param['product_title'] = $product_title;
         $template->fill($param);
 
         if ($template->save()) {
@@ -66,12 +65,12 @@ class ProductTemplatesController extends Controller
      */
     public function destroy($id)
     {
-        $template = \App\ProductTemplate::where("id",$id)->first();
-        
-        if($template) {
+        $template = \App\ProductTemplate::where("id", $id)->first();
+
+        if ($template) {
             $template->delete();
         }
-        
+
         return response()->json(["code" => 1, "message" => "Product Template Deleted successfully!"]);
     }
 
@@ -82,7 +81,7 @@ class ProductTemplatesController extends Controller
             ->select(["product_templates.*", "b.name as brand_name"]);
 
         if ($request->get("id", null) != null) {
-            $records->where("id",$request->get("id"));
+            $records->where("id", $request->get("id"));
         }
 
         if ($request->get("productTitle", null) != null) {
@@ -119,6 +118,26 @@ class ProductTemplatesController extends Controller
         }
 
         return response()->json(["code" => 1, "data" => $data]);
+
+    }
+
+    public function apiSave(Request $request)
+    {
+        $id = $request->get("id", 0);
+
+        $template = \App\ProductTemplate::where("id", $id)->first();
+        if ($template) {
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $image) {
+                    $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
+                    $template->attachMedia($media, config('constants.media_tags'));
+                }
+
+                return response()->json(["code" => 1, "message" => "Product template updated successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 0, "message" => "Sorry, can not find product template in record"]);
 
     }
 }
