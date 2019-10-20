@@ -1333,31 +1333,31 @@
     });
 
     var getNotesList = function () {
-        $.ajax({
-            type: "GET",
-            url: "/page-notes/list",
-            data: {
-                _token: window.token,
-                url: "<?php echo request()->url() ?>"
-            },
-            dataType: "json",
-            success: function (data) {
-                if (data.code > 0) {
-                    var listOfN = "";
-                    $.each(data.notes, function (k, v) {
-                        listOfN += "<tr>";
-                        listOfN += "<td scope='row'>" + v.id + "</td>";
-                        listOfN += "<td>" + v.note + "</td>";
-                        listOfN += "<td>" + v.category_name + "</td>";
-                        listOfN += "<td>" + v.name + "</td>";
-                        listOfN += "<td>" + v.created_at + "</td>";
-                        listOfN += "</tr>";
-                    });
-
-                    $(".page-notes-list").prepend(listOfN);
-                }
-            },
-        });
+        //$.ajax({
+//            type: "GET",
+  //          url: "/page-notes/list",
+    //        data: {
+      //          _token: window.token,
+        //        url: "<?php echo request()->url() ?>"
+          //  },
+//            dataType: "json",
+  //          success: function (data) {
+    //            if (data.code > 0) {
+      //              var listOfN = "";
+        //            $.each(data.notes, function (k, v) {
+          //              listOfN += "<tr>";
+            //            listOfN += "<td scope='row'>" + v.id + "</td>";
+              //          listOfN += "<td>" + v.note + "</td>";
+                //        listOfN += "<td>" + v.category_name + "</td>";
+                  //      listOfN += "<td>" + v.name + "</td>";
+                    //    listOfN += "<td>" + v.created_at + "</td>";
+                      //  listOfN += "</tr>";
+//                    });
+//
+  //                  $(".page-notes-list").prepend(listOfN);
+    //            }
+      //      },
+        //});
     }
 
     if ($(".help-button-wrapper").length > 0) {
