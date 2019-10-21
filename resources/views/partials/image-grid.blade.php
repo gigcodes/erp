@@ -155,7 +155,7 @@
 
                 <form action="{{ route('search') }}" method="GET" id="quickProducts" class="form-inline align-items-start my-3">
                     <input type="hidden" name="quick_product" value="true">
-                    <button type="submit" class="btn btn-xs btn-secondary">Quick Products</button>
+                    <button type="submit" class="btn btn-xs btn-secondary">Quick Sell</button>
                 </form>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="0">Select All</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="20">Select 20</button>
