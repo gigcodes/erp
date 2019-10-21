@@ -120,6 +120,13 @@
                                value="{{ isset($size) ? $size : '' }}"
                                placeholder="Size">
                     </div>
+                     <div class="form-group mr-3">
+                        <select class="form-control select-multiple" name="quick_sell_groups[]" multiple data-placeholder="Quick Sell Groups...">
+                            @foreach ($quick_sell_groups as $key => $quick_sell)
+                                <option value="{{ $quick_sell->id }}" {{ in_array($quick_sell->id, request()->get('quick_sell_groups', [])) ? 'selected' : '' }}>{{ $quick_sell->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="form-group mr-3">
                         {!! Form::select('per_page',[
                         "20" => "20 Images Per Page",
@@ -148,7 +155,7 @@
 
                 <form action="{{ route('search') }}" method="GET" id="quickProducts" class="form-inline align-items-start my-3">
                     <input type="hidden" name="quick_product" value="true">
-                    <button type="submit" class="btn btn-xs btn-secondary">Quick Products</button>
+                    <button type="submit" class="btn btn-xs btn-secondary">Quick Sell</button>
                 </form>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="0">Select All</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="20">Select 20</button>
