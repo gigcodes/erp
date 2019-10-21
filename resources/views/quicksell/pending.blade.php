@@ -114,8 +114,8 @@
     @php $groups = \App\QuickSellGroup::all(); @endphp
     <select class="form-control select-multiple2" name="group[]" multiple data-placeholder="Groups...">
       <optgroup label="Groups">
-        @foreach ($groups as $key => $group)
-          <option value="{{ $key }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }} @endif</option>
+        @foreach ($groups as $group)
+          <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }} @endif</option>
         @endforeach
       </optgroup>
     </select>
