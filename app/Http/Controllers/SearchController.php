@@ -346,6 +346,10 @@ class SearchController extends Controller
             })->groupBy('products.id');
         }
 
+        if (!empty($request->quick_sell_groups) && is_array($request->quick_sell_groups)) {
+            $products = $products->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (".implode(",", $request->quick_sell_groups).") ))");
+        }
+
         // select fields..
         $products = $products->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'purchase_status', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
 
