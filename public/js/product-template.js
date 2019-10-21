@@ -173,9 +173,9 @@ var productTemplate = {
             },
             templateSelection: function (product) {
                 
-                $(document).find("#product-template-from").find('.product_id').val('');
-                if (product.id) {
-                    $(document).find("#product-template-from").find('.product_id').val(product.id);
+                $(document).find("#product-template-from").find('.product_title').val('');
+                if (product.name) {
+                    $(document).find("#product-template-from").find('.product_title').val(product.name);
                 }
 
                 $(document).find("#product-template-from").find('.select-2-brand').val('').trigger('change');
