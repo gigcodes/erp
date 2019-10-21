@@ -512,24 +512,30 @@ class ScrapController extends Controller
         ], 400);
     }
 
-    public function processProductLinks(Request $request){
-        $pending_url = array();
-        $links = $request->link;
-        for ($i=0;$i<count($links);$i++){
-           $log = LogScraper::select('url','sku','updated_at')->where('url',$links[$i])->where('website',$request->website)->first();
-            if($log != null){
-                $log->touch();
-                $log->save();
+    public function processProductLinks(Request $request)
+    {
+        $pendingUrl = array();
+        $links = $request->links;
 
-                $scraped_products = ScrapedProducts::where('sku',$log->sku)->first();
-                $scraped_products->last_inventory_at = now();
-                $scraped_products->save();
+        if (is_array($links)) {
+            for ($i = 0; $i < count($links); $i++) {
+                $log = LogScraper::select('url', 'sku', 'updated_at')->where('url', $links[ $i ])->where('website', $request->website)->first();
+                if ($log != null) {
+                    $log->touch();
+                    $log->save();
 
-            }else{
-                $pending_url[] = $links[$i];
+                    // Load scraped product and update last_inventory_at
+                    $scraped_product = ScrapedProducts::where('sku', ProductHelper::getSku($log->sku))->first();
+                    $scraped_product->last_inventory_at = Carbon::now();
+                    $scraped_product->save();
+
+                } else {
+                    $pendingUrl[] = $links[ $i ];
+                }
             }
         }
-        return $pending_url;
+
+        return $pendingUrl;
 
     }
 }
