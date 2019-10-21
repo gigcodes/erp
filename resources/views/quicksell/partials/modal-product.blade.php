@@ -155,6 +155,20 @@
             @endif
           </div>
 
+           <div class="form-group">
+                        <strong>Existing Group:</strong>
+                        
+                        @php
+                            $groups = \App\QuickSellGroup::orderBy('group','asc')->get();
+                        @endphp
+                        <select class="form-control selectpicker" data-live-search="true" name="group_old">
+                          <option value="">Select Group</option>
+                            @foreach($groups as $group)
+                                <option value="{{ $group->group }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }} @endif </option>
+                            @endforeach
+                        </select>
+                    </div>
+
           <div class="form-group">
             @php $supplier_list = (new \App\ReadOnly\SupplierList)->all();
             @endphp
@@ -229,6 +243,11 @@
             @if ($errors->has('category'))
             <div class="alert alert-danger">{{$errors->first('category')}}</div>
             @endif
+          </div>
+
+          <div>
+            <strong>New Group:</strong>
+            <input type="text" name="group_new" placeholder="Please Enter New Group Name" class="form-control">
           </div>
 
         </div>

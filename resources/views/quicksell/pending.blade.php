@@ -2,6 +2,17 @@
 
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <style>
+  .checkbox_select{
+    display: none;
+  }
+  .align {
+    padding: 0px 10px 10px 10px !important;
+  }
+  #activate{
+    display: none;
+  }
+</style>
 @endsection
 
 @section('content')
@@ -11,58 +22,127 @@
         </div>
     </div>
 
-    {{-- @include('quicksell.partials.modal-image') --}}
+ 
 
-    <div class="pull-right">
-        {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</button> --}}
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">Upload</button>
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroup">Create Group</button>
-        <a href="{{ url('/quickSell') }}"><button type="button" class="btn btn-secondary">Active</button></a>
+<form action="{{ route('quicksell.pending') }}" method="GET" id="searchForm" class="form-inline align-items-start">
+  
+  <input type="hidden" name="selected_products" id="selected_products" value="">
+  <div class="form-group mr-3 mb-3">
+    <input name="term" type="text" class="form-control" id="product-search"
+           value="{{ isset($term) ? $term : '' }}"
+           placeholder="sku,brand,category,status,stage">
+    </div>
+    <div class="form-group mr-3">
+      @php $category = \App\Category::all(); @endphp
+      <select class="form-control select-multiple2" name="category[]" multiple data-placeholder="Category...">
+        <optgroup label="Category">
+          @foreach ($category as $key => $name)
+            <option value="{{ $key }}">{{ $name->title }}</option>
+          @endforeach
+        </optgroup>
+      </select>
     </div>
 
-    <form action="{{ route('quicksell.index') }}" method="GET" class="form-inline align-items-start mb-5">
-        {{-- <div class="form-group mr-3 mb-3">
-          <input name="term" type="text" class="form-control" id="product-search" value="{{ isset($term) ? $term : '' }}" placeholder="sku,brand,category,status,stage">
-        </div> --}}
+  <div class="form-group mr-3">
+    @php $brands = \App\Brand::getAll(); @endphp
+    <select class="form-control select-multiple2" name="brand[]" multiple data-placeholder="Brands...">
+      <optgroup label="Brands">
+        @foreach ($brands as $key => $name)
+          <option value="{{ $key }}">{{ $name }}</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
 
-        <div class="form-group mr-3 mb-3">
-            {!! $filter_categories_selection !!}
-        </div>
+  <div class="form-group mr-3">
+    {{-- <strong>Color</strong> --}}
+    @php $colors = new \App\Colors(); @endphp
+    <select class="form-control select-multiple2" name="color[]" multiple data-placeholder="Colors...">
+      <optgroup label="Colors">
+        @foreach ($colors->all() as $key => $col)
+          <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
 
-        <div class="form-group mr-3">
-            @php $brands_select = \App\Brand::getAll();
-            @endphp
-            <select class="form-control select-multiple" name="brand[]" multiple>
-                <optgroup label="Brands">
-                    @foreach ($brands_select as $id => $name)
-                        <option value="{{ $id }}" {{ isset($brand) && $brand == $name ? 'selected' : '' }}>{{ $name }}</option>
-                    @endforeach
-                </optgroup>
-            </select>
-        </div>
+  <div class="form-group mr-3">
+    <select class="form-control select-multiple2" name="supplier[]" multiple data-placeholder="Supplier...">
+      <optgroup label="Suppliers">
+        @foreach ($suppliers as $key => $supp)
+          <option value="{{ $supp->supplier }}" {{ isset($supplier) && $supplier == $supp->id ? 'selected' : '' }}>{{ $supp->supplier }}</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
 
-        @if (Auth::user()->hasRole('Admin'))
-            <div class="form-group mr-3">
-                <select class="form-control select-multiple" name="location[]" multiple>
-                    <optgroup label="Locations">
-                        @foreach ($locations as $name)
-                            <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
-                        @endforeach
-                    </optgroup>
-                </select>
-            </div>
-        @endif
+  @if (Auth::user()->hasRole('Admin'))
+    <div class="form-group mr-3">
+      <select class="form-control select-multiple2" name="location[]" multiple data-placeholder="Location...">
+        <optgroup label="Locations">
+          @foreach ($locations as $name)
+            <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
+          @endforeach
+        </optgroup>
+      </select>
+    </div>
+  @endif
 
-        <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-    </form>
+  <div class="form-group mr-3">
+    <input name="size" type="text" class="form-control"
+           value="{{ isset($size) ? $size : '' }}"
+           placeholder="Size">
+  </div>
 
+  <div class="form-group mr-3">
+    @php $groups = \App\QuickSellGroup::all(); @endphp
+    <select class="form-control select-multiple2" name="group[]" multiple data-placeholder="Groups...">
+      <optgroup label="Groups">
+        @foreach ($groups as $key => $group)
+          <option value="{{ $key }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }} @endif</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
+
+  <div class="form-group mr-3">
+    {!! Form::select('per_page',[
+    "20" => "20 Images Per Page",
+    "30" => "30 Images Per Page",
+    "50" => "50 Images Per Page",
+    "100" => "100 Images Per Page",
+    ], request()->get("per_page",null), ['placeholder' => '-- Select Images Per Page --','class' => 'form-control']) !!}
+  </div>
+  <div class="form-group mr-3">
+    <strong class="mr-3">Price</strong>
+    <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '400000' }}]"/>
+  </div>
+  <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+  <button type="button" class="btn btn-image"><a href="/quickSell/pending"><img src="/images/icons-refresh.png"/></a></button>
+  {{-- </div>
+</div> --}}
+</form>
+<br>
+<div>
+  
+  <a href="{{ url('/quickSell/pending') }}"><button type="button" class="btn btn-secondary">Product Active</button></a>
+  <button type="button" class="btn btn-secondary" id="selet-all-multiple">Attach all</button>
+  <button type="button" class="btn btn-secondary" id="activate">Activate Products</button>
+</div>
 
 
     @include('partials.flash_messages')
 
-    <div class="row mt-6">
+    <div class="row mt-6" style="margin: 10px;">
+        <form action="{{ route('quicksell.activate') }}" method="POST" id="activate_products">
+            @csrf
+            <input type="hidden" name="checkbox_value" id="value">
+
+        </form>
         @foreach ($products as $index => $product)
-            <div class="col-md-3 col-xs-6 text-center">
+          <div class="col-md-3 col-xs-6 text-center">
+            <input type="checkbox" class="checkbox_select" name="quick" value="{{ $product->id }}"/>
+
                 {{-- <a href="{{ route('leads.show', $lead['id']) }}"> --}}
                 <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
               ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
@@ -72,6 +152,16 @@
                 <p>Size : {{ $product->size }}</p>
                 <p>Brand : {{ $product->brand ? $brands[$product->brand] : '' }}</p>
                 <p>Category : {{ $product->category ? $categories[$product->category] : '' }}</p>
+                 @if($product->groups)
+    
+                <p>Group :@if($product->groups->count() == 0) <input type="checkbox" name="blank" class="form-control checkbox" data-id="{{ $product->id }}"> @else @foreach($product->groups as $group)
+                  @php 
+                $grp = \App\QuickSellGroup::where('group',$group->quicksell_group_id)->first();
+                @endphp 
+
+                @if($grp != null && $grp->name != null) {{ $grp->name }} , @else {{ $group->quicksell_group_id }}, @endif @endforeach @endif </p>
+
+                @endif
 
                 <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
                 {!! Form::open(['method' => 'POST','route' => ['products.archive', $product->id],'style'=>'display:inline']) !!}
@@ -86,6 +176,7 @@
                 {{-- </a> --}}
             </div>
         @endforeach
+        
     </div>
 
     {!! $products->links() !!}
@@ -217,5 +308,52 @@
                 }
             }
         }
+
+         $(document).ready(function() {
+       $(".select-multiple").multiselect();
+       $(".select-multiple2").select2();
+    });
+
+           $(document).ready(
+            function(){
+              $("#selet-all-multiple").click(function () {
+                $(".checkbox_select").toggle();
+                $("#activate").toggle();
+                
+                var checkBoxes = $(".checkbox_select");
+                checkBoxes.prop("checked", !checkBoxes.prop("checked"));
+                $("#multiple").text("Please Select Checkbox");
+                $("#multiple").click(function () {
+                  $('#multipleWhatsappModal').modal('show');
+                  val = $('input[name="quick"]:checked');
+                  $("#selected_checkbox").text(val.length);
+                  var list = [];
+                  $('input[name="quick"]:checked').each(function() {
+                    list.push(this.value);
+                  });
+                  $("#products").val(list);
+                });
+              });
+
+            });  
+
+         $(document).ready(function() {
+       $(".select-multiple").multiselect();
+       $(".select-multiple2").select2();
+    });
+
+$(document).ready(function(){
+    $("#activate").click(function(){  
+     var checkbox = [];
+            $.each($("input[name='quick']:checked"), function(){
+                checkbox.push($(this).val());
+            });  
+            
+            $("#value").val(checkbox);
+         $("#activate_products").submit();         
+
+    });
+});
+</script>
     </script>
 @endsection

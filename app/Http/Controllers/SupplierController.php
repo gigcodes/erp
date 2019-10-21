@@ -860,6 +860,9 @@ class SupplierController extends Controller
                     }else{
                         $group_create =  new QuickSellGroup();
                         $incrementId = ($group->group+1);
+                        if($request->group_id != null){
+                        $group_create->name = $request->group_id.$group->group;
+                        }
                         $group_create->suppliers = json_encode($request->supplier);
                         $group_create->brands = json_encode($request->brand);
                         $group_create->price = $request->buying_price;

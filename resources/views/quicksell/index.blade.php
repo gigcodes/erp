@@ -99,7 +99,7 @@
   <div class="form-group mr-3">
     @php $groups = \App\QuickSellGroup::all(); @endphp
     <select class="form-control select-multiple2" name="group[]" multiple data-placeholder="Groups...">
-      <optgroup label="Brands">
+      <optgroup label="Groups">
         @foreach ($groups as $key => $group)
           <option value="{{ $key }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }} @endif</option>
         @endforeach
@@ -132,7 +132,7 @@
   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroupExist">Add Existing Group</button>
   <button type="button" class="btn btn-secondary" id="multiple">Send Multiple Images</button>
   <a href="{{ url('/quickSell/pending') }}"><button type="button" class="btn btn-secondary">Product Pending</button></a>
-  <button type="button" class="btn btn-secondary" id="selet-all-multiple">Attached All</button>
+  <button type="button" class="btn btn-secondary" id="selet-all-multiple">Attach all</button>
 </div>
 
 @include('partials.flash_messages')
@@ -152,8 +152,13 @@
     <p>Brand : {{ $product->brand ? $brands[$product->brand] : '' }}</p>
     <p>Category : {{ $product->category ? $categories[$product->category] : '' }}</p>
     @if($product->groups)
+    
+    <p>Group :@if($product->groups->count() == 0) <input type="checkbox" name="blank" class="form-control checkbox" data-id="{{ $product->id }}"> @else @foreach($product->groups as $group)
+      @php 
+    $grp = \App\QuickSellGroup::where('group',$group->quicksell_group_id)->first();
+    @endphp 
 
-    <p>Group :@if($product->groups->count() == 0) <input type="checkbox" name="blank" class="form-control checkbox" data-id="{{ $product->id }}"> @else @foreach($product->groups as $group) {{ $group->quicksell_group_id }}, @endforeach @endif </p>
+    @if($grp != null && $grp->name != null) {{ $grp->name }} , @else {{ $group->quicksell_group_id }}, @endif @endforeach @endif </p>
 
     @endif
     </div>   
