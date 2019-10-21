@@ -140,26 +140,37 @@
                         </td>
                         <td><!-- {{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }} -->
                             @php
+                                $suppliersArray = [];
                                 $data = DB::select('SELECT sp.id FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
 
                                 $cnt = count($data);
                             @endphp
                             @if($cnt > 0)
                                 @php
-                                    $suppliers_array2 = DB::select('SELECT suppliers.id, supplier, ps.product_id
+                                    $suppliersArray = DB::select('SELECT suppliers.id, supplier, ps.product_id
                                        FROM suppliers
                                        INNER JOIN product_suppliers as ps on suppliers.id = ps.supplier_id and ps.product_id = :product_id
                                        LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and purchase_product_supplier.product_id = ps.product_id', ['product_id' =>$product['id']]);
-                                       $cnt2 = count($suppliers_array2);
                                 @endphp
                             @endif
-                            @if(empty($cnt2))
-                                @php
-                                    $suppliers_array2 = $activSuppliers;
-                                @endphp
-                            @endif
+
+                            <?php 
+                                foreach ($activSuppliers as $value) {
+                                    $isNeed = true;
+                                    foreach ($suppliersArray as $v) {
+                                        if ($v->id == $value->id) {
+                                            $isNeed = false;
+                                            break;
+                                        }
+                                    }
+                                    if ($isNeed) {
+                                        $suppliersArray[] = $value;
+                                    }
+                                }
+                            ?>
+
                             <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple2 supplier_msg" multiple data-product-id="{{$product['id']}}" placeholder="supplier">
-                                @foreach($suppliers_array2 as $sup)
+                                @foreach($suppliersArray as $sup)
                                     <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
                                 @endforeach
                             </select>
