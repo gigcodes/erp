@@ -37,13 +37,8 @@ class ProductTemplatesController extends Controller
     public function create(Request $request)
     {
         $template      = new \App\ProductTemplate;
-        $param         = request()->all();
-        $product_title = null;
-        if (request()->get('product_title')) {
-            $product_title = \App\Product::where('id', request()->get('product_title'))->value('name');
-        }
-        $param['product_title'] = $product_title;
-        $template->fill($param);
+        
+        $template->fill(request()->all());
 
         if ($template->save()) {
             if ($request->hasFile('files')) {
