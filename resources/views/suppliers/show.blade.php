@@ -454,7 +454,7 @@
                 <div class="row">
                     <form action="{{ route('supplier.image') }}" method="post" enctype="multipart/form-data">
                         @csrf
-                        <button type="submit" class="btn btn-xs btn-secondary" value="1" name="type">Create Product</button>
+                        <button type="buttin" class="btn btn-xs btn-secondary" value="1" name="type" id="createProduct">Create Product</button>
                         <button type="button" class="btn btn-xs btn-secondary" value="2" name="type" id="createGroup">Create Product Group</button>
                         <div class="load-communication-modal" style="display: none;" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}"></div>
                         <div class="col-12" id="chat-history"></div>
@@ -1844,6 +1844,20 @@
 
         $(function() {
          $('.selectpicker').selectpicker();
+        });
+
+         $(document).on('click', '#createProduct', function (e) {
+            e.preventDefault();
+             var images = [];
+            $.each($("input[name='checkbox[]']:checked"), function(){
+                images.push($(this).val());
+            });
+            console.log(images);
+            console.log(images.length);
+            
+            $("#images_product").val(JSON.stringify(images));
+            $("#count_product_images").html(images.length);
+            $('#productSingleGroupDetails').modal('show');
         });
 
           $(document).on('click', '#createGroup', function (e) {

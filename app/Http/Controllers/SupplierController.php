@@ -804,12 +804,13 @@ class SupplierController extends Controller
 
         // Only create Product
         if ($request->type == 1) {
-            $images = $request->checkbox;
+          
+            // Create Group ID with Product
+            $images = explode(",",$request->checkbox1[0]);
+
             if ($images) {
                 foreach ($images as $image) {
                     if($image != null) {
-                        //Getting the last created QUICKSELL
-                        // MariaDB 10.0.5 and higher: $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->whereRaw("REGEXP_REPLACE(products.sku, '[a-zA-Z]+', '') > 0")->orderBy('id', 'desc')->first();
                         $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
                         if ($product) {
                             $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
@@ -822,23 +823,45 @@ class SupplierController extends Controller
                         $product->name = 'QUICKSELL';
                         $product->sku = 'QuickSell' . $number;
                         $product->size = '';
-                        $product->brand = '';
+                        $product->brand = $product->brand = $request->brand;
                         $product->color = '';
                         $product->location = '';
+                         if($request->category == null){
                         $product->category = '';
-                        $product->supplier = 'QUICKSELL';
+                    }else{
+                        $product->category = $request->category;
+                    }
+                    
+                    if($request->supplier == null){
+                      $product->supplier = 'QUICKSELL';
+                    }else{
+                      $sup = Supplier::findorfail($request->supplier);
+                      $product->supplier = $sup->supplier;
+                    }
+                    if($request->buying_price == null){
                         $product->price = 0;
+                    }else{
+                        $product->price = $request->buying_price;
+                    }
+                    if($request->special_price == null){
+                        $product->price_special = 0;
+                    }else{
+                         $product->price_special = $request->special_price;
+                    }
                         $product->stock = 1;
                         $product->quick_product = 1;
                         $product->is_pending = 1;
                         $product->save();
+                        preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
+                        $image = $match[0][0];
+                    
                         $jpg = \Image::make($image)->encode('jpg');
                         $filename = substr($image, strrpos($image, '/'));
                         $filename = str_replace("/","",$filename);
                         $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
                         $product->attachMedia($media, config('constants.media_tags'));
 
-                        return redirect()->back()->withSuccess('You have successfully saved product(s)!');
+                       // return redirect()->back()->withSuccess('You have successfully saved product(s)!');
                     }
                 }
                 return redirect()->back()->withSuccess('You have successfully saved product(s)!');
@@ -861,7 +884,7 @@ class SupplierController extends Controller
                         $group_create =  new QuickSellGroup();
                         $incrementId = ($group->group+1);
                         if($request->group_id != null){
-                        $group_create->name = $request->group_id.$group->group;
+                        $group_create->name = $request->group_id;
                         }
                         $group_create->suppliers = json_encode($request->supplier);
                         $group_create->brands = json_encode($request->brand);
@@ -875,7 +898,7 @@ class SupplierController extends Controller
                 } else {
                    $group =  new QuickSellGroup();
                    $group->group = 1;
-                   $group_create->name = $request->group_id.$group->group;
+                   $group_create->name = $request->group_id;
                    $group_create->suppliers = json_encode($request->suppliers);
                    $group_create->brands = json_encode($request->brand);
                    $group_create->price = $request->buying_price;

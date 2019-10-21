@@ -31,7 +31,7 @@
                     	<div class="form-group">
                         <strong>Brand</strong>
                        
-                        <select class="form-control select-multiple2" name="brands[]" multiple>
+                        <select class="form-control selectpicker" data-live-search="true" name="brands[]" multiple>
                         @php
                         $brands = \App\Brand::orderBy('name','asc')->get();
                         @endphp	
@@ -42,6 +42,8 @@
                         </select>
                     	</div>
                     </div>	
+
+
                  
                     </div>
                     
@@ -54,13 +56,13 @@
                         $category_parent = \App\Category::where('parent_id', 0)->orderby('title','asc')->get();
                         $category_child = \App\Category::where('parent_id', '!=', 0)->orderby('title','asc')->get();
                         @endphp
-                         <select class="form-control select-multiple2" name="categories[]" multiple >
+                         <select class="form-control selectpicker" data-live-search="true" name="categories[]" multiple >
                          	<option selected value="">Select Category</option>
                     	@foreach($category_parent as $c)
                             <option value="{{ $c->id }}">{{ $c->title }}</option>
                             @if($c->childs)
                             	@foreach($c->childs as $categ)
-                            	<option value="{{ $categ->id }}">{{ $categ->title }}</option>
+                            	<option value="{{ $categ->id }}">---{{ $categ->title }}</option>
                             	@endforeach
                             @endif
                         @endforeach
@@ -68,7 +70,7 @@
                             <option value="{{ $c->id }}">{{ $c->title }}</option>
                             @if($c->childs)
                             	@foreach($c->childs as $categ)
-                            	<option value="{{ $categ->id }}">{{ $categ->title }}</option>
+                            	<option value="{{ $categ->id }}">---{{ $categ->title }}</option>
                             	@endforeach
                             @endif
                         @endforeach
@@ -79,7 +81,7 @@
                     <div class="form-group">
                         <strong>Supplier:</strong>
                        
-                        <select class="form-control select-multiple2" name="suppliers[]" multiple>
+                        <select class="form-control selectpicker" data-live-search="true" name="suppliers[]" multiple>
                         	 <option selected value="">Select Supplier</option>
                         @foreach($suppliers as $supplier)
                             <option value="{{ $supplier->id }}">{{ $supplier->supplier }}</option>

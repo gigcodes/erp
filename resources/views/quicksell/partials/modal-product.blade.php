@@ -170,9 +170,10 @@
                     </div>
 
           <div class="form-group">
+            <strong>Suppliers:</strong>
             @php $supplier_list = (new \App\ReadOnly\SupplierList)->all();
             @endphp
-            <select class="form-control" name="supplier" id="supplier_select">
+            <select class="form-control selectpicker" name="supplier" data-live-search="true" id="supplier_select">
               <option value="">Select Supplier</option>
               @foreach ($supplier_list as $index => $value)
               <option value="{{ $index }}" {{ $index == old('supplier') ? 'selected' : '' }}>{{ $value }}</option>

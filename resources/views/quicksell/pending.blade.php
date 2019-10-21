@@ -33,12 +33,28 @@
            placeholder="sku,brand,category,status,stage">
     </div>
     <div class="form-group mr-3">
-      @php $category = \App\Category::all(); @endphp
+      @php
+       $category_parent = \App\Category::where('parent_id', 0)->orderby('title','asc')->get();
+       $category_child = \App\Category::where('parent_id', '!=', 0)->orderby('title','asc')->get();
+       @endphp
       <select class="form-control select-multiple2" name="category[]" multiple data-placeholder="Category...">
         <optgroup label="Category">
-          @foreach ($category as $key => $name)
-            <option value="{{ $key }}">{{ $name->title }}</option>
-          @endforeach
+         @foreach($category_parent as $c)
+                            <option value="{{ $c->id }}">{{ $c->title }}</option>
+                            @if($c->childs)
+                              @foreach($c->childs as $categ)
+                              <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
+                              @endforeach
+                            @endif
+                        @endforeach
+                        @foreach($category_child as $c)
+                            <option value="{{ $c->id }}">{{ $c->title }}</option>
+                            @if($c->childs)
+                              @foreach($c->childs as $categ)
+                              <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
+                              @endforeach
+                            @endif
+                        @endforeach
         </optgroup>
       </select>
     </div>
@@ -154,14 +170,14 @@
                 <p>Category : {{ $product->category ? $categories[$product->category] : '' }}</p>
                  @if($product->groups)
     
-                <p>Group :@if($product->groups->count() == 0) <input type="checkbox" name="blank" class="form-control checkbox" data-id="{{ $product->id }}"> @else @foreach($product->groups as $group)
+                <p>Group :@foreach($product->groups as $group)
                   @php 
                 $grp = \App\QuickSellGroup::where('group',$group->quicksell_group_id)->first();
                 @endphp 
 
                 @if($grp != null && $grp->name != null) {{ $grp->name }} , @else {{ $group->quicksell_group_id }}, @endif @endforeach @endif </p>
 
-                @endif
+                
 
                 <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
                 {!! Form::open(['method' => 'POST','route' => ['products.archive', $product->id],'style'=>'display:inline']) !!}
@@ -337,10 +353,7 @@
 
             });  
 
-         $(document).ready(function() {
-       $(".select-multiple").multiselect();
-       $(".select-multiple2").select2();
-    });
+        
 
 $(document).ready(function(){
     $("#activate").click(function(){  

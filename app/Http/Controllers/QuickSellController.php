@@ -217,12 +217,13 @@ class QuickSellController extends Controller
       $product->save();
       //dd($request);
       if($request->group_old != null){
+          ProductQuicksellGroup::where('product_id',$product->id)->delete();
           $edit = new ProductQuicksellGroup();
           $edit->quicksell_group_id = $request->group_old;
           $edit->product_id = $product->id;
           $edit->save();
       }elseif($request->group_new != null){
-
+          ProductQuicksellGroup::where('product_id',$product->id)->delete();
            $group = QuickSellGroup::orderBy('id', 'desc')->first();
            
            $group_create =  new QuickSellGroup();
@@ -245,7 +246,7 @@ class QuickSellController extends Controller
         }
       }
 
-      return redirect()->route('quicksell.index')->with('success', 'You have successfully updated Quick Product');
+      return redirect()->back()->with('success', 'You have successfully updated Quick Product');
     }
 
     /**
@@ -439,19 +440,23 @@ class QuickSellController extends Controller
     }
 
     public function activate(Request $request){
+      //dd($request);
         $ids = explode(',',$request->checkbox_value);
-        if($request->checkbox == null){
+        
+        if($request->id == null){
+           foreach ($ids as $id) {
+          $product = Product::findorfail($id);
+          $product->is_pending = 0;
+          $product->update();
+        }
+         
+        
+        }else{
           
           $product = Product::findorfail($request->id);
           $product->is_pending = 0;
           $product->update();
         
-        }else{
-          foreach ($ids as $id) {
-          $product = Product::findorfail($id);
-          $product->is_pending = 0;
-          $product->update();
-        }
 
         }
         
@@ -460,7 +465,7 @@ class QuickSellController extends Controller
 
     public function search(Request $request)
     {
-
+        
         if($request->selected_products || $request->term  || $request->category || $request->brand || $request->color || $request->supplier ||
             $request->location || $request->size || $request->price ){
 
@@ -495,6 +500,7 @@ class QuickSellController extends Controller
             }
 
             if (request('group') != null) {
+            //  dd('hello');
                 $query->orWhereHas('groups', function ($qu) use ($request) {
                     $qu->whereIn('quicksell_group_id',$request->group);
                     });
@@ -514,7 +520,7 @@ class QuickSellController extends Controller
             }
 
             $products = $query->where('quick_product',1)->where('is_pending',0)->paginate($per_page);
-
+           
         }else{
             $products = Product::where('is_pending',0)->latest()->paginate(Setting::get('pagination'));
         }
@@ -589,7 +595,7 @@ class QuickSellController extends Controller
     {
       //dd($request);
       if($request->groups != null){
-
+           ProductQuicksellGroup::where('product_id',$product->id)->delete();
            $product = new ProductQuicksellGroup();
            $product->product_id = $request->product_id;
            $product->quicksell_group_id = $request->groups;

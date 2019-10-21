@@ -10,13 +10,19 @@
   .align {
     padding: 0px 10px 10px 10px !important;
   }
+  .groups-css {
+    display : inline-flex;
+  }
+  .group-checkbox {
+    padding-left : 5px;
+  }
 </style>
 @endsection
 
 @section('content')
 <div class="row">
   <div class="col">
-    <h2 class="page-heading">quick Sell</h2>
+    <h2 class="page-heading">Quick Sell</h2>
   </div>
 </div>
 
@@ -35,12 +41,28 @@
            placeholder="sku,brand,category,status,stage">
     </div>
     <div class="form-group mr-3">
-      @php $category = \App\Category::all(); @endphp
+      @php
+       $category_parent = \App\Category::where('parent_id', 0)->orderby('title','asc')->get();
+       $category_child = \App\Category::where('parent_id', '!=', 0)->orderby('title','asc')->get();
+       @endphp
       <select class="form-control select-multiple2" name="category[]" multiple data-placeholder="Category...">
         <optgroup label="Category">
-          @foreach ($category as $key => $name)
-            <option value="{{ $key }}">{{ $name->title }}</option>
-          @endforeach
+          @foreach($category_parent as $c)
+                            <option value="{{ $c->id }}">{{ $c->title }}</option>
+                            @if($c->childs)
+                              @foreach($c->childs as $categ)
+                              <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
+                              @endforeach
+                            @endif
+                        @endforeach
+                        @foreach($category_child as $c)
+                            <option value="{{ $c->id }}">{{ $c->title }}</option>
+                            @if($c->childs)
+                              @foreach($c->childs as $categ)
+                              <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
+                              @endforeach
+                            @endif
+                        @endforeach
         </optgroup>
       </select>
     </div>
@@ -100,8 +122,8 @@
     @php $groups = \App\QuickSellGroup::all(); @endphp
     <select class="form-control select-multiple2" name="group[]" multiple data-placeholder="Groups...">
       <optgroup label="Groups">
-        @foreach ($groups as $key => $group)
-          <option value="{{ $key }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }} @endif</option>
+        @foreach ($groups as $group)
+          <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }} @endif</option>
         @endforeach
       </optgroup>
     </select>
@@ -153,7 +175,7 @@
     <p>Category : {{ $product->category ? $categories[$product->category] : '' }}</p>
     @if($product->groups)
     
-    <p>Group :@if($product->groups->count() == 0) <input type="checkbox" name="blank" class="form-control checkbox" data-id="{{ $product->id }}"> @else @foreach($product->groups as $group)
+    <p class="groups-css">Group :@if($product->groups->count() == 0) <input type="checkbox" name="blank" class="group-checkbox checkbox" data-id="{{ $product->id }}"> @else @foreach($product->groups as $group)
       @php 
     $grp = \App\QuickSellGroup::where('group',$group->quicksell_group_id)->first();
     @endphp 
@@ -194,7 +216,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"></script>
   <script type="text/javascript">
-    $(".select-multiple").select2();
+   
 
     $(document).on("click","#attached-all-quick",function(){
         if($(this).html() == "Attached-ALL") {
@@ -352,10 +374,12 @@
 
             });
 
-   $(document).ready(function() {
-       $(".select-multiple").multiselect();
+
+      $(document).ready(function() {
+         $(".select-multiple").multiselect();
        $(".select-multiple2").select2();
-    });
+       });
+      
 
     $(function() {
       $('.selectpicker').selectpicker();
