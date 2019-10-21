@@ -135,7 +135,7 @@ var productTemplate = {
     productSearch : function() {
         $('.ddl-select-product').select2({
             ajax: {
-                url: '/productSearch/',
+                url: '/productSearch',
                 dataType: 'json',
                 delay: 750,
                 data: function (params) {
