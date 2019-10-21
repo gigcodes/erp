@@ -14,6 +14,7 @@ use App\ScrapActivity;
 use App\SupplierInventory;
 use App\Helpers\ProductHelper;
 use App\Loggers\LogScraper;
+use App\ProductQuicksellGroup;
 use App\Services\Products\ProductsCreator;
 
 class Product extends Model
@@ -505,4 +506,9 @@ class Product extends Model
     {
         return $this->hasMany(ProductStatus::class, 'product_id', 'id');
     }
+
+    public function groups(){
+        return $this->hasMany(ProductQuicksellGroup::class,'product_id','id');
+    }
+
 }

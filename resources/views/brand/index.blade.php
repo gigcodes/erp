@@ -26,7 +26,7 @@
                 </div>
 
                 <div class="form-group ml-3">
-                    <select class="form-control" id="brand">
+                    <select class="form-control select-multiple" id="brand"  data-placeholder="Brands...">
                         @foreach ($brands as $brand)
                             <option value="{{ $brand->id }}" data-brand="{{ $brand }}">{{ $brand->name }}</option>
                         @endforeach
@@ -76,6 +76,7 @@
 
 @section('scripts')
     <script type="text/javascript">
+        $(".select-multiple").select2();
         $('#calculatePriceButton').on('click', function () {
             var price = $('#product_price').val();
             var brand = $('#brand :selected').data('brand');

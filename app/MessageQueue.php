@@ -62,7 +62,7 @@ class MessageQueue extends Model
                             $return[] = [
                               "key"      => null,
                               "image"    => "",
-                              "products" => ($broadcast) ? json_decode($broadcast->products, true) : []
+                              "products" => $product_ids
                             ];
 
                         }

@@ -7,71 +7,30 @@ use App\Category;
 use App\Helpers\ProductHelper;
 use App\Image;
 use App\Imports\ProductsImport;
-use App\Helpers\StatusHelper;
-use App\Loggers\LogScraper;
 use App\Product;
 use App\ScrapCounts;
 use App\ScrapedProducts;
 use App\ScrapEntries;
 use App\ScrapActivity;
+use App\ScrapStatistics;
+use App\Services\Products\AttachSupplier;
 use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Scrap\PinterestScraper;
 use App\Services\Products\GnbProductsCreator;
 use App\Supplier;
+use App\Loggers\LogScraper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Storage;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Services\Products\ProductsCreator;
 
 class ScrapController extends Controller
 {
-    private $googleImageScraper;
-    private $pinterestScraper;
-    private $gnbCreator;
-
-    public function __construct(GoogleImageScraper $googleImageScraper, PinterestScraper $pinterestScraper, GnbProductsCreator $gnbCreator)
-    {
-        $this->googleImageScraper = $googleImageScraper;
-        $this->pinterestScraper = $pinterestScraper;
-        $this->gnbCreator = $gnbCreator;
-    }
-
-    public function index()
-    {
-        return view('scrap.index');
-    }
-
-    public function scrapGoogleImages(Request $request)
-    {
-        $this->validate($request, [
-            'query' => 'required',
-            'noi' => 'required',
-        ]);
-
-        $q = $request->get('query');
-        $noi = $request->get('noi');
-        $chip = $request->get('chip');
-
-        $pinterestData = [];
-        $googleData = [];
-
-        if ($request->get('pinterest') === 'on') {
-            $pinterestData = $this->pinterestScraper->scrapPinterestImages($q, $chip, $noi);
-        }
-
-        if ($request->get('google') === 'on') {
-            $googleData = $this->googleImageScraper->scrapGoogleImages($q, $chip, $noi);
-        }
-
-        return view('scrap.extracted_images', compact('googleData', 'pinterestData'));
-
-    }
 
     public function downloadImages(Request $request)
     {
@@ -106,568 +65,143 @@ class ScrapController extends Controller
 
     }
 
-    public function activity()
-    {
-        $date = Carbon::now()->subDays(7)->format('Y-m-d');
-
-        $links_count = DB::select('
-									SELECT site_name, created_at, COUNT(*) as total FROM
-								 		(SELECT scrap_entries.site_name, DATE_FORMAT(scrap_entries.created_at, "%Y-%m-%d") as created_at
-								  		 FROM scrap_entries
-								  		 WHERE scrap_entries.created_at > ?)
-								    AS SUBQUERY
-								   	GROUP BY created_at, site_name;
-							', [$date]);
-
-        $scraped_count = DB::select('
-									SELECT website, created_at, COUNT(*) as total FROM
-								 		(SELECT scraped_products.website, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
-								  		 FROM scraped_products
-								  		 WHERE scraped_products.created_at > ?)
-								    AS SUBQUERY
-								   	GROUP BY created_at, website;
-							', [$date]);
-
-        // dd($scraped_count);
-
-        $products_count = DB::select('
-									SELECT website, created_at, COUNT(*) as total FROM
-								 		(SELECT scraped_products.website, scraped_products.sku, DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d") as created_at
-								  		 FROM scraped_products
-
-                       RIGHT JOIN (
-                         SELECT products.sku FROM products
-                       ) AS products
-                       ON scraped_products.sku = products.sku
-
-								  		 WHERE scraped_products.created_at > ?
-                       )
-
-								    AS SUBQUERY
-								   	GROUP BY created_at, website;
-							', [$date]);
-
-        // dd($products_count);
-
-        $activity_data = DB::select('
-									SELECT website, status, created_at, COUNT(*) as total FROM
-								 		(SELECT scrap_activities.website, scrap_activities.status, DATE_FORMAT(scrap_activities.created_at, "%Y-%m-%d") as created_at
-								  		 FROM scrap_activities
-								  		 WHERE scrap_activities.created_at > ?)
-								    AS SUBQUERY
-								   	GROUP BY created_at, website, status;
-							', [$date]);
-
-        $data = [];
-
-        // dd('stap');
-
-        $link_entries = ScrapCounts::where('created_at', '>', $date)->orderBy('created_at', 'DESC')->get();
-
-        foreach ($links_count as $item) {
-            if ($item->site_name == 'GNB') {
-                $item->site_name = 'G&B';
-            }
-
-            $data[ $item->created_at ][ $item->site_name ][ 'links' ] = $item->total;
-        }
-
-        foreach ($scraped_count as $item) {
-            $data[ $item->created_at ][ $item->website ][ 'scraped' ] = $item->total;
-        }
-
-        foreach ($products_count as $item) {
-            $data[ $item->created_at ][ $item->website ][ 'created' ] = $item->total;
-        }
-
-        foreach ($activity_data as $item) {
-            $data[ $item->created_at ][ $item->website ][ $item->status ] = $item->total;
-        }
-
-        ksort($data);
-        // dd($data);
-        $data = array_reverse($data);
-
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 24;
-        $currentItems = array_slice($data, $perPage * ($currentPage - 1), $perPage);
-
-
-        $data = new LengthAwarePaginator($currentItems, count($data), $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath()
-        ]);
-
-        $cropCountPerMinute = Product::whereRaw('cropped_at >= date_sub(now(),interval 1.2 minute)')->count();
-
-        return view('scrap.activity', [
-            'data' => $data,
-            'link_entries' => $link_entries,
-            'croppingRate' => $cropCountPerMinute
-        ]);
-    }
-
-    public function showProductStat(Request $request)
-    {
-        $brands = Brand::whereNull('deleted_at')->get();
-        $products = [];
-        $suppliers = DB::table('scraped_products')->selectRaw('DISTINCT(`website`)')->pluck('website');
-
-        foreach ($suppliers as $supplier) {
-            foreach ($brands as $brand) {
-                $products[ $supplier ][ $brand->name ] = ScrapedProducts::where('website', $supplier)
-                    ->where('brand_id', $brand->id);
-                if ($request->has('start_date') && $request->has('end_date')) {
-                    $products[ $supplier ][ $brand->name ] = $products[ $supplier ][ $brand->name ]->whereBetween('created_at', [$request->get('start_date'), $request->get('end_date')]);
-                }
-
-                $products[ $supplier ][ $brand->name ] = $products[ $supplier ][ $brand->name ]->count();
-            }
-        }
-
-//        foreach ($suppliers as $supplier) {
-//            $products = DB::table('scraped_products')
-//                ->groupBy(['website', 'brand_id'])
-//                ->selectRaw('COUNT(*), brand_id, website')
-////                ->where('website', $supplier)
-//                ->get()
-//            ;
-////        }
-
-//        dd($products);
-
-        return view('scrap.scraped_product_data', compact('products', 'request'));
-
-
-    }
-
-
-    public function showProducts($name, Request $request)
-    {
-
-
-        $products = ScrapedProducts::where('website', $name);
-        if ($request->get('sku') !== '') {
-            $sku = $request->get('sku');
-            $products = $products->where(function ($query) use ($sku) {
-                $query->where('sku', 'LIKE', "%$sku%")
-                    ->orWhere('title', 'LIKE', "%$sku%");
-            });
-        }
-
-        $products = $products->latest()->paginate(20);
-
-        $title = $name;
-        return view('scrap.scraped_images', compact('products', 'title'));
-    }
-
-    public function syncGnbProducts(Request $request)
-    {
-        $this->validate($request, [
-            'sku' => 'required'
-        ]);
-
-        $product = ScrapedProducts::where('sku', $request->get('sku'))->first();
-
-        if (!$product) {
-            $product = new ScrapedProducts();
-        }
-
-        $product->fill($request->except(['sku', 'images']));
-
-//        return $request->all();
-//        $product->images = $this->downloadImagesForSites($request->get('images'), 'gnb');
-        $product->save();
-
-//        $this->gnbCreator->createGnbProducts($product);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Created or Updated successfully!'
-        ]);
-
-    }
-
-    public function addProductEntries(Request $request)
-    {
-        $this->validate($request, [
-            'title' => 'required',
-            'url' => 'required',
-            'website' => 'required',
-            'is_product_page' => 'required'
-        ]);
-
-        $scrapEntry = ScrapEntries::where('url', $request->get('url'))->first();
-        if (!$scrapEntry) {
-            $scrapEntry = new ScrapEntries();
-        }
-
-        $scrapEntry->url = $request->get('url');
-        $scrapEntry->title = $request->get('title') ?? 'N/A';
-        $scrapEntry->site_name = $request->get('website');
-        $scrapEntry->is_product_page = $request->get('is_product_page');
-        $scrapEntry->save();
-
-        $date = date('Y-m-d');
-        $allLinks = ScrapCounts::where('scraped_date', $date)->where('website', $request->get('website'))->first();
-        if (!$allLinks) {
-            $allLinks = new ScrapCounts();
-            $allLinks->scraped_date = $date;
-            $allLinks->link_count = 0;
-            $allLinks->website = $request->get('website');
-            $allLinks->save();
-        }
-
-        $allLinks->link_count = $allLinks->link_count + 1;
-        $allLinks->save();
-
-        return response()->json([
-            'status' => 'Added items successfuly!'
-        ]);
-    }
-
-    public function getProductsToScrape()
-    {
-        // Set empty value of productsToPush
-        $productsToPush = [];
-
-        // Get all products with status scrape
-        $products = Product::where('status_id', StatusHelper::$scrape)->where('stock', '>=', 1)->orderBy('products.id', 'DESC')->take(50)->get();
-
-        // Check if we have products and loop over them
-        if ($products !== null) {
-            foreach ($products as $product) {
-                // Get original SKU
-                $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
-
-                if ($scrapedProduct != null) {
-                    // Add to array
-                    $productsToPush[] = [
-                        'id' => $product->id,
-                        'sku' => $product->sku,
-                        'original_sku' => ProductHelper::getOriginalSkuByBrand(!empty($scrapedProduct->original_sku) ? $scrapedProduct->original_sku : $scrapedProduct->sku, $product->brands ? $product->brands->id : 0),
-                        'brand' => $product->brands ? $product->brands->name : '',
-                        'url' => null,
-                        'supplier' => $product->supplier
-                    ];
-
-                    // Update status to is being scraped
-                    $product->status_id = StatusHelper::$isBeingScraped;
-                    $product->save();
-                }
-            }
-        }
-
-        // Return JSON response
-        return response()->json($productsToPush);
-    }
-
-    /**
-     * This function is called by another server
-     * It fetches the next product that needs to be scraped on Farfetch
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getFromNewSupplier(Request $request)
-    {
-        //$products = Product::where('supplier', 'Ines')->where('is_farfetched', 0)->orderBy('id', 'DESC')->get();
-        if ((int)$request->limit > 0) {
-            $products = Product::where('isApproved', 0)->where('is_farfetched', 0)->where('is_crop_approved', 1)->orderBy('id', 'DESC')->limit($request->limit)->get();
-        } else {
-            $products = Product::where('isApproved', 0)->where('is_farfetched', 0)->where('is_crop_approved', 1)->orderBy('id', 'DESC')->get();
-        }
-        foreach ($products as $product) {
-
-            $productsToPush[] = [
-                'id' => $product->id,
-                'sku' => $product->sku,
-                'brand' => $product->brands ? $product->brands->name : '',
-                'url' => $product->url,
-                'supplier' => $product->supplier
-            ];
-        }
-
-        return response()->json($productsToPush);
-    }
-
-    /**
-     * This function is called by another server
-     * It receives the scraped information from Farfetch and updates the database
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function saveScrapedProduct(Request $request)
-    {
-        $this->validate($request, [
-            'id' => 'required'
-        ]);
-
-        $product = Product::find($request->get('id'));
-        $product->was_auto_rejected = 1;
-        $product->save();
-
-
-        if (!$product->short_description && $request->get('description')) {
-            $product->short_description = $request->get('description');
-            $product->description_link = $request->get('url');
-        }
-
-        if (!$product->composition && $request->get('material_used')) {
-            $product->composition = title_case($request->get('material_used'));
-        }
-
-        if (!$product->color && $request->get('color')) {
-            $product->color = title_case($request->get('color'));
-        }
-
-        if (!$product->lmeasurement) {
-            $product->lmeasurement = $request->get('dimension')[ 0 ] ?? '0';
-        }
-        if (!$product->hmeasurement) {
-            $product->hmeasurement = $request->get('dimension')[ 1 ] ?? '0';
-        }
-        if (!$product->dmeasurement) {
-            $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
-        }
-
-        $product->is_farfetched = 1;
-        $product->save();
-
-        return response()->json([
-            'status' => 'Added items successfuly!'
-        ]);
-    }
-
-    public function getProductsForImages()
-    {
-//        $products = Product::where('supplier', 'Monti')->get();
-//        $products = Product::whereIn('supplier', ['Valenti'])->whereRaw('DATE(created_at) IN ("'.date('Y-m-d').'", "2019-06-20", "2019-06-19", "2019-06-21")')->get();
-        $products = Product::whereRaw('char_length(short_description) < 60')
-            ->where('is_farfetched', '0')
-            ->orderBy('is_image_processed', 'DESC')
-            ->orderBy('is_crop_approved', 'DESC')
-            ->get();
-
-        $productsToPush = [];
-
-
-        foreach ($products as $product) {
-//            if ($product->hasMedia(config('constants.media_tags'))) {
-//                continue;
-//            }
-
-            $productsToPush[] = [
-                'id' => $product->id,
-                'sku' => $product->sku,
-                'brand' => $product->brands ? $product->brands->name : '',
-                'url' => $product->url,
-                'supplier' => $product->supplier
-            ];
-        }
-
-        return response()->json($productsToPush);
-    }
-
-    public function saveImagesToProducts2(Request $request)
-    {
-        $this->validate($request, [
-            'id' => 'required',
-            'website' => 'required',
-        ]);
-
-        $product = Product::find($request->get('id'));
-
-        $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
-
-        if ($scrapedProduct && $request->get('category')) {
-            echo "Scraped product found \n";
-            $properties = $scrapedProduct->properties;
-            $properties[ 'category' ] = $request->get('category');
-            $scrapedProduct->properties = $properties;
-            $scrapedProduct->save();
-        }
-
-        $product->name = $request->get('title') ?? $product->name;
-
-        if (strlen($product->short_description) < 60 && $request->get('description')) {
-            $product->short_description = $request->get('description');
-            $product->description_link = $request->get('url');
-        }
-
-        if (!$product->lmeasurement) {
-            $product->lmeasurement = $request->get('dimension')[ 0 ] ?? '0';
-        }
-        if (!$product->hmeasurement) {
-            $product->hmeasurement = $request->get('dimension')[ 1 ] ?? '0';
-        }
-        if (!$product->dmeasurement) {
-            $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
-        }
-
-        $product->is_farfetched = 1;
-        $product->save();
-
-        return response()->json([
-            'status' => 'Added items successfuly!'
-        ]);
-
-    }
-
-    public function saveImagesToProducts(Request $request)
-    {
-        $this->validate($request, [
-            'id' => 'required',
-            'website' => 'required',
-            'images' => 'required|array',
-            'description' => 'required'
-        ]);
-
-        $website = str_replace(' ', '', $request->get('website'));
-
-        $product = Product::find($request->get('id'));
-
-        $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
-
-        if ($scrapedProduct) {
-            echo "Scraped product found \n";
-            $properties = $scrapedProduct->properties;
-            $properties[ 'category' ] = $request->get('category');
-            $scrapedProduct->properties = $properties;
-            $scrapedProduct->save();
-        }
-
-        $product->short_description = $request->get('description');
-        $product->composition = $request->get('material_used');
-        $product->color = $request->get('color');
-        $product->description_link = $request->get('url');
-        $product->made_in = $request->get('country');
-
-        if (!$product->lmeasurement) {
-            $product->lmeasurement = $request->get('dimension')[ 0 ] ?? '0';
-        }
-        if (!$product->hmeasurement) {
-            $product->hmeasurement = $request->get('dimension')[ 1 ] ?? '0';
-        }
-        if (!$product->dmeasurement) {
-            $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
-        }
-
-
-//        $product->detachMediaTags('gallery');
-//
-//        // Attach other information like description, etc..
-//
-//        $images = $this->downloadImagesForSites($request->get('images'), $website);
-//        foreach ($images as $image_name) {
-//            // Storage::disk('uploads')->delete('/social-media/' . $image_name);
-//
-//            $path = public_path('uploads') . '/social-media/' . $image_name;
-//            $media = MediaUploader::fromSource($path)->upload();
-//            $product->attachMedia($media,config('constants.media_tags'));
-//        }
-
-        $product->is_without_image = 0;
-        $product->save();
-
-        $product->is_farfetched = 1;
-        $product->save();
-
-        return response()->json([
-            'status' => 'Added items successfuly!'
-        ]);
-
-    }
-
     public function syncProductsFromNodeApp(Request $request)
     {
+
+        // Update request data with common mistakes
+        $request = ProductHelper::fixCommonMistakesInRequest($request);
+
+        // Log before validating
+        $errorLog = LogScraper::LogScrapeValidationUsingRequest($request);
+
+        // Return error
+        if (!empty($errorLog)) {
+            return response()->json([
+                'error' => $errorLog
+            ]);
+        }
+
+        // Validate input
         $this->validate($request, [
             'sku' => 'required|min:5',
             'url' => 'required',
+            'images' => 'required|array',
             'properties' => 'required',
             'website' => 'required',
             'price' => 'required',
             'brand' => 'required'
         ]);
 
+        // Get SKU
+        $sku = ProductHelper::getSku($request->get('sku'));
+
+        // Get brand
         $brand = Brand::where('name', $request->get('brand'))->first();
 
+        // No brand found?
         if (!$brand) {
-            return response()->json([
-                'status' => 'invalid_brand'
-            ]);
-        }
+            // Check for reference
+            $brand = Brand::where('references', 'LIKE', '%' . $request->get('brand') . '%')->first();
 
-        $scrapEntry = ScrapEntries::where('url', $request->get('url'))->first();
-        if (!$scrapEntry) {
-            $scrapEntry = new ScrapEntries();
-        }
-
-        $scrapEntry->url = $request->get('url');
-        $scrapEntry->title = $request->get('title') ?? 'N/A';
-        $scrapEntry->site_name = $request->get('website');
-        $scrapEntry->is_product_page = 1;
-        $scrapEntry->save();
-
-        $product = ScrapedProducts::where('sku', $request->get('sku'))->first();
-        $new = false;
-        if (!$product) {
-            $product = new ScrapedProducts();
-            $new = true;
-        }
-
-        if ($new === true) {
-            $images = $request->get('images') ?? [];
-            $images = $this->downloadImagesForSites($images, strtolower($request->get('website')));
-            if ($images !== []) {
-                $product->images = $images;
+            if (!$brand) {
+                return response()->json([
+                    'status' => 'invalid_brand'
+                ]);
             }
         }
 
-        if (($new === false) && count($product->images)) {
-            $images = $request->get('images') ?? [];
-            $images = $this->downloadImagesForSites($images, strtolower($request->get('website')));
-            if ($images !== []) {
-                $product->images = $images;
+        // Get this product from scraped products
+        $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
+
+        if ($scrapedProduct) {
+            // Add scrape statistics
+            $scrapStatistics = new ScrapStatistics();
+            $scrapStatistics->supplier = $request->get('website');
+            $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
+            $scrapStatistics->brand = $brand->name;
+            $scrapStatistics->url = $request->get('url');
+            $scrapStatistics->description = $request->get('sku');
+            $scrapStatistics->save();
+
+            // Set values for existing scraped product
+            $scrapedProduct->properties = $request->get('properties');
+            $scrapedProduct->is_sale = $request->get('is_sale') ?? 0;
+            $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title'));
+            $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'));
+            $scrapedProduct->brand_id = $brand->id;
+            $scrapedProduct->currency = $request->get('currency');
+            $scrapedProduct->price = (float)$request->get('price');
+            if ($request->get('currency') == 'EUR') {
+                $scrapedProduct->price_eur = (float)$request->get('price');
             }
+            $scrapedProduct->discounted_price = $request->get('discounted_price');
+            $scrapedProduct->original_sku = trim($request->get('sku'));
+            $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
+            $scrapedProduct->save();
+            $scrapedProduct->touch();
+        } else {
+            // Add scrape statistics
+            $scrapStatistics = new ScrapStatistics();
+            $scrapStatistics->supplier = $request->get('website');
+            $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
+            $scrapStatistics->brand = $brand->name;
+            $scrapStatistics->url = $request->get('url');
+            $scrapStatistics->description = $request->get('sku');
+            $scrapStatistics->save();
+
+            // Create new scraped product
+            $scrapedProduct = new ScrapedProducts();
+            $images = $request->get('images') ?? [];
+            $scrapedProduct->images = $images;
+            $scrapedProduct->sku = $sku;
+            $scrapedProduct->original_sku = trim($request->get('sku'));
+            $scrapedProduct->discounted_price = $request->get('discounted_price');
+            $scrapedProduct->is_sale = $request->get('is_sale') ?? 0;
+            $scrapedProduct->has_sku = 1;
+            $scrapedProduct->url = $request->get('url');
+            $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title') ?? 'N/A');
+            $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'));
+            $scrapedProduct->properties = $request->get('properties');
+            $scrapedProduct->currency = ProductHelper::getCurrency($request->get('currency'));
+            $scrapedProduct->price = (float)$request->get('price');
+            if ($request->get('currency') == 'EUR') {
+                $scrapedProduct->price_eur = (float)$request->get('price');
+            }
+            $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
+            $scrapedProduct->website = $request->get('website');
+            $scrapedProduct->brand_id = $brand->id;
+            $scrapedProduct->save();
         }
 
-        $product->sku = $request->get('sku');
-        $product->has_sku = 1;
-        $product->url = $request->get('url');
-        $product->title = $request->get('title') ?? 'N/A';
-        $product->description = $request->get('description');
-        $product->properties = $request->get('properties');
-        $product->price = $request->get('price');
-        $product->website = $request->get('website');
-        $product->brand_id = $brand->id;
-        $product->save();
+        // Create or update product
+        app(ProductsCreator::class)->createProduct($scrapedProduct);
 
-        app('App\Services\Products\ProductsCreator')->createProduct($product);
-
+        // Return response
         return response()->json([
             'status' => 'Added items successfuly!'
         ]);
-
     }
 
     private function downloadImagesForSites($data, $prefix = 'img'): array
     {
+
         $images = [];
         foreach ($data as $key => $datum) {
             try {
                 $imgData = file_get_contents($datum);
-                echo $datum . "\n";
             } catch (\Exception $exception) {
                 continue;
             }
 
-            $fileName = $prefix . '_' . md5(time() . '_' . rand(5, 9999999)) . '.png';
+            $fileName = $prefix . '_' . md5(time()) . '.png';
             Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
 
-            echo "$fileName \n";
             $images[] = $fileName;
         }
 
         return $images;
     }
+
 
     public function excel_import()
     {
@@ -978,7 +512,7 @@ class ScrapController extends Controller
         ], 400);
     }
 
-    public function updateProductsLink(Request $request){
+    public function processProductLinks(Request $request){
         $pending_url = array();
         $links = $request->link;
         for ($i=0;$i<count($links);$i++){

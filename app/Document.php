@@ -13,7 +13,8 @@ class Document extends Model
         'name',
         'filename',
         'category_id',
-        'version'
+        'version',
+        'status',
     ];
 
     public function user()

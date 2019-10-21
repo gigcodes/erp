@@ -20,6 +20,7 @@ use App\Customer;
 use App\Suggestion;
 use App\Setting;
 use App\Leads;
+use App\ErpLeads;
 use App\Order;
 use App\Status;
 use App\Product;
@@ -75,12 +76,45 @@ class CustomerController extends Controller
         $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
         $order_stats = DB::table('orders')->selectRaw('order_status, COUNT(*) as total')->whereNotNull('order_status')->groupBy('order_status')->get();
 
-        $finalOrderStats = [];
         $totalCount = 0;
         foreach ($order_stats as $order_stat) {
             $totalCount += $order_stat->total;
         }
 
+        $orderStatus = [
+            'order received',
+            'follow up for advance',
+            'prepaid',
+            'proceed without advance',
+            'pending purchase (advance received)',
+            'purchase complete',
+            'product shipped from italy',
+            'product in stock',
+            'product shipped to client',
+            'delivered',
+            'cancel',
+            'refund to be processed',
+            'refund credited'
+        ];
+
+        $finalOrderStats = [];
+        foreach ($orderStatus as $status) {
+            foreach ($order_stats as $order_stat) {
+                if ($status == strtolower($order_stat->order_status)) {
+                    $finalOrderStats[] = $order_stat;
+                }
+            }
+        }
+
+        foreach ($order_stats as $order_stat) {
+            if (!in_array(strtolower($order_stat->order_status), $orderStatus)) {
+                $finalOrderStats[] = $order_stat;
+            }
+        }
+
+        $order_stats = $finalOrderStats;
+
+        $finalOrderStats = [];
         foreach ($order_stats as $key => $order_stat) {
             $finalOrderStats[] = array(
                 $order_stat->order_status,
@@ -169,6 +203,15 @@ class CustomerController extends Controller
             }
         }
 
+        $shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
+                                    ->whereNotNull('shoe_size')
+                                    ->groupBy('shoe_size')
+                                    ->pluck('counts', 'shoe_size');
+
+        $clothing_size_group = Customer::selectRaw('clothing_size, count(id) as counts')
+                                        ->whereNotNull('clothing_size')
+                                        ->groupBy('clothing_size')
+                                        ->pluck('counts', 'clothing_size');
 
         return view('customers.index', [
             'customers' => $results[ 0 ],
@@ -192,6 +235,8 @@ class CustomerController extends Controller
             'leads_data' => $results[ 2 ],
             'order_stats' => $order_stats,
             'complaints' => $complaints,
+            'shoe_size_group' => $shoe_size_group,
+            'clothing_size_group' => $clothing_size_group,
             'broadcasts' => $broadcasts
         ]);
     }
@@ -225,6 +270,22 @@ class CustomerController extends Controller
             $orderWhereClause = "WHERE orders.order_id LIKE '%$term%'";
         }
 
+        if ($request->get('shoe_size')) {
+            $searchWhereClause .= " AND customers.shoe_size = '".$request->get('shoe_size')."'";
+        }
+
+        if ($request->get('clothing_size')) {
+            $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size')."'";
+        }
+
+        if ($request->get('shoe_size_group')) {
+            $searchWhereClause .= " AND customers.shoe_size = '".$request->get('shoe_size_group')."'";
+        }
+
+        if ($request->get('clothing_size_group')) {
+            $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size_group')."'";
+        }
+
         $orderby = 'DESC';
 
         if ($request->input('orderby')) {
@@ -251,7 +312,7 @@ class CustomerController extends Controller
         $end_time = $request->range_end ? "$request->range_end 23:59" : '';
 
         if ($start_time != '' && $end_time != '') {
-            $filterWhereClause = " WHERE last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "'";
+            $filterWhereClause = " AND last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "'";
         }
 
         if ($request->type == 'unread' || $request->type == 'unapproved') {
@@ -263,23 +324,23 @@ class CustomerController extends Controller
             // $messageWhereClause = " WHERE chat_messages.status = $type";
 
             if ($start_time != '' && $end_time != '') {
-                $filterWhereClause = " WHERE (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = $type";
+                $filterWhereClause = " AND (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = $type";
             }
         } else {
             if (
-                $request->get('type') === 'Advance received' ||
-                $request->get('type') === 'Cancel' ||
-                $request->get('type') === 'Delivered' ||
-                $request->get('type') === 'Follow up for advance' ||
-                $request->get('type') === 'HIGH PRIORITY' ||
-                $request->get('type') === 'In Transist from Italy' ||
-                $request->get('type') === 'Prepaid' ||
-                $request->get('type') === 'Proceed without Advance' ||
-                $request->get('type') === 'Product Shiped form Italy' ||
-                $request->get('type') === 'Product shiped to Client' ||
-                $request->get('type') === 'Refund Credited' ||
-                $request->get('type') === 'Refund Dispatched' ||
-                $request->get('type') === 'Refund to be processed'
+                strtolower($request->get('type')) === 'advance received' ||
+                strtolower($request->get('type')) === 'cancel' ||
+                strtolower($request->get('type')) === 'delivered' ||
+                strtolower($request->get('type')) === 'follow up for advance' ||
+                strtolower($request->get('type')) === 'high priority' ||
+                strtolower($request->get('type')) === 'in transist from italy' ||
+                strtolower($request->get('type')) === 'prepaid' ||
+                strtolower($request->get('type')) === 'proceed without advance' ||
+                strtolower($request->get('type')) === 'product shiped form italy' ||
+                strtolower($request->get('type')) === 'product shiped to client' ||
+                strtolower($request->get('type')) === 'refund credited' ||
+                strtolower($request->get('type')) === 'refund dispatched' ||
+                strtolower($request->get('type')) === 'refund to be processed'
             ) {
                 $join = 'LEFT';
                 $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
@@ -293,15 +354,15 @@ class CustomerController extends Controller
                 $filterWhereClause = ' AND order_status = "' . $request->get('type') . '"';
 
             } else {
-                if ($request->type != 'new' && $request->type != 'delivery' && $request->type != 'Refund to be processed' && $request->type != '') {
+                if (strtolower($request->type) != 'new' && strtolower($request->type) != 'delivery' && strtolower($request->type) != 'refund to be processed' && strtolower($request->type) != '') {
                     $join = 'LEFT';
                     $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
                     $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9";
 
                     if ($request->type == '0') {
-                        $leadsWhereClause = ' WHERE lead_status IS NULL';
+                        $leadsWhereClause = ' AND lead_status IS NULL';
                     } else {
-                        $leadsWhereClause = " WHERE lead_status = $request->type";
+                        $leadsWhereClause = " AND lead_status = $request->type";
                     }
                 } else {
                     if ($sortby === 'communication') {
@@ -1125,7 +1186,7 @@ class CustomerController extends Controller
             $message->save();
         }
 
-        $leads = Leads::where('customer_id', $request->second_customer_id)->get();
+        $leads = ErpLeads::where('customer_id', $request->second_customer_id)->get();
 
         foreach ($leads as $lead) {
             $lead->customer_id = $first_customer->id;
@@ -1598,7 +1659,9 @@ class CustomerController extends Controller
         $customer->name = $request->name;
         $customer->email = $request->email;
         $customer->phone = $request->phone;
-        $customer->whatsapp_number = $request->whatsapp_number;
+        if ($request->get('whatsapp_number', false)) {
+            $customer->whatsapp_number = $request->whatsapp_number;
+        }
         $customer->instahandler = $request->instahandler;
         $customer->rating = $request->rating;
         $customer->do_not_disturb = $request->do_not_disturb == 'on' ? 1 : 0;
@@ -2239,14 +2302,16 @@ class CustomerController extends Controller
 
             if (!empty(array_filter($product_ids))) {
 
-                $quick_lead = Leads::create([
-                    'customer_id' => $customer->id,
-                    'rating' => 1,
-                    'status' => 3,
-                    'assigned_user' => 6,
-                    'selected_product' => json_encode($product_ids),
-                    'created_at' => Carbon::now()
-                ]);
+                foreach($product_ids as $pid) {
+                    $quick_lead = ErpLeads::create([
+                        'customer_id' => $customer->id,
+                        //'rating' => 1,
+                        'lead_status_id' => 3,
+                        //'assigned_user' => 6,
+                        'product_id' => $pid,
+                        'created_at' => Carbon::now()
+                    ]);
+                }
 
                 $requestData = new Request();
                 $requestData->setMethod('POST');
@@ -2347,7 +2412,7 @@ class CustomerController extends Controller
             $params[ 'approved' ] = 1;
             $params[ 'message' ]  = $messageData;
             $params[ 'status' ]   = 2;
-            
+
             app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
 
             $chat_message = \App\ChatMessage::create($params);
@@ -2356,6 +2421,55 @@ class CustomerController extends Controller
 
         return response()->json(["code" => 1 , "message" => "done"]);
 
-        
+
+    }
+
+    public function addReplyCategory(Request $request)
+    {
+
+        $this->validate($request, [
+            'name'  => 'required|string'
+        ]);
+
+        $category = new ReplyCategory;
+        $category->name = $request->name;
+        $category->save();
+
+        return response()->json(["code" => 1 , "data" => $category]);
+
+    }
+
+    public function destroyReplyCategory(Request $request)
+    {
+
+        $this->validate($request, [
+            'id'  => 'required'
+        ]);
+
+        Reply::where('category_id', $request->get('id'))->delete();
+        ReplyCategory::where('id', $request->get('id'))->delete();
+
+        return response()->json(["code" => 1 , "message" => "Deleted successfully"]);
+
+    }
+
+    public function downloadContactDetails()
+    {
+        $userID = request()->get("user_id",0);
+        $customerID = request()->get("customer_id",0);
+
+        $user = \App\User::where("id", $userID)->first();
+        $customer = \App\Customer::where("id", $customerID)->first();
+
+        // if found customer and  user
+        if($user && $customer) {
+            // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
+            $html = view( 'customers.customer_pdf', compact('customer') );
+
+            $pdf = new Dompdf();
+            $pdf->loadHtml($html);
+            $pdf->render();
+            $pdf->stream('orders.pdf');
+        }
     }
 }

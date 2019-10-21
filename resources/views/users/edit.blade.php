@@ -70,14 +70,14 @@
                                 <option value="918291920455" {{ $user->whatsapp_number == '918291920455' ? 'selected' : '' }}>03</option>
                                 <option value="919152731483" {{ $user->whatsapp_number == '919152731483' ? 'selected' : '' }}>04</option>
                                 <option value="919152731484" {{ $user->whatsapp_number == '919152731484' ? 'selected' : '' }}>05</option>
-                                <option value="919152731486" {{ $user->whatsapp_number == '919152731486' ? 'selected' : '' }}>06</option>
+                                <option value="971562744570" {{ $user->whatsapp_number == '971562744570' ? 'selected' : '' }}>06</option>
                                 <option value="918291352520" {{ $user->whatsapp_number == '918291352520' ? 'selected' : '' }}>08</option>
                                 <option value="919004008983" {{ $user->whatsapp_number == '919004008983' ? 'selected' : '' }}>09</option>
                             </Select> --}}
                             <select name="whatsapp_number" class="form-control" id="whatsapp_change">
                                 <option value>Whatsapp Number</option>
                                 <option value="919004780634" {{ '919004780634' == $user->whatsapp_number ? ' selected' : '' }}>919004780634 Indian</option>
-                                <option value="971545889192" {{ '971545889192' == $user->whatsapp_number ? ' selected' : '' }}>971545889192 Dubai</option>
+                                <option value="971502609192" {{ '971502609192' == $user->whatsapp_number ? ' selected' : '' }}>971502609192 Dubai</option>
                                 {{-- @foreach ($api_keys as $api_key)
                                   <option value="{{ $api_key->number }}" {{ $user->whatsapp_number == $api_key->number ? 'selected' : '' }}>{{ $api_key->number }}</option>
                                 @endforeach --}}
@@ -151,7 +151,7 @@
                         @foreach($roles as $key => $value)
                            <div>
                                 {{ Form::checkbox('roles[]',  $key  , (in_array($value, $userRole)) ? "checked" : '') }} <strong>{{ $value }}</strong>
-                                
+
                                  </div>
                         @endforeach
 
@@ -179,7 +179,7 @@
                     @foreach($permission as $key => $value)
                         <div>
                            {{ Form::checkbox('permissions[]',  $key , (in_array($value, $userPermission)) ? "checked" : '') }} <strong>{{ $value }}</strong>
-                            
+
                         </div>
                     @endforeach
                 </div>

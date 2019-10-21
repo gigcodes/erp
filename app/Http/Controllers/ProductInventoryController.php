@@ -16,6 +16,8 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\InventoryImport;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ProductInventoryController extends Controller
 {
@@ -298,6 +300,10 @@ class ProductInventoryController extends Controller
 
 
 //		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
+		
+		if ($request->get('shoe_size', false)) {
+            $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
+        }
 
         if ($request->get('in_pdf') === 'on') {
             $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->get();
@@ -308,7 +314,6 @@ class ProductInventoryController extends Controller
 		$data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
 		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';
-
 		$data['locations'] = (new LocationList)->all();
 
 		$data['new_category_selection'] = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'product-category'])
@@ -534,5 +539,187 @@ class ProductInventoryController extends Controller
 		}
 
 		return back()->with('success', 'You have successfully imported Inventory');
+	}
+
+	public function instructionCreate()
+	{
+
+		$productId = request()->get("product_id",0);
+		$users = \App\User::all()->pluck("name","id");
+		$product = \App\Product::where("id",$productId)->first();
+		$locations = \App\ProductLocation::all()->pluck("name","name");
+		$couriers = \App\Courier::all()->pluck("name","name");
+		$order = [];
+		if($product) {
+		   $order = \App\OrderProduct::where("sku",$product->sku)
+		   ->join("orders as o","o.id","order_products.order_id")
+		   ->select(["o.id",\DB::raw("concat(o.id,' => ',o.client_name) as client_name")])->pluck("client_name",'id');
+		}
+
+		return view("instock.instruction_create",compact(['productId','users','customers','order','locations','couriers']));
+
+	}
+
+	public function instruction()
+	{
+		$params =  request()->all();
+
+		// validate incoming request
+        
+        $validator = Validator::make($params, [
+           'product_id' => 'required',
+           'location_name' => 'required',
+           'instruction_type' => 'required',
+           'instruction_message' => 'required',
+           'courier_name' => 'required',
+           'courier_details' => 'required',
+           'date_time' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json(["code" => 0, "errors" => $validator->messages()]);
+        }
+
+        // start to store first location as per the request
+		$product = \App\Product::where("id",$params["product_id"])->first();
+		$instruction = new \App\Instruction();
+
+		if($params['instruction_type'] == "dispatch") {
+			$orderId = request()->get("order_id",0);
+			if($orderId > 0) {
+				$order = \App\Order::where("id",$params["order_id"])->first();
+				if($order) {
+				  	
+				  	$instruction->customer_id = $order->customer_id;
+				  	$order->order_status = "Delivered";
+				  	$order->save();
+
+				  	if($order->customer) {
+				  		$customer = $order->customer;
+				  		$product->location =  null;
+					    $product->save();
+				  	}
+				}
+			}
+
+			$customerId = request()->get("customer_id",0);
+
+			if($customerId > 0) {
+				$customer = \App\Customer::where('id',$customerId)->first();
+			}
+			// if customer object found then send message
+			if(!empty($customer)) {
+				$messageData = implode("\n",[
+			  		"We have dispatched your parcel",
+			  		$params["courier_name"],
+			  		$params["courier_details"]	
+			  	]);
+
+			    $params['approved'] = 1;
+			    $params['message']  = $messageData;
+			    $params['status']   = 2;
+			    $params['customer_id'] = $customer->id;
+
+			    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,$messageData);
+			    $chat_message = \App\ChatMessage::create($params);
+			}
+
+		}elseif ($params['instruction_type'] == "location") {
+			if($product) {
+				$product->location = $params["location_name"];
+				$product->save();
+
+				$user = \App\User::where("id",$params["assign_to"])->first();
+				if($user) {
+					// send location message 
+					$messageData = implode("\n",[
+				  		$params['instruction_message'],
+				  		$params["courier_name"],
+				  		$params["courier_details"]	
+				  	]);
+
+				    $params['approved'] = 1;
+				    $params['message']  = $messageData;
+				    $params['status']   = 2;
+				    $params['user_id'] = $user->id;
+
+				    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
+				    $chat_message = \App\ChatMessage::create($params);
+				}
+			}
+		}
+
+		$instruction->category_id = 7;
+		$instruction->instruction = $params["instruction_message"];
+		$instruction->assigned_from = \Auth::user()->id;
+		$instruction->assigned_to = $params["assign_to"];
+		$instruction->save();
+
+
+		$productHistory = new \App\ProductLocationHistory();
+		$productHistory->fill($params);	
+		$productHistory->created_by = \Auth::user()->id;
+		$productHistory->save();
+
+
+		return response()->json(["code" => 1, "message" => "Done"]);	
+
+
+	}
+
+	public function locationHistory()
+	{
+		$productId = request()->get("product_id",0);
+		$history = \App\ProductLocationHistory::where("product_id",$productId)
+		->orderBy("date_time","desc")
+		->get();
+		return view("instock.history_list",compact(['history']));
+	}
+
+	public function dispatchCreate()
+	{
+
+		$productId = request()->get("product_id",0);
+		$users = \App\User::all()->pluck("name","id");
+		$product = \App\Product::where("id",$productId)->first();
+
+		return view("instock.dispatch_create",compact(['productId','users','order']));
+
+	}
+
+	public function dispatchStore(Request $request)
+	{
+		$validator = Validator::make($request->all(), [
+           'product_id' => 'required',
+           'modeof_shipment' => 'required',
+           'awb' => 'required',
+           'eta' => 'required',
+           //'date_time' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json(["code" => 0, "errors" => $validator->messages()]);
+        }
+
+        $productDispatch = new \App\ProductDispatch;
+        $productDispatch->fill($request->all());
+        $productDispatch->save();
+			
+		$uploaded_images = [];	
+
+        if ($request->hasFile('file')) {
+            try{
+                foreach ($request->file('file') as $image) {
+                    $media = MediaUploader::fromSource($image)->toDirectory('dispatch-images')->upload();
+                    array_push($uploaded_images, $media);
+                    $productDispatch->attachMedia($media,config('constants.media_tags'));
+                }
+            }catch (\Exception $exception){
+               // return response($exception->getMessage(), $exception->getCode());
+            }
+        }
+
+        return response()->json(["code" => 1, "message" => "Done"]);
+
 	}
 }

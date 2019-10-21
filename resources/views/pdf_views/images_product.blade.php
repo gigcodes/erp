@@ -1,75 +1,75 @@
 <html>
-<head>
-    <title>Images</title>
-    <style>
-        body {
-            background: #eeeeee;
-        }
-        * {
-            padding: 0;
-            margin: 0
-        }
 
-        .main {
-            text-align: center;
-            padding: 5%;
-        }
+<head></head>
+<style>
+    body {
+        /* background-color: #f5e9df; */
+    }
 
-        .row {
-            display: block;
-        }
+    .page {
+        margin: 0 auto;
+        width: 1005px;
+        height: 1015px;
+        text-align: center;
+    }
 
-        .box_0 {
-            width: 75%;
-            display: block;
-            border-radius: 10px;
-            margin: 0 auto 5px;
-        }
+    img.product {
+        margin: 50px;
+        width: auto;
+        height: 915px;
+        border-bottom: 20px solid #eee;
+    }
 
-        .box_1 {
-            width: 75%;
-            display: block;
-            border-radius: 10px;
-            margin: 0 auto 5px;
-        }
-    </style>
-</head>
+    .top-left {
+        position: absolute;
+        top: 75px;
+        left: 200px;
+        font-size: 36px;
+        z-index: 2;
+        text-align: left;
+    }
+</style>
 <body>
-<div class="main">
-    @foreach($medias->chunk(2) as $subMedias)
-        @php $key = 0 @endphp
-        <div class="row">
-            @foreach($subMedias as $subMedia)
-                <div class="box_{{$key}}">
-                    <img src="{{ $subMedia->getAbsolutePath() }}" alt="Image" style="width: 100%; border-bottom: 10px solid #cccccc">
-                    <?php
-                        $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
-                        if ($mediable) {
-                            $product_id = $mediable->mediable_id;
-                            $product = App\Product::find($product_id);
-                        } else {
-                            $product = null;
-                        }
-                    ?>
-                    @if($product)
-                        <div style="padding: 10px; text-align: justify">
-                            <p><strong>{{ $product->name }}</strong></p>
-                            @if($product->brands)
-                                <p style="color: #1a60aa"><strong>{{ $product->brands->name }}</strong></p>
-                            @endif
-                            <p><strong>Code: </strong> {{ $product->sku }}</p>
-                            @if($product->lmeasurement)
-                                <p><strong>Dimension: </strong> {{ $product->lmeasurement }} x {{ $product->heasurement }} x {{ $product->dmeasurement }}</p>
-                            @endif
-                        </div>
-                    @else
-                        <strong>Details Unavailable</strong>
-                    @endif
-                </div>
-                @php $key++ @endphp
-            @endforeach
+@foreach($medias->chunk(2) as $subMedias)
+    @foreach($subMedias as $subMedia)
+        <div class="page">
+            <?php
+            $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
+            if ($mediable) {
+                $product_id = $mediable->mediable_id;
+                $product = App\Product::find($product_id);
+            } else {
+                $product = null;
+            }
+
+            if($product) {
+            $textToSend = [];
+            $textToSend[] = $product->name . " ";
+            if ($product->brands) {
+                $textToSend[] = $product->brands->name;
+            }
+            if ($product->lmeasurement && $product->hmeasurement && $product->dmeasurement) {
+                $textToSend[] = "Dimension: " . \App\Helpers\ProductHelper::getMeasurements($product) . "";
+            }
+            $textToSend[] = "Price: Rs. " . $product->price_special; ?>
+
+            <img class="product" src="<?php echo $subMedia->getAbsolutePath(); ?>">
+            </img>
+            <div class="top-left">
+                <?php echo implode("<br>
+                                    ", $textToSend); ?>
+            </div>
+            <div class="top-right">
+                <?php 
+                 $generatorHTML = new Picqer\Barcode\BarcodeGeneratorHTML();
+                 
+                 echo $generatorHTML->getBarcode($product->id, $generatorHTML::TYPE_CODE_11);
+                 ?>
+            </div>
+
+            <?php } ?>
         </div>
     @endforeach
-</div>
+@endforeach
 </body>
 </html>

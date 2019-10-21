@@ -46,6 +46,17 @@ class MoveColdLeadsToCustomers extends Command
         $count = 0;
         $maxCount = 50;
 
+        // Get all numbers from config
+        $config = \Config::get("apiwha.instances");
+
+        // Loop over numbers
+        $arrCustomerNumbers = [];
+        foreach ($config as $whatsAppNumber => $arrNumber) {
+            if ($arrNumber[ 'customer_number' ]) {
+                $arrCustomerNumbers[] = $arrNumber[ 'customer_number' ];
+            }
+        }
+
         // Loop over coldLeads
         if ($coldLeads !== null) {
             foreach ($coldLeads as $coldLead) {
@@ -60,12 +71,12 @@ class MoveColdLeadsToCustomers extends Command
                     $customer = new Customer();
                     $customer->name = $coldLead->name;
                     $customer->phone = $coldLead->platform_id;
-                    $customer->whatsapp_number = '919152731486';
+                    $customer->whatsapp_number = $arrCustomerNumbers[ rand(0, count($arrCustomerNumbers) - 1) ];
                     $customer->city = $coldLead->address;
                     $customer->country = 'IN';
                     $customer->save();
 
-                    if ( !empty($customer->id) ) {
+                    if (!empty($customer->id)) {
                         $coldLead->customer_id = $customer->id;
                         $coldLead->save();
                     }

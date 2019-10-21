@@ -22,7 +22,8 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="{{asset('js/readmore.js')}}"></script>
+    <script src="{{asset('js/readmore.js')}}" defer></script>
+    <script src="/js/generic.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 
     @yield('link-css')
@@ -34,8 +35,8 @@
     <script>
         jQuery('.readmore').readmore({
             speed: 75,
-            moreLink: '<a href="#">Read more</a>'
-            lessLink: '<a href="#">Read less</a>',
+            moreLink: '<a href="#">Read more</a>',
+            lessLink: '<a href="#">Read less</a>'
         });
     </script>
     <script src="{{ asset('js/app.js') }}"></script>
@@ -72,17 +73,9 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
 
 
-    {{-- @if( str_contains(Route::current()->getName(),['sales','activity','leads','task','home', 'customer'] ) ) --}}
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet"/>
 
-    <script type="text/javascript"
-
-            src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
-
-    {{-- @endif --}}
-
-
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 
     @if(Auth::user())
 
@@ -332,6 +325,9 @@
                                                     <a class="dropdown-item" href="{{ route('productselection.create') }}">Add New</a>
                                                 @endif
                                                 <a class="dropdown-item" href="{{ url('/excel-importer') }}">Excel Import </a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/mapping') }}">Add Mapping For Master </a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/tools-brand') }}">Add Mapping For Excel</a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/log') }}">Excel Importer Log</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -359,7 +355,8 @@
                                                 @endif
                                                 @if(auth()->user()->isAdmin())
                                                     <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
-
+                                                    <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=2">Listings awaiting scraping</a>
+                                                    <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=13">Listings unable to scrape</a>
                                                     <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
                                                     <a class="dropdown-item" href="{{ action('AttributeReplacementController@index') }}">Attribute Replacement</a>
 
@@ -412,6 +409,10 @@
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ url('scrap/statistics') }}">Statistics</a>
+                                                <a class="dropdown-item" href="{{ action('CategoryController@brandMinMaxPricing') }}">Min/Max Pricing</a>
+                                                <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
+                                                <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
+                                                <a class="dropdown-item" href="{{ url('price-comparison-scraper') }}">Price comparison</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -432,6 +433,7 @@
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'canceled-refunded') }}">Cancel/Refund Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
+                                            <a class="dropdown-item" href="{{ route('purchase.grid', 'non_ordered') }}">Non Ordered Grid</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -461,7 +463,9 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers</a>
+                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers - unread</a>
+                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
+                                            <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -483,21 +487,19 @@
                                                 <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
                                                 <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
                                                 <a class="dropdown-item" href="{{ action('KeywordInstructionController@index') }}">Instruction Keyword Instructions</a>
+                                                <a class="dropdown-item" href="/instruction/quick-instruction?type=price">Quick instructions (price)</a>
+                                                <a class="dropdown-item" href="/instruction/quick-instruction?type=image">Quick instructions (attach)</a>
                                             </ul>
                                         </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Leeds<span class="caret"></span></a>
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Leads<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Leads<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
-                                                <a class="dropdown-item" href="{{ route('leads.create') }}">Add New</a>
-                                                <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image grid</a>
-                                            </ul>
-                                        </li>
+                                        <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
+                                        <a class="dropdown-item" href="{{ action('LeadsController@erpLeads') }}">Leads (new)</a>
+                                        <a class="dropdown-item" href="{{ route('leads.create') }}">Add new lead</a>
+                                        <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image grid</a>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -892,7 +894,10 @@
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
+                                {{-- Sub Menu Development --}}
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                 </li>
@@ -904,9 +909,6 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.kanbanboard') }}">Kanban Board</a>
                                 </li>
                             </ul>
                         </li>
@@ -948,6 +950,9 @@
                                                 <a class="dropdown-item" href="{{ url('page-notes') }}">Page Notes</a>
                                             </li>
 
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
+                                            </li>
 
                                         </ul>
                                     </li>
@@ -969,11 +974,15 @@
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Old Issues<span class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('OldController@index') }}">Old Out going</a>
+                                                <a class="dropdown-item" href="{{ url('/old/') }}">Old Info</a>
                                             </li>
 
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old Incoming</a>
+                                                <a class="dropdown-item" href="{{ url('/old/?type=1') }}">Old Out going</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/old/?type=2') }}">Old Incoming</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -1002,6 +1011,11 @@
                                         <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
                                     </li>
 
+                                    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 65 || Auth::id() == 90)
+                                        <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
+                                        <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
+                                        <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
+                                    @endif
 
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
@@ -1025,7 +1039,7 @@
                                                 <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
                                                 <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue List</a>
                                                 <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
-                                                <a class="dropdown-item" href="{{ route('development.kanbanboard') }}">Kanban Board</a>
+                                                <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                             </div>
                                         </li>
 
@@ -1206,6 +1220,13 @@
                         <label for="note">Notes:</label>
                         <textarea class="form-control" name="note" id="note"></textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="category_id">Category:</label>
+                        <?php
+                        $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
+                        ?>
+                        {!! Form::select('category_id', ['' => "-- select --"] + $category, null, ['class'=>'form-control', 'id'=> 'category_id']) !!}
+                    </div>
                     <button type="button" class="btn btn-secondary ml-3 save-user-notes">Submit</button>
                 </form>
                 <table class="table table-fixed-page-notes page-notes-header-fixed" style="min-width: 402px;">
@@ -1213,6 +1234,7 @@
                     <tr>
                         <th class="col-xs-1" scope="col">#</th>
                         <th class="col-xs-3" scope="col">Note</th>
+                        <th class="col-xs-3" scope="col">Category</th>
                         <th class="col-xs-2" scope="col">Created By</th>
                         <th class="col-xs-3" scope="col">Created At</th>
                     </tr>
@@ -1293,6 +1315,7 @@
             data: {
                 _token: window.token,
                 note: $form.find("#note").val(),
+                category_id: $form.find("#category_id").val(),
                 url: "<?php echo request()->url() ?>"
             },
             dataType: "json",
@@ -1302,6 +1325,7 @@
                     var listOfN = "<tr>";
                     listOfN += "<td scope='row'>" + data.notes.id + "</td>";
                     listOfN += "<td>" + data.notes.note + "</td>";
+                    listOfN += "<td>" + data.notes.category_name + "</td>";
                     listOfN += "<td>" + data.notes.name + "</td>";
                     listOfN += "<td>" + data.notes.created_at + "</td>";
                     listOfN += "</tr>";
@@ -1313,30 +1337,31 @@
     });
 
     var getNotesList = function () {
-        $.ajax({
-            type: "GET",
-            url: "/page-notes/list",
-            data: {
-                _token: window.token,
-                url: "<?php echo request()->url() ?>"
-            },
-            dataType: "json",
-            success: function (data) {
-                if (data.code > 0) {
-                    var listOfN = "";
-                    $.each(data.notes, function (k, v) {
-                        listOfN += "<tr>";
-                        listOfN += "<td scope='row'>" + v.id + "</td>";
-                        listOfN += "<td>" + v.note + "</td>";
-                        listOfN += "<td>" + v.name + "</td>";
-                        listOfN += "<td>" + v.created_at + "</td>";
-                        listOfN += "</tr>";
-                    });
-
-                    $(".page-notes-list").prepend(listOfN);
-                }
-            },
-        });
+        //$.ajax({
+//            type: "GET",
+  //          url: "/page-notes/list",
+    //        data: {
+      //          _token: window.token,
+        //        url: "<?php echo request()->url() ?>"
+          //  },
+//            dataType: "json",
+  //          success: function (data) {
+    //            if (data.code > 0) {
+      //              var listOfN = "";
+        //            $.each(data.notes, function (k, v) {
+          //              listOfN += "<tr>";
+            //            listOfN += "<td scope='row'>" + v.id + "</td>";
+              //          listOfN += "<td>" + v.note + "</td>";
+                //        listOfN += "<td>" + v.category_name + "</td>";
+                  //      listOfN += "<td>" + v.name + "</td>";
+                    //    listOfN += "<td>" + v.created_at + "</td>";
+                      //  listOfN += "</tr>";
+//                    });
+//
+  //                  $(".page-notes-list").prepend(listOfN);
+    //            }
+      //      },
+        //});
     }
 
     if ($(".help-button-wrapper").length > 0) {
@@ -1362,35 +1387,36 @@
     //     }
     // });
     @if (Auth::check())
-    $(document).ready(function(){
-       var url = window.location.href;
-       var user_id = {{ Auth::id() }};
-      user_name = "{{ Auth::user()->name }}";
-      $.ajax({
-                type: "POST",
-                url: "/api/userLogs",
-                data: {"_token": "{{ csrf_token() }}","url": url ,"user_id" : user_id , "user_name" : user_name },
-                dataType: "json",
-                success: function(message) {
-                }
-            });
-       });
+    $(document).ready(function () {
+        var url = window.location.href;
+        var user_id = {{ Auth::id() }};
+        user_name = "{{ Auth::user()->name }}";
+        $.ajax({
+            type: "POST",
+            url: "/api/userLogs",
+            data: {"_token": "{{ csrf_token() }}", "url": url, "user_id": user_id, "user_name": user_name},
+            dataType: "json",
+            success: function (message) {
+            }
+        });
+    });
     @endif
 </script>
-{{--  <script src="{{ asset('js/tracker.js') }}"></script>--}}
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
+@if ( !empty($_SERVER['HTTP_HOST']) && !stristr($_SERVER['HTTP_HOST'], '.mac') )
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
 
-    function gtag() {
-        dataLayer.push(arguments);
-    }
+        function gtag() {
+            dataLayer.push(arguments);
+        }
 
-    gtag('js', new Date());
+        gtag('js', new Date());
+        gtag('config', 'UA-147736165-1');
+    </script>
+@endif
 
-    gtag('config', 'UA-147736165-1');
-</script>
 </body>
 
 </html>
