@@ -321,6 +321,8 @@ class SaleController extends Controller {
 		                  ->where( 'id', 'LIKE', '%' . $q . '%' )
 		                  ->orWhere( 'sku', 'LIKE', '%' . $q . '%' )
 		                  ->orWhere( 'name', 'LIKE', '%' . $q . '%' )
+		                  ->offset(0)
+		                  ->limit(15)
 		                  ->get();
 
 		return $results;

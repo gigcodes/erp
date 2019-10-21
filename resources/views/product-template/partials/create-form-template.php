@@ -8,7 +8,6 @@
         <div class="modal-body">
           <form method="post" enctype="multipart/form-data" id="product-template-from">
              <?php echo csrf_field(); ?>
-             <?php echo Form::hidden('product_id', '', ['class' => 'product_id']) ?>
              <div class="form-group row">
                 <label for="template_no" class="col-sm-3 col-form-label">Template No</label>
                 <div class="col-sm-6">
@@ -16,9 +15,15 @@
                 </div>
              </div>
              <div class="form-group row">
+                <label for="product_id" class="col-sm-3 col-form-label">Product</label>
+                <div class="col-sm-6">
+                   <?php echo Form::select("product_id",[],null,["class" => "form-control ddl-select-product"]); ?>
+                </div>
+             </div>
+             <div class="form-group row">
                 <label for="product_title" class="col-sm-3 col-form-label">Product Title</label>
                 <div class="col-sm-6">
-                   <?php echo Form::select("product_title",[],null,["class" => "form-control ddl-select-product"]); ?>
+                   <?php echo Form::text("product_title",null,["class" => "form-control product_title"]); ?>
                 </div>
              </div>
              <div class="form-group row">

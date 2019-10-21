@@ -632,7 +632,7 @@
                         <div class="col-xs-12">
                           <div class="form-group">
                             <strong>Brand:</strong>
-                            <select name="brand_id" class="form-control multi_brand multi_brand_select" multiple>
+                            <select name="brand_id" class="form-control multi_brand multi_brand_select multi_select2" multiple>
                               <option value="">Brand</option>
                               @foreach($brands as $brand_item)
                                 <option value="{{$brand_item['id']}}" {{ $brand_item['id'] == $lead->brand_id ? "selected" : ''}} data-brand-segment="{{$brand_item['brand_segment']}}">{{$brand_item['name']}}</option>
@@ -644,7 +644,7 @@
                           <div class="form-group">
                             <strong>Category</strong>
                             @php
-                            $category_selection = \App\Category::attr(['name' => 'category_id','class' => 'form-control'])
+                            $category_selection = \App\Category::attr(['name' => 'category_id','class' => 'form-control multi_select2'])
                             ->selected($lead->category_id)
                             ->renderAsDropdown();
                             @endphp
@@ -2253,7 +2253,7 @@
         <form method="post" id="send-contact-to-user">
             {{ Form::open(array('url' => '', 'id' => 'send-contact-user-form')) }}
             {!! Form::hidden('customer_id',$customer->id) !!}
-            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list select2', 'style'=> 'width:100%']) !!}
+            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list multi_select2', 'style'=> 'width:100%']) !!}
             {{ Form::close() }}
         </form>
       </div>
@@ -2278,7 +2278,7 @@
         <form method="post" id="download-contact-to-user">
             {{ Form::open(array('url' => '', 'id' => 'download-contact-user-form')) }}
             {!! Form::hidden('customer_id',$customer->id) !!}
-            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list select2', 'style'=> 'width:100%']) !!}
+            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list multi_select2', 'style'=> 'width:100%']) !!}
             {{ Form::close() }}
         </form>
       </div>
@@ -2320,8 +2320,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.min.js" integrity="sha256-Y1rRlwTzT5K5hhCBfAFWABD4cU13QGuRN6P5apfWzVs=" crossorigin="anonymous"></script>
 
   <script type="text/javascript">
-      jQuery(document).ready(function( $ ) {
-        //$('.multi_brand_select').select2({width: '100%'});
+      jQuery(document).ready(function() {
+        $('.multi_select2').select2({width: '100%'});
         //$('.brand_segment_select').select2({width: '100%'});
          
         $(".multi_brand_select").change(function() {
@@ -2449,7 +2449,7 @@
       });
 
   jQuery(document).ready(function( $ ) {
-      $('.select2').select2();
+      //$('.select2').select2();
     $('audio').on("play", function (me) {
       $('audio').each(function (i,e) {
         if (e !== me.currentTarget) {
