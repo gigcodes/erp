@@ -316,7 +316,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('quickSell', 'QuickSellController@index')->name('quicksell.index');
     Route::post('quickSell', 'QuickSellController@store')->name('quicksell.store');
-    Route::post('quickSell/{id}/edit', 'QuickSellController@update')->name('quicksell.update');
+    Route::post('quickSell/edit', 'QuickSellController@update')->name('quicksell.update');
     Route::post('quickSell/saveGroup', 'QuickSellController@saveGroup')->name('quicksell.save.group');
     Route::get('quickSell/pending', 'QuickSellController@pending')->name('quicksell.pending');
     Route::post('quickSell/activate', 'QuickSellController@activate')->name('quicksell.activate');

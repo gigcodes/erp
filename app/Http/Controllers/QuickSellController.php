@@ -15,6 +15,7 @@ use App\Supplier;
 use App\ReadOnly\LocationList;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Response;
 
 class QuickSellController extends Controller
 {
@@ -192,8 +193,9 @@ class QuickSellController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
+      $id = $request->id;
       $this->validate($request,[
   			'images.*' => 'sometimes | mimes:jpeg,bmp,png,jpg',
   		]);
@@ -214,7 +216,7 @@ class QuickSellController extends Controller
   			$product->price_special = $request->price_special;
   		}
 
-      $product->save();
+      $product->update();
       //dd($request);
       if($request->group_old != null){
           ProductQuicksellGroup::where('product_id',$product->id)->delete();
@@ -247,7 +249,21 @@ class QuickSellController extends Controller
         }
       }
 
-      return redirect()->back()->with('success', 'You have successfully updated Quick Product');
+
+      if($request->group_new == null && $request->group_old == null){
+        $input =  '<input type="checkbox" name="blank" class="group-checkbox checkbox" data-id='.$product->id.'>';  
+        $data = [$product->supplier,$product->price,$product->brands->name,$product->product_category->title,$input];
+      }
+      if($request->group_new != null){
+         $data = [$product->supplier,$product->price,$product->brands->name,$product->product_category->title,$request->group_new];
+      }
+      if($request->group_old != null){
+         $data = [$product->supplier,$product->price,$product->brands->name,$product->product_category->title,$request->group_old];
+      }
+      return Response::json(array(
+        'success' => true,
+        'data'   => $data));
+      //return redirect()->back()->with('success', 'You have successfully updated Quick Product');
     }
 
     /**

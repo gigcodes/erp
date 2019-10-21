@@ -13,7 +13,7 @@
             	
                 <div class="modal-body">
                     @csrf
-                    <input type="hidden" name="product_id" id="product_id">
+                    <input type="hidden" name="product_id" id="product_group_id">
                     <div class="form-group">
                         <strong>Add Product To Existing Group:</strong>
                         @php
