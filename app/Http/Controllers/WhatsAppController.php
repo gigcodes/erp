@@ -7,6 +7,7 @@ use App\DeveloperTask;
 use App\Issue;
 use App\Lawyer;
 use App\LegalCase;
+use App\Old;
 use App\Services\BulkCustomerMessage\KeywordsChecker;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Bugsnag\PsrLogger\BugsnagLogger;
@@ -1795,6 +1796,8 @@ class WhatsAppController extends FindByNumberController
             'blogger_id' => 'sometimes|nullable|numeric',
             'document_id' => 'sometimes|nullable|numeric',
             'quicksell_id' => 'sometimes|nullable|numeric',
+            'old_id' => 'sometimes|nullable|numeric',
+             
         ]);
 
         $data = $request->except('_token');
@@ -2101,7 +2104,26 @@ class WhatsAppController extends FindByNumberController
                 }
                 return redirect()->back()->with('message', 'Images Send SucessFully');
 
-            } else {
+            }elseif($context == 'old'){
+                
+                    $old = Old::findorfail($request->old_id);
+
+                    if ($old != null) {
+                            
+                            $data[ 'old_id' ] = $old->serial_no;
+                            //Creating Chat Message
+                            $data['message'] = $request->message;
+                            $chat_message = ChatMessage::create($data);
+
+                             $this->sendWithThirdApi($old->phone, null, $request->message);
+
+                              return response()->json([
+                                    'data' => $data
+                                ], 200);
+                           
+                            }
+
+            }else {
                 if ($context == 'developer_task') {
                     $params[ 'developer_task_id' ] = $request->get('developer_task_id');
                     $task = DeveloperTask::find($request->get('developer_task_id'));
@@ -2609,8 +2631,15 @@ class WhatsAppController extends FindByNumberController
                                             $column = 'blogger_id';
                                             $value = $request->bloggerId;
                                         } else {
+                                            if($request->customerId){
                                             $column = 'customer_id';
                                             $value = $request->customerId;
+                                            }else{
+                                                if($request->oldID){
+                                                    $column = 'old_id';
+                                                    $value = $request->oldId;
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -2888,6 +2917,13 @@ class WhatsAppController extends FindByNumberController
                                             $blogger = Blogger::find($message->blogger_id);
                                             $phone = $blogger->default_phone;
                                             $whatsapp_number = $blogger->whatsapp_number;
+                                        }else {
+                                            if($context == 'old'){
+                                                $old = Old::find($message->old_id);
+                                                $phone = $old->phone;
+                                                $whatsapp_number = '';
+                                            }
+
                                         }
                                     }
                                 }
@@ -2901,7 +2937,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
         if ($message->message != '') {
 
-            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger') {
+            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old') {
                 $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
             } else {
                 $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, $message->message, null, $message->id);

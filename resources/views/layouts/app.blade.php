@@ -974,11 +974,15 @@
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Old Issues<span class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('OldController@index') }}">Old Out going</a>
+                                                <a class="dropdown-item" href="{{ url('/old/') }}">Old Info</a>
                                             </li>
 
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old Incoming</a>
+                                                <a class="dropdown-item" href="{{ url('/old/?type=1') }}">Old Out going</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/old/?type=2') }}">Old Incoming</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -1333,31 +1337,31 @@
     });
 
     var getNotesList = function () {
-        $.ajax({
-            type: "GET",
-            url: "/page-notes/list",
-            data: {
-                _token: window.token,
-                url: "<?php echo request()->url() ?>"
-            },
-            dataType: "json",
-            success: function (data) {
-                if (data.code > 0) {
-                    var listOfN = "";
-                    $.each(data.notes, function (k, v) {
-                        listOfN += "<tr>";
-                        listOfN += "<td scope='row'>" + v.id + "</td>";
-                        listOfN += "<td>" + v.note + "</td>";
-                        listOfN += "<td>" + v.category_name + "</td>";
-                        listOfN += "<td>" + v.name + "</td>";
-                        listOfN += "<td>" + v.created_at + "</td>";
-                        listOfN += "</tr>";
-                    });
-
-                    $(".page-notes-list").prepend(listOfN);
-                }
-            },
-        });
+        //$.ajax({
+//            type: "GET",
+  //          url: "/page-notes/list",
+    //        data: {
+      //          _token: window.token,
+        //        url: "<?php echo request()->url() ?>"
+          //  },
+//            dataType: "json",
+  //          success: function (data) {
+    //            if (data.code > 0) {
+      //              var listOfN = "";
+        //            $.each(data.notes, function (k, v) {
+          //              listOfN += "<tr>";
+            //            listOfN += "<td scope='row'>" + v.id + "</td>";
+              //          listOfN += "<td>" + v.note + "</td>";
+                //        listOfN += "<td>" + v.category_name + "</td>";
+                  //      listOfN += "<td>" + v.name + "</td>";
+                    //    listOfN += "<td>" + v.created_at + "</td>";
+                      //  listOfN += "</tr>";
+//                    });
+//
+  //                  $(".page-notes-list").prepend(listOfN);
+    //            }
+      //      },
+        //});
     }
 
     if ($(".help-button-wrapper").length > 0) {
