@@ -300,6 +300,10 @@ class ProductInventoryController extends Controller
 
 
 //		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
+		
+		if ($request->get('shoe_size', false)) {
+            $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
+        }
 
         if ($request->get('in_pdf') === 'on') {
             $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->get();

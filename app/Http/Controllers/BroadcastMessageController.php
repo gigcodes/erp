@@ -137,6 +137,16 @@ class BroadcastMessageController extends Controller
         $cron_job = CronJob::where('signature', 'run:message-queues')->first();
         $pending_messages_count = MessageQueue::where('sent', 0)->where('status', '!=', 1)->where('sending_time', '<', Carbon::now())->count();
 
+        $shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
+                                ->whereNotNull('shoe_size')
+                                ->groupBy('shoe_size')
+                                ->pluck('counts', 'shoe_size');
+
+        $clothing_size_group = Customer::selectRaw('clothing_size, count(id) as counts')
+                                        ->whereNotNull('clothing_size')
+                                        ->groupBy('clothing_size')
+                                        ->pluck('counts', 'clothing_size');
+
         return view('customers.broadcast', [
             'message_queues' => $message_queues,
             'message_groups' => $new_data,
@@ -151,6 +161,8 @@ class BroadcastMessageController extends Controller
             'broadcast_images' => $broadcast_images,
             'cron_job' => $cron_job,
             'pending_messages_count' => $pending_messages_count,
+            'shoe_size_group' => $shoe_size_group,
+            'clothing_size_group' => $clothing_size_group,
         ]);
     }
 

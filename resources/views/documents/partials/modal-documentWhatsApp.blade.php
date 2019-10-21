@@ -23,11 +23,21 @@
                         <select class="user_select_id" name="users[]" multiple class="form-control">
                         </select>
                     </div>
+                    <div class="form-group text-right">
+                        <a class="add-contact mr-3" href="#">Send Document To Contact</a>
+                    </div>
+                    <div id="contact-label" class="form-group" style="display:none;">
+                        <strong class="mr-3">New Contact</strong>
+                        <button type="button" class="add-contact">+</button>
+                    </div>
+                    <div id="contact-list" class="form-group">
+
+                    </div>
                     <input type="hidden" name="document_id" id="document_id">
                     <input type="hidden" name="status" value="2">
                     <div class="form-group">
                         <strong>Message</strong>
-                        <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
+                        <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control" required></textarea>
                     </div>
                     <div class="form-group">
                         <strong>Sending Number</strong>

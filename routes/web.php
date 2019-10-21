@@ -184,7 +184,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('leads/permanentDelete/{leads}', 'LeadsController@permanentDelete')->name('leads.permanentDelete');
     Route::resource('chat', 'ChatController');
     Route::get('erp-leads', 'LeadsController@erpLeads');
+    Route::post('erp-leads-send-message', 'LeadsController@sendMessage')->name('erp-leads-send-message');
     Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
+    Route::post('erp-leads/{id}/changestatus', 'LeadsController@updateErpStatus');
     Route::get('erp-leads/edit', 'LeadsController@erpLeadsEdit')->name('leads.erpLeads.edit');
     Route::get('erp-leads/create', 'LeadsController@erpLeadsCreate')->name('leads.erpLeads.create');
     Route::post('erp-leads/store', 'LeadsController@erpLeadsStore')->name('leads.erpLeads.store');
@@ -195,7 +197,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 //	Route::resource('task','TaskController');
 
     // Instruction
-
+    Route::get('instruction/quick-instruction', 'InstructionController@quickInstruction');
     Route::get('instruction/list', 'InstructionController@list')->name('instruction.list');
     Route::resource('instruction', 'InstructionController');
     Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
@@ -309,6 +311,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('deleteOrderProduct/{order_product}', 'OrderController@deleteOrderProduct')->name('deleteOrderProduct');
 
     Route::get('attachImages/{model_type}/{model_id?}/{status?}/{assigned_user?}', 'ProductController@attachImages')->name('attachImages');
+    Route::post('selected_customer/sendMessage', 'ProductController@sendMessageSelectedCustomer')->name('whatsapp.send_selected_customer');
     Route::post('download', 'MessageController@downloadImages')->name('download.images');
 
     Route::get('quickSell', 'QuickSellController@index')->name('quicksell.index');
@@ -317,6 +320,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('quickSell/saveGroup', 'QuickSellController@saveGroup')->name('quicksell.save.group');
     Route::get('quickSell/pending', 'QuickSellController@pending')->name('quicksell.pending');
     Route::post('quickSell/activate', 'QuickSellController@activate')->name('quicksell.activate');
+    Route::post('quickSell/search', 'QuickSellController@search')->name('quicksell.search');
 
 
     // Chat messages
@@ -336,6 +340,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customers/{id}/loadMoreMessages', 'CustomerController@loadMoreMessages');
     Route::get('customer/search', 'CustomerController@search');
     Route::get('customers', 'CustomerController@index')->name('customer.index');
+    Route::post('add-reply-category', 'CustomerController@addReplyCategory')->name('add.reply.category');
+    Route::post('destroy-reply-category', 'CustomerController@destroyReplyCategory')->name('destroy.reply.category');
     Route::get('customers-load', 'CustomerController@load')->name('customer.load');
     Route::post('customer/{id}/initiateFollowup', 'CustomerController@initiateFollowup')->name('customer.initiate.followup');
     Route::post('customer/{id}/stopFollowup', 'CustomerController@stopFollowup')->name('customer.stop.followup');
@@ -369,6 +375,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('customer/sendScraped/images', 'CustomerController@sendScraped')->name('customer.send.scraped');
     Route::post('customer/change-whatsapp-no', 'CustomerController@changeWhatsappNo')->name('customer.change.whatsapp');
     Route::post('customer/send-contact-details', 'CustomerController@sendContactDetails')->name('customer.send.contact');
+    Route::post('customer/contact-download-donload', 'CustomerController@downloadContactDetails')->name('customer.download.contact');
 
     Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
     Route::get('broadcast/images', 'BroadcastMessageController@images')->name('broadcast.images');
@@ -417,6 +424,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('download/crop-rejected/{id}/{type}', 'ProductCropperController@downloadImagesForProducts');
 
     Route::post('purchase/sendmsgsupplier', 'PurchaseController@sendmsgsupplier')->name('purchase.sendmsgsupplier');
+    Route::get('get-supplier-msg', 'PurchaseController@getMsgSupplier')->name('get.msg.supplier');
     Route::post('purchase/send/emailBulk', 'PurchaseController@sendEmailBulk')->name('purchase.email.send.bulk');
     Route::resource('purchase-status', 'PurchaseStatusController');
 
@@ -685,7 +693,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::put('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendor.payments.update');
     Route::delete('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendor.payments.destroy');
     Route::resource('vendor', 'VendorController');
-
+    Route::post('vendot/block', 'VendorController@block')->name('vendor.block');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
     Route::resource('vendor_category', 'VendorCategoryController');
 
@@ -706,12 +714,23 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
     Route::resource('supplier', 'SupplierController');
+    Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
     Route::post('supplier/saveImage' , 'SupplierController@saveImage')->name('supplier.image');;
+
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
 
     // Agent Routes
     Route::resource('agent', 'AgentController');
+    //Route::resource('product-templates', 'ProductTemplatesController');
+
+    Route::prefix('product-templates')->middleware('auth')->group(function () {
+        Route::get('/', 'ProductTemplatesController@index');
+        Route::get('response', 'ProductTemplatesController@response');
+        Route::post('create', 'ProductTemplatesController@create');
+        Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
+    });
+
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
@@ -929,11 +948,22 @@ Route::middleware('auth')->group(function () {
     Route::get('edit/old-incomings/{id}', 'OldIncomingController@edit')->name('editOldIncomings');
     Route::post('update/old-incomings/{id}', 'OldIncomingController@update')->name('updateOldIncomings');
 
-    Route::get('old', 'OldController@index')->name('old');
-    Route::get('old', 'OldController@index')->name('filteredOld');
-    Route::post('store/old', 'OldController@store')->name('storeOld');
-    Route::get('edit/old/{id}', 'OldController@edit')->name('editOld');
-    Route::post('update/old/{id}', 'OldController@update')->name('updateOld');
+   // Old Module
+    Route::post('old/send/emailBulk', 'OldController@sendEmailBulk')->name('old.email.send.bulk');
+    Route::post('old/send/email', 'OldController@sendEmail')->name('old.email.send');
+    Route::get('old/gettaskremark', 'OldController@getTaskRemark')->name('old.gettaskremark');
+    Route::post('old/addremark', 'OldController@addRemark')->name('old.addRemark');
+    Route::get('old/email/inbox', 'OldController@emailInbox')->name('old.email.inbox');
+    Route::get('old/{old}/payments','OldController@paymentindex')->name('old.payments');
+    Route::post('old/{old}/payments', 'OldController@paymentStore')->name('old.payments.store');
+    Route::put('old/{old}/payments/{old_payment}', 'OldController@paymentUpdate')->name('old.payments.update');
+    Route::delete('old/{old}/payments/{old_payment}', 'OldController@paymentDestroy')->name('old.payments.destroy');
+    Route::resource('old', 'OldController');
+    Route::post('old/block', 'OldController@block')->name('old.block');
+    Route::post('old/category/create', 'OldController@createCategory')->name('old.category.create');
+    Route::post('old/update/status', 'OldController@updateOld')->name('old.update.status');
+
+
 
     Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
 

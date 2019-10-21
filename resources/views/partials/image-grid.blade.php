@@ -164,8 +164,23 @@
     <div class="productGrid" id="productGrid">
         @include('partials.image-load')
     </div>
-
-    <form action="{{ $model_type == 'images' ? route('image.grid.attach') : ($model_type == 'customers' ? route('customer.whatsapp.send.all', 'false') : ($model_type == 'purchase-replace' ? route('purchase.product.replace') : (($model_type == 'broadcast-images' ? route('broadcast.images.link') : ($model_type == 'customer' ? route('whatsapp.send', 'customer') : url('whatsapp/updateAndCreate/')))))) }}" method="POST" id="attachImageForm">
+    @php 
+        $action = url('whatsapp/updateAndCreate/'); 
+        if ($model_type == 'images') {
+            $action =  route('image.grid.attach');
+        } else if ($model_type == 'customers') {
+            $action =  route('customer.whatsapp.send.all', 'false');
+        } else if ($model_type == 'purchase-replace') {
+            $action =  route('purchase.product.replace');
+        } else if ($model_type == 'broadcast-images') {
+            $action =  route('broadcast.images.link');
+        } else if ($model_type == 'customer') {
+            $action =  route('whatsapp.send', 'customer');
+        } else if ($model_type == 'selected_customer') {
+            $action =  route('whatsapp.send_selected_customer');
+        }
+    @endphp
+    <form action="{{ $action }}" method="POST" id="attachImageForm">
         @csrf
 
         @if ($model_type == 'customers')
@@ -176,7 +191,7 @@
         <input type="hidden" name="image" value="">
         <input type="hidden" name="screenshot_path" value="">
         <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : '' }}">
-        <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : 'nothing') }}" value="{{ $model_id }}">
+        <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
         {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
         <input type="hidden" name="status" value="{{ $status }}">

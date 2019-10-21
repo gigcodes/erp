@@ -317,10 +317,12 @@ class SaleController extends Controller {
 
 		$q = $request->input( 'q' );
 
-		$results = Product::select( 'id', 'name', 'sku' )
+		$results = Product::select( 'id', 'name', 'sku', 'brand' )
 		                  ->where( 'id', 'LIKE', '%' . $q . '%' )
 		                  ->orWhere( 'sku', 'LIKE', '%' . $q . '%' )
 		                  ->orWhere( 'name', 'LIKE', '%' . $q . '%' )
+		                  ->offset(0)
+		                  ->limit(15)
 		                  ->get();
 
 		return $results;

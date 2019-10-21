@@ -112,7 +112,19 @@
                   {{ $vendor->category_name }}
                 </span>
                     </td>
-                    <td style="word-break: break-all;">{{ $vendor->name }}</td>
+                    <td style="word-break: break-all;">{{ $vendor->name }}
+                    @if($vendor->phone)
+                        <div>
+                            <button type="button" class="btn btn-image call-twilio" data-context="vendors" data-id="{{ $vendor->id }}" data-phone="{{ $vendor->phone }}"><img src="/images/call.png"/></button>
+
+                        @if ($vendor->is_blocked == 1)
+                                <button type="button" class="btn btn-image block-twilio" data-id="{{ $vendor->id }}"><img src="/images/blocked-twilio.png"/></button>
+                            @else
+                                <button type="button" class="btn btn-image block-twilio" data-id="{{ $vendor->id }}"><img src="/images/unblocked-twilio.png"/></button>
+                            @endif
+                        </div>
+                    @endif
+                    </td>
                     <td>{{ $vendor->phone }}</td>
                     <td class="expand-row table-hover-cell" style="word-break: break-all;">
                 <span class="td-mini-container">
@@ -499,6 +511,35 @@
                 if (n == 0) {
                     $('#bcc-label').fadeOut();
                 }
+            });
+        });
+
+        $(document).on('click', '.block-twilio', function () {
+            var vendor_id = $(this).data('id');
+            var thiss = $(this);
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('vendor.block') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    vendor_id: vendor_id
+                },
+                beforeSend: function () {
+                    $(thiss).text('Blocking...');
+                }
+            }).done(function (response) {
+                if (response.is_blocked == 1) {
+                    $(thiss).html('<img src="/images/blocked-twilio.png" />');
+                } else {
+                    $(thiss).html('<img src="/images/unblocked-twilio.png" />');
+                }
+            }).fail(function (response) {
+                $(thiss).html('<img src="/images/unblocked-twilio.png" />');
+
+                alert('Could not block customer!');
+
+                console.log(response);
             });
         });
     </script>

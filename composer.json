@@ -39,10 +39,12 @@
         "ourcodeworld/name-that-color": "dev-master",
         "php-ai/php-ml": "^0.8.0",
         "phpoffice/phpspreadsheet": "^1.6",
+        "picqer/php-barcode-generator": "^0.3.0",
         "plank/laravel-mediable": "^2.7",
         "pragmarx/tracker": "^3.3",
         "pusher/pusher-http-laravel": "^4.2",
         "pusher/pusher-php-server": "v3.0.1",
+        "seo2websites/erp-customer": "dev-master",
         "seo2websites/erp-excel-importer": "dev-master",
         "seo2websites/google-vision": "dev-master",
         "seo2websites/laravel-zoom": "dev-master",
@@ -108,6 +110,10 @@
         {
             "type": "vcs",
             "url": "git@bitbucket.org:seo2websites/laravel-zoom"
+        },
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:seo2websites/erp-customer"
         }
     ],
     "scripts": {
