@@ -222,6 +222,7 @@ class QuickSellController extends Controller
           $edit->quicksell_group_id = $request->group_old;
           $edit->product_id = $product->id;
           $edit->save();
+
       }elseif($request->group_new != null){
           ProductQuicksellGroup::where('product_id',$product->id)->delete();
            $group = QuickSellGroup::orderBy('id', 'desc')->first();
@@ -229,7 +230,7 @@ class QuickSellController extends Controller
            $group_create =  new QuickSellGroup();
            $incrementId = ($group->group+1);
            $group_create->group = $incrementId;
-           $group_create->name = $request->group_new.$incrementId;
+           $group_create->name = $request->group_new;
            $group_create->save();
            
            $edit = new ProductQuicksellGroup();
@@ -595,7 +596,7 @@ class QuickSellController extends Controller
     {
       //dd($request);
       if($request->groups != null){
-           ProductQuicksellGroup::where('product_id',$product->id)->delete();
+           ProductQuicksellGroup::where('product_id',$request->product_id)->delete();
            $product = new ProductQuicksellGroup();
            $product->product_id = $request->product_id;
            $product->quicksell_group_id = $request->groups;
@@ -617,7 +618,7 @@ class QuickSellController extends Controller
                     $group_create =  new QuickSellGroup();
                     $incrementId = ($group->group+1);
                     $group_create->group = $incrementId;
-                    $group_create->name = $request->group_id.$incrementId;
+                    $group_create->name = $request->group_id;
                     $group_create->suppliers = json_encode($request->suppliers);
                     $group_create->brands = json_encode($request->brands);
                     $group_create->price = $request->buying_price;

@@ -22,7 +22,7 @@
                         <select class="form-control selectpicker" data-live-search="true" name="groups">
                         	<option value="">Select Group</option>
                         @foreach($groups as $group)
-                        	<option value="{{ $group->id }}">{{ $group->group }}</option>
+                        	<option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }}  @endif</option>
                         @endforeach
                         </select>
                     </div>
