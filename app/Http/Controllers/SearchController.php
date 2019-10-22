@@ -256,11 +256,6 @@ class SearchController extends Controller
             Cache::forget('filter-date-' . Auth::id());
         }
 
-        if ($request->quick_product === 'true') {
-            $productQuery = (new Product())->newQuery()
-                ->latest()->where('quick_product', 1);
-        }
-
         if (trim($term) != '') {
             $productQuery = (new Product())->newQuery()
                 ->latest()
@@ -333,6 +328,15 @@ class SearchController extends Controller
         // fix if query is not setup due to some unknow condition
         if (!isset($productQuery)) {
             $productQuery = (new Product())->newQuery()->latest();
+        }
+
+        if ($request->quick_product === 'true') {
+            if (!isset($productQuery)) {
+                $productQuery = (new Product())->newQuery()
+                ->latest();
+            }
+            
+            $productQuery = $productQuery->where('quick_product', 1);
         }
 
         // assing product to varaible so can use as per condition for join table media
