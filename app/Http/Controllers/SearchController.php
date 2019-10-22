@@ -30,7 +30,10 @@ class SearchController extends Controller
 
         $data[ 'term' ] = $term;
         $data[ 'roletype' ] = $roletype;
-        $perPageLimit = $request->get("per_page", Setting::get('pagination'));
+        $perPageLimit = $request->get("per_page");
+        if (empty($perPageLimit)) {
+            $perPageLimit = Setting::get('pagination');
+        }
         $sourceOfSearch = $request->get("source_of_search", "na");
 
         // start add fixing for the price range since the one request from price is in range
