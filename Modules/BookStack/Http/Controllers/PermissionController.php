@@ -54,7 +54,7 @@ class PermissionController extends Controller
 
         $this->permissionsRepo->saveNewRole($request->all());
         session()->flash('success', trans('bookstack::settings.role_create_success'));
-        return redirect('/knowledge-base/settings/roles');
+        return redirect('/kb/settings/roles');
     }
 
     /**
@@ -90,7 +90,7 @@ class PermissionController extends Controller
 
         $this->permissionsRepo->updateRole($id, $request->all());
         session()->flash('success', trans('bookstack::settings.role_update_success'));
-        return redirect('/knowledge-base/settings/roles');
+        return redirect('/kb/settings/roles');
     }
 
     /**
@@ -128,6 +128,6 @@ class PermissionController extends Controller
         }
 
         session()->flash('success', trans('bookstack::settings.role_delete_success'));
-        return redirect('/knowledge-base/settings/roles');
+        return redirect('/kb/settings/roles');
     }
 }

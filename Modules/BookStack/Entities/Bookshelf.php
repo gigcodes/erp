@@ -39,9 +39,9 @@ class Bookshelf extends Entity
     public function getUrl($path = false)
     {
         if ($path !== false) {
-            return url('/knowledge-base/shelves/' . urlencode($this->slug) . '/' . trim($path, '/'));
+            return url('/kb/shelves/' . urlencode($this->slug) . '/' . trim($path, '/'));
         }
-        return url('/knowledge-base/shelves/' . urlencode($this->slug));
+        return url('/kb/shelves/' . urlencode($this->slug));
     }
 
     /**

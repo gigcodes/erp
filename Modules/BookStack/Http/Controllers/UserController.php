@@ -110,7 +110,7 @@ class UserController extends Controller
 
         $this->userRepo->downloadAndAssignUserAvatar($user);
 
-        return redirect('/knowledge-base/settings/users');
+        return redirect('/kb/settings/users');
     }
 
     /**
@@ -203,7 +203,7 @@ class UserController extends Controller
         $user->save();
         session()->flash('success', trans('settings.users_edit_success'));
 
-        $redirectUrl = userCan('users-manage') ? '/knowledge-base/settings/users' : ('/knowledge-base/settings/users/' . $user->id);
+        $redirectUrl = userCan('users-manage') ? '/kb/settings/users' : ('/kb/settings/users/' . $user->id);
         return redirect($redirectUrl);
     }
 
@@ -247,7 +247,7 @@ class UserController extends Controller
         $this->userRepo->destroy($user);
         session()->flash('success', trans('settings.users_delete_success'));
 
-        return redirect('/knowledge-base/settings/users');
+        return redirect('/kb/settings/users');
     }
 
     /**
@@ -313,7 +313,7 @@ class UserController extends Controller
         $key = $listName . '_view_type';
         setting()->putUser($user, $key, $viewType);
 
-        return redirect()->back(302, [], "/knowledge-base/settings/users/$userId");
+        return redirect()->back(302, [], "/kb/settings/users/$userId");
     }
 
     /**
@@ -381,6 +381,6 @@ class UserController extends Controller
         setting()->putUser($user, $sortKey, $sort);
         setting()->putUser($user, $orderKey, $order);
 
-        return redirect()->back(302, [], "/knowledge-base/settings/users/$userId");
+        return redirect()->back(302, [], "/kb/settings/users/$userId");
     }
 }

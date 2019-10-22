@@ -12,7 +12,7 @@
 
             <p>{{ trans('bookstack::settings.role_delete_confirm', ['roleName' => $role->display_name]) }}</p>
 
-            <form action="{{ url("/knowledge-base/settings/roles/delete/{$role->id}") }}" method="POST">
+            <form action="{{ url("/kb/settings/roles/delete/{$role->id}") }}" method="POST">
                 {!! csrf_field() !!}
                 <input type="hidden" name="_method" value="DELETE">
 
@@ -31,7 +31,7 @@
                     </div>
                     <div>
                         <div class="form-group text-right">
-                            <a href="{{ url("/knowledge-base/settings/roles/{$role->id}") }}" class="button outline">{{ trans('bookstack::common.cancel') }}</a>
+                            <a href="{{ url("/kb/settings/roles/{$role->id}") }}" class="button outline">{{ trans('bookstack::common.cancel') }}</a>
                             <button type="submit" class="button">{{ trans('bookstack::common.confirm') }}</button>
                         </div>
                     </div>

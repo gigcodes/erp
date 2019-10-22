@@ -7,7 +7,7 @@
         <div class="my-s">
             @include('bookstack::partials.breadcrumbs', ['crumbs' => [
                 $book,
-                $book->getUrl('/knowledge-base/edit') => [
+                $book->getUrl('/kb/edit') => [
                     'text' => trans('bookstack::entities.books_edit'),
                     'icon' => 'edit',
                 ]

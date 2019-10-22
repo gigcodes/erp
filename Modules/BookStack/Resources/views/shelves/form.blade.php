@@ -65,6 +65,6 @@
 </div>
 
 <div class="form-group text-right">
-    <a href="{{ isset($shelf) ? $shelf->getUrl() : url('/knowledge-base/shelves') }}" class="button outline">{{ trans('bookstack::common.cancel') }}</a>
+    <a href="{{ isset($shelf) ? $shelf->getUrl() : url('/kb/shelves') }}" class="button outline">{{ trans('bookstack::common.cancel') }}</a>
     <button type="submit" class="button">{{ trans('bookstack::entities.shelves_save') }}</button>
 </div>

@@ -219,7 +219,7 @@ class BookshelfController extends Controller
         }
         $this->entityRepo->destroyBookshelf($shelf);
 
-        return redirect('/knowledge-base/shelves');
+        return redirect('/kb/shelves');
     }
 
     /**

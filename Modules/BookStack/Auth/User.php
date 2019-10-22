@@ -212,7 +212,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function getEditUrl()
     {
-        return url('/knowledge-base/settings/users/' . $this->id);
+        return url('/kb/settings/users/' . $this->id);
     }
 
     /**

@@ -25,9 +25,9 @@ class Book extends Entity
     public function getUrl($path = false)
     {
         if ($path !== false) {
-            return url('/knowledge-base/books/' . urlencode($this->slug) . '/' . trim($path, '/'));
+            return url('/kb/books/' . urlencode($this->slug) . '/' . trim($path, '/'));
         }
-        return url('/knowledge-base/books/' . urlencode($this->slug));
+        return url('/kb/books/' . urlencode($this->slug));
     }
 
     /**

@@ -10,7 +10,7 @@
         <h5>{{ trans('bookstack::common.actions') }}</h5>
         <div class="icon-list text-primary">
             @if($currentUser->can('bookshelf-create-all'))
-                <a href="{{ url("/knowledge-base/create-shelf") }}" class="icon-list-item">
+                <a href="{{ url("/kb/create-shelf") }}" class="icon-list-item">
                     <span>@icon('add')</span>
                     <span>{{ trans('bookstack::entities.shelves_new_action') }}</span>
                 </a>

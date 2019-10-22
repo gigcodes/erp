@@ -28,16 +28,16 @@
             <nav class="header-links" >
                 <div class="links text-center">
                     @if (hasAppAccess())
-                        <a class="hide-over-l" href="{{ url('/knowledge-base/search') }}">@icon('search'){{ trans('bookstack::common.search') }}</a>
+                        <a class="hide-over-l" href="{{ url('/kb/search') }}">@icon('search'){{ trans('bookstack::common.search') }}</a>
                         @if(userCanOnAny('view', \Modules\BookStack\Entities\Bookshelf::class) || userCan('bookshelf-view-all') || userCan('bookshelf-view-own'))
-                            <a href="{{ url('/knowledge-base/shelves') }}">@icon('bookshelf'){{ trans('bookstack::entities.shelves') }}</a>
+                            <a href="{{ url('/kb/shelves') }}">@icon('bookshelf'){{ trans('bookstack::entities.shelves') }}</a>
                         @endif
-                        <a href="{{ url('/knowledge-base/books') }}">@icon('books'){{ trans('bookstack::entities.books') }}</a>
+                        <a href="{{ url('/kb/books') }}">@icon('books'){{ trans('bookstack::entities.books') }}</a>
                         @if(signedInUser() && userCan('settings-manage'))
-                            <a href="{{ url('/knowledge-base/settings') }}">@icon('settings'){{ trans('bookstack::settings.settings') }}</a>
+                            <a href="{{ url('/kb/settings') }}">@icon('settings'){{ trans('bookstack::settings.settings') }}</a>
                         @endif
                         @if(signedInUser() && userCan('users-manage') && !userCan('settings-manage'))
-                            <a href="{{ url('/knowledge-base/settings/users') }}">@icon('users'){{ trans('bookstack::settings.users') }}</a>
+                            <a href="{{ url('/kb/settings/users') }}">@icon('users'){{ trans('bookstack::settings.users') }}</a>
                         @endif
                     @endif
                 </div>

@@ -15,7 +15,7 @@
 
         <div class="card content-wrap auto-height">
             <h2 class="list-heading">{{ trans('bookstack::settings.app_features_security') }}</h2>
-            <form action="{{ url("/knowledge-base/settings") }}" method="POST">
+            <form action="{{ url("/kb/settings") }}" method="POST">
                 {!! csrf_field() !!}
 
                 <div class="setting-list">
@@ -79,7 +79,7 @@
 
         <div class="card content-wrap auto-height">
             <h2 class="list-heading">{{ trans('bookstack::settings.app_customization') }}</h2>
-            <form action="{{ url("/knowledge-base/settings") }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ url("/kb/settings") }}" method="POST" enctype="multipart/form-data">
                 {!! csrf_field() !!}
 
                 <div class="setting-list">
@@ -180,7 +180,7 @@
 
         <!-- <div class="card content-wrap auto-height">
             <h2 class="list-heading">{{ trans('bookstack::settings.reg_settings') }}</h2>
-            <form action="{{ url("/knowledge-base/settings") }}" method="POST">
+            <form action="{{ url("/kb/settings") }}" method="POST">
                 {!! csrf_field() !!}
 
                 <div class="setting-list">

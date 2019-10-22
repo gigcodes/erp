@@ -19,7 +19,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Secure images routing
     Route::get('/uploads/images/{path}', 'Images\ImageController@showImage')->where('path', '.*$');
 
-    Route::group(['prefix' => 'knowledge-base'], function () {
+    Route::group(['prefix' => 'kb'], function () {
 
         // Shelves
         Route::get('/create-shelf', 'BookshelfController@create');
@@ -139,7 +139,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::put('/roles/{id}', 'PermissionController@updateRole');
         });
 
-       
+
 
     });
 

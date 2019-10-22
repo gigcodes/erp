@@ -31,7 +31,7 @@
     @else
         <p class="text-muted">{{ trans('bookstack::entities.shelves_empty') }}</p>
         @if(userCan('bookstack::bookshelf-create-all'))
-            <a href="{{ url("/knowledge-base/create-shelf") }}" class="button outline">@icon('edit'){{ trans('bookstack::entities.create_now') }}</a>
+            <a href="{{ url("/kb/create-shelf") }}" class="button outline">@icon('edit'){{ trans('bookstack::entities.create_now') }}</a>
         @endif
     @endif
 

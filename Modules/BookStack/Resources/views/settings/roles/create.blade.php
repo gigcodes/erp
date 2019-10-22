@@ -8,7 +8,7 @@
             @include('bookstack::settings.navbar', ['selected' => 'roles'])
         </div>
 
-        <form action="{{ url("/knowledge-base/settings/roles/new") }}" method="POST">
+        <form action="{{ url("/kb/settings/roles/new") }}" method="POST">
             @include('bookstack::settings.roles.form', ['title' => trans('bookstack::settings.role_create')])
         </form>
     </div>

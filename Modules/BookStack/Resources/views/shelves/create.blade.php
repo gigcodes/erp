@@ -6,11 +6,11 @@
 
         <div class="my-s">
             @include('bookstack::partials.breadcrumbs', ['crumbs' => [
-                '/knowledge-base/shelves' => [
+                '/kb/shelves' => [
                     'text' => trans('bookstack::entities.shelves'),
                     'icon' => 'bookshelf',
                 ],
-                '/knowledge-base/create-shelf' => [
+                '/kb/create-shelf' => [
                     'text' => trans('bookstack::entities.shelves_create'),
                     'icon' => 'add',
                 ]
@@ -19,7 +19,7 @@
 
         <main class="card content-wrap">
             <h1 class="list-heading">{{ trans('bookstack::entities.shelves_create') }}</h1>
-            <form action="{{ url("/knowledge-base/shelves") }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ url("/kb/shelves") }}" method="POST" enctype="multipart/form-data">
                 @include('bookstack::shelves.form', ['shelf' => null, 'books' => $books])
             </form>
         </main>

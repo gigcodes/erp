@@ -42,7 +42,7 @@ class Chapter extends Entity
     public function getUrl($path = false)
     {
         $bookSlug = $this->getAttribute('bookSlug') ? $this->getAttribute('bookSlug') : $this->book->slug;
-        $fullPath = '/knowledge-base/books/' . urlencode($bookSlug) . '/chapter/' . urlencode($this->slug);
+        $fullPath = '/kb/books/' . urlencode($bookSlug) . '/chapter/' . urlencode($this->slug);
 
         if ($path !== false) {
             $fullPath .= '/' . trim($path, '/');

@@ -21,7 +21,7 @@
                 <p class="small text-muted">{{ trans('bookstack::settings.maint_image_cleanup_desc') }}</p>
             </div>
             <div>
-                <form method="POST" action="{{ url('/knowledge-base/settings/maintenance/cleanup-images') }}">
+                <form method="POST" action="{{ url('/kb/settings/maintenance/cleanup-images') }}">
                     {!! csrf_field()  !!}
                     <input type="hidden" name="_method" value="DELETE">
                     <div>
