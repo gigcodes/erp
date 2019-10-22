@@ -729,6 +729,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('response', 'ProductTemplatesController@response');
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
+        Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
     });
 
 });
