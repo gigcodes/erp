@@ -124,6 +124,7 @@ class ScrapController extends Controller
             $scrapStatistics->save();
 
             // Set values for existing scraped product
+            $scrapedProduct->url = $request->get('url');
             $scrapedProduct->properties = $request->get('properties');
             $scrapedProduct->is_sale = $request->get('is_sale') ?? 0;
             $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title'));
