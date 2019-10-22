@@ -20,6 +20,7 @@ use App\Customer;
 use App\Suggestion;
 use App\Setting;
 use App\Leads;
+use App\ErpLeads;
 use App\Order;
 use App\Status;
 use App\Product;
@@ -48,13 +49,14 @@ use Webklex\IMAP\Client;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Auth;
+use GuzzleHttp\Client as GuzzleClient;
 
 class CustomerController extends Controller
 {
 
     public function __construct()
     {
-        $this->middleware('permission:customer');
+        // $this->middleware('permission:customer');
     }
 
     /**
@@ -74,12 +76,45 @@ class CustomerController extends Controller
         $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
         $order_stats = DB::table('orders')->selectRaw('order_status, COUNT(*) as total')->whereNotNull('order_status')->groupBy('order_status')->get();
 
-        $finalOrderStats = [];
         $totalCount = 0;
         foreach ($order_stats as $order_stat) {
             $totalCount += $order_stat->total;
         }
 
+        $orderStatus = [
+            'order received',
+            'follow up for advance',
+            'prepaid',
+            'proceed without advance',
+            'pending purchase (advance received)',
+            'purchase complete',
+            'product shipped from italy',
+            'product in stock',
+            'product shipped to client',
+            'delivered',
+            'cancel',
+            'refund to be processed',
+            'refund credited'
+        ];
+
+        $finalOrderStats = [];
+        foreach ($orderStatus as $status) {
+            foreach ($order_stats as $order_stat) {
+                if ($status == strtolower($order_stat->order_status)) {
+                    $finalOrderStats[] = $order_stat;
+                }
+            }
+        }
+
+        foreach ($order_stats as $order_stat) {
+            if (!in_array(strtolower($order_stat->order_status), $orderStatus)) {
+                $finalOrderStats[] = $order_stat;
+            }
+        }
+
+        $order_stats = $finalOrderStats;
+
+        $finalOrderStats = [];
         foreach ($order_stats as $key => $order_stat) {
             $finalOrderStats[] = array(
                 $order_stat->order_status,
@@ -148,6 +183,35 @@ class CustomerController extends Controller
         $start_time = $request->range_start ? "$request->range_start 00:00" : Carbon::now()->subDay();
         $end_time = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay();
 
+        $allCustomers = $results[ 0 ]->pluck("id")->toArray();
+
+        // Get all sent broadcasts from the past month
+        $sbQuery = DB::select("select MIN(group_id) AS minGroup, MAX(group_id) AS maxGroup from message_queues where sent = 1 and created_at>'" . date('Y-m-d H:i:s', strtotime('1 month ago')) . "'");
+
+        // Add broadcasts to array
+        $broadcasts = [];
+        if ($sbQuery !== null) {
+            // Get min and max
+            $minBroadcast = $sbQuery[ 0 ]->minGroup;
+            $maxBroadcast = $sbQuery[ 0 ]->maxGroup;
+
+            // Deduct 2 from min
+            $minBroadcast = $minBroadcast - 2;
+
+            for ($i = $minBroadcast; $i <= $maxBroadcast; $i++) {
+                $broadcasts[] = $i;
+            }
+        }
+
+        $shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
+                                    ->whereNotNull('shoe_size')
+                                    ->groupBy('shoe_size')
+                                    ->pluck('counts', 'shoe_size');
+
+        $clothing_size_group = Customer::selectRaw('clothing_size, count(id) as counts')
+                                        ->whereNotNull('clothing_size')
+                                        ->groupBy('clothing_size')
+                                        ->pluck('counts', 'clothing_size');
 
         return view('customers.index', [
             'customers' => $results[ 0 ],
@@ -170,7 +234,10 @@ class CustomerController extends Controller
             'end_time' => $end_time,
             'leads_data' => $results[ 2 ],
             'order_stats' => $order_stats,
-            'complaints' => $complaints
+            'complaints' => $complaints,
+            'shoe_size_group' => $shoe_size_group,
+            'clothing_size_group' => $clothing_size_group,
+            'broadcasts' => $broadcasts
         ]);
     }
 
@@ -203,6 +270,22 @@ class CustomerController extends Controller
             $orderWhereClause = "WHERE orders.order_id LIKE '%$term%'";
         }
 
+        if ($request->get('shoe_size')) {
+            $searchWhereClause .= " AND customers.shoe_size = '".$request->get('shoe_size')."'";
+        }
+
+        if ($request->get('clothing_size')) {
+            $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size')."'";
+        }
+
+        if ($request->get('shoe_size_group')) {
+            $searchWhereClause .= " AND customers.shoe_size = '".$request->get('shoe_size_group')."'";
+        }
+
+        if ($request->get('clothing_size_group')) {
+            $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size_group')."'";
+        }
+
         $orderby = 'DESC';
 
         if ($request->input('orderby')) {
@@ -229,7 +312,7 @@ class CustomerController extends Controller
         $end_time = $request->range_end ? "$request->range_end 23:59" : '';
 
         if ($start_time != '' && $end_time != '') {
-            $filterWhereClause = " WHERE last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "'";
+            $filterWhereClause = " AND last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "'";
         }
 
         if ($request->type == 'unread' || $request->type == 'unapproved') {
@@ -241,23 +324,23 @@ class CustomerController extends Controller
             // $messageWhereClause = " WHERE chat_messages.status = $type";
 
             if ($start_time != '' && $end_time != '') {
-                $filterWhereClause = " WHERE (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = $type";
+                $filterWhereClause = " AND (last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "') AND message_status = $type";
             }
         } else {
             if (
-                $request->get('type') === 'Advance received' ||
-                $request->get('type') === 'Cancel' ||
-                $request->get('type') === 'Delivered' ||
-                $request->get('type') === 'Follow up for advance' ||
-                $request->get('type') === 'HIGH PRIORITY' ||
-                $request->get('type') === 'In Transist from Italy' ||
-                $request->get('type') === 'Prepaid' ||
-                $request->get('type') === 'Proceed without Advance' ||
-                $request->get('type') === 'Product Shiped form Italy' ||
-                $request->get('type') === 'Product shiped to Client' ||
-                $request->get('type') === 'Refund Credited' ||
-                $request->get('type') === 'Refund Dispatched' ||
-                $request->get('type') === 'Refund to be processed'
+                strtolower($request->get('type')) === 'advance received' ||
+                strtolower($request->get('type')) === 'cancel' ||
+                strtolower($request->get('type')) === 'delivered' ||
+                strtolower($request->get('type')) === 'follow up for advance' ||
+                strtolower($request->get('type')) === 'high priority' ||
+                strtolower($request->get('type')) === 'in transist from italy' ||
+                strtolower($request->get('type')) === 'prepaid' ||
+                strtolower($request->get('type')) === 'proceed without advance' ||
+                strtolower($request->get('type')) === 'product shiped form italy' ||
+                strtolower($request->get('type')) === 'product shiped to client' ||
+                strtolower($request->get('type')) === 'refund credited' ||
+                strtolower($request->get('type')) === 'refund dispatched' ||
+                strtolower($request->get('type')) === 'refund to be processed'
             ) {
                 $join = 'LEFT';
                 $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
@@ -271,15 +354,15 @@ class CustomerController extends Controller
                 $filterWhereClause = ' AND order_status = "' . $request->get('type') . '"';
 
             } else {
-                if ($request->type != 'new' && $request->type != 'delivery' && $request->type != 'Refund to be processed' && $request->type != '') {
+                if (strtolower($request->type) != 'new' && strtolower($request->type) != 'delivery' && strtolower($request->type) != 'refund to be processed' && strtolower($request->type) != '') {
                     $join = 'LEFT';
                     $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
                     $messageWhereClause = " WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9";
 
                     if ($request->type == '0') {
-                        $leadsWhereClause = ' WHERE lead_status IS NULL';
+                        $leadsWhereClause = ' AND lead_status IS NULL';
                     } else {
-                        $leadsWhereClause = " WHERE lead_status = $request->type";
+                        $leadsWhereClause = " AND lead_status = $request->type";
                     }
                 } else {
                     if ($sortby === 'communication') {
@@ -315,6 +398,7 @@ class CustomerController extends Controller
                 customers.is_error_flagged,
                 customers.is_priority,
                 customers.instruction_completed_at,
+                customers.whatsapp_number,
                 chat_messages.*,
                 chat_messages.status AS message_status,
                 chat_messages.number,
@@ -887,9 +971,11 @@ class CustomerController extends Controller
 
     public function loadMoreMessages(Request $request)
     {
+        $limit = request()->get("limit", 3);
+
         $customer = Customer::find($request->customer_id);
 
-        $chat_messages = $customer->whatsapps_all()->skip(1)->take(3)->get();
+        $chat_messages = $customer->whatsapps_all()->where("message", "!=", "")->skip(1)->take($limit)->get();
 
         $messages = [];
 
@@ -1100,7 +1186,7 @@ class CustomerController extends Controller
             $message->save();
         }
 
-        $leads = Leads::where('customer_id', $request->second_customer_id)->get();
+        $leads = ErpLeads::where('customer_id', $request->second_customer_id)->get();
 
         foreach ($leads as $lead) {
             $lead->customer_id = $first_customer->id;
@@ -1573,7 +1659,9 @@ class CustomerController extends Controller
         $customer->name = $request->name;
         $customer->email = $request->email;
         $customer->phone = $request->phone;
-        $customer->whatsapp_number = $request->whatsapp_number;
+        if ($request->get('whatsapp_number', false)) {
+            $customer->whatsapp_number = $request->whatsapp_number;
+        }
         $customer->instahandler = $request->instahandler;
         $customer->rating = $request->rating;
         $customer->do_not_disturb = $request->do_not_disturb == 'on' ? 1 : 0;
@@ -2093,9 +2181,19 @@ class CustomerController extends Controller
 
         $chat_message = ChatMessage::create($params);
 
+        $mediaList = [];
+
         foreach ($data[ 'products' ] as $product) {
             if ($product->hasMedia(config('constants.media_tags'))) {
-                $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
+                $mediaList[] = $product->getMedia(config('constants.media_tags'));
+            }
+        }
+
+        foreach (array_unique($mediaList) as $list) {
+            try {
+                $chat_message->attachMedia($list, config('constants.media_tags'));
+            } catch (\Exception $e) {
+
             }
         }
 
@@ -2119,5 +2217,259 @@ class CustomerController extends Controller
         $customer->delete();
 
         return redirect()->route('customer.index')->with('success', 'You have successfully deleted a customer');
+    }
+
+    /**
+     * using for creating file and save into the on given folder path
+     *
+     */
+
+    public function testImage()
+    {
+        $path = request()->get("path");
+        $text = request()->get("text");
+        $color = request()->get("color", "FFF");
+        $fontSize = request()->get("size", 42);
+
+        $img = \IImage::make(public_path($path));
+        // use callback to define details
+        $img->text($text, 5, 50, function ($font) use ($fontSize, $color) {
+            $font->file(public_path('fonts/Arial.ttf'));
+            $font->size($fontSize);
+            $font->color("#" . $color);
+            $font->align('top');
+        });
+
+        return $img->response();
+        //$img->save(public_path('uploads/withtext.jpg'));
+    }
+
+    public function broadcast()
+    {
+        $customerId = request()->get("customer_id", 0);
+
+        $pendingBroadcast = \App\MessageQueue::where("customer_id", $customerId)
+            ->where("sent", 0)->orderBy("group_id", "asc")->groupBy("group_id")->select("group_id as id")->get()->toArray();
+        // last two
+        $lastBroadcast = \App\MessageQueue::where("customer_id", $customerId)
+            ->where("sent", 1)->orderBy("group_id", "desc")->groupBy("group_id")->limit(2)->select("group_id as id")->get()->toArray();
+
+        $allRequest = array_merge($pendingBroadcast, $lastBroadcast);
+
+        if (!empty($allRequest)) {
+            usort($allRequest, function ($a, $b) {
+                $a = $a[ 'id' ];
+                $b = $b[ 'id' ];
+
+                if ($a == $b) {
+                    return 0;
+                }
+                return ($a < $b) ? -1 : 1;
+            });
+        }
+
+        return response()->json(["code" => 1, "data" => $allRequest]);
+
+    }
+
+    public function broadcastSendPrice()
+    {
+        $broadcastId = request()->get("broadcast_id", 0);
+        $customerId = request()->get("customer_id", 0);
+        $productsToBeRun = explode(",", request()->get("product_to_be_run", ""));
+
+        $products = [];
+        if (!empty(array_filter($productsToBeRun))) {
+            foreach ($productsToBeRun as $prd) {
+                if (is_numeric($prd)) {
+                    $products[] = $prd;
+                }
+            }
+        }
+
+        $customer = Customer::where("id", $customerId)->first();
+
+        if ($customer && $customer->do_not_disturb == 0) {
+            $this->dispatchBroadSendPrice($customer, array_unique($products));
+        }
+
+        return response()->json(["code" => 1, "message" => "Broadcast run successfully"]);
+    }
+
+    public function dispatchBroadSendPrice($customer, $product_ids)
+    {
+        if (!empty($customer) && is_numeric($customer->phone)) {
+
+            if (!empty(array_filter($product_ids))) {
+
+                foreach($product_ids as $pid) {
+                    $quick_lead = ErpLeads::create([
+                        'customer_id' => $customer->id,
+                        //'rating' => 1,
+                        'lead_status_id' => 3,
+                        //'assigned_user' => 6,
+                        'product_id' => $pid,
+                        'created_at' => Carbon::now()
+                    ]);
+                }
+
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $product_ids]);
+
+                $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+
+                //$message->sent = 1;
+                //$message->save();
+
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    public function broadcastDetails()
+    {
+        $broadcastId = request()->get("broadcast_id", 0);
+        $customerId = request()->get("customer_id", 0);
+
+        $messages = \App\MessageQueue::where("group_id", $broadcastId)->where("customer_id", $customerId)->get();
+
+        $response = [];
+
+        if (!$messages->isEmpty()) {
+            foreach ($messages as $message) {
+                $response[] = $message->getImagesWithProducts();
+            }
+        }
+
+        return response()->json(["code" => 1, "data" => $response]);
+
+    }
+
+    /**
+     * Change in whatsapp no
+     *
+     */
+
+    public function changeWhatsappNo()
+    {
+        $customerId = request()->get("customer_id", 0);
+        $whatsappNo = request()->get("number", null);
+
+        if ($customerId > 0) {
+            // find the record from customer table
+            $customer = \App\Customer::where("id", $customerId)->first();
+
+            if ($customer) {
+                // assing nummbers
+                $oldNumber = $customer->whatsapp_number;
+                $customer->whatsapp_number = $whatsappNo;
+
+                if ($customer->save()) {
+                    // update into whatsapp history table
+                    $wHistory = new \App\HistoryWhatsappNumber;
+                    $wHistory->date_time = date("Y-m-d H:i:s");
+                    $wHistory->object = "App\Customer";
+                    $wHistory->object_id = $customerId;
+                    $wHistory->old_number = $oldNumber;
+                    $wHistory->new_number = $whatsappNo;
+                    $wHistory->save();
+
+                }
+            }
+        }
+
+        return response()->json(["code" => 1, "message" => "Number updated successfully"]);
+    }
+
+    public function sendContactDetails()
+    {
+        $userID = request()->get("user_id",0);
+        $customerID = request()->get("customer_id",0);
+
+        $user = \App\User::where("id", $userID)->first();
+        $customer = \App\Customer::where("id", $customerID)->first();
+
+        // if found customer and  user
+        if($user && $customer) {
+
+            $data = [
+                "Customer details:",
+                "$customer->name",
+                "$customer->phone",
+                "$customer->email",
+                "$customer->address",
+                "$customer->city",
+                "$customer->country",
+                "$customer->pincode"
+            ];
+
+            $messageData = implode("\n",$data);
+
+            $params[ 'erp_user' ] = $user->id;
+            $params[ 'approved' ] = 1;
+            $params[ 'message' ]  = $messageData;
+            $params[ 'status' ]   = 2;
+
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
+
+            $chat_message = \App\ChatMessage::create($params);
+
+        }
+
+        return response()->json(["code" => 1 , "message" => "done"]);
+
+
+    }
+
+    public function addReplyCategory(Request $request)
+    {
+
+        $this->validate($request, [
+            'name'  => 'required|string'
+        ]);
+
+        $category = new ReplyCategory;
+        $category->name = $request->name;
+        $category->save();
+
+        return response()->json(["code" => 1 , "data" => $category]);
+
+    }
+
+    public function destroyReplyCategory(Request $request)
+    {
+
+        $this->validate($request, [
+            'id'  => 'required'
+        ]);
+
+        Reply::where('category_id', $request->get('id'))->delete();
+        ReplyCategory::where('id', $request->get('id'))->delete();
+
+        return response()->json(["code" => 1 , "message" => "Deleted successfully"]);
+
+    }
+
+    public function downloadContactDetails()
+    {
+        $userID = request()->get("user_id",0);
+        $customerID = request()->get("customer_id",0);
+
+        $user = \App\User::where("id", $userID)->first();
+        $customer = \App\Customer::where("id", $customerID)->first();
+
+        // if found customer and  user
+        if($user && $customer) {
+            // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
+            $html = view( 'customers.customer_pdf', compact('customer') );
+
+            $pdf = new Dompdf();
+            $pdf->loadHtml($html);
+            $pdf->render();
+            $pdf->stream('orders.pdf');
+        }
     }
 }

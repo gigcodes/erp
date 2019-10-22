@@ -9,9 +9,9 @@
         <th style="width: 15%"><a href="/leads?sortby=client_name{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Client Name</a></th>
         <th style="width: 8%"><a href="/leads?sortby=city{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">City</a></th>
         <th style="width: 2%"><a href="/leads?sortby=rating{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Rating</a></th>
-        <th style="width: 8%"><a href="/leads?sortby=assigned_user{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Assigned to</a></th>
+        <!-- <th style="width: 8%"><a href="/leads?sortby=assigned_user{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Assigned to</a></th> -->
         <th style="width: 10%">Products</th>
-        <th style="width: 5%">Message Status</th>
+        <!-- <th style="width: 5%">Message Status</th> -->
         <th style="width: 17%"><a href="/leads?sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Communication</a></th>
         <th style="width: 8%"><a href="/leads?sortby=status{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Status</a></th>
         <th style="width: 10%"><a href="/leads?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}{{ $search_query }}">Created</a></th>
@@ -26,9 +26,9 @@
             <td>{{ isset($lead['customer']) ? $lead['customer']['name'] : '' }}</td>
             <td>{{ isset($lead['city']) ?  $lead['city'] : ''}}</td>
             <td>{{ isset($lead['rating']) ? $lead['rating'] : ''}}</td>
-            <td>{{isset(App\User::find($lead['assigned_user'])->name) ? App\User::find($lead['assigned_user'])->name : ''}}</td>
+            <!-- <td>{{isset(App\User::find($lead['assigned_user'])->name) ? App\User::find($lead['assigned_user'])->name : ''}}</td> -->
             <td>{{App\Helpers::getproductsfromarraysofids($lead['selected_product'])}}</td>
-            <td>
+            <!-- <td>
               @if (!empty($lead['communication']['body']))
                 @if ($lead['communication']['status'] == 5 || $lead['communication']['status'] == 3)
                   Read
@@ -60,7 +60,7 @@
                   Unread
                 @endif
               @endif
-            </td>
+            </td> -->
             <td>
               @if (isset($lead['communication']['body']))
                 @if (strpos($lead['communication']['body'], '<br>') !== false)
@@ -82,11 +82,11 @@
                 <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
                 {!! Form::close() !!}
 
-                @can('admin')
+                 @if(auth()->user()->isAdmin())
                     {!! Form::open(['method' => 'DELETE','route' => ['leads.permanentDelete', $lead['id']],'style'=>'display:inline']) !!}
                     <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
-                @endcan
+                @endif
             </td>
         </tr>
     @endforeach

@@ -2,6 +2,21 @@
 
 @section("styles")
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.11/css/bootstrap-select.min.css" />
+<style>
+  .checkbox_select{
+    display: none;
+  }
+  .align {
+    padding: 0px 10px 10px 10px !important;
+  }
+  .groups-css {
+    display : inline-flex;
+  }
+  .group-checkbox {
+    padding-left : 5px;
+  }
+</style>
 @endsection
 
 @section('content')
@@ -13,74 +28,174 @@
 
   {{-- @include('quicksell.partials.modal-image') --}}
 
-  <div class="pull-right">
-    {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</button> --}}
-    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">Upload</button>
-  </div>
 
-  <form action="{{ route('quicksell.index') }}" method="GET" class="form-inline align-items-start mb-5">
-    {{-- <div class="form-group mr-3 mb-3">
-      <input name="term" type="text" class="form-control" id="product-search" value="{{ isset($term) ? $term : '' }}" placeholder="sku,brand,category,status,stage">
-    </div> --}}
 
-    <div class="form-group mr-3 mb-3">
-      {!! $filter_categories_selection !!}
+<form action="{{ route('quicksell.search') }}" method="POST" id="searchForm" class="form-inline align-items-start">
+  @csrf
+  {{-- <div class="form-group">
+      <div class="row"> --}}
+  <input type="hidden" name="selected_products" id="selected_products" value="">
+  <div class="form-group mr-3 mb-3">
+    <input name="term" type="text" class="form-control" id="product-search"
+           value="{{ isset($term) ? $term : '' }}"
+           placeholder="sku,brand,category,status,stage">
     </div>
-
     <div class="form-group mr-3">
-      @php $brands_select = \App\Brand::getAll();
-      @endphp
-      <select class="form-control select-multiple" name="brand[]" multiple>
-        <optgroup label="Brands">
-          @foreach ($brands_select as $id => $name)
-            <option value="{{ $id }}" {{ isset($brand) && $brand == $name ? 'selected' : '' }}>{{ $name }}</option>
-          @endforeach
+      @php
+       $category_parent = \App\Category::where('parent_id', 0)->orderby('title','asc')->get();
+       $category_child = \App\Category::where('parent_id', '!=', 0)->orderby('title','asc')->get();
+       @endphp
+      <select class="form-control select-multiple2" name="category[]" multiple data-placeholder="Category...">
+        <optgroup label="Category">
+          @foreach($category_parent as $c)
+                            <option value="{{ $c->id }}">{{ $c->title }}</option>
+                            @if($c->childs)
+                              @foreach($c->childs as $categ)
+                              <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
+                              @endforeach
+                            @endif
+                        @endforeach
+                        @foreach($category_child as $c)
+                            <option value="{{ $c->id }}">{{ $c->title }}</option>
+                            @if($c->childs)
+                              @foreach($c->childs as $categ)
+                              <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
+                              @endforeach
+                            @endif
+                        @endforeach
         </optgroup>
       </select>
     </div>
 
-    @if (Auth::user()->hasRole('Admin'))
-      <div class="form-group mr-3">
-        <select class="form-control select-multiple" name="location[]" multiple>
-          <optgroup label="Locations">
-            @foreach ($locations as $name)
-              <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
-            @endforeach
-          </optgroup>
-        </select>
-      </div>
-    @endif
+  <div class="form-group mr-3">
+    @php $brands = \App\Brand::getAll(); @endphp
+    <select class="form-control select-multiple2" name="brand[]" multiple data-placeholder="Brands...">
+      <optgroup label="Brands">
+        @foreach ($brands as $key => $name)
+          <option value="{{ $key }}">{{ $name }}</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
 
-    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-  </form>
+  <div class="form-group mr-3">
+    {{-- <strong>Color</strong> --}}
+    @php $colors = new \App\Colors(); @endphp
+    <select class="form-control select-multiple2" name="color[]" multiple data-placeholder="Colors...">
+      <optgroup label="Colors">
+        @foreach ($colors->all() as $key => $col)
+          <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
 
+  <div class="form-group mr-3">
+    <select class="form-control select-multiple2" name="supplier[]" multiple data-placeholder="Supplier...">
+      <optgroup label="Suppliers">
+        @foreach ($suppliers as $key => $supp)
+          <option value="{{ $supp->supplier }}" {{ isset($supplier) && $supplier == $supp->id ? 'selected' : '' }}>{{ $supp->supplier }}</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
 
+  @if (Auth::user()->hasRole('Admin'))
+    <div class="form-group mr-3">
+      <select class="form-control select-multiple2" name="location[]" multiple data-placeholder="Location...">
+        <optgroup label="Locations">
+          @foreach ($locations as $name)
+            <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
+          @endforeach
+        </optgroup>
+      </select>
+    </div>
+  @endif
+
+  <div class="form-group mr-3">
+    <input name="size" type="text" class="form-control"
+           value="{{ isset($size) ? $size : '' }}"
+           placeholder="Size">
+  </div>
+
+  <div class="form-group mr-3">
+    @php $groups = \App\QuickSellGroup::all(); @endphp
+    <select class="form-control select-multiple2" name="group[]" multiple data-placeholder="Groups...">
+      <optgroup label="Groups">
+        @foreach ($groups as $group)
+          <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }} @endif</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
+
+  <div class="form-group mr-3">
+    {!! Form::select('per_page',[
+    "20" => "20 Images Per Page",
+    "30" => "30 Images Per Page",
+    "50" => "50 Images Per Page",
+    "100" => "100 Images Per Page",
+    ], request()->get("per_page",null), ['placeholder' => '-- Select Images Per Page --','class' => 'form-control']) !!}
+  </div>
+  <div class="form-group mr-3">
+    <strong class="mr-3">Price</strong>
+    <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '400000' }}]"/>
+  </div>
+  <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+  <button type="button" class="btn btn-image"><a href="/quickSell"><img src="/images/icons-refresh.png"/></a></button>
+  {{-- </div>
+</div> --}}
+</form>
+<br>
+<div>
+  {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</button> --}}
+  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">Upload</button>
+  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroup">Create Group</button>
+  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroupExist">Add Existing Group</button>
+  <button type="button" class="btn btn-secondary" id="multiple">Send Multiple Images</button>
+  <a href="{{ url('/quickSell/pending') }}"><button type="button" class="btn btn-secondary">Product Pending</button></a>
+  <button type="button" class="btn btn-secondary" id="selet-all-multiple">Attach all</button>
+</div>
 
 @include('partials.flash_messages')
 
-<div class="row mt-6">
+<div class="row mt-6" style="margin: 10px;">
   @foreach ($products as $index => $product)
-  <div class="col-md-3 col-xs-6 text-center">
+  <div class="col-md-3 col-xs-6 text-left">
+    <input type="checkbox" class="checkbox_select" name="quick" value="{{ $product->id }}"/>
     {{-- <a href="{{ route('leads.show', $lead['id']) }}"> --}}
     <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
               ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
               : '' }}" class="img-responsive grid-image" alt="" />
+    <div class="align" id="set{{ $product->id }}">       
     <p>Supplier : {{ $product->supplier }}</p>
     <p>Price : {{ $product->price }}</p>
-    <p>Size : {{ $product->size }}</p>
+    @if($product->size != null) <p>Size :  {{ $product->size }} </p>@endif
     <p>Brand : {{ $product->brand ? $brands[$product->brand] : '' }}</p>
     <p>Category : {{ $product->category ? $categories[$product->category] : '' }}</p>
+    @if($product->groups)
+    
+    <p class="groups-css">Group :@if($product->groups->count() == 0) <input type="checkbox" name="blank" class="group-checkbox checkbox" data-id="{{ $product->id }}"> @else @foreach($product->groups as $group)
+      @php 
+    $grp = \App\QuickSellGroup::where('group',$group->quicksell_group_id)->first();
+    @endphp 
+
+    @if($grp != null && $grp->name != null) {{ $grp->name }} , @else {{ $group->quicksell_group_id }}, @endif @endforeach @endif </p>
+
+    @endif
+    </div>   
+    <button type="button" class="btn btn-image sendWhatsapp" data-id="{{ $product->id }}"><img src="/images/send.png" /></button>
 
     <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
     {!! Form::open(['method' => 'POST','route' => ['products.archive', $product->id],'style'=>'display:inline']) !!}
     <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
     {!! Form::close() !!}
 
-    @can('admin')
+     @if(auth()->user()->isAdmin())
     {!! Form::open(['method' => 'DELETE','route' => ['products.destroy', $product->id],'style'=>'display:inline']) !!}
     <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
     {!! Form::close() !!}
-    @endcan
+    @endif
     {{-- </a> --}}
   </div>
   @endforeach
@@ -89,17 +204,33 @@
 {!! $products->links() !!}
 
 @include('quicksell.partials.modal-product')
+@include('quicksell.partials.modal-create-group')
+@include('quicksell.partials.modal-add-existing-group')
+@include('quicksell.partials.modal-whats-app')
+@include('quicksell.partials.modal-multiple-whats-app')
+@include('quicksell.partials.modal-add-group-details')
 
 @endsection
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.11/js/bootstrap-select.min.js"></script>
   <script type="text/javascript">
-    $(".select-multiple").multiselect();
+   
+
+    $(document).on("click","#attached-all-quick",function(){
+        if($(this).html() == "Attached-ALL") {
+          $(this).html('Uncheck Attached-ALL');
+          $("input[name='quick']").attr('checked','checked');
+        }else{
+          $(this).html('Attached-ALL');
+          $("input[name='quick']").removeAttr('checked');
+        }
+    });
 
     $(document).on('click', '.edit-modal-button', function() {
       var product = $(this).data('product');
-      var url = 'quickSell/' + product.id + '/edit';
+      var url = '/quickSell/' + product.id + '/edit';
 
       $('#updateForm').attr('action', url);
       $('#supplier_select').val(product.supplier);
@@ -111,6 +242,7 @@
         $('#location_field').val(product.location);
       @endif
       $('#category_selection').val(product.category);
+      $('#product_id').val(product.id);
     });
 
     var category_tree = {!! json_encode($category_tree) !!};
@@ -214,5 +346,125 @@
         }
       }
     }
-  </script>
+
+    $(document).ready(function() {
+      $('.sendWhatsapp').on('click', function(e) {
+        e.preventDefault(e);
+        id = $(this).attr("data-id");
+        $('#quicksell_id').val(id);
+        $("#whatsappModal").modal();
+      });
+    });
+
+    $(document).ready(
+            function(){
+              $("#multiple").click(function () {
+                $(".checkbox_select").toggle();
+                $(this).text("Please Select Checkbox");
+                $(this).click(function () {
+                  $('#multipleWhatsappModal').modal('show');
+                  val = $('input[name="quick"]:checked');
+                  $("#selected_checkbox").text(val.length);
+                  var list = [];
+                  $('input[name="quick"]:checked').each(function() {
+                    list.push(this.value);
+                  });
+                  $("#products").val(list);
+                });
+              });
+
+            });
+
+
+      $(document).ready(function() {
+         $(".select-multiple").multiselect();
+       $(".select-multiple2").select2();
+       });
+      
+
+    $(function() {
+      $('.selectpicker').selectpicker();
+    });
+
+   $(document).ready(function() {
+      $(".checkbox").change(function() {
+        if(this.checked) {
+            id = $(this).attr("data-id");
+            $('#product_group_id').val(id);
+            $("#productGroupDetails").modal();
+        }
+      });
+    });
+
+    $(document).ready(
+            function(){
+              $("#selet-all-multiple").click(function () {
+                $(".checkbox_select").toggle();
+                var checkBoxes = $(".checkbox_select");
+                checkBoxes.prop("checked", !checkBoxes.prop("checked"));
+                $("#multiple").text("Please Select Checkbox");
+                $("#multiple").click(function () {
+                  $('#multipleWhatsappModal').modal('show');
+                  val = $('input[name="quick"]:checked');
+                  $("#selected_checkbox").text(val.length);
+                  var list = [];
+                  $('input[name="quick"]:checked').each(function() {
+                    list.push(this.value);
+                  });
+                  $("#products").val(list);
+                });
+              });
+
+            });  
+
+
+        $(document).ready(function(){
+          $("#updateEditForm").on("click", function(e){
+             e.preventDefault();
+             
+             var group_id = $('#group_old').val();
+             var supplier_id = $('#supplier_select').val();
+             var price = $('#price_field').val();
+             var special_price = $('#price_special_field').val();
+             var size_field = $('#size_field').val();
+             var brand_field = $('#brand_field').val();
+             var location_field = $('#location_field').val();
+             var category_selection = $('#category_selection').val();
+             var group_name_updated = $('#group_name_updated').val();
+             var id = $('#product_id').val();
+             
+            $.ajax({
+                type: "POST",
+                url: "{{ route('quicksell.update') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                   // _method: "POST",
+                     group_old: group_id,
+                     supplier: supplier_id,
+                     price: price,
+                     price_special: special_price,
+                     size: size_field,
+                     brand: brand_field,
+                      location: location_field,
+                     category: category_selection,
+                     group_new: group_name_updated,
+                     id: id,
+                },
+                
+            }).done(function (response) {
+                console.log(response);
+                setid = 'set'+id;
+                
+                 $("#"+setid).html("<p>Supplier : "+response.data[0]+ "</p><p>Price :"+response.data[1]+"</p><p>Brand : " +response.data[2]+ "</p> <p>Category : "+response.data[3]+"</p> <p>Group : "+response.data[4]+"</p>");
+                }).fail(function (response) {
+               alert('failed');
+            });
+     
+            
+
+           
+          });
+        }); 
+
+</script>
 @endsection

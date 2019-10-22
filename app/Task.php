@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use App\WhatsAppGroup;
 
 
 class Task extends Model {
@@ -64,4 +65,14 @@ class Task extends Model {
 	{
 		return $this->belongsToMany('App\Contact', 'task_users', 'task_id', 'user_id')->where('type', 'App\Contact');
 	}
+
+	public function whatsappgroup()
+	{
+		return $this->hasOne(WhatsAppGroup::class);
+	}
+
+	public function whatsappAll()
+    {
+        return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+    }
 }

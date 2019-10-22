@@ -2,36 +2,38 @@
 
 namespace App;
 
-use Modules\BookStack\Model;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Auth\Authenticatable as iluAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Cache;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
-use Illuminate\Auth\Passwords\CanResetPassword;
+use App\UserLog;
 
-class User extends Authenticatable implements AuthenticatableContract, CanResetPasswordContract
+
+class User extends Authenticatable
 {
-	use HasApiTokens, Notifiable;
-	use HasRoles;
-	use SoftDeletes;
-	use CanResetPassword;
-	use iluAuthenticatable;
+    use HasApiTokens, Notifiable;
+    use HasRoles;
+    use SoftDeletes;
 
-	/**
-	 * The attributes that are mass assignable.
-	 *
-	 * @var array
-	 */
-	protected $fillable = [
-		'name', 'email', 'phone', 'password', 'responsible_user', 'agent_role', 'whatsapp_number', 'amount_assigned', 'auth_token_hubstaff'
-	];
-
-	protected $kpermission;
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'phone',
+        'password',
+        'responsible_user',
+        'agent_role',
+        'whatsapp_number',
+        'amount_assigned',
+        'auth_token_hubstaff'
+    ];
 
     public function getIsAdminAttribute()
     {
@@ -39,153 +41,226 @@ class User extends Authenticatable implements AuthenticatableContract, CanResetP
     }
 
 
-	/**
-	 * The attributes that should be hidden for arrays.
-	 *
-	 * @var array
-	 */
-	protected $hidden = [
-		'password', 'remember_token',
-	];
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
-	public function messages()
-	{
-	    return $this->hasMany(Message::class);
-	}
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
 
     public function actions()
     {
         return $this->hasMany(UserActions::class);
     }
 
-	public function isOnline()
-	{
-	    return Cache::has('user-is-online-' . $this->id);
-	}
+    public function isOnline()
+    {
+        return Cache::has('user-is-online-' . $this->id);
+    }
 
-	public function contacts()
-	{
-		return $this->hasMany('App\Contact');
-	}
+    public function contacts()
+    {
+        return $this->hasMany('App\Contact');
+    }
 
-	public function products()
-	{
-		return $this->belongsToMany('App\Product', 'user_products', 'user_id', 'product_id');
-	}
+    public function products()
+    {
+        return $this->belongsToMany('App\Product', 'user_products', 'user_id', 'product_id');
+    }
 
-	public function approved_products()
-	{
-		return $this->belongsToMany('App\Product', 'user_products', 'user_id', 'product_id')->where('is_approved', 1);
-	}
+    public function approved_products()
+    {
+        return $this->belongsToMany('App\Product', 'user_products', 'user_id', 'product_id')->where('is_approved', 1);
+    }
 
-	public function manualCropProducts() {
+    public function manualCropProducts()
+    {
         return $this->belongsToMany(Product::class, 'user_manual_crop', 'user_id', 'product_id');
 
     }
 
-	public function customers()
-	{
-		return $this->belongsToMany('App\Customer', 'user_customers', 'user_id', 'customer_id');
-	}
-
-	public function cropApproval() {
-	    return $this->hasMany(User::class)->where('action', 'CROP_APPROVAL');
+    public function customers()
+    {
+        return $this->belongsToMany('App\Customer', 'user_customers', 'user_id', 'customer_id');
     }
 
-    public function cropRejection() {
+    public function cropApproval()
+    {
+        return $this->hasMany(User::class)->where('action', 'CROP_APPROVAL');
+    }
+
+    public function cropRejection()
+    {
         return $this->hasMany(ListingHistory::class)->where('action', 'CROP_REJECTED');
     }
 
-    public function attributeApproval() {
+    public function attributeApproval()
+    {
         return $this->hasMany(ListingHistory::class)->where('action', 'LISTING_APPROVAL');
     }
 
-    public function attributeRejected() {
+    public function attributeRejected()
+    {
         return $this->hasMany(ListingHistory::class)->where('action', 'LISTING_REJECTED');
 
     }
-    public function cropSequenced() {
+
+    public function cropSequenced()
+    {
         return $this->hasMany(ListingHistory::class)->where('action', 'CROP_SEQUENCED');
 
     }
 
-
-    public function instagramAutoComments() {
-	    return $this->hasManyThrough(AutoCommentHistory::class, 'users_auto_comment_histories', 'user_id', 'auto_comment_history_id', 'id');
+    public function whatsappAll()
+    {
+        return $this->hasMany('App\ChatMessage', 'user_id')->whereNotIn('status', ['7', '8', '9'])->latest();
     }
 
-    
+    public function instagramAutoComments()
+    {
+        return $this->hasManyThrough(AutoCommentHistory::class, 'users_auto_comment_histories', 'user_id', 'auto_comment_history_id', 'id');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class);
+    }
 
     /**
-     * Check if the user has a particular permission.
-     * @param $permissionName
-     * @return bool
+     * The attributes helps to check if User is Admin.
+     *
+     * @var array
      */
-    public function can($permissionName ,$arguements = [])
+    public function isAdmin()
     {
-    	if ($this->email === 'guest') {
-            return false;
+        $roles = $this->roles->pluck('name')->toArray();
+
+        if (in_array('Admin', $roles)) {
+            return true;
         }
+    }
 
-        // this is for testing purpose for now
-        $isAdmin = in_array("Admin", $this->roles->pluck("name")->toArray());
+    /**
+     * The attributes helps to check if User has Permission Using Route To Check Page.
+     *
+     * @var array
+     */
+    public function hasPermission($name)
+    {
 
-        if($isAdmin) {
+        $url = explode('/', $name);
+        $model = $url[ 0 ];
+        $actions = end($url);
+        if ($model != '') {
+            if ($model == $actions) {
+                $genUrl = $model . '-list';
+            } else {
+                $genUrl = $model . '-' . $actions;
+            }
+        } else {
             return true;
         }
 
-        return true;
+        $permission = Permission::where('route', $genUrl)->first();
 
-        return $this->permissions()->pluck('name')->contains($permissionName);
+        if (empty($permission)) {
+            return true;
+        }
+        $role = $permission->getRoleIdsInArray();
+
+        $user_role = $this->roles()
+            ->pluck('id')->unique()->toArray();
+        //dd($user_role);
+        foreach ($user_role as $key => $value) {
+            if (in_array($value, $role)) {
+                return true;
+            }
+        }
+
+        $permission = $permission->toArray();
+        $permission_role = $this->permissions()
+            ->pluck('id')->unique()->toArray();
+        foreach ($permission_role as $key => $value) {
+            if (in_array($value, $permission)) {
+                return true;
+            }
+        }
     }
 
     /**
-     * Check if the user is the default public user.
-     * @return bool
+     * The attributes helps to check if User has Permission Using Permission Name.
+     *
+     * @var array
      */
-    public function isDefault()
+
+    public function checkPermission($permission)
     {
-        return $this->system_name === 'public';
+        //Check if user is Admin
+        $authcheck = auth()->user()->isAdmin();
+        //Return True if user is Admin
+        if ($authcheck == true) {
+            return true;
+        }
+
+        $permission = Permission::where('route', $permission)->first();
+        if ($permission == null && $permission == '') {
+            return true;
+        }
+        $role = $permission->getRoleIdsInArray();
+        $user_role = $this->roles()
+            ->pluck('id')->unique()->toArray();
+        //dd($user_role);
+        foreach ($user_role as $key => $value) {
+            if (in_array($value, $role)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    /**
-     * Returns the user's avatar,
-     * @param int $size
-     * @return string
-     */
-    public function getAvatar($size = 50)
+    public function hasRole($role)
     {
-        $default = url('/user_avatar.png');
-        $imageId = $this->image_id;
-        if ($imageId === 0 || $imageId === '0' || $imageId === null) {
-            return $default;
-        }
 
-        try {
-            $avatar = $this->avatar ? url($this->avatar->getThumb($size, $size, false)) : $default;
-        } catch (\Exception $err) {
-            $avatar = $default;
+        $roles = Role::where('name', $role)->first();
+
+        $role = ($roles) ? $roles->toArray() : [];
+
+        $user_role = $this->roles()
+            ->pluck('id')->unique()->toArray();
+        //dd($user_role);
+        foreach ($user_role as $key => $value) {
+            if (in_array($value, $role)) {
+                return true;
+            }
         }
-        return $avatar;
+        return false;
+
     }
 
-    /**
-     * Get a shortened version of the user's name.
-     * @param int $chars
-     * @return string
-     */
-    public function getShortName($chars = 8)
+    public function user_logs()
     {
-        if (mb_strlen($this->name) <= $chars) {
-            return $this->name;
-        }
-
-        $splitName = explode(' ', $this->name);
-        if (mb_strlen($splitName[0]) <= $chars) {
-            return $splitName[0];
-        }
-
-        return '';
+        return $this->hasMany(UserLog::class);
     }
+
+    public function getRoleNames()
+    {
+        $user_role = $this->roles()
+            ->pluck('name')->unique()->toArray();
+        return $user_role;
+    }
+
 
 }

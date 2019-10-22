@@ -63,6 +63,22 @@
                                    <div class="alert alert-danger">{{$errors->first('customer')}}</div>
                                @endif
                              </div> --}}
+                             <div class="form-group ml-3">
+                                  <select class="form-control" name="shoe_size_group">
+                                      <option value="">Select</option>
+                                      <?php foreach ($shoe_size_group as $shoe_size => $customerCount) {
+                                          echo '<option value="'.$shoe_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$shoe_size.' Size) '.$customerCount.' Customers</option>';
+                                      } ?>
+                                  </select>
+                              </div>
+                              <div class="form-group ml-3">
+                                  <select class="form-control" name="clothing_size_group">
+                                      <option value="">Select</option>
+                                      <?php foreach ($clothing_size_group as $clothing_size => $customerCount) {
+                                          echo '<option value="'.$clothing_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$clothing_size.' Size) '.$customerCount.' Customers</option>';
+                                      } ?>
+                                  </select>
+                              </div>
 
 
                             {{-- </div>
@@ -100,67 +116,6 @@
       <canvas id="broadcastChart" style="height: 300px;"></canvas>
     </div>
 
-    {{-- <div class="row">
-      @foreach ($message_groups as $group_id => $group)
-        <div class="col-md-3 mb-3">
-          <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#groupCollapse{{ $group_id }}">Group ID {{ $group_id }}</button>
-
-          <div class="collapse mt-3" id="groupCollapse{{ $group_id }}">
-            <div class="card card-body">
-              @if ($group['can_be_stopped'])
-                <div class="my-1">
-                  <strong>Preview:</strong>
-                  {{ $group['message'] }}
-                  <div class="my-1">{{ $group['sent'] }} sent of {{ $group['total'] }}</div>
-                </div>
-
-                <form class="my-1" action="{{ route('broadcast.stop.group', $group_id) }}" method="POST">
-                  @csrf
-
-                  <div class="form-group">
-                    <select class="form-control input-sm" name="whatsapp_number">
-                      <option value="">Select Whatsapp Number</option>
-                      @foreach ($api_keys as $api_key)
-                        <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
-                      @endforeach
-                    </select>
-                  </div>
-
-                  <button type="submit" class="btn btn-xs btn-secondary">Stop</button>
-                </form>
-              @else
-                <div class="my-1">
-                  <strong>Preview:</strong>
-                  {{ $group['message'] }}
-                  <div class="my-1">{{ $group['sent'] }} sent of {{$group['total'] }}</div>
-                </div>
-
-                <form class="my-1" action="{{ route('broadcast.restart.group', $group_id) }}" method="POST">
-                  @csrf
-
-                  <div class="form-group">
-                    <select class="form-control input-sm" name="whatsapp_number">
-                      <option value="">Select Whatsapp Number</option>
-                      @foreach ($api_keys as $api_key)
-                        <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
-                      @endforeach
-                    </select>
-                  </div>
-
-                  <button type="submit" class="btn btn-xs btn-secondary">Restart</button>
-                </form>
-
-                <form class="my-1" action="{{ route('broadcast.delete.group', $group_id) }}" method="POST">
-                  @csrf
-
-                  <button type="submit" class="btn btn-xs btn-secondary">Delete</button>
-                </form>
-              @endif
-            </div>
-          </div>
-        </div>
-      @endforeach
-    </div> --}}
     <div id="exTab2" class="container">
       <ul class="nav nav-tabs">
         <li class="active">
@@ -235,7 +190,7 @@
                                 <select class="form-control input-sm" name="whatsapp_number">
                                   <option value="">Select Whatsapp Number</option>
                                   @foreach ($api_keys as $api_key)
-                                    <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
+                                    <option value="{{ $api_key }}">{{ $api_key }}</option>
                                   @endforeach
                                 </select>
                               </div>
@@ -250,7 +205,7 @@
                                 <select class="form-control input-sm" name="whatsapp_number">
                                   <option value="">Select Whatsapp Number</option>
                                   @foreach ($api_keys as $api_key)
-                                    <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
+                                    <option value="{{ $api_key }}">{{ $api_key }}</option>
                                   @endforeach
                                 </select>
                               </div>

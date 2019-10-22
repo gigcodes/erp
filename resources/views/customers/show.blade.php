@@ -229,6 +229,11 @@
           color: rgba(84, 110, 122,1.0);
 
       }
+
+      #preview-image-modelodal {
+        text-align: center;
+        padding: 2!important;
+      }
   </style>
 @endsection
 
@@ -326,6 +331,13 @@
 
 <div class="row">
   <div class="col-xs-12 col-md-4 border">
+    <!-- The Modal -->
+    <div id="preview-image-model" class="modal col-6" data-backdrop="false">
+      <span class="close">&times;</span>
+      <div class="row">
+        <div class="col-12"><img class="modal-content" height="500px;" id="img01"></div>
+      </div>
+    </div>
     <div class="tab-content">
       <div class="tab-pane active mt-3" id="one">
         <div class="row">
@@ -367,6 +379,8 @@
                 @endif
 
                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#advancePaymentModal"><img src="/images/advance-link.png" /></button>
+                <button type="button" class="btn btn-image" data-toggle="modal" data-target="#sendContacts"><img src="/images/details.png" /></button>
+                <button type="button" class="btn btn-image" data-toggle="modal" data-target="#downloadContacts"><img src="/images/download.png" /></button>
 
                 @include('customers.partials.modal-advance-link')
               </div>
@@ -379,7 +393,6 @@
               <span class="text-success change_status_message" style="display: none;">Successfully updated DND status</span>
       			</div> --}}
 
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="form-group form-inline">
                 <input type="number" id="customer_phone" name="phone" class="form-control input-sm" placeholder="910000000000" value="{{ $customer->phone }}">
 
@@ -388,7 +401,6 @@
                 @endif
                 {{-- <strong>Phone:</strong> <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $customer->phone }}</span> --}}
               </div>
-            @endif
 
             <div class="form-group">
               {{-- <strong>Address:</strong> {{ $customer->address }} --}}
@@ -415,7 +427,6 @@
               </div>
             </div>
 
-            @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="form-group">
                 {{-- <strong>Email:</strong> <a href="#" class="btn-link" data-toggle="modal" data-target="#emailSendModal">{{ $customer->email }}</a> --}}
                 <input type="email" name="email" id="customer_email" class="form-control input-sm" placeholder="Email" value="{{ $customer->email }}">
@@ -436,7 +447,6 @@
 
                 <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
         			</div>
-            @endif
 
             <div class="row">
               <div class="col-6">
@@ -491,7 +501,6 @@
                   <input type="text" name="clothing_size" id="customer_clothing_size" class="form-control input-sm" placeholder="Clothing Size" value="{{ $customer->clothing_size }}">
                 </div>
               </div>
-
               <div class="col-6">
                 <div class="form-group">
                   <select class="form-control input-sm" name="gender" id="customer_gender">
@@ -500,7 +509,19 @@
                   </select>
                 </div>
               </div>
-
+              <div class="col-12">
+                <div class="form-group">
+                  <label>Whatsapp No :</label>
+                  <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>">
+                      <option value="">-No Selected-</option>
+                      @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                          @if($number != "0")
+                              <option {{ ($number == $customer->whatsapp_number && $customer->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                          @endif    
+                      @endforeach
+                  </select>
+                </div>
+              </div>
               <div class="col-6">
                 <div class="form-group">
                   <strong>Created at:</strong> {{ Carbon\Carbon::parse($customer->created_at)->format('d-m H:i') }}
@@ -601,35 +622,39 @@
                 </div>
                 <div id="lead{{ $key + 1 }}" class="collapse collapse-element" aria-labelledby="headingLead{{ $key + 1 }}" data-parent="#leadAccordion">
                   <div class="card-body">
-                    <form action="{{ route('leads.update', $lead->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('leads.erpLeads.store') }}" method="POST" enctype="multipart/form-data" class="erp_lead_frm">
+                      <span class="text-success erp_update_message" style="display: none;">Successfully update</span>
                       @csrf
-                      @method('PUT')
-                      <input type="hidden" name="type" value="customer">
+                      <input type="hidden" name="id" value="{{$lead->id}}">
+                      <input type="hidden" name="product_id" value="{{$lead->product_id}}">
+                      <input type="hidden" name="customer_id" value="{{$lead->customer_id}}">
                       <div class="row">
                         <div class="col-xs-12">
                           <div class="form-group">
                             <strong>Brand:</strong>
-                            <select multiple="" name="multi_brand[]" class="form-control multi_brand">
-                              @php $multi_brand = is_array(json_decode($lead->multi_brand,true) ) ? json_decode($lead->multi_brand,true) : []; @endphp
+                            <select name="brand_id" class="form-control multi_brand multi_brand_select multi_select2" multiple>
+                              <option value="">Brand</option>
                               @foreach($brands as $brand_item)
-                                <option value="{{$brand_item['id']}}" {{ in_array($brand_item['id'] ,$multi_brand) ? 'Selected=Selected':''}}>{{$brand_item['name']}}</option>
+                                <option value="{{$brand_item['id']}}" {{ $brand_item['id'] == $lead->brand_id ? "selected" : ''}} data-brand-segment="{{$brand_item['brand_segment']}}">{{$brand_item['name']}}</option>
                               @endforeach
                             </select>
 
                           </div>
 
                           <div class="form-group">
-                            <strong>Categories</strong>
+                            <strong>Category</strong>
                             @php
-                            // $selected_category = $lead->multi_category ? $lead->multi_category : '';
-                            $selected_categories = is_array(json_decode( $lead->multi_category,true)) ? json_decode( $lead->multi_category ,true) : [] ;
-                            $category_selection = \App\Category::attr(['name' => 'multi_category','class' => 'form-control'])
-                            ->selected($selected_categories)
+                            $category_selection = \App\Category::attr(['name' => 'category_id','class' => 'form-control multi_select2'])
+                            ->selected($lead->category_id)
                             ->renderAsDropdown();
                             @endphp
                             {!! $category_selection  !!}
                           </div>
-
+                          <div class="form-group">
+                            <strong>Brand Segment:</strong>
+                            {{ App\Helpers\ProductHelper::getBrandSegment('brand_segment[]', explode(",", $lead->brand_segment), ['class' => "form-control brand_segment_select", 'multiple' => ''])}}
+                          </div>
+                          <?php /*
                           <div class="form-group">
                             <strong> Selected Product :</strong>
 
@@ -733,6 +758,7 @@
                             }
                           });
                         </script>
+                        */?>
 
                         <div class="form-group">
                           <strong>status:</strong>
@@ -751,9 +777,9 @@
                             </div>
                           @endif
 
-                          <Select name="status" class="form-control change_status" data-leadid="{{ $lead->id }}">
+                          <Select name="lead_status_id" class="form-control change_status" data-leadid="{{ $lead->id }}">
                             @foreach($lead_status as $key => $value)
-                              <option value="{{$value}}" {{$value == $lead->status ? 'Selected=Selected':''}}>{{$key}}</option>
+                              <option value="{{$value}}" {{$value == $lead->lead_status_id ? 'selected':''}}>{{$key}}</option>
                             @endforeach
                           </Select>
                           <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
@@ -761,23 +787,23 @@
                           <input type="hidden" class="form-control" name="userid" placeholder="status" value="{{$lead->userid}}"/>
 
                         </div>
-
+                        <?php /*
                         <div class="form-group">
                           <strong>Created by:</strong>
 
                           <input type="text" class="form-control" name="" placeholder="Created by" value="{{ $lead->userid != 0 ? App\Helpers::getUserNameById($lead->userid) : '' }}" readonly/>
                         </div>
-
+                        
                         <div class="form-group">
                           <strong>Comments:</strong>
                           <textarea  class="form-control" name="comments" placeholder="comments">{{$lead->comments}} </textarea>
                         </div>
-
+                        */?>
                         <div class="form-group">
                           <strong>Sizes:</strong>
                           <input type="text" name="size" value="{{ $lead->size }}" class="form-control" placeholder="S, M, L">
                         </div>
-
+                        <?php /*
                         <div class="form-group">
                           <strong>Assigned To:</strong>
                           <Select name="assigned_user" class="form-control">
@@ -787,7 +813,14 @@
                             @endforeach
                           </Select>
                         </div>
-
+                        */?>
+                        <div class="form-group">
+                          <strong>Gender:</strong>
+                          <select name="gender" class="form-control">
+                            <option value="male" {{ 'male' == $lead->gender ? "selected" : ''}}>Male</option>
+                            <option value="female" {{ 'female' == $lead->gender ? "selected" : ''}}>Female</option>
+                          </select>
+                        </div>
                         <?php $images = $lead->getMedia(config('constants.media_tags')) ?>
                         @if ($lead->hasMedia(config('constants.media_tags')))
                           <div class="row">
@@ -1278,13 +1311,14 @@
                                 @endif
                               </td> --}}
                               {{-- <td>
-                                @can('voucher')
+                                
+                                 @if(auth()->user()->checkPermission('voucher'))
                                   @if ($order->delivery_approval->voucher)
                                     <button type="button" class="btn btn-xs btn-secondary edit-voucher" data-toggle="modal" data-target="#editVoucherModal" data-id="{{ $order->delivery_approval->voucher->id }}" data-amount="{{ $order->delivery_approval->voucher->amount }}" data-travel="{{ $order->delivery_approval->voucher->travel_type }}">Edit Voucher</button>
                                   @else
                                     <button type="button" class="btn btn-xs btn-secondary create-voucher" data-id="{{ $order->delivery_approval->id }}">Create Voucher</button>
                                   @endif
-                                @endcan
+                                @endif
                               </td> --}}
                             </tr>
                           </tbody>
@@ -1489,19 +1523,36 @@
 
         <div class="pb-4 mt-3">
           <div class="row">
-            <div class="col">
-              <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
-                <option value="">Select Category</option>
-                @foreach($reply_categories as $category)
-                  <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
-                @endforeach
-              </select>
-
-              <select name="quickComment" id="quickComment" class="form-control input-sm">
-                <option value="">Quick Reply</option>
-              </select>
+            <div class="col-md-8">
+              <div class="d-inline form-inline">
+                  <input style="width: 75%" type="text" name="category_name" placeholder="Add Category" class="form-control mb-3 quick_category">
+                  <button class="btn btn-secondary quick_category_add">+</button>
+              </div>
+              <div>
+                <div style="float: left; width: 76%;">
+                  <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
+                    <option value="">Select Category</option>
+                    @foreach($reply_categories as $category)
+                      <option value="{{ $category->approval_leads }}" data-id="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                  </select>  
+                </div>
+                <div style="float: right;">
+                  <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>  
+                </div>
+              </div>
+              <div>
+                <div style="float: left; width: 76%;">
+                  <select name="quickComment" id="quickComment" class="form-control input-sm">
+                    <option value="">Quick Reply</option>
+                  </select>
+                  </div>
+                  <div style="float: right;">
+                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>  
+                  </div>
+              </div>
             </div>
-            <div class="col">
+            <div class="col-md-4">
               <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
             </div>
           </div>
@@ -2190,6 +2241,56 @@
   </div>
 </div>
 
+<div id="sendContacts" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+        <label for="sel1">Select User for send contact data:</label>
+        <form method="post" id="send-contact-to-user">
+            {{ Form::open(array('url' => '', 'id' => 'send-contact-user-form')) }}
+            {!! Form::hidden('customer_id',$customer->id) !!}
+            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list multi_select2', 'style'=> 'width:100%']) !!}
+            {{ Form::close() }}
+        </form>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default send-contact-user-btn"><img style="width: 17px;" src="/images/filled-sent.png"></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="downloadContacts" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+        <label for="sel1">Select User for send contact data:</label>
+        <form method="post" id="download-contact-to-user">
+            {{ Form::open(array('url' => '', 'id' => 'download-contact-user-form')) }}
+            {!! Form::hidden('customer_id',$customer->id) !!}
+            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list multi_select2', 'style'=> 'width:100%']) !!}
+            {{ Form::close() }}
+        </form>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default download-contact-user-btn"><img style="width: 17px;" src="/images/filled-sent.png"></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 
 <form action="" method="POST" id="product-remove-form">
@@ -2219,7 +2320,100 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.min.js" integrity="sha256-Y1rRlwTzT5K5hhCBfAFWABD4cU13QGuRN6P5apfWzVs=" crossorigin="anonymous"></script>
 
   <script type="text/javascript">
+      jQuery(document).ready(function() {
+        $('.multi_select2').select2({width: '100%'});
+        //$('.brand_segment_select').select2({width: '100%'});
+         
+        $(".multi_brand_select").change(function() {
+            var brand_segment = [];
+            $(this).find(':selected').each(function() {
+                if ($(this).data('brand-segment') && brand_segment.indexOf($(this).data('brand-segment')) == '-1') {
+                  brand_segment.push($(this).data('brand-segment'));
+                }
+            })
+            $(this).closest('form').find(".brand_segment_select").val(brand_segment).trigger('change');
+        });
+      })
+      
 
+      $(document).on('click', '.quick_category_add', function (e) {
+            e.preventDefault();
+            var textBox = $(".quick_category");
+
+            if (textBox.val() == "") {
+                alert("Please Enter Category!!");
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('add.reply.category') }}",
+                data: {
+                    '_token'    : "{{ csrf_token() }}",
+                    'name'      : textBox.val()
+                }
+            }).done(function (response) {
+                textBox.val('');
+                $("#quickCategory").append($('<option>', {
+                    value: "[]",
+                    text: response.data.name
+                }));
+
+                $("#category_id_field").append($('<option>', {
+                    value: response.data.id,
+                    text: response.data.name
+                }));
+                
+            })
+
+            return false;
+        });
+        $(document).on('click', '.delete_category', function () {
+              var quickCategory = $("#quickCategory");
+
+              if (quickCategory.val() == "") {
+                  alert("Please Select Category!!");
+                  return false;
+              }
+
+              var quickCategoryId = quickCategory.children("option:selected").data('id');
+              if (! confirm("Are sure you want to delete category?")) {
+                return false;
+              }
+              $.ajax({
+                  type: "POST",
+                  url: "{{ route('destroy.reply.category') }}",
+                  data: {
+                      '_token'  : "{{ csrf_token() }}",
+                      'id'      : quickCategoryId
+                  }
+              }).done(function (response) {
+                  location.reload();
+              })
+          });
+
+          $(document).on('click', '.delete_quick_comment', function () {
+              var quickComment = $("#quickComment");
+
+              if (quickComment.val() == "") {
+                  alert("Please Select Quick Comment!!");
+                  return false;
+              }
+              
+              var quickCommentId = quickComment.children("option:selected").data('id');
+              if (! confirm("Are sure you want to delete comment?")) {
+                return false;
+              }
+              $.ajax({
+                  type: "DELETE",
+                  url: "/reply/"+quickCommentId,
+                  headers: {
+                      'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                  },
+              }).done(function (response) {
+                  location.reload();
+              })
+          });
       $(document).on('keyup', '.add-new-remark', function(event) {
           let note = $(this).val();
           let self = this;
@@ -2255,7 +2449,7 @@
       });
 
   jQuery(document).ready(function( $ ) {
-      $('.select2').select2();
+      //$('.select2').select2();
     $('audio').on("play", function (me) {
       $('audio').each(function (i,e) {
         if (e !== me.currentTarget) {
@@ -2331,8 +2525,6 @@
 
       selected_product_images.splice(index, 1);
     }
-
-    console.log(selected_product_images);
   });
 
   $('#create_refund_instruction').on('click', function () {
@@ -2408,7 +2600,8 @@
               _token: "{{ csrf_token() }}",
               customer_id: customer_id,
               lead_id: response.lead.id,
-              selected_product: selected_product_images
+              selected_product: selected_product_images,
+              auto_approve : true
             }
           }).done(function() {
             location.reload();
@@ -2699,19 +2892,7 @@
                         loadThread(response);
                     }
                 });
-            });
-
-            jQuery('.multi_brand').select2({
-                placeholder: 'Brand',
-                width: '100%'
-            });
-
-
-            jQuery('.multi_category').select2({
-                placeholder: 'Categories',
-                width: '100%'
-            });
-
+            });            
 
         });
 
@@ -2726,7 +2907,7 @@
             var url = '/order/' + id + '/changestatus';
           } else {
             var id = $(this).data('leadid');
-            var url = '/leads/' + id + '/changestatus';
+            var url = '/erp-leads/' + id + '/changestatus';
           }
 
           $.ajax({
@@ -2749,6 +2930,50 @@
           }).fail(function(errObj) {
             alert("Could not change status");
           });
+        });
+
+
+        $('.erp_lead_frm').on('submit', function(e) {
+          e.preventDefault();
+          var thiss = $(this);
+          var url = "{{ route('leads.erpLeads.store') }}";
+          
+          if ($(this).find('.multi_brand').val() == "") {
+            alert('Please Select Brand');
+            return false;
+          }
+
+          if ($(this).find('input[name="category_id"]').val() == "") {
+            alert('Please Select Category');
+            return false;
+          }
+
+          if ($(this).find('input[name="lead_status_id"]').val() == "") {
+            alert('Please Select Status');
+            return false;
+          }
+
+          var formData = new FormData(this);
+
+          $.ajax({
+            url: url,
+            type: 'POST',
+            data:formData,
+            contentType: false,
+            processData: false
+          }).done( function(response) {
+            
+            $(thiss).find('.erp_update_message').fadeIn(400);
+            $('html, body').animate({
+                scrollTop: $(thiss).find('.erp_update_message').offset().top-150
+            }, 1000);
+            setTimeout(function () {
+              $(thiss).find('.erp_update_message').fadeOut(400);
+            }, 5000);
+          }).fail(function(errObj) {
+            alert("Could not update");
+          });
+          return false;
         });
 
         $('#whatsapp_change').on('change', function() {
@@ -3258,21 +3483,27 @@
 
                if (message.images) {
                  var images = '';
+                 var imageCount = 0;
                  message.images.forEach(function (image) {
                    images += image.product_id !== '' ? '<a href="/products/' + image.product_id + '" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Special Price: </strong>' + image.special_price + '<br><strong>Size: </strong>' + image.size + '<br><strong>Supplier: </strong>' + image.supplier_initials + '">' : '';
-                   images += '<div class="thumbnail-wrapper"><img src="' + image.image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete whatsapp-image" data-image="' + image.key + '">x</span></div>';
+                   images += '<div class="thumbnail-wrapper"><img width="20px" height="35px" src="' + image.image + '" class="message-img" /><span class="thumbnail-delete whatsapp-image" data-image="' + image.key + '">x</span></div>';
                    images += image.product_id !== '' ? '<input type="checkbox" name="product" style="width: 20px; height: 20px;" class="d-block mx-auto select-product-image" data-id="' + image.product_id + '" /></a>' : '';
 
                    if (image.product_id !== '') {
                      has_product_image = true;
                    }
+                   imageCount++;
                  });
+
+                 if(has_product_image && imageCount > 0) {
+                    images += "";
+                 }
 
                  images += '<br>';
 
                  if (has_product_image) {
                    var show_images_wrapper = $('<div class="show-images-wrapper hidden"></div>');
-                   var show_images_button = $('<button type="button" class="btn btn-xs btn-secondary show-images-button">Show Images</button>');
+                   var show_images_button = $('<button type="button" class="btn btn-xs btn-secondary show-images-button mt-2">Show Images</button>&nbsp;<button type="button" class="btn btn-xs btn-secondary select-all-images-button mt-2 hidden">Select All</button>');
 
                    $(images).appendTo(show_images_wrapper);
                    $(show_images_wrapper).appendTo(text);
@@ -3453,6 +3684,20 @@
         //   sendWAMessage();
         // } );
         // startPolling();
+        // 
+        
+          $(document).on('mouseover', '.talktext .thumbnail-wrapper', function(e) { 
+              $('#preview-image-model').find(".modal-content").attr("src",$(this).find("img").attr("src"));
+              if($(".container").find(".chat-window").length == 0) {
+                $('#preview-image-model').modal('show');
+              }
+          });
+
+          $(document).on('mouseout', '.talktext .thumbnail-wrapper', function(e) { 
+             $('#preview-image-model').modal('hide');
+          });
+
+        
 
          $(document).on('click', '.send-communication', function(e) {
            e.preventDefault();
@@ -3755,10 +4000,9 @@
 
         var thiss = $(this);
         var token = "{{ csrf_token() }}";
-        var url = "{{ route('leads.store') }}";
+        var url = "{{ route('leads.erpLeads.store') }}";
         var customer_id = {{ $customer->id }};
-        var created_at = moment().format('YYYY-MM-DD HH:mm');
-
+        
         $.ajax({
           type: 'POST',
           url: url,
@@ -3766,9 +4010,8 @@
             _token: token,
             customer_id: customer_id,
             rating: 1,
-            status: 3,
-            assigned_user: 6,
-            created_at: created_at
+            lead_status_id: 3,
+            assigned_user: 6
           },
           beforeSend: function() {
             $(thiss).text('Creating...');
@@ -3886,7 +4129,8 @@
         replies.forEach(function(reply) {
           $('#quickComment').append($('<option>', {
             value: reply.reply,
-            text: reply.reply
+            text: reply.reply,
+            "data-id": reply.id
           }));
         });
       });
@@ -4523,7 +4767,12 @@
       });
 
       $(document).on('click', '.show-images-button', function() {
-        $(this).siblings('.show-images-wrapper').toggleClass('hidden');
+          $(this).siblings('.show-images-wrapper').toggleClass('hidden');
+          $(this).parent().find(".select-all-images-button").toggleClass('hidden');
+      });
+
+       $(document).on('click', '.select-all-images-button', function() {
+          $(this).parent().find(".select-product-image").trigger('click');
       });
 
       $(document).on('click', '.fix-message-error', function() {
@@ -4712,6 +4961,61 @@
               }
           });
       });
+
+      $(document).on('change', '.change-whatsapp-no', function () {
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('customer.change.whatsapp') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_id: $this.data("customer-id"),
+                    number : $this.val()
+                }
+            }).done(function () {
+                alert('Number updated successfully!');
+            }).fail(function (response) {
+                console.log(response);
+            });
+        });
+
+      $(document).on('click', '.send-contact-user-btn', function () {
+            var $form = $("#send-contact-to-user");
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('customer.send.contact') }}",
+                data: $form.serialize(),
+                beforeSend : function(){
+                  $this.html("Sending message...");
+                }
+            }).done(function () {
+                $this.html('<img style="width: 17px;" src="/images/filled-sent.png">');
+                $("#sendContacts").modal("hide");
+            }).fail(function (response) {
+                console.log(response);
+            });
+        });
+
+        $(document).on('click', '.download-contact-user-btn', function () {
+            var $form = $("#download-contact-to-user");
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('customer.download.contact') }}",
+                data: $form.serialize(),
+                beforeSend : function(){
+                  $this.html("Sending message...");
+                }
+            }).done(function () {
+                $this.html('<img style="width: 17px;" src="/images/filled-sent.png">');
+                $("#downloadContacts").modal("hide");
+            }).fail(function (response) {
+                console.log(response);
+            });
+        }); 
+
+        
 
       // $(document).on()
   </script>

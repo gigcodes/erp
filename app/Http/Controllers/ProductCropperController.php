@@ -37,12 +37,12 @@ class ProductCropperController extends Controller
 
         $this->middleware('auth');
 
-        $this->middleware('permission:imagecropper-list', ['only' => ['sList', 'index']]);
-        $this->middleware('permission:imagecropper-create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:imagecropper-edit', ['only' => ['edit', 'update']]);
-
-
-        $this->middleware('permission:imagecropper-delete', ['only' => ['destroy']]);
+//        $this->middleware('permission:imagecropper-list', ['only' => ['sList', 'index']]);
+//        $this->middleware('permission:imagecropper-create', ['only' => ['create', 'store']]);
+//        $this->middleware('permission:imagecropper-edit', ['only' => ['edit', 'update']]);
+//
+//
+//        $this->middleware('permission:imagecropper-delete', ['only' => ['destroy']]);
     }
 
     public function index(Stage $stage)
@@ -228,7 +228,7 @@ class ProductCropperController extends Controller
                 $stats = UserProductFeedback::where('user_id')->whereIn('action', [
                     'CROP_APPROVAL_REJECTED',
                     'CROP_SEQUENCED_REJECTED'
-                ])->where('stock', '>=', 1)->get();
+                ])->get();
                 $totalApproved = Product::where('crop_approved_by', Auth::id())->where('crop_approved_at', 'LIKE', "%$date%")->count();
                 $totalRejected = Product::where('crop_rejected_by', Auth::id())->where('crop_rejected_at', 'LIKE', "%$date%")->count();
                 $totalSequenced = Product::where('crop_rejected_by', Auth::id())->where('crop_rejected_at', 'LIKE', "%$date%")->count();
@@ -245,7 +245,7 @@ class ProductCropperController extends Controller
                 $stats = UserProductFeedback::where('user_id')->whereIn('action', [
                     'CROP_APPROVAL_REJECTED',
                     'CROP_SEQUENCED_REJECTED'
-                ])->where('stock', '>=', 1)->get();
+                ])->get();
 
                 $totalApproved = Product::where('crop_approved_by', Auth::id());
                 $totalApproved = QueryHelper::approvedListingOrder($totalApproved);
@@ -293,7 +293,7 @@ class ProductCropperController extends Controller
         }
 
         $category = $product->category;
-        $img = $this->getCategoryForCropping($category);
+        $img = Category::getCroppingGridImageByCategoryId($category);
 
         $category_array = Category::renderAsArray();
 
@@ -324,92 +324,6 @@ class ProductCropperController extends Controller
         $userId = $request->get('user_id');
 
         return view('products.approved_crop_list', compact('products', 'users', 'userId'));
-    }
-
-    private function getCategoryForCropping($categoryId)
-    {
-        $imagesForGrid = [
-            'Shoes' => 'shoes_grid.png',
-            'Backpacks' => 'Backpack.png',
-            'Bags' => 'Backpack.png',
-            'Beach' => 'Backpack.png',
-            'Travel' => 'Backpack.png',
-            'Travel Bag' => 'Backpack.png',
-            'Travel Bags' => 'Backpack.png',
-            'Belt' => 'belt.png',
-            'Belts' => 'belt.png',
-            'Clothing' => 'Clothing.png',
-            'Skirts' => 'Clothing.png',
-            'Pullovers' => 'Clothing.png',
-            'Shirt' => 'Clothing.png',
-            'Dresses' => 'Clothing.png',
-            'Kaftan' => 'Clothing.png',
-            'Tops' => 'Clothing.png',
-            'Jumpers & Jump Suits' => 'Clothing.png',
-            'Pant' => 'Clothing.png',
-            'Pants' => 'Clothing.png',
-            'Dress' => 'Clothing.png',
-            'Sweatshirt/s & Hoodies' => 'Clothing.png',
-            'Shirts' => 'Clothing.png',
-            'Denim' => 'Clothing.png',
-            'Sweat Pants' => 'Clothing.png',
-            'T-Shirts' => 'Clothing.png',
-            'Sweater' => 'Clothing.png',
-            'Sweaters' => 'Clothing.png',
-            'Clothings' => 'Clothing.png',
-            'Coats & Jackets' => 'Clothing.png',
-            'Tie & Bow Ties' => 'Bow.png',
-            'Clutches' => 'Clutch.png',
-            'Clutches & Slings' => 'Clutch.png',
-            'Document Holder' => 'Clutch.png',
-            'Clutch Bags' => 'Clutch.png',
-            'Crossbody Bag' => 'Clutch.png',
-            'Wristlets' => 'Clutch.png',
-            'Crossbody Bags' => 'Clutch.png',
-            'Make-Up Bags' => 'Clutch.png',
-            'Belt Bag' => 'Clutch.png',
-            'Belt Bags' => 'Clutch.png',
-            'Hair Accessories' => 'Hair_accessories.png',
-            'Beanies & Caps' => 'Hair_accessories.png',
-            'Handbags' => 'Handbag.png',
-            'Duffle Bags' => 'Handbag.png',
-            'Laptop Bag' => 'Handbag.png',
-            'Bucket Bags' => 'Handbag.png',
-            'Laptop Bags' => 'Handbag.png',
-            'Jewelry' => 'Jewellery.png',
-            'Shoulder Bags' => 'Shoulder_bag.png',
-            'Sunglasses & Frames' => 'Sunglasses.png',
-            'Gloves' => 'Sunglasses.png', //need to be made for gloves
-            'Tote Bags' => 'Tote.png',
-            'Wallet' => 'Wallet.png',
-            'Wallets & Cardholder' => 'Wallet.png',
-            'Wallets & Cardholders' => 'Wallet.png',
-            'Key Pouches' => 'Wallet.png',
-            'Key Pouch' => 'Wallet.png',
-            'Coin Case / Purse' => 'Wallet.png',
-            'Shawls And Scarves' => 'Shawl.png',
-            'Shawls And Scarve' => 'Shawl.png',
-            'Scarves & Wraps' => 'Shawl.png',
-            'Key Rings & Chains' => 'Keychains.png',
-            'Key Rings & Chain' => 'Keychains.png',
-            'Watches' => 'Keychains.png',
-            'Watch' => 'Keychains.png',
-        ];
-
-        $category = Category::find($categoryId);
-        $catName = $category->title;
-
-        if (array_key_exists($catName, $imagesForGrid)) {
-            return $imagesForGrid[ $catName ];
-        }
-
-        if ($category->parent_id > 1) {
-            $category = Category::find($category->parent_id);
-            return $imagesForGrid[ trim($category->title) ] ?? '';
-        }
-
-        return '';
-
     }
 
     public function ammendCrop($id, Request $request, Stage $stage)
@@ -527,7 +441,18 @@ class ProductCropperController extends Controller
                 ->first();
         }
 
-        return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
+        if (!$secondProduct) {
+            $secondProduct = Product::where('status_id', StatusHelper::$cropApproval);
+            $secondProduct = QueryHelper::approvedListingOrder($secondProduct);
+            $secondProduct = $secondProduct->first();
+        }
+
+        if (!$secondProduct || !isset($secondProduct->id)) {
+            return redirect()->action('ProductCropperController@getListOfImagesToBeVerified');
+        } else {
+            return redirect()->action('ProductCropperController@showImageToBeVerified', $secondProduct->id)->with('message', 'Cropping approved successfully!');
+        }
+
     }
 
     public function cropApprovalConfirmation($id, Request $request)
@@ -611,14 +536,9 @@ class ProductCropperController extends Controller
         }
 
         if (!$secondProduct) {
-            $secondProduct = Product::where('is_image_processed', 1)
-                ->where('id', '!=', $id)
-                ->where('is_crop_rejected', 0)
-                ->where('is_crop_approved', 0)
-                ->where('is_crop_being_verified', 0)
-                ->whereNotIn('id', DB::table('crop_amends')->pluck('product_id')->toArray())
-                ->orderBy('is_on_sale', 'DESC')
-                ->first();
+            $secondProduct = Product::where('status_id', StatusHelper::$cropApproval);
+            $secondProduct = QueryHelper::approvedListingOrder($secondProduct);
+            $secondProduct = $secondProduct->first();
         }
 
         if (!$secondProduct) {
@@ -703,12 +623,29 @@ class ProductCropperController extends Controller
             $selected_categories = [$request->get('category')[ 0 ]];
         }
 
-        $category_array = Category::renderAsArray();
 
+        if (!empty($request->brand)) {
+            $products = $products->whereIn('brand', $request->brand);
+        }
+
+        if (!empty($request->color)) {
+            $products = $products->whereIn('color', $request->color);
+        }
+
+        if (!empty($request->size)) {
+            $products = $products->whereNotNull('size')->where(function ($query) use ($request) {
+                $query->where('size', $request->size)->orWhere('size', 'LIKE', "%$request->size,")->orWhere('size', 'LIKE', "%,$request->size,%");
+            });
+        }
+
+        if (!empty($request->location)) {
+            $products = $products->whereIn('location', $request->location);
+        } 
 
         $products = $products->orderBy('updated_at', 'DESC')->paginate(24);
 
-        return view('products.rejected_crop_list', compact('products', 'suppliers', 'supplier', 'reason', 'selected_categories', 'category_array', 'users'));
+        $category_array = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select2', 'placeholder' => 'Select Category'])->selected(request()->get('category', 1))->renderAsDropdown();
+    return view('products.rejected_crop_list', compact('products', 'suppliers', 'supplier', 'reason', 'selected_categories', 'category_array', 'users'));
     }
 
     public function cropIssuesPage()
@@ -724,7 +661,7 @@ class ProductCropperController extends Controller
         $secondProduct = Product::where('id', '!=', $id)->where('is_crop_rejected', 1)->first();
 
         $category = $product->category;
-        $img = $this->getCategoryForCropping($category);
+        $img = Category::getCroppingGridImageByCategoryId($category);
 
         $medias = $product->getMedia('gallery');
         $originalMediaCount = 0;

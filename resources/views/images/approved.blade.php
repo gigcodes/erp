@@ -14,12 +14,10 @@
       </div>
 
       <div class="form-group mr-3">
-        <select class="form-control select-multiple" name="brand[]" multiple>
-          <optgroup label="Brands">
-            @foreach ($brands as $key => $name)
+        <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brands...">
+           @foreach ($brands as $key => $name)
               <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
             @endforeach
-        </optgroup>
         </select>
       </div>
 
@@ -29,9 +27,10 @@
       </div>
 
       <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+      <a href="{{url()->current()}}" class="btn btn-image"><img src="/images/clear-filters.png"/></a>
     </form>
 
-    @can('social-create')
+     @if(auth()->user()->checkPermission('social-create'))
       <div class="pull-right">
         {{-- <a href class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload Templates</a> --}}
         <a href class="btn btn-secondary" id="toggleButton" data-toggle="modal" data-target="#imageModal" style="display: none;">Upload Templates</a>
@@ -71,7 +70,7 @@
 
         </div>
       </div>
-    @endcan
+    @endif
   </div>
 </div>
 
@@ -100,13 +99,13 @@
     <input type="checkbox" class="form-control image-selection" value="{{ $image->id }}" style="display: none;">
     <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="/images/view.png" /></a>
 
-    @can ('social-create')
+    @if(auth()->user()->checkPermission('social-create'))
       <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="/images/edit.png" /></a>
 
       {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $image->id],'style'=>'display:inline']) !!}
         <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
       {!! Form::close() !!}
-    @endcan
+    @endif
 
     <a href="{{ route('image.grid.download', $image->id) }}" class="btn-link">Download</a>
 
@@ -122,7 +121,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
-       $(".select-multiple").multiselect();
+       $(".select-multiple").select2();
 
        $('.select-image').on('click', function(e) {
          e.preventDefault();

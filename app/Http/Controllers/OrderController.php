@@ -58,10 +58,10 @@ class OrderController extends Controller {
 
 	public function __construct() {
 
-		$this->middleware( 'permission:order-view', [ 'only' => ['index','show'] ] );
-		$this->middleware( 'permission:order-create', [ 'only' => [ 'create', 'store' ] ] );
-		$this->middleware( 'permission:order-edit', [ 'only' => [ 'edit', 'update' ] ] );
-		$this->middleware( 'permission:order-delete', [ 'only' => ['destroy','deleteOrderProduct'] ] );
+//		$this->middleware( 'permission:order-view', [ 'only' => ['index','show'] ] );
+//		$this->middleware( 'permission:order-create', [ 'only' => [ 'create', 'store' ] ] );
+//		$this->middleware( 'permission:order-edit', [ 'only' => [ 'edit', 'update' ] ] );
+//		$this->middleware( 'permission:order-delete', [ 'only' => ['destroy','deleteOrderProduct'] ] );
 	}
 
     /**
@@ -561,7 +561,8 @@ class OrderController extends Controller {
 				Cache::put('last-order', $last_order, $expiresAt);
 			}
 		} else {
-			$last_order = Order::withTrashed()->latest()->first()->id + 1;
+			$last = Order::withTrashed()->latest()->first();
+			$last_order = ($last) ? $last->id + 1 : 1;
 			Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
 			Cache::put('last-order', $last_order, $expiresAt);
 		}
@@ -1810,7 +1811,7 @@ class OrderController extends Controller {
 		$order = Order::find($model_id);
 		$size = '';
 
-		if ($order->customer && ($order->customer->shoe_size != '' || $order->customer->clothing_size != '')) {
+		if ($order && $order->customer && ($order->customer->shoe_size != '' || $order->customer->clothing_size != '')) {
 			if ($product->category != 1) {
 				if ($product->product_category->title != 'Clothing' || $product->product_category->title != 'Shoes') {
 					if ($product->product_category->parent && ($product->product_category->parent->title == 'Clothing' || $product->product_category->parent->title == 'Shoes')) {

@@ -10,7 +10,7 @@ use App\ReplyCategory;
 class ReplyController extends Controller
 {
     public function __construct() {
-      $this->middleware('permission:reply-edit',[ 'only' => 'index','create','store','destroy','update','edit']);
+    //  $this->middleware('permission:reply-edit',[ 'only' => 'index','create','store','destroy','update','edit']);
     }
 
     public function index()
@@ -128,9 +128,12 @@ class ReplyController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Reply $reply)
+    public function destroy(Reply $reply, Request $request)
     {
       $reply->delete();
+      if ($request->ajax()) {
+          return response()->json(['message' => "Deleted successfully"]);
+      }
   		return redirect()->route('reply.index')->with('success','Quick Reply Deleted successfully');
     }
 }

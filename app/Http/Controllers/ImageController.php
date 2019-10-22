@@ -21,9 +21,9 @@ class ImageController extends Controller
 
   public function __construct() {
 
-		$this->middleware('permission:social-view', ['except' => ['approveImage', 'store', 'edit', 'update', 'attachImage', 'destroy']]);
-    $this->middleware('permission:social-create', ['only' => ['store', 'edit', 'update', 'attachImage', 'destroy']]);
-		$this->middleware('permission:social-manage', ['only' => ['approveImage', 'updateSchedule']]);
+//		$this->middleware('permission:social-view', ['except' => ['approveImage', 'store', 'edit', 'update', 'attachImage', 'destroy']]);
+//    $this->middleware('permission:social-create', ['only' => ['store', 'edit', 'update', 'attachImage', 'destroy']]);
+//		$this->middleware('permission:social-manage', ['only' => ['approveImage', 'updateSchedule']]);
 	}
     /**
      * Display a listing of the resource.
@@ -94,7 +94,7 @@ class ImageController extends Controller
 
       $brands = Brand::getAll();
       $selected_categories = $request->category ? $request->category : 1;
-  		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
+  		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
   		                                        ->selected($selected_categories)
   		                                        ->renderAsDropdown();
 
@@ -174,7 +174,7 @@ class ImageController extends Controller
 
       $brands = Brand::getAll();
       $selected_categories = $request->category ? $request->category : 1;
-  		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
+  		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
   		                                        ->selected($selected_categories)
   		                                        ->renderAsDropdown();
 
@@ -541,7 +541,6 @@ class ImageController extends Controller
           $new_image->attachMedia($media,config('constants.media_tags'));
         }
       }
-
       return redirect()->route('image.grid')->with('success', 'You have successfully attached images');
     }
 

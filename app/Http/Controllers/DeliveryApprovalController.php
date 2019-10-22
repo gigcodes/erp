@@ -15,7 +15,7 @@ class DeliveryApprovalController extends Controller
 {
 
     public function __construct() {
-      $this->middleware('permission:delivery-approval');
+     // $this->middleware('permission:delivery-approval');
     }
 
     /**

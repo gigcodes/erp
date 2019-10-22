@@ -13,7 +13,7 @@ class BrandController extends Controller
 
     public function __construct()
     {
-        $this->middleware('permission:brand-edit', ['only' => 'index', 'create', 'store', 'destroy', 'update', 'edit']);
+      //  $this->middleware('permission:brand-edit', ['only' => 'index', 'create', 'store', 'destroy', 'update', 'edit']);
     }
 
     public function index()
