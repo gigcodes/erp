@@ -140,10 +140,9 @@ Route::group(['middleware' => 'auth'], function () {
         });
 
 
-
     });
 
-     // AJAX routes
+    // AJAX routes
     Route::put('/ajax/page/{id}/save-draft', 'PageController@saveDraft');
     Route::get('/ajax/page/{id}', 'PageController@getPageAjax');
     Route::delete('/ajax/page/{id}', 'PageController@ajaxDestroy');
@@ -155,7 +154,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/suggest/values', 'TagController@getValueSuggestions');
     });
 
-    Route::get('/ajax/search/entities', 'SearchController@searchEntitiesAjax');
+//    Route::get('/ajax/search/entities', 'SearchController@searchEntitiesAjax');
 
     // Comments
     Route::post('/ajax/page/{pageId}/comment', 'CommentController@savePageComment');
@@ -175,9 +174,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/custom-head-content', 'HomeController@customHeadContent');
 
     // Search
-    Route::get('/search', 'SearchController@search');
-    Route::get('/search/book/{bookId}', 'SearchController@searchBook');
-    Route::get('/search/chapter/{bookId}', 'SearchController@searchChapter');
-    Route::get('/search/entity/siblings', 'SearchController@searchSiblings');
+//    Route::get('/search', 'SearchController@search');
+//    Route::get('/search/book/{bookId}', 'SearchController@searchBook');
+//    Route::get('/search/chapter/{bookId}', 'SearchController@searchChapter');
+//    Route::get('/search/entity/siblings', 'SearchController@searchSiblings');
 
 });
