@@ -155,6 +155,7 @@
   <button type="button" class="btn btn-secondary" id="multiple">Send Multiple Images</button>
   <a href="{{ url('/quickSell/pending') }}"><button type="button" class="btn btn-secondary">Product Pending</button></a>
   <button type="button" class="btn btn-secondary" id="selet-all-multiple">Attach all</button>
+  <button type="button" class="btn btn-secondary" id="send-msg-to-customer" >Customer Send Message </button>
 </div>
 
 @include('partials.flash_messages')
@@ -209,6 +210,7 @@
 @include('quicksell.partials.modal-whats-app')
 @include('quicksell.partials.modal-multiple-whats-app')
 @include('quicksell.partials.modal-add-group-details')
+@include('quicksell.partials.modal-send-customer-message')
 
 @endsection
 
@@ -375,6 +377,65 @@
 
             });
 
+            $("#send-msg-to-customer").click(function () {
+                  $('#sendCustomerMessage').modal('show');
+                  val = $('input[name="quick"]:checked');
+                  $(".selected_checkbox_customer").text(val.length);
+                  var list = [];
+                  $('input[name="quick"]:checked').each(function() {
+                    list.push(this.value);
+                  });
+                  $(".products_customer").val(list);
+                });
+
+             var customerSearch = function () {
+                  $(".customer_multi_select").select2({
+                      tags: true,
+                      width : '100%',
+                      ajax: {
+                          url: '/erp-leads/customer-search',
+                          dataType: 'json',
+                          delay: 750,
+                          data: function (params) {
+                              return {
+                                  q: params.term, // search term
+                              };
+                          },
+                          processResults: function (data, params) {
+
+                              params.page = params.page || 1;
+
+                              return {
+                                  results: data,
+                                  pagination: {
+                                      more: (params.page * 30) < data.total_count
+                                  }
+                              };
+                          },
+                      },
+                      placeholder: 'Search for Customer by id, Name, No',
+                      escapeMarkup: function (markup) {
+                          return markup;
+                      },
+                      minimumInputLength: 2,
+                      templateResult: formatCustomer,
+                      templateSelection: (customer) => customer.text || customer.name,
+
+                  });
+              };
+
+              function formatCustomer(customer) {
+                  if (customer.loading) {
+                      return customer.name;
+                  }
+
+                  if (customer.name) {
+                      return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                  }
+              }
+
+              customerSearch();
+
 
       $(document).ready(function() {
          $(".select-multiple").multiselect();
@@ -417,7 +478,9 @@
 
             });  
 
+        $("#send-msg-to-customer").click(function () {
 
+        });
         $(document).ready(function(){
           $("#updateEditForm").on("click", function(e){
              e.preventDefault();
