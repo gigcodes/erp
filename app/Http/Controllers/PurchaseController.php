@@ -620,6 +620,7 @@ class PurchaseController extends Controller
             $customer_names = '';
             $customers = [];
             $orderCount = 0;
+            $sizeArr = [];
             foreach ($product->orderproducts as $key => $order_product) {
                 if ($order_product->order && $order_product->order->customer) {
                     // if ($count == 0) {
@@ -629,9 +630,12 @@ class PurchaseController extends Controller
                     // }
                     $customers[] = $order_product->order->customer;
                 }
-
+                
                 if (!empty($order_product->order)) {
                     $orderCount++;
+                    if (!empty($order_product->size)) {
+                        $sizeArr[] = $order_product->size;
+                    }
                 }
             }
 
@@ -683,6 +687,7 @@ class PurchaseController extends Controller
             $new_products[ $count ][ 'order_date' ] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->order_date : 'No Order';
             $new_products[ $count ][ 'order_advance' ] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->advance_detail : 'No Order';
             $new_products[ $count ][ 'supplier_msg' ] = $supplier_msg_data;
+            $new_products[ $count ][ 'size' ] = implode(',', array_unique($sizeArr));
 
             $count++;
         }
@@ -2730,18 +2735,22 @@ class PurchaseController extends Controller
             ->whereIn('id', $supplier_id)
             ->get();
         if (count($suppliers_all) > 0) {
+            // Get product
+            $media = '';
+            $product = Product::find($id);
+            if ($product && $product->hasMedia(config('constants.media_tags'))) {
+                $media = $product->getMedia(config('constants.media_tags'))->first()->getUrl();;
+            }
+
+            $sku = isset($product->sku) ? $product->sku : '';
+            $size = !empty($request->get('size')) ? ' size '. $request->get('size') : '';
 
             foreach ($suppliers_all as $supplier) {
 
                 if ($supplier->phone != '') {
-                    // Get product
-                    $media = '';
-                    $product = Product::find($id);
-                    if ($product && $product->hasMedia(config('constants.media_tags'))) {
-                        $media = $product->getMedia(config('constants.media_tags'))->first()->getUrl();;
-                    }
+                    
 
-                    $message = $request->input('message') . ' (' . $product->sku . ')'.' size '.$product->size;
+                    $message = $request->input('message') . ' (' . $sku . ')'.$size;
 
                     try {
                         dump("Sending message");
@@ -2757,7 +2766,7 @@ class PurchaseController extends Controller
                             'status' => 1
                         ];
 
-                        DB::enableQueryLog(); // Enable query log
+                        //DB::enableQueryLog(); // Enable query log
 
                         $chat_message = ChatMessage::create($params);
 
