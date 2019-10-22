@@ -78,18 +78,12 @@
             "database/factories"
         ],
         "psr-4": {
-<<<<<<< HEAD
             "App\\": "app/",
             "Modules\\": "Modules/"
         },
         "files" : [
-            "Modules/BookStack/helpers.php"
-=======
-            "App\\": "app/"
-        },
-        "files" : [
+            "Modules/BookStack/helpers.php",
             "app/Helpers/common_functions.php"
->>>>>>> remotes/origin/master
         ]
     },
     "autoload-dev": {
