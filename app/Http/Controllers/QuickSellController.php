@@ -249,16 +249,39 @@ class QuickSellController extends Controller
         }
       }
 
+      if(isset($product->supplier)){
+        $supplier = $product->supplier;
+      }else{
+        $supplier = '';
+      }
+
+      if(isset($product->price)){
+        $price = $product->price;
+      }else{
+        $price = '';
+      }
+
+       if(isset($product->brands->name)){
+        $brand = $product->brands->name;
+      }else{
+        $brand = '';
+      }
+
+      if(isset($product->product_category->title)){
+        $title = $product->product_category->title;
+      }else{
+        $title = '';
+      }
 
       if($request->group_new == null && $request->group_old == null){
         $input =  '<input type="checkbox" name="blank" class="group-checkbox checkbox" data-id='.$product->id.'>';  
-        $data = [$product->supplier,$product->price,$product->brands->name,$product->product_category->title,$input];
+        $data = [$supplier,$price,$brand,$title,$input];
       }
       if($request->group_new != null){
-         $data = [$product->supplier,$product->price,$product->brands->name,$product->product_category->title,$request->group_new];
+         $data = [$supplier,$price,$brand,$title,$request->group_new];
       }
       if($request->group_old != null){
-         $data = [$product->supplier,$product->price,$product->brands->name,$product->product_category->title,$request->group_old];
+         $data = [$supplier,$price,$brand,$title,$request->group_old];
       }
       return Response::json(array(
         'success' => true,
