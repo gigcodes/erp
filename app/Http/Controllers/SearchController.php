@@ -30,7 +30,10 @@ class SearchController extends Controller
 
         $data[ 'term' ] = $term;
         $data[ 'roletype' ] = $roletype;
-        $perPageLimit = $request->get("per_page", Setting::get('pagination'));
+        $perPageLimit = $request->get("per_page");
+        if (empty($perPageLimit)) {
+            $perPageLimit = Setting::get('pagination');
+        }
         $sourceOfSearch = $request->get("source_of_search", "na");
 
         // start add fixing for the price range since the one request from price is in range
@@ -253,11 +256,6 @@ class SearchController extends Controller
             Cache::forget('filter-date-' . Auth::id());
         }
 
-        if ($request->quick_product === 'true') {
-            $productQuery = (new Product())->newQuery()
-                ->latest()->where('quick_product', 1);
-        }
-
         if (trim($term) != '') {
             $productQuery = (new Product())->newQuery()
                 ->latest()
@@ -330,6 +328,15 @@ class SearchController extends Controller
         // fix if query is not setup due to some unknow condition
         if (!isset($productQuery)) {
             $productQuery = (new Product())->newQuery()->latest();
+        }
+
+        if ($request->quick_product === 'true') {
+            if (!isset($productQuery)) {
+                $productQuery = (new Product())->newQuery()
+                ->latest();
+            }
+            
+            $productQuery = $productQuery->where('quick_product', 1);
         }
 
         // assing product to varaible so can use as per condition for join table media

@@ -60,7 +60,7 @@ class Vendor extends Model
 
     public function whatsappAll()
     {
-        return $this->hasMany('App\ChatMessage', 'vendor_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+        return $this->hasMany('App\ChatMessage', 'vendor_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function emails()

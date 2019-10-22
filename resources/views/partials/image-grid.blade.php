@@ -103,7 +103,7 @@
                         </select>
                     </div>
 
-                    @if (Auth::user()->hasRole('Admin'))
+                    @if (!Auth::user()->hasRole('Admin'))
                         <div class="form-group mr-3">
                             <select class="form-control select-multiple" name="location[]" multiple data-placeholder="Location...">
                                 <optgroup label="Locations">
@@ -426,14 +426,15 @@
         $('#quickProducts').on('submit', function (e) {
             e.preventDefault();
 
-            var url = "{{ route('search') }}";
-            var formData = $('#quickProducts').serialize();
+            var url = "{{ route('search') }}?quick_product=true";
+            var formData = $('#searchForm').serialize();
 
             $.ajax({
                 url: url,
                 data: formData
             }).done(function (data) {
                 $('#productGrid').html(data.html);
+                $('#products_count').text(data.products_count);
                 $('.lazy').Lazy({
                     effect: 'fadeIn'
                 });
