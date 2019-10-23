@@ -98,7 +98,7 @@ class ProductTemplatesController extends Controller
             $records->where("b.name", "like", "%$q%");
         }
 
-        $records->where("product_templates.is_processed", "=", "1");
+        $records->where("product_templates.is_processed", "=", 0);
 
         $record = $records->orderBy("product_templates.id", "asc")->first();
         $data = [];
