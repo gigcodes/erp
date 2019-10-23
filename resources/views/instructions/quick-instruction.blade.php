@@ -23,7 +23,9 @@
                         </tr>
                         <tr>
                             <td>
-                                <span data-twilio-call data-context="customers" data-id="{{ $instruction->customer->id }}">{{ $instruction->customer->phone }}</span>
+                                @if (isset($instruction->customer->id))
+                                    <span data-twilio-call data-context="customers" data-id="{{ $instruction->customer->id }}">{{ $instruction->customer->phone }}</span>
+                                @endif
                             </td>
                             <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
                             <td>{{ $instruction->instruction }}</td>
