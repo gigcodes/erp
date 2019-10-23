@@ -57,16 +57,6 @@
                         </select>
                     </div>
                     </div>
-                    <div class="form-group">
-                        <strong>Sending Number</strong>
-                        <select class="form-control" name="whatsapp_number" required>
-                            <option value="">Select a Number</option>
-
-                            @foreach ($api_keys as $api_key)
-                                <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
-                            @endforeach
-                        </select>
-                    </div>
                 </div>
 
                 <div class="modal-footer">
