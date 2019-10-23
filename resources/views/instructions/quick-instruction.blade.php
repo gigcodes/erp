@@ -102,8 +102,10 @@
                     </div>
                 </div>
             </div>
+        @elseif ( isset($instruction->id) )
+            <h2>No customer found (code: {{ $instruction->id }})</h2>
         @else
-            <h2>No more instructions or no customer found (code: {{ $instruction->id }})</h2>
+            <h2>No more instructions</h2>
         @endif
     </div>
 

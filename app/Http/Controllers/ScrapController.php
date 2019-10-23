@@ -127,8 +127,8 @@ class ScrapController extends Controller
             $scrapedProduct->url = $request->get('url');
             $scrapedProduct->properties = $request->get('properties');
             $scrapedProduct->is_sale = $request->get('is_sale') ?? 0;
-            $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title'));
-            $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'));
+            $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title'), 'name');
+            $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'), 'short_description');
             $scrapedProduct->brand_id = $brand->id;
             $scrapedProduct->currency = $request->get('currency');
             $scrapedProduct->price = (float)$request->get('price');
@@ -160,8 +160,8 @@ class ScrapController extends Controller
             $scrapedProduct->is_sale = $request->get('is_sale') ?? 0;
             $scrapedProduct->has_sku = 1;
             $scrapedProduct->url = $request->get('url');
-            $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title') ?? 'N/A');
-            $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'));
+            $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title') ?? 'N/A', 'name');
+            $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'), 'short_description');
             $scrapedProduct->properties = $request->get('properties');
             $scrapedProduct->currency = ProductHelper::getCurrency($request->get('currency'));
             $scrapedProduct->price = (float)$request->get('price');
