@@ -12,13 +12,17 @@ use Illuminate\Http\Request;
 class ResourceImgController extends Controller{
 
 	public function index(Request $request) {
+
+
 		$categories = ResourceCategory::where('parent_id', '=', 0)->get();
-		$allresources = ResourceImage::getData();
+		$allresources = ResourceImage::orderby('id','desc')->paginate(15);
 		$old = $request->old('parent_id');
 		$Categories = ResourceCategory::attr(['name' => 'parent_id','class' => 'form-control'])
 		                            ->selected( $old ? $old : 1)
 		                            ->renderAsDropdown();
-		return view('resourceimg.index',compact('Categories','allresources','categories'));
+		$parent_category = ResourceCategory::where('parent_id', '=', 0)->get();
+						
+		return view('resourceimg.index',compact('Categories','allresources','categories','parent_category'));
 	}
 
 	public function addResourceCat(Request $request) {

@@ -10,9 +10,8 @@ class ResourceImage extends Model{
   protected $fillable = ['cat_id','image1'];
 
   public function category(){
-    return $this->belongsTo('App\ResourceCategory', 'id');
+    return $this->hasOne('App\ResourceCategory','id','cat_id');
   }
-
 
   static public function create($input){
     $resourceimg = new ResourceImage;
@@ -39,6 +38,7 @@ class ResourceImage extends Model{
         $id = $categories->id;
         if($parent_id == 0){
           $title = $categories->title;
+          $subcat = '';
         }else{
           $titlestr=array();
           while ($parent_id != 0) {
@@ -46,11 +46,18 @@ class ResourceImage extends Model{
             $titlestr[]= $categories->title;
             $id = $parent_id = $categories->parent_id;
           }
-          krsort($titlestr);
-          $title=implode(" >> ", $titlestr);
+          try{
+               krsort($titlestr);
+               $subcat = $titlestr[0];
+           }catch (\Exception $e){
+               $subcat = '';
+           }
+         
+          
         }
         $dataArray[]=array('id'=>$resources->id,
                            'cat'=>$title,
+                           'sub_cat'=>$subcat,
                            'cat_id'=>$resources->cat_id,
                            'url' => $resources->url,
                            'description' => $resources->description,
