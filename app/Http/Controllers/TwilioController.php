@@ -266,7 +266,7 @@ class TwilioController extends FindByNumberController {
         $context = $request->get("context");
         $id = $request->get("internalId");
         
-        if($callFrom == null){
+        if($request->get("CallNumber") != null){
              $callFrom  = $request->get("CallNumber");
         }else{
              $callFrom = \Config::get("twilio.default_caller_id");    
