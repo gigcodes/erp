@@ -8,7 +8,7 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
 
-      <form action="{{ route('quicksell.store') }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ route('quicksell.store') }}" method="POST" enctype="multipart/form-data" id="editquicksell">
 
 
       <div class="modal-body">
@@ -144,7 +144,7 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
 
-      <form action="" method="POST" enctype="multipart/form-data" id="updateForm">
+      <form action="" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="modal-body text-left">
@@ -155,10 +155,25 @@
             @endif
           </div>
 
+           <div class="form-group">
+                        <strong>Existing Group:</strong>
+                        
+                        @php
+                            $groups = \App\QuickSellGroup::orderBy('group','asc')->get();
+                        @endphp
+                        <select class="form-control selectpicker" data-live-search="true" name="group_old" id="group_old">
+                          <option value="">Select Group</option>
+                            @foreach($groups as $group)
+                                <option value="{{ $group->group }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }} @endif </option>
+                            @endforeach
+                        </select>
+                    </div>
+
           <div class="form-group">
+            <strong>Suppliers:</strong>
             @php $supplier_list = (new \App\ReadOnly\SupplierList)->all();
             @endphp
-            <select class="form-control" name="supplier" id="supplier_select">
+            <select class="form-control selectpicker" name="supplier" data-live-search="true" id="supplier_select">
               <option value="">Select Supplier</option>
               @foreach ($supplier_list as $index => $value)
               <option value="{{ $index }}" {{ $index == old('supplier') ? 'selected' : '' }}>{{ $value }}</option>
@@ -231,11 +246,18 @@
             @endif
           </div>
 
+          <div>
+            <strong>New Group:</strong>
+            <input type="text" name="group_new" placeholder="Please Enter New Group Name" class="form-control" id="group_name_updated">
+          </div>
+
         </div>
+        <input type="hidden" name="product_id" id="product_id">
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Update</button>
-      </form>
+          <button type="button" class="btn btn-secondary" id="updateEditForm">Update</button>
+        </form>
+
           @if(auth()->user()->isAdmin())
           @if(isset($product) && $product->is_pending == 1)
             {!! Form::open(['method' => 'POST','route' => ['quicksell.activate'],'style'=>'display:inline']) !!}

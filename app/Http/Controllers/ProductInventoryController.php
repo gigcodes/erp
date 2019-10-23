@@ -314,7 +314,7 @@ class ProductInventoryController extends Controller
 		$data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
 		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';
-		$data['locations'] = (new LocationList)->all();
+		$data['locations'] = (new \App\ProductLocation())->pluck('name');
 
 		$data['new_category_selection'] = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'product-category'])
 		                                        ->renderAsDropdown();

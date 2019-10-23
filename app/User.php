@@ -262,5 +262,76 @@ class User extends Authenticatable
         return $user_role;
     }
 
+    /**
+     * Check if the user has a particular permission.
+     * @param $permissionName
+     * @return bool
+     */
+    public function can($permissionName, $arguements = [])
+    {
+        if ($this->email === 'guest') {
+            return false;
+        }
+
+        // this is for testing purpose for now
+        $isAdmin = in_array("Admin", $this->roles->pluck("name")->toArray());
+
+        if ($isAdmin) {
+            return true;
+        }
+
+        return true;
+
+        return $this->permissions()->pluck('name')->contains($permissionName);
+    }
+
+    /**
+     * Check if the user is the default public user.
+     * @return bool
+     */
+    public function isDefault()
+    {
+        return $this->system_name === 'public';
+    }
+
+    /**
+     * Returns the user's avatar,
+     * @param int $size
+     * @return string
+     */
+    public function getAvatar($size = 50)
+    {
+        $default = url('/user_avatar.png');
+        $imageId = $this->image_id;
+        if ($imageId === 0 || $imageId === '0' || $imageId === null) {
+            return $default;
+        }
+
+        try {
+            $avatar = $this->avatar ? url($this->avatar->getThumb($size, $size, false)) : $default;
+        } catch (\Exception $err) {
+            $avatar = $default;
+        }
+        return $avatar;
+    }
+
+    /**
+     * Get a shortened version of the user's name.
+     * @param int $chars
+     * @return string
+     */
+    public function getShortName($chars = 8)
+    {
+        if (mb_strlen($this->name) <= $chars) {
+            return $this->name;
+        }
+
+        $splitName = explode(' ', $this->name);
+        if (mb_strlen($splitName[ 0 ]) <= $chars) {
+            return $splitName[ 0 ];
+        }
+
+        return '';
+    }
 
 }

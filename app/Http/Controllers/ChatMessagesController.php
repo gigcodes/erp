@@ -44,7 +44,7 @@ class ChatMessagesController extends Controller
                 break;
             case 'old':
                 $object = Old::find($request->object_id);
-                break;        
+                break;
             default:
                 $object = Customer::find($request->object);
         }
@@ -119,7 +119,7 @@ class ChatMessagesController extends Controller
                 'id' => $chatMessage->id,
                 'type' => $request->object,
                 'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
-                'message' => $chatMessage->message,
+                'message' => htmlentities($chatMessage->message),
                 'media_url' => $chatMessage->media_url,
                 'datetime' => $chatMessage->created_at,
                 'media' => is_array($media) ? $media : null,
