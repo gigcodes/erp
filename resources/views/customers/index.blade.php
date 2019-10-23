@@ -116,6 +116,21 @@
         .lt-ie9 .search input {
             line-height: 26px
         }
+
+         .numberSend {
+          width: 160px;
+          background-color: transparent;
+          color: transparent;
+          text-align: center;
+          border-radius: 6px;
+          position: absolute;
+          z-index: 1;
+          left: 10%;
+          margin-left: -80px;
+          display: none;
+    }
+
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -325,7 +340,16 @@
                             {{-- <a href="{{ route('customer.show', $customer->id) }}?customer_ids={{ $customer_ids_list }}">{{ $customer->name }}</a> --}}
 
                             <div>
-                                <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png"/></button>
+                                <button type="button" class="btn btn-image call-select popup" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png"/></button>
+
+                                <div class="numberSend" id="show{{ $customer->id }}">
+                                    <select class="form-control call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}">
+                                    <option value="">Select Number</option>
+                                    @foreach(\Config::get("twilio.caller_id") as $caller)
+                                    <option value="{{ $caller }}">{{ $caller }}</option>
+                                    @endforeach
+                                    </select>
+                                </div>
 
                                 @if ($customer->is_blocked == 1)
                                     <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png"/></button>
@@ -2286,6 +2310,12 @@
             }).fail(function (response) {
                 console.log(response);
             });
+        });
+
+        $(document).on('click', '.call-select', function() {
+            var id = $(this).data('id');
+            $('#show'+id).toggle();
+            console.log('#show'+id);
         });
 
 

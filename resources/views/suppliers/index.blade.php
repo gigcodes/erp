@@ -3,6 +3,23 @@
 @section('title', 'Suppliers List')
 
 @section('styles')
+  <style type="text/css">
+    .numberSend {
+          width: 160px;
+          background-color: transparent;
+          color: transparent;
+          text-align: center;
+          border-radius: 6px;
+          position: absolute;
+          z-index: 1;
+          left: 23%;
+          margin-left: -80px;
+          display: none;
+    }
+
+  </style>
+
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 @endsection
@@ -96,7 +113,15 @@
                   <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
                 @endif
                   @if($supplier->phone)
-                  <button type="button" class="btn btn-image call-twilio" data-context="suppliers" data-id="{{ $supplier->id }}" data-phone="{{ $supplier->phone }}"><img src="/images/call.png"/></button>
+                  <button type="button" class="btn btn-image call-select popup" data-id="{{ $supplier->id }}"><img src="/images/call.png"/></button>
+                  <div class="numberSend" id="show{{ $supplier->id }}">
+                  <select class="form-control call-twilio" data-context="suppliers" data-id="{{ $supplier->id }}" data-phone="{{ $supplier->phone }}">
+                    <option value="">Select Number</option>
+                    @foreach(\Config::get("twilio.caller_id") as $caller)
+                    <option value="{{ $caller }}">{{ $caller }}</option>
+                    @endforeach
+                  </select>
+                  </div>
                   @if ($supplier->is_blocked == 1)
                       <button type="button" class="btn btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/blocked-twilio.png"/></button>
                   @else
@@ -639,5 +664,26 @@
               console.log(response);
           });
       });
+
+      $(document).on('click', '.call-select', function() {
+        var id = $(this).data('id');
+        $('#show'+id).toggle();
+        console.log('#show'+id);
+      });
+
+      // $(document).on('change', '.call-twilio1', function() {
+        
+      //   console.log('hello');
+      //   var id = $(this).data('id');
+      //   var numberToCall = $(this).data('phone');
+      //   var context = $(this).data('context');
+      //   var numberCallFrom = $(this).children("option:selected").val();
+      //   //$('#show'+id).hide();
+      //   console.log(id);
+      //   console.log(numberToCall);
+      //   console.log(context);
+      //   console.log(numberCallFrom);
+
+      // });
   </script>
 @endsection

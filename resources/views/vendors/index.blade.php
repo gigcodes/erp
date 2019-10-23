@@ -4,6 +4,21 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <style type="text/css">
+    .numberSend {
+          width: 160px;
+          background-color: transparent;
+          color: transparent;
+          text-align: center;
+          border-radius: 6px;
+          position: absolute;
+          z-index: 1;
+          left: 19%;
+          margin-left: -80px;
+          display: none;
+    }
+
+  </style>
 @endsection
 
 @section('large_content')
@@ -115,7 +130,15 @@
                     <td style="word-break: break-all;">{{ $vendor->name }}
                     @if($vendor->phone)
                         <div>
-                            <button type="button" class="btn btn-image call-twilio" data-context="vendors" data-id="{{ $vendor->id }}" data-phone="{{ $vendor->phone }}"><img src="/images/call.png"/></button>
+                            <button type="button" class="btn btn-image call-select popup" data-id="{{ $vendor->id }}"><img src="/images/call.png"/></button>
+                              <div class="numberSend" id="show{{ $vendor->id }}">
+                              <select class="form-control call-twilio" data-context="vendors" data-id="{{ $vendor->id }}" data-phone="{{ $vendor->phone }}">
+                                <option value="">Select Number</option>
+                                @foreach(\Config::get("twilio.caller_id") as $caller)
+                                <option value="{{ $caller }}">{{ $caller }}</option>
+                                @endforeach
+                              </select>
+                              </div>
 
                         @if ($vendor->is_blocked == 1)
                                 <button type="button" class="btn btn-image block-twilio" data-id="{{ $vendor->id }}"><img src="/images/blocked-twilio.png"/></button>
@@ -542,5 +565,11 @@
                 console.log(response);
             });
         });
+
+         $(document).on('click', '.call-select', function() {
+        var id = $(this).data('id');
+        $('#show'+id).toggle();
+        console.log('#show'+id);
+      });
     </script>
 @endsection
