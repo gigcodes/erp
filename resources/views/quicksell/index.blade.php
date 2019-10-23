@@ -16,6 +16,9 @@
   .group-checkbox {
     padding-left : 5px;
   }
+  #Div2 {
+  display: none;
+  }
 </style>
 @endsection
 
@@ -529,5 +532,18 @@
           });
         }); 
 
+        function switchVisible() {
+            if (document.getElementById('Div1')) {
+
+                if (document.getElementById('Div1').style.display == 'none') {
+                    document.getElementById('Div1').style.display = 'block';
+                    document.getElementById('Div2').style.display = 'none';
+                }
+                else {
+                    document.getElementById('Div1').style.display = 'none';
+                    document.getElementById('Div2').style.display = 'block';
+                }
+            }
+          }
 </script>
 @endsection

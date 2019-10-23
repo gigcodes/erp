@@ -72,6 +72,7 @@
 @include("product-template.partials.create-form-template")
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/1.0.5/jsrender.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" src="js/common-helper.js"></script>
 <script type="text/javascript" src="js/product-template.js"></script>
 <script type="text/javascript">
