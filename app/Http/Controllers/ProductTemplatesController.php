@@ -98,11 +98,12 @@ class ProductTemplatesController extends Controller
             $records->where("b.name", "like", "%$q%");
         }
 
-        $records = $records->orderBy("product_templates.id", "desc")->paginate($limit);
+        $records->where("product_templates.is_processed", "=", "1");
 
+        $record = $records->orderBy("product_templates.id", "desc")->first();
         $data = [];
-        foreach ($records as $record) {
-            $array = [
+        if ($record) {
+            $data = [
                 "id"                     => $record->id,
                 "productTitle"           => $record->product_title,
                 "productBrand"           => $record->brand_name,
@@ -116,12 +117,9 @@ class ProductTemplatesController extends Controller
                     $array["image" . ($i + 1)] = $media->getUrl();
                 }
             }
-
-            $data[] = $array;
-
         }
 
-        return response()->json(["code" => 1, "data" => $data]);
+        return response()->json($data);
 
     }
 
