@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class QuickSellGroup extends Model
 {
-    protected $fillable = ['group'];
+    protected $fillable = ['group','name','suppliers','brands','price','special_price'];
 }

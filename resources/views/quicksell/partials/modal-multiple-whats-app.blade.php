@@ -9,12 +9,22 @@
             </div>
             <form action="{{action('WhatsAppController@sendMessage', 'quicksell_group')}}" method="POST" enctype="multipart/form-data">
                 <div class="modal-body">
+                    <input id="Button1" type="button" value="Click To Send From Rating" onclick="switchVisible();"/ class="form-control">
+                    <div id="Div1">
+                        <br>
+                          <select class="selectpicker" data-show-subtext="true" data-live-search="true" name="customers[]" multiple>
+                          @foreach($customers as $customer)
+                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                          @endforeach
+                            </select>
+                    </div>
                     <input type="hidden" name="status" value="2">
+                    <div id="Div2">
                     <div class="form-group">
-                        <input type="checkbox" id="send_type" name="to_all" checked>
+                        <input type="checkbox" id="send_type" name="to_all">
                         <label for="send_type">Send Message to All Existing Customers</label>
                     </div>
-
+                  
                     <div class="form-group">
                         <label for="send_type">Number of selected Checkbox</label>
                         <p id="selected_checkbox"></p>
@@ -45,6 +55,7 @@
                             <option value="male">Male</option>
                             <option value="female">Female</option>
                         </select>
+                    </div>
                     </div>
                     <div class="form-group">
                         <strong>Sending Number</strong>
