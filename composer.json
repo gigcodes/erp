@@ -12,6 +12,7 @@
         "ext-json": "*",
         "atayahmet/laravel-nestable": "^0.8.7",
         "barryvdh/laravel-ide-helper": "^2.4",
+        "barryvdh/laravel-snappy": "*",
         "bugsnag/bugsnag-laravel": "^2.0",
         "chumper/zipper": "^1.0",
         "doctrine/dbal": "^2.9",
@@ -33,14 +34,18 @@
         "maatwebsite/excel": "^3.1",
         "macsidigital/zoom-laravel": "^1.0",
         "mgp25/instagram-php": "dev-master",
+        "milon/barcode": "^6.0",
         "nunomaduro/laravel-console-dusk": "^1.0",
+        "nwidart/laravel-modules": "^5.1",
         "ourcodeworld/name-that-color": "dev-master",
         "php-ai/php-ml": "^0.8.0",
         "phpoffice/phpspreadsheet": "^1.6",
+        "picqer/php-barcode-generator": "^0.3.0",
         "plank/laravel-mediable": "^2.7",
         "pragmarx/tracker": "^3.3",
         "pusher/pusher-http-laravel": "^4.2",
         "pusher/pusher-php-server": "v3.0.1",
+        "seo2websites/erp-customer": "dev-master",
         "seo2websites/erp-excel-importer": "dev-master",
         "seo2websites/google-vision": "dev-master",
         "seo2websites/laravel-zoom": "dev-master",
@@ -73,10 +78,12 @@
             "database/factories"
         ],
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "Modules\\": "Modules/"
         },
         "files" : [
-            "app/comman_functions.php"
+            "Modules/BookStack/helpers.php",
+            "app/Helpers/common_functions.php"
         ]
     },
     "autoload-dev": {
@@ -106,6 +113,10 @@
         {
             "type": "vcs",
             "url": "git@bitbucket.org:seo2websites/laravel-zoom"
+        },
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:seo2websites/erp-customer"
         }
     ],
     "scripts": {

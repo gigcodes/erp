@@ -14,6 +14,7 @@ use App\ScrapActivity;
 use App\SupplierInventory;
 use App\Helpers\ProductHelper;
 use App\Loggers\LogScraper;
+use App\ProductQuicksellGroup;
 use App\Services\Products\ProductsCreator;
 
 class Product extends Model
@@ -73,8 +74,8 @@ class Product extends Model
 
                 // Update the name and description if the product is not approved and not rejected
                 if (!$product->is_approved && !$product->is_listing_rejected) {
-                    $product->name = ProductHelper::getRedactedText($json->title);
-                    $product->short_description = ProductHelper::getRedactedText($json->description);
+                    $product->name = ProductHelper::getRedactedText($json->title, 'name');
+                    $product->short_description = ProductHelper::getRedactedText($json->description, 'short_description');
                 }
 
                 // Update color, composition and material used if the product is not approved
@@ -86,18 +87,22 @@ class Product extends Model
 
                     // Set composition
                     if (isset($json->properties[ 'composition' ])) {
-                        $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'composition' ] ?? ''));
+                        $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'composition' ] ?? ''), 'composition');
                     }
 
                     // Set material used
                     if (isset($image->properties[ 'material_used' ])) {
-                        $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'material_used' ] ?? ''));
+                        $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'material_used' ] ?? ''), 'composition');
                     }
                 }
 
                 // Add sizes to the product
                 if (isset($json->properties[ 'size' ]) && is_array($json->properties[ 'size' ]) && count($json->properties[ 'size' ]) > 0) {
+                    // Implode the keys
                     $product->size = implode(',', array_keys($json->properties[ 'size' ]));
+
+                    // Replace texts in sizes
+                    $product->size = ProductHelper::getRedactedText($product->size, 'composition');
                 }
 
                 // Set product values
@@ -124,15 +129,15 @@ class Product extends Model
                     if ($product) {
                         $product->suppliers()->syncWithoutDetaching([
                             $dbSupplier->id => [
-                                'title' => ProductHelper::getRedactedText($json->title),
-                                'description' => ProductHelper::getRedactedText($json->description),
+                                'title' => ProductHelper::getRedactedText($json->title, 'name'),
+                                'description' => ProductHelper::getRedactedText($json->description, 'short_description'),
                                 'supplier_link' => $json->url,
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price' ],
                                 'price_discounted' => $formattedPrices[ 'price_discounted' ],
                                 'size' => $json->properties[ 'size' ],
                                 'color' => $json->properties[ 'color' ],
-                                'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ]),
+                                'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
                                 'sku' => $json->original_sku
                             ]
                         ]);
@@ -196,15 +201,15 @@ class Product extends Model
                 $product->supplier = $json->website;
                 $product->brand = $json->brand_id;
                 $product->category = $json->properties[ 'category' ] ?? 0;
-                $product->name = ProductHelper::getRedactedText($json->title);
-                $product->short_description = ProductHelper::getRedactedText($json->description);
+                $product->name = ProductHelper::getRedactedText($json->title, 'name');
+                $product->short_description = ProductHelper::getRedactedText($json->description, 'short_description');
                 $product->supplier_link = $json->url;
                 $product->stage = 3;
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->stock = 1;
                 $product->is_without_image = 1;
                 $product->is_on_sale = $json->is_sale ? 1 : 0;
-                $product->composition = ProductHelper::getRedactedText($json->properties[ 'composition' ]);
+                $product->composition = ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition');
                 $product->color = $json->properties[ 'color' ] ?? null;
                 $product->size = $json->properties[ 'size' ] ?? null;
                 $product->lmeasurement = isset($json->properties[ 'lmeasurement' ]) && $json->properties[ 'lmeasurement' ] > 0 ? $json->properties[ 'lmeasurement' ] : null;
@@ -231,15 +236,15 @@ class Product extends Model
                     if ($product) {
                         $product->suppliers()->syncWithoutDetaching([
                             $dbSupplier->id => [
-                                'title' => ProductHelper::getRedactedText($json->title),
-                                'description' => ProductHelper::getRedactedText($json->description),
+                                'title' => ProductHelper::getRedactedText($json->title, 'name'),
+                                'description' => ProductHelper::getRedactedText($json->description, 'short_description'),
                                 'supplier_link' => $json->url,
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price' ],
                                 'price_discounted' => $formattedPrices[ 'price_discounted' ],
                                 'size' => $json->properties[ 'size' ],
                                 'color' => $json->properties[ 'color' ],
-                                'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ]),
+                                'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
                                 'sku' => $json->original_sku
                             ]
                         ]);
@@ -505,4 +510,9 @@ class Product extends Model
     {
         return $this->hasMany(ProductStatus::class, 'product_id', 'id');
     }
+
+    public function groups(){
+        return $this->hasMany(ProductQuicksellGroup::class,'product_id','id');
+    }
+
 }

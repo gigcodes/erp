@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Facebook\Facebook;
+use Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,6 +18,11 @@ class AppServiceProvider extends ServiceProvider
     {
         //
 	    Schema::defaultStringLength(191);
+
+        // Custom blade view directives
+        Blade::directive('icon', function ($expression) {
+            return "<?php echo icon($expression); ?>";
+        });
 
     }
 
@@ -31,5 +37,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(Facebook::class, function ($app) {
             return new Facebook(config('facebook.config'));
         });
+
+        
     }
 }

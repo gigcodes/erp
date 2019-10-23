@@ -80,13 +80,13 @@ class ProductsCreator
                 // Check if we can update the title - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_TITLE')->first();
                 if ($manual == null || (int)$manual->value == 0) {
-                    $product->name = ProductHelper::getRedactedText($image->title);
+                    $product->name = ProductHelper::getRedactedText($image->title, 'name');
                 }
 
                 // Check if we can update the short description - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->first();
                 if ($manual == null || (int)$manual->value == 0) {
-                    $product->short_description = ProductHelper::getRedactedText($image->description);
+                    $product->short_description = ProductHelper::getRedactedText($image->description, 'short_description');
                 }
 
                 // Check if we can update the color - not manually entered
@@ -100,12 +100,12 @@ class ProductsCreator
                 if ($manual == null || (int)$manual->value == 0) {
                     // Check for composition key
                     if (isset($image->properties[ 'composition' ])) {
-                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'composition' ] ?? ''));
+                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'composition' ] ?? '', 'composition'));
                     }
 
                     // Check for material_used key
                     if (isset($image->properties[ 'material_used' ])) {
-                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'material_used' ] ?? ''));
+                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'material_used' ] ?? '', 'composition'));
                     }
                 }
 
@@ -123,7 +123,7 @@ class ProductsCreator
                 // Loop over sizes and redactText
                 if (is_array($sizes) && $sizes > 0) {
                     foreach ($sizes as $size) {
-                        $allSize[] = ProductHelper::getRedactedText($size);
+                        $allSize[] = ProductHelper::getRedactedText($size, 'composition');
                     }
                 }
 

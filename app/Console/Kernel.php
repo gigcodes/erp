@@ -42,8 +42,6 @@ use App\Console\Commands\UpdateInventory;
 use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\CreateScrapedProducts;
 use App\Console\Commands\UploadProductsToMagento;
-use App\Console\Commands\WiseboutiqueProductDetailScraper;
-use App\Console\Commands\WiseBoutiqueScraper;
 use App\Console\Commands\UpdateGnbPrice;
 use App\Console\Commands\DeleteGnbProducts;
 use App\Console\Commands\DeleteWiseProducts;
@@ -72,6 +70,7 @@ use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
 use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
+use App\Console\Commands\UpdateCustomerSizeFromOrder;
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -107,8 +106,6 @@ class Kernel extends ConsoleKernel
         MakeApprovedImagesSchedule::class,
         UpdateSkuInGnb::class,
         CreateScrapedProducts::class,
-        WiseBoutiqueScraper::class,
-        WiseboutiqueProductDetailScraper::class,
         UpdateGnbPrice::class,
         DeleteGnbProducts::class,
         DeleteWiseProducts::class,
@@ -149,6 +146,7 @@ class Kernel extends ConsoleKernel
         SendReminderToVendorIfTheyHaventReplied::class,
         SendReminderToDubbizlesIfTheyHaventReplied::class,
         UpdateShoeAndClothingSizeFromChatMessages::class,
+        UpdateCustomerSizeFromOrder::class,
         DocumentReciever::class,
     ];
 

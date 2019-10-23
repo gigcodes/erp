@@ -17,55 +17,63 @@
                 <div class="col-md-12">
                     <form method="get" action="{{action('ProductCropperController@showRejectedCrops')}}">
                         <div class="row">
-                            <div class="col-md-2">
+                            <div class="form-group col-md-2">
                                 <input value="{{$reason}}" type="text" name="reason" id="reason" placeholder="Reason..." class="form-control">
                             </div>
-                            <div class="col-md-2">
-                                <select name="user_id" id="user_id" class="form-control">
+                            <div class="form-group col-md-2">
+                                <select name="user_id" id="user_id" class="form-control select2" placeholder="Select user...">
                                     <option value="">Select user...</option>
                                     @foreach($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        <option value="{{ $user->id }}" {{request()->get('user_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-2">
-                                <select class="form-control" name="category[]">
-                                    @foreach ($category_array as $data)
-                                        <option value="{{ $data['id'] }}" {{ in_array($data['id'], $selected_categories) ? 'selected' : '' }}>{{ $data['title'] }}</option>
-                                        @if ($data['title'] == 'Men')
-                                            @php
-                                                $color = '#D6EAF8';
-                                            @endphp
-                                        @elseif ($data['title'] == 'Women')
-                                            @php
-                                                $color = '#FADBD8';
-                                            @endphp
-                                        @else
-                                            @php
-                                                $color = '';
-                                            @endphp
-                                        @endif
-
-                                        @foreach ($data['child'] as $children)
-                                            <option style="background-color: {{ $color }};" value="{{ $children['id'] }}" {{ in_array($children['id'], $selected_categories) ? 'selected' : '' }}>&nbsp;&nbsp;{{ $children['title'] }}</option>
-                                            @foreach ($children['child'] as $child)
-                                                <option style="background-color: {{ $color }};" value="{{ $child['id'] }}" {{ in_array($child['id'], $selected_categories) ? 'selected' : '' }}>&nbsp;&nbsp;&nbsp;&nbsp;{{ $child['title'] }}</option>
-                                            @endforeach
-                                        @endforeach
+                            <div class="form-group col-md-2">
+                                {!! $category_array !!}
+                            </div>
+                            <div class="form-group col-md-2">
+                                <select class="form-control select2" name="supplier[]" multiple placeholder="Suppliers">
+                                     @foreach ($suppliers as $key => $item)
+                                        <option value="{{ $item->id }}" {{ in_array($item->id, request()->get('supplier', [])) ? 'selected' : '' }}>{{ $item->supplier }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-2">
-                                <select class="form-control select-multiple" name="supplier[]" multiple>
-                                    <optgroup label="Suppliers">
-                                        @foreach ($suppliers as $key => $item)
-                                            <option value="{{ $item->id }}" {{ isset($supplier) && in_array($item->id, $supplier) ? 'selected' : '' }}>{{ $item->supplier }}</option>
-                                        @endforeach
-                                    </optgroup>
+                            <div class="form-group mr-3">
+                                @php $brands = \App\Brand::getAll(); @endphp
+                                <select class="form-control select2" name="brand[]" multiple placeholder="Brands...">
+                                    @foreach ($brands as $key => $name)
+                                        <option value="{{ $key }}" {{ in_array($key, request()->get('brand', [])) ? 'selected' : '' }}>{{ $name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-1">
+                        </div>
+                        <div class="row">
+                            <div class="form-group mr-3">
+                                @php $colors = new \App\Colors(); @endphp
+                                <select class="form-control select2" name="color[]" multiple placeholder="Colors...">
+                                    <@foreach ($colors->all() as $key => $col)
+                                        <option value="{{ $key }}" {{ in_array($key, request()->get('color', [])) ? 'selected' : '' }}>{{ $col }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @if (Auth::user()->hasRole('Admin'))
+                                @php $locations = (new \App\ReadOnly\LocationList)->all(); @endphp
+                                <div class="form-group mr-3">
+                                    <select class="form-control select2" name="location[]" multiple placeholder="Location...">
+                                        @foreach ($locations as $name)
+                                            <option value="{{ $name }}" {{ in_array($name, request()->get('location', [])) ? 'selected' : '' }}>{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+                            <div class="form-group mr-3">
+                                <input name="size" type="text" class="form-control"
+                                       value="{{ request()->get('size') }}"
+                                       placeholder="Size">
+                            </div>
+                            <div class="form-group col-md-1">
                                 <button class="btn btn-image"><img src="{{asset('images/search.png')}}" alt="Search"></button>
+                                <a href="{{url()->current()}}" class="btn btn-image" style="position: absolute;"><img src="/images/clear-filters.png"/></a>
                             </div>
                         </div>
                     </form>
@@ -136,6 +144,12 @@
 
 @section('scripts')
     <script>
+        
+        $(".select2").each(function(){
+            $(this).select2({
+                placeholder : $(this).attr('placeholder'),
+            });
+        });
 
         $(document).on('click', '.delete-product', function() {
             let pid = $(this).attr('data-id');

@@ -21,6 +21,8 @@ class ErpLeads extends Model
         'size',
         'min_price',
         'max_price',
+        'brand_segment',
+        'gender',
         'created_at',
         'updated_at',
     ];

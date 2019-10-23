@@ -24,7 +24,8 @@ class Vendor extends Model
         'gst',
         'account_name',
         'account_swift',
-        'account_iban'
+        'account_iban',
+        'is_blocked'
     ];
 
     public function products()
@@ -59,7 +60,7 @@ class Vendor extends Model
 
     public function whatsappAll()
     {
-        return $this->hasMany('App\ChatMessage', 'vendor_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+        return $this->hasMany('App\ChatMessage', 'vendor_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function emails()

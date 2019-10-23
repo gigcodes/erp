@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SupplierBrandCount extends Model
 {
-    protected $fillable = [ 'supplier_id', 'brand_id', 'cnt'];
+    protected $fillable = [ 'supplier_id', 'brand_id', 'cnt','url','category_id'];
 
         public function supplier(){
             return $this->hasOne(Supplier::class,'id','supplier_id');
