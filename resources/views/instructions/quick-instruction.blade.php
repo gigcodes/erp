@@ -158,9 +158,9 @@
 @endsection
 
 @section('scripts')
-    @if ($instruction != null)
+    @if ($instruction != null && isset($instruction->customer->id) )
         <script>
-            var customer_id = {{ $instruction->customer-> id}};
+            var customer_id = {{ $instruction->customer->id }};
             var current_user = {{ Auth::id() }};
             var route = [];
             route.instruction_complete = "{{ route('instruction.complete') }}";
