@@ -7,13 +7,25 @@
   .checkbox_select{
     display: none;
   }
+  .align {
+    padding: 0px 10px 10px 10px !important;
+  }
+  .groups-css {
+    display : inline-flex;
+  }
+  .group-checkbox {
+    padding-left : 5px;
+  }
+  #Div2 {
+  display: none;
+  }
 </style>
 @endsection
 
 @section('content')
 <div class="row">
   <div class="col">
-    <h2 class="page-heading">quick Sell</h2>
+    <h2 class="page-heading">Quick Sell</h2>
   </div>
 </div>
 
@@ -32,19 +44,35 @@
            placeholder="sku,brand,category,status,stage">
     </div>
     <div class="form-group mr-3">
-      @php $category = \App\Category::all(); @endphp
-      <select class="form-control select-multiple" name="category[]" multiple data-placeholder="Category...">
+      @php
+       $category_parent = \App\Category::where('parent_id', 0)->orderby('title','asc')->get();
+       $category_child = \App\Category::where('parent_id', '!=', 0)->orderby('title','asc')->get();
+       @endphp
+      <select class="form-control select-multiple2" name="category[]" multiple data-placeholder="Category...">
         <optgroup label="Category">
-          @foreach ($category as $key => $name)
-            <option value="{{ $key }}">{{ $name->title }}</option>
-          @endforeach
+          @foreach($category_parent as $c)
+                            <option value="{{ $c->id }}">{{ $c->title }}</option>
+                            @if($c->childs)
+                              @foreach($c->childs as $categ)
+                              <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
+                              @endforeach
+                            @endif
+                        @endforeach
+                        @foreach($category_child as $c)
+                            <option value="{{ $c->id }}">{{ $c->title }}</option>
+                            @if($c->childs)
+                              @foreach($c->childs as $categ)
+                              <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
+                              @endforeach
+                            @endif
+                        @endforeach
         </optgroup>
       </select>
     </div>
 
   <div class="form-group mr-3">
     @php $brands = \App\Brand::getAll(); @endphp
-    <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brands...">
+    <select class="form-control select-multiple2" name="brand[]" multiple data-placeholder="Brands...">
       <optgroup label="Brands">
         @foreach ($brands as $key => $name)
           <option value="{{ $key }}">{{ $name }}</option>
@@ -56,8 +84,7 @@
   <div class="form-group mr-3">
     {{-- <strong>Color</strong> --}}
     @php $colors = new \App\Colors(); @endphp
-    {{-- {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
-    <select class="form-control select-multiple" name="color[]" multiple data-placeholder="Colors...">
+    <select class="form-control select-multiple2" name="color[]" multiple data-placeholder="Colors...">
       <optgroup label="Colors">
         @foreach ($colors->all() as $key => $col)
           <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
@@ -67,7 +94,7 @@
   </div>
 
   <div class="form-group mr-3">
-    <select class="form-control select-multiple" name="supplier[]" multiple data-placeholder="Supplier...">
+    <select class="form-control select-multiple2" name="supplier[]" multiple data-placeholder="Supplier...">
       <optgroup label="Suppliers">
         @foreach ($suppliers as $key => $supp)
           <option value="{{ $supp->supplier }}" {{ isset($supplier) && $supplier == $supp->id ? 'selected' : '' }}>{{ $supp->supplier }}</option>
@@ -78,7 +105,7 @@
 
   @if (Auth::user()->hasRole('Admin'))
     <div class="form-group mr-3">
-      <select class="form-control select-multiple" name="location[]" multiple data-placeholder="Location...">
+      <select class="form-control select-multiple2" name="location[]" multiple data-placeholder="Location...">
         <optgroup label="Locations">
           @foreach ($locations as $name)
             <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
@@ -93,6 +120,18 @@
            value="{{ isset($size) ? $size : '' }}"
            placeholder="Size">
   </div>
+
+  <div class="form-group mr-3">
+    @php $groups = \App\QuickSellGroup::all(); @endphp
+    <select class="form-control select-multiple2" name="group[]" multiple data-placeholder="Groups...">
+      <optgroup label="Groups">
+        @foreach ($groups as $group)
+          <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }} @endif</option>
+        @endforeach
+      </optgroup>
+    </select>
+  </div>
+
   <div class="form-group mr-3">
     {!! Form::select('per_page',[
     "20" => "20 Images Per Page",
@@ -118,7 +157,7 @@
   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productGroupExist">Add Existing Group</button>
   <button type="button" class="btn btn-secondary" id="multiple">Send Multiple Images</button>
   <a href="{{ url('/quickSell/pending') }}"><button type="button" class="btn btn-secondary">Product Pending</button></a>
-  <button type="button" class="btn btn-secondary" id="attached-all-quick">Attached-ALL</button>
+  <button type="button" class="btn btn-secondary" id="selet-all-multiple">Attach all</button>
 </div>
 
 @include('partials.flash_messages')
@@ -131,16 +170,23 @@
     <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
               ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
               : '' }}" class="img-responsive grid-image" alt="" />
+    <div class="align" id="set{{ $product->id }}">       
     <p>Supplier : {{ $product->supplier }}</p>
     <p>Price : {{ $product->price }}</p>
-    <p>Size : {{ $product->size }}</p>
+    @if($product->size != null) <p>Size :  {{ $product->size }} </p>@endif
     <p>Brand : {{ $product->brand ? $brands[$product->brand] : '' }}</p>
     <p>Category : {{ $product->category ? $categories[$product->category] : '' }}</p>
     @if($product->groups)
+    
+    <p class="groups-css">Group :@if($product->groups->count() == 0) <input type="checkbox" name="blank" class="group-checkbox checkbox" data-id="{{ $product->id }}"> @else @foreach($product->groups as $group)
+      @php 
+    $grp = \App\QuickSellGroup::where('group',$group->quicksell_group_id)->first();
+    @endphp 
 
-    <p>Group : @foreach($product->groups as $group) {{ $group->quicksell_group_id }}, @endforeach</p>
+    @if($grp != null && $grp->name != null) {{ $grp->name }} , @else {{ $group->quicksell_group_id }}, @endif @endforeach @endif </p>
 
     @endif
+    </div>   
     <button type="button" class="btn btn-image sendWhatsapp" data-id="{{ $product->id }}"><img src="/images/send.png" /></button>
 
     <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
@@ -165,6 +211,7 @@
 @include('quicksell.partials.modal-add-existing-group')
 @include('quicksell.partials.modal-whats-app')
 @include('quicksell.partials.modal-multiple-whats-app')
+@include('quicksell.partials.modal-add-group-details')
 
 @endsection
 
@@ -172,7 +219,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.11/js/bootstrap-select.min.js"></script>
   <script type="text/javascript">
-    $(".select-multiple").select2();
+   
 
     $(document).on("click","#attached-all-quick",function(){
         if($(this).html() == "Attached-ALL") {
@@ -198,6 +245,7 @@
         $('#location_field').val(product.location);
       @endif
       $('#category_selection').val(product.category);
+      $('#product_id').val(product.id);
     });
 
     var category_tree = {!! json_encode($category_tree) !!};
@@ -330,8 +378,109 @@
 
             });
 
+
+      $(document).ready(function() {
+         $(".select-multiple").multiselect();
+       $(".select-multiple2").select2();
+       });
+      
+
     $(function() {
       $('.selectpicker').selectpicker();
     });
-  </script>
+
+   $(document).ready(function() {
+      $(".checkbox").change(function() {
+        if(this.checked) {
+            id = $(this).attr("data-id");
+            $('#product_group_id').val(id);
+            $("#productGroupDetails").modal();
+        }
+      });
+    });
+
+    $(document).ready(
+            function(){
+              $("#selet-all-multiple").click(function () {
+                $(".checkbox_select").toggle();
+                var checkBoxes = $(".checkbox_select");
+                checkBoxes.prop("checked", !checkBoxes.prop("checked"));
+                $("#multiple").text("Please Select Checkbox");
+                $("#multiple").click(function () {
+                  $('#multipleWhatsappModal').modal('show');
+                  val = $('input[name="quick"]:checked');
+                  $("#selected_checkbox").text(val.length);
+                  var list = [];
+                  $('input[name="quick"]:checked').each(function() {
+                    list.push(this.value);
+                  });
+                  $("#products").val(list);
+                });
+              });
+
+            });  
+
+
+        $(document).ready(function(){
+          $("#updateEditForm").on("click", function(e){
+             e.preventDefault();
+             
+             var group_id = $('#group_old').val();
+             var supplier_id = $('#supplier_select').val();
+             var price = $('#price_field').val();
+             var special_price = $('#price_special_field').val();
+             var size_field = $('#size_field').val();
+             var brand_field = $('#brand_field').val();
+             var location_field = $('#location_field').val();
+             var category_selection = $('#category_selection').val();
+             var group_name_updated = $('#group_name_updated').val();
+             var id = $('#product_id').val();
+             
+            $.ajax({
+                type: "POST",
+                url: "{{ route('quicksell.update') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                   // _method: "POST",
+                     group_old: group_id,
+                     supplier: supplier_id,
+                     price: price,
+                     price_special: special_price,
+                     size: size_field,
+                     brand: brand_field,
+                      location: location_field,
+                     category: category_selection,
+                     group_new: group_name_updated,
+                     id: id,
+                },
+                
+            }).done(function (response) {
+                console.log(response);
+                setid = 'set'+id;
+                
+                 $("#"+setid).html("<p>Supplier : "+response.data[0]+ "</p><p>Price :"+response.data[1]+"</p><p>Brand : " +response.data[2]+ "</p> <p>Category : "+response.data[3]+"</p> <p>Group : "+response.data[4]+"</p>");
+                }).fail(function (response) {
+               alert('failed');
+            });
+     
+            
+
+           
+          });
+        }); 
+
+        function switchVisible() {
+            if (document.getElementById('Div1')) {
+
+                if (document.getElementById('Div1').style.display == 'none') {
+                    document.getElementById('Div1').style.display = 'block';
+                    document.getElementById('Div2').style.display = 'none';
+                }
+                else {
+                    document.getElementById('Div1').style.display = 'none';
+                    document.getElementById('Div2').style.display = 'block';
+                }
+            }
+          }
+</script>
 @endsection

@@ -124,6 +124,7 @@ class ScrapController extends Controller
             $scrapStatistics->save();
 
             // Set values for existing scraped product
+            $scrapedProduct->url = $request->get('url');
             $scrapedProduct->properties = $request->get('properties');
             $scrapedProduct->is_sale = $request->get('is_sale') ?? 0;
             $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title'));
@@ -520,14 +521,20 @@ class ScrapController extends Controller
         if (is_array($links)) {
             for ($i = 0; $i < count($links); $i++) {
                 $log = LogScraper::select('url', 'sku', 'updated_at')->where('url', $links[ $i ])->where('website', $request->website)->first();
+
                 if ($log != null) {
                     $log->touch();
                     $log->save();
 
                     // Load scraped product and update last_inventory_at
-                    $scraped_product = ScrapedProducts::where('sku', ProductHelper::getSku($log->sku))->first();
-                    $scraped_product->last_inventory_at = Carbon::now();
-                    $scraped_product->save();
+                    $scrapedProduct = ScrapedProducts::where('sku', ProductHelper::getSku($log->sku))->first();
+
+                    if ($scrapedProduct != null) {
+                        $scrapedProduct->last_inventory_at = Carbon::now();
+                        $scrapedProduct->save();
+                    } else {
+                        $pendingUrl[] = $links[ $i ];
+                    }
 
                 } else {
                     $pendingUrl[] = $links[ $i ];
@@ -536,6 +543,5 @@ class ScrapController extends Controller
         }
 
         return $pendingUrl;
-
     }
 }

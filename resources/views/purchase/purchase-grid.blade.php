@@ -175,7 +175,7 @@
                                 @endforeach
                             </select>
                             <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message">
-                            <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
+                            <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }}, '{{ $product['size'] }}');">
                             <div class="supplier_msg_con" style="margin-top: 10px;">
                                 <?php foreach ($product['supplier_msg'] as $supplier_msg) { ?>
                                     <b>{{$supplier_msg['supplier']}}</b>
@@ -406,9 +406,16 @@
                                     {!! $category_selection !!}
                                 </div>
                                 <div class="form-group mr-3">
-                                    <select class="form-control select-multiple2" name="brand[]" placeholder="Select brand.." multiple>
+                                    <select class="form-control select-multiple2" name="brand[]" data-placeholder="Select brand.." multiple>
                                         @foreach ($brands as $key => $name)
                                             <option value="{{ $key }}">{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group mr-3">
+                                    <select class="form-control select-multiple2" name="supplier[]" data-placeholder="Select Supplier.." multiple>
+                                        @foreach ($activSuppliers as $activSupplier)
+                                            <option value="{{ $activSupplier->id }}">{{ $activSupplier->supplier }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -869,7 +876,7 @@
             }
         });
 
-        function sendMSG(id) {
+        function sendMSG(id, size) {
             var supplier_id = $('#supplier_' + id).val();
 
             supplier_id = JSON.stringify(supplier_id);
@@ -895,7 +902,8 @@
                 data: {
                     id: id,
                     message: message,
-                    supplier_id: supplier_id
+                    supplier_id: supplier_id,
+                    size: size
                 }
             }).done(response => {
                 $('#btnmsg_' + id).val('SendSMG');
