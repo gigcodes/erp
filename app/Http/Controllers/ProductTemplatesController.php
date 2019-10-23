@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use File;
 use Illuminate\Http\Request;
+use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ProductTemplatesController extends Controller
@@ -41,6 +42,14 @@ class ProductTemplatesController extends Controller
         $template->fill(request()->all());
 
         if ($template->save()) {
+            
+            if (!empty($request->get('product_media_list')) && is_array($request->get('product_media_list'))) {
+                foreach ($request->get('product_media_list') as $mediaid) {
+                    $media = Media::find($mediaid);
+                    $template->attachMedia($media, config('constants.media_tags'));
+                }
+            }
+
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $image) {
                     $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
@@ -134,5 +143,32 @@ class ProductTemplatesController extends Controller
 
         return response()->json(["code" => 0, "message" => "Sorry, can not find product template in record"]);
 
+    }
+    
+    /**
+     * Show the image for selecting product id.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function selectProductId(Request $request)
+    {
+        $html = '';
+        $productId = $request->get('product_id');
+        if ($productId) {
+            $product = \App\Product::where('id', $productId)->first();
+            if ($product) {
+                foreach ($product->media as $k => $media) {
+                    $html .= '<div class="col-sm-3" style="padding-bottom: 10px;">
+                                <div class="imagePreview">
+                                    <img src="'.$media->getUrl().'" width="100%" height="100%">
+                                </div>
+                                <label class="btn btn-primary">
+                                    <input type="checkbox" name="product_media_list[]" value="'.$media->id.'"> Select
+                                </label>
+                            </div>';
+                }
+            }
+        }
+        return response()->json(["data" => $html]);
     }
 }
