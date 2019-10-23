@@ -244,12 +244,12 @@
                 if ($this.hasClass("has-all-selected") === false) {
                     $this.html("Deselect " + vcount);
                     if (vcount == 'all') {
-                        $(".select-pr-list-chk").prop("checked", true).change();
+                        $(".select-pr-list-chk").prop("checked", true).trigger('change');
                     } else {
                         var boxes = $(".select-pr-list-chk");
                         for (i = 0; i < vcount; i++) {
                             try {
-                                $(boxes[i]).prop("checked", true).change();
+                                $(boxes[i]).prop("checked", true).trigger('change');
                             } catch (err) {
                             }
                         }
@@ -258,12 +258,12 @@
                 } else {
                     $this.html("Select " + vcount);
                     if (vcount == 'all') {
-                        $(".select-pr-list-chk").prop("checked", false).change();
+                        $(".select-pr-list-chk").prop("checked", false).trigger('change');
                     } else {
                         var boxes = $(".select-pr-list-chk");
                         for (i = 0; i < vcount; i++) {
                             try {
-                                $(boxes[i]).prop("checked", false).change();
+                                $(boxes[i]).prop("checked", false).trigger('change');
                             } catch (err) {
                             }
                         }
@@ -271,14 +271,14 @@
                     $this.removeClass("has-all-selected");
                 }
 
-                // Add all images to array
+                /*// Add all images to array
                 image_array = [];
                 console.log(all_product_ids.length);
                 for (i = 0; i < all_product_ids.length && i < vcount; i++) {
                     image_array.push(all_product_ids[i]);
                 }
                 image_array = unique(image_array);
-                console.log(image_array);
+                console.log(image_array);*/
             })
         });
 

@@ -2075,6 +2075,8 @@ class WhatsAppController extends FindByNumberController
                        // $image = 'https://cdn.vox-cdn.com/thumbor/Pkmq1nm3skO0-j693JTMd7RL0Zk=/0x0:2012x1341/1200x800/filters:focal(0x0:2012x1341)/cdn.vox-cdn.com/uploads/chorus_image/image/47070706/google2.0.0.jpg';
                         if (isset($request->to_all)) {
                             $customers = Customer::all();
+                        } elseif (!empty($request->customers_id) && is_array($request->customers_id)) {
+                            $customers = Customer::whereIn('id', $request->customers_id)->get();
                         }elseif ($request->customers != null) {
                             $customers = Customer::whereIn('id', $request->customers)->get();
                         } elseif ($request->rating != null && $request->gender == null) {
@@ -2095,8 +2097,16 @@ class WhatsAppController extends FindByNumberController
                         }
                     }
                 } else {
+                    if (!empty($request->redirect_back)) {
+                        return redirect($request->redirect_back)->with('message', 'Images Send SucessFully');
+                    }
                     return redirect()->back()->with('message', 'Please Select Products');
                 }
+
+                if ($request->redirect_back) {
+                    return redirect($request->redirect_back)->with('message', 'Images Send SucessFully');
+                }
+
                 return redirect()->back()->with('message', 'Images Send SucessFully');
 
             }elseif($context == 'old'){

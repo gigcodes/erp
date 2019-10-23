@@ -8,14 +8,14 @@
 
     .page {
         margin: 0 auto;
-        width: 1005px;
+        width: 90%;
         height: 1015px;
         text-align: center;
     }
 
     img.product {
         margin: 50px;
-        width: auto;
+        width: 100%;
         height: 915px;
         border-bottom: 20px solid #eee;
     }
