@@ -591,24 +591,24 @@ class ProductInventoryController extends Controller
 				if($order) {
 				  	
 				  	$instruction->customer_id = $order->customer_id;
-				  	$order->order_status = "Delivered";
-				  	$order->save();
+				  	//$order->order_status = "Delivered";
+				  	//$order->save();
 
 				  	if($order->customer) {
 				  		$customer = $order->customer;
-				  		$product->location =  null;
-					    $product->save();
+				  		//$product->location =  null;
+					    //$product->save();
 				  	}
 				}
 			}
 
-			$customerId = request()->get("customer_id",0);
+			$assign_to = request()->get("assign_to",0);
 
-			if($customerId > 0) {
-				$customer = \App\Customer::where('id',$customerId)->first();
+			if($assign_to > 0) {
+				$user = \App\User::where('id',$assign_to)->first();
 			}
 			// if customer object found then send message
-			if(!empty($customer)) {
+			if(!empty($user)) {
 				$messageData = implode("\n",[
 			  		"We have dispatched your parcel",
 			  		$params["courier_name"],
@@ -618,9 +618,9 @@ class ProductInventoryController extends Controller
 			    $params['approved'] = 1;
 			    $params['message']  = $messageData;
 			    $params['status']   = 2;
-			    $params['customer_id'] = $customer->id;
+			    $params['user_id'] = $user->id;
 
-			    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,$messageData);
+			    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
 			    $chat_message = \App\ChatMessage::create($params);
 			}
 
@@ -653,6 +653,8 @@ class ProductInventoryController extends Controller
 		$instruction->instruction = $params["instruction_message"];
 		$instruction->assigned_from = \Auth::user()->id;
 		$instruction->assigned_to = $params["assign_to"];
+		$instruction->product_id = $params["product_id"];
+		$instruction->order_id = $params["order_id"];
 		$instruction->save();
 
 
@@ -680,8 +682,8 @@ class ProductInventoryController extends Controller
 	{
 
 		$productId = request()->get("product_id",0);
-		$users = \App\User::all()->pluck("name","id");
-		$product = \App\Product::where("id",$productId)->first();
+		//$users = \App\User::all()->pluck("name","id");
+		//$product = \App\Product::where("id",$productId)->first();
 
 		return view("instock.dispatch_create",compact(['productId','users','order']));
 
@@ -704,8 +706,8 @@ class ProductInventoryController extends Controller
         $productDispatch = new \App\ProductDispatch;
         $productDispatch->fill($request->all());
         $productDispatch->save();
-			
-		$uploaded_images = [];	
+
+        $uploaded_images = [];	
 
         if ($request->hasFile('file')) {
             try{
@@ -718,6 +720,55 @@ class ProductInventoryController extends Controller
                // return response($exception->getMessage(), $exception->getCode());
             }
         }
+        
+        if ($request->get('product_id') > 0 ) {
+        	$instruction = \App\Instruction::where('product_id', $request->get('product_id'))->where('customer_id', '>', '0')->orderBy('id', 'desc')->first();
+			if ($instruction) {
+
+				$customer = \App\Customer::where('id',$instruction->customer_id)->first();
+
+				// if customer object found then send message
+				if(!empty($customer)) {
+					$params = [];
+					$messageData = implode("\n",[
+				  		"We have dispatched your parcel",
+				  		$request->awb,
+				  		$request->modeof_shipment	
+				  	]);
+
+				    $params['approved'] = 1;
+				    $params['message']  = $messageData;
+				    $params['status']   = 2;
+				    $params['customer_id'] = $customer->id;
+
+				    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,$messageData);
+				    $chat_message = \App\ChatMessage::create($params);
+
+				    if ($productDispatch->hasMedia(config('constants.media_tags'))) {
+		                foreach ($productDispatch->getMedia(config('constants.media_tags')) as $image) {
+		                	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,null, $image->getUrl());
+		                    $chat_message->attachMedia($image, config('constants.media_tags'));
+		                }
+		            }
+				    
+				}
+
+				$order = \App\Order::where("id",$instruction->order_id)->first();
+				if($order) {
+				  	
+				  	$order->order_status = "Delivered";
+				  	$order->save();
+
+				  	if($order->customer) {
+				  		$product = \App\Product::where("id",$instruction->product_id)->first();
+				  		$product->location =  null;
+					    $product->save();
+				  	}
+				}
+			}
+		}
+
+		
 
         return response()->json(["code" => 1, "message" => "Done"]);
 
