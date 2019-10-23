@@ -115,7 +115,7 @@ class ProductTemplatesController extends Controller
 
             if ($record->hasMedia(config('constants.media_tags'))) {
                 foreach ($record->getMedia(config('constants.media_tags')) as $i => $media) {
-                    $array["image" . ($i + 1)] = $media->getUrl();
+                    $data["image" . ($i + 1)] = $media->getUrl();
                 }
             }
         }
