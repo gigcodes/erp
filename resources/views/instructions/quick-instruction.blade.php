@@ -8,7 +8,7 @@
 @section('content')
     <div class="container">
         <h1>Quick Instruction</h1>
-        @if ( $instruction != null )
+        @if ( $instruction != null && isset($instruction->customer->id) )
             <div class="row">
                 <div class="col-md-12">
                     <table class="table table-bordered">
@@ -23,9 +23,7 @@
                         </tr>
                         <tr>
                             <td>
-                                @if (isset($instruction->customer->id))
-                                    <span data-twilio-call data-context="customers" data-id="{{ $instruction->customer->id }}">{{ $instruction->customer->phone }}</span>
-                                @endif
+                                <span data-twilio-call data-context="customers" data-id="{{ $instruction->customer->id }}">{{ $instruction->customer->phone }}</span>
                             </td>
                             <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
                             <td>{{ $instruction->instruction }}</td>
@@ -105,7 +103,7 @@
                 </div>
             </div>
         @else
-            <h2>No more instructions</h2>
+            <h2>No more instructions or no customer found (code: {{ $instruction->id }})</h2>
         @endif
     </div>
 
