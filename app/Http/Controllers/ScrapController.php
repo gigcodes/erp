@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Brand;
 use App\Category;
 use App\Helpers\ProductHelper;
@@ -19,14 +23,11 @@ use App\Services\Scrap\PinterestScraper;
 use App\Services\Products\GnbProductsCreator;
 use App\Supplier;
 use App\Loggers\LogScraper;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Storage;
 use Carbon\Carbon;
-use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\Products\ProductsCreator;
 
 class ScrapController extends Controller
