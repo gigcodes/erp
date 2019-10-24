@@ -735,6 +735,12 @@ class ProductInventoryController extends Controller
 
 			    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
 			    $chat_message = \App\ChatMessage::create($params);
+			    if ($product->hasMedia(config('constants.media_tags'))) {
+	                foreach ($product->getMedia(config('constants.media_tags')) as $image) {
+	                	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,null, $image->getUrl());
+	                    $chat_message->attachMedia($image, config('constants.media_tags'));
+	                }
+	            }
 			}
 
 		}elseif ($params['instruction_type'] == "location") {
@@ -758,6 +764,12 @@ class ProductInventoryController extends Controller
 
 				    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
 				    $chat_message = \App\ChatMessage::create($params);
+				    if ($product->hasMedia(config('constants.media_tags'))) {
+		                foreach ($product->getMedia(config('constants.media_tags')) as $image) {
+		                	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,null, $image->getUrl());
+		                    $chat_message->attachMedia($image, config('constants.media_tags'));
+		                }
+		            }
 				}
 			}
 		}
