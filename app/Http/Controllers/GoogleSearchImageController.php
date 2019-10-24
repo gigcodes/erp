@@ -7,6 +7,8 @@ use App\Category;
 use App\Setting;
 use Illuminate\Http\Request;
 
+use Google\Cloud\Vision\V1\ImageAnnotatorClient;
+
 class GoogleSearchImageController extends Controller
 {
     /**
@@ -16,6 +18,8 @@ class GoogleSearchImageController extends Controller
      */
     public function index(Request $request)
     {
+        //$fileName = 'D:\pravin_project\soloux\sololux-erp\public\uploads\0a2243e085dfaf7ae30db984b3ae2129.jpeg';
+        
         $data     = [];
         $term     = $request->input( 'term' );
         $data['term']     = $term;
@@ -127,4 +131,54 @@ class GoogleSearchImageController extends Controller
 
         return view( 'google_search_image.index', $data );
     }
+
+    private static function _loadImageAnnotator()
+    {
+        // Check if credentials exist
+        if (!file_exists(base_path('config/GoogleVision.json'))) {
+             die( "Please add the Google credentials json file to " . base_path( 'config/GoogleVision.json' ) );
+        }
+
+        // Return image annotator client
+        return new ImageAnnotatorClient([
+            'credentials' => base_path("config/GoogleVision.json")
+        ]);
+    }
+
+    public function searchImageOnGoogle(Request $request)
+    {
+        $this->validate($request, [
+            'product_ids' => 'required'
+        ]);
+
+        $message = '';
+        $productIds = $request->get('product_ids');
+        if (is_array($productIds)) {
+            $productArr = Product::with('media')->whereIn('id', $productIds)->get();
+            if ($productArr) {
+                foreach ($productArr as $product) {
+                    foreach ($product->media as $media) {
+                        // Load image
+                        try {
+                            $image = file_get_contents($media->getAbsolutePath());
+                        } catch (\Exception $e) {
+                            // Skip this image
+                            continue;
+                        }
+
+                        // Get response or skip on error
+                        try {
+                            $response = $imageAnnotator->labelDetection($image);
+                        } catch (\Exception $e) {
+                            continue;
+                        }
+
+                    }
+                }
+            }
+        } else {
+            $message = 'Please Select Products';
+        }
+        return redirect()->back()->with('message', $message);
+    } 
 }

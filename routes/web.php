@@ -289,6 +289,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/productinventory/stock/{product}', 'ProductInventoryController@stock')->name('productinventory.stock');
 
     Route::get('/google-search-image', 'GoogleSearchImageController@index')->name('google.search.image');
+    Route::post('/google-search-image', 'GoogleSearchImageController@searchImageOnGoogle');
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');

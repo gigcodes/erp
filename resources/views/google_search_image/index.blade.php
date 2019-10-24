@@ -84,32 +84,35 @@
 
   <div class="productGrid" id="productGrid">
     {!! $products->appends(Request::except('page'))->links() !!}
-      <div class="row">
-        @foreach ($products as $product)
-        <div class="col-md-3 col-xs-6 text-center">
-          <a href="{{ route('products.show', $product->id) }}">
-            <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
-                ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
-                : ''
-              }}" class="img-responsive grid-image" alt="" />
-            <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
-            <p>Transist Status : {{ $product->purchase_status }}</p>
-            <p>Location : {{ ($product->location) ? $product->location : "" }}</p>
-            <p>Sku : {{ $product->sku }}</p>
-            <p>Id : {{ $product->id }}</p>
-            <p>Size : {{ $product->size}}</p>
-            <p>Price : {{ $product->price_special }}</p>
+     <form  method="POST" action="{{route('google.search.image')}}">
+      {{ csrf_field() }}
+        <div class="row">
+          @foreach ($products as $product)
+          <div class="col-md-3 col-xs-6 text-center">
+            <a href="{{ route('products.show', $product->id) }}">
+              <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
+                  ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                  : ''
+                }}" class="img-responsive grid-image" alt="" />
+              <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
+              <p>Transist Status : {{ $product->purchase_status }}</p>
+              <p>Location : {{ ($product->location) ? $product->location : "" }}</p>
+              <p>Sku : {{ $product->sku }}</p>
+              <p>Id : {{ $product->id }}</p>
+              <p>Size : {{ $product->size}}</p>
+              <p>Price : {{ $product->price_special }}</p>
 
-            <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
-          </a>
+              <input type="checkbox" class="select-product-edit" name="product_ids[]" value="{{ $product->id }}">
+            </a>
+          </div>
+          @endforeach
         </div>
-        @endforeach
-      </div>
-      <div class="row">
-        <div class="col text-center">
-          <button type="button" class="btn btn-image my-3" id="sendImageMessage"><img src="/images/filled-sent.png" /></button>
+        <div class="row">
+          <div class="col text-center">
+            <button type="submit" class="btn btn-image my-3" id="sendImageMessage"><img src="/images/filled-sent.png" /></button>
+          </div>
         </div>
-      </div>
+      </form>
       {!! $products->appends(Request::except('page'))->links() !!}
   </div>
 
