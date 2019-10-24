@@ -354,6 +354,119 @@ class ProductInventoryController extends Controller
 		return view( 'instock.index', $data );
 	}
 
+	public function inDelivered(Request $request)
+	{
+		$data     = [];
+		$term     = $request->input( 'term' );
+		$data['term']     = $term;
+
+		$productQuery = ( new Product() )->newQuery()->latest();
+		if ($request->brand[0] != null) {
+			$productQuery = $productQuery->whereIn('brand', $request->brand);
+			$data['brand'] = $request->brand[0];
+		}
+
+		if ($request->color[0] != null) {
+			$productQuery = $productQuery->whereIn('color', $request->color);
+			$data['color'] = $request->color[0];
+		}
+
+		if (isset($request->category) && $request->category[0] != 1) {
+			$is_parent = Category::isParent($request->category[0]);
+			$category_children = [];
+
+			if ($is_parent) {
+				$childs = Category::find($request->category[0])->childs()->get();
+
+				foreach ($childs as $child) {
+					$is_parent = Category::isParent($child->id);
+
+					if ($is_parent) {
+						$children = Category::find($child->id)->childs()->get();
+
+						foreach ($children as $chili) {
+							array_push($category_children, $chili->id);
+						}
+					} else {
+						array_push($category_children, $child->id);
+					}
+				}
+			} else {
+				array_push($category_children, $request->category[0]);
+			}
+
+			$productQuery = $productQuery->whereIn('category', $category_children);
+
+			$data['category'] = $request->category[0];
+		}
+
+		if (isset($request->price) && $request->price != null) {
+			$exploded = explode(',', $request->price);
+			$min = $exploded[0];
+			$max = $exploded[1];
+
+			if ($min != '0' || $max != '10000000') {
+				$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+			}
+
+			$data['price'][0] = $min;
+			$data['price'][1] = $max;
+		}
+
+		if ($request->location[0] != null) {
+			$productQuery = $productQuery->whereIn('location', $request->location);
+			$data['location'] = $request->location[0];
+		}
+
+		if ($request->no_locations) {
+			$productQuery = $productQuery->whereNull('location');
+		}
+
+		if (trim($term) != '') {
+			$productQuery = $productQuery->where(function ($query) use ($term){
+ 	    		$query->orWhere( 'sku', 'LIKE', "%$term%" )
+					  ->orWhere( 'id', 'LIKE', "%$term%" );
+			});
+
+
+			if ( $term == - 1 ) {
+				$productQuery = $productQuery->where(function ($query){
+				 															return $query->orWhere( 'isApproved', - 1 );
+									 });
+			}
+
+			if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
+				$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
+				$productQuery = $productQuery->where(function ($query) use ($brand_id){
+																			return $query->orWhere( 'brand', 'LIKE', "%$brand_id%" );});
+			}
+
+			if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
+				$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
+				$productQuery = $productQuery->where(function ($query) use ($term){
+								return $query->orWhere( 'category', CategoryController::getCategoryIdByName( $term ));} );
+			}
+
+		}
+
+		$selected_categories = $request->category ? $request->category : 1;
+
+		$data['category_selection'] = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple2'])
+		                                        ->selected($selected_categories)
+		                                        ->renderAsDropdown();
+
+
+//		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
+		
+		if ($request->get('shoe_size', false)) {
+            $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
+        }
+
+        $data[ 'products' ] = $productQuery->where('products.purchase_status', '=', 'Delivered')->paginate( Setting::get( 'pagination' ) );
+
+		return view( 'indelivered.index', $data );
+	}
+
 	public function magentoSoapUpdateStock($product,$stockQty){
 
 		$options = array(
@@ -591,8 +704,8 @@ class ProductInventoryController extends Controller
 				if($order) {
 				  	
 				  	$instruction->customer_id = $order->customer_id;
-				  	//$order->order_status = "Delivered";
-				  	//$order->save();
+				  	$order->order_status = "Delivered";
+				  	$order->save();
 
 				  	if($order->customer) {
 				  		$customer = $order->customer;
@@ -722,6 +835,10 @@ class ProductInventoryController extends Controller
         }
         
         if ($request->get('product_id') > 0 ) {
+        	$product = \App\Product::where("id",$request->get('product_id'))->first();
+	  		$product->purchase_status =  'Delivered';
+	  		$product->location =  null;
+		    $product->save();
         	$instruction = \App\Instruction::where('product_id', $request->get('product_id'))->where('customer_id', '>', '0')->orderBy('id', 'desc')->first();
 			if ($instruction) {
 
@@ -751,19 +868,6 @@ class ProductInventoryController extends Controller
 		                }
 		            }
 				    
-				}
-
-				$order = \App\Order::where("id",$instruction->order_id)->first();
-				if($order) {
-				  	
-				  	$order->order_status = "Delivered";
-				  	$order->save();
-
-				  	if($order->customer) {
-				  		$product = \App\Product::where("id",$instruction->product_id)->first();
-				  		$product->location =  null;
-					    $product->save();
-				  	}
 				}
 			}
 		}
