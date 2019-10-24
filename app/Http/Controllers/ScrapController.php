@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Brand;
 use App\Category;
 use App\Helpers\ProductHelper;
@@ -19,14 +23,11 @@ use App\Services\Scrap\PinterestScraper;
 use App\Services\Products\GnbProductsCreator;
 use App\Supplier;
 use App\Loggers\LogScraper;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Storage;
 use Carbon\Carbon;
-use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\Products\ProductsCreator;
 
 class ScrapController extends Controller
@@ -124,10 +125,11 @@ class ScrapController extends Controller
             $scrapStatistics->save();
 
             // Set values for existing scraped product
+            $scrapedProduct->url = $request->get('url');
             $scrapedProduct->properties = $request->get('properties');
             $scrapedProduct->is_sale = $request->get('is_sale') ?? 0;
-            $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title'));
-            $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'));
+            $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title'), 'name');
+            $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'), 'short_description');
             $scrapedProduct->brand_id = $brand->id;
             $scrapedProduct->currency = $request->get('currency');
             $scrapedProduct->price = (float)$request->get('price');
@@ -159,8 +161,8 @@ class ScrapController extends Controller
             $scrapedProduct->is_sale = $request->get('is_sale') ?? 0;
             $scrapedProduct->has_sku = 1;
             $scrapedProduct->url = $request->get('url');
-            $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title') ?? 'N/A');
-            $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'));
+            $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title') ?? 'N/A', 'name');
+            $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'), 'short_description');
             $scrapedProduct->properties = $request->get('properties');
             $scrapedProduct->currency = ProductHelper::getCurrency($request->get('currency'));
             $scrapedProduct->price = (float)$request->get('price');
@@ -362,5 +364,187 @@ class ScrapController extends Controller
         return redirect()->back()->with('message', 'Excel Imported Successfully!');
 
 
+    }
+
+    public function saveSupplier(Request $request)
+    {
+        $this->validate($request, [
+            'supplier' => 'required'
+        ]);
+
+        $s = Supplier::where('supplier', $request->get('supplier'))->first();
+
+        if ($s) {
+            $s->email = $request->get('email');
+            $s->save();
+
+            return response()->json([
+                'message' => 'Added successfully!'
+            ]);
+        }
+
+        $params = [
+            'supplier' => ucwords($request->get('supplier')),
+            'phone' => str_replace('+', '', $request->get('phone')),
+            'address' => $request->get('address'),
+            'website' => $request->get('website'),
+            'email' => $request->get('email'),
+            'social_handle' => $request->get('social_handle'),
+            'instagram_handle' => $request->get('instagram_handle'),
+        ];
+
+        Supplier::create($params);
+
+        return response()->json([
+            'message' => 'Added successfully!'
+        ]);
+
+    }
+
+    /**
+     * Save incoming data from scraper
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function saveFromNewSupplier(Request $request)
+    {
+        // Overwrite website
+        $request->website = 'internal_scraper';
+
+        // Log before validating
+        LogScraper::LogScrapeValidationUsingRequest($request);
+
+        // Find product
+        $product = Product::find($request->get('id'));
+
+        // Return false if no product is found
+        if ($product == null) {
+            return response()->json([
+                'status' => 'Error processing your request (#1)'
+            ], 400);
+        }
+
+        // Return an error if the current product status is not set to scrape
+        if ($product->status_id != StatusHelper::$isBeingScraped) {
+            return response()->json([
+                'status' => 'Error processing your request (#2)'
+            ], 400);
+        }
+
+        // Set product to unable to scrape - will be updated later if we have info
+        $product->status_id = StatusHelper::$unableToScrape;
+        $product->save();
+
+        // Validate request
+        $validator = Validator::make($request->toArray(), [
+            'id' => 'required',
+            'website' => 'required',
+            'images' => 'required|array',
+            'description' => 'required'
+        ]);
+
+        // Return an error if the validator fails
+        if ($validator->fails()) {
+            return response()->json($validator->messages(), 400);
+        }
+
+        // Set proper website name
+        $website = str_replace(' ', '', $request->get('website'));
+
+        // If product is found, update it
+        if ($product) {
+            // Set basic data
+            $product->short_description = $request->get('description');
+            $product->composition = $request->get('material_used');
+            $product->color = $request->get('color');
+            $product->description_link = $request->get('url');
+            $product->made_in = $request->get('country');
+
+            // Set optional data
+            if (!$product->lmeasurement) {
+                $product->lmeasurement = $request->get('dimension')[ 0 ] ?? '0';
+            }
+            if (!$product->hmeasurement) {
+                $product->hmeasurement = $request->get('dimension')[ 1 ] ?? '0';
+            }
+            if (!$product->dmeasurement) {
+                $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
+            }
+
+            // Download images
+            $images = $this->downloadImagesForSites($request->get('images'), $website);
+
+            // Check if we have images
+            if (is_array($images) && count($images) > 0) {
+                // Loop over images
+                foreach ($images as $image_name) {
+                    // Set path
+                    $path = public_path('uploads') . '/social-media/' . $image_name;
+
+                    // Add media from source
+                    $media = MediaUploader::fromSource($path)->upload();
+
+                    // Attach media
+                    $product->attachMedia($media, config('constants.media_tags'));
+                }
+
+                // Set is without image to 0 (false)
+                $product->is_without_image = 0;
+                $product->status_id = StatusHelper::$AI;
+                $product->save();
+
+                // Call status update handler
+                StatusHelper::updateStatus($product, StatusHelper::$AI);
+            } else {
+                // Save product with status 'unable to scrape images'
+                $product->is_without_image = 1;
+                $product->status_id = StatusHelper::$unableToScrapeImages;
+                $product->save();
+            }
+
+            // Return response
+            return response()->json([
+                'status' => 'Product processed'
+            ]);
+        }
+
+        // Still here? Return error
+        return response()->json([
+            'status' => 'Error processing your request (#99)'
+        ], 400);
+    }
+
+    public function processProductLinks(Request $request)
+    {
+        $pendingUrl = array();
+        $links = $request->links;
+
+        if (is_array($links)) {
+            foreach ($links as $link) {
+                $logScraper = LogScraper::select('url', 'sku', 'updated_at')->where('url', $link)->where('website', $request->website)->first();
+
+                if ($logScraper != null) {
+                    Log::channel('productUpdates')->debug("[log_scraper] Found existing product with url " . $link);
+                    $logScraper->touch();
+                    $logScraper->save();
+
+                    // Load scraped product and update last_inventory_at
+                    $scrapedProduct = ScrapedProducts::where('sku', ProductHelper::getSku($logScraper->sku))->where('website', $request->website)->first();
+
+                    if ($scrapedProduct != null) {
+                        Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($logScraper->sku));
+                        $scrapedProduct->url = $link;
+                        $scrapedProduct->last_inventory_at = Carbon::now();
+                        $scrapedProduct->save();
+                    } else {
+                        $pendingUrl[] = $link;
+                    }
+                } else {
+                    $pendingUrl[] = $link;
+                }
+            }
+        }
+
+        return $pendingUrl;
     }
 }

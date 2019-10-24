@@ -11,7 +11,11 @@
              <div class="form-group row">
                 <label for="template_no" class="col-sm-3 col-form-label">Template No</label>
                 <div class="col-sm-6">
-                   <?php echo Form::select("template_no",range(1,30),null,["class" => "form-control"]); ?>
+                   <?php echo Form::select("template_no",range(1,30),null,["class" => "form-control template_no"]); ?>
+                </div>
+                <div class="col-sm-3">
+                  <div class="image_template_no" style="position: absolute; width: 85%;">
+                  </div>
                 </div>
              </div>
              <div class="form-group row">
@@ -50,6 +54,7 @@
                    <?php echo Form::text("discounted_price",(float)0.00,["class" => "form-control"]); ?>
                 </div>
              </div>
+             <div class="form-group row show-product-image"> </div>
              <div class="form-group row">
               <div class="col-sm-3 imgUp">
                  <div class="imagePreview"></div>

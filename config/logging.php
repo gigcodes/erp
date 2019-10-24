@@ -84,13 +84,15 @@ return [
         /* Custom log files */
 
         'listMagento'=> [
-            'driver' => 'single',
+            'driver' => 'daily',
             'path' => storage_path('logs/list-magento.log'),
+            'days' => 7,
         ],
 
         'productUpdates'=> [
-            'driver' => 'single',
+            'driver' => 'daily',
             'path' => storage_path('logs/product-updates.log'),
+            'days' => 7,
         ],
 
         'chatapi' => [
@@ -101,8 +103,9 @@ return [
         ],
 
         'whatsapp'=> [
-            'driver' => 'single',
-            'path' => storage_path('logs/whatsapp.log'),
+            'driver' => 'daily',
+            'path' => storage_path('logs/whatsapp/whatsapp.log'),
+            'days' => 7,
         ],
     ],
 

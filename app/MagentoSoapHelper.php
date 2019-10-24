@@ -94,7 +94,10 @@ class MagentoSoapHelper
         $meta[ 'description' ] = 'Shop ' . $product->brands->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $product->product_category->title . ' Largest collection of luxury products in the world from Solo luxury at special prices';
 
         // If sizes are given we create a configurable product and several single child products
-        if (!empty($product->size)) {
+        if (!empty($product->size) && $product->size == 'OS') {
+            $product->size = null;
+            $result = $this->_pushSingleProduct($product, $categories, $meta);
+        } elseif (!empty($product->size)) {
             $result = $this->_pushConfigurableProductWithChildren($product, $categories, $meta);
         } else {
             $result = $this->_pushSingleProduct($product, $categories, $meta);
