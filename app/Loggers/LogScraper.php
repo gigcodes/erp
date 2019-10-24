@@ -6,6 +6,7 @@ namespace App\Loggers;
 use App\Helpers\ProductHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Request;
+use App\SkuFormat;
 
 class LogScraper extends Model
 {
@@ -26,6 +27,9 @@ class LogScraper extends Model
 
         // Validate SKU
         $errorLog .= self::validateSku($request->sku);
+
+        //Check Regrex SKU
+        $warningLog .= self::validateRegrexSku($request->sku);
 
         // Validate brand
         $errorLog .= self::validateBrand(!empty($request->brand) ? $request->brand : '');
@@ -67,6 +71,8 @@ class LogScraper extends Model
 
         // For excels we only need the SKU
         if ($isExcel == 1 && isset($request->sku)) {
+
+           
             // Replace errors with warnings
             $errorLog = str_replace('[error]', '[warning]', $errorLog);
 
@@ -294,5 +300,28 @@ class LogScraper extends Model
 
         // Return IP
         return $ip;
+    }
+
+    public static function validateRegrexSku($sku){
+
+         $sku_request = $sku;
+         $sku_all = SkuFormat::all();
+            $check_counter = 0;
+            foreach ($sku_all as $skus) {
+               preg_match('/'.$skus->sku_format.'/', $sku_request , $matches, PREG_UNMATCHED_AS_NULL);
+                    if(isset($matches) && isset($matches[0]) && $matches != null){
+                        if($matches[0] == $sku_request){
+                            $check_counter++;
+                            break;
+                        }else{
+                       
+                       }
+                    }else{
+                    
+                    } 
+            }
+            if($check_counter == 0){
+                return "[warning] SKU is not present in regrex\n";
+            }
     }
 }
