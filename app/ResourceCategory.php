@@ -16,7 +16,7 @@ class ResourceCategory extends Model{
   public $fillable = ['title'];
 
   public function childs() {
-    return $this->hasMany(__CLASS__,'parent_id','id') ;
+    return $this->hasOne(__CLASS__,'parent_id','id') ;
   }
 
   public function parent()
