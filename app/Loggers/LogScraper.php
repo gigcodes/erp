@@ -307,6 +307,7 @@ class LogScraper extends Model
         //Getting SKu
         $skuRequest = $sku;
         //Finding Brand id From Brand
+        if($brand != null){
         $brand = Brand::where('name',$brand)->first();
         if($brand != null){
         //Getting SKU from brand id    
@@ -321,6 +322,7 @@ class LogScraper extends Model
                     }else{
                         return "[warning] SKU is not present in regrex\n";
                     } 
-                }  
+                }
+             }     
     }
 }
