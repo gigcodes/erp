@@ -523,6 +523,7 @@ class ScrapController extends Controller
                 $logScraper = LogScraper::select('url', 'sku', 'updated_at')->where('url', $link)->where('website', $request->website)->first();
 
                 if ($logScraper != null) {
+                    Log::channel('productUpdates')->debug("[log_scraper] Found existing product with url " . $link);
                     $logScraper->touch();
                     $logScraper->save();
 
@@ -530,6 +531,7 @@ class ScrapController extends Controller
                     $scrapedProduct = ScrapedProducts::where('sku', ProductHelper::getSku($logScraper->sku))->where('website', $request->website)->first();
 
                     if ($scrapedProduct != null) {
+                        Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($logScraper->sku));
                         $scrapedProduct->url = $link;
                         $scrapedProduct->last_inventory_at = Carbon::now();
                         $scrapedProduct->save();
