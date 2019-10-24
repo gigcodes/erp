@@ -11,7 +11,8 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">List Resources Center</h2>
             <div class="pull-left">
-                <form action="{{ route('document.index') }}" method="GET">
+                    <br>
+               <!--  <form action="{{ route('document.index') }}" method="GET">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-md-4">
@@ -42,7 +43,7 @@
 
                         </div>
                     </div>
-                </form>
+                </form> -->
             </div>
             <div class="pull-right">
                 <a href="{{ url('/resourceimg/pending/1') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
@@ -71,7 +72,7 @@
                     </div>
                 @endif
 		      
-		        <div class="table-responsive col-md-12">
+		        <div class="table-responsive col-md-12" style="margin-top : 30px;">
 		          <table class="table table-striped table-bordered" style="border: 1px solid #ddd;">
 		            <thead>
 		              <tr>
@@ -90,8 +91,8 @@
 				                <tr>
 				                	<td>{{($key+1)}}</td>
 					                <td>@if(isset($resources->category->title)) {{ $resources->category->title }} @endif</td>
-					                <td>@if(isset($resources->category->childs->title)) {{ $resources->category->childs->title }} @endif</td>
-					                <td><a href="{{$resources['url']}}" title="View Url" target="_blank">Click Here</a></td>
+					                <td>@if(isset($resources->sub_category->title)) {{ $resources->sub_category->title }} @endif</td>
+					                <td><a href="{{ $resources['url'] }}" title="View Url" target="_blank">Click Here</a></td>
 					                <td><a href="{{ action('ResourceImgController@imagesResource', $resources['id']) }}" title="View Images">View</a></td>
 		    		                <td>{{date("l, d/m/Y",strtotime($resources['updated_at']))}}</td>
 		    		                <td>{{ucwords($resources['created_by'])}}</td>

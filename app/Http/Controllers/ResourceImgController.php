@@ -1,13 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 
-ini_set('post_max_size', '64M');
-ini_set('upload_max_filesize', '64M');
-
-
 use App\ResourceCategory;
 use App\ResourceImage;
 use Illuminate\Http\Request;
+use Auth;
 
 class ResourceImgController extends Controller{
 
@@ -182,6 +179,19 @@ class ResourceImgController extends Controller{
 		//$parent_category = ResourceCategory::where('parent_id', '=', 0)->get();
 		//dd($parent_category);				
 		return view('resourceimg.pending',compact('Categories','allresources','categories'));
+	}
+
+	public function activateResourceCat(Request $request)
+	{
+		$ids = $request->id;	
+		foreach ($ids as $id) {
+			$resourceImage = ResourceImage::findorfail($id);
+			$resourceImage->is_pending = 0;
+			$resourceImage->created_by = Auth::user()->name;
+			$resourceImage->update();
+
+		}
+		return back()->with('success', 'New Resource image added successfully.'); 
 	}
 
 	

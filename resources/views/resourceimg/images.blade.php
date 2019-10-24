@@ -13,9 +13,12 @@
 		      <div class="panel-body">
 		        <h4>
 		        	<b>Category ::</b> {{@$title}}
+		        	
+		        	@if(isset($allresources->sub_category->title))
 		        	<br>
 		        	<br>
-		        	<b>Sub Category :: {{ $allresources->sub_category }} </b> 
+		        	<b>Sub Category :: </b>  {{ $allresources->sub_category->title }} 
+		        	@endif
 		        	{!! Form::open(['route'=>'delete.resource']) !!}
         			    <input type="hidden" name="id" value="{{$allresources['id']}}">
         			    <button type="submit" name="button_type" value="delete" class="pull-right btn btn-image"><img src="/images/delete.png" /></button>

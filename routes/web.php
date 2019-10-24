@@ -169,6 +169,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('add-resourceCat', 'ResourceImgController@addResourceCat')->name('add.resourceCat');
     Route::post('edit-resourceCat', 'ResourceImgController@editResourceCat')->name('edit.resourceCat');
     Route::post('remove-resourceCat', 'ResourceImgController@removeResourceCat')->name('remove.resourceCat');
+    Route::post('acitvate-resourceCat', 'ResourceImgController@activateResourceCat')->name('activate.resourceCat');
+    
     Route::get('resourceimg/pending','ResourceImgController@pending');
 
 

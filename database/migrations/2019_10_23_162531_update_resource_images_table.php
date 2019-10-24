@@ -14,7 +14,7 @@ class UpdateResourceImagesTable extends Migration
     public function up()
     {
         Schema::table('resource_images', function($table){
-            $table->string('images')->nullabe();
+            $table->longText('images')->nullabe();
             $table->integer('sub_cat_id')->nullabe();
             $table->integer('is_pending')->default(0);
 
