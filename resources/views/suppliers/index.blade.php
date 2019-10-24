@@ -116,7 +116,7 @@
                   <button type="button" class="btn btn-image call-select popup" data-id="{{ $supplier->id }}"><img src="/images/call.png"/></button>
                   <div class="numberSend" id="show{{ $supplier->id }}">
                   <select class="form-control call-twilio" data-context="suppliers" data-id="{{ $supplier->id }}" data-phone="{{ $supplier->phone }}">
-                    <option value="">Select Number</option>
+                     <option disabled selected>Select Number</option>
                     @foreach(\Config::get("twilio.caller_id") as $caller)
                     <option value="{{ $caller }}">{{ $caller }}</option>
                     @endforeach

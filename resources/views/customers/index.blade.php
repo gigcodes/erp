@@ -344,7 +344,7 @@
 
                                 <div class="numberSend" id="show{{ $customer->id }}">
                                     <select class="form-control call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}">
-                                    <option value="">Select Number</option>
+                                    <option disabled selected>Select Number</option>
                                     @foreach(\Config::get("twilio.caller_id") as $caller)
                                     <option value="{{ $caller }}">{{ $caller }}</option>
                                     @endforeach
