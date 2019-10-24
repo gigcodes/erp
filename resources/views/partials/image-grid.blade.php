@@ -103,7 +103,7 @@
                         </select>
                     </div>
 
-                    @if (!Auth::user()->hasRole('Admin'))
+                    @if (Auth::user()->hasRole('Admin'))
                         <div class="form-group mr-3">
                             <select class="form-control select-multiple" name="location[]" multiple data-placeholder="Location...">
                                 <optgroup label="Locations">

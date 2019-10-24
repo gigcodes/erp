@@ -2084,7 +2084,7 @@ class WhatsAppController extends FindByNumberController
                         } elseif ($request->rating != null && $request->gender != null) {
                             $customers = Customer::where('rating', $request->rating)->where('gender', $request->gender)->get();
                         } else {
-                            return redirect()->back()->with('message', 'Please select Category');
+                            return redirect(route('quicksell.index'))->with('message', 'Please select Category');
                         }
 
                        // dd($customers);
@@ -2092,7 +2092,7 @@ class WhatsAppController extends FindByNumberController
                             foreach ($customers as $customer) {
                             $data[ 'customer_id' ] = $customer->id;
                             $chat_message = ChatMessage::create($data);
-                            $this->sendWithThirdApi($customer->phone, '', '', $image, '', '');
+                            $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $image, '', '');
                            } 
                         }
                     }
@@ -2100,14 +2100,14 @@ class WhatsAppController extends FindByNumberController
                     if (!empty($request->redirect_back)) {
                         return redirect($request->redirect_back)->with('message', 'Images Send SucessFully');
                     }
-                    return redirect()->back()->with('message', 'Please Select Products');
+                    return redirect(route('quicksell.index'))->with('message', 'Please Select Products');
                 }
 
                 if ($request->redirect_back) {
                     return redirect($request->redirect_back)->with('message', 'Images Send SucessFully');
                 }
 
-                return redirect()->back()->with('message', 'Images Send SucessFully');
+                return redirect(route('quicksell.index'))->with('message', 'Images Send SucessFully');
 
             }elseif($context == 'old'){
                 
