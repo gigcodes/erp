@@ -521,7 +521,7 @@ class ScrapController extends Controller
 
         if (is_array($links)) {
             foreach ($links as $link) {
-                $logScraper = LogScraper::select('url', 'sku', 'updated_at')->where('url', $link)->where('website', $request->website)->first();
+                $logScraper = LogScraper::where('url', $link)->where('website', $request->website)->first();
 
                 if ($logScraper != null) {
                     Log::channel('productUpdates')->debug("[log_scraper] Found existing product with url " . $link);

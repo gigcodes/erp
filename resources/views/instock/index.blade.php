@@ -312,7 +312,7 @@
 
       var $this = $(this);
       var instructionModal = $("#crt-attach-images-model");
-      instructionModal.find("#images").val(JSON.stringify($this.data('media-ids').split(",")));
+      instructionModal.find("#images").val(JSON.stringify(($this.data('media-ids') + '').split(",")));
       instructionModal.modal("show");
     });
 
