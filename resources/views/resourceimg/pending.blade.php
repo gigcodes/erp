@@ -46,12 +46,7 @@
             </div>
             <div class="pull-right">
                 <a href="{{ route('document.email') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
-                <button type="button" class="btn btn-secondary" title="Add Category" data-toggle="modal" data-target="#addcategory">Add Category</button>
-                <button type="button" class="btn btn-secondary" title="Edit Category" data-toggle="modal" data-target="#editcategory">Edit Category</button>
-               	<button type="button" class="btn btn-image" title="Add Resource" data-toggle="modal" data-target="#addresource">
-		        	   		<i class="fa fa-plus"></i>
-		        	   	</button>
-
+                <button type="button" class="btn btn-secondary" id="selectAll">Select All</button>
             </div>
         </div>
     
@@ -76,6 +71,7 @@
 		            <thead>
 		              <tr>
   		              	<th style="width: 2%;">#</th>
+                        <th style="width: 2%;">Checkbox</th>
   		              	<th style="width: 10%;">Category</th>
   		              	<th style="width: 10%;">Sub Category</th>
   		              	<th style="width: 10%;">Url</th>
@@ -89,6 +85,7 @@
 				            @foreach($allresources as $key => $resources)
 				                <tr>
 				                	<td>{{($key+1)}}</td>
+                                    <td><input type="checkbox" value="{{ $resources->id }}" name="id" class="form-control checkBox" id="globalCheckbox">
 					                <td>{{ $resources->category->title }}</td>
 					                <td>@if(isset($resources->category->childs->title)) {{ $resources->category->childs->title }} @endif</td>
 					                <td><a href="{{$resources['url']}}" title="View Url" target="_blank">Click Here</a></td>
@@ -170,6 +167,16 @@
             });
         });
 
+        $(document).ready(function() {
+            $("#selectAll").on("click", function(){
+               if($(".checkBox").length == $("checkbox:checked").length) {
+                $(".checkBox").prop("checked", true);
+                }else {
+                    $(".checkBox").prop("checked", false);            
+                }
+            });
+
+         });
     </script>
 	<script type="text/javascript">
 		function PasteImage(){var e=document.getElementById("my_canvas").toDataURL();$("#cpy_img").val(e),$("#save_img").fadeIn(200),$(".msg").empty(),$(".msg").css("color","green"),$(".msg").text("Image Loaded Successfully."),$(".can_id").attr("placeholder","Image Loaded Successfully, Paste another to change."),$("#src_img").attr("src",e)}var CLIPBOARD=new CLIPBOARD_CLASS("my_canvas",!0);function CLIPBOARD_CLASS(e,t){var a=this,n=document.getElementById(e),i=document.getElementById(e).getContext("2d");document.addEventListener("paste",function(e){"can_id"==e.target.id&&(console.log(e),a.paste_auto(e))},!1),this.paste_auto=function(e){if(e.clipboardData){var t=e.clipboardData.items;if(!t)return;for(var a=!1,n=0;n<t.length;n++)if($("#cpy_img").val(""),-1!==t[n].type.indexOf("image")){var i=t[n].getAsFile(),c=(window.URL||window.webkitURL).createObjectURL(i);this.paste_createImage(c),a=!0}1==a?(e.preventDefault(),$(".msg").text("Image Loading, Please Wait."),$(".msg").css("color","red"),setTimeout(PasteImage,5e3)):(e.preventDefault(),$(".can_id").attr("placeholder","Please paste only image."))}},this.paste_createImage=function(e){var a=new Image;a.onload=function(){1==t?(n.width=a.width,n.height=a.height):i.clearRect(0,0,n.width,n.height),i.drawImage(a,0,0)},a.src=e}}

@@ -20,9 +20,9 @@ class ResourceImgController extends Controller{
 		$Categories = ResourceCategory::attr(['name' => 'parent_id','class' => 'form-control'])
 		                            ->selected( $old ? $old : 1)
 		                            ->renderAsDropdown();
-		$parent_category = ResourceCategory::where('parent_id', '=', 0)->get();
-						
-		return view('resourceimg.index',compact('Categories','allresources','categories','parent_category'));
+		//$parent_category = ResourceCategory::where('parent_id', '=', 0)->get();
+		//dd($parent_category);				
+		return view('resourceimg.index',compact('Categories','allresources','categories'));
 	}
 
 	public function addResourceCat(Request $request) {
@@ -78,29 +78,23 @@ class ResourceImgController extends Controller{
 
 	public function addResource(Request $request) {
 		$input = $request->all();
-		// echo "<pre>"; print_r($input); 	die("image");
-		// $this->validate($request, ['parent_id' => 'required:different:1',],['parent_id.required' => 'You have to choose the category !',]);
-		if($request->input('parent_id') == 1){
+		
+		if($request->input('cat_id') == 1){
 			return back()->with('danger','Please Select Category.');	
 		}
 
-	    if($request->hasFile('image1')) {
-	        $image = $request->file('image1');
-	       	$name = uniqid().time().'.'.$image->getClientOriginalExtension();
+		if($request->hasFile('image')) {
+			 $images = $request->file('image');
+		foreach ($images as $image) {
+			$name = uniqid().time().'.'.$image->getClientOriginalExtension();
 	        $destinationPath = public_path('/category_images');
 	        $image->move($destinationPath, $name);
-       	    $input['image1']=$name;
-	    }
-	    if($request->input('image2') != ""){
-    		$img = $request->input('image2');
-    		$img = str_replace('data:image/png;base64,', '', $img);
-    		$img = str_replace(' ', '+', $img);
-    		$data = base64_decode($img);
-    		$filename= uniqid().time().'.png';
-    		$file = public_path('/category_images/').$filename;
-    		$success = file_put_contents($file, $data);
-       	    $input['image2']=$filename;
-	    }
+       	    $input['images'][]=$name;
+
+			}
+		 }
+	    $input['images'] = json_encode($input['images']);
+	       
 	    if(ResourceImage::create($input))
 	    	return back()->with('success', 'New Resource image added successfully.'); 
 	    else
@@ -140,7 +134,7 @@ class ResourceImgController extends Controller{
 	public function imagesResource($id) {
 		$ResourceImage = new ResourceImage();
 		$allresources = $ResourceImage->find($id);
-	    $title="";
+		$title="";
 	    if($allresources){
 	    	$categories = ResourceCategory::where('id','=',$allresources->cat_id)->get()->first();
 	    	$parent_id = $categories->parent_id;
@@ -157,12 +151,41 @@ class ResourceImgController extends Controller{
 	    	  krsort($titlestr);
 	    	  $title=implode(" >> ", $titlestr);
 	    	}
+	    	$sub_cat = ResourceCategory::select('id','title')->where('id','=',$allresources->sub_cat_id)->first();
 	    	$url=$allresources->url;
 	    	$description=$allresources->description;
-			return view('resourceimg.images',compact('allresources','title','url','description'));
+			return view('resourceimg.images',compact('allresources','title','url','description','sub_cat'));
 	    }
 		else
 			return redirect()->route('resourceimg.index'); 
 	}
+
+	public function getSubCategoryByCategory(Request $request){
+
+		$sub =  ResourceCategory::where('parent_id',$request->selected)->get();
+
+		$output = '';
+
+            foreach ($sub as $sub_cat) {
+                $output .= '<option value="' . $sub_cat[ "id" ] . '">' . $sub_cat[ "title" ] . '</option>';
+            }
+            echo $output;
+
+    }
+
+    public function pending(Request $request) {
+
+		$categories = ResourceCategory::where('parent_id', '=', 0)->get();
+		$allresources = ResourceImage::orderby('id','desc')->where('is_pending',1)->paginate(15);
+		$old = $request->old('parent_id');
+		$Categories = ResourceCategory::attr(['name' => 'parent_id','class' => 'form-control'])
+		                            ->selected( $old ? $old : 1)
+		                            ->renderAsDropdown();
+		//$parent_category = ResourceCategory::where('parent_id', '=', 0)->get();
+		//dd($parent_category);				
+		return view('resourceimg.pending',compact('Categories','allresources','categories'));
+	}
+
+	
 
 }

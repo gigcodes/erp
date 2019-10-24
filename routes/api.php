@@ -56,6 +56,7 @@ Route::post('products/enhance', 'Products\ProductEnhancementController@store');
 Route::post('users/updatePermission', 'PermissionController@updatePermission');
 Route::post('userLogs', 'UserLogController@store');
 Route::post('values-as-per-user','DocumentController@getDataByUserType')->name('getDataByUserType');
+Route::post('values-as-per-category','ResourceImgController@getSubCategoryByCategory')->name('imageResourceSubcategory');
 Route::post('get-customers','QuickSellController@getCustomers')->name('getCustomers');
 
 Route::get('product-template', 'ProductTemplatesController@apiIndex');

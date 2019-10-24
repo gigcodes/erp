@@ -8,20 +8,17 @@
 					</div>
 				    <div class="modal-body">
 						<div class="row">
-							<div class="col-md-4">
-				                <div class="form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
-				                    <label>Category List</label>
-				                    <ul id="tree1">
-				                       
-				                    </ul>
-				                </div>
-							</div>
 							<div class="col-md-8">
 				                <div class="row">
 				                	<div class="col-md-12">
   		                                <div class="form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
-  		                                    {!! Form::label('Parent Category:') !!}
-  		                	                <?=@$Categories?>
+  		                                   
+  		                                   <select class="form-control" name="parent_id" data-live-search="true" id="category_id">
+  		                                   		<option>Dont Select For Category</option>
+					  		                	@foreach($categories as $category)
+					  		                		<option value="{{ $category->id }}">{{ $category->title }}</option>
+					  		                	@endforeach
+					  		                	</select>
   		                                    <span class="text-danger">{{ $errors->first('parent_id') }}</span>
   		                                </div>
 				                	</div>

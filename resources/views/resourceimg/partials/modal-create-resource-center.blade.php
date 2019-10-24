@@ -10,29 +10,34 @@
 						<div class="row">
 							<div class="col-md-12">
 				                <div class="row">
-				                	<div class="col-md-8 col-md-offset-2">
-				  		                <div class="form-group">
-				  		                	
-				  		                	<div class="input-group {{ $errors->has('cat_id') ? 'has-error' : '' }}">
-					  		                	
-					  		                	<span class="input-group-btn">
-	            		  		                    <button type="button" class="btn btn-image" title="Add Category" data-toggle="modal" data-target="#addcategory">
-	            					        			<i class="fa fa-plus"></i>
-	            					        	   	</button>
-	            					        	   	<button type="button" class="btn btn-image" title="Edit Category" data-toggle="modal" data-target="#editcategory">
-	            					        			<i class="fa fa-pencil"></i>
-	            					        	   	</button>
-					  		                	</span>
-				  		                	</div>
-				  		                    <span class="text-danger">{{ $errors->first('cat_id') }}</span>
-				  		                </div>
-				                	</div>
+	        	                	<div class="col-md-8 col-md-offset-2">
+	        			                <div class="form-group {{ $errors->has('image1') ? 'has-error' : '' }}">
+	        			                     {!! Form::label('Select Category:') !!}
+					  		                	<div class="input-group {{ $errors->has('cat_id') ? 'has-error' : '' }}">
+				  		                		<select class="form-control" name="cat_id" data-live-search="true" id="category_id">
+
+					  		                	@foreach($categories as $category)
+					  		                		<option value="{{ $category->id }}">{{ $category->title }}</option>
+					  		                	@endforeach
+					  		                	</select>
+	        			                </div>
+	        			            </div>
+				                </div>
+				            </div>
+				                <div class="row">
+	        	                	<div class="col-md-8 col-md-offset-2">
+	        			                <div class="form-group {{ $errors->has('image1') ? 'has-error' : '' }}">
+	        			                    
+					  		                	<select id="sub_cat_id" name="sub_cat_id" class="form-control">
+												</select>
+	        			                </div>
+	        			            </div>
 				                </div>
 				                <div class="row">
 	        	                	<div class="col-md-8 col-md-offset-2">
 	        			                <div class="form-group {{ $errors->has('image1') ? 'has-error' : '' }}">
 	        			                    {!! Form::label('Upload Image:') !!}
-	        			                    <input type="file" name="image1" placeholder="Upload Image">
+	        			                    <input type="file" name="image[]" placeholder="Upload Image" multiple>
 	        			                    <span class="text-danger">{{ $errors->first('image1') }}</span>
 	        			                </div>
 	        			            </div>

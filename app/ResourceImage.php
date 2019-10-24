@@ -7,17 +7,19 @@ use Illuminate\Support\Facades\Auth;
 use DB;
 class ResourceImage extends Model{
 
-  protected $fillable = ['cat_id','image1'];
+  protected $fillable = ['cat_id','image1','image','is_pending','sub_cat_id'];
 
   public function category(){
     return $this->hasOne('App\ResourceCategory','id','cat_id');
   }
 
+
   static public function create($input){
+    //dd($input);
     $resourceimg = new ResourceImage;
-    $resourceimg->cat_id = $input['parent_id'];
-    $resourceimg->image1 = @$input['image1'];
-    $resourceimg->image2 = @$input['image2'];
+    $resourceimg->cat_id = $input['cat_id'];
+    $resourceimg->sub_cat_id = $input['sub_cat_id'];
+    $resourceimg->images = @$input['images'];
     $resourceimg->url = @$input['url'];
     $resourceimg->description = @$input['description'];
     $resourceimg->created_at = date("Y-m-d H:i:s");

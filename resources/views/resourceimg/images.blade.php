@@ -13,6 +13,7 @@
 		      <div class="panel-body">
 		        <h4>
 		        	<b>Category ::</b> {{@$title}}
+		        	<b>Sub Category :: </b> {{ $sub_cat->title }}
 		        	{!! Form::open(['route'=>'delete.resource']) !!}
         			    <input type="hidden" name="id" value="{{$allresources['id']}}">
         			    <button type="submit" name="button_type" value="delete" class="pull-right btn btn-image"><img src="/images/delete.png" /></button>
@@ -38,6 +39,17 @@
 		        						alt="{{URL::to('/category_images/'.$allresources['image2'])}}" 
 		        						style="width: 100% !important;height: 250px !important;">
 		        	</div>
+		        	@endisset
+		        	@isset($allresources['images'])
+		        	@foreach(json_decode($allresources['images']) as $image){
+		        	<div class="col-md-6" style="margin-top: 15px">
+		        		<img onclick="OpenModel(this.id)" 
+		        			 id="myImg2" class="myImg" src="{{URL::to('/category_images/'.$image)}}" 
+		        						alt="{{URL::to('/category_images/'.$image)}}" 
+		        						style="width: 100% !important;height: 250px !important;">
+		        	</div>
+
+		        	@endforeach
 		        	@endisset
 		        </div>
 		      </div>
