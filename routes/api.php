@@ -60,3 +60,4 @@ Route::post('values-as-per-user','DocumentController@getDataByUserType')->name('
 Route::post('get-customers','QuickSellController@getCustomers')->name('getCustomers');
 
 Route::get('product-template', 'ProductTemplatesController@apiIndex');
+Route::post('product-template', 'ProductTemplatesController@apiSave');

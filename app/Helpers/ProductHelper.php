@@ -85,7 +85,7 @@ class ProductHelper extends Model
         return $sku;
     }
 
-    public static function getRedactedText($text)
+    public static function getRedactedText($text, $context = null)
     {
         // Get all replacements
         if (count(self::$_attributeReplacements) == 0) {
@@ -95,7 +95,9 @@ class ProductHelper extends Model
         // Loop over all replacements
         if (self::$_attributeReplacements !== null) {
             foreach (self::$_attributeReplacements as $replacement) {
-                $text = str_ireplace($replacement->first_term, $replacement->replacement_term, $text);
+                if ($context == null || $context == $replacement->field_identifier) {
+                    $text = str_ireplace($replacement->first_term, $replacement->replacement_term, $text);
+                }
             }
 
             // Remove html special chars
@@ -213,6 +215,6 @@ class ProductHelper extends Model
     public static function getBrandSegment($name, $select, $attr = array())
     {
         $brandSegment = ["A" => "A", "B" => "B", "C" => "C"];
-        return \Form::select($name, $brandSegment , $select, $attr);
+        return \Form::select($name, $brandSegment, $select, $attr);
     }
 }
