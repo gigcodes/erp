@@ -7,6 +7,7 @@ use App\Helpers\ProductHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Request;
 use App\SkuFormat;
+use App\Brand;
 
 class LogScraper extends Model
 {
@@ -29,7 +30,7 @@ class LogScraper extends Model
         $errorLog .= self::validateSku($request->sku);
 
         //Check Regrex SKU
-        $warningLog .= self::validateRegrexSku($request->sku);
+        $warningLog .= self::validateRegexSku($request->sku,$request->brand);
 
         // Validate brand
         $errorLog .= self::validateBrand(!empty($request->brand) ? $request->brand : '');
@@ -302,26 +303,24 @@ class LogScraper extends Model
         return $ip;
     }
 
-    public static function validateRegrexSku($sku){
+    public static function validateRegexSku($sku,$brand){
+        //Getting SKu
+        $skuRequest = $sku;
+        //Finding Brand id From Brand
+        $brand = Brand::where('name',$brand)->first();
+        if($brand != null){
+        //Getting SKU from brand id    
+        $skus = SkuFormat::where('brand_id',$brand->id)->first();
+            //checking match
+            preg_match('/'.$skus->sku_format.'/', $skuRequest , $matches, PREG_UNMATCHED_AS_NULL);
 
-         $sku_request = $sku;
-         $sku_all = SkuFormat::all();
-            $check_counter = 0;
-            foreach ($sku_all as $skus) {
-               preg_match('/'.$skus->sku_format.'/', $sku_request , $matches, PREG_UNMATCHED_AS_NULL);
                     if(isset($matches) && isset($matches[0]) && $matches != null){
-                        if($matches[0] == $sku_request){
-                            $check_counter++;
-                            break;
-                        }else{
-                       
-                       }
+                        if($matches[0] != $skuRequest){
+                            return "[warning] SKU is not present in regrex\n";
+                        }
                     }else{
-                    
+                        return "[warning] SKU is not present in regrex\n";
                     } 
-            }
-            if($check_counter == 0){
-                return "[warning] SKU is not present in regrex\n";
-            }
+                }  
     }
 }
