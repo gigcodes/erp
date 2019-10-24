@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Request;
 class LogScraper extends Model
 {
     protected $table = 'log_scraper';
-    protected $fillable = ['ip_address', 'website', 'url', 'sku', 'brand', 'title', 'description', 'properties', 'images', 'size_system', 'currency', 'price', 'discounted_price',];
+    protected $fillable = ['ip_address', 'website', 'url', 'sku', 'brand', 'title', 'description', 'properties', 'images', 'size_system', 'currency', 'price', 'discounted_price'];
 
     public static function LogScrapeValidationUsingRequest($request, $isExcel = 0)
     {
