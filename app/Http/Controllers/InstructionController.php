@@ -452,7 +452,7 @@ class InstructionController extends Controller
     public function quickInstruction(Request $request)
     {
         // Load first open instruction
-        $instructions = Instruction::where('verified', 0)->where('pending', 0)->whereNull('completed_at')->whereNotNull('customer_id');
+        $instructions = Instruction::where('verified', 0)->whereNull('completed_at')->whereNotNull('customer_id');
 
         // Set type
         if ($request->type != null) {
