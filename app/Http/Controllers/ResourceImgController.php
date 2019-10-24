@@ -15,13 +15,12 @@ class ResourceImgController extends Controller{
 
 
 		$categories = ResourceCategory::where('parent_id', '=', 0)->get();
-		$allresources = ResourceImage::orderby('id','desc')->paginate(15);
+		$allresources = ResourceImage::orderby('id','desc')->where('is_pending',0)->paginate(15);
 		$old = $request->old('parent_id');
 		$Categories = ResourceCategory::attr(['name' => 'parent_id','class' => 'form-control'])
 		                            ->selected( $old ? $old : 1)
 		                            ->renderAsDropdown();
-		//$parent_category = ResourceCategory::where('parent_id', '=', 0)->get();
-		//dd($parent_category);				
+		
 		return view('resourceimg.index',compact('Categories','allresources','categories'));
 	}
 
@@ -151,10 +150,9 @@ class ResourceImgController extends Controller{
 	    	  krsort($titlestr);
 	    	  $title=implode(" >> ", $titlestr);
 	    	}
-	    	$sub_cat = ResourceCategory::select('id','title')->where('id','=',$allresources->sub_cat_id)->first();
 	    	$url=$allresources->url;
 	    	$description=$allresources->description;
-			return view('resourceimg.images',compact('allresources','title','url','description','sub_cat'));
+			return view('resourceimg.images',compact('allresources','title','url','description'));
 	    }
 		else
 			return redirect()->route('resourceimg.index'); 

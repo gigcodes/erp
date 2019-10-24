@@ -13,6 +13,10 @@ class ResourceImage extends Model{
     return $this->hasOne('App\ResourceCategory','id','cat_id');
   }
 
+  public function sub_category(){
+    return $this->hasOne('App\ResourceCategory','id','sub_cat_id');
+  }
+
 
   static public function create($input){
     //dd($input);
@@ -26,7 +30,6 @@ class ResourceImage extends Model{
     $resourceimg->updated_at = date("Y-m-d H:i:s");
     $resourceimg->created_by = Auth::user()->name;
     return $resourceimg->save();
-  	// echo "<pre>"; print_r($resourceimg);die("herer");
   }
 
   static public function getData(){

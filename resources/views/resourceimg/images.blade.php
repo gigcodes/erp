@@ -13,11 +13,18 @@
 		      <div class="panel-body">
 		        <h4>
 		        	<b>Category ::</b> {{@$title}}
-		        	<b>Sub Category :: </b> {{ $sub_cat->title }}
+		        	<br>
+		        	<br>
+		        	<b>Sub Category :: {{ $allresources->sub_category }} </b> 
 		        	{!! Form::open(['route'=>'delete.resource']) !!}
         			    <input type="hidden" name="id" value="{{$allresources['id']}}">
         			    <button type="submit" name="button_type" value="delete" class="pull-right btn btn-image"><img src="/images/delete.png" /></button>
-        			    <a href="{{ action('ResourceImgController@index')}}" class="pull-right btn btn-image"><i class="fa fa-reply"></i> Back</a>
+        			    @if($allresources['is_pending'] == 0)
+        			    	 <a href="{{ action('ResourceImgController@index')}}" class="pull-right btn btn-image"><i class="fa fa-reply"></i>
+        			    @else
+        			     	<a href="{{ url('resourceimg/pending/1')}}" class="pull-right btn btn-image"><i class="fa fa-reply"></i>
+        			    @endif
+        			    Back</a>
         			{!! Form::close() !!}
 		        </h4>
 		        <p><b>Resource Url ::</b> <a href="{{@$url}}">{{@$url}}</a></p>
@@ -41,7 +48,8 @@
 		        	</div>
 		        	@endisset
 		        	@isset($allresources['images'])
-		        	@foreach(json_decode($allresources['images']) as $image){
+		        	@if($allresources['images'] != null)
+		        	@foreach(json_decode($allresources['images']) as $image)
 		        	<div class="col-md-6" style="margin-top: 15px">
 		        		<img onclick="OpenModel(this.id)" 
 		        			 id="myImg2" class="myImg" src="{{URL::to('/category_images/'.$image)}}" 
@@ -50,6 +58,7 @@
 		        	</div>
 
 		        	@endforeach
+		        	@endif
 		        	@endisset
 		        </div>
 		      </div>

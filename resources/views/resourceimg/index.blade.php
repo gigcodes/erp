@@ -45,7 +45,7 @@
                 </form>
             </div>
             <div class="pull-right">
-                <a href="{{ route('document.email') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
+                <a href="{{ url('/resourceimg/pending/1') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
                 <button type="button" class="btn btn-secondary" title="Add Category" data-toggle="modal" data-target="#addcategory">Add Category</button>
                 <button type="button" class="btn btn-secondary" title="Edit Category" data-toggle="modal" data-target="#editcategory">Edit Category</button>
                	<button type="button" class="btn btn-image" title="Add Resource" data-toggle="modal" data-target="#addresource">
@@ -89,7 +89,7 @@
 				            @foreach($allresources as $key => $resources)
 				                <tr>
 				                	<td>{{($key+1)}}</td>
-					                <td>{{ $resources->category->title }}</td>
+					                <td>@if(isset($resources->category->title)) {{ $resources->category->title }} @endif</td>
 					                <td>@if(isset($resources->category->childs->title)) {{ $resources->category->childs->title }} @endif</td>
 					                <td><a href="{{$resources['url']}}" title="View Url" target="_blank">Click Here</a></td>
 					                <td><a href="{{ action('ResourceImgController@imagesResource', $resources['id']) }}" title="View Images">View</a></td>

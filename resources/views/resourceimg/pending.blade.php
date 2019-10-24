@@ -45,7 +45,7 @@
                 </form>
             </div>
             <div class="pull-right">
-                <a href="{{ route('document.email') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
+                <a href="{{ route('resourceimg.index') }}"><button type="button" class="btn btn-secondary">Active</button></a>
                 <button type="button" class="btn btn-secondary" id="selectAll">Select All</button>
             </div>
         </div>
@@ -86,7 +86,7 @@
 				                <tr>
 				                	<td>{{($key+1)}}</td>
                                     <td><input type="checkbox" value="{{ $resources->id }}" name="id" class="form-control checkBox" id="globalCheckbox">
-					                <td>{{ $resources->category->title }}</td>
+					                <td>@if($resources->category->title) {{ $resources->category->title }} @endif</td>
 					                <td>@if(isset($resources->category->childs->title)) {{ $resources->category->childs->title }} @endif</td>
 					                <td><a href="{{$resources['url']}}" title="View Url" target="_blank">Click Here</a></td>
 					                <td><a href="{{ action('ResourceImgController@imagesResource', $resources['id']) }}" title="View Images">View</a></td>
