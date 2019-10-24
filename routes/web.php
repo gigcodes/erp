@@ -282,6 +282,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/productapprover/isFinal/{product}', 'ProductApproverController@isFinal')->name('productapprover.isfinal');
 
     Route::get('/productinventory/in/stock', 'ProductInventoryController@instock')->name('productinventory.instock');
+    Route::get('/productinventory/in/delivered', 'ProductInventoryController@inDelivered')->name('productinventory.indelivered');
     Route::get('/productinventory/in/stock/instruction-create', 'ProductInventoryController@instructionCreate')->name('productinventory.instruction.create');
     Route::post('/productinventory/in/stock/instruction', 'ProductInventoryController@instruction')->name('productinventory.instruction');
     Route::get('/productinventory/in/stock/location-hisotory', 'ProductInventoryController@locationHistory')->name('productinventory.location.history');
@@ -318,11 +319,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('quickSell', 'QuickSellController@index')->name('quicksell.index');
     Route::post('quickSell', 'QuickSellController@store')->name('quicksell.store');
-    Route::post('quickSell/{id}/edit', 'QuickSellController@update')->name('quicksell.update');
+    Route::post('quickSell/edit', 'QuickSellController@update')->name('quicksell.update');
     Route::post('quickSell/saveGroup', 'QuickSellController@saveGroup')->name('quicksell.save.group');
     Route::get('quickSell/pending', 'QuickSellController@pending')->name('quicksell.pending');
     Route::post('quickSell/activate', 'QuickSellController@activate')->name('quicksell.activate');
     Route::post('quickSell/search', 'QuickSellController@search')->name('quicksell.search');
+     Route::post('quickSell/groupUpdate', 'QuickSellController@groupUpdate')->name('quicksell.group.update');
 
 
     // Chat messages
@@ -731,6 +733,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('response', 'ProductTemplatesController@response');
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
+        Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
     });
 
 });

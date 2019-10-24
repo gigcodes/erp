@@ -15,6 +15,7 @@ use App\Supplier;
 use App\ReadOnly\LocationList;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Response;
 
 class QuickSellController extends Controller
 {
@@ -52,7 +53,7 @@ class QuickSellController extends Controller
   		                                        ->renderAsDropdown();
 
       $locations = (new LocationList)->all();
-      $suppliers = Supplier::select(['id', 'supplier'])->get();
+      $suppliers = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier','asc')->get();
 
       $category_tree = [];
   		$categories_array = [];
@@ -70,8 +71,7 @@ class QuickSellController extends Controller
   			$categories_array[$category->id] = $category->parent_id;
   		}
 
-      $new_category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'product-category'])
-  		                                        ->renderAsDropdown();
+      $new_category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'product-category'])->renderAsDropdown();
         $api_keys = ApiKey::select('number')->get();
         $customers = Customer::orderBy('name','asc')->get();
 
@@ -121,15 +121,15 @@ class QuickSellController extends Controller
         $product = new Product;
 
         $product->name = $request->name;
-  		$product->sku = $request->sku;
-  		$product->size = $request->size ? implode(',', $request->size) : $request->other_size;
-  		$product->brand = $request->brand;
-  		$product->color = $request->color;
-  		$product->supplier = $request->supplier;
-  		$product->location = $request->location;
-  		$product->category = $request->category;
-  		$product->price = $request->price;
-  		$product->stock = 1;
+    		$product->sku = $request->sku;
+    		$product->size = $request->size ? implode(',', $request->size) : $request->other_size;
+    		$product->brand = $request->brand;
+    		$product->color = $request->color;
+    		$product->supplier = $request->supplier;
+    		$product->location = $request->location;
+    		$product->category = $request->category;
+    		$product->price = $request->price;
+    		$product->stock = 1;
         $product->quick_product = 1;
 
   		$brand = Brand::find($request->brand);
@@ -193,8 +193,9 @@ class QuickSellController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
+      $id = $request->id;
       $this->validate($request,[
   			'images.*' => 'sometimes | mimes:jpeg,bmp,png,jpg',
   		]);
@@ -215,7 +216,30 @@ class QuickSellController extends Controller
   			$product->price_special = $request->price_special;
   		}
 
-      $product->save();
+      $product->update();
+      //dd($request);
+      if($request->group_old != null){
+          ProductQuicksellGroup::where('product_id',$product->id)->delete();
+          $edit = new ProductQuicksellGroup();
+          $edit->quicksell_group_id = $request->group_old;
+          $edit->product_id = $product->id;
+          $edit->save();
+
+      }elseif($request->group_new != null){
+          ProductQuicksellGroup::where('product_id',$product->id)->delete();
+           $group = QuickSellGroup::orderBy('id', 'desc')->first();
+           
+           $group_create =  new QuickSellGroup();
+           $incrementId = ($group->group+1);
+           $group_create->group = $incrementId;
+           $group_create->name = $request->group_new;
+           $group_create->save();
+           
+           $edit = new ProductQuicksellGroup();
+           $edit->quicksell_group_id =  $group_create->group;
+           $edit->product_id = $product->id;
+           $edit->save();
+      }
 
       if ($request->hasfile('images')) {
         foreach ($request->file('images') as $image) {
@@ -225,7 +249,44 @@ class QuickSellController extends Controller
         }
       }
 
-      return redirect()->route('quicksell.index')->with('success', 'You have successfully updated Quick Product');
+      if(isset($product->supplier)){
+        $supplier = $product->supplier;
+      }else{
+        $supplier = '';
+      }
+
+      if(isset($product->price)){
+        $price = $product->price;
+      }else{
+        $price = '';
+      }
+
+       if(isset($product->brands->name)){
+        $brand = $product->brands->name;
+      }else{
+        $brand = '';
+      }
+
+      if(isset($product->product_category->title)){
+        $title = $product->product_category->title;
+      }else{
+        $title = '';
+      }
+
+      if($request->group_new == null && $request->group_old == null){
+        $input =  '<input type="checkbox" name="blank" class="group-checkbox checkbox" data-id='.$product->id.'>';  
+        $data = [$supplier,$price,$brand,$title,$input];
+      }
+      if($request->group_new != null){
+         $data = [$supplier,$price,$brand,$title,$request->group_new];
+      }
+      if($request->group_old != null){
+         $data = [$supplier,$price,$brand,$title,$request->group_old];
+      }
+      return Response::json(array(
+        'success' => true,
+        'data'   => $data));
+      //return redirect()->back()->with('success', 'You have successfully updated Quick Product');
     }
 
     /**
@@ -298,64 +359,65 @@ class QuickSellController extends Controller
      */
     public function pending(Request $request)
     {
-        if ($request->brand[0] != null) {
-            $products = (new Product())->newQuery()
-                ->where('quick_product', 1)->whereIn('brand', $request->brand);
+        
+      if($request->selected_products || $request->term  || $request->category || $request->brand || $request->color || $request->supplier ||
+            $request->location || $request->size || $request->price ){
 
-            $brand = $request->brand;
-        }
-
-        if ($request->category != 1) {
-            $is_parent = Category::isParent($request->category);
-            $category_children = [];
-
-            if ($is_parent) {
-                $childs = Category::find($request->category)->childs()->get();
-
-                foreach ($childs as $child) {
-                    $is_parent = Category::isParent($child->id);
-
-                    if ($is_parent) {
-                        $children = Category::find($child->id)->childs()->get();
-
-                        foreach ($children as $chili) {
-                            array_push($category_children, $chili->id);
-                        }
-                    } else {
-                        array_push($category_children, $child->id);
-                    }
-                }
-            } else {
-                array_push($category_children, $request->category);
+            $query  = Product::query();
+            if (request('term') != null) {
+                $query->where('sku', '=', request('term',0))
+                    ->orWhere('supplier', 'LIKE', request('term',0))
+                    ->orWhereHas('brands', function ($q) use ($request) {
+                    $q->where('name', 'like', "%{$request->term}%");
+                    })
+                    ->orWhereHas('product_category', function ($qu) use ($request) {
+                    $qu->where('title', 'like', "%{$request->term}%");
+                    });
+            }
+            if (request('category') != null) {
+                $query->whereIn('category', request('category',0));
+            }
+            if (request('brand') != null) {
+                $query->whereIn('brand', request('brand'));
+            }
+            if (request('color') != null) {
+                $query->whereIn('color', request('color'));
+            }
+            if (request('supplier') != null) {
+                $query->whereIn('supplier', request('supplier'));
+            }
+            if (request('location') != null) {
+                $query->where('location','LIKE', request('location',0));
+            }
+            if (request('size') != null) {
+                $query->where('size','LIKE', request('size'));
             }
 
-            if ($request->brand[0] != null) {
-                $products = $products->whereIn('category', $category_children);
-            } else {
-                $products = (new Product())->newQuery()
-                    ->where('quick_product', 1)->whereIn('category', $category_children);
+            if (request('group') != null) {
+                $query->orWhereHas('groups', function ($qu) use ($request) {
+                    $qu->whereIn('quicksell_group_id',$request->group);
+                    });
+            }
+            
+            if (request('price') != null) {
+                $price = (explode(",",$request->price));
+                $from = $price[0];
+                $to = $price[1];
+                $query->whereBetween('price',[ $from , $to ]);
             }
 
-            $category = $request->category;
-        }
-
-        if ($request->location[0] != null) {
-            if ($request->brand[0] != null || $request->category != 1) {
-                $products = $products->whereIn('location', $request->location);
-            } else {
-                $products = (new Product())->newQuery()
-                    ->where('quick_product', 1)->whereIn('location', $request->location);
+            if(request('per_page') != null){
+                $per_page = request('per_page');
+            }else{
+                $per_page = Setting::get('pagination');
             }
 
-            $location = $request->location[0];
-        }
+            $products = $query->where('quick_product',1)->where('is_pending',1)->paginate($per_page);
 
-        if ($request->brand[0] == null && ($request->category == null || $request->category == 1) && $request->location[0] == null) {
-            $products = (new Product())->newQuery()
-                ->where('quick_product', 1);
+        }else{
+            $products = Product::where('is_pending',1)->latest()->paginate(Setting::get('pagination'));
         }
-
-        $products = $products->where('is_pending',1)->latest()->paginate(Setting::get('pagination'));
+        
         $brands_all = Brand::all();
         $categories_all = Category::all();
         $brands = [];
@@ -418,16 +480,32 @@ class QuickSellController extends Controller
     }
 
     public function activate(Request $request){
+      //dd($request);
+        $ids = explode(',',$request->checkbox_value);
+        
+        if($request->id == null){
+           foreach ($ids as $id) {
+          $product = Product::findorfail($id);
+          $product->is_pending = 0;
+          $product->update();
+        }
+         
+        
+        }else{
+          
+          $product = Product::findorfail($request->id);
+          $product->is_pending = 0;
+          $product->update();
+        
 
-        $product = Product::findorfail($request->id);
-        $product->is_pending = 0;
-        $product->update();
+        }
+        
         return redirect()->route('quicksell.pending')->with('success', 'You have activated Quick Product');
     }
 
     public function search(Request $request)
     {
-
+        
         if($request->selected_products || $request->term  || $request->category || $request->brand || $request->color || $request->supplier ||
             $request->location || $request->size || $request->price ){
 
@@ -460,6 +538,14 @@ class QuickSellController extends Controller
             if (request('size') != null) {
                 $query->where('size','LIKE', request('size'));
             }
+
+            if (request('group') != null) {
+            //  dd('hello');
+                $query->orWhereHas('groups', function ($qu) use ($request) {
+                    $qu->whereIn('quicksell_group_id',$request->group);
+                    });
+            }
+            
             if (request('price') != null) {
                 $price = (explode(",",$request->price));
                 $from = $price[0];
@@ -473,7 +559,8 @@ class QuickSellController extends Controller
                 $per_page = Setting::get('pagination');
             }
 
-            $products = $query->where('quick_product',1)->paginate($per_page);
+            $products = $query->where('quick_product',1)->where('is_pending',0)->paginate($per_page);
+           
         }else{
             $products = Product::where('is_pending',0)->latest()->paginate(Setting::get('pagination'));
         }
@@ -542,6 +629,61 @@ class QuickSellController extends Controller
             'api_keys' =>  $api_keys,
             'customers' => $customers,
         ]);
+    }
+
+    public function groupUpdate(Request $request)
+    {
+      //dd($request);
+      if($request->groups != null){
+           ProductQuicksellGroup::where('product_id',$request->product_id)->delete();
+           $product = new ProductQuicksellGroup();
+           $product->product_id = $request->product_id;
+           $product->quicksell_group_id = $request->groups;
+           $product->save();
+
+           $group = QuickSellGroup::findorfail($request->groups);
+           $group->suppliers = json_encode($request->suppliers);
+           $group->brands = json_encode($request->brands);
+           $group->price = $request->buying_price;
+           $group->special_price = $request->special_price;
+           $group->categories =  json_encode($request->categories);
+           $group->update();
+
+
+      }else{
+         // dd($request);
+            $group = QuickSellGroup::orderBy('id', 'desc')->first();
+                if ($group != null) {
+                    $group_create =  new QuickSellGroup();
+                    $incrementId = ($group->group+1);
+                    $group_create->group = $incrementId;
+                    $group_create->name = $request->group_id;
+                    $group_create->suppliers = json_encode($request->suppliers);
+                    $group_create->brands = json_encode($request->brands);
+                    $group_create->price = $request->buying_price;
+                    $group_create->special_price = $request->special_price;
+                    $group_create->categories =  json_encode($request->categories);
+                    $group_create->save();
+                    $group_id = $group_create->group;
+                } else {
+                   $group =  new QuickSellGroup();
+                   $group->group = 1;
+                   $group->save();
+                   $group_id = $group->group;
+                }
+                if($group_id != null && $group_id != 0){
+                $product = new ProductQuicksellGroup();
+                $product->product_id = $request->product_id;
+                $product->quicksell_group_id = $group_id;
+                $product->save();
+              }
+
+      }
+
+      return redirect()->back()->with('success', 'Group Got Updated');
+
+
+
     }
 
 
