@@ -1593,23 +1593,23 @@
         });
 
         $(document).on('change', '.quickCategory', function () {
-            var replies = JSON.parse($(this).val());
-            var thiss = $(this);
-
-            $(this).siblings('.quickComment').empty();
-
-            $(this).siblings('.quickComment').append($('<option>', {
-                value: '',
-                text: 'Quick Reply'
-            }));
-
-            replies.forEach(function (reply) {
-                $(thiss).siblings('.quickComment').append($('<option>', {
-                    value: reply.reply,
-                    text: reply.reply,
-                    'data-id': reply.id
+            if($(this).val() != "") {
+                var replies = JSON.parse($(this).val());
+                var thiss = $(this);
+                $(this).closest("td").find('.quickComment').empty();
+                $(this).closest("td").find('.quickComment').append($('<option>', {
+                    value: '',
+                    text: 'Quick Reply'
                 }));
-            });
+
+                replies.forEach(function (reply) {
+                    $(thiss).closest("td").find('.quickComment').append($('<option>', {
+                        value: reply.reply,
+                        text: reply.reply,
+                        'data-id': reply.id
+                    }));
+                });
+            }
         });
 
         $(document).on('change', '.quickComment', function () {

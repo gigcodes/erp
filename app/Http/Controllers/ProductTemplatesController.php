@@ -98,12 +98,14 @@ class ProductTemplatesController extends Controller
             $records->where("b.name", "like", "%$q%");
         }
 
-        $records = $records->orderBy("product_templates.id", "desc")->paginate($limit);
+        $records->where("product_templates.is_processed", "=", 0);
 
+        $record = $records->orderBy("product_templates.id", "asc")->first();
         $data = [];
-        foreach ($records as $record) {
-            $array = [
+        if ($record) {
+            $data = [
                 "id"                     => $record->id,
+                "templateNumber"         => $record->template_no,
                 "productTitle"           => $record->product_title,
                 "productBrand"           => $record->brand_name,
                 "productPrice"           => $record->price,
@@ -113,15 +115,12 @@ class ProductTemplatesController extends Controller
 
             if ($record->hasMedia(config('constants.media_tags'))) {
                 foreach ($record->getMedia(config('constants.media_tags')) as $i => $media) {
-                    $array["image" . ($i + 1)] = $media->getUrl();
+                    $data["image" . ($i + 1)] = $media->getUrl();
                 }
             }
-
-            $data[] = $array;
-
         }
 
-        return response()->json(["code" => 1, "data" => $data]);
+        return response()->json($data);
 
     }
 
@@ -136,6 +135,9 @@ class ProductTemplatesController extends Controller
                     $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
                     $template->attachMedia($media, config('constants.media_tags'));
                 }
+
+                $template->is_processed = 1;
+                $template->save();
 
                 return response()->json(["code" => 1, "message" => "Product template updated successfully"]);
             }
