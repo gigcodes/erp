@@ -413,15 +413,7 @@ class ProductInventoryController extends Controller
 			$data['price'][1] = $max;
 		}
 
-		if ($request->location[0] != null) {
-			$productQuery = $productQuery->whereIn('location', $request->location);
-			$data['location'] = $request->location[0];
-		}
-
-		if ($request->no_locations) {
-			$productQuery = $productQuery->whereNull('location');
-		}
-
+		
 		if (trim($term) != '') {
 			$productQuery = $productQuery->where(function ($query) use ($term){
  	    		$query->orWhere( 'sku', 'LIKE', "%$term%" )

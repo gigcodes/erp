@@ -370,6 +370,8 @@
              $("#instruction-dispatch-model").find(".alert-danger").remove();
              $("#instruction-dispatch-model").find(".modal-body").prepend('<div class="alert alert-danger" role="alert">'+errors+'</div>');
            }else if(data.code == 1) {
+              $('.transist_status_'+(instructionForm.find('.instruction-pr-id').val())).text('Transist Status : Delivered');
+              $('.location_'+(instructionForm.find('.instruction-pr-id').val())).text('Location :');
               instructionForm.find(".alert-danger").remove();
               $("#instruction-dispatch-model").find(".modal-body").prepend('<div class="alert alert-success" role="alert">Instruction created successfully</div>');
               setTimeout(function(){ 

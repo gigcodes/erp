@@ -27,8 +27,8 @@
           : ''
         }}" class="img-responsive grid-image" alt="" />
       <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
-      <p>Transist Status : {{ $product->purchase_status }}</p>
-      <p>Location : {{ ($product->location) ? $product->location : "" }}</p>
+      <p class="transist_status_{{$product->id}}">Transist Status : {{ $product->purchase_status }}</p>
+      <p class="location_{{$product->id}}">Location : {{ ($product->location) ? $product->location : "" }}</p>
       <p>Sku : {{ $product->sku }}</p>
       <p>Id : {{ $product->id }}</p>
       <p>Size : {{ $product->size}}</p>
