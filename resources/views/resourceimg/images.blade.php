@@ -13,10 +13,21 @@
 		      <div class="panel-body">
 		        <h4>
 		        	<b>Category ::</b> {{@$title}}
+		        	
+		        	@if(isset($allresources->sub_category->title))
+		        	<br>
+		        	<br>
+		        	<b>Sub Category :: </b>  {{ $allresources->sub_category->title }} 
+		        	@endif
 		        	{!! Form::open(['route'=>'delete.resource']) !!}
         			    <input type="hidden" name="id" value="{{$allresources['id']}}">
         			    <button type="submit" name="button_type" value="delete" class="pull-right btn btn-image"><img src="/images/delete.png" /></button>
-        			    <a href="{{ action('ResourceImgController@index')}}" class="pull-right btn btn-image"><i class="fa fa-reply"></i> Back</a>
+        			    @if($allresources['is_pending'] == 0)
+        			    	 <a href="{{ action('ResourceImgController@index')}}" class="pull-right btn btn-image"><i class="fa fa-reply"></i>
+        			    @else
+        			     	<a href="{{ url('resourceimg/pending/1')}}" class="pull-right btn btn-image"><i class="fa fa-reply"></i>
+        			    @endif
+        			    Back</a>
         			{!! Form::close() !!}
 		        </h4>
 		        <p><b>Resource Url ::</b> <a href="{{@$url}}">{{@$url}}</a></p>
@@ -38,6 +49,19 @@
 		        						alt="{{URL::to('/category_images/'.$allresources['image2'])}}" 
 		        						style="width: 100% !important;height: 250px !important;">
 		        	</div>
+		        	@endisset
+		        	@isset($allresources['images'])
+		        	@if($allresources['images'] != null)
+		        	@foreach(json_decode($allresources['images']) as $image)
+		        	<div class="col-md-6" style="margin-top: 15px">
+		        		<img onclick="OpenModel(this.id)" 
+		        			 id="myImg2" class="myImg" src="{{URL::to('/category_images/'.$image)}}" 
+		        						alt="{{URL::to('/category_images/'.$image)}}" 
+		        						style="width: 100% !important;height: 250px !important;">
+		        	</div>
+
+		        	@endforeach
+		        	@endif
 		        	@endisset
 		        </div>
 		      </div>
