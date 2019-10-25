@@ -661,7 +661,9 @@ class ProductInventoryController extends Controller
 		   ->select(["o.id",\DB::raw("concat(o.id,' => ',o.client_name) as client_name")])->pluck("client_name",'id');
 		}
 
-		return view("instock.instruction_create",compact(['productId','users','customers','order','locations','couriers']));
+		$reply_categories = \App\ReplyCategory::all();
+
+		return view("instock.instruction_create",compact(['productId','users','customers','order','locations','couriers', 'reply_categories']));
 
 	}
 

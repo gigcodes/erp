@@ -250,6 +250,136 @@
 
     }
 
+
+    $(document).on('click', '.quick_category_add', function () {
+        var textBox = $(this).closest("div").find(".quick_category");
+
+        if (textBox.val() == "") {
+            alert("Please Enter Category!!");
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('add.reply.category') }}",
+            data: {
+                '_token': "{{ csrf_token() }}",
+                'name': textBox.val()
+            }
+        }).done(function (response) {
+            textBox.val('');
+            $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+        })
+    });
+
+    $(document).on('click', '.delete_category', function () {
+        var quickCategory = $(this).closest(".form-group").find(".quickCategory");
+
+        if (quickCategory.val() == "") {
+            alert("Please Select Category!!");
+            return false;
+        }
+
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete category?")) {
+            return false;
+        }
+        $.ajax({
+            type: "POST",
+            url: "{{ route('destroy.reply.category') }}",
+            data: {
+                '_token': "{{ csrf_token() }}",
+                'id': quickCategoryId
+            }
+        }).done(function (response) {
+            location.reload();
+        })
+    });
+
+    $(document).on('click', '.delete_quick_comment', function () {
+        var quickComment = $(this).closest(".form-group").find(".quickComment");
+
+        if (quickComment.val() == "") {
+            alert("Please Select Quick Comment!!");
+            return false;
+        }
+
+        var quickCommentId = quickComment.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete comment?")) {
+            return false;
+        }
+        $.ajax({
+            type: "DELETE",
+            url: "/reply/" + quickCommentId,
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+        }).done(function (response) {
+            location.reload();
+        })
+    });
+
+    $(document).on('click', '.quick_comment_add', function () {
+        var textBox = $(this).closest("div").find(".quick_comment");
+        var quickCategory = $(this).closest(".form-group").find(".quickCategory");
+
+        if (textBox.val() == "") {
+            alert("Please Enter New Quick Comment!!");
+            return false;
+        }
+
+        if (quickCategory.val() == "") {
+            alert("Please Select Category!!");
+            return false;
+        }
+
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+
+        var formData = new FormData();
+
+        formData.append("_token", "{{ csrf_token() }}");
+        formData.append("reply", textBox.val());
+        formData.append("category_id", quickCategoryId);
+        formData.append("model", 'Approval Lead');
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ route('reply.store') }}",
+            data: formData,
+            processData: false,
+            contentType: false
+        }).done(function (reply) {
+            textBox.val('');
+            $('.quickComment').append($('<option>', {
+                value: reply,
+                text: reply
+            }));
+        })
+    });
+
+    $(document).on('change', '.quickCategory', function () {
+        if($(this).val() != "") {
+            var replies = JSON.parse($(this).val());
+            var thiss = $(this);
+            $(this).closest(".form-group").find('.quickComment').empty();
+            $(this).closest(".form-group").find('.quickComment').append($('<option>', {
+                value: '',
+                text: 'Quick Reply'
+            }));
+
+            replies.forEach(function (reply) {
+                $(thiss).closest(".form-group").find('.quickComment').append($('<option>', {
+                    value: reply.reply,
+                    text: reply.reply,
+                    'data-id': reply.id
+                }));
+            });
+        }
+    });
+
+    $(document).on('change', '.quickComment', function () {
+        $(this).closest('.col-md-12').find('.quick-message-field').val($(this).val());
+    });
     $(document).on('click', '.crt-instruction', function(e) {
       e.preventDefault();
 
