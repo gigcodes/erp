@@ -114,9 +114,11 @@ class ProductTemplatesController extends Controller
             ];
 
             if ($record->hasMedia(config('constants.media_tags'))) {
+                $images = [];
                 foreach ($record->getMedia(config('constants.media_tags')) as $i => $media) {
-                    $data["image" . ($i + 1)] = $media->getUrl();
+                    $images[] = $media->getUrl();
                 }
+                $data["image"] = $images;
             }
         }
 
