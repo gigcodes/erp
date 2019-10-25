@@ -7,7 +7,9 @@ use App\Category;
 use App\Setting;
 use Illuminate\Http\Request;
 
-use Google\Cloud\Vision\V1\ImageAnnotatorClient;
+use seo2websites\GoogleVision\GoogleVisionHelper;
+use Google\Cloud\Vision\V1\ImageContext;
+use Google\Cloud\Vision\V1\ProductSearchParams;
 
 class GoogleSearchImageController extends Controller
 {
@@ -129,21 +131,10 @@ class GoogleSearchImageController extends Controller
                             ->groupBy('products.id')
                             ->paginate( Setting::get( 'pagination' ) );
 
-        return view( 'google_search_image.index', $data );
+    return view( 'google_search_image.index', $data );
     }
 
-    private static function _loadImageAnnotator()
-    {
-        // Check if credentials exist
-        if (!file_exists(base_path('config/GoogleVision.json'))) {
-             die( "Please add the Google credentials json file to " . base_path( 'config/GoogleVision.json' ) );
-        }
-
-        // Return image annotator client
-        return new ImageAnnotatorClient([
-            'credentials' => base_path("config/GoogleVision.json")
-        ]);
-    }
+    
 
     public function searchImageOnGoogle(Request $request)
     {
@@ -151,34 +142,46 @@ class GoogleSearchImageController extends Controller
             'product_ids' => 'required'
         ]);
 
-        $message = '';
         $productIds = $request->get('product_ids');
+        $productImage = [];
         if (is_array($productIds)) {
             $productArr = Product::with('media')->whereIn('id', $productIds)->get();
             if ($productArr) {
                 foreach ($productArr as $product) {
                     foreach ($product->media as $media) {
-                        // Load image
-                        try {
-                            $image = file_get_contents($media->getAbsolutePath());
-                        } catch (\Exception $e) {
-                            // Skip this image
-                            continue;
+                        $arg = [];
+                        if (!empty($product->brands->name)) {
+                            $params = new ProductSearchParams();
+                            $params->setFilter($product->brands->name);
+                            $imageContext = new ImageContext();
+                            $imageContext->setProductSearchParams($params);
+                            $arg = ['imageContext' => $imageContext];
                         }
 
-                        // Get response or skip on error
-                        try {
-                            $response = $imageAnnotator->labelDetection($image);
-                        } catch (\Exception $e) {
-                            continue;
-                        }
+                        GoogleVisionHelper::setDebug( true );
+                        $imageProperties = GoogleVisionHelper::getPropertiesFromImageSet( [$media->getAbsolutePath()], $arg );
 
+                        $productImage[] = [
+                            'id'            => $product->id,
+                            'sku'           => $product->sku,
+                            'brand'         => !empty($product->brands->name) ? $product->brands->name : null,
+                            'location'      => $product->location,
+                            'size'          => $product->size,
+                            'price_special' => $product->price_special,
+                            'purchase_status' => $product->purchase_status,
+                            'category'      => isset($imageProperties->category) ? $imageProperties->category : null,
+                            'color'         => isset($imageProperties->color) ? $imageProperties->color : null,
+                            'composite'     => isset($imageProperties->composite) ? $imageProperties->composite : null,
+                            'gender'        => isset($imageProperties->gender) ? $imageProperties->gender : null,
+                            'media_url'     => $media->getUrl(),
+                        ];
                     }
                 }
             }
         } else {
-            $message = 'Please Select Products';
+            return redirect()->back()->with('message','Please Select Products');
         }
-        return redirect()->back()->with('message', $message);
+
+        return view( 'google_search_image.search_image', ['productImage' => $productImage] );
     } 
 }
