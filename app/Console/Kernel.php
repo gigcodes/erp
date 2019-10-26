@@ -72,6 +72,7 @@ use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
 use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
+use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -150,6 +151,7 @@ class Kernel extends ConsoleKernel
         UpdateCustomerSizeFromOrder::class,
         DocumentReciever::class,
         RecieveResourceImages::class,
+        CreateErpLeadFromCancellationOrder::class,
     ];
 
     /**
