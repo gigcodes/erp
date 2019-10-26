@@ -8,8 +8,6 @@ use App\Setting;
 use Illuminate\Http\Request;
 
 use seo2websites\GoogleVision\GoogleVisionHelper;
-use Google\Cloud\Vision\V1\ImageContext;
-use Google\Cloud\Vision\V1\ProductSearchParams;
 
 class GoogleSearchImageController extends Controller
 {
@@ -147,37 +145,14 @@ class GoogleSearchImageController extends Controller
         $productIds = $request->get('product_ids');
         $productImage = [];
         if (is_array($productIds)) {
-            $productArr = Product::with('media')->whereIn('id', $productIds)->get();
+            $productArr = Product::whereIn('id', $productIds)->get();
             if ($productArr) {
+                GoogleVisionHelper::setDebug( true );
                 foreach ($productArr as $product) {
-                    foreach ($product->media as $media) {
-                        $arg = [];
-                        if (!empty($product->brands->name)) {
-                            $params = new ProductSearchParams();
-                            $params->setFilter($product->brands->name);
-                            $imageContext = new ImageContext();
-                            $imageContext->setProductSearchParams($params);
-                            $arg = ['imageContext' => $imageContext];
-                        }
-
-                        GoogleVisionHelper::setDebug( true );
-                        $imageProperties = GoogleVisionHelper::getPropertiesFromImageSet( [$media->getAbsolutePath()], $arg );
-
-                        $productImage[] = [
-                            'id'            => $product->id,
-                            'sku'           => $product->sku,
-                            'brand'         => !empty($product->brands->name) ? $product->brands->name : null,
-                            'location'      => $product->location,
-                            'size'          => $product->size,
-                            'price_special' => $product->price_special,
-                            'purchase_status' => $product->purchase_status,
-                            'category'      => isset($imageProperties->category) ? $imageProperties->category : null,
-                            'color'         => isset($imageProperties->color) ? $imageProperties->color : null,
-                            'composite'     => isset($imageProperties->composite) ? $imageProperties->composite : null,
-                            'gender'        => isset($imageProperties->gender) ? $imageProperties->gender : null,
-                            'media_url'     => $media->getUrl(),
-                        ];
-                    }
+                    $imageArr = GoogleVisionHelper::getVisuallySimilarFromImageSet($product);
+                    if (!empty($imageArr)) {
+                        $productImage[] = $imageArr;
+                    }                    
                 }
             }
         } else {
