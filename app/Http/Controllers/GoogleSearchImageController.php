@@ -130,6 +130,8 @@ class GoogleSearchImageController extends Controller
                             })
                             ->groupBy('products.id')
                             ->paginate( Setting::get( 'pagination' ) );
+        
+        $data['locations'] = (new \App\ProductLocation())->pluck('name');
 
     return view( 'google_search_image.index', $data );
     }
