@@ -65,6 +65,7 @@ use App\Console\Commands\ImportCustomersEmail;
 use App\Console\Commands\TwilioCallLogs;
 use App\Console\Commands\ZoomMeetingRecordings;
 use App\Console\Commands\ZoomMeetingDeleteRecordings;
+use App\Console\Commands\RecieveResourceImages;
 
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
@@ -148,6 +149,7 @@ class Kernel extends ConsoleKernel
         UpdateShoeAndClothingSizeFromChatMessages::class,
         UpdateCustomerSizeFromOrder::class,
         DocumentReciever::class,
+        RecieveResourceImages::class,
     ];
 
     /**
@@ -269,6 +271,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('fetch:emails')->everyFifteenMinutes();
         $schedule->command('check:emails-errors')->dailyAt('03:00')->timezone('Asia/Kolkata');
         $schedule->command('document:email')->everyFifteenMinutes()->timezone('Asia/Kolkata');
+        $schedule->command('resource:image')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         $schedule->command('send:daily-planner-report')->dailyAt('08:00')->timezone('Asia/Kolkata');
         $schedule->command('send:daily-planner-report')->dailyAt('22:00')->timezone('Asia/Kolkata');
         $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');
