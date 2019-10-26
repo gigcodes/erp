@@ -53,16 +53,17 @@
           </div>
 
           @if (Auth::user()->hasRole('Admin'))
-            <div class="form-group mr-3">
-              <select data-placeholder="Select location" class="form-control select-multiple2" name="location[]" multiple>
-                <optgroup label="Locations">
-                  @foreach ($locations as $name)
-                    <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
-                  @endforeach
-                </optgroup>
-              </select>
-            </div>
-
+            @if(!empty($locations))
+              <div class="form-group mr-3">
+                <select data-placeholder="Select location" class="form-control select-multiple2" name="location[]" multiple>
+                  <optgroup label="Locations">
+                    @foreach ($locations as $name)
+                      <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
+                    @endforeach
+                  </optgroup>
+                </select>
+              </div>
+            @endif
             <div class="form-group mr-3">
               <input type="checkbox" name="no_locations" id="no_locations" {{ isset($no_locations) ? 'checked' : '' }}>
               <label for="no_locations">With no Locations</label>
