@@ -51,23 +51,7 @@
               </optgroup>
             </select>
           </div>
-
-          @if (Auth::user()->hasRole('Admin'))
-            <div class="form-group mr-3">
-              <select data-placeholder="Select location" class="form-control select-multiple2" name="location[]" multiple>
-                <optgroup label="Locations">
-                  @foreach ($locations as $name)
-                    <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
-                  @endforeach
-                </optgroup>
-              </select>
-            </div>
-
-            <div class="form-group mr-3">
-              <input type="checkbox" name="no_locations" id="no_locations" {{ isset($no_locations) ? 'checked' : '' }}>
-              <label for="no_locations">With no Locations</label>
-            </div>
-          @endif
+          
           <div class="form-group mr-3 mb-3">
             <strong class="mr-3">Price</strong>
             <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]" />
