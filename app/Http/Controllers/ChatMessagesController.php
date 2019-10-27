@@ -100,16 +100,22 @@ class ChatMessagesController extends Controller
 
                         $mediaWithDetails[] = $tempImage;
                     } else {
-                        // Get media URL
-                        $media[] = $image->getUrl();
-
                         // Check for product
-                        if (empty($productId)) {
+                        if (isset($image->id)) {
                             $product = DB::table('mediables')->where('mediable_type', 'App\Product')->where('media_id', $image->id)->get(['mediable_id'])->first();
+
                             if ($product != null) {
                                 $productId = $product->mediable_id;
+                            } else {
+                                $productId = null;
                             }
                         }
+
+                        // Get media URL
+                        $media[] = [
+                            'image' => $image->getUrl(),
+                            'product_id' => $productId
+                        ];
                     }
 
                 }

@@ -42,20 +42,20 @@ $(document).on('click', '.load-communication-modal', function () {
             if (load_attached == 1 && message.media && message.media.length > 0) {
                 for (var i = 0; i < message.media.length; i++) {
                     // Get image to display
-                    imgSrc = getImageToDisplay(message.media[i]);
+                    imgSrc = getImageToDisplay(message.media[i].image);
 
-                    console.log(message.media[i], message.product_id);
+                    //console.log(message.media[i], message.product_id);
 
                     // Set media
                     if (imgSrc != '') {
                         media = media + '<div class="col-12">';
                         media = media + '<a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                        if (message.product_id > 0) {
+                        if (message.media[i].product_id > 0) {
                             media = media + '<br />';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension" data-id="' + message.product_id + '">+ Dimensions</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead" data-id="' + message.product_id + '">+ Lead</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image" data-id="' + message.product_id + '">Detailed Images</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order" data-id="' + message.product_id + '">+ Order</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '">+ Dimensions</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead" data-id="' + message.media[i].image + '">+ Lead</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image" data-id="' + message.media[i].image + '">Detailed Images</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order" data-id="' + message.media[i].image + '">+ Order</a>';
                         }
                         media = media + '</div>';
                     }
@@ -124,6 +124,7 @@ $(document).on('click', '.load-communication-modal', function () {
 
 function getImageToDisplay(imageUrl) {
     // Trim imageUrl
+    console.log(imageUrl);
     imageUrl = imageUrl.trim();
 
     // Set empty imgSrc
