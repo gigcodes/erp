@@ -44,6 +44,8 @@ $(document).on('click', '.load-communication-modal', function () {
                     // Get image to display
                     imgSrc = getImageToDisplay(message.media[i]);
 
+                    console.log(message.media[i], message.product_id);
+
                     // Set media
                     if (imgSrc != '') {
                         media = media + '<div class="col-12">';
