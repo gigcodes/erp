@@ -3,6 +3,11 @@
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <style type="text/css">
+        #ckbCheck{
+            display: none;
+        }
+    </style>
 @endsection
 @section('content')
 <link href="{{ asset('css/treeview.css') }}" rel="stylesheet">
@@ -11,7 +16,7 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">List Resources Center</h2>
             <div class="pull-left">
-                    <br>
+                <br>
                <!--  <form action="{{ route('document.index') }}" method="GET">
                     <div class="form-group">
                         <div class="row">
@@ -46,13 +51,9 @@
                 </form> -->
             </div>
             <div class="pull-right">
-                <a href="{{ url('/resourceimg/pending/1') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
-                <button type="button" class="btn btn-secondary" title="Add Category" data-toggle="modal" data-target="#addcategory">Add Category</button>
-                <button type="button" class="btn btn-secondary" title="Edit Category" data-toggle="modal" data-target="#editcategory">Edit Category</button>
-               	<button type="button" class="btn btn-image" title="Add Resource" data-toggle="modal" data-target="#addresource">
-		        	   		<i class="fa fa-plus"></i>
-		        	   	</button>
-
+                <a href="{{ route('resourceimg.index') }}"><button type="button" class="btn btn-secondary">Active</button></a>
+                <button type="button" class="btn btn-secondary" id="ckbCheck">Activate Selected</button>
+                <button type="button" class="btn btn-secondary" id="ckbCheckAll">Select All</button>
             </div>
         </div>
     
@@ -72,11 +73,12 @@
                     </div>
                 @endif
 		      
-		        <div class="table-responsive col-md-12" style="margin-top : 30px;">
+		        <div class="table-responsive col-md-12">
 		          <table class="table table-striped table-bordered" style="border: 1px solid #ddd;">
 		            <thead>
 		              <tr>
   		              	<th style="width: 2%;">#</th>
+                        <th style="width: 2%;">Checkbox</th>
   		              	<th style="width: 10%;">Category</th>
   		              	<th style="width: 10%;">Sub Category</th>
   		              	<th style="width: 10%;">Url</th>
@@ -90,9 +92,10 @@
 				            @foreach($allresources as $key => $resources)
 				                <tr>
 				                	<td>{{($key+1)}}</td>
-					                <td>@if(isset($resources->category->title)) {{ $resources->category->title }} @endif</td>
-					                <td>@if(isset($resources->sub_category->title)) {{ $resources->sub_category->title }} @endif</td>
-					                <td><a href="{{ $resources['url'] }}" title="View Url" target="_blank">Click Here</a></td>
+                                    <td><input type="checkbox" value="{{ $resources->id }}" name="id" class="checkBoxClass">
+					                <td>@if($resources->category->title) {{ $resources->category->title }} @endif</td>
+					                <td>@if(isset($resources->category->childs->title)) {{ $resources->category->childs->title }} @endif</td>
+					                <td><a href="{{$resources['url']}}" title="View Url" target="_blank">Click Here</a></td>
 					                <td><a href="{{ action('ResourceImgController@imagesResource', $resources['id']) }}" title="View Images">View</a></td>
 		    		                <td>{{date("l, d/m/Y",strtotime($resources['updated_at']))}}</td>
 		    		                <td>{{ucwords($resources['created_by'])}}</td>
@@ -171,6 +174,65 @@
             });
         });
 
+         $(document).ready(function () {
+            
+            $(".checkBoxClass").change(function() {
+                if(this.checked) {
+                    $('#ckbCheck').show();
+                     $("#ckbCheck").click(function () {
+                     var id = [];
+                    $.each($("input[name='id']:checked"), function(){
+                    id.push($(this).val());
+                    });
+                    if(id.length == 0){
+                        alert('Please Select');
+                    }else{
+                    console.log(id);
+                     $.ajax({
+                            url:"{{ route('activate.resourceCat') }}",
+                            method:"POST",
+                            data:{id:id,'_token':'{{ csrf_token() }}'},
+                            success:function(data)
+                            {
+                                alert('Resources Image Approved');
+                                location.reload(true);
+                            }
+                        })
+                     }
+                });
+                   
+                }
+
+            });
+
+            }); 
+       $(document).ready(function () {
+            $("#ckbCheckAll").click(function () {
+            $(".checkBoxClass").prop('checked', true);
+            $(this).html('Activate Images');
+                 $("#ckbCheckAll").click(function () {
+                     var id = [];
+                    $.each($("input[name='id']:checked"), function(){
+                    id.push($(this).val());
+                    });
+                    if(id.length == 0){
+                        alert('Please Select');
+                    }else{
+                    console.log(id);
+                     $.ajax({
+                            url:"{{ route('activate.resourceCat') }}",
+                            method:"POST",
+                            data:{id:id,'_token':'{{ csrf_token() }}'},
+                            success:function(data)
+                            {
+                                alert('Resources Image Approved');
+                                location.reload(true);
+                            }
+                        })
+                     }
+         });
+        });
+        });
     </script>
 	<script type="text/javascript">
 		function PasteImage(){var e=document.getElementById("my_canvas").toDataURL();$("#cpy_img").val(e),$("#save_img").fadeIn(200),$(".msg").empty(),$(".msg").css("color","green"),$(".msg").text("Image Loaded Successfully."),$(".can_id").attr("placeholder","Image Loaded Successfully, Paste another to change."),$("#src_img").attr("src",e)}var CLIPBOARD=new CLIPBOARD_CLASS("my_canvas",!0);function CLIPBOARD_CLASS(e,t){var a=this,n=document.getElementById(e),i=document.getElementById(e).getContext("2d");document.addEventListener("paste",function(e){"can_id"==e.target.id&&(console.log(e),a.paste_auto(e))},!1),this.paste_auto=function(e){if(e.clipboardData){var t=e.clipboardData.items;if(!t)return;for(var a=!1,n=0;n<t.length;n++)if($("#cpy_img").val(""),-1!==t[n].type.indexOf("image")){var i=t[n].getAsFile(),c=(window.URL||window.webkitURL).createObjectURL(i);this.paste_createImage(c),a=!0}1==a?(e.preventDefault(),$(".msg").text("Image Loading, Please Wait."),$(".msg").css("color","red"),setTimeout(PasteImage,5e3)):(e.preventDefault(),$(".can_id").attr("placeholder","Please paste only image."))}},this.paste_createImage=function(e){var a=new Image;a.onload=function(){1==t?(n.width=a.width,n.height=a.height):i.clearRect(0,0,n.width,n.height),i.drawImage(a,0,0)},a.src=e}}
