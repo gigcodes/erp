@@ -73,7 +73,7 @@ class ScrapController extends Controller
         return view('scrap.extracted_images', compact('googleData', 'pinterestData'));
 
     }
-    
+
     public function downloadImages(Request $request)
     {
         $this->validate($request, [
