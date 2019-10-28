@@ -214,7 +214,7 @@ class CustomerController extends Controller
                                         ->groupBy('clothing_size')
                                         ->pluck('counts', 'clothing_size');
 
-        $groups = QuickSellGroup::select('id','name')->orderby('name','asc')->get();                                
+        $groups = QuickSellGroup::select('id','name','group')->orderby('name','asc')->get();                                
 
         return view('customers.index', [
             'customers' => $results[ 0 ],
