@@ -2128,7 +2128,9 @@ class WhatsAppController extends FindByNumberController
                             if($product != null){
                                 
                             //Getting product from id
-                             $products = Product::findorfail($product->product_id);
+                             $products = Product::where('id',$product->product_id)->first();
+
+                             if($products != null){
                             
                             // $image = 'https://cdn.vox-cdn.com/thumbor/Pkmq1nm3skO0-j693JTMd7RL0Zk=/0x0:2012x1341/1200x800/filters:focal(0x0:2012x1341)/cdn.vox-cdn.com/uploads/chorus_image/image/47070706/google2.0.0.jpg';
 
@@ -2143,7 +2145,8 @@ class WhatsAppController extends FindByNumberController
                             $chat_message = ChatMessage::create($data);
                             $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '',$image, '', '');
                             
-                            }
+                                    }
+                                }
                             }
 
 
