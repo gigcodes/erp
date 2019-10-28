@@ -608,7 +608,7 @@
                             <label class="form-control-label">Select Group</label>
                             <select class="form-control selectpicker" name="group" id="group{{ $customer->id }}" multiple data-live-search="true" data-placeholder="Select Groups...">
                                 @foreach($groups as $group)
-                                <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->id }}@endif</option>
+                                <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }}@endif</option>
                                 @endforeach
                             </select>
                             <button style="display: inline;width: 20%" class="btn btn-sm btn-image send-group " data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png"></button>
