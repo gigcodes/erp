@@ -13,6 +13,7 @@
  var mainCallerId = null;
  var bMute = false;
  var currentCallSid = null;
+ var numberCallFrom = null;
 
   function cleanup() {
     bMute = false;
@@ -41,19 +42,22 @@
 				call.insertAfter( this );
 			} );
 
-			$(document).on('click', '.call-twilio', function() {
+			$(document).on('change', '.call-twilio', function() {
+				
 				var id = $(this).data('id');
 				var numberToCall = $(this).data('phone');
 				var context = $(this).data('context');
-
+				var numberCallFrom = $(this).children("option:selected").val();
+				$('#show'+id).hide();
 				console.log(id);
 				console.log(numberToCall);
 				console.log(context);
+				console.log(numberCallFrom);
 
 				if (!numberToCall.toString().startsWith("+")) {
 						numberToCall = "+"+ $(this).data('phone').toString();
 				}
-				callNumber( numberToCall, context, id  );
+				callNumber(numberCallFrom , numberToCall , context , id);
 			} );
     });
 
@@ -138,7 +142,7 @@
         el.text("Mute");
       }
   }
-  function callNumber(number, context, id) {
+  function callNumber(numberCallFrom , number, context, id) {
     var conn = device.activeConnection();
     if (conn) {
       alert("Please hangup current call before dialing new number..");
@@ -151,8 +155,8 @@
 		callingText += "<br/><button class='btn btn-danger' onclick='callerHangup()'>Hangup</button>";
 
 		showWarning(callingText, longNotifOpts);
-		var params = {"PhoneNumber": number, "context": context, "internalId": id};
-    console.log("Dialer_StartCall call params", params);
+		var params = {"CallNumber" : numberCallFrom , "PhoneNumber": number, "context": context, "internalId": id};
+        console.log("Dialer_StartCall call params", params);
 		device.connect(params);
   }
 
