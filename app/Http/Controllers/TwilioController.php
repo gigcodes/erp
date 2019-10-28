@@ -261,18 +261,22 @@ class TwilioController extends FindByNumberController {
     public function outgoingCall(Request $request) {
         Log::info('Call Status: = ' . $request->get("CallStatus"));
 
-
-
         $number = $request->get("PhoneNumber");
-        //$number = '919748940238';
         Log::info('Call SID: ' . $request->get("CallSid"));
         $context = $request->get("context");
         $id = $request->get("internalId");
+        
+        if($request->get("CallNumber") != null){
+             $callFrom  = $request->get("CallNumber");
+        }else{
+             $callFrom = \Config::get("twilio.default_caller_id");    
+        }
+        
         $actionurl = \Config::get("app.url") . "/twilio/handleOutgoingDialCallStatus" . "?phone_number=$number";
         Log::info('Outgoing call function Enter ' . $id);
         $response = new Twiml();
         $response->dial($number, [
-            'callerId' => \Config::get("twilio.caller_id"),
+            'callerId' => $callFrom,
             'record' => 'true',
             'recordingStatusCallback' => \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $id . "&Mobile=" . $number,
             'action' => $actionurl
