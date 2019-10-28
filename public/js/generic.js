@@ -53,9 +53,9 @@ $(document).on('click', '.load-communication-modal', function () {
                         if (message.media[i].product_id > 0) {
                             media = media + '<br />';
                             media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '">+ Dimensions</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead" data-id="' + message.media[i].image + '">+ Lead</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image" data-id="' + message.media[i].image + '">Detailed Images</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order" data-id="' + message.media[i].image + '">+ Order</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead" data-id="' + message.media[i].product_id + '">+ Lead</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image" data-id="' + message.media[i].product_id + '">Detailed Images</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order" data-id="' + message.media[i].product_id + '">+ Order</a>';
                         }
                         media = media + '</div>';
                     }

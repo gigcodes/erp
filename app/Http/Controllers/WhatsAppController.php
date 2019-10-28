@@ -2100,7 +2100,7 @@ class WhatsAppController extends FindByNumberController
                     }
                 } else {
                     if (!empty($request->redirect_back)) {
-                        return redirect($request->redirect_back)->with('message', 'Images Send SucessFully');
+                        return redirect($request->redirect_back)->with('message', 'Please Select Products');
                     }
                     return redirect(route('quicksell.index'))->with('message', 'Please Select Products');
                 }
