@@ -2115,24 +2115,25 @@ class WhatsAppController extends FindByNumberController
 
                 if($request->customerId != null && $request->groupId != null){
                     //Find Group id 
-                    foreach ($request->groupId as $key) {
+                    foreach ($request->groupId as $id) {
                         //got group
-                       $groups =QuickSellGroup::select('id','group')->where('id',$key)->get();
+                       $groups =QuickSellGroup::select('id','group')->where('id',$id)->get();
 
                        //getting product id from group
                        if($groups != null){
                         foreach ($groups as $group) {
 
-                            $product = ProductQuicksellGroup::where('quicksell_group_id',$group->group)->first();
-                            
-                            if($product != null){
+                            $productsQuickSell = ProductQuicksellGroup::where('quicksell_group_id',$group->group)->get();
+
+                            foreach ($productsQuickSell as $product) {
+                                if($product != null){
                                 
                             //Getting product from id
                              $products = Product::where('id',$product->product_id)->first();
 
                              if($products != null){
                             
-                            // $image = 'https://cdn.vox-cdn.com/thumbor/Pkmq1nm3skO0-j693JTMd7RL0Zk=/0x0:2012x1341/1200x800/filters:focal(0x0:2012x1341)/cdn.vox-cdn.com/uploads/chorus_image/image/47070706/google2.0.0.jpg';
+                             //$image = 'https://cdn.vox-cdn.com/thumbor/Pkmq1nm3skO0-j693JTMd7RL0Zk=/0x0:2012x1341/1200x800/filters:focal(0x0:2012x1341)/cdn.vox-cdn.com/uploads/chorus_image/image/47070706/google2.0.0.jpg';
 
                              $image = $products->getMedia(config('constants.media_tags'))->first()
                             ? $products->getMedia(config('constants.media_tags'))->first()->getUrl()
@@ -2148,12 +2149,12 @@ class WhatsAppController extends FindByNumberController
                                     }
                                 }
                             }
-
-
                         }
-
-                       }
+                            
                     }
+
+                 }
+            }
                     return response()->json(['success']);
                 }
 
