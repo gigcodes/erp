@@ -413,15 +413,7 @@ class ProductInventoryController extends Controller
 			$data['price'][1] = $max;
 		}
 
-		if ($request->location[0] != null) {
-			$productQuery = $productQuery->whereIn('location', $request->location);
-			$data['location'] = $request->location[0];
-		}
-
-		if ($request->no_locations) {
-			$productQuery = $productQuery->whereNull('location');
-		}
-
+		
 		if (trim($term) != '') {
 			$productQuery = $productQuery->where(function ($query) use ($term){
  	    		$query->orWhere( 'sku', 'LIKE', "%$term%" )
@@ -669,7 +661,9 @@ class ProductInventoryController extends Controller
 		   ->select(["o.id",\DB::raw("concat(o.id,' => ',o.client_name) as client_name")])->pluck("client_name",'id');
 		}
 
-		return view("instock.instruction_create",compact(['productId','users','customers','order','locations','couriers']));
+		$reply_categories = \App\ReplyCategory::all();
+
+		return view("instock.instruction_create",compact(['productId','users','customers','order','locations','couriers', 'reply_categories']));
 
 	}
 
@@ -735,6 +729,12 @@ class ProductInventoryController extends Controller
 
 			    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
 			    $chat_message = \App\ChatMessage::create($params);
+			    if ($product->hasMedia(config('constants.media_tags'))) {
+	                foreach ($product->getMedia(config('constants.media_tags')) as $image) {
+	                	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,null, $image->getUrl());
+	                    $chat_message->attachMedia($image, config('constants.media_tags'));
+	                }
+	            }
 			}
 
 		}elseif ($params['instruction_type'] == "location") {
@@ -758,6 +758,12 @@ class ProductInventoryController extends Controller
 
 				    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
 				    $chat_message = \App\ChatMessage::create($params);
+				    if ($product->hasMedia(config('constants.media_tags'))) {
+		                foreach ($product->getMedia(config('constants.media_tags')) as $image) {
+		                	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,null, $image->getUrl());
+		                    $chat_message->attachMedia($image, config('constants.media_tags'));
+		                }
+		            }
 				}
 			}
 		}
@@ -767,7 +773,7 @@ class ProductInventoryController extends Controller
 		$instruction->assigned_from = \Auth::user()->id;
 		$instruction->assigned_to = $params["assign_to"];
 		$instruction->product_id = $params["product_id"];
-		$instruction->order_id = $params["order_id"];
+		$instruction->order_id = isset($params["order_id"]) ? $params["order_id"] : 0;
 		$instruction->save();
 
 

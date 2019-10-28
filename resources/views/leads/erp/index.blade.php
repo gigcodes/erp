@@ -213,10 +213,10 @@
             return false;
           }
 
-          if ($("#send_message").find(".ddl-select-product").val() == "") {
+          /*if ($("#send_message").find(".ddl-select-product").val() == "") {
             alert('Please select product');
             return false;
-          }
+          }*/
 
           $.ajax({
             type: "POST",

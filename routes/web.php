@@ -164,10 +164,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('category', 'CategoryController');
 
     Route::resource('resourceimg', 'ResourceImgController');
+    Route::get('resourceimg/pending/1','ResourceImgController@pending');
     Route::post('add-resource', 'ResourceImgController@addResource')->name('add.resource');
     Route::post('add-resourceCat', 'ResourceImgController@addResourceCat')->name('add.resourceCat');
     Route::post('edit-resourceCat', 'ResourceImgController@editResourceCat')->name('edit.resourceCat');
     Route::post('remove-resourceCat', 'ResourceImgController@removeResourceCat')->name('remove.resourceCat');
+    Route::post('acitvate-resourceCat', 'ResourceImgController@activateResourceCat')->name('activate.resourceCat');
+    
+    Route::get('resourceimg/pending','ResourceImgController@pending');
 
 
     Route::post('delete-resource', 'ResourceImgController@deleteResource')->name('delete.resource');
@@ -287,6 +291,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/productinventory/in/stock/dispatch-store', 'ProductInventoryController@dispatchStore')->name('productinventory.dispatch.store');
     Route::get('/productinventory/in/stock/dispatch', 'ProductInventoryController@dispatchCreate')->name('productinventory.dispatch.create');
     Route::post('/productinventory/stock/{product}', 'ProductInventoryController@stock')->name('productinventory.stock');
+
+    Route::get('/google-search-image', 'GoogleSearchImageController@index')->name('google.search.image');
+    Route::post('/google-search-image', 'GoogleSearchImageController@searchImageOnGoogle');
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');
