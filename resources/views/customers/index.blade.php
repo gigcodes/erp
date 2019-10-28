@@ -630,7 +630,7 @@
                             </ul>
 
                             <label class="form-control-label">Select Group</label>
-                            <select class="form-control selectpicker" name="group" id="group{{ $customer->id }}" multiple data-live-search="true" data-placeholder="Select Groups...">
+                            <select class="form-control multiselect-2" name="group" id="group{{ $customer->id }}" multiple>
                                 @foreach($groups as $group)
                                     <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }}@endif</option>
                                 @endforeach
@@ -1344,7 +1344,10 @@
                     nextSelector: '.pagination li.active + li a',
                     contentSelector: 'div.infinite-scroll',
                     callback: function () {
-                        // $('ul.pagination').remove();
+                       $('.multiselect-2').multiselect({
+                        enableFiltering: true,
+                        filterBehavior: 'value'
+                        });
                     }
                 });
             });
@@ -1416,6 +1419,7 @@
 
                 $('#customers-data').show();
                 $('#mergeButton').prop('disabled', false);
+
                 $(thiss).text('Load Data');
             }).fail(function (response) {
                 console.log(response);
@@ -2317,8 +2321,13 @@
         });
 
         $(function () {
-            $('.selectpicker').selectpicker();
+            $('.multiselect-2').multiselect({
+                    enableFiltering: true,
+                    filterBehavior: 'value'
+                });
         });
+
+
 
         $(document).on('click', '.send-group', function () {
             var thiss = $(this);
