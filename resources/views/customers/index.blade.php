@@ -2312,8 +2312,7 @@
                 },
                 success: function () {
                     toastr["success"]("Group Message sent successfully!", "Message");
-                    $(self).removeAttr('disabled');
-                    $(self).val('');
+                 //   $("option:selected").prop("selected", false)
                 },
                 beforeSend: function () {
                     $(self).attr('disabled', true);

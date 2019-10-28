@@ -2112,7 +2112,7 @@ class WhatsAppController extends FindByNumberController
                 return redirect(route('quicksell.index'))->with('message', 'Images Send SucessFully');
 
             }elseif($context == 'quicksell_group_send'){
-
+                 
                 if($request->customerId != null && $request->groupId != null){
                     //Find Group id 
                     foreach ($request->groupId as $id) {
@@ -2124,7 +2124,8 @@ class WhatsAppController extends FindByNumberController
                         foreach ($groups as $group) {
 
                             $productsQuickSell = ProductQuicksellGroup::where('quicksell_group_id',$group->group)->get();
-
+                            //dd($productsQuickSell[0]->product_id);
+                            $images = [];
                             foreach ($productsQuickSell as $product) {
                                 if($product != null){
                                 
@@ -2133,24 +2134,60 @@ class WhatsAppController extends FindByNumberController
 
                              if($products != null){
                             
-                             //$image = 'https://cdn.vox-cdn.com/thumbor/Pkmq1nm3skO0-j693JTMd7RL0Zk=/0x0:2012x1341/1200x800/filters:focal(0x0:2012x1341)/cdn.vox-cdn.com/uploads/chorus_image/image/47070706/google2.0.0.jpg';
+                             // $image = 'https://cdn.vox-cdn.com/thumbor/Pkmq1nm3skO0-j693JTMd7RL0Zk=/0x0:2012x1341/1200x800/filters:focal(0x0:2012x1341)/cdn.vox-cdn.com/uploads/chorus_image/image/47070706/google2.0.0.jpg';
 
                              $image = $products->getMedia(config('constants.media_tags'))->first()
-                            ? $products->getMedia(config('constants.media_tags'))->first()->getUrl()
+                            ? $products->getMedia(config('constants.media_tags'))->first()
                             : '';
+                           array_push($images, $image->filename);
                            
-                            if ($request->customerId != null) {
-                            $customer = Customer::findorfail($request->customerId);
-                            //dd($image);
-                            $data[ 'customer_id' ] = $customer->id;
-                            $chat_message = ChatMessage::create($data);
-                            $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '',$image, '', '');
-                            
-                                    }
                                 }
                             }
                         }
+                      
+                       if(isset($images) && count($images) != 0 && $images != null){
+                       $temp_chat_message = ChatMessage::create($data);
+                        foreach ($images as $image) {
+                            $media = Media::where('filename',$image)->first();
+                            $temp_chat_message->attachMedia($media, config('constants.media_tags'));
+                        }
+
+                        
+
+                        $fn = '';
+                        if ($context == 'customer') {
+                            $fn = '_product';
+                        }
+
+                        $folder = "temppdf_view_" . time();
+
+                        $medias = Media::whereIn('filename', $images)->get();
+                        $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
+                        $pdf = new Dompdf();
+                        $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
+                        $pdf->loadHtml($pdfView);
+                        $random = uniqid('sololuxury_', true);
+                        if(!File::isDirectory(public_path() . '/pdf/')){
+                            File::makeDirectory(public_path() . '/pdf/', 0777, true, true);
+                        }
+                        $fileName = public_path() . '/pdf/' . $random . '.pdf';
+                        $pdf->render();
+                        
+                        File::put($fileName, $pdf->output());
+                        
+
+                        $media = MediaUploader::fromSource($fileName)->upload();
+                       
+                       if ($request->customerId != null) {
+                            $customer = Customer::findorfail($request->customerId);
+                            $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
+                            $data[ 'customer_id' ] = $customer->id;
+                            $chat_message = ChatMessage::create($data);
+                            $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '',$file, '', '');
                             
+                        }
+                    }
+                       
                     }
 
                  }
