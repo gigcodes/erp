@@ -63,6 +63,8 @@ use File;
 use App\Document;
 use App\WhatsAppGroup;
 use App\DocumentSendHistory;
+use App\QuickSellGroup;
+use App\ProductQuicksellGroup;
 
 
 class WhatsAppController extends FindByNumberController
@@ -2108,6 +2110,51 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 return redirect(route('quicksell.index'))->with('message', 'Images Send SucessFully');
+
+            }elseif($context == 'quicksell_group_send'){
+
+                if($request->customerId != null && $request->groupId != null){
+                    //Find Group id 
+                    foreach ($request->groupId as $key) {
+                        //got group
+                       $groups =QuickSellGroup::select('id','group')->where('id',$key)->get();
+
+                       //getting product id from group
+                       if($groups != null){
+                        foreach ($groups as $group) {
+
+                            $product = ProductQuicksellGroup::where('quicksell_group_id',$group->group)->first();
+                            
+                            if($product != null){
+                                
+                            //Getting product from id
+                             $products = Product::findorfail($product->product_id);
+                            
+                            // $image = 'https://cdn.vox-cdn.com/thumbor/Pkmq1nm3skO0-j693JTMd7RL0Zk=/0x0:2012x1341/1200x800/filters:focal(0x0:2012x1341)/cdn.vox-cdn.com/uploads/chorus_image/image/47070706/google2.0.0.jpg';
+
+                             $image = $products->getMedia(config('constants.media_tags'))->first()
+                            ? $products->getMedia(config('constants.media_tags'))->first()->getUrl()
+                            : '';
+                           
+                            if ($request->customerId != null) {
+                            $customer = Customer::findorfail($request->customerId);
+                            //dd($image);
+                            $data[ 'customer_id' ] = $customer->id;
+                            $chat_message = ChatMessage::create($data);
+                            $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '',$image, '', '');
+                            
+                            }
+                            }
+
+
+                        }
+
+                       }
+                    }
+                    return response()->json(['success']);
+                }
+
+
 
             }elseif($context == 'old'){
                 

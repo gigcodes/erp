@@ -605,6 +605,13 @@
                             <ul class="more-communication-container">
                             </ul>
 
+                            <select class="form-control selectpicker" name="group" id="group{{ $customer->id }}" multiple data-live-search="true">
+                                <option value="">Select Group</option>
+                                @foreach($groups as $group)
+                                <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->id }}@endif</option>
+                                @endforeach
+                            </select>
+                            <button style="display: inline;width: 20%" class="btn btn-sm btn-image send-group " data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png"></button>
 
                             @if(isset($complaints[$customer->id]))
                                 <p style="cursor: pointer;" class="show-complaint" data-complaint="{{ $complaints[$customer->id] }}">
@@ -1319,9 +1326,7 @@
             });
         });
 
-        $(document).ready(function () {
-            $(".select-multiple").multiselect();
-        });
+        
 
         $(document).ready(function () {
             $('#customer-search').autocomplete({
@@ -2287,6 +2292,42 @@
                 console.log(response);
             });
         });
+
+        $(function() {
+        $('.selectpicker').selectpicker();
+        });
+
+        $(document).on('click', '.send-group', function () {
+            var thiss = $(this);
+            var customerId = $(this).data('customerid');
+            var groupId = $('#group'+customerId).val();
+             $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'quicksell_group_send')}}",
+                type: 'POST',
+                data: {
+                    groupId: groupId,
+                    customerId: customerId,
+                    _token: "{{csrf_token()}}",
+                    status: 2
+                },
+                success: function () {
+                    toastr["success"]("Group Message sent successfully!", "Message");
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending group message...Please select group id properly');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+            console.log(customerId);
+            console.log(groupId);
+           
+        });
+
 
 
     </script>

@@ -49,6 +49,7 @@ use Webklex\IMAP\Client;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Auth;
+use App\QuickSellGroup;
 use GuzzleHttp\Client as GuzzleClient;
 
 class CustomerController extends Controller
@@ -213,6 +214,8 @@ class CustomerController extends Controller
                                         ->groupBy('clothing_size')
                                         ->pluck('counts', 'clothing_size');
 
+        $groups = QuickSellGroup::select('id','name')->orderby('name','asc')->get();                                
+
         return view('customers.index', [
             'customers' => $results[ 0 ],
             'customers_all' => $customers_all,
@@ -237,7 +240,8 @@ class CustomerController extends Controller
             'complaints' => $complaints,
             'shoe_size_group' => $shoe_size_group,
             'clothing_size_group' => $clothing_size_group,
-            'broadcasts' => $broadcasts
+            'broadcasts' => $broadcasts,
+            'groups' => $groups,
         ]);
     }
 
