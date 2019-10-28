@@ -605,8 +605,8 @@
                             <ul class="more-communication-container">
                             </ul>
 
-                            <select class="form-control selectpicker" name="group" id="group{{ $customer->id }}" multiple data-live-search="true">
-                                <option value="">Select Group</option>
+                            <label class="form-control-label">Select Group</label>
+                            <select class="form-control selectpicker" name="group" id="group{{ $customer->id }}" multiple data-live-search="true" data-placeholder="Select Groups...">
                                 @foreach($groups as $group)
                                 <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->id }}@endif</option>
                                 @endforeach
