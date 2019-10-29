@@ -41,7 +41,7 @@
                 </form>
             </div>
             <div class="pull-right">
-              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</a>
+           <!--    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</a> -->
             </div>
         </div>
     </div>
@@ -114,42 +114,6 @@
         });
 
 
-    function changePassword(password_id) {
-        $("#passwordEditModal"+ password_id +"" ).modal('show');
-    }
-    $(".check").change(function() {
-        if(this.checked) {
-            $(".users").show();
-        }else{
-            $(".users").hide();
-        }
-    });
-
-    function getData(password_id) {
-        event.preventDefault();
-        $.ajax({
-            type: "POST",
-            url: "{{ route('password.history') }}",
-            data: {"_token": "{{ csrf_token() }}", "password_id": password_id},
-            dataType: "json",
-            success: function (message) {
-               $c =  message.length;
-                if($c == 0){
-                   alert('No History Exist');
-                } else{
-                    var detials="";
-                    $.each( message, function( key, value ) {
-                        detials += "<tr><th>" + value.website + "</th><th>" + value.username +"</th><th>" + value.password_decrypt + "</th><th>" + value.registered_with +"</th><tr>";
-                    });
-                    console.log(detials);
-                    $('#data').html(detials);
-                    $("#getHistory").modal('show');
-                }
-            }, error: function () {
-
-            }
-
-        });
-    }
+  
 </script>
 @endsection
