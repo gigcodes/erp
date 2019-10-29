@@ -197,6 +197,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('erp-leads/delete', 'LeadsController@erpLeadDelete')->name('leads.erpLeads.delete');
     Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
 
+    //Cron 
+    Route::get('cron','CronController@index')->name('cron.index');
+    Route::get('cron/history/{id}','CronController@history')->name('cron.history');
+    Route::post('cron/history/show','CronController@historySearch')->name('cron.history.search');
+     
+
 
 //	Route::resource('task','TaskController');
 

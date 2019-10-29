@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'https://erp.sololuxury.co.in'),
+    'url' => env('APP_URL', 'http://erp.sololuxury.co.in/'),
 
     /*
     |--------------------------------------------------------------------------
