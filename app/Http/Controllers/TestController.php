@@ -9,6 +9,6 @@ class TestController extends Controller
 {
     public function index()
     {
-    	//Testing Controller 	
+    	//Test Controller
 	}
 }
