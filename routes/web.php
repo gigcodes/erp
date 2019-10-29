@@ -12,7 +12,7 @@
 */
 
 Auth::routes();
-Route::get('/test/test','TestController@index');
+//Route::get('/test/test','TestController@index');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
