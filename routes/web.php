@@ -12,7 +12,7 @@
 */
 
 Auth::routes();
-Route::get('/test/test','TestController@index');
+//Route::get('/test/test','TestController@index');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -196,6 +196,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('erp-leads/store', 'LeadsController@erpLeadsStore')->name('leads.erpLeads.store');
     Route::get('erp-leads/delete', 'LeadsController@erpLeadDelete')->name('leads.erpLeads.delete');
     Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
+
+    //Cron 
+    Route::get('cron','CronController@index')->name('cron.index');
+    Route::get('cron/history/{id}','CronController@history')->name('cron.history');
+    Route::post('cron/history/show','CronController@historySearch')->name('cron.history.search');
+     
 
 
 //	Route::resource('task','TaskController');
