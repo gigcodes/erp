@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\ProductAi;
+use App\CronJobReport;
 use App\Product;
 
 class ManualQueueForAi extends Command
@@ -41,6 +42,10 @@ class ManualQueueForAi extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
         // Get all products queued for AI
         $products = Product::where('status_id', '>', 2)->where('stock', '>', 0)->limit(10)->get();
 
@@ -52,5 +57,7 @@ class ManualQueueForAi extends Command
             // Queue for AI
             ProductAi::dispatch($product)->onQueue('product');
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

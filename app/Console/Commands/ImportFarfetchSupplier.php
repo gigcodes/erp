@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Agent;
 use App\Designer;
 use App\Supplier;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class ImportFarfetchSupplier extends Command
@@ -40,6 +41,12 @@ class ImportFarfetchSupplier extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $suppliers = Designer::all();
 
         foreach ($suppliers as $supplier) {
@@ -134,5 +141,7 @@ class ImportFarfetchSupplier extends Command
             $existingSupplier->instagram_handle = $supplier->instagram_handle;
             $existingSupplier->save();
         }
+
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }

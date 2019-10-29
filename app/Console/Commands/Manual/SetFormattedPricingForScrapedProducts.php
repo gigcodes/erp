@@ -4,6 +4,7 @@ namespace App\Console\Commands\Manual;
 
 use Illuminate\Console\Command;
 use App\ScrapedProducts;
+use App\CronJobReport;
 
 class SetFormattedPricingForScrapedProducts extends Command
 {
@@ -43,6 +44,10 @@ class SetFormattedPricingForScrapedProducts extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
         // Get all scraped products without formatted pricing
         ScrapedProducts::chunk( 100, function ( $scrapedProducts ) {
             //ScrapedProducts::whereNotNull( 'price_eur' )->chunk( 100, function ( $scrapedProducts ) {
@@ -69,6 +74,8 @@ class SetFormattedPricingForScrapedProducts extends Command
                 }
             }
         } );
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 
     private function _getCurrencyFromPrice( $price )

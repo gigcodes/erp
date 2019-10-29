@@ -5,6 +5,7 @@ namespace App\Console\Commands\Manual;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\CronJobReport;
 use App\Product;
 
 class CorrectProductPricing extends Command
@@ -40,6 +41,12 @@ class CorrectProductPricing extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $sql = "
             SELECT
                 p.id,
@@ -81,5 +88,7 @@ class CorrectProductPricing extends Command
             $product->price = $result->new_price;
             $product->save();
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

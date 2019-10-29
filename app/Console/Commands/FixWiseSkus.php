@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Product;
 use App\ScrapedProducts;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class FixWiseSkus extends Command
@@ -39,6 +40,11 @@ class FixWiseSkus extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $products = ScrapedProducts::where('website', 'Wiseboutique')->get();
         foreach ($products as $product) {
             $sku = $product->sku;
@@ -52,5 +58,7 @@ class FixWiseSkus extends Command
             $product->sku = $sku2;
             $product->save();
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

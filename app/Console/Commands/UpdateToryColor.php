@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\ScrapedProducts;
 use App\Brand;
+use App\CronJobReport;
 use App\Product;
 
 class UpdateToryColor extends Command
@@ -42,6 +43,11 @@ class UpdateToryColor extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
       $products = ScrapedProducts::where('has_sku', 1)->where('website', 'Tory')->get();
 
       foreach ($products as $product) {
@@ -54,5 +60,7 @@ class UpdateToryColor extends Command
           }
         }
       }
+
+       $report->update(['end_time' => Carbon:: now()]);
     }
 }

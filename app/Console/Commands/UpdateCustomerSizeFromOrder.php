@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Support\Facades\DB;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class UpdateCustomerSizeFromOrder extends Command
@@ -38,6 +39,11 @@ class UpdateCustomerSizeFromOrder extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $orders = DB::table('orders')
                         ->join('order_products', function($query) {
                             $query->on('orders.id', '=', 'order_products.order_id');
@@ -58,5 +64,7 @@ class UpdateCustomerSizeFromOrder extends Command
             }
         }
         echo 'Successfully update!!';
+
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }

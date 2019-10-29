@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Message;
 use App\ChatMessage;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class TransferMessages extends Command
@@ -39,6 +40,13 @@ class TransferMessages extends Command
      */
     public function handle()
     {
+
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
       $messages = Message::all();
 
       foreach ($messages as $key => $message) {
@@ -66,5 +74,7 @@ class TransferMessages extends Command
           }
         }
       }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\CronJobReport;
 use App\Services\Scrap\DoubleFScraper as DoubleF;
 
 class DoubleFScraper extends Command
@@ -39,11 +40,19 @@ class DoubleFScraper extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
+
         $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
         if (strpos($letters, 'D') === false) {
             return;
         }
 
         $this->scraper->scrap();
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

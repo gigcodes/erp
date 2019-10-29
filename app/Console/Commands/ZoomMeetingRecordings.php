@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Meetings\ZoomMeetings;
+use App\CronJobReport;
 use Carbon\Carbon;
 
 class ZoomMeetingRecordings extends Command
@@ -41,11 +42,18 @@ class ZoomMeetingRecordings extends Command
      */
     public function handle()
     {
+    $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+     
+
     $zoomKey = $this->zoomkey;
     $zoomSecret = $this->zoomsecret;
     $meetings = new ZoomMeetings();
     $date = Carbon::now();
     $meetings->getRecordings($zoomKey, $zoomSecret, $date);
+     $report->update(['end_time' => Carbon:: now()]);
     exit('Data inserted in db..Now, you can check meetings screen');
     }
 }

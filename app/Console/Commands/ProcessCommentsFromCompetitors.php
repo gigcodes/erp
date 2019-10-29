@@ -10,6 +10,7 @@ use App\Keywords;
 use App\Services\Instagram\Hashtags;
 use App\Services\Instagram\Nationality;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
 
@@ -46,6 +47,13 @@ class ProcessCommentsFromCompetitors extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $hashtag = HashTag::where('is_processed', 0)->first();
         if (!$hashtag) {
             return;
@@ -140,6 +148,7 @@ class ProcessCommentsFromCompetitors extends Command
         $hashtag->is_processed = true;
         $hashtag->save();
 
-
+         $report->update(['end_time' => Carbon:: now()]);
+         
     }
 }

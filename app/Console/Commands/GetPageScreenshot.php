@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\PageScreenshots;
 use App\Services\Bots\Screenshot;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class GetPageScreenshot extends Command
@@ -39,6 +40,11 @@ class GetPageScreenshot extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $sites = PageScreenshots::where('image_link', '')->get();
 
         $duskShell = new Screenshot();
@@ -47,5 +53,7 @@ class GetPageScreenshot extends Command
         foreach ($sites as $site) {
             $duskShell->emulate($this, $site, '');
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

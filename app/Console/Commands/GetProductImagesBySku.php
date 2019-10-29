@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Product;
 use App\ScrapedProducts;
+use App\CronJobReport;
 use App\Services\Scrap\GetImagesBySku;
 use Illuminate\Console\Command;
 
@@ -43,6 +44,14 @@ class GetProductImagesBySku extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
+
         $this->scraper->scrap($this);
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

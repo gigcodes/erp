@@ -5,6 +5,7 @@ namespace App\Console\Commands\Manual;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\PushToMagento;
+use App\CronJobReport;
 use App\Product;
 
 class ManualQueueForMagento extends Command
@@ -40,6 +41,11 @@ class ManualQueueForMagento extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+         ]);
+
         ini_set('memory_limit', '2048M');
 
         // Get all products queued for AI
@@ -53,5 +59,7 @@ class ManualQueueForMagento extends Command
             // Queue for AI
             PushToMagento::dispatch( $product )->onQueue('magento');
         }
+
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Compositions;
 use App\Product;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class ImportAllApprovedCompositions extends Command
@@ -39,6 +40,11 @@ class ImportAllApprovedCompositions extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $products = Product::where('is_approved', 1)->get();
         foreach ($products as $product) {
             $composition = $product->composition;
@@ -68,5 +74,7 @@ class ImportAllApprovedCompositions extends Command
 
 
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\ColdLeads;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
+use App\CronJobReport;
 
 class FilterColdLeadByPostCount extends Command
 {
@@ -39,6 +40,11 @@ class FilterColdLeadByPostCount extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $coldLeads = ColdLeads::orderBy('id', 'DESC')->get();
 
         $instagram = new Instagram();
@@ -65,6 +71,6 @@ class FilterColdLeadByPostCount extends Command
                 }
             }
         }
-
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

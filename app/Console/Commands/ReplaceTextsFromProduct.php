@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\AttributeReplacement;
+use App\CronJobReport;
 use App\Product;
 use App\ProductStatus;
 
@@ -41,6 +42,12 @@ class ReplaceTextsFromProduct extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         // Return - do not run
         return;
 
@@ -85,5 +92,7 @@ class ReplaceTextsFromProduct extends Command
                 ProductStatus::updateStatus( $product->id, 'ATTRIBUTE_TEXT_REPLACEMENTS', 1 );
             }
         } );
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }
