@@ -50,6 +50,7 @@ use Storage;
 use Auth;
 use Webklex\IMAP\Client;
 use App\Mail\ReplyToEmail;
+use App\Category;
 
 class PurchaseController extends Controller
 {
@@ -478,8 +479,10 @@ class PurchaseController extends Controller
             array_push($includedOrders, $order[ 'order_id' ]);
         }
 
+        $color = $request->get('color');
+        $size = $request->get('size');
         $products = Product::with([
-            'orderproducts' => function ($query) use ($page, $not_include_products, $includedOrders) {
+            'orderproducts' => function ($query) use ($page, $not_include_products, $includedOrders, $color, $size) {
                 if ($page != 'ordered') {
                     $query->whereNotIn("id", $not_include_products);
                 }
@@ -489,6 +492,14 @@ class PurchaseController extends Controller
                         $q->whereIn("id", array_unique($includedOrders));
                     }
                 ]);
+
+                if (!empty($color) && is_array($color)) {
+                    $query = $query->whereIn('color', $color);
+                }
+
+                if (!empty($size)) {
+                    $query = $query->where('size', $size);
+                }
             },
             'purchases',
             'suppliers',
@@ -558,6 +569,34 @@ class PurchaseController extends Controller
             });
         }
 
+        if ($request->category_id != null && $request->category_id != 1) {
+            $category_children = [];
+
+            $is_parent = Category::isParent($request->category_id);
+
+            if ($is_parent) {
+                $childs = Category::find($request->category_id)->childs()->get();
+
+                foreach ($childs as $child) {
+                    $is_parent = Category::isParent($child->id);
+
+                    if ($is_parent) {
+                        $children = Category::find($child->id)->childs()->get();
+
+                        foreach ($children as $chili) {
+                            array_push($category_children, $chili->id);
+                        }
+                    } else {
+                        array_push($category_children, $child->id);
+                    }
+                }
+            } else {
+                array_push($category_children, $request->category_id );
+            }
+
+            $products = $products->whereIn('category', $category_children);
+        }
+
         $new_products = [];
         $products = $products->select(['id', 'sku', 'supplier', 'brand', 'category'])->get()->sortBy('supplier');
         $count = 0;
@@ -581,6 +620,7 @@ class PurchaseController extends Controller
             $customer_names = '';
             $customers = [];
             $orderCount = 0;
+            $sizeArr = [];
             foreach ($product->orderproducts as $key => $order_product) {
                 if ($order_product->order && $order_product->order->customer) {
                     // if ($count == 0) {
@@ -590,9 +630,12 @@ class PurchaseController extends Controller
                     // }
                     $customers[] = $order_product->order->customer;
                 }
-
+                
                 if (!empty($order_product->order)) {
                     $orderCount++;
+                    if (!empty($order_product->size)) {
+                        $sizeArr[] = $order_product->size;
+                    }
                 }
             }
 
@@ -644,6 +687,7 @@ class PurchaseController extends Controller
             $new_products[ $count ][ 'order_date' ] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->order_date : 'No Order';
             $new_products[ $count ][ 'order_advance' ] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->advance_detail : 'No Order';
             $new_products[ $count ][ 'supplier_msg' ] = $supplier_msg_data;
+            $new_products[ $count ][ 'size' ] = implode(',', array_unique($sizeArr));
 
             $count++;
         }
@@ -708,7 +752,8 @@ class PurchaseController extends Controller
         ]);
 
         //echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';//exit;
-        $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control'])->selected(1)->renderAsDropdown();
+        $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2'])->selected(1)->renderAsDropdown();
+        $categoryFilter = \App\Category::attr(['name' => 'category_id', 'class' => 'form-control select-multiple2'])->selected(request()->get('category_id', 1))->renderAsDropdown();
 
         return view('purchase.purchase-grid')->with([
             'products' => $new_products,
@@ -723,6 +768,7 @@ class PurchaseController extends Controller
             'page' => $page,
             'category_selection' => $category_selection,
             'activSuppliers' => $activSuppliers,
+            'categoryFilter' => $categoryFilter,
         ]);
     }
 
@@ -2691,18 +2737,22 @@ class PurchaseController extends Controller
             ->whereIn('id', $supplier_id)
             ->get();
         if (count($suppliers_all) > 0) {
+            // Get product
+            $media = '';
+            $product = Product::find($id);
+            if ($product && $product->hasMedia(config('constants.media_tags'))) {
+                $media = $product->getMedia(config('constants.media_tags'))->first()->getUrl();;
+            }
+
+            $sku = isset($product->sku) ? $product->sku : '';
+            $size = !empty($request->get('size')) ? ' size '. $request->get('size') : '';
 
             foreach ($suppliers_all as $supplier) {
 
                 if ($supplier->phone != '') {
-                    // Get product
-                    $media = '';
-                    $product = Product::find($id);
-                    if ($product && $product->hasMedia(config('constants.media_tags'))) {
-                        $media = $product->getMedia(config('constants.media_tags'))->first()->getUrl();;
-                    }
+                    
 
-                    $message = $request->input('message') . ' (' . $product->sku . ')'.' size '.$product->size;
+                    $message = $request->input('message') . ' (' . $sku . ')'.$size;
 
                     try {
                         dump("Sending message");
@@ -2718,7 +2768,7 @@ class PurchaseController extends Controller
                             'status' => 1
                         ];
 
-                        DB::enableQueryLog(); // Enable query log
+                        //DB::enableQueryLog(); // Enable query log
 
                         $chat_message = ChatMessage::create($params);
 

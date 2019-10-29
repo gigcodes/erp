@@ -7,6 +7,7 @@ use App\ScrapedProducts;
 use App\Product;
 use App\Category;
 use App\Brand;
+use App\CronJobReport;
 use App\Setting;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -46,6 +47,12 @@ class UpdateDoubleProducts extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
       $products = ScrapedProducts::where('has_sku', 1)->where('website', 'DoubleF')->get();
 
       foreach ($products as $product) {
@@ -131,5 +138,7 @@ class UpdateDoubleProducts extends Command
           // }
         }
       }
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

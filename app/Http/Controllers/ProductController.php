@@ -1348,7 +1348,7 @@ class ProductController extends Controller
     {
         $roletype = $request->input('roletype') ?? 'Sale';
         $products = Product::where(function ($query) {
-            $query->where('stock', '>=', 1)->orWhereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11)");
+            $query->whereRaw("(stock>0 OR (supplier LIKE '%In-Stock%'))");
         });
 
         $filtered_category = '';
@@ -1458,7 +1458,9 @@ class ProductController extends Controller
         $locations = (new LocationList)->all();
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids'));
+        $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->get();
+        
+        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
     }
 
 
@@ -2071,5 +2073,23 @@ class ProductController extends Controller
 
         return response()->json(["code" => 0, "data" => [], "message" => "No media found"]);
 
+    }
+
+    public function sendMessageSelectedCustomer(Request $request)
+    {
+        $customerIds = $request->get('customers_id', '');
+        $customerIds = explode(',', $customerIds);
+        foreach ($customerIds as $customerId) {
+            $requestData = new Request();
+            $requestData->setMethod('POST');
+            $params = $request->except(['_token', 'customers_id']);
+            $params['customer_id'] = $customerId;
+            $requestData->request->add($params);
+
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+        }
+
+        return redirect('/erp-leads');
+        
     }
 }

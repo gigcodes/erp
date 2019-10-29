@@ -120,6 +120,13 @@
                                value="{{ isset($size) ? $size : '' }}"
                                placeholder="Size">
                     </div>
+                     <div class="form-group mr-3">
+                        <select class="form-control select-multiple" name="quick_sell_groups[]" multiple data-placeholder="Quick Sell Groups...">
+                            @foreach ($quick_sell_groups as $key => $quick_sell)
+                                <option value="{{ $quick_sell->id }}" {{ in_array($quick_sell->id, request()->get('quick_sell_groups', [])) ? 'selected' : '' }}>{{ $quick_sell->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="form-group mr-3">
                         {!! Form::select('per_page',[
                         "20" => "20 Images Per Page",
@@ -148,7 +155,7 @@
 
                 <form action="{{ route('search') }}" method="GET" id="quickProducts" class="form-inline align-items-start my-3">
                     <input type="hidden" name="quick_product" value="true">
-                    <button type="submit" class="btn btn-xs btn-secondary">Quick Products</button>
+                    <button type="submit" class="btn btn-xs btn-secondary">Quick Sell</button>
                 </form>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="0">Select All</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="20">Select 20</button>
@@ -164,8 +171,23 @@
     <div class="productGrid" id="productGrid">
         @include('partials.image-load')
     </div>
-
-    <form action="{{ $model_type == 'images' ? route('image.grid.attach') : ($model_type == 'customers' ? route('customer.whatsapp.send.all', 'false') : ($model_type == 'purchase-replace' ? route('purchase.product.replace') : (($model_type == 'broadcast-images' ? route('broadcast.images.link') : ($model_type == 'customer' ? route('whatsapp.send', 'customer') : url('whatsapp/updateAndCreate/')))))) }}" method="POST" id="attachImageForm">
+    @php 
+        $action = url('whatsapp/updateAndCreate/'); 
+        if ($model_type == 'images') {
+            $action =  route('image.grid.attach');
+        } else if ($model_type == 'customers') {
+            $action =  route('customer.whatsapp.send.all', 'false');
+        } else if ($model_type == 'purchase-replace') {
+            $action =  route('purchase.product.replace');
+        } else if ($model_type == 'broadcast-images') {
+            $action =  route('broadcast.images.link');
+        } else if ($model_type == 'customer') {
+            $action =  route('whatsapp.send', 'customer');
+        } else if ($model_type == 'selected_customer') {
+            $action =  route('whatsapp.send_selected_customer');
+        }
+    @endphp
+    <form action="{{ $action }}" method="POST" id="attachImageForm">
         @csrf
 
         @if ($model_type == 'customers')
@@ -176,7 +198,7 @@
         <input type="hidden" name="image" value="">
         <input type="hidden" name="screenshot_path" value="">
         <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : '' }}">
-        <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : 'nothing') }}" value="{{ $model_id }}">
+        <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
         {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
         <input type="hidden" name="status" value="{{ $status }}">
@@ -222,12 +244,12 @@
                 if ($this.hasClass("has-all-selected") === false) {
                     $this.html("Deselect " + vcount);
                     if (vcount == 'all') {
-                        $(".select-pr-list-chk").prop("checked", true).change();
+                        $(".select-pr-list-chk").prop("checked", true).trigger('change');
                     } else {
                         var boxes = $(".select-pr-list-chk");
                         for (i = 0; i < vcount; i++) {
                             try {
-                                $(boxes[i]).prop("checked", true).change();
+                                $(boxes[i]).prop("checked", true).trigger('change');
                             } catch (err) {
                             }
                         }
@@ -236,12 +258,12 @@
                 } else {
                     $this.html("Select " + vcount);
                     if (vcount == 'all') {
-                        $(".select-pr-list-chk").prop("checked", false).change();
+                        $(".select-pr-list-chk").prop("checked", false).trigger('change');
                     } else {
                         var boxes = $(".select-pr-list-chk");
                         for (i = 0; i < vcount; i++) {
                             try {
-                                $(boxes[i]).prop("checked", false).change();
+                                $(boxes[i]).prop("checked", false).trigger('change');
                             } catch (err) {
                             }
                         }
@@ -249,14 +271,14 @@
                     $this.removeClass("has-all-selected");
                 }
 
-                // Add all images to array
+                /*// Add all images to array
                 image_array = [];
                 console.log(all_product_ids.length);
                 for (i = 0; i < all_product_ids.length && i < vcount; i++) {
                     image_array.push(all_product_ids[i]);
                 }
                 image_array = unique(image_array);
-                console.log(image_array);
+                console.log(image_array);*/
             })
         });
 
@@ -404,14 +426,15 @@
         $('#quickProducts').on('submit', function (e) {
             e.preventDefault();
 
-            var url = "{{ route('search') }}";
-            var formData = $('#quickProducts').serialize();
+            var url = "{{ route('search') }}?quick_product=true";
+            var formData = $('#searchForm').serialize();
 
             $.ajax({
                 url: url,
                 data: formData
             }).done(function (data) {
                 $('#productGrid').html(data.html);
+                $('#products_count').text(data.products_count);
                 $('.lazy').Lazy({
                     effect: 'fadeIn'
                 });

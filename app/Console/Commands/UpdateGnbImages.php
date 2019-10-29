@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Product;
 use App\ScrapedProducts;
 use Plank\Mediable\Media;
+use App\CronJobReport;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class UpdateGnbImages extends Command
@@ -41,6 +42,12 @@ class UpdateGnbImages extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
       $scraped_products = ScrapedProducts::where('website', 'G&B')->get();
 
       foreach ($scraped_products as $scraped_product) {
@@ -61,6 +68,7 @@ class UpdateGnbImages extends Command
         }
       }
 
+      $report->update(['end_time' => Carbon:: now()]);
       dd('stap');
     }
 }

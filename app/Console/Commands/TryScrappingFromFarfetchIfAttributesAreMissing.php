@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
+use App\CronJobReport;
+
 
 class TryScrappingFromFarfetchIfAttributesAreMissing extends Command
 {
@@ -39,11 +41,20 @@ class TryScrappingFromFarfetchIfAttributesAreMissing extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
+
         $content = $this->getDetailsFromFarfetch('');
         $c = new HtmlPageCrawler($content);
         $data = $c->filter('._659731 div p._87b3a2')->getInnerHtml();
 
         dd($data);
+
+          $report->update(['end_time' => Carbon:: now()]);
 
     }
 

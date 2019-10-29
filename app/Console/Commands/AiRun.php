@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\LogScraperVsAi;
 use App\Product;
+use App\CronJobReport;
 use seo2websites\GoogleVision\GoogleVisionHelper;
 
 class AiRun extends Command
@@ -40,6 +41,11 @@ class AiRun extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         // Set time limit
         set_time_limit(0);
 
@@ -106,5 +112,7 @@ class AiRun extends Command
             $product->is_listing_rejected = 0;
             $product->save();
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

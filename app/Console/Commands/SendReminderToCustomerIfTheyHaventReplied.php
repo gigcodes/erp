@@ -7,6 +7,7 @@ use App\Customer;
 use App\Http\Controllers\WhatsAppController;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -44,6 +45,13 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $now = Carbon::now()->toDateTimeString();
 
         //get latest messages for each customer ignoring the auto messages
@@ -122,5 +130,7 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
         $myRequest->request->add(['messageId' => $chat_message->id]);
 
         app(WhatsAppController::class)->approveMessage('customer', $myRequest);
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

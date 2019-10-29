@@ -94,7 +94,10 @@ class MagentoSoapHelper
         $meta[ 'description' ] = 'Shop ' . $product->brands->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $product->product_category->title . ' Largest collection of luxury products in the world from Solo luxury at special prices';
 
         // If sizes are given we create a configurable product and several single child products
-        if (!empty($product->size)) {
+        if (!empty($product->size) && $product->size == 'OS') {
+            $product->size = null;
+            $result = $this->_pushSingleProduct($product, $categories, $meta);
+        } elseif (!empty($product->size)) {
             $result = $this->_pushConfigurableProductWithChildren($product, $categories, $meta);
         } else {
             $result = $this->_pushSingleProduct($product, $categories, $meta);
@@ -332,18 +335,20 @@ class MagentoSoapHelper
                 $types = $i == 1 ? ['hover_image'] : $types;
 
                 // Push image to Magento
-                try {
-                    $this->_proxy->catalogProductAttributeMediaCreate(
-                        $this->_sessionId,
-                        $magentoProductId,
-                        array('file' => $file, 'label' => $image->getBasenameAttribute(), 'position' => ++$i, 'types' => $types, 'exclude' => 0)
-                    );
+                if ( $i < 5 ) {
+                    try {
+                        $this->_proxy->catalogProductAttributeMediaCreate(
+                            $this->_sessionId,
+                            $magentoProductId,
+                            array('file' => $file, 'label' => $image->getBasenameAttribute(), 'position' => ++$i, 'types' => $types, 'exclude' => 0)
+                        );
 
-                    // Log info
-                    Log::channel('listMagento')->info("Image for product " . $product->id . " with name " . $file[ 'name' ] . " successfully pushed to Magento");
-                } catch (\SoapFault $e) {
-                    // Log alert
-                    Log::channel('listMagento')->alert("Image for product " . $product->id . " with name " . $file[ 'name' ] . " failed while pushing to Magento with message: " . $e->getMessage());
+                        // Log info
+                        Log::channel('listMagento')->info("Image for product " . $product->id . " with name " . $file[ 'name' ] . " successfully pushed to Magento");
+                    } catch (\SoapFault $e) {
+                        // Log alert
+                        Log::channel('listMagento')->alert("Image for product " . $product->id . " with name " . $file[ 'name' ] . " failed while pushing to Magento with message: " . $e->getMessage());
+                    }
                 }
             }
         }

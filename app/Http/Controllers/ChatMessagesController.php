@@ -7,6 +7,7 @@ use App\User;
 use App\Vendor;
 use App\Supplier;
 use App\Task;
+use App\Old;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -40,6 +41,9 @@ class ChatMessagesController extends Controller
                 break;
             case 'supplier':
                 $object = Supplier::find($request->object_id);
+                break;
+            case 'old':
+                $object = Old::find($request->object_id);
                 break;
             default:
                 $object = Customer::find($request->object);
@@ -96,16 +100,22 @@ class ChatMessagesController extends Controller
 
                         $mediaWithDetails[] = $tempImage;
                     } else {
-                        // Get media URL
-                        $media[] = $image->getUrl();
-
                         // Check for product
-                        if (empty($productId)) {
+                        if (isset($image->id)) {
                             $product = DB::table('mediables')->where('mediable_type', 'App\Product')->where('media_id', $image->id)->get(['mediable_id'])->first();
+
                             if ($product != null) {
                                 $productId = $product->mediable_id;
+                            } else {
+                                $productId = null;
                             }
                         }
+
+                        // Get media URL
+                        $media[] = [
+                            'image' => $image->getUrl(),
+                            'product_id' => $productId
+                        ];
                     }
 
                 }
@@ -115,7 +125,7 @@ class ChatMessagesController extends Controller
                 'id' => $chatMessage->id,
                 'type' => $request->object,
                 'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
-                'message' => $chatMessage->message,
+                'message' => htmlentities($chatMessage->message),
                 'media_url' => $chatMessage->media_url,
                 'datetime' => $chatMessage->created_at,
                 'media' => is_array($media) ? $media : null,

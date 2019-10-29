@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Plank\Mediable\Media;
+use App\CronJobReport;
+
 use Storage;
 
 class ReplaceJpegImageWithJpg extends Command
@@ -39,6 +41,13 @@ class ReplaceJpegImageWithJpg extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $medias = Media::where('extension', 'jpeg')->get();
 
         foreach ($medias as $media) {
@@ -58,5 +67,7 @@ class ReplaceJpegImageWithJpg extends Command
 //                dump($exception);
             }
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

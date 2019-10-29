@@ -4,6 +4,8 @@ namespace App\Console\Commands\Manual;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\CronJobReport;
+
 
 
 class ScraperMissingData extends Command
@@ -39,6 +41,10 @@ class ScraperMissingData extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
         // Get one product per supplier
         $sql = "
             SELECT
@@ -93,5 +99,7 @@ class ScraperMissingData extends Command
                     "\n";
             }
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

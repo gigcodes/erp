@@ -6,6 +6,7 @@ use App\Account;
 use App\Customer;
 use App\InstagramThread;
 use App\Review;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
 
@@ -49,6 +50,11 @@ class SyncDMForDummyAccounts extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $accounts = Account::where('platform', 'instagram')->get();
 
         foreach ($accounts as $account) {
@@ -86,6 +92,8 @@ class SyncDMForDummyAccounts extends Command
                 }
             }
         }
+
+         $report->update(['end_time' => Carbon:: now()]);
     }
 
     /**

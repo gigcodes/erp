@@ -7,6 +7,7 @@ use App\ImageSchedule;
 use App\ScheduleGroup;
 use Illuminate\Console\Command;
 use App\Services\Instagram\Instagram;
+use App\CronJobReport;
 use App\Services\Facebook\Facebook;
 
 class PostScheduledMedia extends Command
@@ -47,6 +48,13 @@ class PostScheduledMedia extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $schedules = ScheduleGroup::where('status', 1)->where('scheduled_for', date('Y-m-d H-i-00'))->get();
         foreach ($schedules as $schedule) {
             $images = $schedule->images->get()->all();
@@ -68,5 +76,7 @@ class PostScheduledMedia extends Command
             $schedule->status = 2;
             $schedule->save();
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

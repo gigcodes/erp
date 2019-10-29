@@ -14,6 +14,7 @@ use App\InstagramAutomatedMessages;
 use App\Services\Instagram\Hashtags;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
+use App\CronJobReport;
 
 class AutoCommentBot extends Command
 {
@@ -50,6 +51,12 @@ class AutoCommentBot extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $hashtag = AutoReplyHashtags::where('status', 1)->first();
 
         $counter = 0;
@@ -126,6 +133,8 @@ class AutoCommentBot extends Command
 
                 sleep(5);
             }
+
+            $report->update(['end_time' => Carbon:: now()]);
 
     }
 }

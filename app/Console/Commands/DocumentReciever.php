@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Document;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Webklex\IMAP\Client;
 
@@ -40,6 +41,11 @@ class DocumentReciever extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $oClient = new Client([
             'host'          => env('IMAP_HOST_DOCUMENT'),
             'port'          => env('IMAP_PORT_DOCUMENT'),
@@ -89,5 +95,7 @@ class DocumentReciever extends Command
                 }
 
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

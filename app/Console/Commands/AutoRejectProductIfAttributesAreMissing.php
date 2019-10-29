@@ -6,6 +6,7 @@ use App\Brand;
 use App\BrandCategoryPriceRange;
 use App\ListingHistory;
 use App\Product;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class AutoRejectProductIfAttributesAreMissing extends Command
@@ -41,6 +42,11 @@ class AutoRejectProductIfAttributesAreMissing extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         // Get all products with missing details
         $products = Product::where([['is_farfetched', 0], ['is_listing_rejected', 0], ['is_listing_rejected_automatically', 0]])->where(function ($query) {
             $query->where('name', '=', '')
@@ -136,5 +142,7 @@ class AutoRejectProductIfAttributesAreMissing extends Command
                 }
             }
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

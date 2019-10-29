@@ -35,8 +35,8 @@
     <script>
         jQuery('.readmore').readmore({
             speed: 75,
-            moreLink: '<a href="#">Read more</a>'
-            lessLink: '<a href="#">Read less</a>',
+            moreLink: '<a href="#">Read more</a>',
+            lessLink: '<a href="#">Read less</a>'
         });
     </script>
     <script src="{{ asset('js/app.js') }}"></script>
@@ -388,6 +388,12 @@
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>In Delivered<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ route('productinventory.indelivered') }}">In Delivered</a>
+                                            </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Inventory<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
@@ -487,6 +493,7 @@
                                                 <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
                                                 <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
                                                 <a class="dropdown-item" href="{{ action('KeywordInstructionController@index') }}">Instruction Keyword Instructions</a>
+                                                <a class="dropdown-item" href="/instruction/quick-instruction">Quick instructions</a>
                                                 <a class="dropdown-item" href="/instruction/quick-instruction?type=price">Quick instructions (price)</a>
                                                 <a class="dropdown-item" href="/instruction/quick-instruction?type=image">Quick instructions (attach)</a>
                                             </ul>
@@ -974,11 +981,15 @@
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Old Issues<span class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('OldController@index') }}">Old Out going</a>
+                                                <a class="dropdown-item" href="{{ url('/old/') }}">Old Info</a>
                                             </li>
 
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old Incoming</a>
+                                                <a class="dropdown-item" href="{{ url('/old/?type=1') }}">Old Out going</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/old/?type=2') }}">Old Incoming</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -986,7 +997,7 @@
                             </li>
                         @endif
                         <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Username <span class="caret"></span></a>
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{{ isset(Auth::user()->name) ? Auth::user()->name : 'Settings' }}} <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
 
@@ -1074,6 +1085,9 @@
                                             <a class="dropdown-item" href="{{route('autoreply.index')}}">Auto Reples</a>
                                         </li>
                                     </ul>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{url('/kb/')}}" target="_blank">Knowledge Base</a>
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -1333,31 +1347,31 @@
     });
 
     var getNotesList = function () {
-        $.ajax({
-            type: "GET",
-            url: "/page-notes/list",
-            data: {
-                _token: window.token,
-                url: "<?php echo request()->url() ?>"
-            },
-            dataType: "json",
-            success: function (data) {
-                if (data.code > 0) {
-                    var listOfN = "";
-                    $.each(data.notes, function (k, v) {
-                        listOfN += "<tr>";
-                        listOfN += "<td scope='row'>" + v.id + "</td>";
-                        listOfN += "<td>" + v.note + "</td>";
-                        listOfN += "<td>" + v.category_name + "</td>";
-                        listOfN += "<td>" + v.name + "</td>";
-                        listOfN += "<td>" + v.created_at + "</td>";
-                        listOfN += "</tr>";
-                    });
-
-                    $(".page-notes-list").prepend(listOfN);
-                }
-            },
-        });
+        //$.ajax({
+//            type: "GET",
+        //          url: "/page-notes/list",
+        //        data: {
+        //          _token: window.token,
+        //        url: "<?php echo request()->url() ?>"
+        //  },
+//            dataType: "json",
+        //          success: function (data) {
+        //            if (data.code > 0) {
+        //              var listOfN = "";
+        //            $.each(data.notes, function (k, v) {
+        //              listOfN += "<tr>";
+        //            listOfN += "<td scope='row'>" + v.id + "</td>";
+        //          listOfN += "<td>" + v.note + "</td>";
+        //        listOfN += "<td>" + v.category_name + "</td>";
+        //      listOfN += "<td>" + v.name + "</td>";
+        //    listOfN += "<td>" + v.created_at + "</td>";
+        //  listOfN += "</tr>";
+//                    });
+//
+        //                  $(".page-notes-list").prepend(listOfN);
+        //            }
+        //      },
+        //});
     }
 
     if ($(".help-button-wrapper").length > 0) {

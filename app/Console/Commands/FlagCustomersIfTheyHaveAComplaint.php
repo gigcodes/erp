@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Complaint;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 
 class FlagCustomersIfTheyHaveAComplaint extends Command
 {
@@ -38,6 +39,11 @@ class FlagCustomersIfTheyHaveAComplaint extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         Complaint::where('is_customer_flagged', 0)->chunk(1000, function($complaints) {
             foreach ($complaints as $complaint) {
                 $customer = $complaint->customer;
@@ -50,5 +56,7 @@ class FlagCustomersIfTheyHaveAComplaint extends Command
                 }
             }
         });
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }
