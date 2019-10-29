@@ -21,7 +21,7 @@
             <h2 class="page-heading">Cron Job History </h2>
             <div class="pull-left">
                 <form action="{{ route('cron.history.search') }}" method="POST" class="form-inline align-items-start">
-                    
+                    @csrf
                     <div class="form-group ml-3">
                         <div class='input-group date' id='filter-date'>
                             <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" />

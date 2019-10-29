@@ -53,7 +53,7 @@ class CronController extends Controller
 
 	public function historySearch(Request $request)
     {
-    	dd($request);
+    	
     	if($request->date != null){
 
     		
@@ -63,6 +63,7 @@ class CronController extends Controller
 
     		
     	}else{
+    		//dd($request);
     		$reports = CronJobReport::where('signature',$request->signature)->paginate(15);
     	}
     	return view('cron.history', ['reports' => $reports , 'signature' => $request->signature]);
