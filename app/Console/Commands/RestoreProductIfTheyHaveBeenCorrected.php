@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Product;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class RestoreProductIfTheyHaveBeenCorrected extends Command
@@ -38,6 +39,13 @@ class RestoreProductIfTheyHaveBeenCorrected extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         Product::where('name', '!=', '')
             ->where('short_description', '!=', '')
             ->where('composition', '!=', '')
@@ -53,5 +61,7 @@ class RestoreProductIfTheyHaveBeenCorrected extends Command
                 }
             })
         ;
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

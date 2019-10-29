@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Product;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class FetchMeasurementsIfScraped extends Command
@@ -38,6 +39,12 @@ class FetchMeasurementsIfScraped extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         Product::where(function ($query) {
             $query->where('lmeasurement', '')->orWhereNull('lmeasurement');
         })
@@ -66,5 +73,7 @@ class FetchMeasurementsIfScraped extends Command
                     }
                 }
             });
+
+            $report->update(['end_time' => Carbon:: now()]);
     }
 }

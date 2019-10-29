@@ -11,6 +11,7 @@ use App\Services\Bots\CucProductExistsEmulator;
 use App\Setting;
 use App\Services\Bots\WebsiteEmulator;
 use GuzzleHttp\Client;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
@@ -36,12 +37,19 @@ class GetCuccuiniDetailsWithEmulator extends Command
 
     public function handle(): void
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
         if (strpos($letters, 'C') === false) {
             return;
         }
 
         $this->authenticate();
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 
     private function authenticate() {

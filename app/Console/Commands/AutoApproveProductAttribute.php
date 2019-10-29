@@ -9,6 +9,7 @@ use App\Services\Listing\Main;
 use App\Services\Listing\Scrapper;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 
 class AutoApproveProductAttribute extends Command
 {
@@ -52,6 +53,11 @@ class AutoApproveProductAttribute extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $count = 0;
 //        $cats = (Category::where('parent_id',5)->orWhere('parent_id', 41)->pluck('id')->toArray());
         $products = Product::where('is_approved', 0)
@@ -110,5 +116,6 @@ class AutoApproveProductAttribute extends Command
             $product->save();
 
         }
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

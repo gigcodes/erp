@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Product;
 use App\ScrapedProducts;
+use App\CronJobReport;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -41,6 +42,11 @@ class UpdateToryImages extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
       $scraped_products = ScrapedProducts::where('website', 'Tory')->get();
 
       foreach ($scraped_products as $scraped_product) {
@@ -58,7 +64,7 @@ class UpdateToryImages extends Command
           }
         }
       }
-
+       $report->update(['end_time' => Carbon:: now()]);
       dd('stap');
     }
 }

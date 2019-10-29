@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Services\Scrap\WiseBoutiqueProductDetailsScraper;
+use App\CronJobReport;
 
 
 class UpdateWiseProducts extends Command
@@ -42,7 +43,12 @@ class UpdateWiseProducts extends Command
      */
     public function handle()
     {
-        $this->scraper->createProducts();
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
 
+        $this->scraper->createProducts();
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }

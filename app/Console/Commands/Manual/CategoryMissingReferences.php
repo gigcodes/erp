@@ -5,6 +5,7 @@ namespace App\Console\Commands\Manual;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Category;
+use App\CronJobReport;
 use App\Loggers\LogScraper;
 
 class CategoryMissingReferences extends Command
@@ -40,6 +41,11 @@ class CategoryMissingReferences extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         // Set empty
         $arrUnknown = [];
 
@@ -79,5 +85,7 @@ class CategoryMissingReferences extends Command
         foreach ( $arrUnknown as $unknown ) {
             echo $unknown . "\n";
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

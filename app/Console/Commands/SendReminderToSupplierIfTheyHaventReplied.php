@@ -6,6 +6,7 @@ use App\ChatMessage;
 use App\Http\Controllers\WhatsAppController;
 use App\Supplier;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +44,12 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $now = Carbon::now()->toDateTimeString();
 
         //get latest message of the supplier exclusing the auto messages
@@ -89,6 +96,8 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
             //Send message to the supplier
             $this->sendMessage($supplier->id, $templateMessage);
         }
+
+          $report->update(['end_time' => Carbon:: now()]);
 
     }
 

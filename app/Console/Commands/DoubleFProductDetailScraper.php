@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\Scrap\DoubleFProductDetailsScraper;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 
 class DoubleFProductDetailScraper extends Command
 {
@@ -40,10 +41,17 @@ class DoubleFProductDetailScraper extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
         if (strpos($letters, 'D') === false) {
             return;
         }
         $this->scraper->scrap();
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

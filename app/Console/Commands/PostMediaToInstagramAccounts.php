@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Account;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
+use App\CronJobReport;
 use InstagramAPI\Media\Photo\InstagramPhoto;
 
 class PostMediaToInstagramAccounts extends Command
@@ -40,6 +41,13 @@ class PostMediaToInstagramAccounts extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
+
         $instagram = new Instagram();
 
         $accounts = 'shrikirtiraha23,balachander83,ashnauppalapati81,vinayafalodiya55';
@@ -73,5 +81,7 @@ class PostMediaToInstagramAccounts extends Command
 
             }
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

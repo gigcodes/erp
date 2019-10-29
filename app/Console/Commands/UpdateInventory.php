@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Product;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 
 class UpdateInventory extends Command
 {
@@ -37,6 +38,12 @@ class UpdateInventory extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         // Set empty array with SKU
         $arrInventory = [];
 
@@ -74,5 +81,6 @@ class UpdateInventory extends Command
         }
 
         // TODO: Update stock in Magento
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }

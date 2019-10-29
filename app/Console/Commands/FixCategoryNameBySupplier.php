@@ -6,6 +6,7 @@ use App\Category;
 use App\Product;
 use App\ScrapedProducts;
 use App\Supplier;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use League\Csv\Reader;
 use League\Csv\Statement;
@@ -43,6 +44,11 @@ class FixCategoryNameBySupplier extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
 //        Product::where('id', 143121)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
             echo 'Chunk again=======================================================' . "\n";
@@ -50,6 +56,8 @@ class FixCategoryNameBySupplier extends Command
                 $this->classify2($product);
             }
         });
+
+        $report->update(['end_time' => Carbon:: now()]);
 
     }
 
