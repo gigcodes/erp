@@ -117,18 +117,18 @@
             line-height: 26px
         }
 
-         .numberSend {
-          width: 160px;
-          background-color: transparent;
-          color: transparent;
-          text-align: center;
-          border-radius: 6px;
-          position: absolute;
-          z-index: 1;
-          left: 10%;
-          margin-left: -80px;
-          display: none;
-    }
+        .numberSend {
+            width: 160px;
+            background-color: transparent;
+            color: transparent;
+            text-align: center;
+            border-radius: 6px;
+            position: absolute;
+            z-index: 1;
+            left: 10%;
+            margin-left: -80px;
+            display: none;
+        }
 
 
     </style>
@@ -344,10 +344,10 @@
 
                                 <div class="numberSend" id="show{{ $customer->id }}">
                                     <select class="form-control call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}">
-                                    <option disabled selected>Select Number</option>
-                                    @foreach(\Config::get("twilio.caller_id") as $caller)
-                                    <option value="{{ $caller }}">{{ $caller }}</option>
-                                    @endforeach
+                                        <option disabled selected>Select Number</option>
+                                        @foreach(\Config::get("twilio.caller_id") as $caller)
+                                            <option value="{{ $caller }}">{{ $caller }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 
@@ -629,6 +629,13 @@
                             <ul class="more-communication-container">
                             </ul>
 
+                            <label class="form-control-label">Select Group</label>
+                            <select class="form-control multiselect-2" name="group" id="group{{ $customer->id }}" multiple>
+                                @foreach($groups as $group)
+                                    <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }}@endif</option>
+                                @endforeach
+                            </select>
+                            <button style="display: inline;width: 20%" class="btn btn-sm btn-image send-group " data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png"></button>
 
                             @if(isset($complaints[$customer->id]))
                                 <p style="cursor: pointer;" class="show-complaint" data-complaint="{{ $complaints[$customer->id] }}">
@@ -1337,15 +1344,15 @@
                     nextSelector: '.pagination li.active + li a',
                     contentSelector: 'div.infinite-scroll',
                     callback: function () {
-                        // $('ul.pagination').remove();
+                       $('.multiselect-2').multiselect({
+                        enableFiltering: true,
+                        filterBehavior: 'value'
+                        });
                     }
                 });
             });
         });
 
-        $(document).ready(function () {
-            $(".select-multiple").multiselect();
-        });
 
         $(document).ready(function () {
             $('#customer-search').autocomplete({
@@ -1412,6 +1419,7 @@
 
                 $('#customers-data').show();
                 $('#mergeButton').prop('disabled', false);
+
                 $(thiss).text('Load Data');
             }).fail(function (response) {
                 console.log(response);
@@ -1593,7 +1601,7 @@
         });
 
         $(document).on('change', '.quickCategory', function () {
-            if($(this).val() != "") {
+            if ($(this).val() != "") {
                 var replies = JSON.parse($(this).val());
                 var thiss = $(this);
                 $(this).closest("td").find('.quickComment').empty();
@@ -2312,12 +2320,50 @@
             });
         });
 
-        $(document).on('click', '.call-select', function() {
-            var id = $(this).data('id');
-            $('#show'+id).toggle();
-            console.log('#show'+id);
+        $(function () {
+            $('.multiselect-2').multiselect({
+                    enableFiltering: true,
+                    filterBehavior: 'value'
+                });
         });
 
+
+
+        $(document).on('click', '.send-group', function () {
+            var thiss = $(this);
+            var customerId = $(this).data('customerid');
+            var groupId = $('#group' + customerId).val();
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'quicksell_group_send')}}",
+                type: 'POST',
+                data: {
+                    groupId: groupId,
+                    customerId: customerId,
+                    _token: "{{csrf_token()}}",
+                    status: 2
+                },
+                success: function () {
+                    toastr["success"]("Group Message sent successfully!", "Message");
+                 //   $("option:selected").prop("selected", false)
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending group message...Please select group id properly');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+            console.log(customerId);
+            console.log(groupId);
+
+        });
+
+        $(document).on('click', '.call-select', function () {
+            var id = $(this).data('id');
+            $('#show' + id).toggle();
+            console.log('#show' + id);
+        });
 
     </script>
 @endsection
