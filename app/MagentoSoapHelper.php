@@ -4,8 +4,6 @@ namespace App;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use App\Category;
-use App\ProductReference;
 use App\Helpers\ProductHelper;
 
 class MagentoSoapHelper
