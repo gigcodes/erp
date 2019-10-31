@@ -1094,6 +1094,9 @@ class WhatsAppController extends FindByNumberController
                 // Create message
                 $message = ChatMessage::create($params);
 
+                // Unset all variables
+                $params['vendor_id'] = null;
+
                 // Continue to the next record
                 continue;
             }
