@@ -86,5 +86,15 @@ class LiveChatController extends Controller
 				}
 			}
   		}
+
+  		public function reDirect()
+  		{
+  			$customers = Customer::orderBy('id','desc')->take(20)->get();
+
+  			return view('livechat.index', [
+                'customers' => $customers
+            ]);
+  			//dd($customer);
+  		}
 }
 
