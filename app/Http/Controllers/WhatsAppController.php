@@ -1209,6 +1209,9 @@ class WhatsAppController extends FindByNumberController
 
                 // Send realtime (???)
                 $this->sendRealTime($message, 'vendor_' . $vendor->id, $client);
+
+                // Set vendor ID to null
+                $params[ 'vendor_id' ] = null;
             }
 
             if ($dubbizle) {
@@ -1223,6 +1226,8 @@ class WhatsAppController extends FindByNumberController
                 $model_id = $dubbizle->id;
 
                 $this->sendRealTime($message, 'dubbizle_' . $dubbizle->id, $client);
+
+                $params[ 'dubbizle_id' ] = null;
             }
             // }
 
