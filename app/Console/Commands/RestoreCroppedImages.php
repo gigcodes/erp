@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Product;
 use File;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class RestoreCroppedImages extends Command
@@ -39,6 +40,12 @@ class RestoreCroppedImages extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $products = Product::where('is_image_processed', 1)->get();
 
         foreach ($products as $product) {
@@ -70,5 +77,7 @@ class RestoreCroppedImages extends Command
 
             }
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

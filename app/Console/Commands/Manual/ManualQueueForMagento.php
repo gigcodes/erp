@@ -3,7 +3,6 @@
 namespace App\Console\Commands\Manual;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use App\Jobs\PushToMagento;
 use App\Product;
 
@@ -46,12 +45,12 @@ class ManualQueueForMagento extends Command
         $products = Product::where('status_id', '=', 9)->where('stock', '>', 0)->get();
 
         // Loop over products
-        foreach ( $products as $product ) {
+        foreach ($products as $product) {
             // Output product ID
             echo $product->id . "\n";
 
             // Queue for AI
-            PushToMagento::dispatch( $product )->onQueue('magento');
+            PushToMagento::dispatch($product)->onQueue('magento');
         }
     }
 }

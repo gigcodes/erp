@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Product;
 use App\ScrapedProducts;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class FixDoubleFSku extends Command
@@ -39,6 +40,12 @@ class FixDoubleFSku extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $products = ScrapedProducts::where('website', 'doubleF')->get();
         foreach ($products as $product) {
             $sku = $product->sku;
@@ -72,5 +79,7 @@ class FixDoubleFSku extends Command
             $product->sku = $sku2;
             $product->save();
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\ScrapedProducts;
 use App\Product;
 use App\Brand;
+use App\CronJobReport;
 use App\Services\Bots\Prada;
 use App\Services\Bots\CucLoginEmulator;
 use App\Services\Bots\CucProductDataEmulator;
@@ -36,7 +37,15 @@ class SaveImageOnServer extends Command
 
     public function handle(): void
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $this->authenticate();
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 
     private function authenticate() {

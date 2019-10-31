@@ -4,8 +4,6 @@ namespace App;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use App\Category;
-use App\ProductReference;
 use App\Helpers\ProductHelper;
 
 class MagentoSoapHelper
@@ -169,6 +167,7 @@ class MagentoSoapHelper
                         ['key' => 'sizes', 'value' => $size,],
                         ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
                         ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
+                        ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0 ],
                     ]
                 ]
             );
@@ -216,6 +215,7 @@ class MagentoSoapHelper
                     ['key' => 'color', 'value' => $product->color,],
                     ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
                     ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
+                    ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0 ],
                 ]
             ]
         );
@@ -261,6 +261,7 @@ class MagentoSoapHelper
                     ['key' => 'measurement', 'value' => $measurement,],
                     ['key' => 'country_of_manufacture', 'value' => ucwords($product->made_in),],
                     ['key' => 'brands', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
+                    ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0 ]
                 ]
             ]
         );

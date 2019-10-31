@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Customer;
 use App\FacebookMessages;
+use App\CronJobReport;
 use App\Services\Facebook\Facebook;
 use Illuminate\Console\Command;
 
@@ -43,6 +44,11 @@ class CreateCustomerFromFacebook extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $conversations = $this->facebook->getConversations();
 
         foreach ($conversations['data'] as $conversation) {
@@ -66,6 +72,7 @@ class CreateCustomerFromFacebook extends Command
 
 
         }
+        $report->update(['end_time' => Carbon:: now()]);
     }
 
     private function createCustomer($facebookId, $name = '') {

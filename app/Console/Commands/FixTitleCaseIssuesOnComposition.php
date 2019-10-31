@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Product;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 
 class FixTitleCaseIssuesOnComposition extends Command
 {
@@ -38,6 +39,12 @@ class FixTitleCaseIssuesOnComposition extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
+
         Product::chunk(1000, function($products) {
             foreach ($products as $product) {
                 dump($product->id);
@@ -45,5 +52,7 @@ class FixTitleCaseIssuesOnComposition extends Command
                 $product->save();
             }
         });
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }
