@@ -47,7 +47,7 @@
         "pusher/pusher-php-server": "v3.0.1",
         "seo2websites/erp-customer": "dev-master",
         "seo2websites/erp-excel-importer": "dev-master",
-        "seo2websites/google-vision": "dev-master",
+        "seo2websites/google-vision": "dev-hotfix/google-image-search",
         "seo2websites/laravel-zoom": "dev-master",
         "seo2websites/price-comparison-scraper": "dev-master",
         "skovmand/mailchimp-laravel": "^1.0",
