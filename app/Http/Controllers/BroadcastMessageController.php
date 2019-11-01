@@ -184,7 +184,7 @@ class BroadcastMessageController extends Controller
 
     public function images()
     {
-        $broadcast_images = BroadcastImage::paginate(Setting::get('pagination'));
+        $broadcast_images = BroadcastImage::orderBy('id', 'DESC')->paginate(Setting::get('pagination'));
         $api_keys = ApiKey::select('number')->get();
 
         return view('customers.broadcast-images', [
