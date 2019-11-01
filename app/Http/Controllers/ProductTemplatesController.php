@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\BroadcastImage;
 use File;
 use Illuminate\Http\Request;
 use Plank\Mediable\Media;
@@ -138,16 +139,21 @@ class ProductTemplatesController extends Controller
 
         // Only do queries if we have an id
         if ( (int) $id > 0 ) {
-            $template = \App\ProductTemplate::where("id", $id)->first();
+            $template = \App\ProductTemplate::where("id", $id)->where('is_processed', 0)->first();
 
             if ($template) {
                 if ($request->post('image')) {
                     $image = base64_decode($request->post('image'));
                     $media = MediaUploader::fromString($image)->toDirectory(date('Y/m/d'))->useFilename('product-template-' . $id)->upload();
                     $template->attachMedia($media, config('constants.media_tags'));
-
                     $template->is_processed = 1;
                     $template->save();
+
+                    // Store as broadcast image
+                    $broadcastImage = new BroadcastImage();
+                    $broadcastImage->products = '[' . $template->product_id . ']';
+                    $broadcastImage->save();
+                    $broadcastImage->attachMedia($media, config('constants.media_tags'));
 
                     return response()->json(["code" => 1, "message" => "Product template updated successfully"]);
                 }
