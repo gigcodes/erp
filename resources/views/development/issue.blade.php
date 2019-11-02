@@ -155,13 +155,16 @@
                             <br />
                                 @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
                                     <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
-                                        <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="">
+                                        <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="File">
                                     </a>
                                 @endforeach
                             @endif
                             <br />
+
                             <button class="btn btn-secondary" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
-                            
+                            <button class="btn btn-secondary" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
+                            <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple />  
+
                             <br>
                             <div>
                                 <div class="panel-group">
@@ -614,6 +617,44 @@
                 }
             });
 
+        }
+
+        function sendUploadImage(id){
+            
+            $('#file-input'+id).trigger('click');
+            
+            $('#file-input'+id).on('change',function(){
+               if ($(this).val() != '') {
+                //console.log($(this).val());
+                    img = $(this).val()
+                    upload(img,id);
+                }
+            });
+
+        }
+
+        function upload(img,id) {
+            
+            $.ajax({
+                url: "{{ action('WhatsAppController@sendMessage', 'issue')}}",
+                type: 'POST',
+                data: {
+                    issue_id: id,
+                    type : 2,
+                    message: '',
+                    files: img,
+                    _token: "{{csrf_token()}}",
+                    status: 2
+                },
+                success: function () {
+                    
+                    
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                   
+                }
+            });
         }
     </script>
 @endsection
