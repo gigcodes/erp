@@ -1094,6 +1094,9 @@ class WhatsAppController extends FindByNumberController
                 // Create message
                 $message = ChatMessage::create($params);
 
+                // Unset all variables
+                $params['vendor_id'] = null;
+
                 // Continue to the next record
                 continue;
             }
@@ -1209,6 +1212,9 @@ class WhatsAppController extends FindByNumberController
 
                 // Send realtime (???)
                 $this->sendRealTime($message, 'vendor_' . $vendor->id, $client);
+
+                // Set vendor ID to null
+                $params[ 'vendor_id' ] = null;
             }
 
             if ($dubbizle) {
@@ -1223,6 +1229,8 @@ class WhatsAppController extends FindByNumberController
                 $model_id = $dubbizle->id;
 
                 $this->sendRealTime($message, 'dubbizle_' . $dubbizle->id, $client);
+
+                $params[ 'dubbizle_id' ] = null;
             }
             // }
 
@@ -1438,6 +1446,7 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 $params[ 'vendor_id' ] = $vendorId;
+                $params[ 'customer_id' ] = null;
                 $params[ 'approved' ] = 1;
                 $params[ 'message' ] = $message;
                 $params[ 'status' ] = 2;
@@ -1799,7 +1808,7 @@ class WhatsAppController extends FindByNumberController
             'document_id' => 'sometimes|nullable|numeric',
             'quicksell_id' => 'sometimes|nullable|numeric',
             'old_id' => 'sometimes|nullable|numeric',
-             
+
         ]);
 
         $data = $request->except('_token');
@@ -2095,7 +2104,7 @@ class WhatsAppController extends FindByNumberController
                             $data[ 'customer_id' ] = $customer->id;
                             $chat_message = ChatMessage::create($data);
                             $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $image, '', '');
-                           } 
+                           }
                         }
                     }
                 } else {
@@ -2112,9 +2121,9 @@ class WhatsAppController extends FindByNumberController
                 return redirect(route('quicksell.index'))->with('message', 'Images Send SucessFully');
 
             }elseif($context == 'quicksell_group_send'){
-                 
+
                 if($request->customerId != null && $request->groupId != null){
-                    //Find Group id 
+                    //Find Group id
                     foreach ($request->groupId as $id) {
                         //got group
                        $groups =QuickSellGroup::select('id','group')->where('id',$id)->get();
@@ -2128,23 +2137,23 @@ class WhatsAppController extends FindByNumberController
                             $images = [];
                             foreach ($productsQuickSell as $product) {
                                 if($product != null){
-                                
+
                             //Getting product from id
                              $products = Product::where('id',$product->product_id)->first();
 
                              if($products != null){
-                            
+
                              // $image = 'https://cdn.vox-cdn.com/thumbor/Pkmq1nm3skO0-j693JTMd7RL0Zk=/0x0:2012x1341/1200x800/filters:focal(0x0:2012x1341)/cdn.vox-cdn.com/uploads/chorus_image/image/47070706/google2.0.0.jpg';
 
                              $image = $products->getMedia(config('constants.media_tags'))->first()
                             ? $products->getMedia(config('constants.media_tags'))->first()
                             : '';
                            array_push($images, $image->filename);
-                           
+
                                 }
                             }
                         }
-                      
+
                        if(isset($images) && count($images) != 0 && $images != null){
                        $temp_chat_message = ChatMessage::create($data);
                         foreach ($images as $image) {
@@ -2152,7 +2161,7 @@ class WhatsAppController extends FindByNumberController
                             $temp_chat_message->attachMedia($media, config('constants.media_tags'));
                         }
 
-                        
+
 
                         $fn = '';
                         if ($context == 'customer') {
@@ -2172,22 +2181,22 @@ class WhatsAppController extends FindByNumberController
                         }
                         $fileName = public_path() . '/pdf/' . $random . '.pdf';
                         $pdf->render();
-                        
+
                         File::put($fileName, $pdf->output());
-                        
+
 
                         $media = MediaUploader::fromSource($fileName)->upload();
-                       
+
                        if ($request->customerId != null) {
                             $customer = Customer::findorfail($request->customerId);
                             $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
                             $data[ 'customer_id' ] = $customer->id;
                             $chat_message = ChatMessage::create($data);
                             $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '',$file, '', '');
-                            
+
                         }
                     }
-                       
+
                     }
 
                  }
@@ -2198,11 +2207,11 @@ class WhatsAppController extends FindByNumberController
 
 
             }elseif($context == 'old'){
-                
+
                     $old = Old::findorfail($request->old_id);
 
                     if ($old != null) {
-                            
+
                             $data[ 'old_id' ] = $old->serial_no;
                             //Creating Chat Message
                             $data['message'] = $request->message;
@@ -2213,7 +2222,7 @@ class WhatsAppController extends FindByNumberController
                               return response()->json([
                                     'data' => $data
                                 ], 200);
-                           
+
                             }
 
             }else {
