@@ -101,7 +101,7 @@
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
             <tr class="add-new-issue">
-                <form action="{{ route('development.issue.store') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ route('development.issue.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <td colspan="12">
                         <select class="form-control d-inline select2" name="module" id="module" style="width: 150px !important;">
@@ -119,7 +119,7 @@
                             <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>Normal</option>
                         </select>
                         <input type="file" name="images[]" class="form-control d-inline" multiple style="width: 100px;">
-                        <button class="btn btn-secondary d-inline">Add Issue</button>
+                        <button type="submit" class="btn btn-secondary d-inline">Add Issue</button>
                     </td>
                 </form>
             </tr>
@@ -152,14 +152,17 @@
                                 {{ $issue->issue }}
                             </div>
                             @if ($issue->getMedia(config('constants.media_tags'))->first())
-                                <br>
+                            <br />
                                 @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
                                     <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
                                         <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="">
                                     </a>
                                 @endforeach
                             @endif
-
+                            <br />
+                            <button class="btn btn-secondary" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
+                            
+                            <br>
                             <div>
                                 <div class="panel-group">
                                     <div class="panel panel-default">
@@ -585,5 +588,32 @@
             });
 
         });
+
+        function sendImage(id){
+
+           $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+                type: 'POST',
+                data: {
+                    issue_id: id,
+                    type : 1,
+                    message: '',
+                    _token: "{{csrf_token()}}",
+                    status: 2
+                },
+                success: function () {
+                    toastr["success"]("Message sent successfully!", "Message");
+                    
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+
+        }
     </script>
 @endsection

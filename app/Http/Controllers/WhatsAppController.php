@@ -1922,8 +1922,14 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 $number = $number->phone;
-
-                $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+                if($request->type == 1){
+                    foreach($issue->getMedia(config('constants.media_tags')) as $image){
+                        $this->sendWithThirdApi($number, null, '' , $image->getUrl());
+                    }
+                }else{
+                     $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+                }
+               
 
 
                 $chat_message = ChatMessage::create($params);
