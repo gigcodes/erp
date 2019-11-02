@@ -19,7 +19,7 @@ var common = {
         }).done(function(result) {
             if (callback) {
                 if (isPassArg) {
-                    self[callback]()
+                    self[callback](isPassArg)
                 } else {
                     self[callback](result);
                 }
