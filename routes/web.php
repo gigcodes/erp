@@ -12,7 +12,7 @@
 */
 
 Auth::routes();
-//Route::get('/test/test','TestController@index');
+//Route::get('/test/test','LiveChatController@getChats');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -73,7 +73,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/auto-cropped/{id}/approve-rejected', 'ProductCropperController@approveRejectedCropped');
     Route::get('products/auto-cropped/{id}/reject', 'ProductCropperController@rejectCrop');
     Route::get('products/auto-cropped/{id}/crop-approval-confirmation', 'ProductCropperController@cropApprovalConfirmation');
-
+    Route::get('customer/livechat-redirect','LiveChatController@reDirect');
     Route::resource('roles', 'RoleController');
     Route::resource('permissions', 'PermissionController');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
