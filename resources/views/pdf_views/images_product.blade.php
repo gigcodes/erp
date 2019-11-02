@@ -15,8 +15,10 @@
 
     img.product {
         margin: 50px;
-        width: 100%;
-        height: 915px;
+        width: auto;
+        max-width : 100%;
+        height: 100%;
+        max-height: 915px;
         border-bottom: 20px solid #eee;
     }
 
@@ -56,8 +58,7 @@
             <img class="product" src="<?php echo $subMedia->getAbsolutePath(); ?>">
             </img>
             <div class="top-left">
-                <?php echo implode("<br>
-                                    ", $textToSend); ?>
+                <?php echo implode("<br>", $textToSend); ?>
             </div>
             <div class="top-right">
                 <?php 

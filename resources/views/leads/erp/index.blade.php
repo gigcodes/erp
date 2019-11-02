@@ -131,16 +131,23 @@
                 <h4 class="modal-title">Send Message to Customers</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <form  id="send_message" method="POST">
+            <form enctype="multipart/form-data" id="send_message" method="POST">
+                <?php echo csrf_field(); ?>
                 <div class="modal-body">
                     <div class="form-group">
                       <strong> Selected Product :</strong>
                       <select name="selected_product[]" class="ddl-select-product form-control" multiple="multiple"></select>
+                      <strong> Attach Image :</strong>
+                      <div class='input-group date' id='schedule-datetime'>
+                        <input type='file' class="form-control" name="image" id="image" value=""/>
+                        <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-file"></span>
+                        </span>
+                      </div>
 
                       <strong>Schedule Date:</strong>
                       <div class='input-group date' id='schedule-datetime'>
                         <input type='text' class="form-control" name="sending_time" id="sending_time_field" value="{{ date('Y-m-d H:i') }}" required />
-
                         <span class="input-group-addon">
                           <span class="glyphicon glyphicon-calendar"></span>
                         </span>
@@ -197,10 +204,12 @@
 
       $("#send_message").submit(function(e){
           e.preventDefault();
+          var formData = new FormData($(this)[0]);
           var customers = [];
           $(".customer_message").each(function() {
               if ($(this).prop("checked") == true) {
                 customers.push($(this).val());
+                formData.append("customers[]", $(this).val());
               }
           });
           if (customers.length == 0) {
@@ -218,16 +227,13 @@
             return false;
           }*/
 
+
           $.ajax({
             type: "POST",
             url: "{{ route('erp-leads-send-message') }}",
-            data: {
-              _token : "{{ csrf_token() }}",
-              products : $("#send_message").find(".ddl-select-product").val(),
-              sending_time : $("#send_message").find("#sending_time_field").val(),
-              message : $("#send_message").find("#message_to_all_field").val(),
-              customers : customers
-            }
+            data: formData,
+            contentType : false,
+            processData:false
           }).done(function() {
             window.location.reload();
           }).fail(function(response) {
