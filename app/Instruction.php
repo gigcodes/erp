@@ -22,4 +22,14 @@ class Instruction extends Model
   {
     return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'instruction')->latest();
   }
+
+  public function assingTo()
+  {
+    return $this->hasOne("\App\User","id","assigned_to");
+  }
+
+  public function assignFrom()
+  {
+    return $this->hasOne("\App\User","id","assigned_from");
+  }
 }

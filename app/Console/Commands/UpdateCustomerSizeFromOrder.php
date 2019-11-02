@@ -58,8 +58,8 @@ class UpdateCustomerSizeFromOrder extends Command
                         ->get();
         if ($orders) {
             foreach ($orders as $order) {
-                if ($order->id) {
-                    \App\Customer::where('id', $order->id)->update(['shoe_size' => $order->size]);
+                if ($order->customer_id) {
+                    \App\Customer::where('id', $order->customer_id)->update(['shoe_size' => $order->size]);
                 }
             }
         }

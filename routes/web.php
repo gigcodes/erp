@@ -752,6 +752,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
     });
 
+    Route::prefix('templates')->middleware('auth')->group(function () {
+        Route::get('/', 'TemplatesController@index');
+        Route::get('response', 'TemplatesController@response');
+        Route::post('create', 'TemplatesController@create');
+        Route::get('destroy/{id}', 'TemplatesController@destroy');
+    });
+
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
