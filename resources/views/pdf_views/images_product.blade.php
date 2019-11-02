@@ -16,7 +16,7 @@
     img.product {
         margin: 50px;
         width: auto;
-        max-width : 100%;
+        max-width : 700px;
         height: 100%;
         max-height: 915px;
         border-bottom: 20px solid #eee;
