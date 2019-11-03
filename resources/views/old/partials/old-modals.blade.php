@@ -158,6 +158,7 @@
           </div>
 
           <div class="form-group">
+         <strong>Select Status:</strong>   
         {!! Form::select('status', $status, null, ['class' => 'form-control'.($errors->has('status') ? ' is-invalid' : ''), 'placeholder' => 'Select Status','required' => '']) !!}
         @if ($errors->has('status'))
                     <span class="invalid-feedback" role="alert">
