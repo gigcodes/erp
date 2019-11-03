@@ -594,4 +594,18 @@ class ProductHelper extends Model
         // Still here? Return original size
         return $size;
     }
+
+    public static function checkReadinessForLive($product) {
+        // Check for mandatory fields
+        if ( empty($product->title) ) {
+            return false;
+        }
+
+        if ( empty($product->short_description) ) {
+            return false;
+        }
+
+        // Return
+        return true;
+    }
 }

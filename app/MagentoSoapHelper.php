@@ -76,6 +76,11 @@ class MagentoSoapHelper
             return false;
         }
 
+        // Check for readiness to go to Magento
+        if (!ProductHelper::checkReadinessForLive($product)) {
+            return false;
+        }
+
         // Check for existing product references and remove them
         if ($product->references) {
             $product->references()->delete();
@@ -171,8 +176,8 @@ class MagentoSoapHelper
                         ['key' => 'sizes', 'value' => $size,],
                         ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
                         ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
-                        ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0 ],
-                        ['key' => 'flashsales', 'value' => 0 ],
+                        ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
+                        ['key' => 'flashsales', 'value' => 0],
                     ]
                 ]
             );
@@ -220,8 +225,8 @@ class MagentoSoapHelper
                     ['key' => 'color', 'value' => $product->color,],
                     ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
                     ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
-                    ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0 ],
-                    ['key' => 'flashsales', 'value' => 0 ],
+                    ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
+                    ['key' => 'flashsales', 'value' => 0],
                 ]
             ]
         );
@@ -267,7 +272,7 @@ class MagentoSoapHelper
                     ['key' => 'measurement', 'value' => $measurement,],
                     ['key' => 'country_of_manufacture', 'value' => ucwords($product->made_in),],
                     ['key' => 'brands', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
-                    ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0 ]
+                    ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0]
                 ]
             ]
         );
@@ -342,7 +347,7 @@ class MagentoSoapHelper
                 $types = $i == 1 ? ['hover_image'] : $types;
 
                 // Push image to Magento
-                if ( $i < 5 ) {
+                if ($i < 5) {
                     try {
                         $this->_proxy->catalogProductAttributeMediaCreate(
                             $this->_sessionId,
