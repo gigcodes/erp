@@ -2,6 +2,7 @@
 
 namespace App\Services\Products;
 
+use App\SkuColorReferences;
 use Validator;
 use Illuminate\Support\Facades\Log;
 use App\Brand;
@@ -51,9 +52,10 @@ class ProductsCreator
         // Store count
         try {
             SupplierBrandCount::firstOrCreate(['supplier_id' => $supplierId, 'brand_id' => $image->brand_id]);
-            if ( !empty($formattedDetails[ 'category' ]) ) {
+            if (!empty($formattedDetails[ 'category' ])) {
                 SupplierCategoryCount::firstOrCreate(['supplier_id' => $supplierId, 'category_id' => $formattedDetails[ 'category' ]]);
             }
+            SkuColorReferences::firstOrCreate(['brand_id' => $image->brand_id, 'color_name' => ColorNamesReference::getProductColorFromObject($image)]);
         } catch (\Exception $e) {
             //
         }
