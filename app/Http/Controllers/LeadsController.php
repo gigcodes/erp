@@ -1044,12 +1044,31 @@ class LeadsController extends Controller
             $broadcast_image->products =  json_encode($productIds);
             $broadcast_image->save();
             $max_group_id = MessageQueue::max('group_id') + 1;
+
+            $sendingData = [
+              "message"  => $request->get('message', ''), 
+            ];
+            
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $media = MediaUploader::fromSource($image)->upload();
+                $broadcast_image->attachMedia($media, config('constants.media_tags'));
+                foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $key2 => $brod_image) {
+                    $sendingData["image"][] = [
+                        "key" => $brod_image->getKey(),
+                        "url" => $brod_image->getUrl()
+                    ];
+                }
+            }else{
+                $sendingData['linked_images'][] = $broadcast_image->id;
+            }
+
             $params = [
                 'sending_time'  => $request->get('sending_time', ''),
                 'user_id' => Auth::id(),
                 'phone' => null,
                 'type' => 'message_all',
-                'data' => json_encode(['message' => $request->get('message', ''), 'linked_images' => [$broadcast_image->id]]),
+                'data' => json_encode($sendingData),
                 'group_id' => $max_group_id
             ];
 
