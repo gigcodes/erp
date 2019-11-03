@@ -49,13 +49,18 @@ class ProductsCreator
             'sku' => 'unique:products,sku'
         ]);
 
+        // Get color
+        $color = ColorNamesReference::getProductColorFromObject($image);
+
         // Store count
         try {
             SupplierBrandCount::firstOrCreate(['supplier_id' => $supplierId, 'brand_id' => $image->brand_id]);
             if (!empty($formattedDetails[ 'category' ])) {
                 SupplierCategoryCount::firstOrCreate(['supplier_id' => $supplierId, 'category_id' => $formattedDetails[ 'category' ]]);
             }
-            SkuColorReferences::firstOrCreate(['brand_id' => $image->brand_id, 'color_name' => ColorNamesReference::getProductColorFromObject($image)]);
+            if (!empty($color)) {
+                SkuColorReferences::firstOrCreate(['brand_id' => $image->brand_id, 'color_name' => $color]);
+            }
         } catch (\Exception $e) {
             //
         }
@@ -94,7 +99,7 @@ class ProductsCreator
                 // Check if we can update the color - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_COLOR')->first();
                 if ($manual == null || (int)$manual->value == 0) {
-                    $product->color = ColorNamesReference::getProductColorFromObject($image);
+                    $product->color = $color;
                 }
 
                 // Check if we can update the composition - not manually entered
