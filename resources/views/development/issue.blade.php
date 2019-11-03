@@ -3,6 +3,14 @@
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <style type="text/css">
+        #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+        }
+    </style>
 @endsection
 
 @section('large_content')
@@ -36,7 +44,9 @@
           '3' => 'Normal'
         ];
     @endphp
-
+    <div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
     <div class="row mb-4">
         <div class="col-md-12">
             <form action="{{ action('DevelopmentController@issueIndex') }}" method="get">
@@ -101,7 +111,7 @@
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
             <tr class="add-new-issue">
-                <form action="{{ route('development.issue.store') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ route('development.issue.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <td colspan="12">
                         <select class="form-control d-inline select2" name="module" id="module" style="width: 150px !important;">
@@ -119,7 +129,7 @@
                             <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>Normal</option>
                         </select>
                         <input type="file" name="images[]" class="form-control d-inline" multiple style="width: 100px;">
-                        <button class="btn btn-secondary d-inline">Add Issue</button>
+                        <button type="submit" class="btn btn-secondary d-inline">Add Issue</button>
                     </td>
                 </form>
             </tr>
@@ -152,14 +162,20 @@
                                 {{ $issue->issue }}
                             </div>
                             @if ($issue->getMedia(config('constants.media_tags'))->first())
-                                <br>
+                            <br />
                                 @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
                                     <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
-                                        <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="">
+                                        <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="File">
                                     </a>
                                 @endforeach
                             @endif
+                            <br />
 
+                            <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
+                            <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
+                            <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple />  
+
+                            <br />
                             <div>
                                 <div class="panel-group">
                                     <div class="panel panel-default">
@@ -585,5 +601,75 @@
             });
 
         });
+
+        function sendImage(id){
+
+           $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+                type: 'POST',
+                data: {
+                    issue_id: id,
+                    type : 1,
+                    message: '',
+                    _token: "{{csrf_token()}}",
+                    status: 2
+                },
+                success: function () {
+                    toastr["success"]("Message sent successfully!", "Message");
+                    
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+
+        }
+
+        function sendUploadImage(id){
+            
+            $('#file-input'+id).trigger('click');
+
+            $('#file-input'+id).change(function () {
+            event.preventDefault();
+            let image_upload = new FormData();
+            let TotalImages = $(this)[0].files.length;  //Total Images
+            let images = $(this)[0];  
+            
+            for (let i = 0; i < TotalImages; i++) {
+                image_upload.append('images[]', images.files[i]);
+            }
+             image_upload.append('TotalImages', TotalImages);
+             image_upload.append('status',2);
+             image_upload.append('type',2);
+             image_upload.append('issue_id',id);
+             if(TotalImages != 0){
+
+                    $.ajax({
+                        method: 'POST',
+                        url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+                        data: image_upload,
+                        async : true,
+                        contentType: false,
+                        processData: false,
+                        beforeSend: function() {
+                        $("#loading-image").show();
+                        },
+                        success: function (images) {
+                            $("#loading-image").hide();
+                            alert('Images send successfully');
+                        },
+                        error: function () {
+                          console.log(`Failed`)
+                        }
+                    })
+                }    
+            })
+        }
+
+       
     </script>
 @endsection

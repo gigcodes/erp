@@ -149,9 +149,12 @@ class GoogleSearchImageController extends Controller
             if ($productArr) {
                 GoogleVisionHelper::setDebug( true );
                 foreach ($productArr as $product) {
-                    $imageArr = GoogleVisionHelper::getVisuallySimilarFromImageSet($product);
-                    if (!empty($imageArr)) {
-                        $productImage[] = $imageArr;
+                	$media = $product->media()->first();
+                	if($media) {
+                    	$result = GoogleVisionHelper::getImageDetails($media->getAbsolutePath());
+			    		if(!empty($result)) {
+			    			return view( 'google_search_image.details', compact(['result']));
+			    		}
                     }                    
                 }
             }
@@ -159,6 +162,20 @@ class GoogleSearchImageController extends Controller
             return redirect()->back()->with('message','Please Select Products');
         }
 
-        return view( 'google_search_image.search_image', ['productImage' => $productImage] );
+        abort(403, 'Sorry , it looks like there is no result from the request.');
+    }
+
+    public function details(Request $request)
+    {
+    	$url = $request->get("url");
+    	
+    	if(!empty($url)) {
+    		$result = GoogleVisionHelper::getImageDetails($url);
+    		if(!empty($result)) {
+    			return view( 'google_search_image.details', compact(['result']));
+    		}
+		}
+
+		abort(403, 'Sorry , it looks like there is no result from the request.');
     } 
 }

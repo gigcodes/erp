@@ -12,7 +12,7 @@
 */
 
 Auth::routes();
-//Route::get('/test/test','TestController@index');
+//Route::get('/test/test','LiveChatController@getChats');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -73,7 +73,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/auto-cropped/{id}/approve-rejected', 'ProductCropperController@approveRejectedCropped');
     Route::get('products/auto-cropped/{id}/reject', 'ProductCropperController@rejectCrop');
     Route::get('products/auto-cropped/{id}/crop-approval-confirmation', 'ProductCropperController@cropApprovalConfirmation');
-
+    Route::get('customer/livechat-redirect','LiveChatController@reDirect');
     Route::resource('roles', 'RoleController');
     Route::resource('permissions', 'PermissionController');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
@@ -298,8 +298,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/productinventory/in/stock/dispatch', 'ProductInventoryController@dispatchCreate')->name('productinventory.dispatch.create');
     Route::post('/productinventory/stock/{product}', 'ProductInventoryController@stock')->name('productinventory.stock');
 
-    Route::get('/google-search-image', 'GoogleSearchImageController@index')->name('google.search.image');
-    Route::post('/google-search-image', 'GoogleSearchImageController@searchImageOnGoogle');
+
+    Route::prefix('google-search-image')->group(function () {
+        Route::get('/', 'GoogleSearchImageController@index')->name('google.search.image');
+        Route::post('details', 'GoogleSearchImageController@details')->name('google.details.image');
+        Route::post('/', 'GoogleSearchImageController@searchImageOnGoogle');
+    });    
+
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');
@@ -745,6 +750,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
+    });
+
+    Route::prefix('templates')->middleware('auth')->group(function () {
+        Route::get('/', 'TemplatesController@index');
+        Route::get('response', 'TemplatesController@response');
+        Route::post('create', 'TemplatesController@create');
+        Route::get('destroy/{id}', 'TemplatesController@destroy');
     });
 
 });

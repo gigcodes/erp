@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\BroadcastImage;
 use File;
 use Illuminate\Http\Request;
 use Plank\Mediable\Media;
@@ -24,9 +25,9 @@ class ProductTemplatesController extends Controller
     {
         $records = \App\ProductTemplate::orderBy("id", "desc")->paginate(5);
         return response()->json([
-            "code"       => 1,
-            "result"     => $records,
-            "pagination" => (string) $records->links(),
+            "code" => 1,
+            "result" => $records,
+            "pagination" => (string)$records->links(),
         ]);
     }
 
@@ -37,12 +38,12 @@ class ProductTemplatesController extends Controller
      */
     public function create(Request $request)
     {
-        $template      = new \App\ProductTemplate;
-        
+        $template = new \App\ProductTemplate;
+
         $template->fill(request()->all());
 
         if ($template->save()) {
-            
+
             if (!empty($request->get('product_media_list')) && is_array($request->get('product_media_list'))) {
                 foreach ($request->get('product_media_list') as $mediaid) {
                     $media = Media::find($mediaid);
@@ -64,7 +65,7 @@ class ProductTemplatesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -80,7 +81,7 @@ class ProductTemplatesController extends Controller
 
     public function apiIndex(Request $request)
     {
-        $limit   = $request->get("limit", 10);
+        $limit = $request->get("limit", 10);
         $records = \App\ProductTemplate::leftJoin("brands as b", "b.id", "product_templates.brand_id")
             ->select(["product_templates.*", "b.name as brand_name"]);
 
@@ -104,13 +105,13 @@ class ProductTemplatesController extends Controller
         $data = [];
         if ($record) {
             $data = [
-                "id"                     => $record->id,
-                "templateNumber"         => $record->template_no,
-                "productTitle"           => $record->product_title,
-                "productBrand"           => $record->brand_name,
-                "productPrice"           => $record->price,
+                "id" => $record->id,
+                "templateNumber" => $record->template_no,
+                "productTitle" => $record->product_title,
+                "productBrand" => $record->brand_name,
+                "productPrice" => $record->price,
                 "productDiscountedPrice" => $record->discounted_price,
-                "productCurrency"        => $record->currency,
+                "productCurrency" => $record->currency,
             ];
 
             if ($record->hasMedia(config('constants.media_tags'))) {
@@ -118,7 +119,7 @@ class ProductTemplatesController extends Controller
                 foreach ($record->getMedia(config('constants.media_tags')) as $i => $media) {
                     $images[] = $media->getUrl();
                 }
-                $data["image"] = $images;
+                $data[ "image" ] = $images;
             }
         }
 
@@ -128,27 +129,43 @@ class ProductTemplatesController extends Controller
 
     public function apiSave(Request $request)
     {
-        $id = $request->get("id", 0);
+        // Try to get ID from 'product_id' (this will be changed to id)
+        $id = $request->post("product_id", 0);
 
-        $template = \App\ProductTemplate::where("id", $id)->first();
-        if ($template) {
-            if ($request->hasFile('files')) {
-                foreach ($request->file('files') as $image) {
-                    $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
+        // Try to get ID from 'id' if no id is set
+        if ( (int) $id == 0 ) {
+            $id = $request->post("id", 0);
+        }
+
+        // Only do queries if we have an id
+        if ( (int) $id > 0 ) {
+            $template = \App\ProductTemplate::where("id", $id)->where('is_processed', 0)->first();
+
+            if ($template) {
+                if ($request->post('image')) {
+                    $image = base64_decode($request->post('image'));
+                    $media = MediaUploader::fromString($image)->toDirectory(date('Y/m/d'))->useFilename('product-template-' . $id)->upload();
                     $template->attachMedia($media, config('constants.media_tags'));
+                    $template->is_processed = 1;
+                    $template->save();
+
+                    // Store as broadcast image
+                    $broadcastImage = new BroadcastImage();
+                    $broadcastImage->products = '[' . $template->product_id . ']';
+                    $broadcastImage->save();
+                    $broadcastImage->attachMedia($media, config('constants.media_tags'));
+
+                    return response()->json(["code" => 1, "message" => "Product template updated successfully"]);
                 }
-
-                $template->is_processed = 1;
-                $template->save();
-
-                return response()->json(["code" => 1, "message" => "Product template updated successfully"]);
+            } else {
+                return response()->json(["code" => 0, "message" => "Sorry, can not find product template in record"]);
             }
         }
 
-        return response()->json(["code" => 0, "message" => "Sorry, can not find product template in record"]);
+        return response()->json(["code" => 0, "message" => "An unknown error has occured"]);
 
     }
-    
+
     /**
      * Show the image for selecting product id.
      *
@@ -164,10 +181,10 @@ class ProductTemplatesController extends Controller
                 foreach ($product->media as $k => $media) {
                     $html .= '<div class="col-sm-3" style="padding-bottom: 10px;">
                                 <div class="imagePreview">
-                                    <img src="'.$media->getUrl().'" width="100%" height="100%">
+                                    <img src="' . $media->getUrl() . '" width="100%" height="100%">
                                 </div>
                                 <label class="btn btn-primary">
-                                    <input type="checkbox" name="product_media_list[]" value="'.$media->id.'"> Select
+                                    <input type="checkbox" name="product_media_list[]" value="' . $media->id . '"> Select
                                 </label>
                             </div>';
                 }
