@@ -80,10 +80,14 @@ input:checked + .slider:before {
                             <form action="{{ route('hashtag.index') }}" method="GET">
                                 <div class="form-group">
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-5">
                                             <input name="term" type="text" class="form-control"
                                                    value="{{ isset($term) ? $term : '' }}"
                                                    placeholder="Tag Name">
+
+                                        </div>
+                                        <div class="col-md-1">
+                                            <input type="checkbox" name="priority">Priority  
                                         </div>
                                        <div class="col-md-6">
                                         <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>

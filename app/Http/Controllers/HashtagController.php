@@ -31,16 +31,32 @@ class HashtagController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->term){
-            $hashtags  = HashTag::query()
+        if($request->term || $request->priority ){
+
+            if($request->term != null && $request->priority == 'on'){
+
+                 $hashtags  = HashTag::query()
+                        ->where('priority',1)
                         ->where('hashtag', 'LIKE', "%{$request->term}%")
                         ->paginate(Setting::get('pagination'));
+                return view('instagram.hashtags.index', compact('hashtags'));        
+            }
+            if($request->priority == 'on'){
+                $hashtags = HashTag::where('priority',1)->paginate(Setting::get('pagination')); 
+                return view('instagram.hashtags.index', compact('hashtags')); 
+            }
+            if($request->term != null){
+                $hashtags  = HashTag::query()
+                        ->where('hashtag', 'LIKE', "%{$request->term}%")
+                        ->paginate(Setting::get('pagination'));
+                return view('instagram.hashtags.index', compact('hashtags'));        
+            }
+            
         }else{
-            $hashtags = HashTag::paginate(Setting::get('pagination'));    
+            $hashtags = HashTag::paginate(Setting::get('pagination'));  
+            return view('instagram.hashtags.index', compact('hashtags'));  
         }
         
-
-        return view('instagram.hashtags.index', compact('hashtags'));
     }
 
     /**
