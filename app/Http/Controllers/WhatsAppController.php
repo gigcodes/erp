@@ -1941,11 +1941,9 @@ class WhatsAppController extends FindByNumberController
                         foreach ($request->file('images') as $image) {
                            $media = MediaUploader::fromSource($image)->upload();
                             $issue->attachMedia($media, config('constants.media_tags'));
-                        }
-                        foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
-                            $this->sendWithThirdApi($number, null, '', $image->getUrl());
-                            $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $image->getUrl();
-                            $params[ 'media_url' ] = $image->getUrl();
+                            $this->sendWithThirdApi($number, null, '', $media->getUrl());
+                            $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $media->getUrl();
+                            $params[ 'media_url' ] = $media->getUrl();
                             $chat_message = ChatMessage::create($params);
                         }
                     }
