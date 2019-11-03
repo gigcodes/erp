@@ -13,7 +13,7 @@
         <div class="modal-body">
           <div class="form-group">
             <strong>Category:</strong>
-            <select class="form-control" name="category_id">
+            <select class="form-control" name="category_id" required>
               <option value="">Select a Category</option>
 
               @foreach ($old_categories as $category)
@@ -158,7 +158,7 @@
           </div>
 
           <div class="form-group">
-        {!! Form::select('status', $status, null, ['class' => 'form-control'.($errors->has('status') ? ' is-invalid' : ''), 'placeholder' => 'Select Status']) !!}
+        {!! Form::select('status', $status, null, ['class' => 'form-control'.($errors->has('status') ? ' is-invalid' : ''), 'placeholder' => 'Select Status','required' => '']) !!}
         @if ($errors->has('status'))
                     <span class="invalid-feedback" role="alert">
                         <strong>{{ $errors->first('status') }}</strong>
