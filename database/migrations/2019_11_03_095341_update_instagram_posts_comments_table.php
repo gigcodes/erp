@@ -25,6 +25,8 @@ class UpdateInstagramPostsCommentsTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('instagram_posts_comments', function (Blueprint $table) {
+            $table->dropColumn('priority');
+        });
     }
 }
