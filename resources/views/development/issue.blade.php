@@ -3,6 +3,14 @@
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <style type="text/css">
+        #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+        }
+    </style>
 @endsection
 
 @section('large_content')
@@ -36,7 +44,9 @@
           '3' => 'Normal'
         ];
     @endphp
-
+    <div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
     <div class="row mb-4">
         <div class="col-md-12">
             <form action="{{ action('DevelopmentController@issueIndex') }}" method="get">
@@ -642,9 +652,14 @@
                         method: 'POST',
                         url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
                         data: image_upload,
+                        async : true,
                         contentType: false,
                         processData: false,
+                        beforeSend: function() {
+                        $("#loading-image").show();
+                        },
                         success: function (images) {
+                            $("#loading-image").hide();
                             alert('Images send successfully');
                         },
                         error: function () {
