@@ -134,7 +134,7 @@
                         </td>
                         @php
                             $suppliersArray = [];
-                            $data = DB::select('SELECT sp.id,s.website FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
+                            $data = DB::select('SELECT sp.id,s.website,sp.url,s.supplier FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
 
                             $cnt = count($data);
                         @endphp
@@ -153,11 +153,11 @@
                                 {{$product['sku'] }}
                             @endif
 
-                            <?php if(!empty($suppliersArray)) { ?>
-                            <?php foreach($suppliersArray as $suppliers){ ?>
-                            <a target="_blank"> href="<?php echo $suppliers->website; ?>"><?php echo $suppliers->supplier; ?></a>
-                            <br>
-                            <?php } ?>
+                            <?php if(!empty($data)) { ?>
+	                            <?php foreach($data as $suppliers){ ?>
+		                            <a target="_blank" href="<?php echo $suppliers->url; ?>"><?php echo $suppliers->supplier; ?></a>
+		                            <br>
+	                            <?php } ?>
                             <?php } ?>
 
                         </td>
