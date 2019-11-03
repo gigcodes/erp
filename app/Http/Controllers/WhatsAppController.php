@@ -1912,13 +1912,7 @@ class WhatsAppController extends FindByNumberController
                 $data[ 'dubbizle_id' ] = $request->dubbizle_id;
                 $module_id = $request->dubbizle_id;
             } elseif ($context == 'issue') {
-                if ($request->type == 2) {
-                    if ($request->has('files')) {
-                        $media = MediaUploader::fromSource($request->has('files'))->upload();
-                        $task->attachMedia($media, config('constants.media_tags'));
-
-                    }
-                }
+                
                 $params[ 'issue_id' ] = $request->get('issue_id');
                 $issue = Issue::find($request->get('issue_id'));
                 $params[ 'erp_user' ] = $issue->user_id;
@@ -1934,9 +1928,21 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 $number = $number->phone;
+
                 if ($request->type == 1) {
                     foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                         $this->sendWithThirdApi($number, null, '', $image->getUrl());
+                    }
+                }elseif($request->type == 2){
+                    $issue = Issue::find($request->get('issue_id'));
+                    if ($request->hasfile('images')) {
+                        foreach ($request->file('images') as $image) {
+                            $media = MediaUploader::fromSource($image)->upload();
+                            $issue->attachMedia($media, config('constants.media_tags'));
+                        }
+                        foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
+                            $this->sendWithThirdApi($number, null, '', $image->getUrl());
+                        }
                     }
                 } else {
                     $this->sendWithThirdApi($number, null, $params[ 'message' ]);

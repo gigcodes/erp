@@ -161,11 +161,11 @@
                             @endif
                             <br />
 
-                            <button class="btn btn-secondary" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
-                            <button class="btn btn-secondary" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
+                            <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
+                            <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
                             <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple />  
 
-                            <br>
+                            <br />
                             <div>
                                 <div class="panel-group">
                                     <div class="panel panel-default">
@@ -622,39 +622,39 @@
         function sendUploadImage(id){
             
             $('#file-input'+id).trigger('click');
-            
-            $('#file-input'+id).on('change',function(){
-               if ($(this).val() != '') {
-                //console.log($(this).val());
-                    img = $(this).val()
-                    upload(img,id);
-                }
-            });
 
+            $('#file-input'+id).change(function () {
+            event.preventDefault();
+            let image_upload = new FormData();
+            let TotalImages = $(this)[0].files.length;  //Total Images
+            let images = $(this)[0];  
+            
+            for (let i = 0; i < TotalImages; i++) {
+                image_upload.append('images[]', images.files[i]);
+            }
+             image_upload.append('TotalImages', TotalImages);
+             image_upload.append('status',2);
+             image_upload.append('type',2);
+             image_upload.append('issue_id',id);
+             console.log(image_upload);
+
+                    $.ajax({
+                        method: 'POST',
+                        url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+                        data: image_upload,
+                        contentType: false,
+                        processData: false,
+                        success: function (images) {
+                            alert('Images send successfully');
+                        },
+                        error: function () {
+                          console.log(`Failed`)
+                        }
+                    })
+
+            })
         }
 
-        function upload(img,id) {
-            
-            $.ajax({
-                url: "{{ action('WhatsAppController@sendMessage', 'issue')}}",
-                type: 'POST',
-                data: {
-                    issue_id: id,
-                    type : 2,
-                    message: '',
-                    files: img,
-                    _token: "{{csrf_token()}}",
-                    status: 2
-                },
-                success: function () {
-                    
-                    
-                },
-                error: function () {
-                    alert('There was an error sending the message...');
-                   
-                }
-            });
-        }
+       
     </script>
 @endsection
