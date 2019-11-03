@@ -66,9 +66,10 @@ class MagentoSoapHelper
         }
 
         // Add the product to the sales category
-        if ($product->is_on_sale) {
-            $categories[] = 1237;
-        }
+        // 03NOV19 We now set an attribute for bestbuys
+        //if ($product->is_on_sale) {
+        //    $categories[] = 1237;
+        //}
 
         // No categories found?
         if (count($categories) == 0) {
@@ -130,6 +131,9 @@ class MagentoSoapHelper
 
         // Loop over each size and create a single (child) product
         foreach ($arrSizes as $size) {
+            // Get correct size
+            $size = ProductHelper::getWebsiteSize($product->size_system, $size, $product->category);
+
             // Set SKU
             $sku = $product->sku . $product->color;
 
@@ -168,6 +172,7 @@ class MagentoSoapHelper
                         ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
                         ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
                         ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0 ],
+                        ['key' => 'flashsales', 'value' => 0 ],
                     ]
                 ]
             );
@@ -216,6 +221,7 @@ class MagentoSoapHelper
                     ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
                     ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
                     ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0 ],
+                    ['key' => 'flashsales', 'value' => 0 ],
                 ]
             ]
         );
