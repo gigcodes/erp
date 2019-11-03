@@ -770,9 +770,7 @@
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                             </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('priorty.name') }}">Priorty</a>
-                                            </li>
+                                            
                                         </ul>
                                     </li>
                                 @endif

@@ -66,7 +66,7 @@ class ProcessCommentsFromHashtags extends Command
         $hash = new Hashtags();
         $hash->login();
         $maxId = '';
-
+        dd($hash);
 
 
         $keywords = Keywords::get()->pluck('text')->toArray();
