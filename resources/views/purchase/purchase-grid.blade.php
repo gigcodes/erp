@@ -154,10 +154,10 @@
                             @endif
 
                             <?php if(!empty($suppliersArray)) { ?>
-                            <?php foreach($suppliersArray as $suppliers){ ?>
-                            <a target="_blank"> href="<?php echo $suppliers->website; ?>"><?php echo $suppliers->supplier; ?></a>
-                            <br>
-                            <?php } ?>
+	                            <?php foreach($suppliersArray as $suppliers){ ?>
+		                            <a target="_blank" href="<?php echo $suppliers->website; ?>"><?php echo $suppliers->supplier; ?></a>
+		                            <br>
+	                            <?php } ?>
                             <?php } ?>
 
                         </td>
