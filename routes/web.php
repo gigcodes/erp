@@ -884,10 +884,6 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('schedule/{scheduleId}', 'InstagramController@editSchedule');
     Route::post('schedule/{scheduleId}', 'InstagramController@updateSchedule');
     Route::post('schedule/{scheduleId}/attach', 'InstagramController@attachMedia');
-    Route::get('priority','PriortyController@index')->name('priorty.name');
-    Route::post('priority/store','PriortyController@store')->name('priorty.store');
-    Route::post('priority/update','PriortyController@update')->name('priorty.update');
-    Route::post('priority/destroy','PriortyController@destroy')->name('priorty.destroy');
 });
 
 // logScraperVsAiController

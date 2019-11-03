@@ -13,7 +13,7 @@ use App\Services\Instagram\Nationality;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
-use App\Priority;
+
 
 class ProcessCommentsFromHashtags extends Command
 {
@@ -128,15 +128,6 @@ class ProcessCommentsFromHashtags extends Command
                             $commentEntry->instagram_post_id = $media->id;
                             $commentEntry->comment_id = $comment['pk'];
                             $commentEntry->comment = $comment['text'];
-                            $priorities = Priority::all();
-                            if($commentEntry->comment != null && $commentEntry->comment != ''){
-                            foreach ($priorities as $priority) {
-                                if (strpos($commentEntry->comment, $priority->keyword) !== false) {
-                                    $commentEntry->priority = 1;
-                                    break;
-                                }
-                            }
-                            }
                             $commentEntry->profile_pic_url = $comment['user']['profile_pic_url'];
                             $commentEntry->posted_at = Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString();
                             $commentEntry->save();
