@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use InstagramAPI\Instagram;
 use InstagramAPI\Signatures;
 use Plank\Mediable\Media;
+use App\Setting;
 
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -28,9 +29,16 @@ class HashtagController extends Controller
      *
      * Show all the hashtags we have saved
      */
-    public function index()
+    public function index(Request $request)
     {
-        $hashtags = HashTag::all();
+        if($request->term){
+            $hashtags  = HashTag::query()
+                        ->where('hashtag', 'LIKE', "%{$request->term}%")
+                        ->paginate(Setting::get('pagination'));
+        }else{
+            $hashtags = HashTag::paginate(Setting::get('pagination'));    
+        }
+        
 
         return view('instagram.hashtags.index', compact('hashtags'));
     }
@@ -300,6 +308,18 @@ class HashtagController extends Controller
         $m->save();
 
         return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function markPriority(Request $request)
+    {
+       // dd($request);
+       $id = $request->id;
+       $hashtag = HashTag::findOrFail($id);
+       $hashtag->priority = $request->type;
+       $hashtag->update(); 
+       return response()->json([
             'status' => 'success'
         ]);
     }

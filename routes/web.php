@@ -856,6 +856,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('start-growth/{id}', 'AccountController@startAccountGrowth');
     Route::get('accounts', 'InstagramController@accounts');
     Route::get('notification', 'HashtagController@showNotification');
+    Route::get('hashtag/markPriority','HashtagController@markPriority')->name('hashtag.priority');
     Route::resource('influencer', 'InfluencersController');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
