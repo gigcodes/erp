@@ -26,6 +26,8 @@ class UpdateHashTagsTables extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('hash_tags', function (Blueprint $table) {
+            $table->dropColumn('is_processed');
+        });
     }
 }
