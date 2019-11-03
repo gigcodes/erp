@@ -1912,7 +1912,6 @@ class WhatsAppController extends FindByNumberController
                 $data[ 'dubbizle_id' ] = $request->dubbizle_id;
                 $module_id = $request->dubbizle_id;
             } elseif ($context == 'issue') {
-<<<<<<< HEAD
                 if ($request->type == 2) {
                     if ($request->has('files')) {
                         $media = MediaUploader::fromSource($request->has('files'))->upload();
@@ -1920,8 +1919,6 @@ class WhatsAppController extends FindByNumberController
 
                     }
                 }
-=======
->>>>>>> parent of 52decea... Please dont merge this
                 $params[ 'issue_id' ] = $request->get('issue_id');
                 $issue = Issue::find($request->get('issue_id'));
                 $params[ 'erp_user' ] = $issue->user_id;
