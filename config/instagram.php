@@ -1,6 +1,7 @@
 <?php
 
 return [
-  'admin_account' => 'satyam_t',
-  'admin_password' => 'Schoolrocks93',
+  'admin_account' => 'username',
+  'admin_password' => 'password',
+  'number_to_send' => '918082488108'
 ];

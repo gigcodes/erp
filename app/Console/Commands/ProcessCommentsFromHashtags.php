@@ -56,6 +56,11 @@ class ProcessCommentsFromHashtags extends Command
 
 
         $hashtag = HashTag::where('is_processed',0)->orderBy('id','asc')->first();
+        if($hashtag->priority == 1){
+            $sendWhatsApp = 1;
+        }else{
+            $sendWhatsApp = 0;
+        }
         if (!$hashtag) {
             return;
         }
@@ -66,18 +71,33 @@ class ProcessCommentsFromHashtags extends Command
         $hash = new Hashtags();
         $hash->login();
         $maxId = '';
-        dd($hash);
+        
 
 
         $keywords = Keywords::get()->pluck('text')->toArray();
        
         do {
             $hashtagPostsAll = $hash->getFeed($hashtagText, $maxId);
-            
             [$hashtagPosts, $maxId] = $hashtagPostsAll;
 
             foreach ($hashtagPosts as $hashtagPost) {
-
+                $code = $hashtagPost['code'];
+                if($code != null && $code != ''){
+                    //Check if Hashtag is on Priority
+                     if($sendWhatsApp == 1){
+                        //CHeck if post exist
+                        $postCheck = $hashtagPost['media_id'];
+                        $checkIfExist = InstagramPosts::where('post_id', $postCheck)->first();
+                        if($checkIfExist == null && $checkIfExist == ''){
+                            //Send Whats App With Link
+                            $phone = \Config('instagram.number_to_send');
+                            $link = 'https://www.instagram.com/p/'.$code;
+                            $message = 'New Post On Instagram Please Visit Link  '.$link;
+                             app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phone, '',$message, '', '');
+                            }
+                        }
+                        
+                }
                 $comments = $hashtagPost['comments'] ?? [];
 
                 if ($comments === []) {
@@ -107,6 +127,7 @@ class ProcessCommentsFromHashtags extends Command
                             $media->user_id = $hashtagPost['user_id'];
                             $media->username = $hashtagPost['username'];
                             $media->media_type = $hashtagPost['media_type'];
+                            $media->code = $code;
 
                             if (!is_array($hashtagPost['media'])) {
                                 $hashtagPost['media'] = [$hashtagPost['media']];
@@ -115,6 +136,7 @@ class ProcessCommentsFromHashtags extends Command
                             $media->media_url = $hashtagPost['media'];
                             $media->posted_at = $hashtagPost['posted_at'];
                             $media->save();
+                           
                               
                             $commentEntry = InstagramPostsComments::where('comment_id', $comment['pk'])->where('user_id', $comment['user']['pk'])->first();
 
