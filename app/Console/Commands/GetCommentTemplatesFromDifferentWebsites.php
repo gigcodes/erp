@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\InstagramAutoComments;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 use InstagramAPI\Instagram;
 
 class GetCommentTemplatesFromDifferentWebsites extends Command
@@ -39,6 +40,11 @@ class GetCommentTemplatesFromDifferentWebsites extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $accounts = [
             'darveys', 'farfetch'
         ];
@@ -73,5 +79,7 @@ class GetCommentTemplatesFromDifferentWebsites extends Command
                 }
             }
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\CronJobReport;
 use App\Services\Scrap\GebnegozionlineProductDetailsScraper;
 
 
@@ -42,9 +43,15 @@ class UpdateSkuInGnb extends Command
      */
     public function handle()
     {
+
+    $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $this->scraper->updateSku();
         $this->scraper->updateProperties();
         $this->scraper->updatePrice();
-
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }

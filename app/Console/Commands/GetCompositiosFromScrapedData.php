@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Compositions;
 use App\Product;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class GetCompositiosFromScrapedData extends Command
@@ -34,6 +35,11 @@ class GetCompositiosFromScrapedData extends Command
 
     public function handle(): void
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
 
         Product::where('composition', '')->orWhereNull('composition')->orderBy('created_at', 'DESC')->chunk(1000, function($products) {
             foreach ($products as $product) {
@@ -84,6 +90,8 @@ class GetCompositiosFromScrapedData extends Command
 
             }
         });
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 
     private function getCompositionValuesFromRawData($scrapedProduct) {

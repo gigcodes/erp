@@ -6,6 +6,7 @@ use App\CroppedImageReference;
 use App\File;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class MoveCropRejectedProductsToReCrop extends Command
@@ -41,6 +42,13 @@ class MoveCropRejectedProductsToReCrop extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $products = Product::where('is_crop_rejected', 1)->where('crop_remark','LIKE', '%sequence%')->get();
 
         foreach ($products as $key=>$product) {
@@ -74,5 +82,7 @@ class MoveCropRejectedProductsToReCrop extends Command
 //            $product->save();
 
         }
+
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }

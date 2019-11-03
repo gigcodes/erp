@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Product;
+use App\CronJobReport;
 use App\ProductReference;
 use Illuminate\Console\Command;
 
@@ -39,6 +40,13 @@ class FillProductReference extends Command
      */
     public function handle()
     {
+
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
       $products = Product::all();
 
   		foreach ($products as $product) {
@@ -64,5 +72,7 @@ class FillProductReference extends Command
   		}
 
   		dd('stap');
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

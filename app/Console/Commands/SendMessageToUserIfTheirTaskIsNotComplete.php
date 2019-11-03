@@ -6,6 +6,7 @@ use App\DeveloperMessagesAlertSchedules;
 use App\DeveloperTask;
 use App\Http\Controllers\WhatsAppController;
 use App\Issue;
+use App\CronJobReport;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
@@ -43,6 +44,13 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
 
         return;
 
@@ -181,5 +189,7 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
             app(WhatsAppController::class)->sendMessage($myRequest, 'issue');
 
         }
+
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }

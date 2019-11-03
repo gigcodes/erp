@@ -12,7 +12,7 @@
 */
 
 Auth::routes();
-Route::get('/test/test','TestController@index');
+//Route::get('/test/test','LiveChatController@getChats');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -73,7 +73,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/auto-cropped/{id}/approve-rejected', 'ProductCropperController@approveRejectedCropped');
     Route::get('products/auto-cropped/{id}/reject', 'ProductCropperController@rejectCrop');
     Route::get('products/auto-cropped/{id}/crop-approval-confirmation', 'ProductCropperController@cropApprovalConfirmation');
-
+    Route::get('customer/livechat-redirect','LiveChatController@reDirect');
     Route::resource('roles', 'RoleController');
     Route::resource('permissions', 'PermissionController');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
@@ -197,6 +197,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('erp-leads/delete', 'LeadsController@erpLeadDelete')->name('leads.erpLeads.delete');
     Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
 
+    //Cron 
+    Route::get('cron','CronController@index')->name('cron.index');
+    Route::get('cron/history/{id}','CronController@history')->name('cron.history');
+    Route::post('cron/history/show','CronController@historySearch')->name('cron.history.search');
+     
+
 
 //	Route::resource('task','TaskController');
 
@@ -291,6 +297,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/productinventory/in/stock/dispatch-store', 'ProductInventoryController@dispatchStore')->name('productinventory.dispatch.store');
     Route::get('/productinventory/in/stock/dispatch', 'ProductInventoryController@dispatchCreate')->name('productinventory.dispatch.create');
     Route::post('/productinventory/stock/{product}', 'ProductInventoryController@stock')->name('productinventory.stock');
+
+
+    Route::prefix('google-search-image')->group(function () {
+        Route::get('/', 'GoogleSearchImageController@index')->name('google.search.image');
+        Route::post('details', 'GoogleSearchImageController@details')->name('google.details.image');
+        Route::post('/', 'GoogleSearchImageController@searchImageOnGoogle');
+    });    
+
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');
@@ -736,6 +750,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
+    });
+
+    Route::prefix('templates')->middleware('auth')->group(function () {
+        Route::get('/', 'TemplatesController@index');
+        Route::get('response', 'TemplatesController@response');
+        Route::post('create', 'TemplatesController@create');
+        Route::get('destroy/{id}', 'TemplatesController@destroy');
     });
 
 });

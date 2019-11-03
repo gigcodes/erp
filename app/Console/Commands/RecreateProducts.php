@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\ScrapedProducts;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class RecreateProducts extends Command
@@ -38,6 +39,13 @@ class RecreateProducts extends Command
      */
     public function handle()
     {
+
+    $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
       $products = ScrapedProducts::where('website', 'angelominetti')->get();
       // dd(count($products));
       foreach ($products as $key => $product) {
@@ -45,5 +53,7 @@ class RecreateProducts extends Command
 
         dump("$key - created product");
       }
+
+       $report->update(['end_time' => Carbon:: now()]);
     }
 }

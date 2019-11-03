@@ -7,6 +7,7 @@ use App\Colors;
 use App\PictureColors;
 use App\Product;
 use ColorThief\ColorThief;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use League\ColorExtractor\Color;
 use League\ColorExtractor\ColorExtractor;
@@ -47,6 +48,10 @@ class ExtractImageColors extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
 
         $ourColors = ColorNamesReference::pluck('erp_name', 'color_name')->toArray();
         $availableColors = (new Colors())->all();
@@ -98,5 +103,7 @@ class ExtractImageColors extends Command
 
             }
         });
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

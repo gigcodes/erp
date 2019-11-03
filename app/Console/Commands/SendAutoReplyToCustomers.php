@@ -8,6 +8,7 @@ use App\ChatMessage;
 use App\Compositions;
 use App\Customer;
 use App\Product;
+use App\CronJobReport;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -49,6 +50,11 @@ class SendAutoReplyToCustomers extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
 
         $messagesIds = DB::table('chat_messages')
             ->selectRaw('MAX(id) as id, customer_id')
@@ -152,6 +158,8 @@ class SendAutoReplyToCustomers extends Command
             }
 
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
 
     }
 

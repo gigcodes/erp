@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Webklex\IMAP\Client;
 use App\ResourceCategory;
+use App\CronJobReport;
 use App\ResourceImage;
 
 class RecieveResourceImages extends Command
@@ -40,6 +41,14 @@ class RecieveResourceImages extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
+
         $oClient = new Client([
             'host'          => env('IMAP_HOST_RESOURCEIMAGE'),
             'port'          => env('IMAP_PORT_RESOURCEIMAGE'),
@@ -135,6 +144,8 @@ class RecieveResourceImages extends Command
             
 
          }
+
+          $report->update(['end_time' => Carbon:: now()]);
 
     }
 }

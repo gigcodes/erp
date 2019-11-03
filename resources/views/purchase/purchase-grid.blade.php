@@ -132,41 +132,50 @@
                         <td>
                             <a href="{{ route('products.show', $product['id']) }}" target="_blank"><img src="{{ $product['image'] }}" class="img-responsive" style="width: 100px !important" alt=""></a>
                         </td>
-                        <td>@if($custcount > 1)
+                        @php
+                            $suppliersArray = [];
+                            $data = DB::select('SELECT sp.id,s.website,sp.url,s.supplier FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
+
+                            $cnt = count($data);
+                        @endphp
+                        @if($cnt > 0)
+                            @php
+                                $suppliersArray = DB::select('SELECT suppliers.id, supplier, ps.product_id,suppliers.website
+                                   FROM suppliers
+                                   INNER JOIN product_suppliers as ps on suppliers.id = ps.supplier_id and ps.product_id = :product_id
+                                   LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and purchase_product_supplier.product_id = ps.product_id', ['product_id' =>$product['id']]);
+                            @endphp
+                        @endif
+                        <td>
+                            @if($custcount > 1)
                                 <a href="javascript:void(0);" class="expandrow" data-id="{{$product['id']}}">{{$product['sku'] }}</a>
                             @else
                                 {{$product['sku'] }}
                             @endif
+
+                            <?php if(!empty($data)) { ?>
+	                            <?php foreach($data as $suppliers){ ?>
+		                            <a target="_blank" href="<?php echo $suppliers->url; ?>"><?php echo $suppliers->supplier; ?></a>
+		                            <br>
+	                            <?php } ?>
+                            <?php } ?>
+
                         </td>
                         <td><!-- {{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }} -->
-                            @php
-                                $suppliersArray = [];
-                                $data = DB::select('SELECT sp.id FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
 
-                                $cnt = count($data);
-                            @endphp
-                            @if($cnt > 0)
-                                @php
-                                    $suppliersArray = DB::select('SELECT suppliers.id, supplier, ps.product_id
-                                       FROM suppliers
-                                       INNER JOIN product_suppliers as ps on suppliers.id = ps.supplier_id and ps.product_id = :product_id
-                                       LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and purchase_product_supplier.product_id = ps.product_id', ['product_id' =>$product['id']]);
-                                @endphp
-                            @endif
-
-                            <?php 
-                                foreach ($activSuppliers as $value) {
-                                    $isNeed = true;
-                                    foreach ($suppliersArray as $v) {
-                                        if ($v->id == $value->id) {
-                                            $isNeed = false;
-                                            break;
-                                        }
-                                    }
-                                    if ($isNeed) {
-                                        $suppliersArray[] = $value;
+                            <?php
+                            foreach ($activSuppliers as $value) {
+                                $isNeed = true;
+                                foreach ($suppliersArray as $v) {
+                                    if ($v->id == $value->id) {
+                                        $isNeed = false;
+                                        break;
                                     }
                                 }
+                                if ($isNeed) {
+                                    $suppliersArray[] = $value;
+                                }
+                            }
                             ?>
 
                             <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple2 supplier_msg" multiple data-product-id="{{$product['id']}}" placeholder="supplier">
@@ -177,19 +186,19 @@
                             <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message">
                             <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }}, '{{ $product['size'] }}');">
                             <div class="supplier_msg_con" style="margin-top: 10px;">
-                                <?php foreach ($product['supplier_msg'] as $supplier_msg) { ?>
-                                    <b>{{$supplier_msg['supplier']}}</b>
-                                    <?php foreach ($supplier_msg['chat_messages'] as $chat_messages) { ?>
-                                        <div class="talk-bubble">
-                                            <div class="talktext">
+                                <?php foreach ($product[ 'supplier_msg' ] as $supplier_msg) { ?>
+                                <b>{{$supplier_msg['supplier']}}</b>
+                                <?php foreach ($supplier_msg[ 'chat_messages' ] as $chat_messages) { ?>
+                                <div class="talk-bubble">
+                                    <div class="talktext">
                                                 <span>
                                                     <p class="collapsible-message">{{$chat_messages['message']}}</p>
                                                 </span>
-                                                <em>{{$chat_messages['created_at']}}</em>
-                                            </div>
-                                        </div>
-                                    <?php } ?>
-                                    <br>
+                                        <em>{{$chat_messages['created_at']}}</em>
+                                    </div>
+                                </div>
+                                <?php } ?>
+                                <br>
                                 <?php } ?>
                                 <br>
                             </div>
@@ -463,27 +472,27 @@
             supplier_msg($(this));
         })*/
 
-        function supplier_msg (_this) {
-            var suppliers =  _this.val();
-            var product_id =  _this.data('product-id');
+        function supplier_msg(_this) {
+            var suppliers = _this.val();
+            var product_id = _this.data('product-id');
             $.ajax({
                 url: "{{ route('get.msg.supplier') }}",
-                data: {'suppliers' : suppliers, 'product_id' : product_id}
+                data: {'suppliers': suppliers, 'product_id': product_id}
             }).done(function (data) {
                 var html = '';
-                $.each( data, function( key, value ) {
-                    html += '<b>'+value.supplier+'</b>'; 
-                    $.each( value.chat_messages, function( key, value ) {
+                $.each(data, function (key, value) {
+                    html += '<b>' + value.supplier + '</b>';
+                    $.each(value.chat_messages, function (key, value) {
                         html += '<div class="talk-bubble">'
                         html += '   <div class="talktext">'
                         html += '       <span>'
-                        html += '           <p class="collapsible-message">'+value.message+'</p>'
+                        html += '           <p class="collapsible-message">' + value.message + '</p>'
                         html += '       </span>'
-                        html += '       <em>'+value.created_at+' </em>'
+                        html += '       <em>' + value.created_at + ' </em>'
                         html += '   </div>'
                         html += '</div>'
                     });
-                    html += '<br>'; 
+                    html += '<br>';
                 });
                 _this.closest('td').find('.supplier_msg_con').html(html);
             }).fail(function () {
@@ -495,22 +504,24 @@
         }
 
         $(document).ready(function () {
-            $(".select-multiple2").each(function(){
+            $(".select-multiple2").each(function () {
                 $(this).select2({
                     placeholder: $(this).attr('placeholder')
                 });
             })
         });
 
-        $('#alternative_offers').on("scroll", function() {      
+        $('#alternative_offers').on("scroll", function () {
             $('.lazy').Lazy({
                 effect: 'fadeIn'
             });
         });
-        
+
         $(".alternative_offers").click(function () {
-            $('#alternative_offers_search_form').find("select[name='category[]']").val($(this).data('category')).trigger('change');;
-            $('#alternative_offers_search_form').find("select[name='brand[]']").val($(this).data('brand')).trigger('change');;
+            $('#alternative_offers_search_form').find("select[name='category[]']").val($(this).data('category')).trigger('change');
+            ;
+            $('#alternative_offers_search_form').find("select[name='brand[]']").val($(this).data('brand')).trigger('change');
+            ;
             $('#alternative_offers_search_form').find("input[name='price_min']").val($(this).data('price'));
             $('#attachImageForm').find(".customer_id").val($(this).data('customer_id'));
             $.ajax({
@@ -789,7 +800,7 @@
             var next_page = $('.pagination li.active + li a');
             if (next_page && next_page.attr('href')) {
                 var page_number = next_page.attr('href').split('?page=');
-                
+
                 var current_page = page_number[1] - 1;
                 $('#page-goto option[value="' + page_number[0] + '?page=' + current_page + '"]').attr('selected', 'selected');
             }
@@ -806,7 +817,7 @@
                     contentSelector: 'div.infinite-scroll',
                     callback: function () {
                         // $('ul.pagination').remove();
-                         $(".select-multiple2").each(function(){
+                        $(".select-multiple2").each(function () {
                             $(this).select2({
                                 placeholder: $(this).attr('placeholder')
                             });
@@ -915,7 +926,7 @@
                 $('#btnmsg_' + id).val('SendSMG');
                 $('#btnmsg_' + id).removeClass('btn-secondary');
                 $('#btnmsg_' + id).addClass('btn-success');
-                supplier_msg ($('#supplier_' + id));
+                supplier_msg($('#supplier_' + id));
                 setTimeout(function () {
                     $('#btnmsg_' + id).addClass('btn-secondary');
                     $('#btnmsg_' + id).removeClass('btn-success');

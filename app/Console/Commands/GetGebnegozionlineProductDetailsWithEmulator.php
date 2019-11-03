@@ -10,6 +10,7 @@ use App\ScrapEntries;
 use App\Services\Bots\WebsiteEmulator;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 
@@ -35,6 +36,13 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
 
     public function handle(): void
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
         if (strpos($letters, 'G') === false) {
             return;
@@ -44,6 +52,8 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
         foreach ($products as $product) {
             $this->runFakeTraffic($product->url);
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 
     public function doesProductExist($url) {

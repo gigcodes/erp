@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Product;
 use File;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 
 class MergeDuplicateProducts extends Command
 {
@@ -39,6 +40,12 @@ class MergeDuplicateProducts extends Command
      */
     public function handle()
     {
+
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
       // $products = Product::withTrashed()->where('supplier', 'Women Concept Store Cagliari')->get();
       // $product = Product::find(127805);
       // dd(count($products));
@@ -147,5 +154,7 @@ class MergeDuplicateProducts extends Command
 
         dump("------------------");
       }
+
+       $report->update(['end_time' => Carbon:: now()]);
     }
 }

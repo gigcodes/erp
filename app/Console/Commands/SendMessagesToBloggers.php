@@ -7,6 +7,7 @@ use App\Influencers;
 use App\InfluencersDM;
 use App\InstagramAutomatedMessages;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 use InstagramAPI\Instagram;
 
 class SendMessagesToBloggers extends Command
@@ -42,6 +43,12 @@ class SendMessagesToBloggers extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $bloggers = Influencers::whereDoesntHave('message')->get();
 
         foreach ($bloggers as $blogger) {
@@ -85,5 +92,7 @@ class SendMessagesToBloggers extends Command
 
 
         }
+
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }
