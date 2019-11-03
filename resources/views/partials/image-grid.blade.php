@@ -292,21 +292,20 @@
 
         $(document).on('change', '.select-pr-list-chk', function (e) {
             var $this = $(this);
-            var productCard = $this.closest(".product-list-card").find(".attach-photo-all");
+            var productCard = $this.closest(".product-list-card").find(".attach-photo");
             if (productCard.length > 0) {
                 var image = productCard.data("image");
                 if ($this.is(":checked") === true) {
-                    Object.keys(image).forEach(function (index) {
-                        image_array.push(image[index]);
-                    });
-
+                    //Object.keys(image).forEach(function (index) {
+                    image_array.push(image);
+                    //});
                     image_array = unique(image_array);
 
                 } else {
-                    Object.keys(image).forEach(function (key) {
-                        var index = image_array.indexOf(image[key]);
-                        image_array.splice(index, 1);
-                    });
+                    //Object.keys(image).forEach(function (key) {
+                    var index = image_array.indexOf(image);
+                    image_array.splice(index, 1);
+                    //});
                     image_array = unique(image_array);
                 }
             }
