@@ -39,6 +39,7 @@ class ManualQueueForMagento extends Command
      */
     public function handle()
     {
+        // Set memory limit
         ini_set('memory_limit', '2048M');
 
         // Get all products queued for AI
