@@ -636,7 +636,7 @@
              image_upload.append('status',2);
              image_upload.append('type',2);
              image_upload.append('issue_id',id);
-             console.log(image_upload);
+             if(TotalImages != 0){
 
                     $.ajax({
                         method: 'POST',
@@ -651,7 +651,7 @@
                           console.log(`Failed`)
                         }
                     })
-
+                }    
             })
         }
 
