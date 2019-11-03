@@ -132,27 +132,36 @@
                         <td>
                             <a href="{{ route('products.show', $product['id']) }}" target="_blank"><img src="{{ $product['image'] }}" class="img-responsive" style="width: 100px !important" alt=""></a>
                         </td>
-                        <td>@if($custcount > 1)
+                        @php
+                            $suppliersArray = [];
+                            $data = DB::select('SELECT sp.id,s.website FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
+
+                            $cnt = count($data);
+                        @endphp
+                        @if($cnt > 0)
+                            @php
+                                $suppliersArray = DB::select('SELECT suppliers.id, supplier, ps.product_id,s.website
+                                   FROM suppliers
+                                   INNER JOIN product_suppliers as ps on suppliers.id = ps.supplier_id and ps.product_id = :product_id
+                                   LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and purchase_product_supplier.product_id = ps.product_id', ['product_id' =>$product['id']]);
+                            @endphp
+                        @endif
+                        <td>
+                            @if($custcount > 1)
                                 <a href="javascript:void(0);" class="expandrow" data-id="{{$product['id']}}">{{$product['sku'] }}</a>
                             @else
                                 {{$product['sku'] }}
                             @endif
+
+                            <?php if(!empty($suppliersArray)) { ?>
+                                <?php foreach($suppliersArray as $suppliers){ ?>
+                                    <a target="_blank"> href="<?php echo $suppliers->website; ?>"><?php echo $suppliers->supplier; ?></a>
+                                    <br>
+                                <?php } ?>    
+                            <?php } ?>   
+
                         </td>
                         <td><!-- {{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }} -->
-                            @php
-                                $suppliersArray = [];
-                                $data = DB::select('SELECT sp.id FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
-
-                                $cnt = count($data);
-                            @endphp
-                            @if($cnt > 0)
-                                @php
-                                    $suppliersArray = DB::select('SELECT suppliers.id, supplier, ps.product_id
-                                       FROM suppliers
-                                       INNER JOIN product_suppliers as ps on suppliers.id = ps.supplier_id and ps.product_id = :product_id
-                                       LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and purchase_product_supplier.product_id = ps.product_id', ['product_id' =>$product['id']]);
-                                @endphp
-                            @endif
 
                             <?php 
                                 foreach ($activSuppliers as $value) {
