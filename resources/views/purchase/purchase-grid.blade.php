@@ -33,8 +33,13 @@
                                value="{{ isset($term) ? $term : '' }}"
                                placeholder="name, sku, supplier">
                     </div>
+<<<<<<< HEAD
+                    <div class="form-group mr-3">
+                        {!! $category_filter !!}
+=======
                     <div class="form-group mr-3 mb-3">
                         {!! $categoryFilter !!}
+>>>>>>> remotes/origin/master
                     </div>
                     @if (!$page || $page=='non_ordered')
                         <div class="form-group mr-3">
