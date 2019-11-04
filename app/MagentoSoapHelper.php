@@ -39,7 +39,6 @@ class MagentoSoapHelper
         // Set session ID
         try {
             $this->_sessionId = $this->_proxy->login(config('magentoapi.user'), config('magentoapi.password'));
-            Log::channel('listMagento')->info("Connected to Magento via SOAP: " . $this->_sessionId);
         } catch (\SoapFault $fault) {
             // Log the error
             Log::channel('listMagento')->emergency("Unable to connect to Magento via SOAP: " . $fault->getMessage());
@@ -53,6 +52,7 @@ class MagentoSoapHelper
     {
         // Check for product and session
         if ($product === null || !$this->_sessionId) {
+            Log::channel('listMagento')->emergency("No product or no session ID");
             return false;
         }
 
