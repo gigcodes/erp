@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Helpers\StatusHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\ProductHelper;
@@ -58,12 +59,13 @@ class MagentoSoapHelper
         $categories = Category::getCategoryTreeMagento($product->category);
 
         // Get brand
-        $brand = $product->brands()->get();
+        // $brand = $product->brands()->get();
 
         // Push brand to categories array
-        if ($brand !== null && isset($brand[ 0 ]->magento_id)) {
-            array_push($categories, $brand[ 0 ]->magento_id);
-        }
+        // 04NOV19 Brands is an attribute
+        //if ($brand !== null && isset($brand[ 0 ]->magento_id)) {
+        //    array_push($categories, $brand[ 0 ]->magento_id);
+        //}
 
         // Add the product to the sales category
         // 03NOV19 We now set an attribute for bestbuys
@@ -113,6 +115,7 @@ class MagentoSoapHelper
             $this->_pushImages($product, $result);
 
             // Set product to uploaded and listed
+            $product->status_id = StatusHelper::$inMagento;
             $product->isUploaded = 1;
             $product->is_uploaded_date = Carbon::now();
             $product->isListed = 1;
@@ -225,6 +228,7 @@ class MagentoSoapHelper
                     ['key' => 'color', 'value' => $product->color,],
                     ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
                     ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
+                    ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
                     ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
                     ['key' => 'flashsales', 'value' => 0],
                 ]
@@ -272,6 +276,7 @@ class MagentoSoapHelper
                     ['key' => 'measurement', 'value' => $measurement,],
                     ['key' => 'country_of_manufacture', 'value' => ucwords($product->made_in),],
                     ['key' => 'brands', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
+                    ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
                     ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0]
                 ]
             ]
