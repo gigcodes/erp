@@ -525,15 +525,17 @@ class PurchaseController extends Controller
         foreach ($order_status as $key => $value) {
             if (!$page) {
                 if (!in_array($key, ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid'])) {
-                    unset($order_status[$key]);
+                    unset($order_status[ $key ]);
                 }
-            } else if ($page=='non_ordered') {
-                if (in_array($key, ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid'])) {
-                    unset($order_status[$key]);
+            } else {
+                if ($page == 'non_ordered') {
+                    if (in_array($key, ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid'])) {
+                        unset($order_status[ $key ]);
+                    }
                 }
             }
         }
-        
+
         $supplier_list = (new SupplierList)->all();
         // $suppliers = Supplier::select(['id', 'supplier'])->whereHas('products')->get();
         /*$suppliers = DB::select('
@@ -591,7 +593,7 @@ class PurchaseController extends Controller
                     }
                 }
             } else {
-                array_push($category_children, $request->category_id );
+                array_push($category_children, $request->category_id);
             }
 
             $products = $products->whereIn('category', $category_children);
@@ -630,7 +632,7 @@ class PurchaseController extends Controller
                     // }
                     $customers[] = $order_product->order->customer;
                 }
-                
+
                 if (!empty($order_product->order)) {
                     $orderCount++;
                     if (!empty($order_product->size)) {
@@ -644,25 +646,25 @@ class PurchaseController extends Controller
             }
 
             $supplier_msg = DB::table('purchase_product_supplier')
-                        ->select('suppliers.id', 'suppliers.supplier', 'chat_messages.id as chat_messages_id', 'chat_messages.message', 'chat_messages.created_at')
-                        ->leftJoin('suppliers', 'suppliers.id', '=', 'purchase_product_supplier.supplier_id')
-                        ->leftJoin('chat_messages', 'chat_messages.id', '=', 'purchase_product_supplier.chat_message_id')
-                        ->where('purchase_product_supplier.product_id', '=', $product->id)
-                        ->orderBy('chat_messages.created_at', 'DESC')
-                        ->get();
+                ->select('suppliers.id', 'suppliers.supplier', 'chat_messages.id as chat_messages_id', 'chat_messages.message', 'chat_messages.created_at')
+                ->leftJoin('suppliers', 'suppliers.id', '=', 'purchase_product_supplier.supplier_id')
+                ->leftJoin('chat_messages', 'chat_messages.id', '=', 'purchase_product_supplier.chat_message_id')
+                ->where('purchase_product_supplier.product_id', '=', $product->id)
+                ->orderBy('chat_messages.created_at', 'DESC')
+                ->get();
 
             $supplier_msg_data = [];
             foreach ($supplier_msg as $key => $value) {
-                $supplier_msg_data[$value->id]['supplier'] = $value->supplier;
-                
-                if (!isset($data[$value->id]['chat_messages'])) {
-                    $supplier_msg_data[$value->id]['chat_messages'] = [];
+                $supplier_msg_data[ $value->id ][ 'supplier' ] = $value->supplier;
+
+                if (!isset($data[ $value->id ][ 'chat_messages' ])) {
+                    $supplier_msg_data[ $value->id ][ 'chat_messages' ] = [];
                 }
 
                 if (!empty($value->chat_messages_id)) {
-                    $supplier_msg_data[$value->id]['chat_messages'][] = [
-                        'message'       => $value->message,
-                        'created_at'    => $value->created_at,
+                    $supplier_msg_data[ $value->id ][ 'chat_messages' ][] = [
+                        'message' => $value->message,
+                        'created_at' => $value->created_at,
                     ];
                 }
             }
@@ -768,7 +770,8 @@ class PurchaseController extends Controller
             'page' => $page,
             'category_selection' => $category_selection,
             'activSuppliers' => $activSuppliers,
-            'categoryFilter' => $categoryFilter,
+            'category_filter' => $category_filter,
+
         ]);
     }
 
@@ -2052,7 +2055,10 @@ class PurchaseController extends Controller
             $emails_array[ $count + $key2 ][ 'message' ] = $email->message;
             $emails_array[ $count + $key2 ][ 'cc' ] = $email->cc;
             $emails_array[ $count + $key2 ][ 'bcc' ] = $email->bcc;
-            $emails_array[ $count + $key2 ][ 'replyInfo' ] = "On {$dateCreated} at {$timeCreated}, $userName <{$email->from}> wrote:";
+            $emails_array[ $count + $key2 ][ 'replyInfo' ] = "On {
+        $dateCreated} at {
+        $timeCreated}, $userName <{
+        $email->from}> wrote:";
             $emails_array[ $count + $key2 ][ 'dateCreated' ] = $dateCreated;
             $emails_array[ $count + $key2 ][ 'timeCreated' ] = $timeCreated;
         }
@@ -2365,10 +2371,10 @@ class PurchaseController extends Controller
       $count = 0;
 
       // foreach ($emails as $key => $email) {
-      //   $emails_array[$key]['uid'] = $email->getUid();
-      //   $emails_array[$key]['subject'] = $email->getSubject();
-      //   $emails_array[$key]['date'] = $email->getDate();
-      //   $emails_array[$key]['from'] = $email->getFrom()[0]->mail;
+      //   $emails_array[ $key ]['uid'] = $email->getUid();
+      //   $emails_array[ $key ]['subject'] = $email->getSubject();
+      //   $emails_array[ $key ]['date'] = $email->getDate();
+      //   $emails_array[ $key ]['from'] = $email->getFrom()[0]->mail;
       //
       //   $count++;
       // }
@@ -2377,25 +2383,25 @@ class PurchaseController extends Controller
         $db_emails = $supplier->emails()->where('type', 'incoming')->get();
 
         foreach ($db_emails as $key2 => $email) {
-          $emails_array[$count + $key2]['id'] = $email->id;
-          $emails_array[$count + $key2]['subject'] = $email->subject;
-          $emails_array[$count + $key2]['seen'] = $email->seen;
-          $emails_array[$count + $key2]['type'] = $email->type;
-          $emails_array[$count + $key2]['date'] = $email->created_at;
-          $emails_array[$count + $key2]['from'] = $email->from;
-          $emails_array[$count + $key2]['to'] = $email->to;
+          $emails_array[ $count + $key2]['id'] = $email->id;
+          $emails_array[ $count + $key2]['subject'] = $email->subject;
+          $emails_array[ $count + $key2]['seen'] = $email->seen;
+          $emails_array[ $count + $key2]['type'] = $email->type;
+          $emails_array[ $count + $key2]['date'] = $email->created_at;
+          $emails_array[ $count + $key2]['from'] = $email->from;
+          $emails_array[ $count + $key2]['to'] = $email->to;
         }
       } else {
         $db_emails = $supplier->emails()->where('type', 'outgoing')->get();
 
         foreach ($db_emails as $key2 => $email) {
-          $emails_array[$count + $key2]['id'] = $email->id;
-          $emails_array[$count + $key2]['subject'] = $email->subject;
-          $emails_array[$count + $key2]['seen'] = $email->seen;
-          $emails_array[$count + $key2]['type'] = $email->type;
-          $emails_array[$count + $key2]['date'] = $email->created_at;
-          $emails_array[$count + $key2]['from'] = $email->from;
-          $emails_array[$count + $key2]['to'] = $email->to;
+          $emails_array[ $count + $key2]['id'] = $email->id;
+          $emails_array[ $count + $key2]['subject'] = $email->subject;
+          $emails_array[ $count + $key2]['seen'] = $email->seen;
+          $emails_array[ $count + $key2]['type'] = $email->type;
+          $emails_array[ $count + $key2]['date'] = $email->created_at;
+          $emails_array[ $count + $key2]['from'] = $email->from;
+          $emails_array[ $count + $key2]['to'] = $email->to;
         }
       }
 
@@ -2743,14 +2749,14 @@ class PurchaseController extends Controller
             }
 
             $sku = isset($product->sku) ? $product->sku : '';
-            $size = !empty($request->get('size')) ? ' size '. $request->get('size') : '';
+            $size = !empty($request->get('size')) ? ' size ' . $request->get('size') : '';
 
             foreach ($suppliers_all as $supplier) {
 
                 if ($supplier->phone != '') {
-                    
 
-                    $message = $request->input('message') . ' (' . $sku . ')'.$size;
+
+                    $message = $request->input('message') . ' (' . $sku . ')' . $size;
 
                     try {
                         dump("Sending message");
@@ -2787,24 +2793,24 @@ class PurchaseController extends Controller
         $suppliers = $request->get('suppliers', []);
 
         $suppliers = DB::table('purchase_product_supplier')
-                        ->select('suppliers.id', 'suppliers.supplier', 'chat_messages.id as chat_messages_id', 'chat_messages.message', 'chat_messages.created_at')
-                        ->leftJoin('suppliers', 'suppliers.id', '=', 'purchase_product_supplier.supplier_id')
-                        ->leftJoin('chat_messages', 'chat_messages.id', '=', 'purchase_product_supplier.chat_message_id')
-                        ->where('purchase_product_supplier.product_id', '=', $productId)
-                        ->orderBy('chat_messages.created_at', 'DESC')
-                        ->get();
+            ->select('suppliers.id', 'suppliers.supplier', 'chat_messages.id as chat_messages_id', 'chat_messages.message', 'chat_messages.created_at')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'purchase_product_supplier.supplier_id')
+            ->leftJoin('chat_messages', 'chat_messages.id', '=', 'purchase_product_supplier.chat_message_id')
+            ->where('purchase_product_supplier.product_id', '=', $productId)
+            ->orderBy('chat_messages.created_at', 'DESC')
+            ->get();
         $data = [];
         foreach ($suppliers as $key => $value) {
-            $data[$value->id]['supplier'] = $value->supplier;
-            
-            if (!isset($data[$value->id]['chat_messages'])) {
-                $data[$value->id]['chat_messages'] = [];
+            $data[ $value->id ][ 'supplier' ] = $value->supplier;
+
+            if (!isset($data[ $value->id ][ 'chat_messages' ])) {
+                $data[ $value->id ][ 'chat_messages' ] = [];
             }
 
             if (!empty($value->chat_messages_id)) {
-                $data[$value->id]['chat_messages'][] = [
-                    'message'       => $value->message,
-                    'created_at'    => $value->created_at,
+                $data[ $value->id ][ 'chat_messages' ][] = [
+                    'message' => $value->message,
+                    'created_at' => $value->created_at,
                 ];
             }
         }
@@ -2903,13 +2909,12 @@ class PurchaseController extends Controller
      *
      *
      */
-
     public function syncOrderProductId()
     {
         $recordsOldUpdate = Db::select("
-        select pp.id,pp.purchase_id, pp.product_id 
+        select pp.id,pp.purchase_id, pp.product_id
         from purchase_products as pp join products as p on p.id = pp.product_id
-        left join order_products as op on op.sku = p.sku 
+        left join order_products as op on op.sku = p.sku
         where pp.order_product_id != op.id");
 
         if (!empty($recordsOldUpdate)) {
