@@ -80,10 +80,10 @@ class MagentoSoapHelper
         }
 
         // Check for readiness to go to Magento
-        if (!ProductHelper::checkReadinessForLive($product)) {
-            Log::channel('listMagento')->emergency("Failed readiness test for product ID " . $product->id);
-            return false;
-        }
+        //if (!ProductHelper::checkReadinessForLive($product)) {
+        //    Log::channel('listMagento')->emergency("Failed readiness test for product ID " . $product->id);
+        //    return false;
+        //}
 
         // Check for existing product references and remove them
         if ($product->references) {
