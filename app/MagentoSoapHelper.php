@@ -52,7 +52,6 @@ class MagentoSoapHelper
     {
         // Check for product and session
         if ($product === null || !$this->_sessionId) {
-            Log::channel('listMagento')->emergency("No product or no session ID");
             return false;
         }
 
@@ -76,11 +75,13 @@ class MagentoSoapHelper
 
         // No categories found?
         if (count($categories) == 0) {
+            Log::channel('listMagento')->emergency("No categories found for product ID " . $product->id);
             return false;
         }
 
         // Check for readiness to go to Magento
         if (!ProductHelper::checkReadinessForLive($product)) {
+            Log::channel('listMagento')->emergency("Failed readiness test for product ID " . $product->id);
             return false;
         }
 
