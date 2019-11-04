@@ -133,7 +133,7 @@ class BroadcastMessageController extends Controller
         $message_queues = $message_queues->orderBy('sending_time', 'ASC')->paginate(Setting::get('pagination'));
         $last_set_completed = $last_set_completed->orderBy('sending_time', 'ASC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
         $customers_all = Customer::select(['id', 'name', 'phone', 'email'])->get();
-        $broadcast_images = BroadcastImage::paginate(Setting::get('pagination'));
+        $broadcast_images = BroadcastImage::orderBy('id', 'DESC')->paginate(Setting::get('pagination'));
         $cron_job = CronJob::where('signature', 'run:message-queues')->first();
         $pending_messages_count = MessageQueue::where('sent', 0)->where('status', '!=', 1)->where('sending_time', '<', Carbon::now())->count();
 
@@ -184,7 +184,7 @@ class BroadcastMessageController extends Controller
 
     public function images()
     {
-        $broadcast_images = BroadcastImage::paginate(Setting::get('pagination'));
+        $broadcast_images = BroadcastImage::orderBy('id', 'DESC')->paginate(Setting::get('pagination'));
         $api_keys = ApiKey::select('number')->get();
 
         return view('customers.broadcast-images', [

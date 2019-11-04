@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\ScrapedProducts;
 use App\Category;
+use App\CronJobReport;
 use App\Product;
 
 class UpdateWiseCategory extends Command
@@ -42,6 +43,11 @@ class UpdateWiseCategory extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
       // $products = ScrapedProducts::where('has_sku', 1)->where('website', 'Wiseboutique')->get();
       // $products = ScrapedProducts::where('created_at', '>', '2019-06-03 00:00')->get();
       $products = ScrapedProducts::all();
@@ -127,5 +133,7 @@ class UpdateWiseCategory extends Command
       dump("Found in All categories - $all_categories_count");
       dump("No Category - $no_category_count");
       dump("No Match - $no_match_count");
+
+       $report->update(['end_time' => Carbon:: now()]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\ChatMessage;
 use App\Customer;
+use App\CronJobReport;
 use App\KeywordToCategory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -41,6 +42,11 @@ class ImportCustomerToCategoryByKeywords extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $keywordsToCategories = KeywordToCategory::all();
 
         Customer::where('is_categorized_for_bulk_messages', 0)->with('messageHistory')->chunk(100, function($customers) use ($keywordsToCategories) {
@@ -58,6 +64,8 @@ class ImportCustomerToCategoryByKeywords extends Command
                 }
             }
         });
+
+         $report->update(['end_time' => Carbon:: now()]);
 
     }
 

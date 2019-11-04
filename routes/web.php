@@ -12,7 +12,7 @@
 */
 
 Auth::routes();
-Route::get('/test/test','TestController@index');
+//Route::get('/test/test','LiveChatController@getChats');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -73,7 +73,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/auto-cropped/{id}/approve-rejected', 'ProductCropperController@approveRejectedCropped');
     Route::get('products/auto-cropped/{id}/reject', 'ProductCropperController@rejectCrop');
     Route::get('products/auto-cropped/{id}/crop-approval-confirmation', 'ProductCropperController@cropApprovalConfirmation');
-
+    Route::get('customer/livechat-redirect','LiveChatController@reDirect');
     Route::resource('roles', 'RoleController');
     Route::resource('permissions', 'PermissionController');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
@@ -170,7 +170,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('edit-resourceCat', 'ResourceImgController@editResourceCat')->name('edit.resourceCat');
     Route::post('remove-resourceCat', 'ResourceImgController@removeResourceCat')->name('remove.resourceCat');
     Route::post('acitvate-resourceCat', 'ResourceImgController@activateResourceCat')->name('activate.resourceCat');
-    
+
     Route::get('resourceimg/pending','ResourceImgController@pending');
 
 
@@ -196,6 +196,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('erp-leads/store', 'LeadsController@erpLeadsStore')->name('leads.erpLeads.store');
     Route::get('erp-leads/delete', 'LeadsController@erpLeadDelete')->name('leads.erpLeads.delete');
     Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
+
+    //Cron
+    Route::get('cron','CronController@index')->name('cron.index');
+    Route::get('cron/history/{id}','CronController@history')->name('cron.history');
+    Route::post('cron/history/show','CronController@historySearch')->name('cron.history.search');
+
 
 
 //	Route::resource('task','TaskController');
@@ -292,6 +298,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/productinventory/in/stock/dispatch', 'ProductInventoryController@dispatchCreate')->name('productinventory.dispatch.create');
     Route::post('/productinventory/stock/{product}', 'ProductInventoryController@stock')->name('productinventory.stock');
 
+
+    Route::prefix('google-search-image')->group(function () {
+        Route::get('/', 'GoogleSearchImageController@index')->name('google.search.image');
+        Route::post('details', 'GoogleSearchImageController@details')->name('google.details.image');
+        Route::post('/', 'GoogleSearchImageController@searchImageOnGoogle');
+    });
+
+
     Route::get('category', 'CategoryController@manageCategory')->name('category');
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');
     Route::post('category/{category}/edit', 'CategoryController@edit')->name('category.edit');
@@ -362,6 +376,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/broadcast', 'CustomerController@broadcast')->name('customer.broadcast.list');
     Route::get('customer/broadcast-details', 'CustomerController@broadcastDetails')->name('customer.broadcast.details');
     Route::get('customer/broadcast-send-price', 'CustomerController@broadcastSendPrice')->name('customer.broadcast.run');
+    Route::get('customer/contact-download/{id}', 'CustomerController@downloadContactDetailsPdf')->name('customer.download.contact-pdf');
     Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
     Route::get('customer/{id}/edit', 'CustomerController@edit')->name('customer.edit');
     Route::post('customer/{id}/edit', 'CustomerController@update')->name('customer.update');
@@ -649,9 +664,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Document Cateogry
     Route::post('documentcategory/add', 'DocuemntCategoryController@addCategory')->name('documentcategory.add');
 
-    //SKU Format
+    //SKU
     Route::get('sku-format/datatables', 'SkuFormatController@getData')->name('skuFormat.datatable');
     Route::resource('sku-format', 'SkuFormatController');
+    Route::get('sku/color-codes', 'SkuController@colorCodes')->name('sku.color-codes');
+    Route::get('sku/color-codes-update', 'SkuController@colorCodesUpdate')->name('sku.color-codes-update');
 
     // Cash Flow Module
     Route::get('cashflow/{id}/download', 'CashFlowController@download')->name('cashflow.download');
@@ -736,6 +753,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
+    });
+
+    Route::prefix('templates')->middleware('auth')->group(function () {
+        Route::get('/', 'TemplatesController@index');
+        Route::get('response', 'TemplatesController@response');
+        Route::post('create', 'TemplatesController@create');
+        Route::get('destroy/{id}', 'TemplatesController@destroy');
     });
 
 });

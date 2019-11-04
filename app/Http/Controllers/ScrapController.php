@@ -32,6 +32,47 @@ use App\Services\Products\ProductsCreator;
 
 class ScrapController extends Controller
 {
+    private $googleImageScraper;
+    private $pinterestScraper;
+    private $gnbCreator;
+
+    public function __construct(GoogleImageScraper $googleImageScraper, PinterestScraper $pinterestScraper, GnbProductsCreator $gnbCreator)
+    {
+        $this->googleImageScraper = $googleImageScraper;
+        $this->pinterestScraper = $pinterestScraper;
+        $this->gnbCreator = $gnbCreator;
+    }
+
+    public function index()
+    {
+        return view('scrap.index');
+    }
+
+    public function scrapGoogleImages(Request $request)
+    {
+        $this->validate($request, [
+            'query' => 'required',
+            'noi' => 'required',
+        ]);
+
+        $q = $request->get('query');
+        $noi = $request->get('noi');
+        $chip = $request->get('chip');
+
+        $pinterestData = [];
+        $googleData = [];
+
+        if ($request->get('pinterest') === 'on') {
+            $pinterestData = $this->pinterestScraper->scrapPinterestImages($q, $chip, $noi);
+        }
+
+        if ($request->get('google') === 'on') {
+            $googleData = $this->googleImageScraper->scrapGoogleImages($q, $chip, $noi);
+        }
+
+        return view('scrap.extracted_images', compact('googleData', 'pinterestData'));
+
+    }
 
     public function downloadImages(Request $request)
     {

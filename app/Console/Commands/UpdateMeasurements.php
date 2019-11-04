@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\ScrapedProducts;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 
 class UpdateMeasurements extends Command
 {
@@ -38,6 +39,12 @@ class UpdateMeasurements extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
       $scraped_products = ScrapedProducts::whereIn('website', ['alducadaosta', 'biffi', 'brunarosso', 'coltorti', 'leam', 'nugnes1920', 'montiboutique', 'mimmaninnishop', 'linoricci'])->get();
 
       // dd(count($scraped_products));
@@ -119,5 +126,6 @@ class UpdateMeasurements extends Command
           }
         }
       }
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

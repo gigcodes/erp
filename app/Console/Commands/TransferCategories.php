@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Category;
 use App\Product;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class TransferCategories extends Command
@@ -39,6 +40,14 @@ class TransferCategories extends Command
      */
     public function handle()
     {
+
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
+
         $transfers = [
           [90, 51],
           [91, 58],
@@ -65,5 +74,7 @@ class TransferCategories extends Command
             ]);
             Category::find($transfer[0])->delete();
         }
+
+          $report->update(['end_time' => Carbon:: now()]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\ColdLeads;
 use App\Customer;
 use App\RejectedLeads;
+use App\CronJobReport;
 use App\Services\Instagram\Automation;
 use Illuminate\Console\Command;
 
@@ -41,6 +42,11 @@ class AutomateLeadsAsColdOrCustomers extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $automation = new Automation();
         $customers = Customer::where('instahandler', '!=', '')->where('rating', '>', 5)->orderBy('created_at', 'DESC')->orderBy('rating', 'DESC')->paginate(5);
         $customers = $customers->toArray();
@@ -117,5 +123,7 @@ class AutomateLeadsAsColdOrCustomers extends Command
             }
 
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

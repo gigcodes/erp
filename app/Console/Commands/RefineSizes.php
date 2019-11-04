@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Product;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use App\Services\Products\SizeReferences;
 
@@ -42,6 +43,13 @@ class RefineSizes extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         Product::where('size', '!=', '')->where('is_crop_ordered', 1)->whereNotNull('size')->where('is_approved', '0')->chunk(1000, function($products) {
             foreach ($products as $product) {
                 $this->enricher->basicRefining($product);
@@ -64,5 +72,7 @@ class RefineSizes extends Command
 //                }
             }
         });
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }
