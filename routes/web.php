@@ -170,7 +170,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('edit-resourceCat', 'ResourceImgController@editResourceCat')->name('edit.resourceCat');
     Route::post('remove-resourceCat', 'ResourceImgController@removeResourceCat')->name('remove.resourceCat');
     Route::post('acitvate-resourceCat', 'ResourceImgController@activateResourceCat')->name('activate.resourceCat');
-    
+
     Route::get('resourceimg/pending','ResourceImgController@pending');
 
 
@@ -197,11 +197,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('erp-leads/delete', 'LeadsController@erpLeadDelete')->name('leads.erpLeads.delete');
     Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
 
-    //Cron 
+    //Cron
     Route::get('cron','CronController@index')->name('cron.index');
     Route::get('cron/history/{id}','CronController@history')->name('cron.history');
     Route::post('cron/history/show','CronController@historySearch')->name('cron.history.search');
-     
+
 
 
 //	Route::resource('task','TaskController');
@@ -303,7 +303,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/', 'GoogleSearchImageController@index')->name('google.search.image');
         Route::post('details', 'GoogleSearchImageController@details')->name('google.details.image');
         Route::post('/', 'GoogleSearchImageController@searchImageOnGoogle');
-    });    
+    });
 
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
@@ -664,9 +664,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Document Cateogry
     Route::post('documentcategory/add', 'DocuemntCategoryController@addCategory')->name('documentcategory.add');
 
-    //SKU Format
+    //SKU
     Route::get('sku-format/datatables', 'SkuFormatController@getData')->name('skuFormat.datatable');
     Route::resource('sku-format', 'SkuFormatController');
+    Route::get('sku/color-codes', 'SkuController@colorCodes')->name('sku.color-codes');
+    Route::get('sku/color-codes-update', 'SkuController@colorCodesUpdate')->name('sku.color-codes-update');
 
     // Cash Flow Module
     Route::get('cashflow/{id}/download', 'CashFlowController@download')->name('cashflow.download');

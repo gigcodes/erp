@@ -3,10 +3,10 @@
 namespace App\Console\Commands\Manual;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use App\CronJobReport;
 use App\User;
-
 
 class PasswordChangeAll extends Command
 {
