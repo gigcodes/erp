@@ -380,7 +380,9 @@
 
                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#advancePaymentModal"><img src="/images/advance-link.png" /></button>
                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#sendContacts"><img src="/images/details.png" /></button>
-                <button type="button" class="btn btn-image" data-toggle="modal" data-target="#downloadContacts"><img src="/images/download.png" /></button>
+                <a href="{{ route('customer.download.contact-pdf',[$customer->id]) }}" target="_blank">
+                  <button type="button" class="btn btn-image"><img src="/images/download.png" /></button>
+                </a>
 
                 @include('customers.partials.modal-advance-link')
               </div>
