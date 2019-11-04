@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\Scrap\GebnegozionlineProductDetailsScraper;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class GetGebnegozionlineProductDetails extends Command
@@ -41,10 +42,17 @@ class GetGebnegozionlineProductDetails extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
         if (strpos($letters, 'G') === false) {
             return;
         }
         $this->scraper->scrap();
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

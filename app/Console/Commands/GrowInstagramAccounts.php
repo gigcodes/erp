@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Account;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 use InstagramAPI\Instagram;
 
 class GrowInstagramAccounts extends Command
@@ -39,6 +40,12 @@ class GrowInstagramAccounts extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
 
         $accounts = Account::where('is_seeding', 1)->get();
 
@@ -127,6 +134,8 @@ class GrowInstagramAccounts extends Command
             $account->save();
 
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
 
     }
 }

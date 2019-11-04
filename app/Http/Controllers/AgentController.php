@@ -36,6 +36,7 @@ class AgentController extends Controller
 
     public function store(Request $request)
     {
+
       $this->validate($request, [
         'model_id'        => 'required|numeric',
         'model_type'      => 'required|string',
@@ -54,6 +55,8 @@ class AgentController extends Controller
         return redirect()->route('supplier.show', $request->model_id)->withSuccess('You have successfully added an agent!');
       } else if ($request->model_type == 'App\Vendor') {
         return redirect()->route('vendor.show', $request->model_id)->withSuccess('You have successfully added an agent!');
+      } else if ($request->model_type == 'App\Old') {
+        return redirect()->route('old.show', $request->model_id)->withSuccess('You have successfully added an agent!');
       }
     }
 

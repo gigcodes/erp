@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Customer;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 
 class UpdateCustomersMagento extends Command
 {
@@ -38,6 +39,13 @@ class UpdateCustomersMagento extends Command
      */
     public function handle()
     {
+
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
       $options   = array(
   			'trace'              => true,
   			'connection_timeout' => 120,
@@ -146,5 +154,7 @@ class UpdateCustomersMagento extends Command
   			// }
         dump('______________');
   		}
+
+       $report->update(['end_time' => Carbon:: now()]);
     }
 }

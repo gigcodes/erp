@@ -20,7 +20,7 @@ class ProductsTableSeeder extends Seeder
         $faker = \Faker\Factory::create();
 
         // Create 10.000 products
-        for ($i = 0; $i < 10000; $i++) {
+        for ($i = 0; $i < 2; $i++) {
             $product = new Product;
             $product->status_id = rand(1, 19);
             $product->name = $faker->name;

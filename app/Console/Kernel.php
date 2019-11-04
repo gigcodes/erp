@@ -48,7 +48,7 @@ use App\Console\Commands\DeleteWiseProducts;
 use App\Console\Commands\UpdateWiseProducts;
 use App\Console\Commands\UpdateWiseCategory;
 use App\Console\Commands\UpdateDoubleProducts;
-
+use App\Console\Commands\ScheduleList;
 
 use App\Console\Commands\SendHourlyReports;
 use App\Console\Commands\RunMessageQueue;
@@ -65,11 +65,14 @@ use App\Console\Commands\ImportCustomersEmail;
 use App\Console\Commands\TwilioCallLogs;
 use App\Console\Commands\ZoomMeetingRecordings;
 use App\Console\Commands\ZoomMeetingDeleteRecordings;
+use App\Console\Commands\RecieveResourceImages;
 
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
 use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
+use App\Console\Commands\UpdateCustomerSizeFromOrder;
+use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -145,7 +148,11 @@ class Kernel extends ConsoleKernel
         SendReminderToVendorIfTheyHaventReplied::class,
         SendReminderToDubbizlesIfTheyHaventReplied::class,
         UpdateShoeAndClothingSizeFromChatMessages::class,
+        UpdateCustomerSizeFromOrder::class,
         DocumentReciever::class,
+        RecieveResourceImages::class,
+        CreateErpLeadFromCancellationOrder::class,
+        ScheduleList::class,
     ];
 
     /**
@@ -156,7 +163,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-
         $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
@@ -164,6 +170,10 @@ class Kernel extends ConsoleKernel
 
         //This command will set the count of the words used...
         $schedule->command('bulk-customer-message:get-most-used-keywords')->daily();
+
+        //Get list of schedule and put list in cron jobs table
+        $schedule->command('schedule:list')->daily();
+
 
         //This will run every  five minutes checking and making keyword-customer relationship...
         $schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();
@@ -179,6 +189,7 @@ class Kernel extends ConsoleKernel
 
         //assign the category to products, runs twice daily...
         $schedule->command('category:fix-by-supplier')->twiceDaily();
+
 
         $schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
 
@@ -267,6 +278,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('fetch:emails')->everyFifteenMinutes();
         $schedule->command('check:emails-errors')->dailyAt('03:00')->timezone('Asia/Kolkata');
         $schedule->command('document:email')->everyFifteenMinutes()->timezone('Asia/Kolkata');
+        $schedule->command('resource:image')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         $schedule->command('send:daily-planner-report')->dailyAt('08:00')->timezone('Asia/Kolkata');
         $schedule->command('send:daily-planner-report')->dailyAt('22:00')->timezone('Asia/Kolkata');
         $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');

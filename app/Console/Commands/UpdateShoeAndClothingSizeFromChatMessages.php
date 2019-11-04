@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Support\Facades\DB;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class UpdateShoeAndClothingSizeFromChatMessages extends Command
@@ -38,6 +39,12 @@ class UpdateShoeAndClothingSizeFromChatMessages extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $chatMessage = DB::table('chat_messages')
                         ->leftJoin('customers', 'customers.id', '=', 'customer_id')
                         ->select(['chat_messages.id', 'customers.id as customer_id', 'message', 'shoe_size', 'clothing_size'])
@@ -89,5 +96,7 @@ class UpdateShoeAndClothingSizeFromChatMessages extends Command
                 }
             }
         }
+
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }

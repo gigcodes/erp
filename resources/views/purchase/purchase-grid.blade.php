@@ -27,40 +27,56 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
-                <form action="{{ route('purchase.grid') }}" method="GET" class="form-inline align-items-start">
+                <form action="{{url()->current()}}" method="GET" class="form-inline align-items-start">
                     <div class="form-group mr-3 mb-3">
                         <input name="term" type="text" class="form-control" id="product-search"
                                value="{{ isset($term) ? $term : '' }}"
                                placeholder="name, sku, supplier">
                     </div>
+<<<<<<< HEAD
                     <div class="form-group mr-3">
                         {!! $category_filter !!}
+=======
+                    <div class="form-group mr-3 mb-3">
+                        {!! $categoryFilter !!}
+>>>>>>> remotes/origin/master
                     </div>
                     @if (!$page || $page=='non_ordered')
                         <div class="form-group mr-3">
-                            <select class="form-control select-multiple" name="status[]" multiple>
-                                <optgroup label="Order Status">
-                                    @foreach ($order_status as $key => $name)
-                                        <option value="{{ $key }}" {{ in_array(strtolower($key), array_map("strtolower",request()->get('status', []))) ? 'selected' : '' }}>{{ $name }}</option>
-                                    @endforeach
-                                </optgroup>
+                            <select class="form-control select-multiple2" name="status[]" multiple placeholder="Order Status">
+                                @foreach ($order_status as $key => $name)
+                                    <option value="{{ $key }}" {{ in_array(strtolower($key), array_map("strtolower",request()->get('status', []))) ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     @endif
 
                     <div class="form-group mr-3">
-                        {!! Form::select('supplier[]', $suppliers_array, (!empty(request()->get('supplier')[0]) ? request()->get('supplier')[0] : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple']) !!}
+                        {!! Form::select('supplier[]', $suppliers_array, (!empty(request()->get('supplier')[0]) ? request()->get('supplier')[0] : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2']) !!}
                     </div>
 
                     <div class="form-group mr-3">
                         @php $brands = \App\Brand::getAll(); @endphp
-                        <select class="form-control select-multiple" name="brand[]" multiple>
-                            <optgroup label="Brands">
-                                @foreach ($brands as $key => $name)
-                                    <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
-                                @endforeach
-                            </optgroup>
+                        <select class="form-control select-multiple2" name="brand[]" multiple placeholder="Brands">
+                            @foreach ($brands as $key => $name)
+                                <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
+                            @endforeach
                         </select>
+                    </div>
+
+                    <div class="form-group mr-3">
+                        @php $colors = new \App\Colors(); @endphp
+                        <select class="form-control select-multiple2" name="color[]" multiple placeholder="Colors...">
+                            @foreach ($colors->all() as $key => $col)
+                                <option value="{{ $key }}" {{ in_array($key, request()->get('color', [])) ? 'selected' : '' }}>{{ $col }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group mr-3">
+                        <input name="size" type="text" class="form-control"
+                               value="{{ request()->get('size') }}"
+                               placeholder="Size">
                     </div>
 
                     <div class="form-group mr-3">
@@ -70,6 +86,8 @@
                     <input type="checkbox" name="in_pdf" id="in_pdf"> <label for="in_pdf">Download PDF</label>
 
                     <button type="submit" class="btn btn-image"><img src="/images/search.png"/></button>
+
+                    <a href="{{url()->current()}}" class="btn btn-image"><img src="/images/clear-filters.png"/></a>
             </div>
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
@@ -119,53 +137,73 @@
                         <td>
                             <a href="{{ route('products.show', $product['id']) }}" target="_blank"><img src="{{ $product['image'] }}" class="img-responsive" style="width: 100px !important" alt=""></a>
                         </td>
-                        <td>@if($custcount > 1)
+                        @php
+                            $suppliersArray = [];
+                            $data = DB::select('SELECT sp.id,s.website,sp.url,s.supplier FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
+
+                            $cnt = count($data);
+                        @endphp
+                        @if($cnt > 0)
+                            @php
+                                $suppliersArray = DB::select('SELECT suppliers.id, supplier, ps.product_id,suppliers.website
+                                   FROM suppliers
+                                   INNER JOIN product_suppliers as ps on suppliers.id = ps.supplier_id and ps.product_id = :product_id
+                                   LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and purchase_product_supplier.product_id = ps.product_id', ['product_id' =>$product['id']]);
+                            @endphp
+                        @endif
+                        <td>
+                            @if($custcount > 1)
                                 <a href="javascript:void(0);" class="expandrow" data-id="{{$product['id']}}">{{$product['sku'] }}</a>
                             @else
                                 {{$product['sku'] }}
                             @endif
+
+                            <?php if(!empty($data)) { ?>
+	                            <?php foreach($data as $suppliers){ ?>
+		                            <a target="_blank" href="<?php echo $suppliers->url; ?>"><?php echo $suppliers->supplier; ?></a>
+		                            <br>
+	                            <?php } ?>
+                            <?php } ?>
+
                         </td>
                         <td><!-- {{ array_key_exists($product['single_supplier'], $suppliers_array) ? $suppliers_array[$product['single_supplier']] : 'No Supplier' }} -->
-                            @php
-                                $data = DB::select('SELECT sp.id FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
 
-                                $cnt = count($data);
-                            @endphp
-                            @if($cnt > 0)
-                                @php
-                                    $suppliers_array2 = DB::select('SELECT suppliers.id, supplier, ps.product_id
-                                       FROM suppliers
-                                       INNER JOIN product_suppliers as ps on suppliers.id = ps.supplier_id and ps.product_id = :product_id
-                                       LEFT JOIN purchase_product_supplier on purchase_product_supplier.supplier_id =suppliers.id and purchase_product_supplier.product_id = ps.product_id', ['product_id' =>$product['id']]);
-                                       $cnt2 = count($suppliers_array2);
-                                @endphp
-                            @endif
-                            @if(empty($cnt2))
-                                @php
-                                    $suppliers_array2 = $activSuppliers;
-                                @endphp
-                            @endif
-                            <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple supplier_msg" multiple data-product-id="{{$product['id']}}">
-                                @foreach($suppliers_array2 as $sup)
+                            <?php
+                            foreach ($activSuppliers as $value) {
+                                $isNeed = true;
+                                foreach ($suppliersArray as $v) {
+                                    if ($v->id == $value->id) {
+                                        $isNeed = false;
+                                        break;
+                                    }
+                                }
+                                if ($isNeed) {
+                                    $suppliersArray[] = $value;
+                                }
+                            }
+                            ?>
+
+                            <select name="supplier[]" id="supplier_{{$product['id']}}" class="form-control select-multiple2 supplier_msg" multiple data-product-id="{{$product['id']}}" placeholder="supplier">
+                                @foreach($suppliersArray as $sup)
                                     <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
                                 @endforeach
                             </select>
                             <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message">
-                            <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }});">
+                            <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }}, '{{ $product['size'] }}');">
                             <div class="supplier_msg_con" style="margin-top: 10px;">
-                                <?php foreach ($product['supplier_msg'] as $supplier_msg) { ?>
-                                    <b>{{$supplier_msg['supplier']}}</b>
-                                    <?php foreach ($supplier_msg['chat_messages'] as $chat_messages) { ?>
-                                        <div class="talk-bubble">
-                                            <div class="talktext">
+                                <?php foreach ($product[ 'supplier_msg' ] as $supplier_msg) { ?>
+                                <b>{{$supplier_msg['supplier']}}</b>
+                                <?php foreach ($supplier_msg[ 'chat_messages' ] as $chat_messages) { ?>
+                                <div class="talk-bubble">
+                                    <div class="talktext">
                                                 <span>
                                                     <p class="collapsible-message">{{$chat_messages['message']}}</p>
                                                 </span>
-                                                <em>{{$chat_messages['created_at']}}</em>
-                                            </div>
-                                        </div>
-                                    <?php } ?>
-                                    <br>
+                                        <em>{{$chat_messages['created_at']}}</em>
+                                    </div>
+                                </div>
+                                <?php } ?>
+                                <br>
                                 <?php } ?>
                                 <br>
                             </div>
@@ -383,11 +421,16 @@
                                 </div>
                                 <div class="form-group mr-3">
                                     <select class="form-control select-multiple2" name="brand[]" data-placeholder="Select brand.." multiple>
-                                        <optgroup label="Brands">
-                                            @foreach ($brands as $key => $name)
-                                                <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
-                                            @endforeach
-                                        </optgroup>
+                                        @foreach ($brands as $key => $name)
+                                            <option value="{{ $key }}">{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group mr-3">
+                                    <select class="form-control select-multiple2" name="supplier[]" data-placeholder="Select Supplier.." multiple>
+                                        @foreach ($activSuppliers as $activSupplier)
+                                            <option value="{{ $activSupplier->id }}">{{ $activSupplier->supplier }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="form-group mr-3 mb-3">
@@ -434,27 +477,27 @@
             supplier_msg($(this));
         })*/
 
-        function supplier_msg (_this) {
-            var suppliers =  _this.val();
-            var product_id =  _this.data('product-id');
+        function supplier_msg(_this) {
+            var suppliers = _this.val();
+            var product_id = _this.data('product-id');
             $.ajax({
                 url: "{{ route('get.msg.supplier') }}",
-                data: {'suppliers' : suppliers, 'product_id' : product_id}
+                data: {'suppliers': suppliers, 'product_id': product_id}
             }).done(function (data) {
                 var html = '';
-                $.each( data, function( key, value ) {
-                    html += '<b>'+value.supplier+'</b>'; 
-                    $.each( value.chat_messages, function( key, value ) {
+                $.each(data, function (key, value) {
+                    html += '<b>' + value.supplier + '</b>';
+                    $.each(value.chat_messages, function (key, value) {
                         html += '<div class="talk-bubble">'
                         html += '   <div class="talktext">'
                         html += '       <span>'
-                        html += '           <p class="collapsible-message">'+value.message+'</p>'
+                        html += '           <p class="collapsible-message">' + value.message + '</p>'
                         html += '       </span>'
-                        html += '       <em>'+value.created_at+' </em>'
+                        html += '       <em>' + value.created_at + ' </em>'
                         html += '   </div>'
                         html += '</div>'
                     });
-                    html += '<br>'; 
+                    html += '<br>';
                 });
                 _this.closest('td').find('.supplier_msg_con').html(html);
             }).fail(function () {
@@ -466,13 +509,24 @@
         }
 
         $(document).ready(function () {
-            $(".select-multiple").multiselect();
-            $(".select-multiple2").select2();
+            $(".select-multiple2").each(function () {
+                $(this).select2({
+                    placeholder: $(this).attr('placeholder')
+                });
+            })
+        });
+
+        $('#alternative_offers').on("scroll", function () {
+            $('.lazy').Lazy({
+                effect: 'fadeIn'
+            });
         });
 
         $(".alternative_offers").click(function () {
-            $('#alternative_offers_search_form').find("select[name='category[]']").val($(this).data('category'));
-            $('#alternative_offers_search_form').find("select[name='brand[]']").val($(this).data('brand'));
+            $('#alternative_offers_search_form').find("select[name='category[]']").val($(this).data('category')).trigger('change');
+            ;
+            $('#alternative_offers_search_form').find("select[name='brand[]']").val($(this).data('brand')).trigger('change');
+            ;
             $('#alternative_offers_search_form').find("input[name='price_min']").val($(this).data('price'));
             $('#attachImageForm').find(".customer_id").val($(this).data('customer_id'));
             $.ajax({
@@ -601,7 +655,6 @@
                 data: formData
             }).done(function (data) {
                 $('#productGrid').html(data.html);
-                $('#products_count').text(data.products_count);
                 $(".page-goto").remove();
                 $('.lazy').Lazy({
                     effect: 'fadeIn'
@@ -750,11 +803,12 @@
 
         $(window).scroll(function () {
             var next_page = $('.pagination li.active + li a');
-            var page_number = next_page.attr('href').split('?page=');
-            console.log(page_number);
-            var current_page = page_number[1] - 1;
+            if (next_page && next_page.attr('href')) {
+                var page_number = next_page.attr('href').split('?page=');
 
-            $('#page-goto option[value="' + page_number[0] + '?page=' + current_page + '"]').attr('selected', 'selected');
+                var current_page = page_number[1] - 1;
+                $('#page-goto option[value="' + page_number[0] + '?page=' + current_page + '"]').attr('selected', 'selected');
+            }
         });
 
         $(document).ready(function () {
@@ -768,8 +822,11 @@
                     contentSelector: 'div.infinite-scroll',
                     callback: function () {
                         // $('ul.pagination').remove();
-                         $(".select-multiple").multiselect();
-                         $(".select-multiple2").select2();
+                        $(".select-multiple2").each(function () {
+                            $(this).select2({
+                                placeholder: $(this).attr('placeholder')
+                            });
+                        })
                     }
                 });
             });
@@ -841,7 +898,7 @@
             }
         });
 
-        function sendMSG(id) {
+        function sendMSG(id, size) {
             var supplier_id = $('#supplier_' + id).val();
 
             supplier_id = JSON.stringify(supplier_id);
@@ -867,13 +924,14 @@
                 data: {
                     id: id,
                     message: message,
-                    supplier_id: supplier_id
+                    supplier_id: supplier_id,
+                    size: size
                 }
             }).done(response => {
                 $('#btnmsg_' + id).val('SendSMG');
                 $('#btnmsg_' + id).removeClass('btn-secondary');
                 $('#btnmsg_' + id).addClass('btn-success');
-                supplier_msg ($('#supplier_' + id));
+                supplier_msg($('#supplier_' + id));
                 setTimeout(function () {
                     $('#btnmsg_' + id).addClass('btn-secondary');
                     $('#btnmsg_' + id).removeClass('btn-success');

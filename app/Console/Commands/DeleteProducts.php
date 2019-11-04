@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Product;
 use File;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class DeleteProducts extends Command
@@ -39,6 +40,12 @@ class DeleteProducts extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+      ]);
+
+
       $products = Product::withTrashed()->where('supplier', "Les Market")->get();
       // $product = Product::find(127805);
       // dd(count($products));
@@ -75,5 +82,6 @@ class DeleteProducts extends Command
         $product->suggestions()->detach();
         $product->forceDelete();
       }
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

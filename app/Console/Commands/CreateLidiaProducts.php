@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\ScrapedProducts;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+
 
 class CreateLidiaProducts extends Command
 {
@@ -38,10 +40,17 @@ class CreateLidiaProducts extends Command
      */
     public function handle()
     {
-      $scraped_products = ScrapedProducts::where('website', 'lidiashopping')->get();
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
 
-      foreach ($scraped_products as $scraped_product) {
-        app('App\Services\Products\LidiaProductsCreator')->createProduct($scraped_product);
-      }
+          $scraped_products = ScrapedProducts::where('website', 'lidiashopping')->get();
+
+          foreach ($scraped_products as $scraped_product) {
+            app('App\Services\Products\LidiaProductsCreator')->createProduct($scraped_product);
+          }
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

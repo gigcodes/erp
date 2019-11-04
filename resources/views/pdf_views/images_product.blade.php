@@ -8,7 +8,7 @@
 
     .page {
         margin: 0 auto;
-        width: 1005px;
+        width: 90%;
         height: 1015px;
         text-align: center;
     }
@@ -16,7 +16,9 @@
     img.product {
         margin: 50px;
         width: auto;
-        height: 915px;
+        max-width : 700px;
+        height: 100%;
+        max-height: 915px;
         border-bottom: 20px solid #eee;
     }
 
@@ -56,8 +58,7 @@
             <img class="product" src="<?php echo $subMedia->getAbsolutePath(); ?>">
             </img>
             <div class="top-left">
-                <?php echo implode("<br>
-                                    ", $textToSend); ?>
+                <?php echo implode("<br>", $textToSend); ?>
             </div>
             <div class="top-right">
                 <?php 

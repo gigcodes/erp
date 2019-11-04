@@ -6,6 +6,7 @@ use App\Category;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\CronJobReport;
 use App\Product;
 
 class RemoveCategoriesWithSubCategories extends Command
@@ -41,6 +42,10 @@ class RemoveCategoriesWithSubCategories extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+         ]);
         // Set memory limit
         ini_set('memory_limit','2048M');
 
@@ -65,5 +70,6 @@ class RemoveCategoriesWithSubCategories extends Command
                 }
             }
         });
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

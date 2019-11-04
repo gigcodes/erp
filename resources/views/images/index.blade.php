@@ -14,12 +14,10 @@
       </div>
 
       <div class="form-group mr-3">
-        <select class="form-control select-multiple" name="brand[]" multiple>
-          <optgroup label="Brands">
+        <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brands...">
             @foreach ($brands as $key => $name)
               <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
             @endforeach
-        </optgroup>
         </select>
       </div>
 
@@ -29,6 +27,7 @@
       </div>
 
       <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+      <a href="{{url()->current()}}" class="btn btn-image"><img src="/images/clear-filters.png"/></a>
     </form>
 
     {{-- <strong>Sort By</strong>
@@ -133,7 +132,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-     $(".select-multiple").multiselect();
+     $(".select-multiple").select2();
   });
 
   $(document).on('click', '.approve-image', function() {

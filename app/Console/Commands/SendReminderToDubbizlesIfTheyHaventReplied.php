@@ -7,6 +7,7 @@ use App\Dubbizle;
 use App\Http\Controllers\WhatsAppController;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -43,6 +44,14 @@ class SendReminderToDubbizlesIfTheyHaventReplied extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
+
         $now = Carbon::now()->toDateTimeString();
 
         $messagesIds = DB::table('chat_messages')
@@ -86,6 +95,8 @@ class SendReminderToDubbizlesIfTheyHaventReplied extends Command
 
             $this->sendMessage($dubbizle->id, $templateMessage);
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 
     private function sendMessage($dubbizle, $message): void

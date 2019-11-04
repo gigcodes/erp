@@ -8,7 +8,7 @@
 @section('content')
     <div class="container">
         <h1>Quick Instruction</h1>
-        @if ( $instruction != null )
+        @if ( $instruction != null && isset($instruction->customer->id) )
             <div class="row">
                 <div class="col-md-12">
                     <table class="table table-bordered">
@@ -102,6 +102,8 @@
                     </div>
                 </div>
             </div>
+        @elseif ( isset($instruction->id) )
+            <h2>No customer found (code: {{ $instruction->id }})</h2>
         @else
             <h2>No more instructions</h2>
         @endif
@@ -158,32 +160,34 @@
 @endsection
 
 @section('scripts')
-    <script>
-        var customer_id = {{ $instruction->customer-> id}};
-        var current_user = {{ Auth::id() }};
-        var route = [];
-        route.instruction_complete = "{{ route('instruction.complete') }}";
-        route.instruction_pending = "{{ route('instruction.pending') }}";
-        route.leads_store = "{{ route('leads.store') }}";
-        route.leads_send_prices = "{{ route('leads.send.prices') }}";
-        route.task_add_remark = "{{ route('task.addRemark') }}";
-        route.task_get_remark = "{{ route('task.gettaskremark') }}";
-        $('#add-remark input[name="id"]').val({{ $instruction->id }});
-        $('.modal').on('shown.bs.modal', function () {
-            $(this).find('iframe').attr('src', '/attachImages/customer/{{ $instruction->customer->id }}/1')
-            // $(this).find('iframe').attr('src', '/attachImages/customer/44/1')
-        });
-        $(document).ready(function () {
-            $('#chat-history').trigger('click');
-        });
-        $('#iFrameModal').on('load', function() {
-            // console.log(window.location.protocol + '//' + document.domain + '/customer/44');
-            // console.log(document.getElementById("iFrameModal").contentWindow.location.href);
-            if ( document.getElementById("iFrameModal").contentWindow.location.href == window.location.protocol + '//' + document.domain + '/customer/{{ $instruction->customer->id }}' ) {
-                $(function () {
-                    $('#attachImagesModal').modal('toggle');
-                });
-            }
-        });
-    </script>
+    @if ($instruction != null && isset($instruction->customer->id) )
+        <script>
+            var customer_id = {{ $instruction->customer->id }};
+            var current_user = {{ Auth::id() }};
+            var route = [];
+            route.instruction_complete = "{{ route('instruction.complete') }}";
+            route.instruction_pending = "{{ route('instruction.pending') }}";
+            route.leads_store = "{{ route('leads.store') }}";
+            route.leads_send_prices = "{{ route('leads.send.prices') }}";
+            route.task_add_remark = "{{ route('task.addRemark') }}";
+            route.task_get_remark = "{{ route('task.gettaskremark') }}";
+            $('#add-remark input[name="id"]').val({{ $instruction->id }});
+            $('.modal').on('shown.bs.modal', function () {
+                $(this).find('iframe').attr('src', '/attachImages/customer/{{ $instruction->customer->id }}/1')
+                // $(this).find('iframe').attr('src', '/attachImages/customer/44/1')
+            });
+            $(document).ready(function () {
+                $('#chat-history').trigger('click');
+            });
+            $('#iFrameModal').on('load', function () {
+                // console.log(window.location.protocol + '//' + document.domain + '/customer/44');
+                // console.log(document.getElementById("iFrameModal").contentWindow.location.href);
+                if (document.getElementById("iFrameModal").contentWindow.location.href == window.location.protocol + '//' + document.domain + '/customer/{{ $instruction->customer->id }}') {
+                    $(function () {
+                        $('#attachImagesModal').modal('toggle');
+                    });
+                }
+            });
+        </script>
+    @endif
 @endsection

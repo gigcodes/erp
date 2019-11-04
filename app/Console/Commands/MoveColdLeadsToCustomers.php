@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\ColdLeads;
 use App\Customer;
+use App\CronJobReport;
 
 class MoveColdLeadsToCustomers extends Command
 {
@@ -39,6 +40,13 @@ class MoveColdLeadsToCustomers extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         // Get cold leads
         $coldLeads = ColdLeads::where('is_imported', 1)->where('customer_id', null)->inRandomOrder()->get();
 
@@ -86,5 +94,7 @@ class MoveColdLeadsToCustomers extends Command
 
             }
         }
+
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }

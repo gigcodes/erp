@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Product;
+use App\CronJobReport;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BrandController;
 
@@ -43,6 +44,12 @@ class UpdateMagentoProductStatus extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
       $options   = array(
         'trace'              => true,
         'connection_timeout' => 120,
@@ -264,5 +271,7 @@ class UpdateMagentoProductStatus extends Command
       //
       //   $product->save();
       // }
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

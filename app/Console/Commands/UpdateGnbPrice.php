@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\ScrapedProducts;
 use App\Brand;
 use App\Product;
+use App\CronJobReport;
 use App\Setting;
 
 class UpdateGnbPrice extends Command
@@ -43,6 +44,12 @@ class UpdateGnbPrice extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
       // $products = ScrapedProducts::where('has_sku', 1)->where('website', 'G&B')->get();
       // $products = ScrapedProducts::where('updated_at', '>', '2019-06-05 00:00')->get();
       // $products = ScrapedProducts::where('sku', '182400abs000058025pi')->get();
@@ -129,5 +136,6 @@ class UpdateGnbPrice extends Command
           }
         }
       }
+       $report->update(['end_time' => Carbon:: now()]);
     }
 }

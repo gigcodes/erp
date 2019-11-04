@@ -4,7 +4,9 @@ namespace App\Console\Commands;
 
 use App\CompetitorFollowers;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 use InstagramAPI\Instagram;
+
 
 class SendDmToCompetitorsFollowers extends Command
 {
@@ -39,6 +41,12 @@ class SendDmToCompetitorsFollowers extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
+
         $competitorFollowes = CompetitorFollowers::where('status', 2)->get();
 
         if ($competitorFollowes->count() === 0) {
@@ -50,6 +58,8 @@ class SendDmToCompetitorsFollowers extends Command
         foreach ($competitorFollowes as $competitorFollower) {
 //            $
         }
+
+          $report->update(['end_time' => Carbon:: now()]);
 
     }
 }

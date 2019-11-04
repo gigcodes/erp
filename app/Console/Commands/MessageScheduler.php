@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Carbon\Carbon;
 use App\AutoReply;
 use App\Customer;
+use App\CronJobReport;
 use App\ScheduledMessage;
 use Illuminate\Console\Command;
 
@@ -41,6 +42,13 @@ class MessageScheduler extends Command
      */
     public function handle()
     {
+
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
       $customers = Customer::where('is_priority', 1)->get();
       $auto_replies = AutoReply::where('type', 'priority-customer')->whereNotNull('repeat')->get();
       $today_date = Carbon::now()->format('Y-m-d');
@@ -107,5 +115,7 @@ class MessageScheduler extends Command
             break;
         }
       }
+
+      $report->update(['end_time' => Carbon:: now()]);
     }
 }

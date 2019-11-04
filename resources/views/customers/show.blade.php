@@ -380,7 +380,9 @@
 
                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#advancePaymentModal"><img src="/images/advance-link.png" /></button>
                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#sendContacts"><img src="/images/details.png" /></button>
-                <button type="button" class="btn btn-image" data-toggle="modal" data-target="#downloadContacts"><img src="/images/download.png" /></button>
+                <a href="{{ route('customer.download.contact-pdf',[$customer->id]) }}" target="_blank">
+                  <button type="button" class="btn btn-image"><img src="/images/download.png" /></button>
+                </a>
 
                 @include('customers.partials.modal-advance-link')
               </div>
@@ -622,35 +624,39 @@
                 </div>
                 <div id="lead{{ $key + 1 }}" class="collapse collapse-element" aria-labelledby="headingLead{{ $key + 1 }}" data-parent="#leadAccordion">
                   <div class="card-body">
-                    <form action="{{ route('leads.update', $lead->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('leads.erpLeads.store') }}" method="POST" enctype="multipart/form-data" class="erp_lead_frm">
+                      <span class="text-success erp_update_message" style="display: none;">Successfully update</span>
                       @csrf
-                      @method('PUT')
-                      <input type="hidden" name="type" value="customer">
+                      <input type="hidden" name="id" value="{{$lead->id}}">
+                      <input type="hidden" name="product_id" value="{{$lead->product_id}}">
+                      <input type="hidden" name="customer_id" value="{{$lead->customer_id}}">
                       <div class="row">
                         <div class="col-xs-12">
                           <div class="form-group">
                             <strong>Brand:</strong>
-                            <select multiple="" name="multi_brand[]" class="form-control multi_brand">
-                              @php $multi_brand = is_array(json_decode($lead->multi_brand,true) ) ? json_decode($lead->multi_brand,true) : []; @endphp
+                            <select name="brand_id" class="form-control multi_brand multi_brand_select multi_select2" multiple>
+                              <option value="">Brand</option>
                               @foreach($brands as $brand_item)
-                                <option value="{{$brand_item['id']}}" {{ in_array($brand_item['id'] ,$multi_brand) ? 'Selected=Selected':''}}>{{$brand_item['name']}}</option>
+                                <option value="{{$brand_item['id']}}" {{ $brand_item['id'] == $lead->brand_id ? "selected" : ''}} data-brand-segment="{{$brand_item['brand_segment']}}">{{$brand_item['name']}}</option>
                               @endforeach
                             </select>
 
                           </div>
 
                           <div class="form-group">
-                            <strong>Categories</strong>
+                            <strong>Category</strong>
                             @php
-                            // $selected_category = $lead->multi_category ? $lead->multi_category : '';
-                            $selected_categories = is_array(json_decode( $lead->multi_category,true)) ? json_decode( $lead->multi_category ,true) : [] ;
-                            $category_selection = \App\Category::attr(['name' => 'multi_category','class' => 'form-control'])
-                            ->selected($selected_categories)
+                            $category_selection = \App\Category::attr(['name' => 'category_id','class' => 'form-control multi_select2'])
+                            ->selected($lead->category_id)
                             ->renderAsDropdown();
                             @endphp
                             {!! $category_selection  !!}
                           </div>
-
+                          <div class="form-group">
+                            <strong>Brand Segment:</strong>
+                            {{ App\Helpers\ProductHelper::getBrandSegment('brand_segment[]', explode(",", $lead->brand_segment), ['class' => "form-control brand_segment_select", 'multiple' => ''])}}
+                          </div>
+                          <?php /*
                           <div class="form-group">
                             <strong> Selected Product :</strong>
 
@@ -754,6 +760,7 @@
                             }
                           });
                         </script>
+                        */?>
 
                         <div class="form-group">
                           <strong>status:</strong>
@@ -772,9 +779,9 @@
                             </div>
                           @endif
 
-                          <Select name="status" class="form-control change_status" data-leadid="{{ $lead->id }}">
+                          <Select name="lead_status_id" class="form-control change_status" data-leadid="{{ $lead->id }}">
                             @foreach($lead_status as $key => $value)
-                              <option value="{{$value}}" {{$value == $lead->status ? 'Selected=Selected':''}}>{{$key}}</option>
+                              <option value="{{$value}}" {{$value == $lead->lead_status_id ? 'selected':''}}>{{$key}}</option>
                             @endforeach
                           </Select>
                           <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
@@ -782,23 +789,23 @@
                           <input type="hidden" class="form-control" name="userid" placeholder="status" value="{{$lead->userid}}"/>
 
                         </div>
-
+                        <?php /*
                         <div class="form-group">
                           <strong>Created by:</strong>
 
                           <input type="text" class="form-control" name="" placeholder="Created by" value="{{ $lead->userid != 0 ? App\Helpers::getUserNameById($lead->userid) : '' }}" readonly/>
                         </div>
-
+                        
                         <div class="form-group">
                           <strong>Comments:</strong>
                           <textarea  class="form-control" name="comments" placeholder="comments">{{$lead->comments}} </textarea>
                         </div>
-
+                        */?>
                         <div class="form-group">
                           <strong>Sizes:</strong>
                           <input type="text" name="size" value="{{ $lead->size }}" class="form-control" placeholder="S, M, L">
                         </div>
-
+                        <?php /*
                         <div class="form-group">
                           <strong>Assigned To:</strong>
                           <Select name="assigned_user" class="form-control">
@@ -808,7 +815,14 @@
                             @endforeach
                           </Select>
                         </div>
-
+                        */?>
+                        <div class="form-group">
+                          <strong>Gender:</strong>
+                          <select name="gender" class="form-control">
+                            <option value="male" {{ 'male' == $lead->gender ? "selected" : ''}}>Male</option>
+                            <option value="female" {{ 'female' == $lead->gender ? "selected" : ''}}>Female</option>
+                          </select>
+                        </div>
                         <?php $images = $lead->getMedia(config('constants.media_tags')) ?>
                         @if ($lead->hasMedia(config('constants.media_tags')))
                           <div class="row">
@@ -2241,7 +2255,7 @@
         <form method="post" id="send-contact-to-user">
             {{ Form::open(array('url' => '', 'id' => 'send-contact-user-form')) }}
             {!! Form::hidden('customer_id',$customer->id) !!}
-            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list select2', 'style'=> 'width:100%']) !!}
+            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list multi_select2', 'style'=> 'width:100%']) !!}
             {{ Form::close() }}
         </form>
       </div>
@@ -2266,7 +2280,7 @@
         <form method="post" id="download-contact-to-user">
             {{ Form::open(array('url' => '', 'id' => 'download-contact-user-form')) }}
             {!! Form::hidden('customer_id',$customer->id) !!}
-            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list select2', 'style'=> 'width:100%']) !!}
+            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list multi_select2', 'style'=> 'width:100%']) !!}
             {{ Form::close() }}
         </form>
       </div>
@@ -2308,6 +2322,22 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.min.js" integrity="sha256-Y1rRlwTzT5K5hhCBfAFWABD4cU13QGuRN6P5apfWzVs=" crossorigin="anonymous"></script>
 
   <script type="text/javascript">
+      jQuery(document).ready(function() {
+        $('.multi_select2').select2({width: '100%'});
+        //$('.brand_segment_select').select2({width: '100%'});
+         
+        $(".multi_brand_select").change(function() {
+            var brand_segment = [];
+            $(this).find(':selected').each(function() {
+                if ($(this).data('brand-segment') && brand_segment.indexOf($(this).data('brand-segment')) == '-1') {
+                  brand_segment.push($(this).data('brand-segment'));
+                }
+            })
+            $(this).closest('form').find(".brand_segment_select").val(brand_segment).trigger('change');
+        });
+      })
+      
+
       $(document).on('click', '.quick_category_add', function (e) {
             e.preventDefault();
             var textBox = $(".quick_category");
@@ -2421,7 +2451,7 @@
       });
 
   jQuery(document).ready(function( $ ) {
-      $('.select2').select2();
+      //$('.select2').select2();
     $('audio').on("play", function (me) {
       $('audio').each(function (i,e) {
         if (e !== me.currentTarget) {
@@ -2864,19 +2894,7 @@
                         loadThread(response);
                     }
                 });
-            });
-
-            jQuery('.multi_brand').select2({
-                placeholder: 'Brand',
-                width: '100%'
-            });
-
-
-            jQuery('.multi_category').select2({
-                placeholder: 'Categories',
-                width: '100%'
-            });
-
+            });            
 
         });
 
@@ -2891,7 +2909,7 @@
             var url = '/order/' + id + '/changestatus';
           } else {
             var id = $(this).data('leadid');
-            var url = '/leads/' + id + '/changestatus';
+            var url = '/erp-leads/' + id + '/changestatus';
           }
 
           $.ajax({
@@ -2914,6 +2932,50 @@
           }).fail(function(errObj) {
             alert("Could not change status");
           });
+        });
+
+
+        $('.erp_lead_frm').on('submit', function(e) {
+          e.preventDefault();
+          var thiss = $(this);
+          var url = "{{ route('leads.erpLeads.store') }}";
+          
+          if ($(this).find('.multi_brand').val() == "") {
+            alert('Please Select Brand');
+            return false;
+          }
+
+          if ($(this).find('input[name="category_id"]').val() == "") {
+            alert('Please Select Category');
+            return false;
+          }
+
+          if ($(this).find('input[name="lead_status_id"]').val() == "") {
+            alert('Please Select Status');
+            return false;
+          }
+
+          var formData = new FormData(this);
+
+          $.ajax({
+            url: url,
+            type: 'POST',
+            data:formData,
+            contentType: false,
+            processData: false
+          }).done( function(response) {
+            
+            $(thiss).find('.erp_update_message').fadeIn(400);
+            $('html, body').animate({
+                scrollTop: $(thiss).find('.erp_update_message').offset().top-150
+            }, 1000);
+            setTimeout(function () {
+              $(thiss).find('.erp_update_message').fadeOut(400);
+            }, 5000);
+          }).fail(function(errObj) {
+            alert("Could not update");
+          });
+          return false;
         });
 
         $('#whatsapp_change').on('change', function() {
@@ -3940,10 +4002,9 @@
 
         var thiss = $(this);
         var token = "{{ csrf_token() }}";
-        var url = "{{ route('leads.store') }}";
+        var url = "{{ route('leads.erpLeads.store') }}";
         var customer_id = {{ $customer->id }};
-        var created_at = moment().format('YYYY-MM-DD HH:mm');
-
+        
         $.ajax({
           type: 'POST',
           url: url,
@@ -3951,9 +4012,8 @@
             _token: token,
             customer_id: customer_id,
             rating: 1,
-            status: 3,
-            assigned_user: 6,
-            created_at: created_at
+            lead_status_id: 3,
+            assigned_user: 6
           },
           beforeSend: function() {
             $(thiss).text('Creating...');

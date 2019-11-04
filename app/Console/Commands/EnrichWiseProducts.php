@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\ScrapedProducts;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class EnrichWiseProducts extends Command
@@ -38,6 +39,12 @@ class EnrichWiseProducts extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
+
         $products = ScrapedProducts::where('website', 'Wiseboutique')->where('is_enriched', 0)->take(500)->get();
 
         $newProperties = [];
@@ -63,6 +70,8 @@ class EnrichWiseProducts extends Command
             $product->save();
 
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 
     private function getAppropriateKey($key, $value) {
