@@ -376,6 +376,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/broadcast', 'CustomerController@broadcast')->name('customer.broadcast.list');
     Route::get('customer/broadcast-details', 'CustomerController@broadcastDetails')->name('customer.broadcast.details');
     Route::get('customer/broadcast-send-price', 'CustomerController@broadcastSendPrice')->name('customer.broadcast.run');
+    Route::get('customer/contact-download/{id}', 'CustomerController@downloadContactDetailsPdf')->name('customer.download.contact-pdf');
     Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
     Route::get('customer/{id}/edit', 'CustomerController@edit')->name('customer.edit');
     Route::post('customer/{id}/edit', 'CustomerController@update')->name('customer.update');
