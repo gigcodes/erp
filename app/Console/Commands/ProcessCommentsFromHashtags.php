@@ -56,13 +56,15 @@ class ProcessCommentsFromHashtags extends Command
 
 
         $hashtag = HashTag::where('is_processed',0)->orderBy('id','asc')->first();
+
+        if (!$hashtag) {
+            return;
+        }
+        $hashtagId = $hashtag->id;
         if($hashtag->priority == 1){
             $sendWhatsApp = 1;
         }else{
             $sendWhatsApp = 0;
-        }
-        if (!$hashtag) {
-            return;
         }
        
 
@@ -81,6 +83,14 @@ class ProcessCommentsFromHashtags extends Command
             [$hashtagPosts, $maxId] = $hashtagPostsAll;
 
             foreach ($hashtagPosts as $hashtagPost) {
+                $location = $hashtagPost['location'];
+                
+                if(is_array($location)){
+                    $location_field = $location['name'];
+                }else{
+                    $location_field = '';
+                 }
+                
                 $code = $hashtagPost['code'];
                 if($code != null && $code != ''){
                     //Check if Hashtag is on Priority
@@ -114,9 +124,9 @@ class ProcessCommentsFromHashtags extends Command
                     foreach ($keywords as $keyword) {
                         if (strpos($commentText, $keyword) !== false) {
                             $postId = $hashtagPost['media_id'];
-                           //dd($postId);
+                           
                             $media = InstagramPosts::where('post_id', $postId)->first();
-                            //dd($media);
+                            
                             if (!$media) {
                                 $media = new InstagramPosts();
                             }
@@ -128,7 +138,9 @@ class ProcessCommentsFromHashtags extends Command
                             $media->username = $hashtagPost['username'];
                             $media->media_type = $hashtagPost['media_type'];
                             $media->code = $code;
-
+                            $media->location = $location_field;
+                            $media->hashtag_id = $hashtagId;
+                            
                             if (!is_array($hashtagPost['media'])) {
                                 $hashtagPost['media'] = [$hashtagPost['media']];
                             }

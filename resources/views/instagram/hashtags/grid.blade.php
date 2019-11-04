@@ -3,7 +3,7 @@
 @section('large_content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Hashtag monitoring: #{{ $hashtag }} ({{ $media_count }} Posts)</h2>
+            <h2 class="page-heading">Hashtag monitoring: #{{ $hashtag->hashtag }} ({{ count($medias) }} Posts) @if(env('INSTAGRAM_MAIN_ACCOUNT') == true)<spam style="color: red;"> ADMIN ACCOUNT PLEASE COMMENT CAREFULLY </spam> @endif</h2>
             <form action="{{ action('HashtagController@showGrid', 'x') }}">
                 <div class="row">
                     <div class="col-md-4">
@@ -19,7 +19,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="name">Name</label>
-                            <input value="{{$hashtag}}" type="text" name="name" id="name" class="form-control">
+                            <input value="{{$hashtag->hashtag }}" type="text" name="name" id="name" class="form-control">
                         </div>
                     </div>
                 </div>
@@ -61,12 +61,7 @@
             </div>
         </div>
 
-        <div class="col-md-12 text-center">
-            @if ($maxId !== '' || $maxId = 'END')
-                <a class="btn btn-default mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}">FIRST PAGE</a>
-                <a class="btn btn-default mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}">NEXT</a>
-            @endif
-        </div>
+       
         <div class="col-md-12">
             @if(Session::has('message'))
                 <div class="alert alert-success">
@@ -91,9 +86,8 @@
                     </tr>
                     @php $count = 1; @endphp
                     @foreach($medias as $key=>$post)
-                        @if (\App\FlaggedInstagramPosts::where('media_id', $post['media_id'])->first())
-                        @else
-                            <tr id="media_{{$post['media_id']}}">
+                   
+                       <tr>
                                 <td>
                                     {{ $count }}
                                     @php $count++ @endphp
@@ -105,19 +99,16 @@
                                 <td><a href="https://instagram.com/{{$post['username']}}">{{$post['username']}}</a></td>
                                 <td><a href="https://instagram.com/p/{{$post['code']}}">Visit Post</a></td>
                                 <td>
-                                    @if ($post['media_type'] === 1)
-                                        <a href="{{$post['media']}}"><img src="{{ $post['media'] }}" style="width: 100px;"></a>
-                                    @elseif ($post['media_type'] === 2)
-                                        <video controls src="{{ $post['media'] }}" style="width: 100px"></video>
-                                    @elseif ($post['media_type'] === 8)
-                                        @foreach($post['media'] as $m)
-                                            @if ($m['media_type'] === 1)
-                                                <a href="{{$m['url']}}"><img src="{{ $m['url'] }}" style="width: 100px;"></a>
-                                            @elseif($m['media_type'] === 2)
-                                                <video controls src="{{ $m['url'] }}" style="width: 100px"></video>
-                                            @endif
-                                        @endforeach
-                                    @endif
+                                    @foreach($post->media_url as $url)
+                                         @if (isset($url['media_type']) &&  $url['media_type'] === 1)
+
+                                            <a href="{{$url['url']}}"><img src="{{ $url['url'] }}" style="width: 100px;"></a>
+
+                                         @else
+                                            <a href="{{ $url }}"><img src="{{ $url }}" style="width: 100px;"></a>
+                                        @endif 
+                                    @endforeach
+                                   
                                 </td>
                                 <td style="word-wrap: break-word;text-align: justify;">
                                     <div class="expand-row" style="width:150px;text-align: justify">
@@ -133,17 +124,17 @@
 {{--                                <td>{{ $post['like_count'] }}</td>--}}
                                 <td>
                                     <div style="width: 20px;">
-                                        {{ $post['comment_count'] }}
+                                        {{ count($post->comments) }}
                                     </div>
                                 </td>
                                 <td>
                                     <div style="width: 150px;">
-                                        {!! ($post['location']['name'] ?? 'N/A') . '<br>' . ($post['location']['city'] ?? 'N/A')  !!}
+                                        {{  $post['location'] }}
                                     </div>
                                 </td>
                                 <td>{{ \Carbon\Carbon::createFromTimestamp($key)->toDateString() }}</td>
                                 <td style="width: 600px;">
-                                    @if ($post['comments'])
+                                    @if ($post->comments)
                                         <table class="table table-striped table-bordered">
                                             <tr>
                                                 <th>Username</th>
@@ -152,21 +143,22 @@
                                                 <th>Action</th>
                                             </tr>
                                             <tbody class="comment-list" id="comments-{{$post['media_id']}}">
-                                            @foreach($post['comments'] as $keyy=>$comment)
+                                            @foreach($post->comments as $keyy=>$comment)
+                                           
                                                 <tr>
-                                                    <td><a href="https://instagram.com/{{$comment['user']['username']}}">{{$comment['user']['username']}}</a></td>
+                                                    <td><a href="https://instagram.com/{{ $comment->username }}">{{ $comment->username }}</a></td>
                                                     <td class="expand-row" style="word-wrap: break-word;word-break: break-all">
                                                         <span class="td-mini-container">
-                                                            {{ strlen($comment['text']) > 20 ? substr($comment['text'], 0, 20).'...' : $comment['text'] }}
+                                                            {{ strlen($comment->comment) > 20 ? substr($comment->comment, 0, 20).'...' : $comment->comment }}
                                                           </span>
 
                                                                         <span class="td-full-container hidden">
-                                                            {{ $comment['text'] }}
+                                                            {{ $comment->comment }}
                                                         </span>
                                                     </td>
-                                                    <td>{{\Carbon\Carbon::createFromTimestamp($comment['created_at'])->diffForHumans()}}</td>
+                                                    <td>{{ $comment->created_at->format('M D Y') }}</td>
                                                     <td>
-                                                        <form action="{{ action('ReviewController@createFromInstagramHashtag') }}" method="post">@csrf<input type="hidden" name="code" value="{{$post['code']}}"> <input type="hidden" name="date" value="{{ \Carbon\Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString() }}"> <input type="hidden" name="post" value="{{ $post['caption'] }}"><input type="hidden" name="comment" value="{{ $comment['text'] }}"><input type="hidden" name="poster" value="{{ $post['username'] }}"><input type="hidden" name="commenter" value="{{ $comment['user']['username'] }}"><input type="hidden" name="media_id" value="{{ $post['media_id'] }}"><button class="btn btn-sm btn-image"><i class="fa fa-check"></i></button></form>
+                                                        <form action="{{ action('ReviewController@createFromInstagramHashtag') }}" method="post">@csrf<input type="hidden" name="code" value="{{$post['code']}}"> <input type="hidden" name="date" value="{{ $comment->created_at->format('M D Y') }}"> <input type="hidden" name="post" value="{{ $post['caption'] }}"><input type="hidden" name="comment" value="{{ $comment['text'] }}"><input type="hidden" name="poster" value="{{ $post['username'] }}"><input type="hidden" name="commenter" value="{{ $comment['user']['username'] }}"><input type="hidden" name="media_id" value="{{ $post['media_id'] }}"><button class="btn btn-sm btn-image"><i class="fa fa-check"></i></button></form>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -200,18 +192,15 @@
                                     </div>
                                 </td>
                             </tr>
-                        @endif
+                       
                     @endforeach
                 </table>
+                
+                 {!! $medias->appends(Request::except('page'))->links() !!}
             </div>
         </div>
 
-        <div class="col-md-12 text-center">
-            @if ($maxId !== '' || $maxId = 'END')
-                <a class="btn btn-default mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}">FIRST PAGE</a>
-                <a class="btn btn-default mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}">NEXT</a>
-            @endif
-        </div>
+        
     </div>
 @endsection
 

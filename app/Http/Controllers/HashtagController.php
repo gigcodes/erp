@@ -174,43 +174,31 @@ class HashtagController extends Controller
 
     public function showGrid($id, Request $request)
     {
+
         $maxId = '';
 
         if ($request->has('maxId'))  {
             $maxId = $request->get('maxId');
         }
 
-        $hashtagList = HashTag::all();
-
         $txt = $id;
         $ht = null;
         if (is_numeric($id)) {
             $hashtag = HashTag::findOrFail($id);
-            $ht = $hashtag;
-            $txt = $hashtag->hashtag;
-        } else if ($txt == 'x') {
-            $txt = $request->get('name');
+            $medias = $hashtag->instagramPost()->orderBy('id','desc')->paginate(20);
+        }else{
+            $hashtag = HashTag::where('hashtag','LIKE',$id)->first();
+           $medias = $hashtag->instagramPost()->orderBy('id','desc')->paginate(20);
         }
 
-        $hashtag = $txt;
-        $hashtags = new Hashtags();
-        $hashtags->login();
+        $media_count = 1;
 
-        [$medias, $maxId] = $hashtags->getFeed($hashtag, $maxId);
-        $media_count = $hashtags->getMediaCount($hashtag);
-
-        if ($ht) {
-            $ht->post_count = $media_count;
-            $ht->save();
-        }
-
-        krsort($medias);
-
+        $hashtagList = HashTag::all();
+        
         $accs = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
 
-        $stats = CommentsStats::selectRaw('COUNT(*) as total, narrative')->where('target', $hashtag)->groupBy(['narrative'])->get();
-//        $stats = CommentsStats::selectRaw('COUNT(*) as total, YEAR(created_at) as year, MONTH(created_at) as month')->where('target', $hashtag)->groupBy(DB::raw('YEAR(created_at), MONTH(created_at)'))->get();
-
+        $stats = CommentsStats::selectRaw('COUNT(*) as total, narrative')->where('target', $hashtag->hashtag)->groupBy(['narrative'])->get();
+        
         return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'));
     }
 
@@ -332,11 +320,25 @@ class HashtagController extends Controller
     {
        // dd($request);
        $id = $request->id;
+       //check if 30 limit is exceded
+       $hashtags = HashTag::where('priority',1)->get();
+      
+       if(count($hashtags) > 30 && $request->type == 1){
+             return response()->json([
+            'status' => 'error'
+            ]);
+       }
+
        $hashtag = HashTag::findOrFail($id);
        $hashtag->priority = $request->type;
        $hashtag->update(); 
        return response()->json([
             'status' => 'success'
         ]);
+    }
+
+    public function rumCommand($value='')
+    {
+        # code...
     }
 }

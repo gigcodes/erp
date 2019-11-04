@@ -1,7 +1,7 @@
 <?php
 
 return [
-  'admin_account' => 'username',
-  'admin_password' => 'password',
+  'admin_account' => 'xyz',
+  'admin_password' => 'xyz',
   'number_to_send' => '918082488108'
 ];

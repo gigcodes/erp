@@ -161,6 +161,8 @@ input:checked + .slider:before {
                             </form>
                         </td>
                         <td>
+                          
+                          @if(env('INSTAGRAM_MAIN_ACCOUNT') == true)
                             <label class="switch">
                                   @if($hashtag->priority == 1)
                                   <input type="checkbox" checked class="checkbox" value="{{ $hashtag->id }}">
@@ -169,6 +171,10 @@ input:checked + .slider:before {
                                   @endif
                                   <span class="slider round"></span>
                                 </label>
+                          @else
+                              <button class=" btn btn-default btn-sm">Run Command</button>
+                          @endif
+                         
                         </td>
                     </tr>
                 @endforeach
@@ -207,10 +213,22 @@ input:checked + .slider:before {
                     data: {
                         id:id,
                         type: 1
+                    },success: function (data) {
+                      console.log(data);
+                        if(data.status == 'error'){
+                           alert('Priority Limit Exceded'); 
+                           location.reload(true);
+                           
+                        }else{
+                           alert('Hashtag Priority Added');  
+
+                        }
+                      
                     },
-                        }).done(response => {
-                         alert('Hashtag Set Priority');   
-                    }); 
+                    error: function (data) {
+                       alert('Priority Limit Exceded');
+                    }
+                        });
             }else{
                  $.ajax({
                     type: 'GET',
