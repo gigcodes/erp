@@ -1168,5 +1168,6 @@ Route::group(['middleware' => 'auth'], function () {
     });
     // this is temp action
     Route::get('update-purchase-order-product', 'PurchaseController@syncOrderProductId');
+    Route::get('update-media-directory', 'TmpController@updateImageDirectory');
     Route::resource('page-notes-categories', 'PageNotesCategoriesController');
 });

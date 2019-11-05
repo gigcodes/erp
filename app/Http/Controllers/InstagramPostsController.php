@@ -54,6 +54,7 @@ class InstagramPostsController extends Controller
         $account  = Account::findOrFail($request->get('account_id'));
 
         $instagram  = new Instagram();
+        
         try {
             $instagram->login($account->last_name, $account->password);
         } catch (\Exception $exception) {
@@ -62,8 +63,6 @@ class InstagramPostsController extends Controller
         }
 
         $image = $request->file('image');
-
-        $media = MediaUploader::fromSource($image)->useFilename(md5(time()))->upload();
 
         $instagramPost = new InstagramPosts();
         $instagramPost->user_id = \Auth::user()->id;
@@ -77,9 +76,13 @@ class InstagramPostsController extends Controller
         $instagramPost->username = $account->last_name;
         $instagramPost->save();
 
+        $media = MediaUploader::fromSource($image)
+                                ->useFilename(md5(time()))
+                                ->toDirectory('instagramposts/'.floor($instagramPost->id / config('constants.image_per_folder')))
+                                ->upload();
+
         $instagramPost->attachMedia($media,  'gallery');
         $instagramPost->save();
-
         $media = $instagramPost->getMedia('gallery')->first();
 
         $source = imagecreatefromjpeg($media->getAbsolutePath());

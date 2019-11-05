@@ -1223,7 +1223,9 @@ class OrderController extends Controller {
 
 		if ($request->hasfile('images')) {
 			foreach ($request->file('images') as $image) {
-				$media = MediaUploader::fromSource($image)->upload();
+				$media = MediaUploader::fromSource($image)
+										->toDirectory('order/'.floor($delivery_approval->id / config('constants.image_per_folder')))
+										->upload();
 				$delivery_approval->attachMedia($media,config('constants.media_tags'));
 			}
 		}
