@@ -126,12 +126,12 @@
             </tr>
 
             <tr>
-                <th width="5%"><input type="text" id="id" class="search input-sm" placeholder="Id"></th>
-                <th width="5%"><input type="text" id="category" class="search input-sm" placeholder="Category"></th>
-                <th width="10%"><input type="text" id="name" class="search input-sm" placeholder="Name" name="name"></th>
-                <th width="10%"><input type="text" id="phone" class="search unput-sm" placeholder="Phone"></th>
-                <th width="10%"><input type="text" id="email" class="search input-sm" placeholder="Email"></th>
-                <th width="10%"><input type="text" id="address" class="search input-sm" placeholder="Address"></th>
+                <th width="5%"><input type="text" id="id" class="search form-control" placeholder="Id"></th>
+                <th width="5%"><input type="text" id="category" class="search form-control" placeholder="Category"></th>
+                <th width="10%"><input type="text" id="name" class="search form-control" placeholder="Name" name="name"></th>
+                <th width="10%"><input type="text" id="phone" class="search form-control" placeholder="Phone"></th>
+                <th width="10%"><input type="text" id="email" class="search form-control" placeholder="Email"></th>
+                <th width="10%"><input type="text" id="address" class="search form-control" placeholder="Address"></th>
                 <th></th>
                 <th></th>
                 <th></th>
