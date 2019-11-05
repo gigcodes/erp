@@ -906,6 +906,8 @@ class LeadsController extends Controller
         }
 
         $total = $source->count();
+        $source2 = clone $source;
+        $allLeadCustomersId = $source2->select('erp_leads.customer_id')->pluck('customer_id', 'customer_id')->toArray();
 
         $source = $source->offset($request->get('start', 0));
         $source = $source->limit($request->get('length', 10));
@@ -930,7 +932,8 @@ class LeadsController extends Controller
             'draw' => $request->get('draw'),
             'recordsTotal' => $total,
             'recordsFiltered' => $total,
-            'data' => $source
+            'data' => $source,
+            'allLeadCustomersId' => $allLeadCustomersId,
         ]);
     }
 

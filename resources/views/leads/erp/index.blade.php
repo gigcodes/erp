@@ -96,7 +96,10 @@
             <tr>
                 <th colspan="8">
                   <label>
-                    <input type="checkbox" class="all_customer_check"> Select All
+                    <input type="checkbox" class="all_customer_check"> Select This Page
+                  </label>
+                  <label>
+                    <input type="checkbox" class="all_page_check"> Select All Page
                   </label> 
                   <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
                   <a href="javascript:;" class="btn btn-image px-1 images_attach"><img src="/images/attach.png"></a>
@@ -177,6 +180,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
   <script type="text/javascript">
     var customers = [];
+    var allLeadCustomersId = [];
     $(document).ready(function() {
       $('.multi_brand').select2();
       $('.multi_lead_status').select2();
@@ -198,6 +202,18 @@
                 customers = tmpCustomers;
               } 
           });
+      });
+
+      $(".all_page_check").click(function(){
+          $('.customer_message').prop('checked', this.checked);
+          customers = [];
+          if (this.checked) {
+              for (var k in allLeadCustomersId) {
+                if (customers.indexOf(allLeadCustomersId[k]) === -1) {
+                  customers.push(allLeadCustomersId[k]);
+                }
+              }
+          }
       });
 
       $(document).on('change', '.customer_message', function () {
@@ -316,6 +332,10 @@
                 d.brand_segment = $('.brand_segment').val();
                 d.lead_status = $('.lead_status').val();
                 $('.all_customer_check').prop('checked', false);
+              },
+              dataSrc : function ( response ) {
+                allLeadCustomersId = response.allLeadCustomersId;
+                return response.data;
               }
             },
             columns: [
