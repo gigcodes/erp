@@ -176,21 +176,48 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
   <script type="text/javascript">
+    var customers = [];
     $(document).ready(function() {
       $('.multi_brand').select2();
       $('.multi_lead_status').select2();
+      
       $(".all_customer_check").click(function(){
           $('.customer_message').prop('checked', this.checked);
+          $(".customer_message").each(function() {
+              if ($(this).prop("checked") == true) {
+                if (customers.indexOf($(this).val()) === -1) {
+                  customers.push($(this).val());
+                }
+              } else {
+                var tmpCustomers = [];
+                for (var k in customers) {
+                  if (customers[k] != $(this).val()) {
+                    tmpCustomers.push(customers[k]);
+                  }
+                }
+                customers = tmpCustomers;
+              } 
+          });
+      });
+
+      $(document).on('change', '.customer_message', function () {
+        if ($(this).prop("checked") == true) {
+          if (customers.indexOf($(this).val()) === -1) {
+            customers.push($(this).val());
+          }
+        } else {
+          var tmpCustomers = [];
+          for (var k in customers) {
+            if (customers[k] != $(this).val()) {
+              tmpCustomers.push(customers[k]);
+            }
+          }
+          customers = tmpCustomers;
+        } 
       });
 
       $(".images_attach").click(function(e){
           e.preventDefault();
-          var customers = [];
-          $(".customer_message").each(function() {
-              if ($(this).prop("checked") == true) {
-                customers.push($(this).val());
-              }
-          });
           if (customers.length == 0) {
             alert('Please select costomer');
             return false;
@@ -205,13 +232,7 @@
       $("#send_message").submit(function(e){
           e.preventDefault();
           var formData = new FormData($(this)[0]);
-          var customers = [];
-          $(".customer_message").each(function() {
-              if ($(this).prop("checked") == true) {
-                customers.push($(this).val());
-                formData.append("customers[]", $(this).val());
-              }
-          });
+          
           if (customers.length == 0) {
             alert('Please select costomer');
             return false;
@@ -291,6 +312,7 @@
                 d.lead_shoe_size = $('.lead_shoe_size').val();
                 d.brand_segment = $('.brand_segment').val();
                 d.lead_status = $('.lead_status').val();
+                $('.all_customer_check').prop('checked', false);
               }
             },
             columns: [
@@ -331,14 +353,8 @@
         });
         
     });
-
+   
     $(document).on('click', '.create_broadcast', function () {
-      var customers = [];
-      $(".customer_message").each(function() {
-          if ($(this).prop("checked") == true) {
-            customers.push($(this).val());
-          }
-      });
       if (customers.length == 0) {
         alert('Please select costomer');
         return false;
