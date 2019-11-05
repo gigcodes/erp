@@ -580,9 +580,13 @@
                 dataType: "json",
                 data: {
                     term : request.term
-                }
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
             
             }).done(function (data) {
+                 $("#loading-image").hide();
                 console.log(data);
                 $("#vendor-table tbody").empty().html(data.tbody);
                 if (data.links.length > 10) {
@@ -595,7 +599,7 @@
                 alert('No response from server');
             });
         },
-        minLength: 3,
+        minLength: 1,
        
         });
          });

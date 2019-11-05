@@ -66,7 +66,7 @@ class VendorController extends Controller
       }
 
       //getting request 
-      if($request->term || $request->name || $request->id || $request->category || $request->phone || $request->address || $request->email){
+      if($request->term || $request->name || $request->id || $request->category || $request->phone || $request->address || $request->email || $request->term){
 
 
         //Query Initiate
