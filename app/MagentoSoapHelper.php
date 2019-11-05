@@ -375,4 +375,48 @@ class MagentoSoapHelper
         // Return
         return;
     }
+
+    public function catalogCategoryInfo($magentoId = 0)
+    {
+        // Check for product and session
+        if ((int)$magentoId == 0 || !$this->_sessionId) {
+            exit("A");
+            return false;
+        }
+
+        try {
+            $result = $this->_proxy->catalogCategoryInfo(
+                $this->_sessionId,
+                $magentoId
+            );
+        } catch (\SoapFault $e) {
+            echo $e->getMessage();
+            return false;
+        }
+
+        // Return result
+        return $result;
+    }
+
+    public function catalogCategoryCreate($parentId = 0, $arrCategoryData=[])
+    {
+        // Check for product and session
+        if (!$this->_sessionId) {
+            return false;
+        }
+
+        try {
+            $result = $this->_proxy->catalogCategoryCreate(
+                $this->_sessionId,
+                $parentId,
+                $arrCategoryData
+            );
+        } catch (\SoapFault $e) {
+            echo $e->getMessage();
+            return false;
+        }
+
+        // Return result
+        return $result;
+    }
 }
