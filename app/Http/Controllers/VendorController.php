@@ -47,9 +47,8 @@ class VendorController extends Controller
 
     public function index(Request $request)
     {
-      // $vendors = Vendor::with('agents')->latest()->paginate(Setting::get('pagination'));
 
-      $term = $request->term ?? '';
+     $term = $request->term ?? '';
       $sortByClause = '';
       $orderby = 'DESC';
 
@@ -66,56 +65,84 @@ class VendorController extends Controller
           $whereArchived = '  `deleted_at` IS NOT NULL  ';
       }
 
-      // $type = $request->type ?? '';
-      // $typeWhereClause = '';
-      //
-      // if ($type != '') {
-      //   $typeWhereClause = ' AND has_error = 1';
-      // }
+      //getting request 
+      if($request->term || $request->name || $request->id || $request->category || $request->phone || $request->address || $request->email){
 
-      $vendors = DB::select('
-									SELECT *,
-                  (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
-                  (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
-                  (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
 
-                  FROM (SELECT vendors.id, vendors.frequency, vendors.is_blocked ,vendors.reminder_message, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.account_swift,
-                  category_name,
-                  chat_messages.message_id FROM vendors
+        //Query Initiate
+        $query  = Vendor::query();
 
-                  LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
-                  ON vendors.id = chat_messages.vendor_id
+          if(request('term') != null){
+              $query->where('name', 'LIKE', "%{$request->term}%")
+                    ->orWhere('address', 'LIKE', "%{$request->term}%")
+                    ->orWhere('phone', 'LIKE', "%{$request->term}%")
+                    ->orWhere('email', 'LIKE', "%{$request->term}%")
+                    ->orWhereHas('category', function ($qu) use ($request) {
+                      $qu->where('title', 'LIKE', "%{$request->term}%");
+                      });
 
-                  LEFT JOIN (SELECT id, title AS category_name FROM vendor_categories) AS vendor_categories
-                  ON vendors.category_id = vendor_categories.id WHERE '. $whereArchived . '
-                  )
+            }
 
-                  AS vendors
+            //if Id is not null 
+          if (request('id') != null) {
+                $query->where('id', request('id',0));
+            }
 
-                  WHERE (name LIKE "%' . $term . '%" OR
-                  phone LIKE "%' . $term . '%" OR
-                  email LIKE "%' . $term . '%" OR
-                  address LIKE "%' . $term . '%" OR
-                  social_handle LIKE "%' . $term . '%" OR
-                  category_id IN (SELECT id FROM vendor_categories WHERE title LIKE "%' . $term . '%") OR
-                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))
-                  ORDER BY ' . $sortByClause . ' message_created_at DESC;
-							');
+            //If name is not null 
+          if (request('name') != null) {
+                $query->where('name','LIKE', '%' . request('name') . '%');
+            } 
 
-              // dd($vendors);
+           
+            //if addess is not null
+          if (request('address') != null) {
+                $query->where('address', 'LIKE', '%' . request('address') . '%');
+            } 
+           
+           //if email is not null 
+          if (request('email') != null) {
+                $query->where('email', 'LIKE', '%' . request('email') . '%');
+            } 
+         
+            
+            //if phone is not null
+         if (request('phone') != null) {
+                $query->where('phone', 'LIKE', '%' . request('phone') . '%');
+            }
+            
+            //if category is not nyll
+         if (request('category') != null) {
+                $query->whereHas('category', function ($qu) use ($request) {
+                    $qu->where('title', 'LIKE', '%' . request('category') . '%');
+                    });
+            }
+                        
+          if($request->with_archived != null && $request->with_archived != ''){
 
-      $currentPage = LengthAwarePaginator::resolveCurrentPage();
-  		$perPage = Setting::get('pagination');
-  		$currentItems = array_slice($vendors, $perPage * ($currentPage - 1), $perPage);
+                 $vendors = $query->orderby('name','asc')->whereNotNull('deleted_at')->paginate(Setting::get('pagination'));  
+           }else{
 
-  		$vendors = new LengthAwarePaginator($currentItems, count($vendors), $perPage, $currentPage, [
-  			'path'	=> LengthAwarePaginator::resolveCurrentPath()
-  		]);
+                 $vendors = $query->orderby('name','asc')->paginate(Setting::get('pagination'));
+          }
+
+      }else{
+        $vendors = Vendor::orderby('name','asc')->paginate(Setting::get('pagination'));  
+      }
+     
 
       $vendor_categories = VendorCategory::all();
 
 
       $users = User::all();
+
+      
+
+       if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('vendors.partials.data', compact('vendors'))->render(),
+                'links' => (string)$vendors->render()
+            ], 200);
+        }
 
       return view('vendors.index', [
         'vendors' => $vendors,
