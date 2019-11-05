@@ -248,6 +248,9 @@
             return false;
           }*/
 
+          for (var i in customers) {
+            formData.append("customers[]", customers[i]);
+          }
 
           $.ajax({
             type: "POST",
