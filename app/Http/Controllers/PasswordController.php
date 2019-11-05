@@ -23,34 +23,60 @@ class PasswordController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->term || $request->date ){
-            if($request->term && $request->date){
-               $passwords =  Password::query()
-                                   ->where('website', 'LIKE', "%{$request->term}%")
-                                   ->orWhere('username', 'LIKE', "%{$request->term}%")
-                                   ->orWhere('password', 'LIKE', "%{$request->term}%")
-                                   ->whereDate('created_at', '=', "%{$request->date}%")
-                                   ->paginate(Setting::get('pagination'));
 
+        if($request->website || $request->username || $request->password || $request->registered_with || $request->term || $request->date){
+            
+            $query =  Password::query();
+
+            //global search term
+            if (request('term') != null) {
+                $query->where('website', 'LIKE', "%{$request->term}%")
+                    ->orWhere('username', 'LIKE', "%{$request->term}%")
+                    ->orWhere('password', 'LIKE', "%{$request->term}%")
+                    ->orWhere('registered_with', 'LIKE', "%{$request->term}%");
             }
 
-        if($request->term){
 
-            $passwords =  Password::query()
-                ->where('website', 'LIKE', "%{$request->term}%")
-                ->orWhere('username', 'LIKE', "%{$request->term}%")
-                ->orWhere('password', 'LIKE', "%{$request->term}%")
-                ->paginate(Setting::get('pagination'));
-
-        }
-        if($request->date){
-            $passwords =  Password::query()
-                ->whereDate('created_at', $request->date)
-                ->paginate(Setting::get('pagination'));
+            if (request('date') != null) {
+                $query->whereDate('created_at', request('website'));
             }
+
+
+               //if website is not null 
+            if (request('website') != null) {
+                $query->where('website','LIKE', '%' . request('website') . '%');
+            }
+
+            //If username is not null 
+          if (request('username') != null) {
+                $query->where('username','LIKE', '%' . request('username') . '%');
+            } 
+
+           
+            //if password is not null
+          if (request('password') != null) {
+                $query->where('password', 'LIKE', '%' . Crypt::encrypt(request('password')) . '%');
+            } 
+           
+           //if registered with is not null 
+          if (request('registered_with') != null) {
+                $query->where('registered_with', 'LIKE', '%' . request('registered_with') . '%');
+            }
+
+            $passwords = $query->orderby('website','asc')->paginate(Setting::get('pagination')); 
+        
         }else{
-       $passwords = Password::latest()->paginate(Setting::get('pagination'));
+            $passwords = Password::latest()->paginate(Setting::get('pagination'));
         }
+
+          if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('passwords.data', compact('passwords'))->render(),
+                'links' => (string)$passwords->render()
+            ], 200);
+        }
+
+
         $users = User::orderBy('name','asc')->get();
         return view('passwords.index', [
           'passwords' => $passwords,
