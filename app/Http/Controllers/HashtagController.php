@@ -16,6 +16,7 @@ use InstagramAPI\Signatures;
 use Plank\Mediable\Media;
 use App\Setting;
 
+
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class HashtagController extends Controller
@@ -174,7 +175,7 @@ class HashtagController extends Controller
 
     public function showGrid($id, Request $request)
     {
-
+      
         $maxId = '';
 
         if ($request->has('maxId'))  {
@@ -191,6 +192,40 @@ class HashtagController extends Controller
            $medias = $hashtag->instagramPost()->orderBy('id','desc')->paginate(20);
         }
 
+        if($request->term || $request->date || $request->username || $request->caption || $request->location || $request->comment){
+              $query  = InstagramPosts::query();
+                if(request('term') != null) {
+                $query->where('username', 'LIKE', "%{$request->term}%")
+                    ->orWhere('caption', 'LIKE', "%{$request->term}%")
+                    ->orWhere('location', 'LIKE', "%{$request->term}%")
+                    ->orWhereHas('comments', function ($qu) use ($request) {
+                      $qu->where('comment', 'LIKE', "%{$request->term}%");
+                      });
+                }
+
+                if (request('username') != null) {
+                $query->where('username', 'LIKE', '%' . request('username') . '%');
+                }
+                if (request('caption') != null) {
+                    $query->where('caption', 'LIKE', '%' . request('caption') . '%');
+                }
+                if (request('location') != null) {
+                    $query->where('location', 'LIKE', '%' . request('location') . '%');
+                }
+
+                if (request('comments') != null) {
+                        $query->whereHas('comments', function ($qu) use ($request) {
+                            $qu->where('comment', 'LIKE', '%' . request('comments') . '%');
+                            });
+                }
+
+
+            $medias = $query->where('hashtag_id',$hashtag->id)->orderBy('id','desc')->paginate(20);
+
+        }
+
+        
+
         $media_count = 1;
 
         $hashtagList = HashTag::all();
@@ -198,6 +233,13 @@ class HashtagController extends Controller
         $accs = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
 
         $stats = CommentsStats::selectRaw('COUNT(*) as total, narrative')->where('target', $hashtag->hashtag)->groupBy(['narrative'])->get();
+
+        if ($request->ajax()) {
+           return response()->json([
+                'tbody' => view('instagram.hashtags.data', compact('medias','hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'))->render(),
+               'links' => (string)$medias->render()
+            ], 200);
+         }
         
         return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'));
     }
@@ -337,8 +379,17 @@ class HashtagController extends Controller
         ]);
     }
 
-    public function rumCommand($value='')
+    public function rumCommand(Request $request)
     {
-        # code...
+        $id = $request->id;
+      
+     try {
+
+       $art = \Artisan::call("hastag:instagram",['hastagId' => $id]);
+       return ['success' => true, 'message' => 'Process Started Running'];
+        } catch (\Exception $e) {
+
+           return ['error' => true, 'message' => 'Something went wrong'];
+        }
     }
 }

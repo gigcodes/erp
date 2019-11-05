@@ -161,9 +161,7 @@ input:checked + .slider:before {
                             </form>
                         </td>
                         <td>
-                          
-                          @if(env('INSTAGRAM_MAIN_ACCOUNT') == true)
-                            <label class="switch">
+                          <label class="switch">
                                   @if($hashtag->priority == 1)
                                   <input type="checkbox" checked class="checkbox" value="{{ $hashtag->id }}">
                                   @else
@@ -171,10 +169,7 @@ input:checked + .slider:before {
                                   @endif
                                   <span class="slider round"></span>
                                 </label>
-                          @else
-                              <button class=" btn btn-default btn-sm">Run Command</button>
-                          @endif
-                         
+                                <button onclick="runCommand({{ $hashtag->id }})">Run Command</button>
                         </td>
                     </tr>
                 @endforeach
@@ -242,5 +237,30 @@ input:checked + .slider:before {
                     }); 
             }
         });
+
+        function runCommand(id) {
+             $.ajax({
+                    type: 'POST',
+                    url: '{{ route('hashtag.command') }}',
+                    data: {
+                        id:id,
+                         _token: "{{ csrf_token() }}"
+                    },success: function (data) {
+                     
+                        if(data.status == 'error'){
+                           alert('Something went wrong'); 
+                           location.reload(true);
+                           
+                        }else{
+                           alert('Hashtag Added To Fetch Post');  
+
+                        }
+                      
+                    },
+                    error: function (data) {
+                       alert('Something went wrong');
+                    }
+                        });
+        }
     </script>
 @endsection
