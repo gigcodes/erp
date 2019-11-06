@@ -595,13 +595,19 @@ class ProductHelper extends Model
         return $size;
     }
 
-    public static function checkReadinessForLive($product) {
+    public static function checkReadinessForLive($product)
+    {
         // Check for mandatory fields
-        if ( empty($product->title) ) {
+        if (empty($product->name)) {
             return false;
         }
 
-        if ( empty($product->short_description) ) {
+        if (empty($product->short_description)) {
+            return false;
+        }
+
+        // Check for price range
+        if ((int)$product->price < 5000 || (int)$product->price > 400000) {
             return false;
         }
 
