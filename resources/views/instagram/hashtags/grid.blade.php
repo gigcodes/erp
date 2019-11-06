@@ -1,29 +1,49 @@
 @extends('layouts.app')
 
+@section('styles')
+<style type="text/css">
+         #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+        }
+    </style>
+@endsection
 @section('large_content')
+    <div id="myDiv">
+      <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+   </div>
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Hashtag monitoring: #{{ $hashtag }} ({{ $media_count }} Posts)</h2>
-            <form action="{{ action('HashtagController@showGrid', 'x') }}">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="All Hashtags">Hashtags</label>
-                            <select class="form-control" name="hashtags" id="hashtags">
-                                @foreach($hashtagList as $list)
-                                    <option {{ $list->hashtag==$hashtag ? 'selected' : '' }} value="{{ $list->hashtag }}">{{ $list->hashtag }}</option>
-                                @endforeach
-                            </select>
+           
+           <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <h2 class="page-heading">Hashtag monitoring: #{{ $hashtag->hashtag }} ({{ count($medias) }} Posts) @if(env('INSTAGRAM_MAIN_ACCOUNT') == true)<spam style="color: red;"> ADMIN ACCOUNT PLEASE COMMENT CAREFULLY </spam> @endif</h2>
+            <div class="pull-left">
+                <form action="/instagram/hashtag/grid/{{ $hashtag->id }}" method="GET" class="form-inline align-items-start">
+                    <div class="form-group mr-3 mb-3">
+                        <input name="term" type="text" class="form-control global"
+                               value="{{ isset($term) ? $term : '' }}"
+                               placeholder="username, caption" id="term">
+                    </div>
+                    <div class="form-group ml-3">
+                        <div class='input-group date' id='filter-date'>
+                            <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
+
+                            <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="name">Name</label>
-                            <input value="{{$hashtag}}" type="text" name="name" id="name" class="form-control">
-                        </div>
-                    </div>
-                </div>
-            </form>
+
+
+                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                </form>
+            </div>
+            
+        </div>
+    </div>
         </div>
 
         <div class="col-md-2">
@@ -61,12 +81,7 @@
             </div>
         </div>
 
-        <div class="col-md-12 text-center">
-            @if ($maxId !== '' || $maxId = 'END')
-                <a class="btn btn-default mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}">FIRST PAGE</a>
-                <a class="btn btn-default mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}">NEXT</a>
-            @endif
-        </div>
+       
         <div class="col-md-12">
             @if(Session::has('message'))
                 <div class="alert alert-success">
@@ -76,142 +91,50 @@
         </div>
         <div class="col-md-12">
             <div class="table-responsive">
-                <table class="table-striped table table-bordered">
+                <table class="table-striped table table-bordered" id="grid-table">
+                    <thead>
                     <tr>
-                        <th>SN</th>
-                        <th style="width:50px">User</th>
-                        <th>Post URL</th>
-                        <th style="width: 50px;">Image</th>
-                        <th>Caption</th>
-{{--                        <th style="width:20px;">Likes</th>--}}
-                        <th style="width:20px;"># Comments</th>
-                        <th>Location</th>
-                        <th>Created At</th>
-                        <th>Comments</th>
+                        <th style="width:1%">SN</th>
+                        <th style="width:1%">Hastag</th>
+                        <th style="width:5%">User</th>
+                        <th style="width:5%">Post URL</th>
+                        <th style="width: 10%;">Image</th>
+                        <th style="width:10%">Caption</th>
+                        <th style="width:2%;">#Comm</th>
+                        <th style="width:4%">Location</th>
+                        <th style="width:5%">Created At</th>
+                        <th style="width:10%">Communication</th>
+                        <th style="width:20%">Comments</th>
+                        <th style="width:1%;">Action</th>
+
                     </tr>
-                    @php $count = 1; @endphp
-                    @foreach($medias as $key=>$post)
-                        @if (\App\FlaggedInstagramPosts::where('media_id', $post['media_id'])->first())
-                        @else
-                            <tr id="media_{{$post['media_id']}}">
-                                <td>
-                                    {{ $count }}
-                                    @php $count++ @endphp
-                                    <br>
-                                    <a class="btn btn-sm btn-image hide-media" data-id="{{$post['media_id']}}">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
-                                </td>
-                                <td><a href="https://instagram.com/{{$post['username']}}">{{$post['username']}}</a></td>
-                                <td><a href="https://instagram.com/p/{{$post['code']}}">Visit Post</a></td>
-                                <td>
-                                    @if ($post['media_type'] === 1)
-                                        <a href="{{$post['media']}}"><img src="{{ $post['media'] }}" style="width: 100px;"></a>
-                                    @elseif ($post['media_type'] === 2)
-                                        <video controls src="{{ $post['media'] }}" style="width: 100px"></video>
-                                    @elseif ($post['media_type'] === 8)
-                                        @foreach($post['media'] as $m)
-                                            @if ($m['media_type'] === 1)
-                                                <a href="{{$m['url']}}"><img src="{{ $m['url'] }}" style="width: 100px;"></a>
-                                            @elseif($m['media_type'] === 2)
-                                                <video controls src="{{ $m['url'] }}" style="width: 100px"></video>
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                </td>
-                                <td style="word-wrap: break-word;text-align: justify;">
-                                    <div class="expand-row" style="width:150px;text-align: justify">
-                                        <span class="td-mini-container">
-                                            {{ strlen($post['caption']) > 20 ? substr($post['caption'], 0, 20).'...' : $post['caption'] }}
-                                          </span>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th><input type="text" id="username" class="search form-control" placeholder="Id" step="width : 10px"></th>
+                        <th></th>
+                        <th></th>
+                        <th><input type="text" class="form-control search" placeholder="Search Caption" id="caption"></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th><input type="text" class="form-control search" placeholder="Search Comments" id="comment"></th>
+                        <th></th>
+                        <th></th>
 
-                                        <span class="td-full-container hidden">
-                                            {{ $post['caption'] }}
-                                        </span>
-                                    </div>
-                                </td>
-{{--                                <td>{{ $post['like_count'] }}</td>--}}
-                                <td>
-                                    <div style="width: 20px;">
-                                        {{ $post['comment_count'] }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="width: 150px;">
-                                        {!! ($post['location']['name'] ?? 'N/A') . '<br>' . ($post['location']['city'] ?? 'N/A')  !!}
-                                    </div>
-                                </td>
-                                <td>{{ \Carbon\Carbon::createFromTimestamp($key)->toDateString() }}</td>
-                                <td style="width: 600px;">
-                                    @if ($post['comments'])
-                                        <table class="table table-striped table-bordered">
-                                            <tr>
-                                                <th>Username</th>
-                                                <th style="width: 350px">Comment</th>
-                                                <th>Commented On</th>
-                                                <th>Action</th>
-                                            </tr>
-                                            <tbody class="comment-list" id="comments-{{$post['media_id']}}">
-                                            @foreach($post['comments'] as $keyy=>$comment)
-                                                <tr>
-                                                    <td><a href="https://instagram.com/{{$comment['user']['username']}}">{{$comment['user']['username']}}</a></td>
-                                                    <td class="expand-row" style="word-wrap: break-word;word-break: break-all">
-                                                        <span class="td-mini-container">
-                                                            {{ strlen($comment['text']) > 20 ? substr($comment['text'], 0, 20).'...' : $comment['text'] }}
-                                                          </span>
 
-                                                                        <span class="td-full-container hidden">
-                                                            {{ $comment['text'] }}
-                                                        </span>
-                                                    </td>
-                                                    <td>{{\Carbon\Carbon::createFromTimestamp($comment['created_at'])->diffForHumans()}}</td>
-                                                    <td>
-                                                        <form action="{{ action('ReviewController@createFromInstagramHashtag') }}" method="post">@csrf<input type="hidden" name="code" value="{{$post['code']}}"> <input type="hidden" name="date" value="{{ \Carbon\Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString() }}"> <input type="hidden" name="post" value="{{ $post['caption'] }}"><input type="hidden" name="comment" value="{{ $comment['text'] }}"><input type="hidden" name="poster" value="{{ $post['username'] }}"><input type="hidden" name="commenter" value="{{ $comment['user']['username'] }}"><input type="hidden" name="media_id" value="{{ $post['media_id'] }}"><button class="btn btn-sm btn-image"><i class="fa fa-check"></i></button></form>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                            </tbody>
-                                            <tr>
-                                                <td colspan="5" class="text-center" class="load-more-{{$post['media_id']}}">
-                                                    <a data-post-code="{{ $post['code'] }}" class="load-comment" id="load-more-{{$post['media_id']}}" data-media-id="{{$post['media_id']}}"> Load More...</a>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    @else
-                                        <strong>No Comments yet!</strong>
-                                    @endif
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <select class="form-control" name="account_id" id="account_id_{{$post['media_id']}}">
-                                                @foreach($accs as $cc)
-                                                    <option value="{{ $cc->id }}">{{ $cc->last_name }}</option>
-                                                @endforeach
-                                            </select>
-                                            <select class="form-control" name="narrative_{{$post['media_id']}}" id="narrative_{{$post['media_id']}}">
-                                                <option value="common">Common</option>
-                                                <option value="promotion">Promotion</option>
-                                                <option value="victim">Victim</option>
-                                                <option value="troll">Troll</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-9">
-                                            <textarea type="text" rows="4" class="comment-it form-control" data-author="{{$post['username']}}" data-code="{{$post['code']}}" data-mediaId="{{$post['media_id']}}" placeholder="Type comment..."></textarea>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endif
-                    @endforeach
+                    </tr>
+                   </thead>
+                     <tbody>
+                   @include('instagram.hashtags.data')
+                    </tbody>
                 </table>
+                
+                 {!! $medias->render() !!}
             </div>
         </div>
 
-        <div class="col-md-12 text-center">
-            @if ($maxId !== '' || $maxId = 'END')
-                <a class="btn btn-default mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}">FIRST PAGE</a>
-                <a class="btn btn-default mb-4" href="{{ action('HashtagController@showGrid', $hashtag) }}?maxId={{($maxId && $maxId != 'END') ? $maxId : ''}}">NEXT</a>
-            @endif
-        </div>
+        
     </div>
 @endsection
 
@@ -225,6 +148,7 @@
 @endsection
 
 @section('scripts')
+ <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         var cid = null;
         $(function(){
@@ -283,6 +207,12 @@
             }
         });
 
+       function loadComments(id){
+            $("#commentModal"+id).modal();
+       }
+
+        
+
         $('#hashtags').change(function() {
             let hashtag = $(this).val();
             $('#name').val(hashtag);
@@ -321,5 +251,97 @@
                 });
             }
         });
+
+ 
+   
+   
+
+
+         $(document).ready(function() {
+        src = "/instagram/hashtag/grid/{{ $hashtag->id }}";
+        $(".global").autocomplete({
+        source: function(request, response) {
+            term = $('#term').val();
+            date = $('#date').val();
+           
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    term : term,
+                    date : date,
+                
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#grid-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });
+
+//"caption"
+// "location
+// "comment"
+
+         $(document).ready(function() {
+        src = "/instagram/hashtag/grid/{{ $hashtag->id }}";
+        $(".search").autocomplete({
+        source: function(request, response) {
+            username = $('#username').val();
+            caption = $('#caption').val();
+            comment = $('#comment').val();
+         //   location = $('#location').val();
+       
+
+           
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    username : username,
+                    caption : caption,
+                    comment : comment,
+               //     location : location,
+                
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#grid-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });
+
     </script>
 @endsection

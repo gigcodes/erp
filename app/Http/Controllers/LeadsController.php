@@ -296,6 +296,7 @@ class LeadsController extends Controller
                     "customer_id"       => $request->customer_id,
                     "product_id"        => $product_id,
                     "brand_id"          => $product->brand,
+                    "brand_segment"     => !empty($product->brands->brand_segment) ? $product->brands->brand_segment : '',
                     "category_id"       => $product->category,
                     "color"             => $product->color,
                     "size"              => $product->size_value,
@@ -906,6 +907,8 @@ class LeadsController extends Controller
         }
 
         $total = $source->count();
+        $source2 = clone $source;
+        $allLeadCustomersId = $source2->select('erp_leads.customer_id')->pluck('customer_id', 'customer_id')->toArray();
 
         $source = $source->offset($request->get('start', 0));
         $source = $source->limit($request->get('length', 10));
@@ -930,7 +933,8 @@ class LeadsController extends Controller
             'draw' => $request->get('draw'),
             'recordsTotal' => $total,
             'recordsFiltered' => $total,
-            'data' => $source
+            'data' => $source,
+            'allLeadCustomersId' => $allLeadCustomersId,
         ]);
     }
 
@@ -978,6 +982,31 @@ class LeadsController extends Controller
         $params["product_id"] = $productId;
         if (isset($params["brand_segment"])) {
             $params["brand_segment"] = implode(",", (array)$params["brand_segment"]);
+        }
+
+        if ($product) {
+            if (empty($params["brand_id"])) {
+                $params["brand_id"] = $product->brand;
+                if (empty($params["brand_segment"])) {
+                    $brand = \App\Brand::where("id",$product->brand)->first();
+                    if ($brand) {
+                        $params["brand_segment"] = $brand->brand_segment;
+                    }
+                }
+            }
+
+            if (empty($params["category_id"])) {
+                $params["category_id"] = $product->category;
+            }
+
+        }
+
+        if (empty($params["color"])) {
+            $params["color"] = $customer->color;
+        }
+
+        if (empty($params["size"])) {
+            $params["size"] = $customer->size;
         }
 
         $erpLeads = \App\ErpLeads::where("id",$id)->first();
