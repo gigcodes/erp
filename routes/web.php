@@ -12,14 +12,13 @@
 */
 
 Auth::routes();
-//Route::get('/test/test','LiveChatController@getChats');
+Route::get('/test/test','HashtagController@rumCommand');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
 Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
-
 
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
@@ -860,6 +859,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('start-growth/{id}', 'AccountController@startAccountGrowth');
     Route::get('accounts', 'InstagramController@accounts');
     Route::get('notification', 'HashtagController@showNotification');
+    Route::get('hashtag/markPriority','HashtagController@markPriority')->name('hashtag.priority');
     Route::resource('influencer', 'InfluencersController');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
@@ -873,8 +873,9 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::resource('account-posts', 'InstagramPostsController');
     Route::resource('hashtagposts', 'HashtagPostsController');
     Route::resource('hashtagpostscomments', 'HashtagPostCommentController');
-    Route::get('hashtag/grid/{id}', 'HashtagController@showGrid');
+    Route::get('hashtag/grid/{id}', 'HashtagController@showGrid')->name('hashtag.grid');
     Route::resource('hashtag', 'HashtagController');
+    Route::post('hashtag/process/queue','HashtagController@rumCommand')->name('hashtag.command');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
     Route::get('comments', 'InstagramController@getComments');
     Route::post('comments', 'InstagramController@postComment');
@@ -1168,5 +1169,6 @@ Route::group(['middleware' => 'auth'], function () {
     });
     // this is temp action
     Route::get('update-purchase-order-product', 'PurchaseController@syncOrderProductId');
+    Route::get('update-media-directory', 'TmpController@updateImageDirectory');
     Route::resource('page-notes-categories', 'PageNotesCategoriesController');
 });

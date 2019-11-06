@@ -292,7 +292,6 @@ class ProductAttributeController extends Controller
 
 
 	public function replaceImages($request,$productattribute){
-
 		$delete_array = [];
 		for( $i = 0 ; $i < 5 ; $i++) {
 
@@ -301,8 +300,9 @@ class ProductAttributeController extends Controller
 			}
 
 			if( !empty($request->file('image.'.$i ) ) ){
-
-				$media = MediaUploader::fromSource($request->file('image.'.$i ))->upload();
+				$media = MediaUploader::fromSource($request->file('image.'.$i ))
+										->toDirectory('product/'.floor($productattribute->id / config('constants.image_per_folder')))
+										->upload();
 				$productattribute->attachMedia($media,config('constants.media_tags'));
 			}
 		}

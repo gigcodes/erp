@@ -57,7 +57,28 @@ var productTemplate = {
 
         $(document).on("click",".create-product-template",function(e){
             if ($("#product-template-from").valid()) {
+                var noOfImages = $("#product-template-from").find(".template_no option:selected").data('no-of-images');
+                var uploadImage = 0;
+                
+                $("#product-template-from").find(".product_media_list").each(function(){
+                    if ($(this).prop('checked')) {
+                        uploadImage++;
+                    }
+                });
+                
+                $("#product-template-from").find(".uploadFile").each(function(){
+                    if ($(this).val()) {
+                        uploadImage++;
+                    }
+                });
+                
+                if (noOfImages != uploadImage) {
+                    alert('Please '+noOfImages+' Image Uploade');
+                    return false;
+                }
+
                 productTemplate.submitForm($(this));
+
             }
         });
     },
@@ -128,13 +149,13 @@ var productTemplate = {
          $('.show-product-image').html(response.data);
     },
     changeTemplateNo : function(response) {
-        var changeTemplateImage = ["\/images\/product-templates\/Bvlgari Bag 17-09.jpg","\/images\/product-templates\/Chloe Bag 17-09.jpg","\/images\/product-templates\/Fendi Bag 20-09.jpg","\/images\/product-templates\/Fendi Shoes 19-09.jpg","\/images\/product-templates\/Fendi T-shirt.jpg","\/images\/product-templates\/Ferragamo Sneaker.jpg","\/images\/product-templates\/Gucci Bag 13-08.jpg","\/images\/product-templates\/Gucci Bag 16-08.jpg","\/images\/product-templates\/Gucci Marmont Bag.jpg","\/images\/product-templates\/Gucci Marmont Sachel.jpg","\/images\/product-templates\/Gucci Marmont Top Handle Bag.jpg","\/images\/product-templates\/Gucci Mens Shoes.jpg","\/images\/product-templates\/Gucci Sneakers.jpg","\/images\/product-templates\/Gucci Women Shoes.jpg","\/images\/product-templates\/Kenzo T-shirt 19-09 A.jpg","\/images\/product-templates\/Marc Jacob 04-09-2019.jpg","\/images\/product-templates\/Off-white02-09 A.jpg","\/images\/product-templates\/Off-white02-09 B.jpg","\/images\/product-templates\/Prada Sneakers.jpg","\/images\/product-templates\/Sliders.jpg","\/images\/product-templates\/Tods Lofers.jpg","\/images\/product-templates\/Tory Miller 10-05 B.jpg","\/images\/product-templates\/Valentino Bag 1.jpg","\/images\/product-templates\/Valentino Bag.jpg","\/images\/product-templates\/YSL Bag 1.jpg","\/images\/product-templates\/YSL Bag.jpg","\/images\/product-templates\/YSL Sneakers.jpg","\/images\/product-templates\/jimmychoo03-09.jpg","\/images\/product-templates\/tory-tote.jpg"]; 
         
         $(document).on("change",".template_no",function(e){
             var id = $(this).val();
             var html = '';
-            if (changeTemplateImage && changeTemplateImage[id]) {
-                html = '<img src="'+changeTemplateImage[id]+'" width="100%">';
+            var changeTemplateImage = $(this).find("option:selected").data('image');
+            if (changeTemplateImage) {
+                html = '<img src="'+changeTemplateImage+'" width="100%">';
             }
             $('.image_template_no').html(html);
         });

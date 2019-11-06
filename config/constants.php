@@ -5,5 +5,6 @@ return array(
 	'archive__dir' => '/uploads/archives/',
 	'media_tags' => ['gallery'],
 	'paginate' => '10',
+	'image_per_folder' => '10000',
 
 );
