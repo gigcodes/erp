@@ -11,7 +11,15 @@
              <div class="form-group row">
                 <label for="template_no" class="col-sm-3 col-form-label">Template No</label>
                 <div class="col-sm-6">
-                   <?php echo Form::select("template_no",range(1,30),null,["class" => "form-control template_no"]); ?>
+                    <select class="form-control template_no valid" name="template_no" aria-invalid="false">
+                        <?php 
+
+                            foreach ($templateArr as $template) {
+                                $media = $template->getMedia(config('constants.media_tags'))->first();
+                                echo '<option value="'.$template->id.'" data-image="'.(($media) ? $media->getUrl() : "").'" data-no-of-images="'.$template->no_of_images.'">'.$template->name.'</option>';
+                            }
+                       ?>
+                    </select>
                 </div>
                 <div class="col-sm-3">
                   <div class="image_template_no" style="position: absolute; width: 85%;">

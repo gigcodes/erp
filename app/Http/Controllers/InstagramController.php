@@ -22,6 +22,7 @@ use App\TargetLocation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\Facebook\Facebook;
+use App\Priority;
 
 class InstagramController extends Controller
 {
@@ -755,5 +756,12 @@ class InstagramController extends Controller
 
         $countries = TargetLocation::all();
         return view('instagram.am.accounts', compact('accounts', 'countries', 'request', 'total'));
+    }
+
+
+    public function priority()
+    {
+        $priority = Priority::all();
+        dd($priority);
     }
 }

@@ -17,8 +17,9 @@ class ProductTemplatesController extends Controller
      */
     public function index()
     {
-        $productTemplates = \App\ProductTemplate::orderBy("id", "desc")->paginate(10);
-        return view("product-template.index");
+        //$productTemplates = \App\ProductTemplate::orderBy("id", "desc")->paginate(10);
+        $templateArr = \App\Template::all();
+        return view("product-template.index", compact('templateArr'));
     }
 
     public function response()
@@ -184,7 +185,7 @@ class ProductTemplatesController extends Controller
                                     <img src="' . $media->getUrl() . '" width="100%" height="100%">
                                 </div>
                                 <label class="btn btn-primary">
-                                    <input type="checkbox" name="product_media_list[]" value="' . $media->id . '"> Select
+                                    <input type="checkbox" name="product_media_list[]" value="' . $media->id . '" class="product_media_list"> Select
                                 </label>
                             </div>';
                 }
