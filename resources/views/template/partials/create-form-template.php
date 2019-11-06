@@ -14,6 +14,12 @@
                    <?php echo Form::text("name",null,["class" => "form-control name"]); ?>
                 </div>
              </div>
+             <div class="form-group row">
+                <label for="no_of_images" class="col-sm-3 col-form-label">No Of Images</label>
+                <div class="col-sm-6">
+                   <?php echo Form::text("no_of_images",0,["class" => "form-control no_of_images"]); ?>
+                </div>
+             </div>
              <div class="form-group row show-product-image"> </div>
              <div class="form-group row">
               <div class="col-sm-3 imgUp">

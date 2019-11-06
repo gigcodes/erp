@@ -10,5 +10,6 @@ class Template extends Model
     use Mediable;
     protected $fillable = [
         'name',
+        'no_of_images',
     ];
 }
