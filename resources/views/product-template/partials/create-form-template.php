@@ -29,7 +29,12 @@
              <div class="form-group row">
                 <label for="product_id" class="col-sm-3 col-form-label">Product</label>
                 <div class="col-sm-6">
-                   <?php echo Form::select("product_id[]",[],null,["class" => "form-control ddl-select-product", 'multiple' => '']); ?>
+                    <div style="width: 94%; float: left;">
+                        <?php echo Form::select("product_id[]",[],null,["class" => "form-control ddl-select-product", 'multiple' => '']); ?>
+                    </div>
+                    <div style="width: 6%; float: right;">
+                        <a href="http://pravin.sololux/attachImages/customer/2001/1" class="btn btn-image px-1"><img src="/images/attach.png"></a>
+                    </div>
                 </div>
              </div>
              <div class="form-group row">
