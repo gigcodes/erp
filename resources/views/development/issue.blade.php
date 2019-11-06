@@ -3,6 +3,14 @@
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <style type="text/css">
+        #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+        }
+    </style>
 @endsection
 
 @section('large_content')
@@ -36,7 +44,9 @@
           '3' => 'Normal'
         ];
     @endphp
-
+    <div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
     <div class="row mb-4">
         <div class="col-md-12">
             <form action="{{ action('DevelopmentController@issueIndex') }}" method="get">
@@ -161,11 +171,11 @@
                             @endif
                             <br />
 
-                            <button class="btn btn-secondary" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
-                            <button class="btn btn-secondary" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
+                            <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
+                            <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
                             <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple />  
 
-                            <br>
+                            <br />
                             <div>
                                 <div class="panel-group">
                                     <div class="panel panel-default">
@@ -622,39 +632,44 @@
         function sendUploadImage(id){
             
             $('#file-input'+id).trigger('click');
-            
-            $('#file-input'+id).on('change',function(){
-               if ($(this).val() != '') {
-                //console.log($(this).val());
-                    img = $(this).val()
-                    upload(img,id);
-                }
-            });
 
+            $('#file-input'+id).change(function () {
+            event.preventDefault();
+            let image_upload = new FormData();
+            let TotalImages = $(this)[0].files.length;  //Total Images
+            let images = $(this)[0];  
+            
+            for (let i = 0; i < TotalImages; i++) {
+                image_upload.append('images[]', images.files[i]);
+            }
+             image_upload.append('TotalImages', TotalImages);
+             image_upload.append('status',2);
+             image_upload.append('type',2);
+             image_upload.append('issue_id',id);
+             if(TotalImages != 0){
+
+                    $.ajax({
+                        method: 'POST',
+                        url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+                        data: image_upload,
+                        async : true,
+                        contentType: false,
+                        processData: false,
+                        beforeSend: function() {
+                        $("#loading-image").show();
+                        },
+                        success: function (images) {
+                            $("#loading-image").hide();
+                            alert('Images send successfully');
+                        },
+                        error: function () {
+                          console.log(`Failed`)
+                        }
+                    })
+                }    
+            })
         }
 
-        function upload(img,id) {
-            
-            $.ajax({
-                url: "{{ action('WhatsAppController@sendMessage', 'issue')}}",
-                type: 'POST',
-                data: {
-                    issue_id: id,
-                    type : 2,
-                    message: '',
-                    files: img,
-                    _token: "{{csrf_token()}}",
-                    status: 2
-                },
-                success: function () {
-                    
-                    
-                },
-                error: function () {
-                    alert('There was an error sending the message...');
-                   
-                }
-            });
-        }
+       
     </script>
 @endsection

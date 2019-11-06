@@ -2476,4 +2476,24 @@ class CustomerController extends Controller
             $pdf->stream('orders.pdf');
         }
     }
+
+    public function downloadContactDetailsPdf($id)
+    {
+        //$userID = request()->get("user_id",0);
+        $customerID = request()->get("id",0);
+        
+        //$user = \App\User::where("id", $userID)->first();
+        $customer = \App\Customer::where("id", $id)->first();
+
+        // if found customer and  user
+        if($customer) {
+            // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
+            $html = view( 'customers.customer_pdf', compact('customer') );
+
+            $pdf = new Dompdf();
+            $pdf->loadHtml($html);
+            $pdf->render();
+            $pdf->stream($id.'-label.pdf');
+        }
+    }
 }
