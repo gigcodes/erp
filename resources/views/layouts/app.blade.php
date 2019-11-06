@@ -697,6 +697,11 @@
                                                 <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
                                             </li>
 
+                                             <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('instagram/hashtag') }}">Hashtags</a>
+                                            </li>
+
+
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag monitoring & manual Commenting</a>
                                             </li>
@@ -771,6 +776,7 @@
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                             </li>
+                                            
                                         </ul>
                                     </li>
                                 @endif
