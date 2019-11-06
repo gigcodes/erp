@@ -81,7 +81,14 @@ class MagentoSoapHelper
 
         // Check for readiness to go to Magento
         if (!ProductHelper::checkReadinessForLive($product)) {
+            // Write to log file
             Log::channel('listMagento')->emergency("Failed readiness test for product ID " . $product->id);
+
+            // Update product status - sent to manual attribute
+            $product->status_id = StatusHelper::$manualAttribute;
+            $product->save();
+
+            // Return false
             return false;
         }
 
