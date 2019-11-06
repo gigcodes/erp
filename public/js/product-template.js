@@ -137,7 +137,7 @@ var productTemplate = {
             var _z = {
                 url: "/product-templates/select-product-id",
                 data : {
-                    'product_id' : $(this).val()
+                    'product_ids' : $(this).val()
                 }
             }
             productTemplate.sendAjax(_z, "selectProductId");

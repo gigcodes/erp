@@ -29,7 +29,7 @@
              <div class="form-group row">
                 <label for="product_id" class="col-sm-3 col-form-label">Product</label>
                 <div class="col-sm-6">
-                   <?php echo Form::select("product_id",[],null,["class" => "form-control ddl-select-product"]); ?>
+                   <?php echo Form::select("product_id[]",[],null,["class" => "form-control ddl-select-product", 'multiple' => '']); ?>
                 </div>
              </div>
              <div class="form-group row">
