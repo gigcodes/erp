@@ -14,22 +14,21 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
 
-
-class ProcessCommentsFromHashtags extends Command
+class GetCommentsUsingHastTagPriority extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'hashtags:process-comments';
+    protected $signature = 'hastag:instagram {hastagId}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get Comments Based on Hashtags';
+    protected $description = 'Getting hashtag comments from instagram using hashtag id';
 
     /**
      * Create a new command instance.
@@ -48,14 +47,15 @@ class ProcessCommentsFromHashtags extends Command
      */
     public function handle()
     {
+         $hashtagId = $this->argument('hastagId');
 
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+          $report = CronJobReport::create([
+                'signature' => $this->signature,
+                'start_time'  => Carbon::now()
+            ]);
 
 
-        $hashtag = HashTag::where('is_processed',0)->orderBy('id','asc')->first();
+        $hashtag = HashTag::where('id',$hashtagId)->first();
 
         if (!$hashtag) {
             return;
@@ -179,5 +179,8 @@ class ProcessCommentsFromHashtags extends Command
         $hashtag->save();
 
         $report->update(['end_time' => Carbon:: now()]);
+
+         
+        
     }
 }
