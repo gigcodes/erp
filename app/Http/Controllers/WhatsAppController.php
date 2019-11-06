@@ -267,12 +267,18 @@ class WhatsAppController extends FindByNumberController
                                     if (isset($broadcast)) {
                                         if (!empty($selected_products)) {
                                             foreach ($selected_products as $pid) {
+                                                $product = \App\Product::where("id",$pid)->first();
                                                 $quick_lead = \App\ErpLeads::create([
                                                     'customer_id' => $customer->id,
                                                     //'rating' => 1,
                                                     'lead_status_id' => 3,
                                                     //'assigned_user' => 6,
                                                     'product_id' => $pid,
+                                                    'brand_id' => $product ? $product->brand : null,
+                                                    'category_id' => $product ? $product->category : null,
+                                                    'brand_segment' => $product && $product->brands ? $product->brands->brand_segment : null,
+                                                    'color' => $customer->color,
+                                                    'size' => $customer->size,
                                                     'created_at' => Carbon::now()
                                                 ]);
                                             }
@@ -780,12 +786,18 @@ class WhatsAppController extends FindByNumberController
 
                                     if (isset($broadcast)) {
                                         foreach ($selected_products as $pid) {
+                                            $product = \App\Product::where("id",$pid)->first();
                                             $quick_lead = \App\ErpLeads::create([
                                                 'customer_id' => $customer->id,
                                                 //'rating' => 1,
                                                 'lead_status_id' => 3,
                                                 //'assigned_user' => 6,
                                                 'product_id' => $pid,
+                                                'brand_id' => $product ? $product->brand : null,
+                                                'category_id' => $product ? $product->category : null,
+                                                'brand_segment' => $product && $product->brands ? $product->brands->brand_segment : null,
+                                                'color' => $customer->color,
+                                                'size' => $customer->size,
                                                 'created_at' => Carbon::now()
                                             ]);
                                         }
@@ -1382,12 +1394,18 @@ class WhatsAppController extends FindByNumberController
 
                         if (!empty($selected_products) && $messageSentLast) {
                             foreach ($selected_products as $pid) {
+                                $product = \App\Product::where("id",$pid)->first();
                                 $quick_lead = \App\ErpLeads::create([
                                     'customer_id' => $customer->id,
                                     //'rating' => 1,
                                     'lead_status_id' => 3,
                                     //'assigned_user' => 6,
                                     'product_id' => $pid,
+                                    'brand_id' => $product ? $product->brand : null,
+                                    'category_id' => $product ? $product->category : null,
+                                    'brand_segment' => $product && $product->brands ? $product->brands->brand_segment : null,
+                                    'color' => $customer->color,
+                                    'size' => $customer->size,
                                     'created_at' => Carbon::now()
                                 ]);
                             }
