@@ -40,6 +40,7 @@ class CronScraperNotRunning extends Command
      */
     public function handle()
     {
+        return;
         // Create cron job report
         $report = CronJobReport::create([
             'signature' => $this->signature,

@@ -38,22 +38,24 @@ class ScheduleList extends Command
         $events = array_map(function ($event) {
         	
             return [
+            	'cron' => $event->expression,
                 'command' => static::fixupCommand($event->command),
             ];
         }, $this->schedule->events());
-
-       //Getting artisan commnad
+      
+       //Getting artisan
        foreach ($events as $event) {
-       		//dd($event['command']);
+       		$schedule = $event['cron'];
        		$command = explode(' ', $event['command']);
        		if(isset($command[1])){
        		$signature = $command[1];
        		if($signature != null){
+
        		$detail = CronJob::where('signature', 'like', "%{$signature}%")->first();
     				if($detail == null){
     					$cron = new CronJob();
     					$cron->signature = $signature;
-    					$cron->schedule = 0;
+    					$cron->schedule = $schedule;
     					$cron->error_count = 0;
     					$cron->save();
     				}

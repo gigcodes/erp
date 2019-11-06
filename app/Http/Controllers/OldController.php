@@ -214,6 +214,7 @@ class OldController extends Controller
             'phone' => 'required',
             'email' => 'required',
             'pending_payment' => 'required',
+            'status' => 'required',
         ]);
 
         $new = new Old();

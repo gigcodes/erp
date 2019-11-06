@@ -317,10 +317,13 @@ class LeadsController extends Controller
             $data[ 'multi_category' ] = $request->input('multi_category');
             $data['multi_category'] = json_encode( $request->input( 'multi_category' ) );
 
+
             $lead = Leads::create($data);
             if ($request->hasfile('image')) {
                 foreach ($request->file('image') as $image) {
-                    $media = MediaUploader::fromSource($image)->upload();
+                    $media = MediaUploader::fromSource($image)
+                                            ->toDirectory('leads/'.floor($lead->id / config('constants.image_per_folder')))
+                                            ->upload();
                     $lead->attachMedia($media, config('constants.media_tags'));
                 }
             }
@@ -552,7 +555,9 @@ class LeadsController extends Controller
                 self::removeImage($old);
             } elseif ($old == -1) {
                 foreach ($request->file('image') as $image) {
-                    $media = MediaUploader::fromSource($image)->upload();
+                    $media = MediaUploader::fromSource($image)
+                                            ->toDirectory('leads/'.floor($leads->id / config('constants.image_per_folder')))
+                                            ->upload();
                     $leads->attachMedia($media, config('constants.media_tags'));
                 }
             } elseif ($old == 0) {
@@ -563,7 +568,9 @@ class LeadsController extends Controller
         if ($count > 0) {
             if ($request->hasFile('image')) {
                 foreach ($request->file('image') as $image) {
-                    $media = MediaUploader::fromSource($image)->upload();
+                    $media = MediaUploader::fromSource($image)
+                                            ->toDirectory('leads/'.floor($leads->id / config('constants.image_per_folder')))
+                                            ->upload();
                     $leads->attachMedia($media, config('constants.media_tags'));
                 }
             }
