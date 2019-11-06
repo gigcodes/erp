@@ -73,7 +73,7 @@ var productTemplate = {
                 });
                 
                 if (noOfImages != uploadImage) {
-                    alert('Please '+noOfImages+' Image Uploade');
+                    alert('Please '+noOfImages+' Image Upload');
                     return false;
                 }
 
