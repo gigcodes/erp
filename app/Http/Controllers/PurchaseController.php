@@ -770,7 +770,8 @@ class PurchaseController extends Controller
             'page' => $page,
             'category_selection' => $category_selection,
             'activSuppliers' => $activSuppliers,
-            'category_filter' => $category_filter,
+            //'category_filter' => $category_filter,
+            'categoryFilter' => $categoryFilter,
 
         ]);
     }

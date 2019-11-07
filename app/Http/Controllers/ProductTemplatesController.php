@@ -40,8 +40,9 @@ class ProductTemplatesController extends Controller
     public function create(Request $request)
     {
         $template = new \App\ProductTemplate;
-
-        $template->fill(request()->all());
+        $params = request()->all();
+        $params['product_id'] = implode(',', (array)$params['product_id']);
+        $template->fill($params);
 
         if ($template->save()) {
 
@@ -175,19 +176,21 @@ class ProductTemplatesController extends Controller
     public function selectProductId(Request $request)
     {
         $html = '';
-        $productId = $request->get('product_id');
+        $productId = $request->get('product_ids');
         if ($productId) {
-            $product = \App\Product::where('id', $productId)->first();
-            if ($product) {
-                foreach ($product->media as $k => $media) {
-                    $html .= '<div class="col-sm-3" style="padding-bottom: 10px;">
-                                <div class="imagePreview">
-                                    <img src="' . $media->getUrl() . '" width="100%" height="100%">
-                                </div>
-                                <label class="btn btn-primary">
-                                    <input type="checkbox" name="product_media_list[]" value="' . $media->id . '" class="product_media_list"> Select
-                                </label>
-                            </div>';
+            $productArr = \App\Product::whereIn('id', $productId)->get();
+            if ($productArr) {
+                foreach ($productArr as $product) {
+                    foreach ($product->media as $k => $media) {
+                        $html .= '<div class="col-sm-3" style="padding-bottom: 10px;">
+                                    <div class="imagePreview">
+                                        <img src="' . $media->getUrl() . '" width="100%" height="100%">
+                                    </div>
+                                    <label class="btn btn-primary">
+                                        <input type="checkbox" name="product_media_list[]" value="' . $media->id . '" class="product_media_list"> Select
+                                    </label>
+                                </div>';
+                    }
                 }
             }
         }
