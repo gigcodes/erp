@@ -927,6 +927,17 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('templates') }}">Templates</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
+                                </li>
+                            </ul>
+                        </li>
                         @if(auth()->user()->isAdmin())
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>

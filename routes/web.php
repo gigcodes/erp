@@ -747,7 +747,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Route::resource('product-templates', 'ProductTemplatesController');
 
     Route::prefix('product-templates')->middleware('auth')->group(function () {
-        Route::get('/', 'ProductTemplatesController@index');
+        Route::get('/', 'ProductTemplatesController@index')->name('product.templates');
         Route::get('response', 'ProductTemplatesController@response');
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
@@ -755,7 +755,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
-        Route::get('/', 'TemplatesController@index');
+        Route::get('/', 'TemplatesController@index')->name('templates');;
         Route::get('response', 'TemplatesController@response');
         Route::post('create', 'TemplatesController@create');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
