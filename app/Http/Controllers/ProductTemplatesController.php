@@ -15,11 +15,24 @@ class ProductTemplatesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         //$productTemplates = \App\ProductTemplate::orderBy("id", "desc")->paginate(10);
+        $images = $request->get('images', false);
+        $productArr = null;
+        if ($images) {
+            $productIdsArr = \DB::table('mediables')
+                                ->whereIn('media_id', json_decode($images))
+                                ->where('mediable_type', 'App\Product')
+                                ->pluck('mediable_id')
+                                ->toArray();
+            
+            if (!empty($productIdsArr)) {
+                $productArr = \App\Product::whereIn('id', $productIdsArr)->get();
+            }
+        }
         $templateArr = \App\Template::all();
-        return view("product-template.index", compact('templateArr'));
+        return view("product-template.index", compact('templateArr', 'productArr'));
     }
 
     public function response()

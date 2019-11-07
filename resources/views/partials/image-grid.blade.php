@@ -185,6 +185,8 @@
             $action =  route('whatsapp.send', 'customer');
         } else if ($model_type == 'selected_customer') {
             $action =  route('whatsapp.send_selected_customer');
+        } else if ($model_type == 'product-templates') {
+            $action =  route('product.templates');
         }
     @endphp
     <form action="{{ $action }}" method="POST" id="attachImageForm">
