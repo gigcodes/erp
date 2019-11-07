@@ -277,11 +277,6 @@ class LeadsController extends Controller
         // }
         $customer = Customer::find($request->customer_id);
 
-        //$data[ 'client_name' ] = $customer->name;
-        //$data[ 'contactno' ] = $customer->phone;
-
-        //$data[ 'userid' ] = Auth::id();
-        //$data[ 'selected_product' ] = json_encode($request->input('selected_product'));
         $lead = null;
         if ($request->type == 'product-lead') {
             $brand_array = [];
@@ -314,10 +309,13 @@ class LeadsController extends Controller
             //$data[ 'multi_brand' ] = $brand_array ? json_encode($brand_array) : null;
             //$data[ 'multi_category' ] = $category_array ? json_encode($category_array) : null;
         } else {
+            $data[ 'client_name' ] = $customer->name;
+            $data[ 'contactno' ] = $customer->phone;
+            $data[ 'userid' ] = Auth::id();
+            $data[ 'selected_product' ] = json_encode($request->input('selected_product'));
             $data[ 'multi_brand' ] = $request->input('multi_brand') ? json_encode($request->input('multi_brand')) : null;
             $data[ 'multi_category' ] = $request->input('multi_category');
             $data['multi_category'] = json_encode( $request->input( 'multi_category' ) );
-
 
             $lead = Leads::create($data);
             if ($request->hasfile('image')) {
