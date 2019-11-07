@@ -12,11 +12,17 @@ var common = {
             url: this.checkTypeOf(params, 'url', "/"),
             beforeSend: function() {
                 //$(".loading").show();
+                if (common.checkTypeOf(params, 'beforeSend', false)) {
+                    params.beforeSend();
+                }
             },
             complete: function() {
-                //$(".loading").hide();
+                
             }
         }).done(function(result) {
+            if (common.checkTypeOf(params, 'doneAjax', false)) {
+                params.doneAjax(result);
+            }
             if (callback) {
                 if (isPassArg) {
                     self[callback](isPassArg)
