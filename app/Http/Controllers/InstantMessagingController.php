@@ -19,7 +19,7 @@ class InstantMessagingController extends Controller
     	}
     	$output = array();
     	foreach ($queues as $queue) {
-    		if($queue->sent_at != null && $queue->sent_at != Carbon::now()){
+    		if($queue->send_after != null && $queue->send_after >= Carbon::now()){
     			continue;
     		}
     		if($queue->text != null){
