@@ -7,7 +7,7 @@ use App\ImQueue;
 class InstantMessagingHelper {
 
 
-	public function sendInstantMessage($numberTo , $text = null , $image = null, $priority = null, $numberFrom = null, $client = null, $sendAfter = null)
+	public static function sendInstantMessage($numberTo , $text = null , $image = null, $priority = null, $numberFrom = null, $client = null, $sendAfter = null)
 	{
 		if($image != null || $text != null){
 			if($numberTo == '' || $numberTo == null){
