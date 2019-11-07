@@ -34,7 +34,7 @@ class InstantMessagingHelper {
 			}
 
 			if($priority == null){
-				$queue->priority = 0;	
+				$queue->priority = 10;	
 			}else{
 				$queue->priority = $priority;
 			}

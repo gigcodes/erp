@@ -22,7 +22,7 @@ class CreateImQueuesTable extends Migration
             $table->string('number_from');
             $table->text('text')->nullable();
             $table->text('image')->nullable();
-            $table->integer('priority')->default(0)->nullable();
+            $table->integer('priority')->default(10)->nullable();
             $table->timestamp('send_after')->nullable();
             $table->timestamp('sent_at')->nullable();
             $table->timestamps();
