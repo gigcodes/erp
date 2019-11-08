@@ -46,12 +46,20 @@ var common = {
             processData: false,
             beforeSend: function() {
                 //$(".loading").show();
+                if (common.checkTypeOf(params, 'beforeSend', false)) {
+                    params.beforeSend();
+                }
             },
             complete: function() {
                 //$(".loading").hide();
             }
         }).done(function(result) {
-            self[callback](result);
+            if (common.checkTypeOf(params, 'doneAjax', false)) {
+                params.doneAjax(result);
+            }
+            if (callback) {
+                self[callback](result);
+            }
         }).fail(function(jqXhr) {});
     },
     checkTypeOf: function(params, key, defaultVal) {
