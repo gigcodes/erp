@@ -28,11 +28,11 @@ return [
 //            "token" => "wml12asm3opxwgbc",
 //            "customer_number" => true,
 //        ],
-        "971545889192" => [
-            "instance_id" => 43112,
-            "token" => "vbi9bpkoejv2lvc4",
-            "customer_number" => true,
-        ],
+//        "971545889192" => [
+//            "instance_id" => 43112,
+//            "token" => "vbi9bpkoejv2lvc4",
+//            "customer_number" => true,
+//        ],
 //        "971562744570" => [
 //            "instance_id" => 55202,
 //            "token" => "42ndn0qg5om26vzf",
