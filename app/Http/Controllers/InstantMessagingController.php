@@ -19,7 +19,7 @@ class InstantMessagingController extends Controller
     public function getMessage($client, $numberFrom)
     {
         // Get next messsage from queue
-        $queue = ImQueue::select('text', 'image', 'number_to')
+        $queue = ImQueue::select('id', 'text', 'image', 'number_to')
             ->where('im_client', $client)
             ->where('number_from', $numberFrom)
             ->where(function ($query) {
@@ -38,9 +38,9 @@ class InstantMessagingController extends Controller
 
         // Set output
         if ($queue->image != null) {
-            $output = ['phone' => $queue->number_to, 'body' => $queue->image, 'filename' => urlencode(substr($queue->image, strrpos($queue->image, '/') + 1)), 'caption' => $queue->text];
+            $output = ['queueNumber' => $queue->id, 'phone' => $queue->number_to, 'body' => $queue->image, 'filename' => urlencode(substr($queue->image, strrpos($queue->image, '/') + 1)), 'caption' => $queue->text];
         } else {
-            $output = ['phone' => $queue->number_to, 'body' => $queue->text];
+            $output = ['queueNumber' => $queue->id, 'phone' => $queue->number_to, 'body' => $queue->text];
         }
 
         // Return output
