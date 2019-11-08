@@ -57,7 +57,7 @@
                                 </select>
                             </div>
                             @if (Auth::user()->hasRole('Admin'))
-                                @php $locations = (new \App\ReadOnly\LocationList)->all(); @endphp
+                                @php $locations = \App\ProductLocation::pluck("name","name"); @endphp
                                 <div class="form-group mr-3">
                                     <select class="form-control select2" name="location[]" multiple placeholder="Location...">
                                         @foreach ($locations as $name)
