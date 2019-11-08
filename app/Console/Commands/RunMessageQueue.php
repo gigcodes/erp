@@ -79,7 +79,7 @@ class RunMessageQueue extends Command
                     ->where('sent', 0)
                     ->where('status', '!=', 1)
                     ->orderBy('sending_time', 'ASC')
-                    ->limit(30);
+                    ->limit(8);
 
                 // Do we have results?
                 if (count($message_queues->get()) > 0) {
@@ -170,7 +170,6 @@ class RunMessageQueue extends Command
         }
 
         return false;
-
     }
 
     /**

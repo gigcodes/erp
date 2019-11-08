@@ -12,7 +12,7 @@
 */
 
 Auth::routes();
-Route::get('/test/test','HashtagController@rumCommand');
+//Route::get('/test/test','TestController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
