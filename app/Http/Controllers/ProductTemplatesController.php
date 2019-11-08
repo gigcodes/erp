@@ -28,7 +28,7 @@ class ProductTemplatesController extends Controller
                                 ->toArray();
             
             if (!empty($productIdsArr)) {
-                $productArr = \App\Product::whereIn('id', $productIdsArr)->get();
+                $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();                
             }
         }
         $templateArr = \App\Template::all();
