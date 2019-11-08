@@ -1042,6 +1042,15 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function () {
     Route::get('make-active-subscribers', 'MailchimpController@makeActiveSubscriber')->name('make.active.subscriber');
 });
 
+
+
+Route::group(['middleware' => 'auth', 'namespace' => 'marketing'], function () {
+    Route::get('test', function(){
+        return 'hello';
+    });
+    
+});
+
 //Hubstaff Module
 Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function () {
 
@@ -1162,6 +1171,23 @@ Route::group(['middleware' => 'auth'], function () {
 
     });
 });
+
+Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'marketing'], function()
+{
+    // Whats App Config
+    Route::get('whatsapp-config','WhatsAppConfigController@index')->name('whatsapp.config.index');
+    Route::post('whatsapp-config/store', 'WhatsAppConfigController@store')->name('whatsapp.config.store');
+    Route::post('whatsapp-config/edit', 'WhatsAppConfigController@edit')->name('whatsapp.config.edit');
+    Route::post('whatsapp-config/delete', 'WhatsAppConfigController@destroy')->name('whatsapp.config.delete');
+
+    // Marketing Platform
+    Route::get('platforms','MarketingPlatformController@index')->name('platforms.index');
+    Route::post('platforms/store', 'MarketingPlatformController@store')->name('platforms.store');
+    Route::post('platforms/edit', 'MarketingPlatformController@edit')->name('platforms.edit');
+    Route::post('platforms/delete', 'MarketingPlatformController@destroy')->name('platforms.delete');
+
+});
+
 
 Route::group(['middleware' => 'auth'], function () {
     Route::prefix('tmp-task')->group(function () {
