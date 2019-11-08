@@ -59,7 +59,7 @@ class ProductSelectionController extends Controller
 
 	public function create()
 	{
-		$locations = (new LocationList)->all();
+		$locations = \App\ProductLocation::pluck("name","name");
 		$suppliers = Supplier::select(['id', 'supplier'])->get();
 
 		return view('productselection.create', [
@@ -130,7 +130,7 @@ class ProductSelectionController extends Controller
 		if( $productselection->isApproved == 1)
 			return redirect(route('products.show',$productselection->id));
 
-		$locations = (new LocationList)->all();
+		$locations = \App\ProductLocation::pluck("name","name");
 		$suppliers = Supplier::select(['id', 'supplier'])->get();
 
 		return view('productselection.edit',compact('productselection', 'locations', 'suppliers'));
