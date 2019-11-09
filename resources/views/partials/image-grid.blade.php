@@ -194,10 +194,14 @@
             <input type="hidden" name="sending_time" value="{{ $sending_time }}"/>
         @endif
 
+        @if (request()->get('return_url'))
+            <input type="hidden" name="return_url" value="{{ request()->get('return_url') }}"/>
+        @endif
+
         <input type="hidden" name="images" id="images" value="">
         <input type="hidden" name="image" value="">
         <input type="hidden" name="screenshot_path" value="">
-        <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : '' }}">
+        <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' ? "$message_body" : '' }}">
         <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
         {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
