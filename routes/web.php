@@ -313,6 +313,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('productSearch/', 'SaleController@searchProduct');
     Route::post('productSearch/', 'SaleController@searchProduct');
 
+    Route::get('user-search/', 'UserController@searchUser');
+    Route::post('user-search/', 'UserController@searchUser');
+
     Route::get('activity/', 'ActivityConroller@showActivity')->name('activity');
     Route::get('graph/', 'ActivityConroller@showGraph')->name('graph');
     Route::get('graph/user', 'ActivityConroller@showUserGraph')->name('graph_user');
