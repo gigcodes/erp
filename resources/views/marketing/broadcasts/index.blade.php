@@ -64,11 +64,20 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+ #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+        }
 </style>
 @endsection
 @endsection
 
 @section('content')
+<div id="myDiv">
+       <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+   </div>
 <div class="row">
 	<div class="col-lg-12 margin-tb">
 		<h2 class="page-heading">Broadcast List</h2>
@@ -77,9 +86,9 @@ input:checked + .slider:before {
 				<div class="form-group">
 					<div class="row">
 						<div class="col-md-8">
-							<input name="term" type="text" class="form-control"
+							<input name="term" type="text" class="form-control global"
 							value="{{ isset($term) ? $term : '' }}"
-							placeholder="user,department,filename">
+							placeholder="whatsapp number , broadcast id , remark" id="term">
 						</div>
 
 						<div class="col-md-1">
@@ -111,7 +120,7 @@ input:checked + .slider:before {
     @endif
 
         <div class="table-responsive mt-3">
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="customers-table">
             <thead>
             <tr>
                 <th>Sr. No</th>
@@ -134,14 +143,20 @@ input:checked + .slider:before {
                 	</select>
             	</th>
                 <th>
-                	<select class="form-control">
-                		<option>Yes</option>
-                		<option>No</option>
+                	<select class="form-control search" id="manual">
+                    <option value="">Select Manual</option>
+                		<option value="1">Active</option>
+                		<option value="0">All</option>
                 	</select>
                 </th>
-                <th></th>
-                <th></th>
-               <th></th>
+                <th><input type="text" class="search form-control" id="broadcast"></th>
+                <th><select class="form-control search" id="number">
+                    <option value="">Select Option</option>
+                   @foreach($apiKeys as $apiKey)
+                    <option value="{{ $apiKey->number }}">{{ $apiKey->number }}</option>
+                   @endforeach
+                </select></th>
+               <th><input type="text" class="search form-control" id="remark"></th>
             </tr>
             </thead>
 
@@ -158,7 +173,9 @@ input:checked + .slider:before {
 @endsection
 
 @section('scripts')
-
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript">
   $(".checkbox").change(function() {
             id = $(this).val();
@@ -307,5 +324,88 @@ input:checked + .slider:before {
             });
 
         });
+
+         $(document).ready(function() {
+        src = "{{ route('broadcast.index') }}";
+        $(".global").autocomplete({
+        source: function(request, response) {
+            term = $('#term').val();
+            date = $('#date').val();
+            
+          
+
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    term : term,
+                    date : date,
+                
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#customers-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });
+
+      $(document).ready(function() {
+        src = "{{ route('broadcast.index') }}";
+        $(".search").autocomplete({
+        source: function(request, response) {
+            number = $('#number').val();
+            broadcast = $('#broadcast').val();
+            manual = $('#manual').val();
+            remark = $('#remark').val();
+          
+
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    number : number,
+                    broadcast : broadcast,
+                    manual : manual,
+                    remark : remark,
+                
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#customers-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });     
 </script>
 @endsection

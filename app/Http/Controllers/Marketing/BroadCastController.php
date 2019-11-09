@@ -16,18 +16,48 @@ class BroadCastController extends Controller
 {
 	public function index(Request $request)
 	{
-		 if($request->term || $request->date){
+		 if($request->term || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark ){
 
         $query =  Customer::query();
 
             //global search term
         if (request('term') != null) {
-            $query->where('name', 'LIKE', "%{$request->term}%");
+            $query->where('whatsapp_number', 'LIKE', "%{$request->term}%")
+                    ->orWhereHas('broadcastLatest', function ($qu) use ($request) {
+                      $qu->where('id', 'LIKE', "%{$request->term}%");
+                      })
+                    ->orWhereHas('remark', function ($qu) use ($request) {
+                      $qu->where('remark', 'LIKE', "%{$request->term}%");
+                      });
             }
+
         if (request('date') != null) {
-            $query->whereDate('created_at', request('website'));
+            $query->whereDate('created_at', request('date'));
         }
+
+               //if number is not null 
+        if (request('number') != null) {
+            $query->where('whatsapp_number','LIKE', '%' . request('number') . '%');
+        }
+
+        if (request('broadcast') != null) {
+                $query->whereHas('broadcastLatest', function ($qu) use ($request) {
+                    $qu->where('id', 'LIKE', '%' . request('broadcast') . '%');
+                    });
+            }
+
+        if (request('manual') != null) {
+                $query->whereHas('manual', function ($qu) use ($request) {
+                    $qu->where('active', request('manual'));
+                    });
+            }    
         
+        if (request('remark') != null) {
+                $query->whereHas('remark', function ($qu) use ($request) {
+                    $qu->where('remark', 'LIKE', '%' . request('remark') . '%');
+                    });
+            }      
+
         $customers = $query->orderby('id','desc')->where('do_not_disturb',0)->paginate(Setting::get('pagination')); 
 
         }else{
