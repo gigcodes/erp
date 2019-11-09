@@ -17,8 +17,9 @@ class CreateCustomerMarketingPlatformsTable extends Migration
             $table->increments('id');
             $table->integer('customer_id');
             $table->integer('marketing_platform_id');
+            $table->string('user_name')->nullable();
             $table->tinyInteger('active')->default(0);
-            $table->text('remark');
+            $table->text('remark')->nullable();
             $table->timestamps();
         });
     }
