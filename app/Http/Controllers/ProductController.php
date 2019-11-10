@@ -2082,11 +2082,19 @@ class ProductController extends Controller
         foreach ($customerIds as $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');
-            $params = $request->except(['_token', 'customers_id']);
+            $params = $request->except(['_token', 'customers_id', 'return_url']);
             $params['customer_id'] = $customerId;
             $requestData->request->add($params);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+        }
+
+        if ($request->ajax()) {            
+            return response()->json(['msg' => 'success']);
+        }
+
+        if ($request->get('return_url')) {
+            return redirect("/".$request->get('return_url'));
         }
 
         return redirect('/erp-leads');
