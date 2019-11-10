@@ -61,9 +61,18 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+ #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+        }
 </style>
 @endsection
 @section('content')
+ <div id="myDiv">
+      <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+   </div>
     <div class="row">
         <div class="col-md-12">
             <h2 class="page-heading">Instagram HashTags</h2>
@@ -142,7 +151,7 @@ input:checked + .slider:before {
                                 {{ $hashtag->hashtag }}
                             </a>
                         </td>
-                        <td>{{$hashtag->post_count}}</td>
+                        <td>{{$hashtag->instagramPost->count()}}</td>
                         <td>{{ $hashtag->rating }}</td>
                         <td>
                             <form method="post" action="{{ action('HashtagController@destroy', $hashtag->id) }}">
@@ -245,8 +254,10 @@ input:checked + .slider:before {
                     data: {
                         id:id,
                          _token: "{{ csrf_token() }}"
+                    },beforeSend: function() {
+                       $("#loading-image").show();
                     },success: function (data) {
-                     
+                      $("#loading-image").hide();
                         if(data.status == 'error'){
                            alert('Something went wrong'); 
                            location.reload(true);

@@ -175,7 +175,7 @@ class HashtagController extends Controller
 
     public function showGrid($id, Request $request)
     {
-      
+        
         $maxId = '';
 
         if ($request->has('maxId'))  {
@@ -317,6 +317,7 @@ class HashtagController extends Controller
     }
 
     public function commentOnHashtag(Request $request) {
+
         $this->validate($request, [
             'message' => 'required',
             'post_id' => 'required',
@@ -330,7 +331,15 @@ class HashtagController extends Controller
         $acc = Account::findOrFail($request->get('account_id'));
 
         $instagram = new Instagram();
-        $instagram->login($acc->last_name, $acc->password);
+        try {
+
+            $instagram->login($acc->last_name, $acc->password);
+
+        } catch (\Exception $e) {
+            $acc->last_name = env('IG_USERNAME');
+            $instagram->login(env('IG_USERNAME'), env('IG_PASSWORD'));
+        }
+        
         $instagram->media->comment($request->get('post_id'), $request->get('message'));
 
         $stat = new CommentsStats();
@@ -388,8 +397,7 @@ class HashtagController extends Controller
        $art = \Artisan::call("hastag:instagram",['hastagId' => $id]);
        return ['success' => true, 'message' => 'Process Started Running'];
         } catch (\Exception $e) {
-
-           return ['error' => true, 'message' => 'Something went wrong'];
+            return ['error' => true, 'message' => 'Something went wrong'];
         }
     }
 }
