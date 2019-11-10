@@ -303,9 +303,6 @@ class LogScraper extends Model
 
     public static function validateRegexSku($sku, $brand)
     {
-        // Set skuRequest
-        $skuRequest = $sku;
-
         // Do we have a brand?
         if ($brand != null) {
             // Find brand ID from brand
@@ -314,19 +311,44 @@ class LogScraper extends Model
             // Brand found?
             if ($brand != null) {
                 // Get SKU from brand ID
-                $skus = SkuFormat::where('brand_id', $brand->id)->first();
+                $skuFormat = SkuFormat::where('brand_id', $brand->id)->first();
 
-                // Run regex on brnad
-                preg_match('/' . $skus->sku_format . '/', $skuRequest, $matches, PREG_UNMATCHED_AS_NULL);
+                // If sku_format is not empty
+                if ( !empty($skuFormat->sku_format ) ) {
+                    // Run brand regex on sku
+                    preg_match('/' . $skuFormat->sku_format . '/', $sku, $matches, PREG_UNMATCHED_AS_NULL);
 
-                if (isset($matches) && isset($matches[ 0 ]) && $matches != null) {
-                    if ($matches[ 0 ] != $skuRequest) {
-                        return "[warning] SKU failed regex test\n";
+                    // Do we have a match
+                    if (isset($matches) && isset($matches[ 0 ]) && $matches != null) {
+                        // Is the match equal to the SKU
+                        if ($matches[ 0 ] == $sku) {
+                            // Return if we have a match
+                            return;
+                        }
                     }
-                } else {
-                    return "[warning] Regex for brand " . $brand->name . " is not present\n";
                 }
+
+                // If sku_format_without_color is not empty
+                if ( !empty($skuFormat->sku_format_without_color ) ) {
+                    // Run brand regex on sku
+                    preg_match('/' . $skuFormat->sku_format_without_color . '/', $sku, $matchesWithoutColor, PREG_UNMATCHED_AS_NULL);
+
+                    // Do we have a match
+                    if (isset($matchesWithoutColor) && isset($matchesWithoutColor[ 0 ]) && $matchesWithoutColor != null) {
+                        // Is the match equal to the SKU
+                        if ($matchesWithoutColor[ 0 ] == $sku) {
+                            // Return if we have a match
+                            return;
+                        }
+                    }
+                }
+
+                // Still here? Send a warning TODO: Will be an error in the future
+                return "[warning] SKU failed regex test\n";
             }
         }
+
+        // If we end up here, there is no regex set for this brand TODO: Will be an error in the future
+        return "[warning] No SKU regex set for brand " . $brand->name . "\n";
     }
 }
