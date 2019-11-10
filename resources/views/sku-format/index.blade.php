@@ -40,7 +40,7 @@
         <tr>
             <th>Category</th>
             <th>Brand</th>
-            <th>Name</th>
+            <th>SKU Example</th>
             <th>SKU Format</th>
             <th>Actions</th>
         </tr>
@@ -71,11 +71,11 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <strong>Name:</strong>
-                            <input type="text" name="name" class="form-control" value="{{ old('name') }}">
+                            <strong>SKU Example:</strong>
+                            <input type="text" name="sku_examples" class="form-control" value="{{ old('sku_examples') }}">
 
-                            @if ($errors->has('name'))
-                                <div class="alert alert-danger">{{$errors->first('name')}}</div>
+                            @if ($errors->has('sku_examples'))
+                                <div class="alert alert-danger">{{$errors->first('sku_examples')}}</div>
                             @endif
                         </div>
                         <div class="form-group">
@@ -140,8 +140,8 @@
                             name:'brand'
                         },
                         {
-                            data:'name',
-                            name:'name'
+                            data:'sku_examples',
+                            name:'sku_examples'
                         },
                         {
                             data:'sku_format',
@@ -186,5 +186,38 @@
             $("#skuEditModal"+id).modal();
 
         }
+
+
+        function updateEdit(id){
+             
+             var id = id;
+             var category_id = $('#category'+id).val();
+             var brand_id = $('#brand'+id).val();
+             var sku_examples = $('#sku_example'+id).val();
+             var sku_format = $('#sku_format'+id).val();
+            
+            $.ajax({
+                type: "POST",
+                url: "{{ route('sku.update') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                     id: id,
+                     category_id: category_id,
+                     brand_id: brand_id,
+                     sku_examples: sku_examples,
+                     sku_format: sku_format,
+                },
+                
+            }).done(function (response) {
+               
+               alert('SKU Updated')
+             
+            }).fail(function (response) {
+               alert('failed');
+            });
+            
+        }
+
+    
     </script>
 @endsection

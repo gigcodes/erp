@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateSkuFormatsAddNameColumnTable extends Migration
+class UpdateSkuFormatsAddSKUExampleColumnTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class UpdateSkuFormatsAddNameColumnTable extends Migration
     public function up()
     {
         Schema::table('sku_formats', function($table){
-            $table->string('name')->nullable()->after('category_id');
+            $table->string('sku_examples')->nullable()->after('category_id');
         });
     }
 
@@ -26,7 +26,7 @@ class UpdateSkuFormatsAddNameColumnTable extends Migration
     public function down()
     {
         Schema::table('sku_formats', function($table){
-           $table->dropColumn('name');
+           $table->dropColumn('sku_examples');
         });
     }
 }
