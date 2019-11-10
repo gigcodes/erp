@@ -30,7 +30,7 @@ class LogScraper extends Model
         $errorLog .= self::validateSku($request->sku);
 
         //Check Regrex SKU
-        $warningLog .= self::validateRegexSku($request->sku,$request->brand);
+        $warningLog .= self::validateRegexSku($request->sku, $request->brand);
 
         // Validate brand
         $errorLog .= self::validateBrand(!empty($request->brand) ? $request->brand : '');
@@ -72,8 +72,6 @@ class LogScraper extends Model
 
         // For excels we only need the SKU
         if ($isExcel == 1 && isset($request->sku)) {
-
-           
             // Replace errors with warnings
             $errorLog = str_replace('[error]', '[warning]', $errorLog);
 
@@ -303,26 +301,32 @@ class LogScraper extends Model
         return $ip;
     }
 
-    public static function validateRegexSku($sku,$brand){
-        //Getting SKu
+    public static function validateRegexSku($sku, $brand)
+    {
+        // Set skuRequest
         $skuRequest = $sku;
-        //Finding Brand id From Brand
-        if($brand != null){
-        $brand = Brand::where('name',$brand)->first();
-        if($brand != null){
-        //Getting SKU from brand id    
-        $skus = SkuFormat::where('brand_id',$brand->id)->first();
-            //checking match
-            preg_match('/'.$skus->sku_format.'/', $skuRequest , $matches, PREG_UNMATCHED_AS_NULL);
 
-                    if(isset($matches) && isset($matches[0]) && $matches != null){
-                        if($matches[0] != $skuRequest){
-                            return "[warning] SKU is not present in regrex\n";
-                        }
-                    }else{
-                        return "[warning] SKU is not present in regrex\n";
-                    } 
+        // Do we have a brand?
+        if ($brand != null) {
+            // Find brand ID from brand
+            $brand = Brand::where('name', $brand)->first();
+
+            // Brand found?
+            if ($brand != null) {
+                // Get SKU from brand ID
+                $skus = SkuFormat::where('brand_id', $brand->id)->first();
+
+                // Run regex on brnad
+                preg_match('/' . $skus->sku_format . '/', $skuRequest, $matches, PREG_UNMATCHED_AS_NULL);
+
+                if (isset($matches) && isset($matches[ 0 ]) && $matches != null) {
+                    if ($matches[ 0 ] != $skuRequest) {
+                        return "[warning] SKU failed regex test\n";
+                    }
+                } else {
+                    return "[warning] Regex for SKU is not present\n";
                 }
-             }     
+            }
+        }
     }
 }
