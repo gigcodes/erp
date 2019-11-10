@@ -12,7 +12,7 @@
 */
 
 Auth::routes();
-Route::get('/test/test','HashtagController@rumCommand');
+//Route::get('/test/test','TestController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -751,6 +751,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('product-templates')->middleware('auth')->group(function () {
         Route::get('/', 'ProductTemplatesController@index')->name('product.templates');
+        Route::post('/', 'ProductTemplatesController@index')->name('product.templates');
         Route::get('response', 'ProductTemplatesController@response');
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
