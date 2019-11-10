@@ -8,7 +8,7 @@ use App\Marketing\MarketingPlatform;
 
 class CustomerMarketingPlatform extends Model
 {
-	protected $fillable = ['customer_id','marketing_platform_id','active','remark'];
+	protected $fillable = ['customer_id','marketing_platform_id','active','remark','user_name'];
     public function customer()
     {
     	return $this->belongsTo(Customer::class,'id','customer_id');

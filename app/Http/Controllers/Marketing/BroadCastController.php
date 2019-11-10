@@ -16,15 +16,16 @@ class BroadCastController extends Controller
 {
 	public function index(Request $request)
 	{
-		 if($request->term || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark ){
+		 if($request->term || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name){
 
         $query =  Customer::query();
 
             //global search term
         if (request('term') != null) {
             $query->where('whatsapp_number', 'LIKE', "%{$request->term}%")
+                    ->orWhere('name', 'LIKE', "%{$request->term}%")
                     ->orWhereHas('broadcastLatest', function ($qu) use ($request) {
-                      $qu->where('id', 'LIKE', "%{$request->term}%");
+                      $qu->where('group_id', 'LIKE', "%{$request->term}%");
                       })
                     ->orWhereHas('remark', function ($qu) use ($request) {
                       $qu->where('remark', 'LIKE', "%{$request->term}%");
@@ -39,10 +40,14 @@ class BroadCastController extends Controller
         if (request('number') != null) {
             $query->where('whatsapp_number','LIKE', '%' . request('number') . '%');
         }
+                //if number is not null 
+        if (request('name') != null) {
+            $query->where('name','LIKE', '%' . request('name') . '%');
+        }
 
         if (request('broadcast') != null) {
                 $query->whereHas('broadcastLatest', function ($qu) use ($request) {
-                    $qu->where('id', 'LIKE', '%' . request('broadcast') . '%');
+                    $qu->where('group_id', 'LIKE', '%' . request('broadcast') . '%');
                     });
             }
 
@@ -61,7 +66,7 @@ class BroadCastController extends Controller
         $customers = $query->orderby('id','desc')->where('do_not_disturb',0)->paginate(Setting::get('pagination')); 
 
         }else{
-          $customers = Customer::select('id','whatsapp_number')->orderby('id','desc')->where('do_not_disturb',0)->paginate(Setting::get('pagination'));   
+          $customers = Customer::select('id','name','whatsapp_number')->orderby('id','desc')->where('do_not_disturb',0)->paginate(Setting::get('pagination'));   
         }
         $apiKeys = ApiKey::all();
         if ($request->ajax()) {
@@ -101,13 +106,14 @@ class BroadCastController extends Controller
 
     public function addRemark(Request $request)
     {
+
         $remark = $request->input('remark');
         $id = $request->input('id');
        	$remark_entry = CustomerMarketingPlatform::create([
                 'customer_id' => $id,
                 'remark' => $remark,
                 'marketing_platform_id' => '1',
-                'user_name' => $request->user_name ? $request->user_name : Auth::user()->name
+                'user_name' => Auth::user()->name,
             ]);
         
 
@@ -126,7 +132,7 @@ class BroadCastController extends Controller
                 'customer_id' => $id,
                 'marketing_platform_id' => '1',
                 'active' => 1,
-                'user_name' => $request->user_name ? $request->user_name : Auth::user()->name
+                'user_name' => Auth::user()->name,
             ]);
 
         }else{

@@ -50,6 +50,7 @@ class RunMessageQueue extends Command
      */
     public function handle()
     {
+        return; // STOP ALL
         $report = CronJobReport::create([
             'signature' => $this->signature,
             'start_time' => Carbon::now()
@@ -79,7 +80,7 @@ class RunMessageQueue extends Command
                     ->where('sent', 0)
                     ->where('status', '!=', 1)
                     ->orderBy('sending_time', 'ASC')
-                    ->limit(30);
+                    ->limit(12);
 
                 // Do we have results?
                 if (count($message_queues->get()) > 0) {
@@ -170,7 +171,6 @@ class RunMessageQueue extends Command
         }
 
         return false;
-
     }
 
     /**

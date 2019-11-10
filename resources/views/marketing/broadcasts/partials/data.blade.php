@@ -11,6 +11,7 @@
 
 <tr>
   <td>{{ $customer->id }}</td>
+  <td>{{ $customer->name }}</td>
   <td>
   	 <label class="switch">
   	 	 <input type="checkbox" class="checkbox" value="{{ $customer->id }}">
@@ -28,7 +29,7 @@
        <span class="slider round"></span>
   	 </label>
   </td>
-  <td>@if(isset($customer->broadcastLatest)) {{ $customer->broadcastLatest->id }} @endif</td>
+  <td>@if(isset($customer->broadcastLatest)) {{ $customer->broadcastLatest->group_id }}  @if( $customer->broadcastLatest->is_delivered == 1) <span class="dot"></span> @endif @endif</td>
   <td>
     <select class="form-control whatsapp" data-id="{{ $customer->id }}">
       <option>Select Number</option>

@@ -64,12 +64,20 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+.dot {
+  height: 10px;
+  width: 10px;
+  background-color: green;
+  border-radius: 50%;
+  display: inline-block;
+}
  #loading-image {
             position: fixed;
             top: 50%;
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+}
 </style>
 @endsection
 @endsection
@@ -123,7 +131,8 @@ input:checked + .slider:before {
         <table class="table table-bordered" id="customers-table">
             <thead>
             <tr>
-                <th>Sr. No</th>
+                <th>Customer ID</th>
+                <th>Customer Name</th>
                 <th>DND</th>
                 <th>Status</th>
                 <th>Manual Approval</th>
@@ -133,6 +142,7 @@ input:checked + .slider:before {
             </tr>
             <tr>
                 <th></th>
+                <th><input type="text" class="search form-control" id="name"></th>
                 <th></th>
                 <th>
                 	<select class="form-control">
@@ -326,7 +336,7 @@ input:checked + .slider:before {
         });
 
          $(document).ready(function() {
-        src = "{{ route('broadcast.index') }}";
+        src = "{{ route('broadcasts.index') }}";
         $(".global").autocomplete({
         source: function(request, response) {
             term = $('#term').val();
@@ -366,13 +376,14 @@ input:checked + .slider:before {
     });
 
       $(document).ready(function() {
-        src = "{{ route('broadcast.index') }}";
+        src = "{{ route('broadcasts.index') }}";
         $(".search").autocomplete({
         source: function(request, response) {
             number = $('#number').val();
             broadcast = $('#broadcast').val();
             manual = $('#manual').val();
             remark = $('#remark').val();
+            name = $('#name').val();
           
 
             $.ajax({
@@ -383,6 +394,7 @@ input:checked + .slider:before {
                     broadcast : broadcast,
                     manual : manual,
                     remark : remark,
+                    name : name,
                 
                 },
                 beforeSend: function() {

@@ -12,7 +12,8 @@
 */
 
 Auth::routes();
-//Route::get('/test/test','TestController@index');
+
+//Route::get('/test/test','TestController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -312,6 +313,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('productSearch/', 'SaleController@searchProduct');
     Route::post('productSearch/', 'SaleController@searchProduct');
+
+    Route::get('user-search/', 'UserController@searchUser');
+    Route::post('user-search/', 'UserController@searchUser');
 
     Route::get('activity/', 'ActivityConroller@showActivity')->name('activity');
     Route::get('graph/', 'ActivityConroller@showGraph')->name('graph');
@@ -748,6 +752,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('product-templates')->middleware('auth')->group(function () {
         Route::get('/', 'ProductTemplatesController@index')->name('product.templates');
+        Route::post('/', 'ProductTemplatesController@index')->name('product.templates');
         Route::get('response', 'ProductTemplatesController@response');
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
@@ -1186,7 +1191,7 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
     Route::post('platforms/edit', 'MarketingPlatformController@edit')->name('platforms.edit');
     Route::post('platforms/delete', 'MarketingPlatformController@destroy')->name('platforms.delete');
 
-    Route::get('broadcast','BroadCastController@index')->name('broadcast.index');
+    Route::get('broadcast','BroadCastController@index')->name('broadcasts.index');
     Route::get('broadcast/dnd','BroadCastController@addToDND')->name('broadcast.add.dnd');
     Route::get('broadcast/gettaskremark', 'BroadCastController@getBroadCastRemark')->name('broadcast.gets.remark');
     Route::post('broadcast/addremark', 'BroadCastController@addRemark')->name('broadcast.add.remark');

@@ -602,7 +602,7 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('whatsapp.config.index') }}">WhatsApp Config</a>
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
-                                            <a class="dropdown-item" href="{{ route('broadcast.index') }}">BroadCast</a>
+                                            <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
                                         </li>
                                     </ul>
                                 </li>
