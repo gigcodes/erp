@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use DataTables;
 use Input;
 
+
 class SkuFormatController extends Controller
 {
     /**
@@ -23,7 +24,8 @@ class SkuFormatController extends Controller
     {
         $categories = Category::orderBy('title','asc')->get();
         $brands = Brand::orderBy('name','asc')->get();
-        return view('sku-format.index',compact('categories','brands'));
+        $skus = SkuFormat::all();
+        return view('sku-format.index',compact('categories','brands','skus'));
     }
 
     /**
@@ -44,15 +46,16 @@ class SkuFormatController extends Controller
      */
     public function store(Request $request)
     {
-//        $this->validate($request, [
-//            'category_id'   => 'required',
-//            'brand_id'       => 'requiredl',
-//            'sku_format'  => 'required|min:3|max:255',
-//        ]);
+       $this->validate($request, [
+           'category_id'   => 'required',
+           'brand_id'       => 'required',
+           'sku_format'  => 'required|min:3|max:255',
+       ]);
 
         $sku = new SkuFormat();
         $sku->category_id = $request->category_id;
         $sku->brand_id = $request->brand_id;
+        $sku->name = $request->name;
         $sku->sku_format = $request->sku_format;
         $sku->save();
 
@@ -89,9 +92,22 @@ class SkuFormatController extends Controller
      * @param  \App\SkuFormat  $skuFormat
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, SkuFormat $skuFormat)
+    public function update(Request $request)
     {
-        //
+       $this->validate($request, [
+           'category_id'   => 'required',
+           'brand_id'       => 'required',
+           'sku_format'  => 'required|min:3|max:255',
+       ]);
+
+        $sku = SkuFormat::findorfail($request->id);
+        $sku->category_id = $request->category_id;
+        $sku->brand_id = $request->brand_id;
+        $sku->name = $request->name;
+        $sku->sku_format = $request->sku_format;
+        $sku->update();
+
+       return redirect()->route('sku-format.index')->withSuccess('You have successfully saved SKU');
     }
 
     /**
@@ -108,28 +124,36 @@ class SkuFormatController extends Controller
     public function getData(Request $request){
 
         if(!empty($request->from_date)) {
-            $skulogs = SkuFormat::select(['brand_id', 'category_id', 'created_at', 'sku_format', 'updated_at'])->whereBetween('created_at', array($request->from_date, $request->to_date))->get();
+            $skulogs = SkuFormat::select(['brand_id', 'category_id','name','sku_format'])->whereBetween('created_at', array($request->from_date, $request->to_date))->get();
             return Datatables::of($skulogs)
                 ->addColumn('category', function ($skulogs) {
                     return '<h6>' . $skulogs->category->name . '</h6>';
                 })
                 ->addColumn('brand', function ($skulogs) {
-                    return '<h6>' . $skulogs->brand->name . '</h6>';
+                    return $skulogs->brand->name;
+                })
+                ->addColumn('actions', function ($skulogs) {
+                    return '<button class=btn btn-default" onclick="editSKU('.$skulogs->id.')">Edit</button>';
                 })
                 ->rawColumns(['category'])
                 ->rawColumns(['brand'])
-                ->make(true);
+                ->rawColumns(['actions'])
+               ->make(true);
         }else{
-            $skulogs = SkuFormat::select(['brand_id', 'category_id', 'created_at','sku_format', 'updated_at']);
+            $skulogs = SkuFormat::select(['id','brand_id', 'category_id', 'name','sku_format']);
             return Datatables::of($skulogs)
                 ->addColumn('category', function ($skulogs) {
                     return $skulogs->category->title;
                 })
                 ->addColumn('brand', function ($skulogs) {
-                    return '<h6>' . $skulogs->brand->name . '</h6>';
+                    return $skulogs->brand->name;
+                })
+                ->addColumn('actions', function ($skulogs) {
+                    return '<button class=btn btn-default" onclick="editSKU('.$skulogs->id.')">Edit</button>';
                 })
                 ->rawColumns(['category'])
                 ->rawColumns(['brand'])
+                ->rawColumns(['actions'])
                 ->make(true);
 
         }

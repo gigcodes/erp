@@ -22,7 +22,7 @@
             </div>
         </div>
     </div>
-    <div class="row input-daterange">
+   <!--  <div class="row input-daterange">
         <div class="col-md-4">
             <input type="text" name="from_date" id="from_date" class="form-control" placeholder="From Date" readonly />
         </div>
@@ -33,16 +33,16 @@
             <button type="button" name="filter" id="filter" class="btn btn-primary">Filter</button>
             <button type="button" name="refresh" id="refresh" class="btn btn-default">Refresh</button>
         </div>
-    </div>
+    </div> -->
 
     <table class="table table-bordered" id="sku-table">
         <thead>
         <tr>
             <th>Category</th>
             <th>Brand</th>
+            <th>Name</th>
             <th>SKU Format</th>
-            <th>Created At</th>
-            <th>Updated At</th>
+            <th>Actions</th>
         </tr>
         </thead>
     </table>
@@ -50,6 +50,7 @@
 
 
 
+@include('sku-format.edit')
 @endsection
 
 
@@ -70,11 +71,19 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
+                            <strong>Name:</strong>
+                            <input type="text" name="name" class="form-control" value="{{ old('name') }}">
+
+                            @if ($errors->has('name'))
+                                <div class="alert alert-danger">{{$errors->first('name')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
                             <strong>Sku Format:</strong>
                             <input type="text" name="sku_format" class="form-control" value="{{ old('sku_format') }}">
 
                             @if ($errors->has('sku_format'))
-                                <div class="alert alert-danger">{{$errors->first('website')}}</div>
+                                <div class="alert alert-danger">{{$errors->first('sku_format')}}</div>
                             @endif
                         </div>
                         <div class="form-group users">
@@ -131,16 +140,16 @@
                             name:'brand'
                         },
                         {
+                            data:'name',
+                            name:'name'
+                        },
+                        {
                             data:'sku_format',
                             name:'sku_format'
                         },
                         {
-                            data:'created_at',
-                            name:'created_at'
-                        },
-                        {
-                            data:'updated_at',
-                            name:'updated_at'
+                            data:'actions',
+                            name:'actions'
                         }
                     ]
                 });
@@ -172,5 +181,10 @@
             });
 
         });
+
+        function editSKU(id){
+            $("#skuEditModal"+id).modal();
+
+        }
     </script>
 @endsection
