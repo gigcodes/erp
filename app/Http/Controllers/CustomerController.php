@@ -2307,12 +2307,19 @@ class CustomerController extends Controller
             if (!empty(array_filter($product_ids))) {
 
                 foreach($product_ids as $pid) {
+                    $product = \App\Product::where("id",$pid)->first();
+
                     $quick_lead = ErpLeads::create([
                         'customer_id' => $customer->id,
                         //'rating' => 1,
                         'lead_status_id' => 3,
                         //'assigned_user' => 6,
                         'product_id' => $pid,
+                        'brand_id' => $product ? $product->brand : null,
+                        'category_id' => $product ? $product->category : null,
+                        'brand_segment' => $product && $product->brands ? $product->brands->brand_segment : null,
+                        'color' => $customer->color,
+                        'size' => $customer->size,
                         'created_at' => Carbon::now()
                     ]);
                 }
@@ -2474,6 +2481,26 @@ class CustomerController extends Controller
             $pdf->loadHtml($html);
             $pdf->render();
             $pdf->stream('orders.pdf');
+        }
+    }
+
+    public function downloadContactDetailsPdf($id)
+    {
+        //$userID = request()->get("user_id",0);
+        $customerID = request()->get("id",0);
+        
+        //$user = \App\User::where("id", $userID)->first();
+        $customer = \App\Customer::where("id", $id)->first();
+
+        // if found customer and  user
+        if($customer) {
+            // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
+            $html = view( 'customers.customer_pdf', compact('customer') );
+
+            $pdf = new Dompdf();
+            $pdf->loadHtml($html);
+            $pdf->render();
+            $pdf->stream($id.'-label.pdf');
         }
     }
 }

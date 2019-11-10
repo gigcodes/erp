@@ -12,14 +12,13 @@
 */
 
 Auth::routes();
-//Route::get('/test/test','LiveChatController@getChats');
+//Route::get('/test/test','TestController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
 Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
-
 
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
@@ -376,6 +375,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/broadcast', 'CustomerController@broadcast')->name('customer.broadcast.list');
     Route::get('customer/broadcast-details', 'CustomerController@broadcastDetails')->name('customer.broadcast.details');
     Route::get('customer/broadcast-send-price', 'CustomerController@broadcastSendPrice')->name('customer.broadcast.run');
+    Route::get('customer/contact-download/{id}', 'CustomerController@downloadContactDetailsPdf')->name('customer.download.contact-pdf');
     Route::get('customer/{id}', 'CustomerController@show')->name('customer.show');
     Route::get('customer/{id}/edit', 'CustomerController@edit')->name('customer.edit');
     Route::post('customer/{id}/edit', 'CustomerController@update')->name('customer.update');
@@ -747,7 +747,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Route::resource('product-templates', 'ProductTemplatesController');
 
     Route::prefix('product-templates')->middleware('auth')->group(function () {
-        Route::get('/', 'ProductTemplatesController@index');
+        Route::get('/', 'ProductTemplatesController@index')->name('product.templates');
+        Route::post('/', 'ProductTemplatesController@index')->name('product.templates');
         Route::get('response', 'ProductTemplatesController@response');
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
@@ -755,7 +756,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
-        Route::get('/', 'TemplatesController@index');
+        Route::get('/', 'TemplatesController@index')->name('templates');;
         Route::get('response', 'TemplatesController@response');
         Route::post('create', 'TemplatesController@create');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
@@ -859,6 +860,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('start-growth/{id}', 'AccountController@startAccountGrowth');
     Route::get('accounts', 'InstagramController@accounts');
     Route::get('notification', 'HashtagController@showNotification');
+    Route::get('hashtag/markPriority','HashtagController@markPriority')->name('hashtag.priority');
     Route::resource('influencer', 'InfluencersController');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
@@ -872,8 +874,9 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::resource('account-posts', 'InstagramPostsController');
     Route::resource('hashtagposts', 'HashtagPostsController');
     Route::resource('hashtagpostscomments', 'HashtagPostCommentController');
-    Route::get('hashtag/grid/{id}', 'HashtagController@showGrid');
+    Route::get('hashtag/grid/{id}', 'HashtagController@showGrid')->name('hashtag.grid');
     Route::resource('hashtag', 'HashtagController');
+    Route::post('hashtag/process/queue','HashtagController@rumCommand')->name('hashtag.command');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
     Route::get('comments', 'InstagramController@getComments');
     Route::post('comments', 'InstagramController@postComment');
@@ -1167,5 +1170,6 @@ Route::group(['middleware' => 'auth'], function () {
     });
     // this is temp action
     Route::get('update-purchase-order-product', 'PurchaseController@syncOrderProductId');
+    Route::get('update-media-directory', 'TmpController@updateImageDirectory');
     Route::resource('page-notes-categories', 'PageNotesCategoriesController');
 });

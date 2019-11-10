@@ -151,12 +151,12 @@ class GoogleSearchImageController extends Controller
                 foreach ($productArr as $product) {
                 	$media = $product->media()->first();
                 	if($media) {
-                    	$result = GoogleVisionHelper::getImageDetails($media->getAbsolutePath());
-			    		if(!empty($result)) {
-			    			return view( 'google_search_image.details', compact(['result']));
-			    		}
+                    	$productImage[$media->getUrl()] = GoogleVisionHelper::getImageDetails($media->getAbsolutePath());
                     }                    
                 }
+	    		if(!empty($productImage)) {
+	    			return view( 'google_search_image.details', compact(['productImage']));
+	    		}
             }
         } else {
             return redirect()->back()->with('message','Please Select Products');
@@ -168,11 +168,11 @@ class GoogleSearchImageController extends Controller
     public function details(Request $request)
     {
     	$url = $request->get("url");
-    	
+    	$productImage = [];
     	if(!empty($url)) {
-    		$result = GoogleVisionHelper::getImageDetails($url);
-    		if(!empty($result)) {
-    			return view( 'google_search_image.details', compact(['result']));
+    		$productImage[$url] =  GoogleVisionHelper::getImageDetails($url);
+    		if(!empty($productImage)) {
+    			return view( 'google_search_image.details', compact(['productImage']));
     		}
 		}
 

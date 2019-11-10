@@ -72,6 +72,7 @@ use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
 use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
+use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -150,6 +151,7 @@ class Kernel extends ConsoleKernel
         UpdateCustomerSizeFromOrder::class,
         DocumentReciever::class,
         RecieveResourceImages::class,
+        CreateErpLeadFromCancellationOrder::class,
         ScheduleList::class,
     ];
 
@@ -161,7 +163,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-
         $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
@@ -172,7 +173,7 @@ class Kernel extends ConsoleKernel
 
         //Get list of schedule and put list in cron jobs table
         $schedule->command('schedule:list')->daily();
-        
+
 
         //This will run every  five minutes checking and making keyword-customer relationship...
         $schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();

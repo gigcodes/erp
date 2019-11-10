@@ -59,7 +59,7 @@ class ProductSelectionController extends Controller
 
 	public function create()
 	{
-		$locations = (new LocationList)->all();
+		$locations = \App\ProductLocation::pluck("name","name");
 		$suppliers = Supplier::select(['id', 'supplier'])->get();
 
 		return view('productselection.create', [
@@ -112,7 +112,9 @@ class ProductSelectionController extends Controller
 		}
 
 		$productselection->detachMediaTags(config('constants.media_tags'));
-		$media = MediaUploader::fromSource($request->file('image'))->upload();
+		$media = MediaUploader::fromSource($request->file('image'))
+								->toDirectory('product/'.floor($productselection->id / config('constants.image_per_folder')))
+								->upload();
 		$productselection->attachMedia($media,config('constants.media_tags'));
 
 		NotificaitonContoller::store('has selected',['Searchers'], $productselection->id);
@@ -128,7 +130,7 @@ class ProductSelectionController extends Controller
 		if( $productselection->isApproved == 1)
 			return redirect(route('products.show',$productselection->id));
 
-		$locations = (new LocationList)->all();
+		$locations = \App\ProductLocation::pluck("name","name");
 		$suppliers = Supplier::select(['id', 'supplier'])->get();
 
 		return view('productselection.edit',compact('productselection', 'locations', 'suppliers'));
@@ -165,7 +167,9 @@ class ProductSelectionController extends Controller
 		if ($request->oldImage > 0) {
 			self::replaceImage($request,$productselection);
 		} elseif ($request->oldImage == -1) {
-			$media = MediaUploader::fromSource( $request->file( 'image' ) )->upload();
+			$media = MediaUploader::fromSource( $request->file( 'image' ) )
+									->toDirectory('product/'.floor($productselection->id / config('constants.image_per_folder')))
+									->upload();
 			$productselection->attachMedia( $media, config( 'constants.media_tags' ) );
 		}
 
@@ -198,7 +202,9 @@ class ProductSelectionController extends Controller
 
 			if( !empty($request->file('image') ) ) {
 
-				$media = MediaUploader::fromSource( $request->file( 'image' ) )->upload();
+				$media = MediaUploader::fromSource( $request->file( 'image' ) )
+										->toDirectory('product/'.floor($productselection->id / config('constants.image_per_folder')))
+										->upload();
 				$productselection->attachMedia( $media, config( 'constants.media_tags' ) );
 			}
 		}
