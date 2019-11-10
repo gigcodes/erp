@@ -13,6 +13,7 @@
 
 Auth::routes();
 
+
 //Route::get('/test/test','TestController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
