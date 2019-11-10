@@ -324,7 +324,7 @@ class LogScraper extends Model
                         return "[warning] SKU failed regex test\n";
                     }
                 } else {
-                    return "[warning] Regex for SKU is not present\n";
+                    return "[warning] Regex for brand " . $brand->name . " is not present\n";
                 }
             }
         }
