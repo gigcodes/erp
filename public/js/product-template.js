@@ -208,6 +208,7 @@ var productTemplate = {
     },
     productSearch : function() {
         $('.ddl-select-product').select2({
+            data: productTemplate.config.ddlSelectProduct,
             ajax: {
                 url: '/productSearch',
                 dataType: 'json',
