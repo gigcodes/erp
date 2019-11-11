@@ -14,7 +14,7 @@
     }
 
     img.product {
-        margin: 50px;
+        margin-top: 50px;
         width: auto;
         max-width : 1200px;
         height: 100%;
@@ -65,7 +65,7 @@
                     $img->save($path);
                 }
             ?>
-            <img class="product" src="<?php echo $path; ?>" />
+            <img style="padding-top: 120px;" class="product" src="<?php echo $path; ?>" />
             <div class="top-left">
                 <?php echo implode("<br>", $textToSend); ?>
             </div>
