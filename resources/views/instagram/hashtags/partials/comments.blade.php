@@ -9,13 +9,13 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
                 <div class="modal-body">
-                    @if ($post->comments)
-                    @foreach($post->comments as $keyy=>$comment)
+                    @if ($post->send_comment)
+                    @foreach($post->send_comment as $keyy=>$comment)
                     <p><a href="https://instagram.com/{{ $comment->username }}">{{ $comment->username }} </a><span> {{ $comment->comment }}</span><small>...{{ $comment->created_at->format('d-m-y') }}</small></p>
                     
                     @endforeach
                     @else
-                    <strong>No Comments yet!</strong>
+                    <strong>No Send Message yet!</strong>
                     @endif
                 </div>
 

@@ -12,6 +12,8 @@
 */
 
 Auth::routes();
+
+
 //Route::get('/test/test','TestController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
@@ -1047,6 +1049,15 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function () {
     Route::get('make-active-subscribers', 'MailchimpController@makeActiveSubscriber')->name('make.active.subscriber');
 });
 
+
+
+Route::group(['middleware' => 'auth', 'namespace' => 'marketing'], function () {
+    Route::get('test', function(){
+        return 'hello';
+    });
+    
+});
+
 //Hubstaff Module
 Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function () {
 
@@ -1167,6 +1178,31 @@ Route::group(['middleware' => 'auth'], function () {
 
     });
 });
+
+Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'marketing'], function()
+{
+    // Whats App Config
+    Route::get('whatsapp-config','WhatsAppConfigController@index')->name('whatsapp.config.index');
+    Route::post('whatsapp-config/store', 'WhatsAppConfigController@store')->name('whatsapp.config.store');
+    Route::post('whatsapp-config/edit', 'WhatsAppConfigController@edit')->name('whatsapp.config.edit');
+    Route::post('whatsapp-config/delete', 'WhatsAppConfigController@destroy')->name('whatsapp.config.delete');
+
+    // Marketing Platform
+    Route::get('platforms','MarketingPlatformController@index')->name('platforms.index');
+    Route::post('platforms/store', 'MarketingPlatformController@store')->name('platforms.store');
+    Route::post('platforms/edit', 'MarketingPlatformController@edit')->name('platforms.edit');
+    Route::post('platforms/delete', 'MarketingPlatformController@destroy')->name('platforms.delete');
+
+    Route::get('broadcast','BroadCastController@index')->name('broadcasts.index');
+    Route::get('broadcast/dnd','BroadCastController@addToDND')->name('broadcast.add.dnd');
+    Route::get('broadcast/gettaskremark', 'BroadCastController@getBroadCastRemark')->name('broadcast.gets.remark');
+    Route::post('broadcast/addremark', 'BroadCastController@addRemark')->name('broadcast.add.remark');
+    Route::get('broadcast/manual','BroadCastController@addManual')->name('broadcast.add.manual');
+    Route::post('broadcast/update', 'BroadCastController@updateWhatsAppNumber')->name('broadcast.update.whatsappnumber');
+    
+
+});
+
 
 Route::group(['middleware' => 'auth'], function () {
     Route::prefix('tmp-task')->group(function () {

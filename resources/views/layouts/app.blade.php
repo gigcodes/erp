@@ -596,6 +596,16 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Marketing<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('whatsapp.config.index') }}">WhatsApp Config</a>
+                                            <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
+                                            <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
