@@ -189,9 +189,9 @@
             $action =  route('product.templates');
         }
     @endphp
-    <form action="{{ $action }}" method="POST" id="attachImageForm">
+    <form action="{{ $action }}" data-model-type="{{$model_type}}" method="POST" id="attachImageForm">
         @csrf
-
+        <input type="hidden" id="send_pdf" name="send_pdf" value="0"/>
         @if ($model_type == 'customers')
             <input type="hidden" name="sending_time" value="{{ $sending_time }}"/>
         @endif
@@ -209,7 +209,19 @@
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
         <input type="hidden" name="status" value="{{ $status }}">
     </form>
-
+    <div id="confirmPdf" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p>Do you want to send with Pdf ?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary btn-approve-pdf">Yes</button>
+            <button type="button" class="btn btn-secondary btn-ignore-pdf">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
 
 
@@ -499,8 +511,24 @@
                 alert('Please select some images');
             } else {
                 $('#images').val(JSON.stringify(image_array));
-                $('#attachImageForm').submit();
+                var form = $('#attachImageForm');
+                var modelType = form.data("model-type");
+                if(modelType == "selected_customer" || modelType == "customer" || modelType == "customers") {
+                    $("#confirmPdf").modal("show");
+                }else{
+                    $('#attachImageForm').submit();
+                } 
             }
+        });
+
+        $(".btn-approve-pdf").on("click",function() {
+            $("#send_pdf").val("1");
+            $('#attachImageForm').submit();
+        });
+
+        $(".btn-ignore-pdf").on("click",function() {
+            $("#send_pdf").val("0");
+            $('#attachImageForm').submit();
         });
         // });
 
