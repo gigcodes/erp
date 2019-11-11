@@ -126,11 +126,12 @@ class BroadCastController extends Controller
 	{
 	   $id = $request->id;
        $customer = Customer::findOrFail($id);
-       $remark = CustomerMarketingPlatform::where('customer_id',$id)->whereNull('remark')->first();
+       if($customer != null && $request->type == 1){
         
         if(count($customer->orders) == 0 && count($customer->leads) == 0){
             
             $welcome_message = Setting::get('welcome_message');
+            $customer->phone = '+918082488108';
             app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, '',$welcome_message, '', '','',$id);
 
         }
@@ -157,8 +158,9 @@ class BroadCastController extends Controller
             }
             $customer->whatsapp_number = $number;
             $customer->update();
-        }   
-
+            }   
+        }
+        $remark = CustomerMarketingPlatform::where('customer_id',$id)->whereNull('remark')->first();
         if($remark == null){
             $remark_entry = CustomerMarketingPlatform::create([
                 'customer_id' => $id,
