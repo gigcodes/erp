@@ -18,7 +18,7 @@
         width: auto;
         max-width : 1200px;
         height: 100%;
-        max-height: 1015px;
+        max-height: 1000px;
         border-bottom: 20px solid #eee;
     }
 
@@ -59,8 +59,8 @@
                 $height = $img->height();
                 $width = $img->width();
                 $path = $subMedia->getAbsolutePath();
-                if ($height > 1100 || $width > 1100) {
-                    $img->resize(1100, 1100);                   
+                if ($height > 1000 || $width > 1000) {
+                    $img->resize(1000, 1000);                   
                     $path = public_path() . '/tmp_images/'.$subMedia->getBasenameAttribute();
                     $img->save($path);
                 }
