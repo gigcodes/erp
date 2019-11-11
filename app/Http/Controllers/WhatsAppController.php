@@ -213,8 +213,8 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
 
-                // Auto DND
-                if (array_key_exists('message', $params) && strtoupper($params[ 'message' ]) == 'DND') {
+                // Auto DND Keyword Stop Added By Satyam
+                if (array_key_exists('message', $params) && strtoupper($params[ 'message' ]) == 'DND' || strtoupper($params[ 'message' ]) == 'STOP') {
                     if ($customer = Customer::find($params[ 'customer_id' ])) {
                         $customer->do_not_disturb = 1;
                         $customer->save();
@@ -3235,6 +3235,7 @@ class WhatsAppController extends FindByNumberController
 
             $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0);
 
+
             if ($request->rating != '') {
                 $data = $data->where('rating', $request->rating);
             }
@@ -3254,6 +3255,14 @@ class WhatsAppController extends FindByNumberController
             $data = $data->get()->groupBy('whatsapp_number');
 
             foreach ($data as $whatsapp_number => $customers) {
+
+                //Changes put by satyam for connecting Old BroadCast with New BroadCast page
+                if(isset($customers->manual)){
+                    if($customers->manual == 0){
+                        continue;
+                    }
+                }
+                //end change
                 $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
@@ -3740,7 +3749,7 @@ class WhatsAppController extends FindByNumberController
         return $result;
     }
 
-    public function sendWithThirdApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic')
+    public function sendWithThirdApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic',$customer_id = null)
     {
         // Get configs
         $config = \Config::get("apiwha.instances");
@@ -3752,6 +3761,20 @@ class WhatsAppController extends FindByNumberController
         } else {
             $instanceId = $config[ 0 ][ 'instance_id' ];
             $token = $config[ 0 ][ 'token' ];
+        }
+
+        if(isset($customer_id) && $message != null && $message != ''){
+            $customer = Customer::findOrFail($customer_id);
+
+            $fields = array('[[NAME]]' => $customer->name ,'[[CITY]]' => $customer->city ,'[[EMAIL]]' => $customer->email ,'[[PHONE]]' => $customer->phone,'[[PINCODE]]' => $customer->pincode,'[[WHATSAPP_NUMBER]]' => $customer->whatsapp_number,'[[SHOESIZE]]' => $customer->shoe_size ,'[[CLOTHINGSIZE]]' => $customer->clothing_size );
+
+            preg_match_all("/\[[^\]]*\]]/", $message, $matches);
+            $values = $matches[0];
+            
+            foreach ($values as $value) {
+                $message = str_replace($value, $fields[$value], $message);
+            }
+
         }
 
         $encodedNumber = '+' . $number;

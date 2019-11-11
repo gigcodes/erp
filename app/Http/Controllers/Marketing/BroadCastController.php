@@ -11,6 +11,7 @@ use Auth;
 use Validator;
 use Response;
 use App\ApiKey;
+use App\Marketing\WhatsAppConfig;
 
 class BroadCastController extends Controller
 {
@@ -124,8 +125,39 @@ class BroadCastController extends Controller
     public function addManual(Request $request)
 	{
 	   $id = $request->id;
-       
+       $customer = Customer::findOrFail($id);
        $remark = CustomerMarketingPlatform::where('customer_id',$id)->whereNull('remark')->first();
+        
+        if(count($customer->orders) == 0 && count($customer->leads) == 0){
+            
+            $welcome_message = Setting::get('welcome_message');
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, '',$welcome_message, '', '','',$id);
+
+        }
+
+        $number_with_count = array();
+        $whatsapps = WhatsAppConfig::where('is_customer_support',0)->get();
+            if(count($whatsapps) != null){
+            foreach ($whatsapps as $whatsapp) {
+               $count = count($whatsapp->customer);
+               $number = $whatsapp->number;
+               array_push($number_with_count,['number' => $number , 'count' => $count]);
+
+            }
+            
+            $temp=$number_with_count[0]['count'];
+            $number = 0;
+            foreach($number_with_count as $key => $values)
+            {
+                if($values['count']<=$temp)
+                {
+                    $temp=$values['count'];
+                    $number=$values['number']; 
+                }
+            }
+            $customer->whatsapp_number = $number;
+            $customer->update();
+        }   
 
         if($remark == null){
             $remark_entry = CustomerMarketingPlatform::create([
