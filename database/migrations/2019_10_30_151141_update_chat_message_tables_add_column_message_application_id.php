@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateChatMessageTables extends Migration
+class UpdateChatMessageTablesAddColumnMessageApplicationId extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +15,6 @@ class UpdateChatMessageTables extends Migration
     {
         Schema::table('chat_messages', function($table){
             $table->integer('message_application_id')->default(0);
-
         });
     }
 

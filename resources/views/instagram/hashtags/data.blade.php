@@ -57,12 +57,13 @@
                                     </div>
                                 </td>
                                 <td>{{ $post['created_at']->format('d-m-y') }}</td>
-                                <td> @if($post->comments[0]->comment) 
+                                <td> @if(isset($post->send_comment[0])) 
                                      <span class="td-mini-container" style="color: red;">
-                                            {{ strlen($post->comments[0]->comment) > 30 ? substr($post->comments[0]->comment, 0, 30).'...' : $post->comments[0]->comment }}
+                                        
+                                            {{ strlen($post->send_comment[0]->comment) > 30 ? substr($post->send_comment[0]->comment, 0, 30).'...' : $post->send_comment[0]->comment }}
                                           </span>
                                         <span class="td-full-container hidden">
-                                            {{ $post->comments[0]->comment }}
+                                            {{ $post->send_comment[0]->comment }}
                                         </span>
                                 @endif
                                 <button type="button" class="btn btn-xs btn-image" onclick="loadComments({{ $post->id }})" title="Load messages"><img src="/images/chat.png" alt=""></button>
