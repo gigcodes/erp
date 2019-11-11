@@ -15,6 +15,11 @@ class InstagramPosts extends Model
         'media_url' => 'array'
     ];
 
+    public function send_comment()
+    {
+        return $this->hasMany(CommentsStats::class,'code','code');
+    }
+
     public function comments() {
         return $this->hasMany(InstagramPostsComments::class, 'instagram_post_id', 'id');
     }
