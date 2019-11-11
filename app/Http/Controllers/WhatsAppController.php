@@ -2192,10 +2192,12 @@ class WhatsAppController extends FindByNumberController
 
                                             // $image = 'https://cdn.vox-cdn.com/thumbor/Pkmq1nm3skO0-j693JTMd7RL0Zk=/0x0:2012x1341/1200x800/filters:focal(0x0:2012x1341)/cdn.vox-cdn.com/uploads/chorus_image/image/47070706/google2.0.0.jpg';
 
-                                            $image = $products->getMedia(config('constants.media_tags'))->first()
+                                            $image = $products && $products->getMedia(config('constants.media_tags'))->first()
                                                 ? $products->getMedia(config('constants.media_tags'))->first()
                                                 : '';
-                                            array_push($images, $image->filename);
+                                            if ( $image) {
+                                                array_push($images, $image->filename);
+                                            }
 
                                         }
                                     }
@@ -2205,7 +2207,10 @@ class WhatsAppController extends FindByNumberController
                                     $temp_chat_message = ChatMessage::create($data);
                                     foreach ($images as $image) {
                                         $media = Media::where('filename', $image)->first();
-                                        $temp_chat_message->attachMedia($media, config('constants.media_tags'));
+                                        $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_type', 'App\ChatMessage')->count();
+                                        if (!$isExists) {
+                                            $temp_chat_message->attachMedia($media, config('constants.media_tags'));
+                                        }
                                     }
 
 
@@ -2372,7 +2377,11 @@ class WhatsAppController extends FindByNumberController
                 $temp_chat_message = ChatMessage::create($data);
                 foreach ($imagesDecoded as $image) {
                     $media = Media::find($image);
-                    $temp_chat_message->attachMedia($media, config('constants.media_tags'));
+                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_type', 'App\ChatMessage')->count();
+                    if (!$isExists) {
+                        $temp_chat_message->attachMedia($media, config('constants.media_tags'));
+                    }
+                    
                 }
 
 
@@ -2399,7 +2408,10 @@ class WhatsAppController extends FindByNumberController
             } else {
                 foreach (array_unique($imagesDecoded) as $image) {
                     $media = Media::find($image);
-                    $chat_message->attachMedia($media, config('constants.media_tags'));
+                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_type', 'App\ChatMessage')->count();
+                    if (!$isExists) {
+                        $chat_message->attachMedia($media, config('constants.media_tags'));
+                    }
                 }
             }
 
