@@ -1455,7 +1455,7 @@ class ProductController extends Controller
             ->selected($filtered_category)
             ->renderAsDropdown();
 
-        $locations = (new LocationList)->all();
+        $locations = \App\ProductLocation::pluck("name","name");
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->get();

@@ -17,6 +17,8 @@ use Illuminate\Http\Request;
 //    return $request->user();
 //});
 
+
+
 Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
 
@@ -62,3 +64,5 @@ Route::post('get-customers','QuickSellController@getCustomers')->name('getCustom
 
 Route::get('product-template', 'ProductTemplatesController@apiIndex');
 Route::post('product-template', 'ProductTemplatesController@apiSave');
+
+Route::get('{client}/{numberFrom}/get-im','InstantMessagingController@getMessage');
