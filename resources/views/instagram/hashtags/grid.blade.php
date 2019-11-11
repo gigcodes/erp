@@ -19,7 +19,7 @@
            
            <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Hashtag monitoring: #{{ $hashtag->hashtag }} ({{ count($medias) }} Posts) @if(env('INSTAGRAM_MAIN_ACCOUNT') == true)<spam style="color: red;"> ADMIN ACCOUNT PLEASE COMMENT CAREFULLY </spam> @endif</h2>
+            <h2 class="page-heading">HASH TAG MONITORING AND COMMENTING  - MISC ACCOUNTS : #{{ $hashtag->hashtag }} ({{ count($medias) }} Posts) @if(env('INSTAGRAM_MAIN_ACCOUNT') == true)<spam style="color: red;"> ADMIN ACCOUNT PLEASE COMMENT CAREFULLY</spam> @endif</h2>
             <div class="pull-left">
                 <form action="/instagram/hashtag/grid/{{ $hashtag->id }}" method="GET" class="form-inline align-items-start">
                     <div class="form-group mr-3 mb-3">
@@ -240,12 +240,14 @@
                         code: code,
                         author: author,
                         narrative: narrative,
-                        hashtag: "{{$hashtag}}",
+                        hashtag: "{{$hashtag->hashtag}}",
                         _token: '{{ csrf_token() }}'
+                    },beforeSend: function() {
+                       $("#loading-image").show();
                     },
                     success: function() {
+                        $("#loading-image").hide();
                         alert('Comment added successfully!');
-                        location.reload();
                         $(self).removeAttr('disabled');
                     }
                 });

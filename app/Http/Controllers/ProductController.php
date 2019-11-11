@@ -1455,7 +1455,7 @@ class ProductController extends Controller
             ->selected($filtered_category)
             ->renderAsDropdown();
 
-        $locations = (new LocationList)->all();
+        $locations = \App\ProductLocation::pluck("name","name");
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->get();
@@ -2082,11 +2082,19 @@ class ProductController extends Controller
         foreach ($customerIds as $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');
-            $params = $request->except(['_token', 'customers_id']);
+            $params = $request->except(['_token', 'customers_id', 'return_url']);
             $params['customer_id'] = $customerId;
             $requestData->request->add($params);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+        }
+
+        if ($request->ajax()) {            
+            return response()->json(['msg' => 'success']);
+        }
+
+        if ($request->get('return_url')) {
+            return redirect("/".$request->get('return_url'));
         }
 
         return redirect('/erp-leads');

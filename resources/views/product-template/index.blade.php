@@ -78,7 +78,9 @@
 <script type="text/javascript">
 	productTemplate.init({
 		bodyView : $("#product-template-page"),
-		baseUrl : "<?php echo url("/"); ?>"
+		baseUrl : "<?php echo url("/"); ?>",
+		isOpenCreateFrom : '<?php echo !empty($productArr) ? 'true' : 'false'; ?>',
+		ddlSelectProduct : {!! json_encode($productArr) !!},
 	});
 </script>
 

@@ -52,7 +52,7 @@ class QuickSellController extends Controller
   		                                        ->selected($selected_categories)
   		                                        ->renderAsDropdown();
 
-      $locations = (new LocationList)->all();
+      $locations = \App\ProductLocation::pluck("name","name");
       $suppliers = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier','asc')->get();
 
       $category_tree = [];
@@ -445,7 +445,7 @@ class QuickSellController extends Controller
             ->selected($selected_categories)
             ->renderAsDropdown();
 
-        $locations = (new LocationList)->all();
+        $locations = \App\ProductLocation::pluck("name","name");
         $suppliers = Supplier::select(['id', 'supplier'])->get();
 
         $category_tree = [];
@@ -593,7 +593,7 @@ class QuickSellController extends Controller
             ->selected($selected_categories)
             ->renderAsDropdown();
 
-        $locations = (new LocationList)->all();
+        $locations = \App\ProductLocation::pluck("name","name");
         $suppliers = Supplier::select(['id', 'supplier'])->get();
 
         $category_tree = [];

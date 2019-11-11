@@ -29,7 +29,21 @@
              <div class="form-group row">
                 <label for="product_id" class="col-sm-3 col-form-label">Product</label>
                 <div class="col-sm-6">
-                   <?php echo Form::select("product_id",[],null,["class" => "form-control ddl-select-product"]); ?>
+                    <div style="width: 94%; float: left;" class="div-select-product">
+                        
+                        <select class="orm-control ddl-select-product" name="product_id[]" aria-invalid="false" multiple>
+                        <?php 
+                            if ($productArr) {
+                              foreach ($productArr as $product) {
+                                  echo '<option value="'.$product->id.'" data-brand="'.$product->brand.'" data-product-title="'.$product->name.'" selected>'.$product->name.'</option>';
+                              }
+                            }
+                       ?>
+                    </select>
+                    </div>
+                    <div style="width: 6%; float: right;">
+                        <a href="<?php echo route('attachImages', 'product-templates');?>" class="btn btn-image px-1 images-attach"><img src="/images/attach.png"></a>
+                    </div>
                 </div>
              </div>
              <div class="form-group row">

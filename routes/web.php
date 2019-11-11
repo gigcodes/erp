@@ -12,7 +12,9 @@
 */
 
 Auth::routes();
-Route::get('/test/test','HashtagController@rumCommand');
+
+
+//Route::get('/test/test','TestController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -312,6 +314,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('productSearch/', 'SaleController@searchProduct');
     Route::post('productSearch/', 'SaleController@searchProduct');
+
+    Route::get('user-search/', 'UserController@searchUser');
+    Route::post('user-search/', 'UserController@searchUser');
 
     Route::get('activity/', 'ActivityConroller@showActivity')->name('activity');
     Route::get('graph/', 'ActivityConroller@showGraph')->name('graph');
@@ -666,6 +671,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //SKU
     Route::get('sku-format/datatables', 'SkuFormatController@getData')->name('skuFormat.datatable');
     Route::resource('sku-format', 'SkuFormatController');
+    Route::post('sku-format/update', 'SkuFormatController@update')->name('sku.update');
     Route::get('sku/color-codes', 'SkuController@colorCodes')->name('sku.color-codes');
     Route::get('sku/color-codes-update', 'SkuController@colorCodesUpdate')->name('sku.color-codes-update');
 
@@ -747,7 +753,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Route::resource('product-templates', 'ProductTemplatesController');
 
     Route::prefix('product-templates')->middleware('auth')->group(function () {
-        Route::get('/', 'ProductTemplatesController@index');
+        Route::get('/', 'ProductTemplatesController@index')->name('product.templates');
+        Route::post('/', 'ProductTemplatesController@index')->name('product.templates');
         Route::get('response', 'ProductTemplatesController@response');
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
@@ -755,7 +762,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
-        Route::get('/', 'TemplatesController@index');
+        Route::get('/', 'TemplatesController@index')->name('templates');;
         Route::get('response', 'TemplatesController@response');
         Route::post('create', 'TemplatesController@create');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
@@ -1042,6 +1049,15 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Mail'], function () {
     Route::get('make-active-subscribers', 'MailchimpController@makeActiveSubscriber')->name('make.active.subscriber');
 });
 
+
+
+Route::group(['middleware' => 'auth', 'namespace' => 'marketing'], function () {
+    Route::get('test', function(){
+        return 'hello';
+    });
+    
+});
+
 //Hubstaff Module
 Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function () {
 
@@ -1162,6 +1178,31 @@ Route::group(['middleware' => 'auth'], function () {
 
     });
 });
+
+Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'marketing'], function()
+{
+    // Whats App Config
+    Route::get('whatsapp-config','WhatsAppConfigController@index')->name('whatsapp.config.index');
+    Route::post('whatsapp-config/store', 'WhatsAppConfigController@store')->name('whatsapp.config.store');
+    Route::post('whatsapp-config/edit', 'WhatsAppConfigController@edit')->name('whatsapp.config.edit');
+    Route::post('whatsapp-config/delete', 'WhatsAppConfigController@destroy')->name('whatsapp.config.delete');
+
+    // Marketing Platform
+    Route::get('platforms','MarketingPlatformController@index')->name('platforms.index');
+    Route::post('platforms/store', 'MarketingPlatformController@store')->name('platforms.store');
+    Route::post('platforms/edit', 'MarketingPlatformController@edit')->name('platforms.edit');
+    Route::post('platforms/delete', 'MarketingPlatformController@destroy')->name('platforms.delete');
+
+    Route::get('broadcast','BroadCastController@index')->name('broadcasts.index');
+    Route::get('broadcast/dnd','BroadCastController@addToDND')->name('broadcast.add.dnd');
+    Route::get('broadcast/gettaskremark', 'BroadCastController@getBroadCastRemark')->name('broadcast.gets.remark');
+    Route::post('broadcast/addremark', 'BroadCastController@addRemark')->name('broadcast.add.remark');
+    Route::get('broadcast/manual','BroadCastController@addManual')->name('broadcast.add.manual');
+    Route::post('broadcast/update', 'BroadCastController@updateWhatsAppNumber')->name('broadcast.update.whatsappnumber');
+    
+
+});
+
 
 Route::group(['middleware' => 'auth'], function () {
     Route::prefix('tmp-task')->group(function () {

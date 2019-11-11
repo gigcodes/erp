@@ -5,6 +5,7 @@ namespace App;
 use App\ChatMessage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\CustomerMarketingPlatform;
 
 class Customer extends Model
 {
@@ -173,5 +174,19 @@ class Customer extends Model
     public function facebookMessages()
     {
         return $this->hasMany(FacebookMessages::class);
+    }
+
+    public function broadcastLatest()
+    {
+        return $this->hasOne('App\ChatMessage','customer_id','id')->where('status','8')->where('group_id','>',0)->latest();
+    }
+
+    public function remark()
+    {
+        return $this->hasMany(CustomerMarketingPlatform::class,'customer_id','id')->whereNotNull('remark');
+    }
+    public function manual()
+    {
+        return $this->hasOne(CustomerMarketingPlatform::class,'customer_id','id')->whereNull('remark');
     }
 }
