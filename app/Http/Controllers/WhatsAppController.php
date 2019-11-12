@@ -2207,7 +2207,7 @@ class WhatsAppController extends FindByNumberController
                                     $temp_chat_message = ChatMessage::create($data);
                                     foreach ($images as $image) {
                                         $media = Media::where('filename', $image)->first();
-                                        $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_type', 'App\ChatMessage')->count();
+                                        $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $temp_chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
                                         if (!$isExists) {
                                             $temp_chat_message->attachMedia($media, config('constants.media_tags'));
                                         }
@@ -2377,7 +2377,7 @@ class WhatsAppController extends FindByNumberController
                 $temp_chat_message = ChatMessage::create($data);
                 foreach ($imagesDecoded as $image) {
                     $media = Media::find($image);
-                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_type', 'App\ChatMessage')->count();
+                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $temp_chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
                     if (!$isExists) {
                         $temp_chat_message->attachMedia($media, config('constants.media_tags'));
                     }
@@ -2408,7 +2408,7 @@ class WhatsAppController extends FindByNumberController
             } else {
                 foreach (array_unique($imagesDecoded) as $image) {
                     $media = Media::find($image);
-                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_type', 'App\ChatMessage')->count();
+                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
                     if (!$isExists) {
                         $chat_message->attachMedia($media, config('constants.media_tags'));
                     }
