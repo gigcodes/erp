@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use \Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\ImQueue;
-use \Carbon\Carbon;
 use App\Helpers\InstantMessagingHelper;
 
 class InstantMessagingController extends Controller
@@ -22,6 +22,7 @@ class InstantMessagingController extends Controller
         $queue = ImQueue::select('id', 'text', 'image', 'number_to')
             ->where('im_client', $client)
             ->where('number_from', $numberFrom)
+            ->whereNull('sent_at')
             ->where(function ($query) {
                 $query->where('send_after', '<', Carbon::now())
                     ->orWhereNull('send_after');
@@ -49,5 +50,26 @@ class InstantMessagingController extends Controller
         } else {
             return json_encode(['error' => 'The queue is empty'], 400);
         }
+    }
+
+    public function processWebhook(Request $request)
+    {
+        // Get raw JSON
+        $receivedJson = json_decode($request->getContent());
+
+        // Valid json?
+        if ($receivedJson !== null && is_object($receivedJson)) {
+            // Get message from queue
+            $imQueue = ImQueue::find($receivedJson->queueNumber)->first();
+
+            // message found in the queue
+            if ($imQueue !== null && empty($imQueue->sent_at)) {
+                $imQueue->sent_at = $receivedJson->sent == true ? date('Y-m-d H:i:s', Carbon::now()->timestamp) : '2002-20-02 20:02:00';
+                $imQueue->save();
+            }
+        }
+
+        // Return json ack
+        return json_encode('ack', 200);
     }
 }
