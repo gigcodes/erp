@@ -162,8 +162,8 @@ input:checked + .slider:before {
                 <th><input type="text" class="search form-control" id="broadcast"></th>
                 <th><select class="form-control search" id="number">
                     <option value="">Select Option</option>
-                   @foreach($apiKeys as $apiKey)
-                    <option value="{{ $apiKey->number }}">{{ $apiKey->number }}</option>
+                   @foreach($numbers as $number)
+                    <option value="{{ $number->number }}">{{ $number->number }}</option>
                    @endforeach
                 </select></th>
                <th><input type="text" class="search form-control" id="remark"></th>

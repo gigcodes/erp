@@ -33,10 +33,12 @@
   <td>
     <select class="form-control whatsapp" data-id="{{ $customer->id }}">
       <option>Select Number</option>
-      @foreach($apiKeys as $apiKey)
-      <option value="{{ $apiKey->number }}" @if($apiKey->number == $customer->whatsapp_number) selected @endif>{{ $apiKey->number }}</option>
+      @foreach($numbers as $number)
+      <option value="{{ $number->number }}" @if($number->number == $customer->whatsapp_number) selected @endif>{{ $number->number }}</option>
       @endforeach
     </select>
+    <br>
+    <input type="text" value="{{ $customer->whatsapp_number }}" disabled class="form-control">
     
   </td>
    <td><button type="button" class="btn btn-image make-remarks d-inline" data-toggle="modal" data-target="#makeRemarksModal" data-id="{{ $customer->id }}"><img src="/images/remark.png" /></button></td>

@@ -69,10 +69,11 @@ class BroadCastController extends Controller
         }else{
           $customers = Customer::select('id','name','whatsapp_number')->orderby('id','desc')->where('do_not_disturb',0)->paginate(Setting::get('pagination'));   
         }
+        $numbers = WhatsAppConfig::where('is_customer_support',0)->get();
         $apiKeys = ApiKey::all();
         if ($request->ajax()) {
         return response()->json([
-            'tbody' => view('marketing.broadcasts.partials.data', compact('customers','apiKeys'))->render(),
+            'tbody' => view('marketing.broadcasts.partials.data', compact('customers','apiKeys','numbers'))->render(),
             'links' => (string)$customers->render()
         ], 200);
     }
@@ -80,6 +81,7 @@ class BroadCastController extends Controller
 	return view('marketing.broadcasts.index', [
       'customers' => $customers,
       'apiKeys' => $apiKeys,
+      'numbers' => $numbers,
     ]);
 
 	}
