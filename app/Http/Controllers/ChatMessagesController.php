@@ -66,10 +66,10 @@ class ChatMessagesController extends Controller
             case 'text':
                 $chatMessages = $chatMessages->whereNotNull("message")
                                              ->whereNull("media_url")
-                                             ->whereRaw('id not in (select mediable_id from mediables)');
+                                             ->whereRaw('id not in (select mediable_id from mediables WHERE mediable_type LIKE "%ChatMessage")');
                 break;
             case 'images':
-                $chatMessages = $chatMessages->whereRaw("(media_url is not null or id in (select mediable_id from mediables) )");
+                $chatMessages = $chatMessages->whereRaw("(media_url is not null or id in (select mediable_id from mediables WHERE mediable_type LIKE '%ChatMessage') )");
                 break;
         }
         $chatMessages = $chatMessages->get();
