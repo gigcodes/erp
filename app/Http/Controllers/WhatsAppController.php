@@ -465,6 +465,7 @@ class WhatsAppController extends FindByNumberController
 
     public function sendRealTime($message, $model_id, $client, $customFile = null)
     {
+        return;
         $realtime_params = [
             'realtime_id' => $model_id,
             'id' => $message->id,
@@ -2207,7 +2208,7 @@ class WhatsAppController extends FindByNumberController
                                     $temp_chat_message = ChatMessage::create($data);
                                     foreach ($images as $image) {
                                         $media = Media::where('filename', $image)->first();
-                                        $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_type', 'App\ChatMessage')->count();
+                                        $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $temp_chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
                                         if (!$isExists) {
                                             $temp_chat_message->attachMedia($media, config('constants.media_tags'));
                                         }
@@ -2372,16 +2373,16 @@ class WhatsAppController extends FindByNumberController
 
         if ($request->images) {
             $imagesDecoded = json_decode($request->images);
-            if (count($imagesDecoded) >= 10) {
+            if (!empty($request->send_pdf) && $request->send_pdf == 1) {
 
                 $temp_chat_message = ChatMessage::create($data);
                 foreach ($imagesDecoded as $image) {
                     $media = Media::find($image);
-                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_type', 'App\ChatMessage')->count();
+                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $temp_chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
                     if (!$isExists) {
                         $temp_chat_message->attachMedia($media, config('constants.media_tags'));
                     }
-                    
+
                 }
 
 
@@ -2408,7 +2409,7 @@ class WhatsAppController extends FindByNumberController
             } else {
                 foreach (array_unique($imagesDecoded) as $image) {
                     $media = Media::find($image);
-                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_type', 'App\ChatMessage')->count();
+                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
                     if (!$isExists) {
                         $chat_message->attachMedia($media, config('constants.media_tags'));
                     }
