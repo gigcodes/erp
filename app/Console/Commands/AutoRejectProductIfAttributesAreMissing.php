@@ -8,6 +8,7 @@ use App\ListingHistory;
 use App\Product;
 use App\CronJobReport;
 use Illuminate\Console\Command;
+use Carbon\Carbon;
 
 class AutoRejectProductIfAttributesAreMissing extends Command
 {
