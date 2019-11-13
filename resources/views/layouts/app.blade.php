@@ -431,6 +431,9 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('google.search.image') }}">Google Search</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Find Images</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">

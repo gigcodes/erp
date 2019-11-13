@@ -6,6 +6,8 @@ use App\Product;
 use App\Category;
 use App\Setting;
 use Illuminate\Http\Request;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 use seo2websites\GoogleVision\GoogleVisionHelper;
 
@@ -178,4 +180,45 @@ class GoogleSearchImageController extends Controller
 
 		abort(403, 'Sorry , it looks like there is no result from the request.');
     } 
+
+    public function product(Request $request)
+    {
+
+        if ($request->isMethod('post')) {
+            
+            $images = $request->get("images",[]);
+            $productId = $request->get("product_id",0);
+
+            $product = \App\Product::where("id",$productId)->first();
+
+            if($product) {
+                $imagesSave = false;
+                if(!empty($images)) {
+                    foreach($images as $image) {
+                        $file = @file_get_contents($image);
+                        if(!empty($file)) {
+                            $media = MediaUploader::fromString($file)
+                                        ->toDirectory('product'.DIRECTORY_SEPARATOR.floor($product->id / config('constants.image_per_folder')))
+                                        ->useFilename(md5(date("Y-m-d H:i:s")))
+                                        ->upload();
+                            $product->attachMedia($media, config('constants.media_tags'));
+                            $imagesSave = true;
+                        }
+                    }
+                }
+
+                $product->status_id = 22;
+                if($imagesSave) {
+                    $product->status_id = 3;
+                }
+
+                $product->save();
+            }
+
+        }
+
+        $product = \App\Product::where("status_id","14")->where("stock",">",0)->orderBy("id","desc")->first();
+
+        return view("google_search_image.product",compact(['product'])); 
+    }
 }
