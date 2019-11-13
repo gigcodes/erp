@@ -254,7 +254,7 @@ $(document).on('click', '.pending-call', function (e) {
 $(document).on('click', '.create-product-lead', function (e) {
     e.preventDefault();
 
-    createLead (this); 
+    createLead (this,{}); 
 });
 
 $('#addRemarkButton').on('click', function() {
@@ -306,7 +306,7 @@ $(".view-remark").click(function () {
 
 var token = $('meta[name="csrf-token"]').attr('content');
 
-function createLead (thiss) {
+function createLead (thiss,dataSending) {
     var selected_product_images = [];
     var product_id = $(thiss).data('id');
 
@@ -324,7 +324,6 @@ function createLead (thiss) {
     
     if (selected_product_images.length > 0) {
         var created_at = moment().format('YYYY-MM-DD HH:mm');
-
         $.ajax({
             type: 'POST',
             url: "/leads",
@@ -345,13 +344,12 @@ function createLead (thiss) {
                 $.ajax({
                     type: "POST",
                     url: "/leads/sendPrices",
-                    data: {
+                    data: $.extend({
                         _token:  $('meta[name="csrf-token"]').attr('content'),
                         customer_id: customer_id,
                         lead_id: response.lead.id,
-                        selected_product: selected_product_images,
-                        dimension: 'true'
-                    }
+                        selected_product: selected_product_images
+                    },dataSending)
                 }).done(function() {
                     $(thiss).text(text);
                 }).fail(function(response) {
@@ -371,12 +369,12 @@ function createLead (thiss) {
 
 $(document).on('click', '.create-product-lead-dimension', function(e) {
         e.preventDefault();
-        createLead (this);         
+        createLead (this,{dimension: true});         
 });
 
 $(document).on('click', '.create-detail_image', function(e) {
     e.preventDefault();
-    createLead (this); 
+    createLead (this,{detailed: true}); 
 });
 
 $(document).on('click', '.resend-message-js', function(e) {
