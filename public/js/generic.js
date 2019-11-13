@@ -4,6 +4,7 @@ $(document).on('click', '.load-communication-modal', function () {
     var object_id = $(this).data('id');
     var load_attached = $(this).data('attached');
     var load_all = $(this).data('all');
+    var load_type = $(this).data('load-type');
 
     $.ajax({
         type: "GET",
@@ -11,7 +12,8 @@ $(document).on('click', '.load-communication-modal', function () {
         data: {
             limit: 1000,
             load_all: load_all,
-            load_attached: load_attached
+            load_attached: load_attached,
+            load_type: load_type,
         },
         beforeSend: function () {
             //$(thiss).text('Loading...');
@@ -107,14 +109,14 @@ $(document).on('click', '.load-communication-modal', function () {
 
         if ($('#chat-list-history').length > 0) {
             $("#chat-list-history").find(".modal-body").html(li);
-            $(thiss).html("<img src='/images/chat.png' alt=''>");
+            //$(thiss).html("<img src='/images/chat.png' alt=''>");
             $("#chat-list-history").modal("show");
         } else {
             $("#chat-history").html(li);
         }
 
     }).fail(function (response) {
-        $(thiss).text('Load More');
+        //$(thiss).text('Load More');
 
         alert('Could not load messages');
 
