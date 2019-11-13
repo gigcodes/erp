@@ -379,6 +379,20 @@ $(document).on('click', '.create-detail_image', function(e) {
     createLead (this); 
 });
 
+$(document).on('click', '.resend-message-js', function(e) {
+    e.preventDefault();
+     let messageId = $(this).attr('data-id');
+      $.ajax({
+          url: "/message/resend",
+          data: {
+                message_id: messageId
+          },
+          success: function() {
+                toastr['success']('Message resent successfully!')
+          }
+      });
+});
+
 $(document).on('click', '.create-product-order', function(e) {
     e.preventDefault();
 
