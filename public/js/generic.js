@@ -54,10 +54,10 @@ $(document).on('click', '.load-communication-modal', function () {
                         media = media + '<a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         if (message.media[i].product_id > 0) {
                             media = media + '<br />';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '">+ Dimensions</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead" data-id="' + message.media[i].product_id + '">+ Lead</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image" data-id="' + message.media[i].product_id + '">Detailed Images</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order" data-id="' + message.media[i].product_id + '">+ Order</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Lead</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">Detailed Images</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Order</a>';
                         }
                         media = media + '</div>';
                     }
@@ -218,60 +218,7 @@ $(document).on('click', '.pending-call', function (e) {
 $(document).on('click', '.create-product-lead', function (e) {
     e.preventDefault();
 
-    var thiss = $(this);
-    var selected_products = [];
-    var product_id = $(this).data('id');
-
-    if (product_id > 0) {
-        selected_products.push(product_id);
-    }
-
-    console.log(selected_products);
-
-    if ( selected_products.length > 0 ) {
-        var created_at = moment().format('YYYY-MM-DD HH:mm');
-
-        $.ajax({
-            type: 'POST',
-            url: route.leads_store,
-            data: {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                customer_id: customer_id,
-                rating: 1,
-                status: 3,
-                assigned_user: 6,
-                selected_product: selected_products,
-                type: "product-lead",
-                created_at: created_at
-            },
-            beforeSend: function () {
-                $(thiss).text('Creating...');
-            },
-            success: function (response) {
-                $.ajax({
-                    type: "POST",
-                    url: route.leads_send_prices,
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        customer_id: customer_id,
-                        lead_id: response.lead.id,
-                        selected_product: selected_products,
-                        auto_approve: true
-                    }
-                }).done(function () {
-                    location.reload();
-                }).fail(function (response) {
-                    console.log(response);
-                    alert('Could not send product prices to customer!');
-                });
-            }
-        }).fail(function (error) {
-            console.log(error);
-            alert('There was an error creating a lead');
-        });
-    } else {
-        alert('Please select at least 1 product first');
-    }
+    createLead (this); 
 });
 
 $('#addRemarkButton').on('click', function() {
@@ -322,3 +269,139 @@ $(".view-remark").click(function () {
 });
 
 var token = $('meta[name="csrf-token"]').attr('content');
+
+function createLead (thiss) {
+    var selected_product_images = [];
+    var product_id = $(thiss).data('id');
+
+    if (product_id > 0) {
+        selected_product_images.push(product_id);
+    }
+
+    var customer_id = $(thiss).data('customer-id');
+
+    if (!customer_id) {
+        alert('customer not found');
+        return false;
+    }
+    var text = $(thiss).text();
+    
+    if (selected_product_images.length > 0) {
+        var created_at = moment().format('YYYY-MM-DD HH:mm');
+
+        $.ajax({
+            type: 'POST',
+            url: "/leads",
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                customer_id: customer_id,
+                rating: 1,
+                status: 3,
+                assigned_user: 6,
+                selected_product: selected_product_images,
+                type: "product-lead",
+                created_at: created_at
+            },
+            beforeSend: function() {
+                $(thiss).text('Creating...');
+            },
+            success: function(response) {
+                $.ajax({
+                    type: "POST",
+                    url: "/leads/sendPrices",
+                    data: {
+                        _token:  $('meta[name="csrf-token"]').attr('content'),
+                        customer_id: customer_id,
+                        lead_id: response.lead.id,
+                        selected_product: selected_product_images,
+                        dimension: 'true'
+                    }
+                }).done(function() {
+                    $(thiss).text(text);
+                }).fail(function(response) {
+                    $(thiss).text(text);
+                    alert('Could not send product dimension to customer!');
+                });
+            }
+        }).fail(function(error) {
+            $(thiss).text(text);
+            alert('There was an error creating a lead');
+        });
+    } else {
+        $(thiss).text(text);
+        alert('Please select at least 1 product first');
+    }
+}
+
+$(document).on('click', '.create-product-lead-dimension', function(e) {
+        e.preventDefault();
+        createLead (this);         
+});
+
+$(document).on('click', '.create-detail_image', function(e) {
+    e.preventDefault();
+    createLead (this); 
+});
+
+$(document).on('click', '.create-product-order', function(e) {
+    e.preventDefault();
+
+    var selected_product_images = [];
+    var product_id = $(this).data('id');
+
+    if (product_id > 0) {
+        selected_product_images.push(product_id);
+    }
+
+    var customer_id = $(this).data('customer-id');
+
+    if (!customer_id) {
+        alert('customer not found');
+        return false;
+    }
+
+    var text = $(this).text();
+    var thiss = this;
+
+    if (selected_product_images.length > 0) {
+
+      $.ajax({
+        type: 'POST',
+        url: "/order",
+        data: {
+          _token: $('meta[name="csrf-token"]').attr('content'),
+          customer_id: customer_id,
+          order_type: "offline",
+          convert_order: 'convert_order',
+          selected_product: selected_product_images,
+          order_status: "Follow up for advance"
+        },
+        beforeSend: function() {
+          $(thiss).text('Creating...');
+        },
+        success: function(response) {
+          $.ajax({
+            type: "POST",
+            url: "/order/send/Delivery",
+            data: {
+              _token: $('meta[name="csrf-token"]').attr('content'),
+              customer_id: customer_id,
+              order_id: response.order.id,
+              selected_product: selected_product_images
+            }
+          }).done(function() {
+            $(thiss).text(text);
+          }).fail(function(response) {
+            $(thiss).text(text);
+            alert('Could not send delivery message to customer!');
+          });
+        }
+      }).fail(function(error) {
+        $(thiss).text(text);
+        alert('There was an error creating a order');
+      });
+    } else {
+        $(thiss).text(text);
+         alert('Please select at least 1 product first');
+    }
+});
