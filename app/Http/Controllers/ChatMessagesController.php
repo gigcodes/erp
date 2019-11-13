@@ -148,6 +148,8 @@ class ChatMessagesController extends Controller
                 'status' => $chatMessage->status,
                 'resent' => $chatMessage->resent,
                 'customer_id' => $chatMessage->customer_id,
+                'approved' => $chatMessage->approved,
+                'error_status' => $chatMessage->error_status,
             ];
         }
 

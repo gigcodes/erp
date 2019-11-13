@@ -5,6 +5,9 @@ $(document).on('click', '.load-communication-modal', function () {
     var load_attached = $(this).data('attached');
     var load_all = $(this).data('all');
     var load_type = $(this).data('load-type');
+    var is_admin = $(this).data('is_admin');
+    var is_hod_crm = $(this).data('is_hod_crm');
+
 
     $.ajax({
         type: "GET",
@@ -87,15 +90,49 @@ $(document).on('click', '.load-communication-modal', function () {
 
             // Set empty button var
             var button = "";
-            if (message.type == "task") {
+
+            if (message.type == "task" || message.type == "customer") {
+                
                 if (message.status == 0 || message.status == 5 || message.status == 6) {
+                    if (message.status == 0) {
+                        button += "<a href data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs change_message_status'>Mark as Read </a>";
+                    }
+
+                    if (message.status == 0 || message.status == 5) {                        
+                      button += '<a href data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" class="btn btn-xs change_message_status">Mark as Replied </a>';
+                    }
+                    button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
                 } else if (message.status == 4) {
                 } else {
-                    button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
-                    button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
+                    if ( message.type == "customer") {
+                        if (message.error_status == 1) {
+                            button +="<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
+                         } else if (message.error_status == 2) {
+                           button += "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
+                         }
+                         
+                         if (!message.approved) {
+                             if (is_admin || is_hod_crm) {
+                                approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>";
+
+                                 approveBtn.click(function() {
+                                     approveMessage( this, message );
+                                 });
+
+                                button += approveBtn;
+                                button += '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>';
+                                button += ' <a href="#" style="font-size: 9px" class="edit-message whatsapp-message ml-2" data-messageid="' + message.id + '">Edit</a>';
+                             }
+                         }
+                         button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
+                    }
+
+                    if (message.type == "task") {
+                        button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
+                        button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
+                     }
                 }
             }
-
             if (message.inout == 'in') {
                 li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
             } else if (message.inout == 'out') {
@@ -126,7 +163,6 @@ $(document).on('click', '.load-communication-modal', function () {
 
 function getImageToDisplay(imageUrl) {
     // Trim imageUrl
-    console.log(imageUrl);
     imageUrl = imageUrl.trim();
 
     // Set empty imgSrc
