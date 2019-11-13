@@ -60,7 +60,7 @@ class InstantMessagingController extends Controller
         // Valid json?
         if ($receivedJson !== null && is_object($receivedJson)) {
             // Get message from queue
-            $imQueue = ImQueue::find($receivedJson->queueNumber)->first();
+            $imQueue = ImQueue::where(['id'=>$receivedJson->queueNumber])->first();
 
             // message found in the queue
             if ($imQueue !== null && empty($imQueue->sent_at)) {
