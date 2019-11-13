@@ -21,7 +21,7 @@
   <td></td>
   <td>
   	 <label class="switch">
-      @if(isset($customer->manual) && $customer->manual->active == 1)
+      @if(isset($customer->customerMarketingPlatformActive) && $customer->customerMarketingPlatformActive->active == 1)
        <input type="checkbox" class="checkboxs" checked value="{{ $customer->id }}">
        @else
         <input type="checkbox" class="checkboxs" value="{{ $customer->id }}">
@@ -37,9 +37,6 @@
       <option value="{{ $number->number }}" @if($number->number == $customer->whatsapp_number) selected @endif>{{ $number->number }}</option>
       @endforeach
     </select>
-    <br>
-    <input type="text" value="{{ $customer->whatsapp_number }}" disabled class="form-control">
-    
   </td>
    <td><button type="button" class="btn btn-image make-remarks d-inline" data-toggle="modal" data-target="#makeRemarksModal" data-id="{{ $customer->id }}"><img src="/images/remark.png" /></button></td>
 </tr>

@@ -15,23 +15,31 @@ use App\Marketing\WhatsAppConfig;
 
 class BroadCastController extends Controller
 {
+    /**
+     * Getting BroadCast Page with Ajax Search.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Customer  id , term , date , number , broadcast , manual , remark , name
+     * @return \Illuminate\Http\View And Ajax
+     */
+
 	public function index(Request $request)
 	{
-		 if($request->term || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name){
+     if($request->term || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name){
 
         $query =  Customer::query();
 
             //global search term
         if (request('term') != null) {
             $query->where('whatsapp_number', 'LIKE', "%{$request->term}%")
-                    ->orWhere('name', 'LIKE', "%{$request->term}%")
-                    ->orWhereHas('broadcastLatest', function ($qu) use ($request) {
-                      $qu->where('group_id', 'LIKE', "%{$request->term}%");
-                      })
-                    ->orWhereHas('remark', function ($qu) use ($request) {
-                      $qu->where('remark', 'LIKE', "%{$request->term}%");
-                      });
-            }
+            ->orWhere('name', 'LIKE', "%{$request->term}%")
+            ->orWhereHas('broadcastLatest', function ($qu) use ($request) {
+              $qu->where('group_id', 'LIKE', "%{$request->term}%");
+          })
+            ->orWhereHas('remark', function ($qu) use ($request) {
+              $qu->where('remark', 'LIKE', "%{$request->term}%");
+          });
+        }
 
         if (request('date') != null) {
             $query->whereDate('created_at', request('date'));
@@ -47,35 +55,35 @@ class BroadCastController extends Controller
         }
 
         if (request('broadcast') != null) {
-                $query->whereHas('broadcastLatest', function ($qu) use ($request) {
-                    $qu->where('group_id', 'LIKE', '%' . request('broadcast') . '%');
-                    });
-            }
+            $query->whereHas('broadcastLatest', function ($qu) use ($request) {
+                $qu->where('group_id', 'LIKE', '%' . request('broadcast') . '%');
+            });
+        }
 
         if (request('manual') != null) {
-                $query->whereHas('manual', function ($qu) use ($request) {
-                    $qu->where('active', request('manual'));
-                    });
-            }    
+            $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($request) {
+                $qu->where('active', request('manual'));
+            });
+        }    
         
         if (request('remark') != null) {
-                $query->whereHas('remark', function ($qu) use ($request) {
-                    $qu->where('remark', 'LIKE', '%' . request('remark') . '%');
-                    });
-            }      
+            $query->whereHas('customerMarketingPlatformRemark', function ($qu) use ($request) {
+                $qu->where('remark', 'LIKE', '%' . request('remark') . '%');
+            });
+        }      
 
         $customers = $query->orderby('id','desc')->where('do_not_disturb',0)->paginate(Setting::get('pagination')); 
 
-        }else{
-          $customers = Customer::select('id','name','whatsapp_number')->orderby('id','desc')->where('do_not_disturb',0)->paginate(Setting::get('pagination'));   
-        }
-        $numbers = WhatsAppConfig::where('is_customer_support',0)->get();
-        $apiKeys = ApiKey::all();
-        if ($request->ajax()) {
+    }else{
+      $customers = Customer::select('id','name','whatsapp_number')->orderby('id','desc')->where('do_not_disturb',0)->paginate(Setting::get('pagination'));   
+    }
+    $numbers = WhatsAppConfig::where('is_customer_support',0)->get();
+    $apiKeys = ApiKey::all();
+    if ($request->ajax()) {
         return response()->json([
-            'tbody' => view('marketing.broadcasts.partials.data', compact('customers','apiKeys','numbers'))->render(),
-            'links' => (string)$customers->render()
-        ], 200);
+        'tbody' => view('marketing.broadcasts.partials.data', compact('customers','apiKeys','numbers'))->render(),
+        'links' => (string)$customers->render()
+    ], 200);
     }
 
 	return view('marketing.broadcasts.index', [
@@ -85,6 +93,14 @@ class BroadCastController extends Controller
     ]);
 
 	}
+
+    /**
+     * Update Customer TO DND .
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Customer  id is $request->id
+     * @return \Illuminate\Http\Response
+     */
 
 	public function addToDND(Request $request)
 	{
@@ -98,6 +114,14 @@ class BroadCastController extends Controller
         ]);
 	}
 
+    /**
+     * Getting Remark From CustomerMarketingPlatform table.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\CustomerMarketingPlatform  customer_id = $request->id
+     * @return \Illuminate\Http\Response
+     */
+
 	public function getBroadCastRemark(Request $request)
     {
         $id = $request->input('id');
@@ -107,6 +131,13 @@ class BroadCastController extends Controller
         return response()->json($remark, 200);
     }
 
+    /**
+     * Adding Remark to CustomerMarketingPlatform table.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\CustomerMarketingPlatform  id and remark
+     * @return \Illuminate\Http\Response
+     */
     public function addRemark(Request $request)
     {
 
@@ -123,45 +154,65 @@ class BroadCastController extends Controller
         return response()->json(['remark' => $remark], 200);
 
     }
-
+    /**
+     * Adding Customer to CustomerMarketingPlatform table.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Customer  $request->id
+     * @return \Illuminate\Http\Response
+     */
     public function addManual(Request $request)
 	{
-	   $id = $request->id;
-       $customer = Customer::findOrFail($id);
-       if($customer != null && $request->type == 1){
-        
-        if(count($customer->orders) == 0 && count($customer->leads) == 0){
-            
-            $welcome_message = Setting::get('welcome_message');
-            $customer->phone = '+918082488108';
-            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, '',$welcome_message, '', '','',$id);
 
-        }
+        $id = $request->id;
+        $customer = Customer::findOrFail($id);
+        if($customer != null && $request->type == 1){
+            //Send Welcome Message When Customer Is Not in Order Or Lead List
+            if(count($customer->orders) == 0 && count($customer->leads) == 0){
 
-        $number_with_count = array();
-        $whatsapps = WhatsAppConfig::where('is_customer_support',0)->get();
+                $welcome_message = Setting::get('welcome_message');
+            //$customer->phone = '+918082488108';
+            //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, '',$welcome_message, '', '','',$id);
+
+            }
+            //Getting WhatsApp Number with Lowest Customer Number Active
+            $number_with_count = array();
+            $whatsapps = WhatsAppConfig::where('is_customer_support',0)->get();
             if(count($whatsapps) != null){
-            foreach ($whatsapps as $whatsapp) {
-               $count = count($whatsapp->customer);
-               $number = $whatsapp->number;
-               array_push($number_with_count,['number' => $number , 'count' => $count]);
+                foreach ($whatsapps as $whatsapp) {
+                    $count = 0;
+                    if(count($whatsapp->customer) != 0){
+                        $customerss = $whatsapp->customer;
+                        foreach ($customerss as $customers) {
+                            if(isset($customers->customerMarketingPlatformActive)){
+                                if($customers->customerMarketingPlatformActive->active == 1){
+                                        $count++;    
+                                }
+                            }
+                        }
+                    }
+                    $number = $whatsapp->number;
+                    array_push($number_with_count,['number' => $number , 'count' => $count]);
 
-            }
-            
-            $temp=$number_with_count[0]['count'];
-            $number = 0;
-            foreach($number_with_count as $key => $values)
-            {
-                if($values['count']<=$temp)
-                {
-                    $temp=$values['count'];
-                    $number=$values['number']; 
                 }
-            }
-            $customer->whatsapp_number = $number;
-            $customer->update();
+
+                $temp=$number_with_count[0]['count'];
+                $number = 0;
+                foreach($number_with_count as $key => $values)
+                {
+                    if($values['count']<=$temp)
+                    {
+                        $temp=$values['count'];
+                        $number=$values['number']; 
+                    }
+                }
+
+                $customer->whatsapp_number = $number;
+                $customer->update();
+
             }   
         }
+        //Adding Customer to Customer Marketing Table
         $remark = CustomerMarketingPlatform::where('customer_id',$id)->whereNull('remark')->first();
         if($remark == null){
             $remark_entry = CustomerMarketingPlatform::create([
@@ -172,19 +223,26 @@ class BroadCastController extends Controller
             ]);
 
         }else{
-           $remark->active = $request->type;
-            $remark->update();
-        }
+         $remark->active = $request->type;
+         $remark->update();
+     }
 
-       return response()->json([
-            'status' => 'success'
-        ]);
+     return response()->json([
+        'status' => 'success'
+    ]);
 
-       
+
 	}
-
+    /**
+     * Update the customer number.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Customer  $request->id
+     * @return \Illuminate\Http\Response
+     */
     public function updateWhatsAppNumber(Request $request)
     {
+        //Updating Customer WhatsAppNumber
         $id = $request->id;
         $number = $request->number;
 

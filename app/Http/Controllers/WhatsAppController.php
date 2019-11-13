@@ -3268,13 +3268,7 @@ class WhatsAppController extends FindByNumberController
 
             foreach ($data as $whatsapp_number => $customers) {
 
-                //Changes put by satyam for connecting Old BroadCast with New BroadCast page
-                if(isset($customers->manual)){
-                    if($customers->manual == 0){
-                        continue;
-                    }
-                }
-                //end change
+                
                 $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
@@ -3296,6 +3290,13 @@ class WhatsAppController extends FindByNumberController
                             }
                         }
 
+                        //Changes put by satyam for connecting Old BroadCast with New BroadCast page
+                        if(isset($customer->customerMarketingPlatformActive)){
+                            if($customers->customerMarketingPlatformActive->active == 0){
+                                    continue;
+                            }
+                        }
+                        //end change
                         MessageQueue::create([
                             'user_id' => Auth::id(),
                             'customer_id' => $customer->id,
