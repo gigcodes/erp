@@ -143,14 +143,12 @@ class BroadCastController extends Controller
 
         $remark = $request->input('remark');
         $id = $request->input('id');
-       	$remark_entry = CustomerMarketingPlatform::create([
+       	    CustomerMarketingPlatform::create([
                 'customer_id' => $id,
                 'remark' => $remark,
                 'marketing_platform_id' => '1',
                 'user_name' => Auth::user()->name,
             ]);
-        
-
         return response()->json(['remark' => $remark], 200);
 
     }
@@ -170,13 +168,13 @@ class BroadCastController extends Controller
             //Send Welcome Message When Customer Is Not in Order Or Lead List
             if(count($customer->orders) == 0 && count($customer->leads) == 0){
 
-                $welcome_message = Setting::get('welcome_message');
-            //$customer->phone = '+918082488108';
-            //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, '',$welcome_message, '', '','',$id);
+            $welcomeMessage = Setting::get('welcome_message');
+            
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, '',$welcomeMessage, '', '','',$id);
 
             }
             //Getting WhatsApp Number with Lowest Customer Number Active
-            $number_with_count = array();
+            $numberWithCount = array();
             $whatsapps = WhatsAppConfig::where('is_customer_support',0)->get();
             if(count($whatsapps) != null){
                 foreach ($whatsapps as $whatsapp) {
@@ -192,13 +190,13 @@ class BroadCastController extends Controller
                         }
                     }
                     $number = $whatsapp->number;
-                    array_push($number_with_count,['number' => $number , 'count' => $count]);
+                    array_push($numberWithCount,['number' => $number , 'count' => $count]);
 
                 }
 
-                $temp=$number_with_count[0]['count'];
+                $temp=$numberWithCount[0]['count'];
                 $number = 0;
-                foreach($number_with_count as $key => $values)
+                foreach($numberWithCount as $key => $values)
                 {
                     if($values['count']<=$temp)
                     {
@@ -215,7 +213,7 @@ class BroadCastController extends Controller
         //Adding Customer to Customer Marketing Table
         $remark = CustomerMarketingPlatform::where('customer_id',$id)->whereNull('remark')->first();
         if($remark == null){
-            $remark_entry = CustomerMarketingPlatform::create([
+            CustomerMarketingPlatform::create([
                 'customer_id' => $id,
                 'marketing_platform_id' => '1',
                 'active' => 1,
