@@ -465,6 +465,7 @@ class WhatsAppController extends FindByNumberController
 
     public function sendRealTime($message, $model_id, $client, $customFile = null)
     {
+        return;
         $realtime_params = [
             'realtime_id' => $model_id,
             'id' => $message->id,
@@ -2381,7 +2382,7 @@ class WhatsAppController extends FindByNumberController
                     if (!$isExists) {
                         $temp_chat_message->attachMedia($media, config('constants.media_tags'));
                     }
-                    
+
                 }
 
 
