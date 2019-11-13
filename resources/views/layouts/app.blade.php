@@ -428,6 +428,9 @@
                                                 <a class="dropdown-item" href="{{ route('sku.color-codes') }}">SKU Color Codes</a>
                                             </ul>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google.search.image') }}">Google Search</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
