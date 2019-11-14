@@ -2214,30 +2214,32 @@ class WhatsAppController extends FindByNumberController
                                         }
                                     }
 
+                                    if (!empty($request->send_pdf) && $request->send_pdf == 1) {
+                                        $fn = '';
+                                        if ($context == 'customer') {
+                                            $fn = '_product';
+                                        }
 
-                                    $fn = '';
-                                    if ($context == 'customer') {
-                                        $fn = '_product';
+                                        $folder = "temppdf_view_" . time();
+
+                                        $medias = Media::whereIn('filename', $images)->get();
+                                        $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
+                                        $pdf = new Dompdf();
+                                        $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
+                                        $pdf->loadHtml($pdfView);
+                                        $random = uniqid('sololuxury_', true);
+                                        if (!File::isDirectory(public_path() . '/pdf/')) {
+                                            File::makeDirectory(public_path() . '/pdf/', 0777, true, true);
+                                        }
+                                        $fileName = public_path() . '/pdf/' . $random . '.pdf';
+                                        $pdf->render();
+
+                                        File::put($fileName, $pdf->output());
+
+
+                                        $media = MediaUploader::fromSource($fileName)->upload();
                                     }
-
-                                    $folder = "temppdf_view_" . time();
-
-                                    $medias = Media::whereIn('filename', $images)->get();
-                                    $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
-                                    $pdf = new Dompdf();
-                                    $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
-                                    $pdf->loadHtml($pdfView);
-                                    $random = uniqid('sololuxury_', true);
-                                    if (!File::isDirectory(public_path() . '/pdf/')) {
-                                        File::makeDirectory(public_path() . '/pdf/', 0777, true, true);
-                                    }
-                                    $fileName = public_path() . '/pdf/' . $random . '.pdf';
-                                    $pdf->render();
-
-                                    File::put($fileName, $pdf->output());
-
-
-                                    $media = MediaUploader::fromSource($fileName)->upload();
+                                    
 
                                     if ($request->customerId != null) {
                                         $customer = Customer::findorfail($request->customerId);
