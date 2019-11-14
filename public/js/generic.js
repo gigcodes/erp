@@ -95,11 +95,11 @@ $(document).on('click', '.load-communication-modal', function () {
                 
                 if (message.status == 0 || message.status == 5 || message.status == 6) {
                     if (message.status == 0) {
-                        button += "<a href data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs change_message_status'>Mark as Read </a>";
+                        button += "<a href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'>Mark as Read </a>";
                     }
 
                     if (message.status == 0 || message.status == 5) {                        
-                      button += '<a href data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" class="btn btn-xs change_message_status">Mark as Replied </a>';
+                      button += '<a href="javascript:;" data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" class="btn btn-xs btn-secondary ml-1 change_message_status">Mark as Replied </a>';
                     }
                     button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
                 } else if (message.status == 4) {
@@ -254,7 +254,7 @@ $(document).on('click', '.pending-call', function (e) {
 $(document).on('click', '.create-product-lead', function (e) {
     e.preventDefault();
 
-    createLead (this,{}); 
+    createLead (this,{auto_approve: 1}); 
 });
 
 $('#addRemarkButton').on('click', function() {
@@ -452,4 +452,9 @@ $(document).on('click', '.create-product-order', function(e) {
         $(thiss).text(text);
          alert('Please select at least 1 product first');
     }
+});
+
+$(document).on('click', '.forward-btn', function() {
+var id = $(this).data('id');
+$('#forward_message_id').val(id);
 });

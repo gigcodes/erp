@@ -3401,11 +3401,6 @@
         });
       });
 
-      $(document).on('click', '.forward-btn', function() {
-        var id = $(this).data('id');
-        $('#forward_message_id').val(id);
-      });
-
       $(document).on('click', '.complete-call', function(e) {
         e.preventDefault();
 
@@ -4296,7 +4291,7 @@
           $("#overlay").fadeToggle();
       });
 
-      $(document).on('click', '.resend-message-js', function() {
+      /*$(document).on('click', '.resend-message-js', function() {
           let messageId = $(this).attr('data-id');
           $.ajax({
               url: "{{ action('WhatsAppController@resendMessage2') }}",
@@ -4307,7 +4302,7 @@
                     toastr['success']('Message resent successfully!')
               }
           });
-      });
+      });*/
 
       $(document).on('change', '.change-whatsapp-no', function () {
             var $this = $(this);
