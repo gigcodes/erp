@@ -115,7 +115,7 @@ $(document).on('click', '.load-communication-modal', function () {
                              if (is_admin || is_hod_crm) {
                                 approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>";
 
-                                 approveBtn.click(function() {
+                                 $(approveBtn).click(function() {
                                      approveMessage( this, message );
                                  });
 
@@ -369,12 +369,12 @@ function createLead (thiss,dataSending) {
 
 $(document).on('click', '.create-product-lead-dimension', function(e) {
         e.preventDefault();
-        createLead (this,{dimension: true});         
+        createLead (this,{dimension: true , auto_approve: 1});         
 });
 
 $(document).on('click', '.create-detail_image', function(e) {
     e.preventDefault();
-    createLead (this,{detailed: true}); 
+    createLead (this,{detailed: true , auto_approve: 1}); 
 });
 
 $(document).on('click', '.resend-message-js', function(e) {
