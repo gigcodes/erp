@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Helpers\StatusHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -42,7 +43,7 @@ class Product extends Model
      * @param $json
      * @return bool|\Illuminate\Http\JsonResponse
      */
-    public static function createProductByJson($json, $isExcel = 0, $nextExcelStatus=2)
+    public static function createProductByJson($json, $isExcel = 0, $nextExcelStatus = 2)
     {
         // Log before validating
         LogScraper::LogScrapeValidationUsingRequest($json, $isExcel);
@@ -70,6 +71,11 @@ class Product extends Model
                 // Return false if no product is found
                 if (!$product) {
                     return false;
+                }
+
+                // Update from scrape to manual images
+                if (!$product->is_approved && !$product->is_listing_rejected && $product->status_id == StatusHelper::$scrape && (int)$nextExcelStatus == StatusHelper::$unableToScrapeImages) {
+                    $product->status_id = StatusHelper::$unableToScrapeImages;
                 }
 
                 // Update the name and description if the product is not approved and not rejected
@@ -511,8 +517,9 @@ class Product extends Model
         return $this->hasMany(ProductStatus::class, 'product_id', 'id');
     }
 
-    public function groups(){
-        return $this->hasMany(ProductQuicksellGroup::class,'product_id','id');
+    public function groups()
+    {
+        return $this->hasMany(ProductQuicksellGroup::class, 'product_id', 'id');
     }
 
 }
