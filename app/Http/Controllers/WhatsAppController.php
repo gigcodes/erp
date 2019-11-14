@@ -2236,22 +2236,31 @@ class WhatsAppController extends FindByNumberController
 
 
                                         $media = MediaUploader::fromSource($fileName)->upload();
+
+                                        if ($request->customerId != null) {
+                                            $customer = Customer::findorfail($request->customerId);
+                                            if (!empty($request->send_pdf)) {
+                                                $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
+                                            }
+                                            $data[ 'customer_id' ] = $customer->id;
+                                            $chat_message = ChatMessage::create($data);
+                                            $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $file, '', '');
+
+                                        }
                                     } else {
-                                        if ($media) {
-                                            $file = $media->getUrl();
+                                        $medias = Media::whereIn('filename', $images)->get();
+                                        if ($medias != null) {
+                                            if ($request->customerId != null) {
+                                                $customer = Customer::findorfail($request->customerId);
+                                                foreach ($medias as $media) {
+                                                    $file = $media->getUrl();
+
+                                                    $data[ 'customer_id' ] = $customer->id;
+                                                    $chat_message = ChatMessage::create($data);
+                                                    $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $file, '', '');
+                                                }
+                                            }
                                         }
-                                    }
-
-
-                                    if ($request->customerId != null) {
-                                        $customer = Customer::findorfail($request->customerId);
-                                        if (!empty($request->send_pdf)) {
-                                            $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
-                                        }
-                                        $data[ 'customer_id' ] = $customer->id;
-                                        $chat_message = ChatMessage::create($data);
-                                        $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $file, '', '');
-
                                     }
                                 }
 
