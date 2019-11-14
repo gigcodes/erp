@@ -2245,7 +2245,9 @@ class WhatsAppController extends FindByNumberController
 
                                     if ($request->customerId != null) {
                                         $customer = Customer::findorfail($request->customerId);
-                                        $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
+                                        if(!empty($request->send_pdf) && empty($file)) {
+                                            $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
+                                        }
                                         $data[ 'customer_id' ] = $customer->id;
                                         $chat_message = ChatMessage::create($data);
                                         $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $file, '', '');
