@@ -42,7 +42,7 @@ class Product extends Model
      * @param $json
      * @return bool|\Illuminate\Http\JsonResponse
      */
-    public static function createProductByJson($json, $isExcel = 0)
+    public static function createProductByJson($json, $isExcel = 0, $nextExcelStatus=2)
     {
         // Log before validating
         LogScraper::LogScrapeValidationUsingRequest($json, $isExcel);
@@ -196,7 +196,7 @@ class Product extends Model
                 }
 
                 // Set product values
-                $product->status_id = ($isExcel == 1 ? 2 : 3);
+                $product->status_id = ($isExcel == 1 ? $nextExcelStatus : 3);
                 $product->sku = $data[ 'sku' ];
                 $product->supplier = $json->website;
                 $product->brand = $json->brand_id;
