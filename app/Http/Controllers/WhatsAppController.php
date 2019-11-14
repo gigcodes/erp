@@ -2238,12 +2238,16 @@ class WhatsAppController extends FindByNumberController
 
 
                                         $media = MediaUploader::fromSource($fileName)->upload();
+                                    }else {
+                                        $file = $media->getUrl();
                                     }
                                     
 
                                     if ($request->customerId != null) {
                                         $customer = Customer::findorfail($request->customerId);
-                                        $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
+                                        if(empty($file)) {
+                                            $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
+                                        }
                                         $data[ 'customer_id' ] = $customer->id;
                                         $chat_message = ChatMessage::create($data);
                                         $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $file, '', '');
