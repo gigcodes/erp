@@ -2245,7 +2245,7 @@ class WhatsAppController extends FindByNumberController
 
                                     if ($request->customerId != null) {
                                         $customer = Customer::findorfail($request->customerId);
-                                        if (empty($request->send_pdf)) {
+                                        if (!empty($request->send_pdf)) {
                                             $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
                                         }
                                         $data[ 'customer_id' ] = $customer->id;
