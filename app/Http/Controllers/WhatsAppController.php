@@ -2202,7 +2202,7 @@ class WhatsAppController extends FindByNumberController
                                     }
                                 }
 
-                                if (isset($images) && count($images) > 0 ) {
+                                if (isset($images) && count($images) > 0) {
                                     $temp_chat_message = ChatMessage::create($data);
                                     foreach ($images as $image) {
                                         $media = Media::where('filename', $image)->first();
@@ -2236,8 +2236,8 @@ class WhatsAppController extends FindByNumberController
 
 
                                         $media = MediaUploader::fromSource($fileName)->upload();
-                                    }else {
-                                        if($media) {
+                                    } else {
+                                        if ($media) {
                                             $file = $media->getUrl();
                                         }
                                     }
@@ -2245,7 +2245,7 @@ class WhatsAppController extends FindByNumberController
 
                                     if ($request->customerId != null) {
                                         $customer = Customer::findorfail($request->customerId);
-                                        if(!empty($request->send_pdf) && empty($file)) {
+                                        if (empty($request->send_pdf)) {
                                             $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
                                         }
                                         $data[ 'customer_id' ] = $customer->id;
@@ -2443,9 +2443,10 @@ class WhatsAppController extends FindByNumberController
 
         $approveMessage = 0;
 
-        try{
+        try {
             $approveMessage = $request->session()->get('is_approve_message');
-        }catch(\Exception $e){}
+        } catch (\Exception $e) {
+        }
 
         if (($approveMessage == '1' || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0) {
             $myRequest = new Request();
