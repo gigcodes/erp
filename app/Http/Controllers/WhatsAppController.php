@@ -2239,7 +2239,9 @@ class WhatsAppController extends FindByNumberController
 
                                         $media = MediaUploader::fromSource($fileName)->upload();
                                     }else {
-                                        $file = $media->getUrl();
+                                        if($media) {
+                                            $file = $media->getUrl();
+                                        }
                                     }
                                     
 
