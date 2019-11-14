@@ -95,7 +95,7 @@ class ScrapedProducts extends Model
                     $scrapStatistics->save();
 
                     // Create the product
-                    $productsCreatorResult = Product::createProductByJson($json, $isExcel, $nextExcelStatus);
+                    $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
                 } else {
                     // Add new scraped product
                     $scrapedProduct = new ScrapedProducts();
@@ -126,7 +126,7 @@ class ScrapedProducts extends Model
                     $scrapStatistics->save();
 
                     // Create the product
-                    $productsCreatorResult = Product::createProductByJson($json, $isExcel, $nextExcelStatus);
+                    $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
                 }
 
                 // Product created successfully
