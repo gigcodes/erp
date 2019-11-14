@@ -37,11 +37,13 @@
  <div class="row" style="padding-top: 10px;">
   <?php if(!empty($product)) { ?>
    <div class="col-md-12">
-      <div class="card">
+      <div class="card col-lg-6" style="margin:auto;float:none;">
         <h1><?php echo "#".$product->id . " " .$product->name ?></h1>
-        <p class="price"><?php echo $product->sku ?></p>
+        <p class="price">SKU : <?php echo $product->sku ?></p>
+        <p class="price">Brand : <?php echo ($product->brand) ? $product->brand->name : ""; ?></p>
+        <p class="price">Description : <?php echo $product->short_description ?></p>
         <?php $brand = ($product->brand) ? $product->brand: ""; ?>
-        <p><button data-keyword="<?php echo implode(",",[$product->name,$brand,"fashion"]); ?>" class="get-images">Get Images</button></p>
+        <p><button data-keyword="<?php echo implode(",",array_filter([$brand,$product->name,"fashion"])); ?>" class="get-images">Get Images</button></p>
       </div>
    </div>
    <form method="post" id="save-images" action="{{ route('google.search.product-save') }}">
