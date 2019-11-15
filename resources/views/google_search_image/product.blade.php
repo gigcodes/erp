@@ -56,8 +56,8 @@
             </div>
         </form>
         <div class="col-md-12" style="text-align:right;">
-            <button class="attach-and-continue btn btn-secondary">Attach And Continue</button>
-            <button class="skip-product btn btn-secondary">Skip Product</button>
+            <button class="attach-and-continue btn btn-lg btn-success">Attach And Continue</button>
+            <button class="skip-product btn btn-lg btn-danger pull-left">Skip Product</button>
         </div>
     </div>
     <?php } else { ?>
@@ -77,17 +77,18 @@
                 url: "{!! env('GOOGLE_CUSTOM_SEARCH') !!}&q=" + keyword + "&searchType=image&imgSize=large", success: function (result) {
                     // console.log(result);
                     if (result.searchInformation.totalResults != undefined && parseInt(result.searchInformation.totalResults) > 0) {
+                        var i=1;
                         $.each(result.items, function (k, v) {
 
-                            var template = '<div class="col-md-3"><div class="card" style="width: 18rem;">';
+                            var template = '<div class="col-md-3" onclick="toggleCheckbox(' + i + ');"><div class="card" style="width: 18rem;">';
                             template += '<img title="' + v.title + '" class="card-img-top" src="' + v.link + '" alt="' + v.title + '">';
                             template += '<div class="card-body">';
-                            template += '<input type="checkbox" class="selected-image" name="images[]" value="' + v.link + '">';
+                            template += '<input type="checkbox" id="checkbox-' + i + '" class="selected-image" name="images[]" value="' + v.link + '">';
                             template += '</div>';
                             template += '</div></div>';
 
                             $(".image-result-show").append(template);
-
+                            i++;
                         });
                     } else {
                         alert('No images found');
@@ -109,6 +110,9 @@
             $("#save-images").submit();
         });
 
+        function toggleCheckbox(id) {
+            $('#checkbox-' + id).click();
+        }
 
     </script>
 
