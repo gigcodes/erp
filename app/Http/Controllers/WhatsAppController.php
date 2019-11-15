@@ -2202,7 +2202,7 @@ class WhatsAppController extends FindByNumberController
                                     }
                                 }
 
-                                if (isset($images) && count($images) > 0 ) {
+                                if (isset($images) && count($images) > 0) {
                                     $temp_chat_message = ChatMessage::create($data);
                                     foreach ($images as $image) {
                                         $media = Media::where('filename', $image)->first();
@@ -2212,39 +2212,55 @@ class WhatsAppController extends FindByNumberController
                                         }
                                     }
 
+                                    if (!empty($request->send_pdf) && $request->send_pdf == 1) {
+                                        $fn = '';
+                                        if ($context == 'customer') {
+                                            $fn = '_product';
+                                        }
 
-                                    $fn = '';
-                                    if ($context == 'customer') {
-                                        $fn = '_product';
-                                    }
+                                        $folder = "temppdf_view_" . time();
 
-                                    $folder = "temppdf_view_" . time();
+                                        $medias = Media::whereIn('filename', $images)->get();
+                                        $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
+                                        $pdf = new Dompdf();
+                                        $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
+                                        $pdf->loadHtml($pdfView);
+                                        $random = uniqid('sololuxury_', true);
+                                        if (!File::isDirectory(public_path() . '/pdf/')) {
+                                            File::makeDirectory(public_path() . '/pdf/', 0777, true, true);
+                                        }
+                                        $fileName = public_path() . '/pdf/' . $random . '.pdf';
+                                        $pdf->render();
 
-                                    $medias = Media::whereIn('filename', $images)->get();
-                                    $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
-                                    $pdf = new Dompdf();
-                                    $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
-                                    $pdf->loadHtml($pdfView);
-                                    $random = uniqid('sololuxury_', true);
-                                    if (!File::isDirectory(public_path() . '/pdf/')) {
-                                        File::makeDirectory(public_path() . '/pdf/', 0777, true, true);
-                                    }
-                                    $fileName = public_path() . '/pdf/' . $random . '.pdf';
-                                    $pdf->render();
-
-                                    File::put($fileName, $pdf->output());
+                                        File::put($fileName, $pdf->output());
 
 
-                                    $media = MediaUploader::fromSource($fileName)->upload();
+                                        $media = MediaUploader::fromSource($fileName)->upload();
 
-                                    if ($request->customerId != null) {
-                                        $customer = Customer::findorfail($request->customerId);
-                                        $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
-                                        var_dump($file);
-                                        $data[ 'customer_id' ] = $customer->id;
-                                        $chat_message = ChatMessage::create($data);
-                                        $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $file, '', '');
+                                        if ($request->customerId != null) {
+                                            $customer = Customer::findorfail($request->customerId);
+                                            if (!empty($request->send_pdf)) {
+                                                $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
+                                            }
+                                            $data[ 'customer_id' ] = $customer->id;
+                                            $chat_message = ChatMessage::create($data);
+                                            $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $file, '', '');
 
+                                        }
+                                    } else {
+                                        $medias = Media::whereIn('filename', $images)->get();
+                                        if ($medias != null) {
+                                            if ($request->customerId != null) {
+                                                $customer = Customer::findorfail($request->customerId);
+                                                foreach ($medias as $media) {
+                                                    $file = $media->getUrl();
+
+                                                    $data[ 'customer_id' ] = $customer->id;
+                                                    $chat_message = ChatMessage::create($data);
+                                                    $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $file, '', '');
+                                                }
+                                            }
+                                        }
                                     }
                                 }
 
@@ -2434,7 +2450,14 @@ class WhatsAppController extends FindByNumberController
             File::delete('uploads/temp_screenshot.png');
         }
 
-        if (($request->session()->get('is_approve_message') == '1' || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0) {
+        $approveMessage = 0;
+
+        try {
+            $approveMessage = $request->session()->get('is_approve_message');
+        } catch (\Exception $e) {
+        }
+
+        if (($approveMessage == '1' || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0) {
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $chat_message->id]);

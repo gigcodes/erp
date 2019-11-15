@@ -306,6 +306,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/', 'GoogleSearchImageController@searchImageOnGoogle');
     });
 
+    Route::prefix('search-image')->group(function () {
+        Route::get('/', 'GoogleSearchImageController@product')->name('google.search.product');
+        Route::post('/', 'GoogleSearchImageController@product')->name('google.search.product-save');
+    });
+
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');

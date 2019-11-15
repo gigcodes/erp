@@ -645,20 +645,20 @@ class LeadsController extends Controller
                     }
                     // send message now
                     // uncomment this one to send message immidiatly
-                    $autoApprove = $request->get("auto_approve", false);
-
-                    if($autoApprove) {
-                        // send request if auto approve
-                        $approveRequest = new Request();
-                        $approveRequest->setMethod('GET');
-                        $approveRequest->request->add(['messageId' => $chat_message->id]);
-
-                        app(WhatsAppController::class)->approveMessage("customer",$approveRequest);
-
-                    }
-
                     app(WhatsAppController::class)->sendRealTime($chat_message, 'customer_' . $customer->id, $client, $textImage);
                 }
+            }
+
+            $autoApprove = $request->get("auto_approve", false);
+
+            if($autoApprove && !empty($chat_message->id)) {
+                // send request if auto approve
+                $approveRequest = new Request();
+                $approveRequest->setMethod('GET');
+                $approveRequest->request->add(['messageId' => $chat_message->id]);
+
+                app(WhatsAppController::class)->approveMessage("customer",$approveRequest);
+
             }
 
         }

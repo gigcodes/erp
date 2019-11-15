@@ -348,6 +348,12 @@
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Images<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Image Search</a>
+                                            </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Attribute<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 @if(auth()->user()->checkPermission('productlister-list'))
@@ -430,6 +436,9 @@
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('google.search.image') }}">Google Search</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Find Images</a>
                                         </li>
                                     </ul>
                                 </li>

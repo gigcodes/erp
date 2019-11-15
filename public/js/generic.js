@@ -5,6 +5,9 @@ $(document).on('click', '.load-communication-modal', function () {
     var load_attached = $(this).data('attached');
     var load_all = $(this).data('all');
     var load_type = $(this).data('load-type');
+    var is_admin = $(this).data('is_admin');
+    var is_hod_crm = $(this).data('is_hod_crm');
+
 
     $.ajax({
         type: "GET",
@@ -54,10 +57,10 @@ $(document).on('click', '.load-communication-modal', function () {
                         media = media + '<a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         if (message.media[i].product_id > 0) {
                             media = media + '<br />';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '">+ Dimensions</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead" data-id="' + message.media[i].product_id + '">+ Lead</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image" data-id="' + message.media[i].product_id + '">Detailed Images</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order" data-id="' + message.media[i].product_id + '">+ Order</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Lead</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">Detailed Images</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Order</a>';
                         }
                         media = media + '</div>';
                     }
@@ -87,15 +90,49 @@ $(document).on('click', '.load-communication-modal', function () {
 
             // Set empty button var
             var button = "";
-            if (message.type == "task") {
+
+            if (message.type == "task" || message.type == "customer") {
+                
                 if (message.status == 0 || message.status == 5 || message.status == 6) {
+                    if (message.status == 0) {
+                        button += "<a href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'>Mark as Read </a>";
+                    }
+
+                    if (message.status == 0 || message.status == 5) {                        
+                      button += '<a href="javascript:;" data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" class="btn btn-xs btn-secondary ml-1 change_message_status">Mark as Replied </a>';
+                    }
+                    button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
                 } else if (message.status == 4) {
                 } else {
-                    button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
-                    button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
+                    if ( message.type == "customer") {
+                        if (message.error_status == 1) {
+                            button +="<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
+                         } else if (message.error_status == 2) {
+                           button += "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
+                         }
+                         
+                         if (!message.approved) {
+                             if (is_admin || is_hod_crm) {
+                                approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>";
+
+                                 $(approveBtn).click(function() {
+                                     approveMessage( this, message );
+                                 });
+
+                                button += approveBtn;
+                                button += '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>';
+                                button += ' <a href="#" style="font-size: 9px" class="edit-message whatsapp-message ml-2" data-messageid="' + message.id + '">Edit</a>';
+                             }
+                         }
+                         button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
+                    }
+
+                    if (message.type == "task") {
+                        button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
+                        button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
+                     }
                 }
             }
-
             if (message.inout == 'in') {
                 li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
             } else if (message.inout == 'out') {
@@ -126,7 +163,6 @@ $(document).on('click', '.load-communication-modal', function () {
 
 function getImageToDisplay(imageUrl) {
     // Trim imageUrl
-    console.log(imageUrl);
     imageUrl = imageUrl.trim();
 
     // Set empty imgSrc
@@ -218,60 +254,7 @@ $(document).on('click', '.pending-call', function (e) {
 $(document).on('click', '.create-product-lead', function (e) {
     e.preventDefault();
 
-    var thiss = $(this);
-    var selected_products = [];
-    var product_id = $(this).data('id');
-
-    if (product_id > 0) {
-        selected_products.push(product_id);
-    }
-
-    console.log(selected_products);
-
-    if ( selected_products.length > 0 ) {
-        var created_at = moment().format('YYYY-MM-DD HH:mm');
-
-        $.ajax({
-            type: 'POST',
-            url: route.leads_store,
-            data: {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                customer_id: customer_id,
-                rating: 1,
-                status: 3,
-                assigned_user: 6,
-                selected_product: selected_products,
-                type: "product-lead",
-                created_at: created_at
-            },
-            beforeSend: function () {
-                $(thiss).text('Creating...');
-            },
-            success: function (response) {
-                $.ajax({
-                    type: "POST",
-                    url: route.leads_send_prices,
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        customer_id: customer_id,
-                        lead_id: response.lead.id,
-                        selected_product: selected_products,
-                        auto_approve: true
-                    }
-                }).done(function () {
-                    location.reload();
-                }).fail(function (response) {
-                    console.log(response);
-                    alert('Could not send product prices to customer!');
-                });
-            }
-        }).fail(function (error) {
-            console.log(error);
-            alert('There was an error creating a lead');
-        });
-    } else {
-        alert('Please select at least 1 product first');
-    }
+    createLead (this,{auto_approve: 1}); 
 });
 
 $('#addRemarkButton').on('click', function() {
@@ -322,3 +305,156 @@ $(".view-remark").click(function () {
 });
 
 var token = $('meta[name="csrf-token"]').attr('content');
+
+function createLead (thiss,dataSending) {
+    var selected_product_images = [];
+    var product_id = $(thiss).data('id');
+
+    if (product_id > 0) {
+        selected_product_images.push(product_id);
+    }
+
+    var customer_id = $(thiss).data('customer-id');
+
+    if (!customer_id) {
+        alert('customer not found');
+        return false;
+    }
+    var text = $(thiss).text();
+    
+    if (selected_product_images.length > 0) {
+        var created_at = moment().format('YYYY-MM-DD HH:mm');
+        $.ajax({
+            type: 'POST',
+            url: "/leads",
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                customer_id: customer_id,
+                rating: 1,
+                status: 3,
+                assigned_user: 6,
+                selected_product: selected_product_images,
+                type: "product-lead",
+                created_at: created_at
+            },
+            beforeSend: function() {
+                $(thiss).text('Creating...');
+            },
+            success: function(response) {
+                $.ajax({
+                    type: "POST",
+                    url: "/leads/sendPrices",
+                    data: $.extend({
+                        _token:  $('meta[name="csrf-token"]').attr('content'),
+                        customer_id: customer_id,
+                        lead_id: response.lead.id,
+                        selected_product: selected_product_images
+                    },dataSending)
+                }).done(function() {
+                    $(thiss).text(text);
+                }).fail(function(response) {
+                    $(thiss).text(text);
+                    alert('Could not send product dimension to customer!');
+                });
+            }
+        }).fail(function(error) {
+            $(thiss).text(text);
+            alert('There was an error creating a lead');
+        });
+    } else {
+        $(thiss).text(text);
+        alert('Please select at least 1 product first');
+    }
+}
+
+$(document).on('click', '.create-product-lead-dimension', function(e) {
+        e.preventDefault();
+        createLead (this,{dimension: true , auto_approve: 1});         
+});
+
+$(document).on('click', '.create-detail_image', function(e) {
+    e.preventDefault();
+    createLead (this,{detailed: true , auto_approve: 1}); 
+});
+
+$(document).on('click', '.resend-message-js', function(e) {
+    e.preventDefault();
+     let messageId = $(this).attr('data-id');
+      $.ajax({
+          url: "/message/resend",
+          data: {
+                message_id: messageId
+          },
+          success: function() {
+                toastr['success']('Message resent successfully!')
+          }
+      });
+});
+
+$(document).on('click', '.create-product-order', function(e) {
+    e.preventDefault();
+
+    var selected_product_images = [];
+    var product_id = $(this).data('id');
+
+    if (product_id > 0) {
+        selected_product_images.push(product_id);
+    }
+
+    var customer_id = $(this).data('customer-id');
+
+    if (!customer_id) {
+        alert('customer not found');
+        return false;
+    }
+
+    var text = $(this).text();
+    var thiss = this;
+
+    if (selected_product_images.length > 0) {
+
+      $.ajax({
+        type: 'POST',
+        url: "/order",
+        data: {
+          _token: $('meta[name="csrf-token"]').attr('content'),
+          customer_id: customer_id,
+          order_type: "offline",
+          convert_order: 'convert_order',
+          selected_product: selected_product_images,
+          order_status: "Follow up for advance"
+        },
+        beforeSend: function() {
+          $(thiss).text('Creating...');
+        },
+        success: function(response) {
+          $.ajax({
+            type: "POST",
+            url: "/order/send/Delivery",
+            data: {
+              _token: $('meta[name="csrf-token"]').attr('content'),
+              customer_id: customer_id,
+              order_id: response.order.id,
+              selected_product: selected_product_images
+            }
+          }).done(function() {
+            $(thiss).text(text);
+          }).fail(function(response) {
+            $(thiss).text(text);
+            alert('Could not send delivery message to customer!');
+          });
+        }
+      }).fail(function(error) {
+        $(thiss).text(text);
+        alert('There was an error creating a order');
+      });
+    } else {
+        $(thiss).text(text);
+         alert('Please select at least 1 product first');
+    }
+});
+
+$(document).on('click', '.forward-btn', function() {
+var id = $(this).data('id');
+$('#forward_message_id').val(id);
+});
