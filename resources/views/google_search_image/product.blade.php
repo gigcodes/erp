@@ -44,7 +44,7 @@
                 <p class="price">Description : <?php echo $product->short_description ?></p>
                 <?php $brand = isset($product->brands->name) ? $product->brands->name : ""; ?>
                 <p>
-                    <button data-keyword="<?php echo implode(",", array_filter([$brand, $product->name, $product->sku])); ?>" class="get-images">Get Images</button>
+                    <button data-keyword="<?php echo implode(',', array_filter([$brand, $product->name, $product->sku])); ?>" class="get-images">Get Images</button>
                 </p>
             </div>
         </div>
@@ -75,10 +75,8 @@
             var keyword = $(this).data("keyword");
             $.ajax({
                 url: "{!! env('GOOGLE_CUSTOM_SEARCH') !!}&q=" + keyword + "&searchType=image&imgSize=large", success: function (result) {
-                    console.log(result.items.length);
-                    console.log(result.items);
-                    console.log(result);
-                    if (typeof result != "undefined" && result.items.length > 0) {
+                    // console.log(result);
+                    if (result.searchInformation.totalResults != undefined && parseInt(result.searchInformation.totalResults) > 0) {
                         $.each(result.items, function (k, v) {
 
                             var template = '<div class="col-md-3"><div class="card" style="width: 18rem;">';
@@ -91,6 +89,8 @@
                             $(".image-result-show").append(template);
 
                         });
+                    } else {
+                        alert('No images found');
                     }
                 }
             });
