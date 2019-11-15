@@ -45,6 +45,7 @@
                 <?php $brand = isset($product->brands->name) ? $product->brands->name : ""; ?>
                 <p>
                     <button data-keyword="<?php echo implode(',', array_filter([$brand, $product->name, $product->sku])); ?>" class="get-images">Get Images</button>
+                    <button data-keyword="<?php echo $product->sku; ?>" class="get-images">Get Images (by SKU only)</button>
                 </p>
             </div>
         </div>
