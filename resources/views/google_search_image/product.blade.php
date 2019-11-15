@@ -83,8 +83,8 @@
                         $(".image-result-show").html('');
                         $.each(result.items, function (k, v) {
 
-                            var template = '<div class="col-md-3" onclick="toggleCheckbox(' + i + ');"><div class="card" style="width: 18rem;">';
-                            template += '<img title="' + v.title + '" class="card-img-top" src="' + v.link + '" alt="' + v.title + '">';
+                            var template = '<div class="col-md-3"><div class="card" style="width: 18rem;">';
+                            template += '<img title="' + v.title + '" class="card-img-top" src="' + v.link + '" alt="' + v.title + '" onclick="toggleCheckbox(' + i + ');">';
                             template += '<div class="card-body">';
                             template += '<input type="checkbox" id="checkbox-' + i + '" class="selected-image" name="images[]" value="' + v.link + '">';
                             template += '</div>';
