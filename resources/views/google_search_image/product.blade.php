@@ -44,11 +44,16 @@
                 <p class="price">Description : <?php echo $product->short_description ?></p>
                 <?php $brand = isset($product->brands->name) ? $product->brands->name : ""; ?>
                 <p>
-                    <button data-keyword="<?php echo implode(',', array_filter([$brand, $product->name, $product->sku])); ?>" class="get-images">Get Images</button><br />
-                    <br />
+                    <button data-keyword="<?php echo implode(',', array_filter([$brand, $product->name, $product->sku])); ?>" class="get-images">Get Images</button>
+                    <br/>
+                    <br/>
                     <button data-keyword="<?php echo $product->sku; ?>" class="get-images">Get Images (by SKU only)</button>
                 </p>
             </div>
+        </div>
+        <div class="col-md-12" style="text-align:right;">
+            <button class="attach-and-continue btn btn-lg btn-success">Attach And Continue</button>
+            <button class="skip-product btn btn-lg btn-danger pull-left">Skip Product</button>
         </div>
         <form method="post" id="save-images" action="{{ route('google.search.product-save') }}">
             {{ csrf_field() }}
@@ -57,10 +62,6 @@
 
             </div>
         </form>
-        <div class="col-md-12" style="text-align:right;">
-            <button class="attach-and-continue btn btn-lg btn-success">Attach And Continue</button>
-            <button class="skip-product btn btn-lg btn-danger pull-left">Skip Product</button>
-        </div>
     </div>
     <?php } else { ?>
        <?php echo "No products found"; ?>
@@ -79,7 +80,7 @@
                 url: "{!! env('GOOGLE_CUSTOM_SEARCH') !!}&q=" + keyword + "&searchType=image&imgSize=large", success: function (result) {
                     // console.log(result);
                     if (result.searchInformation.totalResults != undefined && parseInt(result.searchInformation.totalResults) > 0) {
-                        var i=1;
+                        var i = 1;
                         $(".image-result-show").html('');
                         $.each(result.items, function (k, v) {
 
