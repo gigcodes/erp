@@ -44,7 +44,14 @@
                 <p class="price">Description : <?php echo $product->short_description ?></p>
                 <?php $brand = isset($product->brands->name) ? $product->brands->name : ""; ?>
                 <p>
-                    <button data-keyword="<?php echo implode(',', array_filter([$brand, $product->name, $product->sku])); ?>" class="get-images">Get Images</button>
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <input type="text" name="search-keyword" class="form-control" id="search-keyword" value="<?php echo implode(',', array_filter([$brand, $product->name, $product->sku])); ?>">
+                        </div>
+                    </div>
+                </p>
+                <p>
+                    <button class="get-images">Get Images</button>
                     <br/>
                     <br/>
                     <button data-keyword="<?php echo $product->sku; ?>" class="get-images">Get Images (by SKU only)</button>
@@ -75,7 +82,7 @@
 
         var productSearch = $(".get-images");
         productSearch.on("click", function () {
-            var keyword = $(this).data("keyword");
+            var keyword = $("#search-keyword").val();
             $.ajax({
                 url: "{!! env('GOOGLE_CUSTOM_SEARCH') !!}&q=" + keyword + "&searchType=image&imgSize=large", success: function (result) {
                     // console.log(result);
