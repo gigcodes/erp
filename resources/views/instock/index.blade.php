@@ -380,6 +380,27 @@
     $(document).on('change', '.quickComment', function () {
         $(this).closest('.col-md-12').find('.quick-message-field').val($(this).val());
     });
+
+    $(document).on('change', '.location-change-product', function () {
+        $this = $(this);
+        $.ajax({
+          url: "<?php echo route('productinventory.location.change'); ?>",
+          data : {
+            product_id : $this.data("product-id"),
+            location : $(this).val()
+          },
+          method : "get",
+          dataType : "json"
+        }).done(function(data) {
+            $(".location_"+$this.data("product-id")).html("Location : " +$this.val());
+            alert("Location has been updated successfully");
+        }).fail(function() {
+          
+        });
+    });
+
+    
+
     $(document).on('click', '.crt-instruction', function(e) {
       e.preventDefault();
 
@@ -507,7 +528,9 @@
               setTimeout(function(){ 
                 instructionForm.find(".alert-success").remove();
                 $("#instruction-dispatch-model").modal("hide");
+                //location.reload();
               }, 3000);
+
            }
 
         }).fail(function() {
@@ -552,6 +575,7 @@
               setTimeout(function(){ 
                 instructionForm.find(".alert-success").remove();
                 $("#instruction-model").modal("hide");
+                //location.reload();
               }, 3000);
            }
         }).fail(function() {
