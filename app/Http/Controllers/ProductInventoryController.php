@@ -763,6 +763,8 @@ class ProductInventoryController extends Controller
 				$product->location = "In-Transit";//$params["location_name"];
 				$product->save();
 
+				$params["location_name"] = "In-Transit - ".$params["location_name"];
+
 				$user = \App\User::where("id",$params["assign_to"])->first();
 				if($user) {
 					// send location message 
