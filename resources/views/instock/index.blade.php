@@ -340,7 +340,7 @@
         formData.append("_token", "{{ csrf_token() }}");
         formData.append("reply", textBox.val());
         formData.append("category_id", quickCategoryId);
-        formData.append("model", 'Approval Lead');
+        formData.append("model", 'Product Dispatch');
 
         $.ajax({
             type: 'POST',

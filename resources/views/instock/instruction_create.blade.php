@@ -18,7 +18,7 @@
               <select name="quickCategory" class="form-control mb-3 quickCategory">
                   <option value="">Select Category</option>
                   @foreach($reply_categories as $category)
-                      <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                      <option value="{{ $category->product_dispatch }}" data-id="{{$category->id}}">{{ $category->name }}</option>
                   @endforeach
               </select>
           </div>
