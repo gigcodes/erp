@@ -6,7 +6,7 @@
     </div>
      <div class="form-group">
         <label>Instruction Message:</label>
-        <?php echo Form::textArea("instruction_message",null,["class" => "form-control quick-message-field"]); ?>
+        <?php echo Form::textArea("instruction_message",null,["class" => "form-control quick-message-field","rows" => 2]); ?>
     </div>
     <div  class="form-group">
       <div class="d-inline form-inline">
@@ -63,7 +63,7 @@
     </div>
     <div class="form-group">
       <label>Courier Details</label>
-      <?php echo Form::textArea("courier_details",null,["class" => "form-control"]); ?>
+      <?php echo Form::textArea("courier_details",null,["class" => "form-control","rows" => 2]); ?>
     </div>
     <div class="form-group">
       <label>Date</label>
