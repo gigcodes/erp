@@ -9,6 +9,7 @@ use App\Category;
 use App\Brand;
 use App\Setting;
 use App\Supplier;
+use App\CronJobReport;
 use Validator;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -48,6 +49,11 @@ class UpdateCucciniProducts extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
       $products = ScrapedProducts::where('has_sku', 1)->where('website', 'cuccuini')->get();
 
       foreach ($products as $image) {
@@ -223,11 +229,15 @@ class UpdateCucciniProducts extends Command
             // Storage::disk('uploads')->delete('/social-media/' . $image_name);
 
             $path = public_path('uploads') . '/social-media/' . $image_name;
-            $media = MediaUploader::fromSource($path)->upload();
+            $media = MediaUploader::fromSource($path)
+                                    ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                    ->upload();
             $product->attachMedia($media,config('constants.media_tags'));
           }
         }
 
       }
+
+       $report->update(['end_time' => Carbon:: now()]);
     }
 }

@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Brand;
 use App\Category;
 use App\Helpers\ProductHelper;
@@ -19,18 +23,56 @@ use App\Services\Scrap\PinterestScraper;
 use App\Services\Products\GnbProductsCreator;
 use App\Supplier;
 use App\Loggers\LogScraper;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Storage;
 use Carbon\Carbon;
-use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\Products\ProductsCreator;
 
 class ScrapController extends Controller
 {
+    private $googleImageScraper;
+    private $pinterestScraper;
+    private $gnbCreator;
+
+    public function __construct(GoogleImageScraper $googleImageScraper, PinterestScraper $pinterestScraper, GnbProductsCreator $gnbCreator)
+    {
+        $this->googleImageScraper = $googleImageScraper;
+        $this->pinterestScraper = $pinterestScraper;
+        $this->gnbCreator = $gnbCreator;
+    }
+
+    public function index()
+    {
+        return view('scrap.index');
+    }
+
+    public function scrapGoogleImages(Request $request)
+    {
+        $this->validate($request, [
+            'query' => 'required',
+            'noi' => 'required',
+        ]);
+
+        $q = $request->get('query');
+        $noi = $request->get('noi');
+        $chip = $request->get('chip');
+
+        $pinterestData = [];
+        $googleData = [];
+
+        if ($request->get('pinterest') === 'on') {
+            $pinterestData = $this->pinterestScraper->scrapPinterestImages($q, $chip, $noi);
+        }
+
+        if ($request->get('google') === 'on') {
+            $googleData = $this->googleImageScraper->scrapGoogleImages($q, $chip, $noi);
+        }
+
+        return view('scrap.extracted_images', compact('googleData', 'pinterestData'));
+
+    }
 
     public function downloadImages(Request $request)
     {
@@ -519,25 +561,27 @@ class ScrapController extends Controller
         $links = $request->links;
 
         if (is_array($links)) {
-            for ($i = 0; $i < count($links); $i++) {
-                $log = LogScraper::select('url', 'sku', 'updated_at')->where('url', $links[ $i ])->where('website', $request->website)->first();
+            foreach ($links as $link) {
+                $logScraper = LogScraper::where('url', $link)->where('website', $request->website)->first();
 
-                if ($log != null) {
-                    $log->touch();
-                    $log->save();
+                if ($logScraper != null) {
+                    Log::channel('productUpdates')->debug("[log_scraper] Found existing product with url " . $link);
+                    $logScraper->touch();
+                    $logScraper->save();
 
                     // Load scraped product and update last_inventory_at
-                    $scrapedProduct = ScrapedProducts::where('sku', ProductHelper::getSku($log->sku))->first();
+                    $scrapedProduct = ScrapedProducts::where('sku', ProductHelper::getSku($logScraper->sku))->where('website', $request->website)->first();
 
                     if ($scrapedProduct != null) {
+                        Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($logScraper->sku));
+                        $scrapedProduct->url = $link;
                         $scrapedProduct->last_inventory_at = Carbon::now();
                         $scrapedProduct->save();
                     } else {
-                        $pendingUrl[] = $links[ $i ];
+                        $pendingUrl[] = $link;
                     }
-
                 } else {
-                    $pendingUrl[] = $links[ $i ];
+                    $pendingUrl[] = $link;
                 }
             }
         }

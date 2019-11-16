@@ -8,15 +8,17 @@
 
     .page {
         margin: 0 auto;
-        width: 90%;
-        height: 1015px;
+        width: 1200px;
+        height: 1200px;
         text-align: center;
     }
 
     img.product {
-        margin: 50px;
-        width: 100%;
-        height: 915px;
+        margin-top: 50px;
+        width: auto;
+        max-width : 1200px;
+        height: 100%;
+        max-height: 1000px;
         border-bottom: 20px solid #eee;
     }
 
@@ -52,12 +54,20 @@
                 $textToSend[] = "Dimension: " . \App\Helpers\ProductHelper::getMeasurements($product) . "";
             }
             $textToSend[] = "Price: Rs. " . $product->price_special; ?>
-
-            <img class="product" src="<?php echo $subMedia->getAbsolutePath(); ?>">
-            </img>
+            <?php 
+                $img = Image::make($subMedia->getAbsolutePath());
+                $height = $img->height();
+                $width = $img->width();
+                $path = $subMedia->getAbsolutePath();
+                if ($height > 1000 || $width > 1000) {
+                    $img->resize(1000, 1000);                   
+                    $path = public_path() . '/tmp_images/'.$subMedia->getBasenameAttribute();
+                    $img->save($path);
+                }
+            ?>
+            <img style="padding-top: 120px;" class="product" src="<?php echo $path; ?>" />
             <div class="top-left">
-                <?php echo implode("<br>
-                                    ", $textToSend); ?>
+                <?php echo implode("<br>", $textToSend); ?>
             </div>
             <div class="top-right">
                 <?php 

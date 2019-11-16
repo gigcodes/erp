@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Product;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class FetchCompositionToProductsIfTheyAreScraped extends Command
@@ -38,6 +39,11 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         Product::where('composition', '')->orWhereNull('composition')->orderBy('id', 'DESC')->chunk(1000, function ($products) {
             foreach ($products as $product) {
                 dump('On -- ' . $product->id);
@@ -135,6 +141,8 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
 
             }
         });
+
+        $report->update(['end_time' => Carbon:: now()]);
 
     }
 }

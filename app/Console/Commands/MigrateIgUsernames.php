@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Customer;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 use Illuminate\Support\Facades\DB;
 
 class MigrateIgUsernames extends Command
@@ -39,6 +40,13 @@ class MigrateIgUsernames extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         Customer::whereNotNull('instahandler')->update([
             'ig_username' => DB::raw('customers.instahandler')
         ]);
@@ -46,5 +54,7 @@ class MigrateIgUsernames extends Command
         Customer::whereNotNull('instahandler')->update([
             'instahandler' => null
         ]);
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\Account;
 use App\ColdLeadBroadcasts;
+use App\CronJobReport;
+
 use App\Services\Instagram\Broadcast;
 use Illuminate\Console\Command;
 
@@ -40,6 +42,12 @@ class SendBroadcastMessageToColdLeads extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $broadcast = ColdLeadBroadcasts::where('started_at', '<=', date('Y-m-d H:i:s'))
             ->whereRaw('`messages_sent` != `number_of_users`')
             ->first();
@@ -60,6 +68,6 @@ class SendBroadcastMessageToColdLeads extends Command
         $bs->sendBulkMessages($leads, $message, $broadcast->image, $account, $broadcast);
         $broadcast->save();
 
-
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

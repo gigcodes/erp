@@ -6,6 +6,7 @@ use App\ColdLeads;
 use App\CompetitorFollowers;
 use App\CompetitorPage;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 use InstagramAPI\Instagram;
 use InstagramAPI\Signatures;
 
@@ -42,6 +43,11 @@ class GetCompetitorFollowers extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $comp = CompetitorPage::whereRaw('`competitor_pages`.`is_processed` = 0')->first();
         $instagram = new Instagram();
         $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
@@ -125,5 +131,7 @@ class GetCompetitorFollowers extends Command
             $comp->cursor = 'END';
             $comp->is_processed = 1;
             $comp->save();
+
+            $report->update(['end_time' => Carbon:: now()]);
     }
 }

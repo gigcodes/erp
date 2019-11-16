@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Customer;
+use App\CronJobReport;
 
 class ImportCustomersEmail extends Command
 {
@@ -38,6 +39,12 @@ class ImportCustomersEmail extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
 
         Customer::where('email', '!=', null)->chunk(100, function ($customers) {
 
@@ -77,5 +84,7 @@ class ImportCustomersEmail extends Command
         }); 
 
         $this->info("\nDone");
+
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }

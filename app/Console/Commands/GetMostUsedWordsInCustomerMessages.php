@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\BulkCustomerRepliesKeyword;
 use App\ChatMessage;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class GetMostUsedWordsInCustomerMessages extends Command
@@ -39,6 +40,11 @@ class GetMostUsedWordsInCustomerMessages extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         ChatMessage::where('is_processed_for_keyword', 0)->where('customer_id', '>', '0')->chunk(1000, function($messages) {
             foreach ($messages as $message) {
                 $text = $message->message;
@@ -61,6 +67,8 @@ class GetMostUsedWordsInCustomerMessages extends Command
 
             }
         });
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 
     private function addOrUpdateCountOfKeyword($word): void

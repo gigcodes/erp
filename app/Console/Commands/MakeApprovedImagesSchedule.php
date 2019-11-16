@@ -6,6 +6,7 @@ use App\Image;
 use App\ImageSchedule;
 use App\ScheduleGroup;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class MakeApprovedImagesSchedule extends Command
@@ -68,6 +69,12 @@ class MakeApprovedImagesSchedule extends Command
 
     private function getImages($count = 10)
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         if ($count === 0) {
             $images = Image::where('is_scheduled', 0)->where('status', 2)->inRandomOrder()->take(1)->pluck('id')->toArray();
             return $images;
@@ -85,5 +92,7 @@ class MakeApprovedImagesSchedule extends Command
         }
 
         return $this->getImages($count-1);
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

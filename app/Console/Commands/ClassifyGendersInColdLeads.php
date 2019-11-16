@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\ColdLeads;
 use App\PeopleNames;
 use Illuminate\Console\Command;
+use App\CronJobReport;
+
 
 class ClassifyGendersInColdLeads extends Command
 {
@@ -39,6 +41,12 @@ class ClassifyGendersInColdLeads extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $coldLeads = ColdLeads::where('is_gender_processed', 0)->take(10000)->get();
 
         foreach ($coldLeads as $key=>$coldLead) {
@@ -58,5 +66,7 @@ class ClassifyGendersInColdLeads extends Command
             $coldLead->is_gender_processed = 1;
             $coldLead->save();
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

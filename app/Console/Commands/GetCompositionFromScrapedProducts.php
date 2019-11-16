@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Product;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class GetCompositionFromScrapedProducts extends Command
@@ -38,6 +39,11 @@ class GetCompositionFromScrapedProducts extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         Product::where('is_approved', 0)->orderBy('id', 'DESC')->where(function($query) {
             $query->where('composition', '')->whereRaw('`short_description` = `composition`');
         })->chunk(1000, function($products) {
@@ -60,5 +66,7 @@ class GetCompositionFromScrapedProducts extends Command
                 }
             }
         });
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

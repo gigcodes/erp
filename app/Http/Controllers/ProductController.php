@@ -1140,7 +1140,9 @@ class ProductController extends Controller
             $product->detachMediaTags(config('constants.media_tags'));
 
             foreach ($request->file('images') as $key => $image) {
-                $media = MediaUploader::fromSource($image)->upload();
+                $media = MediaUploader::fromSource($image)
+                                        ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                        ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
 
                 if ($key == 0) {
@@ -1453,7 +1455,7 @@ class ProductController extends Controller
             ->selected($filtered_category)
             ->renderAsDropdown();
 
-        $locations = (new LocationList)->all();
+        $locations = \App\ProductLocation::pluck("name","name");
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->get();
@@ -1552,7 +1554,9 @@ class ProductController extends Controller
         }
 
         $product->detachMediaTags(config('constants.media_tags'));
-        $media = MediaUploader::fromSource($request->file('image'))->upload();
+        $media = MediaUploader::fromSource($request->file('image'))
+                                ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                ->upload();
         $product->attachMedia($media, config('constants.media_tags'));
 
         $product_image = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
@@ -1654,7 +1658,10 @@ class ProductController extends Controller
         // Check if we have a file
         if ($request->hasFile('file')) {
             $image = $request->file('file');
-            $media = MediaUploader::fromSource($image)->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))->upload();
+            $media = MediaUploader::fromSource($image)
+                                    ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
+                                    ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                    ->upload();
             $product->attachMedia($media, 'gallery');
             $product->crop_count = $product->crop_count + 1;
             $product->save();
@@ -2075,11 +2082,19 @@ class ProductController extends Controller
         foreach ($customerIds as $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');
-            $params = $request->except(['_token', 'customers_id']);
+            $params = $request->except(['_token', 'customers_id', 'return_url']);
             $params['customer_id'] = $customerId;
             $requestData->request->add($params);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+        }
+
+        if ($request->ajax()) {            
+            return response()->json(['msg' => 'success']);
+        }
+
+        if ($request->get('return_url')) {
+            return redirect("/".$request->get('return_url'));
         }
 
         return redirect('/erp-leads');

@@ -348,6 +348,12 @@
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Images<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Image Search</a>
+                                            </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Attribute<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 @if(auth()->user()->checkPermission('productlister-list'))
@@ -388,6 +394,12 @@
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>In Delivered<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ route('productinventory.indelivered') }}">In Delivered</a>
+                                            </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Inventory<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
@@ -419,7 +431,14 @@
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>SKU<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('sku-format.index') }}">SKU Format</a>
+                                                <a class="dropdown-item" href="{{ route('sku.color-codes') }}">SKU Color Codes</a>
                                             </ul>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google.search.image') }}">Google Search</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Find Images</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -463,6 +482,7 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('/erp-customer') }}">Customers - NEW</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers - unread</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
@@ -588,6 +608,16 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Marketing<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('whatsapp.config.index') }}">WhatsApp Config</a>
+                                            <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
+                                            <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -690,6 +720,11 @@
                                                 <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
                                             </li>
 
+                                             <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('instagram/hashtag') }}">Hashtags</a>
+                                            </li>
+
+
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag monitoring & manual Commenting</a>
                                             </li>
@@ -764,6 +799,7 @@
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                             </li>
+
                                         </ul>
                                     </li>
                                 @endif
@@ -910,6 +946,17 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('templates') }}">Templates</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
                                 </li>
                             </ul>
                         </li>

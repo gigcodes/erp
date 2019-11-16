@@ -96,7 +96,10 @@
             <tr>
                 <th colspan="8">
                   <label>
-                    <input type="checkbox" class="all_customer_check"> Select All
+                    <input type="checkbox" class="all_customer_check"> Select This Page
+                  </label>
+                  <label>
+                    <input type="checkbox" class="all_page_check"> Select All Page
                   </label> 
                   <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
                   <a href="javascript:;" class="btn btn-image px-1 images_attach"><img src="/images/attach.png"></a>
@@ -131,16 +134,23 @@
                 <h4 class="modal-title">Send Message to Customers</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <form  id="send_message" method="POST">
+            <form enctype="multipart/form-data" id="send_message" method="POST">
+                <?php echo csrf_field(); ?>
                 <div class="modal-body">
                     <div class="form-group">
                       <strong> Selected Product :</strong>
                       <select name="selected_product[]" class="ddl-select-product form-control" multiple="multiple"></select>
+                      <strong> Attach Image :</strong>
+                      <div class='input-group date' id='schedule-datetime'>
+                        <input type='file' class="form-control" name="image" id="image" value=""/>
+                        <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-file"></span>
+                        </span>
+                      </div>
 
                       <strong>Schedule Date:</strong>
                       <div class='input-group date' id='schedule-datetime'>
                         <input type='text' class="form-control" name="sending_time" id="sending_time_field" value="{{ date('Y-m-d H:i') }}" required />
-
                         <span class="input-group-addon">
                           <span class="glyphicon glyphicon-calendar"></span>
                         </span>
@@ -169,21 +179,61 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
   <script type="text/javascript">
+    var customers = [];
+    var allLeadCustomersId = [];
     $(document).ready(function() {
       $('.multi_brand').select2();
       $('.multi_lead_status').select2();
+      
       $(".all_customer_check").click(function(){
           $('.customer_message').prop('checked', this.checked);
+          $(".customer_message").each(function() {
+              if ($(this).prop("checked") == true) {
+                if (customers.indexOf($(this).val()) === -1) {
+                  customers.push($(this).val());
+                }
+              } else {
+                var tmpCustomers = [];
+                for (var k in customers) {
+                  if (customers[k] != $(this).val()) {
+                    tmpCustomers.push(customers[k]);
+                  }
+                }
+                customers = tmpCustomers;
+              } 
+          });
+      });
+
+      $(".all_page_check").click(function(){
+          $('.customer_message').prop('checked', this.checked);
+          customers = [];
+          if (this.checked) {
+              for (var k in allLeadCustomersId) {
+                if (customers.indexOf(allLeadCustomersId[k]) === -1) {
+                  customers.push(allLeadCustomersId[k]);
+                }
+              }
+          }
+      });
+
+      $(document).on('change', '.customer_message', function () {
+        if ($(this).prop("checked") == true) {
+          if (customers.indexOf($(this).val()) === -1) {
+            customers.push($(this).val());
+          }
+        } else {
+          var tmpCustomers = [];
+          for (var k in customers) {
+            if (customers[k] != $(this).val()) {
+              tmpCustomers.push(customers[k]);
+            }
+          }
+          customers = tmpCustomers;
+        } 
       });
 
       $(".images_attach").click(function(e){
           e.preventDefault();
-          var customers = [];
-          $(".customer_message").each(function() {
-              if ($(this).prop("checked") == true) {
-                customers.push($(this).val());
-              }
-          });
           if (customers.length == 0) {
             alert('Please select costomer');
             return false;
@@ -197,12 +247,8 @@
 
       $("#send_message").submit(function(e){
           e.preventDefault();
-          var customers = [];
-          $(".customer_message").each(function() {
-              if ($(this).prop("checked") == true) {
-                customers.push($(this).val());
-              }
-          });
+          var formData = new FormData($(this)[0]);
+          
           if (customers.length == 0) {
             alert('Please select costomer');
             return false;
@@ -213,21 +259,21 @@
             return false;
           }
 
-          if ($("#send_message").find(".ddl-select-product").val() == "") {
+          /*if ($("#send_message").find(".ddl-select-product").val() == "") {
             alert('Please select product');
             return false;
+          }*/
+
+          for (var i in customers) {
+            formData.append("customers[]", customers[i]);
           }
 
           $.ajax({
             type: "POST",
             url: "{{ route('erp-leads-send-message') }}",
-            data: {
-              _token : "{{ csrf_token() }}",
-              products : $("#send_message").find(".ddl-select-product").val(),
-              sending_time : $("#send_message").find("#sending_time_field").val(),
-              message : $("#send_message").find("#message_to_all_field").val(),
-              customers : customers
-            }
+            data: formData,
+            contentType : false,
+            processData:false
           }).done(function() {
             window.location.reload();
           }).fail(function(response) {
@@ -285,6 +331,11 @@
                 d.lead_shoe_size = $('.lead_shoe_size').val();
                 d.brand_segment = $('.brand_segment').val();
                 d.lead_status = $('.lead_status').val();
+                $('.all_customer_check').prop('checked', false);
+              },
+              dataSrc : function ( response ) {
+                allLeadCustomersId = response.allLeadCustomersId;
+                return response.data;
               }
             },
             columns: [
@@ -325,14 +376,8 @@
         });
         
     });
-
+   
     $(document).on('click', '.create_broadcast', function () {
-      var customers = [];
-      $(".customer_message").each(function() {
-          if ($(this).prop("checked") == true) {
-            customers.push($(this).val());
-          }
-      });
       if (customers.length == 0) {
         alert('Please select costomer');
         return false;

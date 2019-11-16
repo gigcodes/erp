@@ -7,11 +7,13 @@ use App\HashtagPosts;
 use App\InstagramPosts;
 use App\InstagramPostsComments;
 use App\Keywords;
+use App\CronJobReport;
 use App\Services\Instagram\Hashtags;
 use App\Services\Instagram\Nationality;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
+
 
 class ProcessCommentsFromHashtags extends Command
 {
@@ -27,7 +29,7 @@ class ProcessCommentsFromHashtags extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Get Comments Based on Hashtags';
 
     /**
      * Create a new command instance.
@@ -46,27 +48,66 @@ class ProcessCommentsFromHashtags extends Command
      */
     public function handle()
     {
-        $hashtag = HashTag::where('is_processed', 0)->first();
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
+        $hashtag = HashTag::where('is_processed',0)->orderBy('id','asc')->first();
+
         if (!$hashtag) {
             return;
         }
-
+        $hashtagId = $hashtag->id;
+        if($hashtag->priority == 1){
+            $sendWhatsApp = 1;
+        }else{
+            $sendWhatsApp = 0;
+        }
+       
 
         $hashtagText = $hashtag->hashtag;
 
         $hash = new Hashtags();
         $hash->login();
         $maxId = '';
-
+        
 
 
         $keywords = Keywords::get()->pluck('text')->toArray();
-
+       
         do {
             $hashtagPostsAll = $hash->getFeed($hashtagText, $maxId);
             [$hashtagPosts, $maxId] = $hashtagPostsAll;
 
             foreach ($hashtagPosts as $hashtagPost) {
+                $location = $hashtagPost['location'];
+                
+                if(is_array($location)){
+                    $location_field = $location['name'];
+                }else{
+                    $location_field = '';
+                 }
+                
+                $code = $hashtagPost['code'];
+                if($code != null && $code != ''){
+                    //Check if Hashtag is on Priority
+                     if($sendWhatsApp == 1){
+                        //CHeck if post exist
+                        $postCheck = $hashtagPost['media_id'];
+                        $checkIfExist = InstagramPosts::where('post_id', $postCheck)->first();
+                        if($checkIfExist == null && $checkIfExist == ''){
+                            //Send Whats App With Link
+                            $phone = \Config('instagram.number_to_send');
+                            $link = 'https://www.instagram.com/p/'.$code;
+                            $message = 'New Post On Instagram Please Visit Link  '.$link;
+                             app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phone, '',$message, '', '');
+                            }
+                        }
+                        
+                }
                 $comments = $hashtagPost['comments'] ?? [];
 
                 if ($comments === []) {
@@ -77,24 +118,15 @@ class ProcessCommentsFromHashtags extends Command
 
                 $comments = $comments['comments'];
 
-
-
-
                 foreach ($comments as $comment) {
                     $commentText = $comment['text'];
+                    
                     foreach ($keywords as $keyword) {
                         if (strpos($commentText, $keyword) !== false) {
                             $postId = $hashtagPost['media_id'];
-
-//                            $commUsername = $comment['user']['username'];
-//                            $commName = $comment['user']['full_name'];
-//
-//                            $people = new Nationality();
-//
-//                            dd($people->isIndian($commName, $commUsername));
-
+                           
                             $media = InstagramPosts::where('post_id', $postId)->first();
-
+                            
                             if (!$media) {
                                 $media = new InstagramPosts();
                             }
@@ -105,7 +137,10 @@ class ProcessCommentsFromHashtags extends Command
                             $media->user_id = $hashtagPost['user_id'];
                             $media->username = $hashtagPost['username'];
                             $media->media_type = $hashtagPost['media_type'];
-
+                            $media->code = $code;
+                            $media->location = $location_field;
+                            $media->hashtag_id = $hashtagId;
+                            
                             if (!is_array($hashtagPost['media'])) {
                                 $hashtagPost['media'] = [$hashtagPost['media']];
                             }
@@ -113,7 +148,8 @@ class ProcessCommentsFromHashtags extends Command
                             $media->media_url = $hashtagPost['media'];
                             $media->posted_at = $hashtagPost['posted_at'];
                             $media->save();
-
+                           
+                              
                             $commentEntry = InstagramPostsComments::where('comment_id', $comment['pk'])->where('user_id', $comment['user']['pk'])->first();
 
                             if (!$commentEntry) {
@@ -129,6 +165,8 @@ class ProcessCommentsFromHashtags extends Command
                             $commentEntry->profile_pic_url = $comment['user']['profile_pic_url'];
                             $commentEntry->posted_at = Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString();
                             $commentEntry->save();
+                            dump('Comment Stored');
+                            
                         }
                     }
 
@@ -137,9 +175,9 @@ class ProcessCommentsFromHashtags extends Command
             }
         } while ($maxId != 'END');
 
-        $hashtag->is_processed = true;
+        $hashtag->is_processed = 1;
         $hashtag->save();
 
-
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

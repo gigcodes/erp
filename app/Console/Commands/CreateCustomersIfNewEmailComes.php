@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Customer;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 use Webklex\IMAP\Client;
 
 class CreateCustomersIfNewEmailComes extends Command
@@ -40,6 +41,11 @@ class CreateCustomersIfNewEmailComes extends Command
     public function handle()
     {
 
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $imap = new Client([
             'host'          => env('IMAP_HOST_PURCHASE'),
             'port'          => env('IMAP_PORT_PURCHASE'),
@@ -70,6 +76,8 @@ class CreateCustomersIfNewEmailComes extends Command
             $customer->save();
 
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
 
     }
 }

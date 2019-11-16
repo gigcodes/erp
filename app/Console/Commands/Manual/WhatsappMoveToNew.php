@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\ChatMessage;
 use App\Customer;
+use App\CronJobReport;
 use App\Http\Controllers\WhatsAppController;
 
 class WhatsappMoveToNew extends Command
@@ -42,6 +43,11 @@ class WhatsappMoveToNew extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
 
         // Set variables
         $newNumber = '971545889192';
@@ -81,5 +87,7 @@ class WhatsappMoveToNew extends Command
                 echo $customer->id . ' ' . $customer->phone . "\n";
             }
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

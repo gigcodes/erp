@@ -103,7 +103,7 @@
                         </select>
                     </div>
 
-                    @if (!Auth::user()->hasRole('Admin'))
+                    @if (Auth::user()->hasRole('Admin'))
                         <div class="form-group mr-3">
                             <select class="form-control select-multiple" name="location[]" multiple data-placeholder="Location...">
                                 <optgroup label="Locations">
@@ -185,25 +185,43 @@
             $action =  route('whatsapp.send', 'customer');
         } else if ($model_type == 'selected_customer') {
             $action =  route('whatsapp.send_selected_customer');
+        } else if ($model_type == 'product-templates') {
+            $action =  route('product.templates');
         }
     @endphp
-    <form action="{{ $action }}" method="POST" id="attachImageForm">
+    <form action="{{ $action }}" data-model-type="{{$model_type}}" method="POST" id="attachImageForm">
         @csrf
-
+        <input type="hidden" id="send_pdf" name="send_pdf" value="0"/>
         @if ($model_type == 'customers')
             <input type="hidden" name="sending_time" value="{{ $sending_time }}"/>
+        @endif
+
+        @if (request()->get('return_url'))
+            <input type="hidden" name="return_url" value="{{ request()->get('return_url') }}"/>
         @endif
 
         <input type="hidden" name="images" id="images" value="">
         <input type="hidden" name="image" value="">
         <input type="hidden" name="screenshot_path" value="">
-        <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : '' }}">
+        <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' ? "$message_body" : '' }}">
         <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
         {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
         <input type="hidden" name="status" value="{{ $status }}">
     </form>
-
+    <div id="confirmPdf" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p>Do you want to send with Pdf ?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary btn-approve-pdf">Yes</button>
+            <button type="button" class="btn btn-secondary btn-ignore-pdf">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
 
 
@@ -292,21 +310,20 @@
 
         $(document).on('change', '.select-pr-list-chk', function (e) {
             var $this = $(this);
-            var productCard = $this.closest(".product-list-card").find(".attach-photo-all");
+            var productCard = $this.closest(".product-list-card").find(".attach-photo");
             if (productCard.length > 0) {
                 var image = productCard.data("image");
                 if ($this.is(":checked") === true) {
-                    Object.keys(image).forEach(function (index) {
-                        image_array.push(image[index]);
-                    });
-
+                    //Object.keys(image).forEach(function (index) {
+                    image_array.push(image);
+                    //});
                     image_array = unique(image_array);
 
                 } else {
-                    Object.keys(image).forEach(function (key) {
-                        var index = image_array.indexOf(image[key]);
-                        image_array.splice(index, 1);
-                    });
+                    //Object.keys(image).forEach(function (key) {
+                    var index = image_array.indexOf(image);
+                    image_array.splice(index, 1);
+                    //});
                     image_array = unique(image_array);
                 }
             }
@@ -494,8 +511,24 @@
                 alert('Please select some images');
             } else {
                 $('#images').val(JSON.stringify(image_array));
-                $('#attachImageForm').submit();
+                var form = $('#attachImageForm');
+                var modelType = form.data("model-type");
+                if(modelType == "selected_customer" || modelType == "customer" || modelType == "customers") {
+                    $("#confirmPdf").modal("show");
+                }else{
+                    $('#attachImageForm').submit();
+                } 
             }
+        });
+
+        $(".btn-approve-pdf").on("click",function() {
+            $("#send_pdf").val("1");
+            $('#attachImageForm').submit();
+        });
+
+        $(".btn-ignore-pdf").on("click",function() {
+            $("#send_pdf").val("0");
+            $('#attachImageForm').submit();
         });
         // });
 
