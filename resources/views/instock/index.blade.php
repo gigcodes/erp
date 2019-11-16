@@ -528,7 +528,7 @@
               setTimeout(function(){ 
                 instructionForm.find(".alert-success").remove();
                 $("#instruction-dispatch-model").modal("hide");
-                //location.reload();
+                location.reload();
               }, 3000);
 
            }
@@ -575,7 +575,7 @@
               setTimeout(function(){ 
                 instructionForm.find(".alert-success").remove();
                 $("#instruction-model").modal("hide");
-                //location.reload();
+                location.reload();
               }, 3000);
            }
         }).fail(function() {

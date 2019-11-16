@@ -715,6 +715,8 @@ class ProductInventoryController extends Controller
 				$instruction->customer_id = request()->get("customer_id",0);
 			}
 
+			$customer = ($instruction->customer) ? $instruction->customer->name : "";
+
 			$assign_to = request()->get("assign_to",0);
 
 			if($assign_to > 0) {
@@ -722,8 +724,21 @@ class ProductInventoryController extends Controller
 			}
 			// if customer object found then send message
 			if(!empty($user)) {
+					
+				$extraString = "";
+				
+				// check if any date time set
+				if(!empty($params["date_time"])) {
+					$extraString = " on ".$params["date_time"];
+				}
+
+				// set for pending amount
+				if(!empty($params["pending_amount"])) {
+					$extraString = " and ".$params["pending_amount"]." to be collected";
+				}		
+				// send message
 				$messageData = implode("\n",[
-			  		"We have dispatched your parcel",
+			  		"{$product->name} to be delivered to {$customer} {$extraString}",
 			  		$params["courier_name"],
 			  		$params["courier_details"]	
 			  	]);
@@ -751,7 +766,9 @@ class ProductInventoryController extends Controller
 				$user = \App\User::where("id",$params["assign_to"])->first();
 				if($user) {
 					// send location message 
+					$pendingAmount = (!empty($params["pending_amount"])) ? " and Pending amount : ".$params["pending_amount"] : "";
 					$messageData = implode("\n",[
+				  		"Pls. Despatch {$product->name} to ".$params["location_name"].$pendingAmount,
 				  		$params['instruction_message'],
 				  		$params["courier_name"],
 				  		$params["courier_details"]	

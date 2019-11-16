@@ -64,6 +64,12 @@
           <?php echo Form::select("customer_id",[],null,["class" => "form-control customer-search-box", "style"=>"width:100%;"]); ?>
         </div>
       </div>
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Pending Amount:</label>
+          <?php echo Form::text("pending_amount",null,["class" => "form-control"]); ?>
+        </div>
+      </div>
     </div>
     <div class="row">
       <div class="col-md-6">
