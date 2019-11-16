@@ -734,7 +734,7 @@ class ProductInventoryController extends Controller
 
 				// set for pending amount
 				if(!empty($params["pending_amount"])) {
-					$extraString = " and ".$params["pending_amount"]." to be collected";
+					$extraString .= " and ".$params["pending_amount"]." to be collected";
 				}		
 				// send message
 				$messageData = implode("\n",[
