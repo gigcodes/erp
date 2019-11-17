@@ -34,10 +34,14 @@ class StatusHelper extends Model
     public static function updateStatus(\App\Product $product, $newStatus = 0)
     {
         // Update status to AI
-        if ($newStatus == 3) {
+        if ($newStatus == self::$AI) {
             // Queue for AI
             ProductAi::dispatch($product)->onQueue('product');
         }
+
+        // Set status and save product
+        $product->status_id = $newStatus;
+        $product->save();
 
         // Return
         return;

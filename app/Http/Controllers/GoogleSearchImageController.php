@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\StatusHelper;
 use App\Product;
 use App\Category;
 use App\Setting;
@@ -21,7 +22,7 @@ class GoogleSearchImageController extends Controller
     public function index(Request $request)
     {
         //$fileName = 'D:\pravin_project\soloux\sololux-erp\public\uploads\0a2243e085dfaf7ae30db984b3ae2129.jpeg';
-        
+
         $data     = [];
         $term     = $request->input( 'term' );
         $data['term']     = $term;
@@ -120,7 +121,7 @@ class GoogleSearchImageController extends Controller
         $data['category_selection'] = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple2'])
                                                 ->selected($selected_categories)
                                                 ->renderAsDropdown();
-        
+
         if ($request->get('shoe_size', false)) {
             $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
         }
@@ -130,13 +131,13 @@ class GoogleSearchImageController extends Controller
                             })
                             ->groupBy('products.id')
                             ->paginate( Setting::get( 'pagination' ) );
-        
+
         $data['locations'] = (new \App\ProductLocation())->pluck('name');
 
     return view( 'google_search_image.index', $data );
     }
 
-    
+
 
     public function searchImageOnGoogle(Request $request)
     {
@@ -154,7 +155,7 @@ class GoogleSearchImageController extends Controller
                 	$media = $product->media()->first();
                 	if($media) {
                     	$productImage[$media->getUrl()] = GoogleVisionHelper::getImageDetails($media->getAbsolutePath());
-                    }                    
+                    }
                 }
 	    		if(!empty($productImage)) {
 	    			return view( 'google_search_image.details', compact(['productImage']));
@@ -179,13 +180,13 @@ class GoogleSearchImageController extends Controller
 		}
 
 		abort(403, 'Sorry , it looks like there is no result from the request.');
-    } 
+    }
 
     public function product(Request $request)
     {
 
         if ($request->isMethod('post')) {
-            
+
             $images = $request->get("images",[]);
             $productId = $request->get("product_id",0);
 
@@ -209,6 +210,7 @@ class GoogleSearchImageController extends Controller
 
                 $product->status_id = 22;
                 if($imagesSave) {
+                    StatusHelper::updateStatus($product, StatusHelper::$AI);
                     $product->status_id = 3;
                 }
 
@@ -219,6 +221,6 @@ class GoogleSearchImageController extends Controller
 
         $product = \App\Product::where("status_id","14")->where("stock",">",0)->orderBy("id","desc")->first();
 
-        return view("google_search_image.product",compact(['product'])); 
+        return view("google_search_image.product",compact(['product']));
     }
 }
