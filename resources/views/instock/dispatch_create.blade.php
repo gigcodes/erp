@@ -5,6 +5,10 @@
         <?php echo Form::text("modeof_shipment",null,["class" => "form-control instruction-type-select"]); ?>
     </div>
      <div class="form-group">
+        <label>Delivery Person:</label>
+        <?php echo Form::text("delivery_person",null,["class" => "form-control"]); ?>
+    </div>
+     <div class="form-group">
         <label>AWB:</label>
         <?php echo Form::text("awb",null,["class" => "form-control"]); ?>
     </div>
