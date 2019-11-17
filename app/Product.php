@@ -141,7 +141,7 @@ class Product extends Model
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price' ],
                                 'price_discounted' => $formattedPrices[ 'price_discounted' ],
-                                'size' => $json->properties[ 'size' ],
+                                'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
                                 'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
                                 'sku' => $json->original_sku
@@ -248,7 +248,7 @@ class Product extends Model
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price' ],
                                 'price_discounted' => $formattedPrices[ 'price_discounted' ],
-                                'size' => $json->properties[ 'size' ],
+                                'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
                                 'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
                                 'sku' => $json->original_sku
