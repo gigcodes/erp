@@ -37,7 +37,7 @@ class DevelopmentController extends Controller
         //  $this->middleware( 'permission:developer-tasks', [ 'except' => [ 'issueCreate', 'issueStore', 'moduleStore' ] ] );
     }
 
-    public function index(Request $request)
+    public function index_bkup(Request $request)
     {
         // Set required data
         $user = $request->user ?? Auth::id();
@@ -125,6 +125,96 @@ class DevelopmentController extends Controller
         ]);
     }
 
+    public function index(Request $request)
+    {
+
+        // Set required data
+        $user   = $request->user ?? Auth::id();
+        $start  = $request->range_start ? "$request->range_start 00:00" : '2018-01-01 00:00';
+        $end    = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
+        $id     = null;
+
+        // Set initial variables
+        $progressTasks = new DeveloperTask();
+        $plannedTasks = new DeveloperTask();
+        $completedTasks = new DeveloperTask();
+
+        // For non-admins get tasks assigned to the user
+        if (!Auth::user()->hasRole('Admin')) {
+            $progressTasks = DeveloperTask::where('user_id', Auth::id());
+            $plannedTasks = DeveloperTask::where('user_id', Auth::id());
+            $completedTasks = DeveloperTask::where('user_id', Auth::id());
+        }
+
+        // Get tasks for specific user if you are admin
+        if (Auth::user()->hasRole('Admin') && (int)$request->user > 0) {
+            $progressTasks = DeveloperTask::where('user_id', $user);
+            $plannedTasks = DeveloperTask::where('user_id', $user);
+            $completedTasks = DeveloperTask::where('user_id', $user);
+        }
+
+        // Filter by date
+        if ($request->get('range_start') != '') {
+            $progressTasks = $progressTasks->whereBetween('created_at', [$start, $end]);
+            $plannedTasks = $plannedTasks->whereBetween('created_at', [$start, $end]);
+            $completedTasks = $completedTasks->whereBetween('created_at', [$start, $end]);
+        }
+
+        // Filter by ID
+        if ($request->get('id')) {
+            $progressTasks = $progressTasks->where(function ($query) use ($request) {
+                $id = $request->get('id');
+                $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
+            });
+            $plannedTasks = $plannedTasks->where(function ($query) use ($request) {
+                $id = $request->get('id');
+                $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
+            });
+            $completedTasks = $completedTasks->where(function ($query) use ($request) {
+                $id = $request->get('id');
+                $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
+            });
+        }
+
+        // Get all data with user and messages
+        $plannedTasks = $plannedTasks->where('status', 'Planned')->orderBy('created_at')->with(['user', 'messages'])->get();
+        $completedTasks = $completedTasks->where('status', 'Done')->orderBy('created_at')->with(['user', 'messages'])->get();
+        $progressTasks = $progressTasks->where('status', 'In Progress')->orderBy('created_at')->with(['user', 'messages'])->get();
+
+        // Get all modules
+        $modules = DeveloperModule::all();
+
+        // Get all developers
+        $users = Helpers::getUserArray(User::role('Developer')->get());
+
+        // Get all task types
+        $tasksTypes = TaskTypes::all();
+
+        // Create empty array for module names
+        $moduleNames = [];
+
+        // Loop over all modules and store them
+        foreach ($modules as $module) {
+            $moduleNames[ $module->id ] = $module->name;
+        }
+
+        $times = [];
+        return view('development.index', [
+            'times'         => $times,
+            'users'         => $users,
+            'modules'       => $modules,
+            'user'          => $user,
+            'start'         => $start,
+            'end'           => $end,
+            'moduleNames'   => $moduleNames,
+            'completedTasks' => $completedTasks,
+            'plannedTasks'  => $plannedTasks,
+            'progressTasks' => $progressTasks,
+            'tasksTypes'    => $tasksTypes,
+            'title'         => 'Task'
+        ]);
+    }
+
     public function moveTaskToProgress(Request $request)
     {
         $task = DeveloperTask::find($request->get('task_id'));
@@ -186,6 +276,72 @@ class DevelopmentController extends Controller
         ]);
     }
 
+    public function issueTaskIndex(Request $request,$type)
+    {
+        if($type == 'issue'){
+            $issues =  DeveloperTask::where('task_type_id','2');
+        }else{
+            $issues = DeveloperTask::where('task_type_id','1');
+        }
+
+
+        if ( !empty($request->get('task_status')) && !empty($request->get('subject')) ) {
+
+            $task_status    = $request->get('task_status');
+            $issues = $issues->Where('subject', 'LIKE', "%$request->get('subject')%")
+                ->where('status', '=', $task_status);
+
+        } else if ( !empty($request->get('task_status')) && !empty($request->get('module')) ) {
+
+            $issues = $issues->where('module_id', $request->get('module'))
+                ->where('status', '=', $request->get('task_status'));
+
+        }else if ( !empty($request->get('module')) ) {
+
+            $issues = $issues->where('module_id', $request->get('module'));
+        }else if ( !empty($request->get('subject')) ) {
+
+            $subject = $request->get('subject');
+            $issues = $issues->Where('subject', 'LIKE', "%$subject%");
+
+        } else if ( !empty($request->get('task_status'))) {
+
+            $task_status    = $request->get('task_status');
+            $issues         = $issues->Where('status', '=', $task_status);
+        } else if ((int)$request->get('corrected_by') > 0) {
+            $issues = $issues->where('user_id', $request->get('corrected_by'));
+        } else if ((int)$request->get('responsible_user') > 0) {
+            $issues = $issues->where('responsible_user_id', $request->get('responsible_user'));
+        } else if ((int)$request->get('submitted_by') > 0) {
+            $issues = $issues->where('submitted_by', $request->get('submitted_by'));
+        }
+
+        $modules = DeveloperModule::all();
+        $users = Helpers::getUserArray(User::all());
+
+        // Hide resolved
+        if ((int)$request->show_resolved !== 1) {
+            $issues = $issues->where('is_resolved', 0);
+        }
+
+        // Sort
+//        if ($request->order == 'create') {
+//            $issues = $issues->orderBy('created_at', 'DESC')->with('communications')->get();
+//        } else {
+//            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications')->get();
+//        }
+        $issues = $issues->get();
+
+        return view('development.issue', [
+            'issues'    => $issues,
+            'users'     => $users,
+            'modules'   => $modules,
+            'request'   => $request,
+            'title'     => $type
+        ]);
+
+
+    }
     public function issueIndex(Request $request)
     {
         $issues = new Issue;
@@ -228,10 +384,11 @@ class DevelopmentController extends Controller
         }
 
         return view('development.issue', [
-            'issues' => $issues,
-            'users' => $users,
-            'modules' => $modules,
-            'request' => $request,
+            'issues'    => $issues,
+            'users'     => $users,
+            'modules'   => $modules,
+            'request'   => $request,
+            'title'     => 'Issue'
         ]);
     }
 
@@ -267,8 +424,9 @@ class DevelopmentController extends Controller
         ]);
 
         $data = $request->except('_token');
-        $data[ 'user_id' ] = $request->user_id ? $request->user_id : Auth::id();
-        $data[ 'created_by' ] = Auth::id();
+        $data[ 'user_id' ]      = $request->user_id ? $request->user_id : Auth::id();
+        $data[ 'created_by' ]   = Auth::id();
+        $data[ 'submitted_by' ] = Auth::id();
 
         $module = $request->get('module_id');
         if (!empty($module)) {
@@ -323,6 +481,7 @@ class DevelopmentController extends Controller
 
     public function issueStore(Request $request)
     {
+
         $this->validate($request, [
             'priority' => 'required|integer',
             'issue' => 'required|min:3'
@@ -334,13 +493,23 @@ class DevelopmentController extends Controller
 
         $module = DeveloperModule::find($module);
         if (!$module) {
-            $module = new DeveloperModule();
-            $module->name = $request->get('module');
+            $module         = new DeveloperModule();
+            $module->name   = $request->get('module');
             $module->save();
             $data[ 'module' ] = $module->id;
         }
 
         $issue = Issue::create($data);
+        $task           = new DeveloperTask;
+        $task->priority = $request->input('priority');
+        $task->subject  = $request->input('subject');
+        $task->task     = $request->input('issue');
+        $task->user_id  = Auth::id();
+        $task->status   = 'Issue';
+        $task->task_type_id   = 2;
+
+        $task->save();
+
 
         $issue->submitted_by = Auth::user()->id;
         $issue->save();

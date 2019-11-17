@@ -12,7 +12,7 @@ class DeveloperTask extends Model
   use SoftDeletes;
 
   protected $fillable = [
-    'user_id', 'module_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_time', 'end_time','task_type_id','parent_id','created_by'
+    'user_id', 'module_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_time', 'end_time','task_type_id','parent_id','created_by','submitted_by'
   ];
 
   public function user() {
@@ -36,4 +36,13 @@ class DeveloperTask extends Model
   public function developerModule() {
       return $this->belongsTo(DeveloperModule::class, 'module_id', 'id');
   }
+
+    public function communications() {
+        return $this->hasMany(ChatMessage::class, 'issue_id', 'id');
+    }
+    public function responsibleUser() {
+        return $this->belongsTo(User::class, 'responsible_user_id', 'id');
+    }
+
+
 }

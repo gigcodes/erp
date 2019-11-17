@@ -556,7 +556,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/upload-attachments', 'DevelopmentController@uploadAttachDocuments')->name('development.upload.files');
     Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
-    Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+    //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+    Route::get('development/list/{type}', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
     Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
     Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');

@@ -16,7 +16,7 @@
 @section('large_content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Issue List</h2>
+            <h2 class="page-heading">{{ ucfirst($title) }} List</h2>
         </div>
     </div>
 
@@ -49,7 +49,7 @@
     </div>
     <div class="row mb-4">
         <div class="col-md-12">
-            <form action="{{ action('DevelopmentController@issueIndex') }}" method="get">
+            <form action="{{ url("development/list/$title") }}" method="get">
                 <div class="row">
                     <div class="col-md-1">
                         <select class="form-control" name="submitted_by" id="submitted_by">
@@ -84,7 +84,7 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control">
+                        <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
                     </div>
                     <div class="col-md-1">
                         <select name="order" id="order_query" class="form-control">
@@ -92,6 +92,16 @@
                             <option value="create">Order by date</option>
                         </select>
                     </div>
+                    @if($title == 'task')
+                        <div class="col-md-2">
+                        <select name="task_status" id="task_status" class="form-control">
+                            <option value="">Please Select</option>
+                            <option value="Planned" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'Planned' ? 'selected' : '') }}>Planned</option>
+                            <option value="In Progress" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
+                            <option value="Done" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'Done' ? 'selected' : '') }}>Done</option>
+                        </select>
+                        </div>
+                    @endif
                     <div class="col-md-2">
                         @if ( isset($_REQUEST['show_resolved']) && $_REQUEST['show_resolved'] == 1 )
                             <input type="checkbox" name="show_resolved" value="1" checked> incl.resolved
@@ -104,12 +114,16 @@
                     </div>
                 </div>
             </form>
+            @if($title == 'task')
+            <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Task </a>
+            @endif
         </div>
     </div>
 
 
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
+            @if($title == 'issue')
             <tr class="add-new-issue">
                 <form action="{{ route('development.issue.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -133,6 +147,7 @@
                     </td>
                 </form>
             </tr>
+            @endif
             <tr>
                 <th width="1%">ID</th>
                 <th width="5%">Module</th>
@@ -151,7 +166,7 @@
                  @if(auth()->user()->isAdmin())
                     <tr>
                         <td>{{ $issue->id }}</td>
-                        <td>{{ $issue->devModule ? $issue->devModule->name : 'Not Specified' }}</td>
+                        <td>{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</td>
                         <td>{{ $issue->subject ?? 'N/A' }}</td>
                         <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
                         <td class="expand-row">
@@ -173,7 +188,7 @@
 
                             <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
                             <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
-                            <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple />  
+                            <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple />
 
                             <br />
                             <div>
@@ -264,9 +279,9 @@
                 @else
                     @if($issue->submitted_by == Auth::user()->id || $issue->user_id == Auth::user()->id || $issue->responsible_user_id == Auth::user()->id)
                         <tr>
-                            <td>{{ $issue->devModule ? $issue->devModule->name : 'Not Specified' }}</td>
+                            <td>{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</td>
                             <td>
-                                {{ $issue->issue }}
+                                {{ $issue->task }}
                                 @if ($issue->getMedia(config('constants.media_tags'))->first())
                                     <br>
                                     @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
@@ -287,6 +302,9 @@
                                     </div>
                                 </div>
                             </td>
+                            <td>{{ $issue->subject }}</td>
+                            <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
+                            <td>{{ $issue->task }}</td>
                             <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
                             <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}</td>
                             <td>
@@ -315,6 +333,7 @@
                                     Unassigned
                                 @endif
                             </td>
+                            <td>&nbsp;</td>
                             <td>
                                 @if($issue->is_resolved)
                                     <strong>Resolved</strong>
@@ -616,7 +635,7 @@
                 },
                 success: function () {
                     toastr["success"]("Message sent successfully!", "Message");
-                    
+
                 },
                 beforeSend: function () {
                     $(self).attr('disabled', true);
@@ -630,15 +649,15 @@
         }
 
         function sendUploadImage(id){
-            
+
             $('#file-input'+id).trigger('click');
 
             $('#file-input'+id).change(function () {
             event.preventDefault();
             let image_upload = new FormData();
             let TotalImages = $(this)[0].files.length;  //Total Images
-            let images = $(this)[0];  
-            
+            let images = $(this)[0];
+
             for (let i = 0; i < TotalImages; i++) {
                 image_upload.append('images[]', images.files[i]);
             }
@@ -666,10 +685,30 @@
                           console.log(`Failed`)
                         }
                     })
-                }    
+                }
             })
         }
 
-       
+        //Popup for add new task
+        $(document).on('click', '#newTaskModalBtn', function () {
+            if ($("#newTaskModal").length > 0) {
+                $("#newTaskModal").remove();
+            }
+
+            $.ajax({
+                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                type: 'GET',
+                dataType: "JSON",
+                success: function (resp) {
+                    console.log(resp);
+                    if(resp.status == 'ok') {
+                        $("body").append(resp.html);
+                        $('#newTaskModal').modal('show');
+                    }
+                }
+            });
+        });
+
+
     </script>
 @endsection

@@ -1934,10 +1934,10 @@ class WhatsAppController extends FindByNumberController
             } elseif ($context == 'issue') {
 
                 $params[ 'issue_id' ] = $request->get('issue_id');
-                $issue = Issue::find($request->get('issue_id'));
-                $params[ 'erp_user' ] = $issue->user_id;
-                $params[ 'approved' ] = 1;
-                $params[ 'status' ] = 2;
+                $issue                  = Issue::find($request->get('issue_id'));
+                $params[ 'erp_user' ]   = $issue->user_id;
+                $params[ 'approved' ]   = 1;
+                $params[ 'status' ]     = 2;
 
 
                 $number = User::find($issue->user_id);
