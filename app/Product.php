@@ -132,6 +132,7 @@ class Product extends Model
                 }
 
                 // Check for valid supplier and store details linked to supplier
+
                 try {
                     if ($dbSupplier = Supplier::where('supplier', $json->website)->first()) {
                         if ($product) {
@@ -444,7 +445,6 @@ class Product extends Model
 
     public static function getPendingProductsCount($roleType)
     {
-
         $stage = new Stage();
         $stage_no = intval($stage->getID($roleType));
 
