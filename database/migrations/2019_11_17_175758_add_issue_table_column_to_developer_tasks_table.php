@@ -16,6 +16,7 @@ class AddIssueTableColumnToDeveloperTasksTable extends Migration
         Schema::table('developer_tasks', function (Blueprint $table) {
             $table->tinyInteger('is_resolved')->default(0);
             $table->integer('submitted_by');
+            $table->integer('responsible_user_id');
         });
     }
 
@@ -27,7 +28,9 @@ class AddIssueTableColumnToDeveloperTasksTable extends Migration
     public function down()
     {
         Schema::table('developer_tasks', function (Blueprint $table) {
-            //
+            $table->dropColumn('is_resolved');
+            $table->dropColumn('submitted_by');
+            $table->dropColumn('responsible_user_id');
         });
     }
 }
