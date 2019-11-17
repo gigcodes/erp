@@ -131,7 +131,7 @@ class Product extends Model
                 }
 
                 // Check for valid supplier and store details linked to supplier
-                if ($dbSupplier = Supplier::where('supplier', $json->website)->first()) {
+                if ($dbSupplier = Supplier::where('scraper_name', $json->website)->first()) {
                     if ($product) {
                         $product->suppliers()->syncWithoutDetaching([
                             $dbSupplier->id => [
@@ -238,7 +238,7 @@ class Product extends Model
                 ProductStatus::updateStatus($product->id, 'CREATED_NEW_PRODUCT_BY_JSON', 1);
 
                 // Check for valid supplier and store details linked to supplier
-                if ($dbSupplier = Supplier::where('supplier', $json->website)->first()) {
+                if ($dbSupplier = Supplier::where('scraper_name', $json->website)->first()) {
                     if ($product) {
                         $product->suppliers()->syncWithoutDetaching([
                             $dbSupplier->id => [
@@ -435,7 +435,6 @@ class Product extends Model
 
     public static function getPendingProductsCount($roleType)
     {
-
         $stage = new Stage();
         $stage_no = intval($stage->getID($roleType));
 
