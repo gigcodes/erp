@@ -1067,6 +1067,30 @@ class LeadsController extends Controller
         $customerArr = Customer::whereIn('id', $customerIds)->where('do_not_disturb', 0)->get();
         if (!empty($customerArr)) {
             $productIds = array_unique($request->get('products', []));
+
+            // check if the data has more values for the prmotions
+            $startTime = $request->get("product_start_date","");
+            $endTime   = $request->get("product_end_date","");
+
+            $product =  new \App\Product;
+            
+            $fireQ = false;
+            if(!empty($startTime)) {
+                $fireQ = true;
+                $product = $product->where("created_at",">=",$startTime);
+            }
+            if(!empty($endTime)) {
+                $fireQ = true;
+                $product = $product->where("created_at","<=",$endTime);
+            }
+
+            if($fireQ) {
+                $productQueryIds = $product->select("id")->get()->pluck('id')->toArray();
+                if(!empty($productQueryIds)) {
+                    $productIds = array_merge($productIds,$productQueryIds);
+                }
+            }
+
             $broadcast_image =  new BroadcastImage();
             $broadcast_image->products =  json_encode($productIds);
             $broadcast_image->save();
