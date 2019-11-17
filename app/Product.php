@@ -436,7 +436,6 @@ class Product extends Model
 
     public static function getPendingProductsCount($roleType)
     {
-
         $stage = new Stage();
         $stage_no = intval($stage->getID($roleType));
 
