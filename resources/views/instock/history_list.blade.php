@@ -1,4 +1,15 @@
 <div class="col-md-12">
+  <div class="form-group mr-3">
+      <select data-placeholder="Select location" data-product-id="{{ $product->id }}" class="form-control location-change-product" name="location">
+        <optgroup label="Locations">
+          @foreach ($locations as $name)
+            <option value="{{ $name }}" {{ isset($product->location) && $product->location == $name ? 'selected' : '' }}>{{ $name }}</option>
+          @endforeach
+        </optgroup>
+      </select>
+    </div>
+</div> 
+<div class="col-md-12">
   <table class="table">
     <thead>
       <tr>
