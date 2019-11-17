@@ -933,6 +933,9 @@
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Development --}}
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('newDevTaskPlanner') }}">Devtask Planner</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                 </li>
                                 <li class="nav-item">
@@ -1484,13 +1487,13 @@
           $( "#search_li" ).addClass('open');
           //Close when search becomes zero
           if(a.length == 0){
-             $( "#search_li" ).removeClass('open'); 
+             $( "#search_li" ).removeClass('open');
             }
-           //Limiting Search Count 
+           //Limiting Search Count
          count = 1;
          //Empty Existing Values
           $( "#search_container" ).empty();
-          
+
          //Getting All Values
          for (i = 0; i < a.length; i++) {
             txtValue = a[i].textContent || a[i].innerText;
@@ -1512,12 +1515,12 @@
             //Pusing values to DOM Search Input
             if (txtValue.toUpperCase().indexOf(filter) > -1) {
                 $( "#search_container" ).append( '<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href='+href+'>'+txtValue+'</a></li>' );
-                count++    
+                count++
             } else {
             }
         }
     }
-        
+
     </script>
 @endif
 
