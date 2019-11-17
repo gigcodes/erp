@@ -46,7 +46,10 @@ Route::post('products/auto-rejected', 'ScrapController@saveScrapedProduct');
 Route::get('products/get-products-to-scrape', 'ScrapController@getProductsToScrape');
 Route::post('products/save-scraped-product', 'ScrapController@saveScrapedProduct');
 
-
+Route::post('twilio-conference','TwilioController@outgoingCallConference');
+Route::post('twilio-conference-mute','TwilioController@muteConferenceNumber');
+Route::post('twilio-conference-hold','TwilioController@holdConferenceNUmber');
+Route::post('twilio-conference-remove','TwilioController@removeConferenceNumber');
 //Route::get('products/new-supplier', 'ScrapController@getFromNewSupplier');
 Route::get('products/new-supplier', 'ScrapController@getProductsToScrape');
 Route::post('products/new-supplier', 'ScrapController@saveFromNewSupplier');

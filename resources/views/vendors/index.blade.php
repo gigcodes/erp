@@ -50,6 +50,7 @@
             </div>
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
             </div>
@@ -204,6 +205,7 @@
     @include('vendors.partials.vendor-modals')
     {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')
+    @include('vendors.partials.modal-conference')
 
     <div id="reminderModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -567,9 +569,13 @@
         });
 
          $(document).on('click', '.call-select', function() {
-        var id = $(this).data('id');
-        $('#show'+id).toggle();
-        console.log('#show'+id);
-      });
+            var id = $(this).data('id');
+            $('#show'+id).toggle();
+            console.log('#show'+id);
+        });
+
+         $(function() {
+            $('.selectpicker').selectpicker();
+        });
     </script>
 @endsection

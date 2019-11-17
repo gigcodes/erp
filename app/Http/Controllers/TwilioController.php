@@ -37,6 +37,7 @@ use Illuminate\Support\Facades\Log;
 use App\Helpers;
 use App\Recording;
 use Carbon\Carbon;
+use Response;
 
 /**
  * Class TwilioController - active record
@@ -286,6 +287,97 @@ class TwilioController extends FindByNumberController {
         $response->record(['transcribeCallback' => $recordurl]);
 
         return \Response::make((string) $response, '200')->header('Content-Type', 'text/xml');
+    }
+
+    /**
+     * Outgoing Conference call URL
+     * @param Request $request Request
+     * @return \Illuminate\Http\Response
+     * @Rest\Post("twilio-conference")
+     * 
+     * @uses Log
+     * @uses Config
+     */
+    public function outgoingCallConference(Request $request , Response $response) {
+       
+        $from = $request->numbersFrom;
+        $to = $request->numbers;
+        $context = $request->context;
+        $id = $request->id;
+        $sid    = \Config::get("twilio.account_sid");
+        $token  = \Config::get("twilio.auth_token");
+        $twilio = new Client($sid, $token);
+
+        
+        foreach ($to as $number) {
+                $participant = $twilio->conferences(\Config::get("twilio.conference_sid"))
+                      ->participants
+                      ->create($from,$number);
+                $caller_sid = $participant->callSid;
+                $details[] = array('number' => $number, 'sid' => $caller_sid); 
+                
+        }
+        
+        // Via a request instance...
+        return \Response::make($details, '200')->header('Content-Type', 'text/xml');
+        
+    }
+
+    /**
+     * Mute Number From Conference 
+     * @param Request $request Request
+     * @return \Illuminate\Http\Response
+     * @Rest\Post("twilio-conference-mute")
+     * 
+     * @uses Log
+     * @uses Config
+     */
+    public function muteConferenceNumber(Request $request)
+    {
+        $caller_sid = $request->sid;
+       $participant = $twilio->conferences(\Config::get("twilio.conference_sid"))
+                      ->participants($caller_sid)
+                      ->update(array("muted" => True));
+        // Via a request instance...
+        return \Response::make('Muted SucessFully', '200')->header('Content-Type', 'text/xml');              
+    }
+
+    /**
+     * Hold Number From Conference 
+     * @param Request $request Request
+     * @return \Illuminate\Http\Response
+     * @Rest\Post("twilio-conference-hold")
+     * 
+     * @uses Log
+     * @uses Config
+     */
+    public function holdConferenceNUmber(Request $request)
+    {
+       $caller_sid = $request->sid;
+       $participant = $twilio->conferences(\Config::get("twilio.conference_sid"))
+                      ->participants($caller_sid)
+                      ->update(array("muted" => True));
+       // Via a request instance...
+        return \Response::make('Hold SucessFully', '200')->header('Content-Type', 'text/xml');                 
+    }
+    
+    /**
+     * Remove Number From Conference 
+     * @param Request $request Request
+     * @return \Illuminate\Http\Response
+     * @Rest\Post("twilio-conference-remove")
+     * 
+     * @uses Log
+     * @uses Config
+     */
+    public function removeConferenceNumber(Request $request)
+    {
+       $caller_sid = $request->sid;
+       $participant = $twilio->conferences(\Config::get("twilio.conference_sid"))
+                      ->participants($caller_sid)
+                      ->update(array("muted" => True));
+        // Via a request instance...
+        return \Response::make('Number Removed SucessFully', '200')->header('Content-Type', 'text/xml');                 
     }
 
     /**

@@ -59,6 +59,15 @@
 				}
 				callNumber(numberCallFrom , numberToCall , context , id);
 			} );
+
+			$(document).on('click', '.conference-twilio', function() {
+				var id = 1;
+				var numberToCall = $('#vendors-conference').val();
+				var context = $('#context').val();
+				var numberCallFrom = $('#conference-number-selected').children("option:selected").val();
+				alert('Conferecen Call Initilizing');
+				callConference(numberCallFrom , numberToCall , context , id);
+			} );
     });
 
     device.on('error', function (error) {
@@ -129,6 +138,7 @@
      showError("Call terminated");
      device.disconnectAll();
   }
+
   function callerMute(number) {
       var conn = device.activeConnection();
       var el = $(".muter");
@@ -150,7 +160,7 @@
     }
 
 		remotePhoneNumber=number;
-    $.notifyClose();
+    	$.notifyClose();
 		var callingText = "<h5>Calling " + remotePhoneNumber+"</h5>";
 		callingText += "<br/><button class='btn btn-danger' onclick='callerHangup()'>Hangup</button>";
 
@@ -190,6 +200,58 @@
 		opts=opts||defaultNotifOpts;
 		opts['type']="danger";
 		showNotif({ message: message }, opts);
+	}
+
+	function callConference(numberCallFrom , numbers, context, id){
+	var conn = device.activeConnection();
+    if (conn) {
+      alert("Please hangup current call before dialing new number..");
+      return;
+    }
+    
+    $.notifyClose();
+    
+	$.ajax({
+    	url: '/api/twilio-conference',
+    	type: 'POST',
+    	dataType: 'json',
+    	data: {
+    		_token: "{{ csrf_token() }}",
+    		numbersFrom : numberCallFrom,
+    		numbers		: numbers,
+    		context		: context,
+    		id			: id,
+    	},
+    }).done(function(response) {
+    	console.log(response.length)
+		for (var i = 1; i < response.length; i++) {
+    		 var callingText = "<h5>Calling "+response[i]['number']+"</h5>";
+			callingText += "<br/><button class='btn btn-danger' onclick='callerHangup("+ response[i]['number']+")'>Hangup</button>";
+			showWarning(callingText, longNotifOpts);		
+		}
+
+    })
+    .fail(function() {
+    	console.log("error");
+    });
+	}
+
+	function callerConferenceHangup(number){
+		$.ajax({
+    	url: '/api/twilio-conference',
+    	type: 'POST',
+    	dataType: 'json',
+    	data: {
+    		_token: "{{ csrf_token() }}",
+    		sid : number,
+    	},
+    	}).done(function(response) {
+    	console.log(response.length)
+    	  showError("Caller Removed From Conferece");
+    	})
+    	.fail(function() {
+    	console.log("error");
+    	});
 	}
 
 	function showNotifTimer(message) {
