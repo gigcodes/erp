@@ -132,27 +132,23 @@ class Product extends Model
                 }
 
                 // Check for valid supplier and store details linked to supplier
-                try {
-                    if ($dbSupplier = Supplier::where('supplier', $json->website)->first()) {
-                        if ($product) {
-                            $product->suppliers()->syncWithoutDetaching([
-                                $dbSupplier->id => [
-                                    'title' => ProductHelper::getRedactedText($json->title, 'name'),
-                                    'description' => ProductHelper::getRedactedText($json->description, 'short_description'),
-                                    'supplier_link' => $json->url,
-                                    'stock' => $json->stock,
-                                    'price' => $formattedPrices[ 'price' ],
-                                    'price_discounted' => $formattedPrices[ 'price_discounted' ],
-                                    'size' => $json->properties[ 'size' ] ?? null,
-                                    'color' => $json->properties[ 'color' ],
-                                    'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
-                                    'sku' => $json->original_sku
-                                ]
-                            ]);
-                        }
+                if ($dbSupplier = Supplier::where('supplier', $json->website)->first()) {
+                    if ($product) {
+                        $product->suppliers()->syncWithoutDetaching([
+                            $dbSupplier->id => [
+                                'title' => ProductHelper::getRedactedText($json->title, 'name'),
+                                'description' => ProductHelper::getRedactedText($json->description, 'short_description'),
+                                'supplier_link' => $json->url,
+                                'stock' => $json->stock,
+                                'price' => $formattedPrices[ 'price' ],
+                                'price_discounted' => $formattedPrices[ 'price_discounted' ],
+                                'size' => $json->properties[ 'size' ] ?? null,
+                                'color' => $json->properties[ 'color' ],
+                                'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
+                                'sku' => $json->original_sku
+                            ]
+                        ]);
                     }
-                } catch (Exception $e) {
-                    //
                 }
 
                 // Set duplicate count to 0
@@ -243,27 +239,23 @@ class Product extends Model
                 ProductStatus::updateStatus($product->id, 'CREATED_NEW_PRODUCT_BY_JSON', 1);
 
                 // Check for valid supplier and store details linked to supplier
-                try {
-                    if ($dbSupplier = Supplier::where('supplier', $json->website)->first()) {
-                        if ($product) {
-                            $product->suppliers()->syncWithoutDetaching([
-                                $dbSupplier->id => [
-                                    'title' => ProductHelper::getRedactedText($json->title, 'name'),
-                                    'description' => ProductHelper::getRedactedText($json->description, 'short_description'),
-                                    'supplier_link' => $json->url,
-                                    'stock' => $json->stock,
-                                    'price' => $formattedPrices[ 'price' ],
-                                    'price_discounted' => $formattedPrices[ 'price_discounted' ],
-                                    'size' => $json->properties[ 'size' ] ?? null,
-                                    'color' => $json->properties[ 'color' ],
-                                    'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
-                                    'sku' => $json->original_sku
-                                ]
-                            ]);
-                        }
+                if ($dbSupplier = Supplier::where('supplier', $json->website)->first()) {
+                    if ($product) {
+                        $product->suppliers()->syncWithoutDetaching([
+                            $dbSupplier->id => [
+                                'title' => ProductHelper::getRedactedText($json->title, 'name'),
+                                'description' => ProductHelper::getRedactedText($json->description, 'short_description'),
+                                'supplier_link' => $json->url,
+                                'stock' => $json->stock,
+                                'price' => $formattedPrices[ 'price' ],
+                                'price_discounted' => $formattedPrices[ 'price_discounted' ],
+                                'size' => $json->properties[ 'size' ] ?? null,
+                                'color' => $json->properties[ 'color' ],
+                                'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
+                                'sku' => $json->original_sku
+                            ]
+                        ]);
                     }
-                } catch (Exception $e) {
-                    //
                 }
 
                 // Return true
