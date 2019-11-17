@@ -936,13 +936,13 @@
                                     <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
+                                    <a class="dropdown-item" href="{{ url('development/list/task') }}">Tasks</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('task-types.index') }}">Task Types</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue list</a>
+                                    <a class="dropdown-item" href="{{ url('development/list/issue') }}">Issue list</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
