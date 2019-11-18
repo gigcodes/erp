@@ -6,7 +6,7 @@ use App\Document;
 use App\CronJobReport;
 use Illuminate\Console\Command;
 use Webklex\IMAP\Client;
-
+use Carbon\Carbon;
 
 class DocumentReciever extends Command
 {

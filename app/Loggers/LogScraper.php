@@ -349,6 +349,6 @@ class LogScraper extends Model
         }
 
         // If we end up here, there is no regex set for this brand TODO: Will be an error in the future
-        return "[warning] No SKU regex set for brand " . $brand->name . "\n";
+        return "[warning] No brand found (" . $brand . ")\n";
     }
 }

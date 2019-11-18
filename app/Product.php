@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Helpers\StatusHelper;
+use Dompdf\Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -42,7 +44,7 @@ class Product extends Model
      * @param $json
      * @return bool|\Illuminate\Http\JsonResponse
      */
-    public static function createProductByJson($json, $isExcel = 0)
+    public static function createProductByJson($json, $isExcel = 0, $nextExcelStatus = 2)
     {
         // Log before validating
         LogScraper::LogScrapeValidationUsingRequest($json, $isExcel);
@@ -70,6 +72,11 @@ class Product extends Model
                 // Return false if no product is found
                 if (!$product) {
                     return false;
+                }
+
+                // Update from scrape to manual images
+                if (!$product->is_approved && !$product->is_listing_rejected && $product->status_id == StatusHelper::$scrape && (int)$nextExcelStatus == StatusHelper::$unableToScrapeImages) {
+                    $product->status_id = StatusHelper::$unableToScrapeImages;
                 }
 
                 // Update the name and description if the product is not approved and not rejected
@@ -125,7 +132,7 @@ class Product extends Model
                 }
 
                 // Check for valid supplier and store details linked to supplier
-                if ($dbSupplier = Supplier::where('supplier', $json->website)->first()) {
+                if ($dbSupplier = Supplier::where('scraper_name', $json->website)->first()) {
                     if ($product) {
                         $product->suppliers()->syncWithoutDetaching([
                             $dbSupplier->id => [
@@ -135,7 +142,7 @@ class Product extends Model
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price' ],
                                 'price_discounted' => $formattedPrices[ 'price_discounted' ],
-                                'size' => $json->properties[ 'size' ],
+                                'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
                                 'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
                                 'sku' => $json->original_sku
@@ -196,7 +203,7 @@ class Product extends Model
                 }
 
                 // Set product values
-                $product->status_id = ($isExcel == 1 ? 2 : 3);
+                $product->status_id = ($isExcel == 1 ? $nextExcelStatus : 3);
                 $product->sku = $data[ 'sku' ];
                 $product->supplier = $json->website;
                 $product->brand = $json->brand_id;
@@ -232,7 +239,7 @@ class Product extends Model
                 ProductStatus::updateStatus($product->id, 'CREATED_NEW_PRODUCT_BY_JSON', 1);
 
                 // Check for valid supplier and store details linked to supplier
-                if ($dbSupplier = Supplier::where('supplier', $json->website)->first()) {
+                if ($dbSupplier = Supplier::where('scraper_name', $json->website)->first()) {
                     if ($product) {
                         $product->suppliers()->syncWithoutDetaching([
                             $dbSupplier->id => [
@@ -242,7 +249,7 @@ class Product extends Model
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price' ],
                                 'price_discounted' => $formattedPrices[ 'price_discounted' ],
-                                'size' => $json->properties[ 'size' ],
+                                'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
                                 'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
                                 'sku' => $json->original_sku
@@ -429,7 +436,6 @@ class Product extends Model
 
     public static function getPendingProductsCount($roleType)
     {
-
         $stage = new Stage();
         $stage_no = intval($stage->getID($roleType));
 
@@ -511,8 +517,9 @@ class Product extends Model
         return $this->hasMany(ProductStatus::class, 'product_id', 'id');
     }
 
-    public function groups(){
-        return $this->hasMany(ProductQuicksellGroup::class,'product_id','id');
+    public function groups()
+    {
+        return $this->hasMany(ProductQuicksellGroup::class, 'product_id', 'id');
     }
 
 }

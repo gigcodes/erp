@@ -294,16 +294,22 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/productinventory/in/delivered', 'ProductInventoryController@inDelivered')->name('productinventory.indelivered');
     Route::get('/productinventory/in/stock/instruction-create', 'ProductInventoryController@instructionCreate')->name('productinventory.instruction.create');
     Route::post('/productinventory/in/stock/instruction', 'ProductInventoryController@instruction')->name('productinventory.instruction');
-    Route::get('/productinventory/in/stock/location-hisotory', 'ProductInventoryController@locationHistory')->name('productinventory.location.history');
+    Route::get('/productinventory/in/stock/location-history', 'ProductInventoryController@locationHistory')->name('productinventory.location.history');
     Route::post('/productinventory/in/stock/dispatch-store', 'ProductInventoryController@dispatchStore')->name('productinventory.dispatch.store');
     Route::get('/productinventory/in/stock/dispatch', 'ProductInventoryController@dispatchCreate')->name('productinventory.dispatch.create');
     Route::post('/productinventory/stock/{product}', 'ProductInventoryController@stock')->name('productinventory.stock');
+    Route::get('productinventory/in/stock/location/change', 'ProductInventoryController@locationChange')->name('productinventory.location.change');
 
 
     Route::prefix('google-search-image')->group(function () {
         Route::get('/', 'GoogleSearchImageController@index')->name('google.search.image');
         Route::post('details', 'GoogleSearchImageController@details')->name('google.details.image');
         Route::post('/', 'GoogleSearchImageController@searchImageOnGoogle');
+    });
+
+    Route::prefix('search-image')->group(function () {
+        Route::get('/', 'GoogleSearchImageController@product')->name('google.search.product');
+        Route::post('/', 'GoogleSearchImageController@product')->name('google.search.product-save');
     });
 
 

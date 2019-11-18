@@ -348,6 +348,12 @@
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Images<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Image Search</a>
+                                            </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Attribute<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 @if(auth()->user()->checkPermission('productlister-list'))
@@ -430,6 +436,9 @@
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('google.search.image') }}">Google Search</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Find Images</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -924,6 +933,9 @@
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Development --}}
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">Devtask Planner</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                 </li>
                                 <li class="nav-item">
@@ -1130,6 +1142,11 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item dropdown" id="search_li">
+                                <input type="text" class="form-control nav-link" placeholder="Search" style="margin-top : 1%;" onkeyup="filterFunction()" id="search">
+                                <ul class="dropdown-menu multi-level" id="search_container">
+                               </ul>
+                            </li>
                     @endif
 
                 </ul>
@@ -1456,6 +1473,54 @@
 
         gtag('js', new Date());
         gtag('config', 'UA-147736165-1');
+    </script>
+    <script>
+        function filterFunction() {
+          var input, filter, ul, li, a, i;
+          //getting search values
+          input = document.getElementById("search");
+          //String to upper for search
+          filter = input.value.toUpperCase();
+          //Getting Values From DOM
+          a = document.querySelectorAll("#navbarSupportedContent a");
+          //Class to open bar
+          $( "#search_li" ).addClass('open');
+          //Close when search becomes zero
+          if(a.length == 0){
+             $( "#search_li" ).removeClass('open');
+            }
+           //Limiting Search Count
+         count = 1;
+         //Empty Existing Values
+          $( "#search_container" ).empty();
+
+         //Getting All Values
+         for (i = 0; i < a.length; i++) {
+            txtValue = a[i].textContent || a[i].innerText;
+            href = a[i].href;
+            //If value doesnt have link
+            if(href == "#" || href == '' || href.indexOf('#') > -1){
+                continue;
+            }
+            //Removing old search Result From DOM
+            if(a[i].getAttribute('class') != null && a[i].getAttribute('class') != ''){
+                if(a[i].getAttribute('class').indexOf('old_search') > -1){
+                    continue;
+                }
+            }
+            //break when count goes above 30
+            if(count > 30){
+                break;
+            }
+            //Pusing values to DOM Search Input
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                $( "#search_container" ).append( '<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href='+href+'>'+txtValue+'</a></li>' );
+                count++
+            } else {
+            }
+        }
+    }
+
     </script>
 @endif
 

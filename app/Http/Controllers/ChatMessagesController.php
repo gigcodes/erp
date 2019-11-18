@@ -147,6 +147,9 @@ class ChatMessagesController extends Controller
                 'product_id' => !empty($productId) ? $productId : null,
                 'status' => $chatMessage->status,
                 'resent' => $chatMessage->resent,
+                'customer_id' => $chatMessage->customer_id,
+                'approved' => $chatMessage->approved,
+                'error_status' => $chatMessage->error_status,
             ];
         }
 
