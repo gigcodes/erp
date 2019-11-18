@@ -1464,8 +1464,7 @@ class ProductController extends Controller
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->get();
-        $color = '';
-        $supplier = '';
+       
         return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
     }
 

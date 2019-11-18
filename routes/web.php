@@ -13,7 +13,6 @@
 
 Auth::routes();
 
-Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
     
 //Route::get('/test/test','TestController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
@@ -1211,7 +1210,7 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
 
 });
 
-
+Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
 Route::group(['middleware' => 'auth'], function () {
     Route::prefix('tmp-task')->group(function () {
         Route::get('import-leads', 'TmpTaskController@importLeads')->name('importLeads');

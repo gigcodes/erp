@@ -49,20 +49,11 @@ class AttachImagesSend implements ShouldQueue
      */
     public function handle(Request $request)
     {
-
         // Set time limit
         set_time_limit(0);
         $request->request->add(['_token' => $this->_token , 'send_pdf' => $this->send_pdf , 'images' => $this->images , 'image' => $this->image , 'screenshot_path' => $this->screenshot_path , 'message' => $this->message , 'customer_id' => $this->customer_id , 'status' => $this->status ]);
         
-       $itemsAdded = app('App\Http\Controllers\WhatsAppController')->sendMessage($request, 'customer');
-        
-        if ((int)$itemsAdded > 0) {
-            // Log info
-            Log::channel('productUpdates')->info("[Queued job result] Successfully imported " . $itemsAdded . " products");
-        } else {
-            // Log alert
-            Log::channel('productUpdates')->alert("[Queued job result] Failed importing products");
-        }
+        app('App\Helpers\InstantMessagingHelper')->sendWhatsAppMessage($request, 'customer');
         
     }
 
