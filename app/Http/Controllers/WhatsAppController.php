@@ -1816,7 +1816,7 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context)
     {
-        
+
         $this->validate($request, [
             // 'message'         => 'nullable|required_without:image,images,screenshot_path|string',
 //        'image'           => 'nullable|required_without:message',
@@ -2387,7 +2387,9 @@ class WhatsAppController extends FindByNumberController
         }
 
         if ($request->images) {
+
             $imagesDecoded = json_decode($request->images);
+
             if (!empty($request->send_pdf) && $request->send_pdf == 1) {
 
                 $temp_chat_message = ChatMessage::create($data);
@@ -2432,7 +2434,7 @@ class WhatsAppController extends FindByNumberController
             }
 
         }
-
+        
         if ($request->screenshot_path != '') {
             $image_path = public_path() . '/uploads/temp_screenshot.png';
             $img = substr($request->screenshot_path, strpos($request->screenshot_path, ",") + 1);
@@ -2450,19 +2452,21 @@ class WhatsAppController extends FindByNumberController
             File::delete('uploads/temp_screenshot.png');
         }
 
-        $approveMessage = 0;
+        $approveMessage = 1;
 
         try {
             $approveMessage = $request->session()->get('is_approve_message');
         } catch (\Exception $e) {
         }
-
+        
         if (($approveMessage == '1' || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0) {
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $chat_message->id]);
             $this->approveMessage($context, $myRequest);
         }
+
+
 
         if ($request->ajax()) {
             return response()->json(['message' => $chat_message]);
@@ -3621,10 +3625,10 @@ class WhatsAppController extends FindByNumberController
         }
         // array_reverse($result);
         // $result = array_values(array_sort($result, function ($value) {
-        // 				return $value['creation_date'];
-        // 		}));
+        //              return $value['creation_date'];
+        //      }));
         // //
-        // 		$result = array_reverse($result);
+        //      $result = array_reverse($result);
         dd($filtered_data);
 
 

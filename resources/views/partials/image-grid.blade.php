@@ -547,3 +547,13 @@
     </script>
 
 @endsection
+
+@section('scripts')
+<script type="text/javascript">
+    function myFunction(id){
+    $('#description'+id).hide();    
+    $('#description_full'+id).show();
+   }
+</script>
+
+@endsection

@@ -1444,7 +1444,8 @@ class ProductController extends Controller
         $products = $products->join("mediables", function ($query) {
             $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
         })->groupBy('products.id');
-        $products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier', 'purchase_status', 'media_id']);
+        
+        $products = $products->select(['id','name','short_description','color','sku', 'size', 'price_special', 'supplier', 'purchase_status', 'media_id']);
         $products_count = $products->get()->count();
         $all_product_ids = $products->get()->pluck('media_id')->toArray();
         $products = $products->paginate(Setting::get('pagination'));
@@ -1463,8 +1464,7 @@ class ProductController extends Controller
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->get();
-     //   $color = '';
-    //    $supplier = '';
+       
         return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
     }
 
@@ -2111,7 +2111,7 @@ class ProductController extends Controller
         $data['pdf'] = $request->send_pdf; 
          
         \App\Jobs\AttachImagesSend::dispatch($data);
-
-        return redirect()->back()->withSuccess('Message Send For Queue');
+        
+        return redirect()->route('customer.post.show',$request->customer_id)->withSuccess('Message Send For Queue');
     }
 }

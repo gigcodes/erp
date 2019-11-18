@@ -39,12 +39,22 @@
       {{-- @foreach ($images as $image) --}}
         <div class="col-md-3 col-xs-6 text-center mb-5 product-list-card">
           <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
+            
             <img data-src="{{ $image->getUrl() }}" class="lazy img-responsive grid-image" alt="" />
+            <div style="text-align: left;">
             <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
             <p>Id : {{ $product->id }}</p>
+            <p>Title : {{ $product->name }} </p>
             <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>
             <p>Price : {{ $product->price_special }}</p>
+            <p>Color : {{ $product->color }} </p>
+          </div>
           </a>
+          <div style="text-align: left;">
+            <p onclick="myFunction({{ $product->id }})" id="description{{ $product->id }}">Description : {{ strlen($product->short_description) > 40 ? substr($product->short_description, 0, 40).'...' : $product->short_description }}</p>
+            <p style="display: none;" id="description_full{{ $product->id }}">Description :{{ $product->short_description }}</p>
+          </div>
+          
           <div class="custom-control custom-checkbox mb-4">
               <input type="checkbox" class="custom-control-input select-pr-list-chk" id="defaultUnchecked_{{ $kr}}">
               <label class="custom-control-label" for="defaultUnchecked_{{ $kr}}"></label>
