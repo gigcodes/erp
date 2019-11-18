@@ -1020,9 +1020,11 @@ class LeadsController extends Controller
                 if ($old > 0) {
                     self::removeImage($old);
                 } elseif ($old == -1) {
-                    foreach ($request->file('image') as $image) {
-                        $media = MediaUploader::fromSource($image)->upload();
-                        $erpLeads->attachMedia($media, config('constants.media_tags'));
+                    if ($request->hasFile('image')) {
+                        foreach ($request->file('image') as $image) {
+                            $media = MediaUploader::fromSource($image)->upload();
+                            $erpLeads->attachMedia($media, config('constants.media_tags'));
+                        }
                     }
                 } elseif ($old == 0) {
                     $count++;
