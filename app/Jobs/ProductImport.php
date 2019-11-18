@@ -21,7 +21,7 @@ class ProductImport implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $json )
+    public function __construct($json)
     {
         // Set product
         $this->_json = $json;
@@ -40,16 +40,26 @@ class ProductImport implements ShouldQueue
         // Load App\Product
         $scrapedProduct = new \App\ScrapedProducts();
 
+        // Check for nextExcelStatus
+        $nextExcelStatus = $this->_json->nextExcelStatus ?? 2;
+
+        // Remove nextExcelStatus from json
+        if (isset($this->_json->nextExcelStatus)) {
+            $arrJson = json_decode($this->_json, true);
+            unset($arrJson[ 'nextExcelStatus' ]);
+            $this->_json = json_encode($arrJson);
+        }
+
         // ItemsAdded
-        $itemsAdded = $scrapedProduct->bulkScrapeImport( $this->_json, 1 );
+        $itemsAdded = $scrapedProduct->bulkScrapeImport($this->_json, 1, $nextExcelStatus);
 
         // Check for result
-        if ( (int) $itemsAdded > 0 ) {
+        if ((int)$itemsAdded > 0) {
             // Log info
-            Log::channel('productUpdates')->info( "[Queued job result] Successfully imported " . $itemsAdded . " products" );
+            Log::channel('productUpdates')->info("[Queued job result] Successfully imported " . $itemsAdded . " products");
         } else {
             // Log alert
-            Log::channel('productUpdates')->alert( "[Queued job result] Failed importing products" );
+            Log::channel('productUpdates')->alert("[Queued job result] Failed importing products");
         }
     }
 }

@@ -29,4 +29,9 @@ class ReplyCategory extends Model
   public function internal_purchases() {
     return $this->hasMany('App\Reply', 'category_id')->where('model', 'Internal Purchase');
   }
+
+  public function product_dispatch() {
+    return $this->hasMany('App\Reply', 'category_id')->where('model', 'Product Dispatch');
+  }
+
 }
