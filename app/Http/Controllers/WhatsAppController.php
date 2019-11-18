@@ -2178,10 +2178,26 @@ class WhatsAppController extends FindByNumberController
                         if ($groups != null) {
                             foreach ($groups as $group) {
 
-                                $productsQuickSell = ProductQuicksellGroup::where('quicksell_group_id', $group->group)->get();
+                                //$productsQuickSell = ProductQuicksellGroup::where('quicksell_group_id', $group->group)->get();
                                 //dd($productsQuickSell[0]->product_id);
                                 $images = [];
-                                foreach ($productsQuickSell as $product) {
+
+                                $products = Product::with('media')
+                                                    ->select('products.*')
+                                                    ->join('product_quicksell_groups', 'product_quicksell_groups.product_id', '=', 'products.id')
+                                                    ->groupBy('products.id')
+                                                    ->where('quicksell_group_id', $group->group)
+                                                    ->get();
+                                
+                                foreach ($products as $product) {
+                                    $image = $product->media->first();
+                                    if ( $image) {
+                                        array_push($images, $image->filename);
+                                    }
+
+                                }
+
+                                /*foreach ($productsQuickSell as $product) {
                                     if ($product != null) {
 
                                         //Getting product from id
@@ -2200,7 +2216,7 @@ class WhatsAppController extends FindByNumberController
 
                                         }
                                     }
-                                }
+                                }*/
 
                                 if (isset($images) && count($images) > 0) {
                                     $temp_chat_message = ChatMessage::create($data);
