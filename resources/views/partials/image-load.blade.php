@@ -52,7 +52,7 @@
           </a>
           <div style="text-align: left;">
             <p onclick="myFunction({{ $product->id }})" id="description{{ $product->id }}">Description : {{ strlen($product->short_description) > 40 ? substr($product->short_description, 0, 40).'...' : $product->short_description }}</p>
-            <p style="display: none;" id="description_full{{ $product->id }}">Description :{{ $product->short_description }}</p>
+            <p onclick="myFunction({{ $product->id }})" style="display: none;" id="description_full{{ $product->id }}">Description :{{ $product->short_description }}</p>
           </div>
           
           <div class="custom-control custom-checkbox mb-4">

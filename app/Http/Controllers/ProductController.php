@@ -1464,7 +1464,8 @@ class ProductController extends Controller
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->get();
-       
+        $color = '';
+        $supplier = '';
         return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
     }
 
@@ -2108,8 +2109,15 @@ class ProductController extends Controller
 
     public function queueCustomerAttachImages(Request $request)
     {
-        $data['pdf'] = $request->send_pdf; 
-         
+        $data['_token'] = $request->_token;
+        $data['send_pdf'] = $request->send_pdf;
+        $data['images'] = $request->images;
+        $data['image'] = $request->image;
+        $data['screenshot_path'] = $request->screenshot_path;
+        $data['message'] = $request->message; 
+        $data['customer_id'] = $request->customer_id;
+        $data['status'] = $request->status;
+
         \App\Jobs\AttachImagesSend::dispatch($data);
         
         return redirect()->route('customer.post.show',$request->customer_id)->withSuccess('Message Send For Queue');

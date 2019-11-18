@@ -15,17 +15,31 @@ class AttachImagesSend implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $_json;
+    protected $_token;
+    protected $send_pdf;
+    protected $images;
+    protected $image;
+    protected $screenshot_path;
+    protected $message;
+    protected $customer_id;
+    protected $status;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($json)
+    public function __construct($data)
     {
         // Set product
-        $this->_json = $json;
+        $this->_token = $data['_token'];
+        $this->send_pdf = $data['send_pdf'];
+        $this->images = $data['images'];
+        $this->image = $data['image'];
+        $this->screenshot_path = $data['screenshot_path'];
+        $this->message = $data['message'];
+        $this->customer_id = $data['customer_id'];
+        $this->status = $data['status'];
     }
 
     /**
@@ -35,11 +49,24 @@ class AttachImagesSend implements ShouldQueue
      */
     public function handle(Request $request)
     {
+
         // Set time limit
         set_time_limit(0);
-       
-        app('App\Http\Controllers\WhatsAppController')->sendMessage($request, 'customer');
+        $request->request->add(['_token' => $this->_token , 'send_pdf' => $this->send_pdf , 'images' => $this->images , 'image' => $this->image , 'screenshot_path' => $this->screenshot_path , 'message' => $this->message , 'customer_id' => $this->customer_id , 'status' => $this->status ]);
         
-        return true;
+       $itemsAdded = app('App\Http\Controllers\WhatsAppController')->sendMessage($request, 'customer');
+        
+        if ((int)$itemsAdded > 0) {
+            // Log info
+            Log::channel('productUpdates')->info("[Queued job result] Successfully imported " . $itemsAdded . " products");
+        } else {
+            // Log alert
+            Log::channel('productUpdates')->alert("[Queued job result] Failed importing products");
+        }
+        
     }
+
+
+
+
 }
