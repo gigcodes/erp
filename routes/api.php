@@ -66,3 +66,4 @@ Route::get('product-template', 'ProductTemplatesController@apiIndex');
 Route::post('product-template', 'ProductTemplatesController@apiSave');
 
 Route::get('{client}/{numberFrom}/get-im','InstantMessagingController@getMessage');
+Route::post('{client}/{numberFrom}/webhook','InstantMessagingController@processWebhook');

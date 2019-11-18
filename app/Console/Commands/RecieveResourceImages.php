@@ -7,6 +7,7 @@ use Webklex\IMAP\Client;
 use App\ResourceCategory;
 use App\CronJobReport;
 use App\ResourceImage;
+use Carbon\Carbon;
 
 class RecieveResourceImages extends Command
 {
@@ -85,7 +86,7 @@ class RecieveResourceImages extends Command
                 $categoryId = $category->id;
                 break;
                 }else{
-                $categoryId = '';   
+                $categoryId = '';
                 }
              }
             //Getting Sub Category
@@ -95,7 +96,7 @@ class RecieveResourceImages extends Command
                 $subCategoryId = $subCategory->id;
                 break;
                 }else{
-                $subCategoryId = '';    
+                $subCategoryId = '';
                 }
              }
              //Fetching Images
@@ -109,7 +110,7 @@ class RecieveResourceImages extends Command
                          mkdir(public_path('/category_images'), 0777, true);
                          }
                     $oAttachment->save(public_path('/category_images'), $name);
-                    
+
                         session()->push('resource.image', $name);
                     });
 
@@ -121,15 +122,15 @@ class RecieveResourceImages extends Command
              $body = $messages->getHTMLBody(true);
 
              preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $body, $match);
-            
+
              if($match != null && $match[0] != null && $match[0][0] != null){
                 $url = $match[0][0];
              }else{
                 $url = '';
              }
-             
+
              $description = strip_tags($body);
-             
+
             $resourceimg = new ResourceImage;
             $resourceimg->cat_id = $categoryId;
             $resourceimg->sub_cat_id = $subCategoryId;
@@ -141,7 +142,7 @@ class RecieveResourceImages extends Command
             $resourceimg->save();
             echo "Resource Image Saved";
             session()->forget('resource.image');
-            
+
 
          }
 

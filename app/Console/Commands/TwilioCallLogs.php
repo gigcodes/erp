@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\CronJobReport;
 use App\Voip\Twilio;
+use Carbon\Carbon;
 
 class TwilioCallLogs extends Command
 {

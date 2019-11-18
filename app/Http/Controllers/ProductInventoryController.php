@@ -305,6 +305,10 @@ class ProductInventoryController extends Controller
             $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
         }
 
+        $productQuery->where(function($query){
+        	$query->where("purchase_status","!=","Delivered")->orWhereNull("purchase_status");
+        });
+
         if ($request->get('in_pdf') === 'on') {
             $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->get();
         } else {
@@ -314,7 +318,7 @@ class ProductInventoryController extends Controller
 		$data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
 		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';
-		$data['locations'] = (new \App\ProductLocation())->pluck('name');
+		$data['locations'] = (new \App\ProductLocation())->pluck('name')->toArray() + ["In-Transit" => "In-Transit"];
 
 		$data['new_category_selection'] = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'product-category'])
 		                                        ->renderAsDropdown();
@@ -661,7 +665,7 @@ class ProductInventoryController extends Controller
 		   ->select(["o.id",\DB::raw("concat(o.id,' => ',o.client_name) as client_name")])->pluck("client_name",'id');
 		}
 
-		$reply_categories = \App\ReplyCategory::all();
+		$reply_categories = \App\ReplyCategory::whereHas('product_dispatch')->get();
 
 		return view("instock.instruction_create",compact(['productId','users','customers','order','locations','couriers', 'reply_categories']));
 
@@ -707,7 +711,11 @@ class ProductInventoryController extends Controller
 					    //$product->save();
 				  	}
 				}
+			}else{
+				$instruction->customer_id = request()->get("customer_id",0);
 			}
+
+			$customer = ($instruction->customer) ? $instruction->customer->name : "";
 
 			$assign_to = request()->get("assign_to",0);
 
@@ -716,8 +724,21 @@ class ProductInventoryController extends Controller
 			}
 			// if customer object found then send message
 			if(!empty($user)) {
+					
+				$extraString = "";
+				
+				// check if any date time set
+				if(!empty($params["date_time"])) {
+					$extraString = " on ".$params["date_time"];
+				}
+
+				// set for pending amount
+				if(!empty($params["pending_amount"])) {
+					$extraString .= " and ".$params["pending_amount"]." to be collected";
+				}		
+				// send message
 				$messageData = implode("\n",[
-			  		"We have dispatched your parcel",
+			  		"{$product->name} to be delivered to {$customer} {$extraString}",
 			  		$params["courier_name"],
 			  		$params["courier_details"]	
 			  	]);
@@ -739,13 +760,17 @@ class ProductInventoryController extends Controller
 
 		}elseif ($params['instruction_type'] == "location") {
 			if($product) {
-				$product->location = $params["location_name"];
+				$product->location = "In-Transit";//$params["location_name"];
 				$product->save();
+
+				$params["location_name"] = "In-Transit - ".$params["location_name"];
 
 				$user = \App\User::where("id",$params["assign_to"])->first();
 				if($user) {
 					// send location message 
+					$pendingAmount = (!empty($params["pending_amount"])) ? " and Pending amount : ".$params["pending_amount"] : "";
 					$messageData = implode("\n",[
+				  		"Pls. Despatch {$product->name} to ".$params["location_name"].$pendingAmount,
 				  		$params['instruction_message'],
 				  		$params["courier_name"],
 				  		$params["courier_details"]	
@@ -791,10 +816,12 @@ class ProductInventoryController extends Controller
 	public function locationHistory()
 	{
 		$productId = request()->get("product_id",0);
+		$locations = (new \App\ProductLocation())->pluck('name')->toArray();
+		$product   = \App\Product::where("id" , $productId)->First();
 		$history = \App\ProductLocationHistory::where("product_id",$productId)
 		->orderBy("date_time","desc")
 		->get();
-		return view("instock.history_list",compact(['history']));
+		return view("instock.history_list",compact(['history','locations','product']));
 	}
 
 	public function dispatchCreate()
@@ -813,6 +840,7 @@ class ProductInventoryController extends Controller
 		$validator = Validator::make($request->all(), [
            'product_id' => 'required',
            'modeof_shipment' => 'required',
+           'delivery_person' => 'required',
            'awb' => 'required',
            'eta' => 'required',
            //'date_time' => 'required'
@@ -846,7 +874,7 @@ class ProductInventoryController extends Controller
 	  		$product->location =  null;
 		    $product->save();
         	$instruction = \App\Instruction::where('product_id', $request->get('product_id'))->where('customer_id', '>', '0')->orderBy('id', 'desc')->first();
-			if ($instruction) {
+        	if ($instruction) {
 
 				$customer = \App\Customer::where('id',$instruction->customer_id)->first();
 
@@ -854,24 +882,28 @@ class ProductInventoryController extends Controller
 				if(!empty($customer)) {
 					$params = [];
 					$messageData = implode("\n",[
-				  		"We have dispatched your parcel",
-				  		$request->awb,
-				  		$request->modeof_shipment	
+				  		"We have Despatched your {$product->name} by {$productDispatch->delivery_person}",
+				  		"AWB : {$request->awb}",
+				  		"Mode Of Shipment  : {$request->modeof_shipment}"	
 				  	]);
 
 				    $params['approved'] = 1;
 				    $params['message']  = $messageData;
 				    $params['status']   = 2;
 				    $params['customer_id'] = $customer->id;
+					$chat_message = \App\ChatMessage::create($params);
 
-				    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,$messageData);
-				    $chat_message = \App\ChatMessage::create($params);
-
+					// if product has image then send message with image otherwise send with photo			
 				    if ($productDispatch->hasMedia(config('constants.media_tags'))) {
 		                foreach ($productDispatch->getMedia(config('constants.media_tags')) as $image) {
-		                	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,null, $image->getUrl());
+		                	$url = createProductTextImage($image->getAbsolutePath(),"product-dispatch",$messageData,$color = "000000", $fontSize = "15" , $needAbs = false);
+		                	if(!empty($url)) {
+		                	 	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,null, $url);
+		                	}
 		                    $chat_message->attachMedia($image, config('constants.media_tags'));
 		                }
+		            }else{
+		            	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,$messageData);
 		            }
 				    
 				}
@@ -881,6 +913,19 @@ class ProductInventoryController extends Controller
 		
 
         return response()->json(["code" => 1, "message" => "Done"]);
+
+	}
+
+	public function locationChange(Request $request)
+	{
+		$product = \App\Product::where("id",$request->get("product_id",0))->first();
+
+		if($product) {
+			$product->location = $request->get("location",$product->location);
+			$product->save();
+		}
+
+		return response()->json(["code" => 1]);
 
 	}
 }

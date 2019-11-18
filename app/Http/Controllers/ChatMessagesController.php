@@ -59,17 +59,31 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
-        $chatMessages = $object->whatsappAll()->whereRaw($rawWhere)->where('status', '!=', 10)->skip(0)->take($limit)->get();
+        $chatMessages = $object->whatsappAll()->whereRaw($rawWhere)->where('status', '!=', 10)->skip(0)->take($limit);
 
+        $loadType = $request->get('load_type');
+        switch ($loadType) {
+            case 'text':
+                $chatMessages = $chatMessages->whereNotNull("message")
+                                             ->whereNull("media_url")
+                                             ->whereRaw('id not in (select mediable_id from mediables WHERE mediable_type LIKE "%ChatMessage")');
+                break;
+            case 'images':
+                $chatMessages = $chatMessages->whereRaw("(media_url is not null or id in (select mediable_id from mediables WHERE mediable_type LIKE '%ChatMessage') )");
+                break;
+        }
+        $chatMessages = $chatMessages->get();
         // Set empty array with messages
         $messages = [];
-
+        
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
             // Create empty media array
             $media = [];
             $mediaWithDetails = [];
             $productId = null;
+
+
 
             // Check for media
             if ($loadAttached == 1 && $chatMessage->hasMedia(config('constants.media_tags'))) {
@@ -133,6 +147,9 @@ class ChatMessagesController extends Controller
                 'product_id' => !empty($productId) ? $productId : null,
                 'status' => $chatMessage->status,
                 'resent' => $chatMessage->resent,
+                'customer_id' => $chatMessage->customer_id,
+                'approved' => $chatMessage->approved,
+                'error_status' => $chatMessage->error_status,
             ];
         }
 

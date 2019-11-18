@@ -103,7 +103,7 @@
   </div>
 
   <div id="instruction-model" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">Create Dispatch / Location Change</h4>
@@ -252,7 +252,7 @@
 
 
     $(document).on('click', '.quick_category_add', function () {
-        var textBox = $(this).closest("div").find(".quick_category");
+        var textBox = $(this).closest(".quick-category-sec").find(".quick_category");
 
         if (textBox.val() == "") {
             alert("Please Enter Category!!");
@@ -273,7 +273,7 @@
     });
 
     $(document).on('click', '.delete_category', function () {
-        var quickCategory = $(this).closest(".form-group").find(".quickCategory");
+        var quickCategory = $(this).closest(".quick-category-sec").find(".quickCategory");
 
         if (quickCategory.val() == "") {
             alert("Please Select Category!!");
@@ -297,7 +297,7 @@
     });
 
     $(document).on('click', '.delete_quick_comment', function () {
-        var quickComment = $(this).closest(".form-group").find(".quickComment");
+        var quickComment = $(this).closest(".quick-category-sec").find(".quickComment");
 
         if (quickComment.val() == "") {
             alert("Please Select Quick Comment!!");
@@ -320,8 +320,8 @@
     });
 
     $(document).on('click', '.quick_comment_add', function () {
-        var textBox = $(this).closest("div").find(".quick_comment");
-        var quickCategory = $(this).closest(".form-group").find(".quickCategory");
+        var textBox = $(this).closest(".quick-category-sec").find(".quick_comment");
+        var quickCategory = $(this).closest(".quick-category-sec").find(".quickCategory");
 
         if (textBox.val() == "") {
             alert("Please Enter New Quick Comment!!");
@@ -340,7 +340,7 @@
         formData.append("_token", "{{ csrf_token() }}");
         formData.append("reply", textBox.val());
         formData.append("category_id", quickCategoryId);
-        formData.append("model", 'Approval Lead');
+        formData.append("model", 'Product Dispatch');
 
         $.ajax({
             type: 'POST',
@@ -361,14 +361,14 @@
         if($(this).val() != "") {
             var replies = JSON.parse($(this).val());
             var thiss = $(this);
-            $(this).closest(".form-group").find('.quickComment').empty();
-            $(this).closest(".form-group").find('.quickComment').append($('<option>', {
+            $(this).closest(".quick-category-sec").find('.quickComment').empty();
+            $(this).closest(".quick-category-sec").find('.quickComment').append($('<option>', {
                 value: '',
                 text: 'Quick Reply'
             }));
 
             replies.forEach(function (reply) {
-                $(thiss).closest(".form-group").find('.quickComment').append($('<option>', {
+                $(thiss).closest(".quick-category-sec").find('.quickComment').append($('<option>', {
                     value: reply.reply,
                     text: reply.reply,
                     'data-id': reply.id
@@ -378,8 +378,29 @@
     });
 
     $(document).on('change', '.quickComment', function () {
-        $(this).closest('.col-md-12').find('.quick-message-field').val($(this).val());
+        $('.quick-message-field').val($(this).val());
     });
+
+    $(document).on('change', '.location-change-product', function () {
+        $this = $(this);
+        $.ajax({
+          url: "<?php echo route('productinventory.location.change'); ?>",
+          data : {
+            product_id : $this.data("product-id"),
+            location : $(this).val()
+          },
+          method : "get",
+          dataType : "json"
+        }).done(function(data) {
+            $(".location_"+$this.data("product-id")).html("Location : " +$this.val());
+            alert("Location has been updated successfully");
+        }).fail(function() {
+          
+        });
+    });
+
+    
+
     $(document).on('click', '.crt-instruction', function(e) {
       e.preventDefault();
 
@@ -507,7 +528,9 @@
               setTimeout(function(){ 
                 instructionForm.find(".alert-success").remove();
                 $("#instruction-dispatch-model").modal("hide");
+                location.reload();
               }, 3000);
+
            }
 
         }).fail(function() {
@@ -552,6 +575,7 @@
               setTimeout(function(){ 
                 instructionForm.find(".alert-success").remove();
                 $("#instruction-model").modal("hide");
+                location.reload();
               }, 3000);
            }
         }).fail(function() {
