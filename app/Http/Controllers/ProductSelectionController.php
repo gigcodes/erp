@@ -51,7 +51,7 @@ class ProductSelectionController extends Controller
 
 	public function manualImageUpload(Request $request)
 	{
-		$products = Product::where('status', '=', StatusHelper::$manualImageUpload)
+		$products = Product::where('status_id', '=', StatusHelper::$manualImageUpload)
 							->latest()
 							->withMedia(config('constants.media_tags'));
 

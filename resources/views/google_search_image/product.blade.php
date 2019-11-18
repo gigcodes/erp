@@ -37,6 +37,7 @@
     <div class="row" style="padding-top: 10px;">
         <?php if(!empty($product)) { ?>
         <div class="col-md-12">
+            <h2 class="page-heading">Google Image Search ({{$productCount}}) </h2>
             <div class="card col-lg-6" style="margin:auto;float:none;">
                 <h1><?php echo "#" . $product->id . " " . $product->name ?></h1>
                 <p class="price">SKU : <a href="https://www.google.com/search?q=<?= $product->sku ?>" target="_blank"><?php echo $product->sku ?></a></p>

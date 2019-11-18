@@ -219,8 +219,9 @@ class GoogleSearchImageController extends Controller
 
         }
 
-        $product = \App\Product::where("status_id","14")->where("stock",">",0)->orderBy("id","desc")->first();
+        $product = \App\Product::where("status_id", StatusHelper::$unableToScrapeImages)->where("stock",">",0)->orderBy("id","desc")->first();
+        $productCount = \App\Product::where("status_id", StatusHelper::$unableToScrapeImages)->where("stock",">",0)->count();
 
-        return view("google_search_image.product",compact(['product']));
+        return view("google_search_image.product",compact(['product', 'productCount']));
     }
 }
