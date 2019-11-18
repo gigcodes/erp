@@ -373,7 +373,7 @@
                 @endif
             @endforeach
         </table>
-        <?php echo $issue->links(); ?>
+        <?php echo $issues->links(); ?>
     </div>
 
     <h3>Modules</h3>
