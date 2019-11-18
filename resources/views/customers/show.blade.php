@@ -2377,7 +2377,7 @@
                             </div>
                             <div class="form-group">
                                 <strong>Category</strong>
-                                {!! \App\Category::attr(['name' => 'category_id','class' => 'form-control multi_select2'])->selected(['1'])->renderAsDropdown()  !!}
+                                {!! \App\Category::attr(['name' => 'category_id','class' => 'form-control multi_select2 add_lead_category_id'])->selected(['1'])->renderAsDropdown()  !!}
                             </div>
                             <div class="form-group">
                                 <strong>Brand Segment:</strong>
@@ -3417,6 +3417,7 @@
 
       $('#quick_add_lead').on('click', function(e) {
         e.preventDefault();
+        $('.add_lead_category_id').val('1').trigger('change');
         $('#add_lead').modal('show');
       });
 
