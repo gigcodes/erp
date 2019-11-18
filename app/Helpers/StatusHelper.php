@@ -31,6 +31,33 @@ class StatusHelper extends Model
     public static $manualCropping = 21;
     public static $manualImageUpload = 22;
 
+    public static function getStatus()
+    { 
+        return [
+            1 => 'import',
+            2 => 'scrape',
+            3 => 'ai',
+            4 => 'auto crop',
+            5 => 'crop approval',
+            6 => 'crop sequencing',
+            7 => 'image enhancement',
+            8 => 'crop approval confirmation',
+            9 => 'final approval',
+            10 => 'manual attribute',
+            11 => 'push to magento',
+            12 => 'in magento',
+            13 => 'unable to scrape',
+            14 => 'unable to scrape images',
+            15 => 'is being cropped',
+            16 => 'crop skipped',
+            17 => 'is being enhanced',
+            18 => 'crop rejected',
+            19 => 'is being sequenced',
+            20 => 'is being scraped',
+            21 => 'manual cropping',
+            22 => 'manual image upload',
+        ];
+    }
     public static function updateStatus(\App\Product $product, $newStatus = 0)
     {
         // Update status to AI

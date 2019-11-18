@@ -109,6 +109,18 @@
                 </div>
             </div>
 
+            <div class="col-xs-12 col-sm-12 col-md-12">
+              <div class="form-group">
+                <strong>Status</strong>
+                <select class="form-control" name="status">
+                  <option value="">Select Status</option>
+                  @foreach (\App\Helpers\StatusHelper::getStatus() as $index => $status)
+                    <option value="{{ $index }}" {{ $index == ( old('status') ? old('status') : $productselection->status ) ? 'selected' : '' }}>{{ $status }}</option>
+                  @endforeach
+                </select>
+              </div>
+            </div>
+
             @if (Auth::user()->hasRole('Admin'))
               <div class="col-xs-12 col-sm-12 col-md-12">
                   <div class="form-group">
