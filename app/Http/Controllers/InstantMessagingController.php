@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Marketing\WhatsappConfig;
 use \Carbon\Carbon;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
 use App\ImQueue;
 use App\Helpers\InstantMessagingHelper;
@@ -16,8 +18,20 @@ class InstantMessagingController extends Controller
      * @param $numberFrom
      * @return void
      */
-    public function getMessage($client, $numberFrom)
+    public function getMessage($client, $numberFrom, Request $request)
     {
+        // Get client class
+        $clientClass = '\\App\\Marketing\\' . ucfirst($client) . 'Config';
+
+        // Check credentials
+        $whatsappConfig = $clientClass::where('number', $numberFrom)->first();
+
+        // Nothing found
+        if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
+            $message = ['error' => 'Invalid token'];
+            return json_encode($message, 400);
+        }
+
         // Get next messsage from queue
         $queue = ImQueue::select('id', 'text', 'image', 'number_to')
             ->where('im_client', $client)
@@ -60,7 +74,7 @@ class InstantMessagingController extends Controller
         // Valid json?
         if ($receivedJson !== null && is_object($receivedJson)) {
             // Get message from queue
-            $imQueue = ImQueue::where(['id'=>$receivedJson->queueNumber])->first();
+            $imQueue = ImQueue::where(['id' => $receivedJson->queueNumber])->first();
 
             // message found in the queue
             if ($imQueue !== null && empty($imQueue->sent_at)) {

@@ -1063,7 +1063,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'marketing'], function () {
     Route::get('test', function(){
         return 'hello';
     });
-    
+
 });
 
 //Hubstaff Module
@@ -1190,10 +1190,10 @@ Route::group(['middleware' => 'auth'], function () {
 Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'marketing'], function()
 {
     // Whats App Config
-    Route::get('whatsapp-config','WhatsAppConfigController@index')->name('whatsapp.config.index');
-    Route::post('whatsapp-config/store', 'WhatsAppConfigController@store')->name('whatsapp.config.store');
-    Route::post('whatsapp-config/edit', 'WhatsAppConfigController@edit')->name('whatsapp.config.edit');
-    Route::post('whatsapp-config/delete', 'WhatsAppConfigController@destroy')->name('whatsapp.config.delete');
+    Route::get('whatsapp-config','WhatsappConfigController@index')->name('whatsapp.config.index');
+    Route::post('whatsapp-config/store', 'WhatsappConfigController@store')->name('whatsapp.config.store');
+    Route::post('whatsapp-config/edit', 'WhatsappConfigController@edit')->name('whatsapp.config.edit');
+    Route::post('whatsapp-config/delete', 'WhatsappConfigController@destroy')->name('whatsapp.config.delete');
 
     // Marketing Platform
     Route::get('platforms','MarketingPlatformController@index')->name('platforms.index');
@@ -1207,7 +1207,7 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
     Route::post('broadcast/addremark', 'BroadCastController@addRemark')->name('broadcast.add.remark');
     Route::get('broadcast/manual','BroadCastController@addManual')->name('broadcast.add.manual');
     Route::post('broadcast/update', 'BroadCastController@updateWhatsAppNumber')->name('broadcast.update.whatsappnumber');
-    
+
 
 });
 
