@@ -338,9 +338,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('attachProducts/{model_type}/{model_id}/{type?}/{customer_id?}', 'ProductController@attachProducts')->name('attachProducts');
     Route::post('attachProductToModel/{model_type}/{model_id}/{product_id}', 'ProductController@attachProductToModel')->name('attachProductToModel');
     Route::post('deleteOrderProduct/{order_product}', 'OrderController@deleteOrderProduct')->name('deleteOrderProduct');
-
+    Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
     Route::get('attachImages/{model_type}/{model_id?}/{status?}/{assigned_user?}', 'ProductController@attachImages')->name('attachImages');
     Route::post('selected_customer/sendMessage', 'ProductController@sendMessageSelectedCustomer')->name('whatsapp.send_selected_customer');
+
+    
     Route::post('download', 'MessageController@downloadImages')->name('download.images');
 
     Route::get('quickSell', 'QuickSellController@index')->name('quicksell.index');

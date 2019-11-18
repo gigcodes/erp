@@ -147,6 +147,9 @@
                     &nbsp;
                     <input type="checkbox" class="is_on_sale" id="is_on_sale" name="is_on_sale"><label
                             for="is_on_sale">Sale Products</label>
+                    <input type="checkbox" class="random" id="random" name="random"><label
+                            for="random">Random</label>        
+
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                     {{-- </div>
@@ -182,7 +185,7 @@
         } else if ($model_type == 'broadcast-images') {
             $action =  route('broadcast.images.link');
         } else if ($model_type == 'customer') {
-            $action =  route('whatsapp.send', 'customer');
+            $action =  route('attachImages.queue');
         } else if ($model_type == 'selected_customer') {
             $action =  route('whatsapp.send_selected_customer');
         } else if ($model_type == 'product-templates') {

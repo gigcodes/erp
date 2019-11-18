@@ -1435,7 +1435,11 @@ class ProductController extends Controller
 //				$request->request->add(['page' => $page]);
 //			}
         }
-
+        if($request->random){
+            $products = $products->inRandomOrder();
+        }else{
+            $products = $products->orderby('id','desc');
+        }
         // assign query to get media records only
         $products = $products->join("mediables", function ($query) {
             $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
@@ -1459,7 +1463,8 @@ class ProductController extends Controller
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->get();
-        
+     //   $color = '';
+    //    $supplier = '';
         return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
     }
 
@@ -2099,5 +2104,14 @@ class ProductController extends Controller
 
         return redirect('/erp-leads');
         
+    }
+
+    public function queueCustomerAttachImages(Request $request)
+    {
+        $data['pdf'] = $request->send_pdf; 
+         
+        \App\Jobs\AttachImagesSend::dispatch($data);
+
+        return redirect()->back()->withSuccess('Message Send For Queue');
     }
 }
