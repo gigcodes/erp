@@ -648,6 +648,10 @@
                                         </li>
 
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('userlogs.index') }}">User Logs</a>
+                                        </li>
+
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('users.login.index') }}">User Logins</a>
                                         </li>
 
