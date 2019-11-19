@@ -1449,7 +1449,13 @@ class ProductController extends Controller
         $productRes  = $products->get();
         $products_count = $productRes->count();
         $all_product_ids = $productRes->pluck('media_id')->toArray();
-        $products = $products->paginate(Setting::get('pagination'));
+
+        $limit = Setting::get('pagination');
+        if($request->has("limit")) {
+            $limit = ($request->get("limit") == "all") ? $products_count : $request->get("limit");
+        }
+        
+        $products = $products->paginate($limit);
 
         if ($request->ajax()) {
             $html = view('partials.image-load', ['products' => $products, 'all_product_ids' => $all_product_ids, 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [], 'model_type' => $model_type])->render();
