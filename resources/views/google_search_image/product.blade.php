@@ -39,6 +39,7 @@
         <div class="col-md-12">
             <?php if(!empty($supplierList)) { ?>
                 <div class="card col-lg-3" style="margin:auto;float:left;">
+                    <h3>Supplier List</h3>
                     <?php foreach($supplierList as $list) { ?>
                         <span style="margin:5px;">
                             <a href="<?php echo route('google.search.product', ['supplier' => $list["supplier"]]); ?>"><?php echo $list["supplier"] ?> 
@@ -49,8 +50,18 @@
                             <?php } ?>
                         </span>
                     <?php } ?>
-                </div>    
+                </div>
+                
             <?php } ?>
+            <?php if(!empty($skippedProducts)) { ?>
+                <div class="card col-lg-3" style="margin:auto;float:right;">
+                    <h3>Skipped Products</h3>
+                    <span style="margin:5px;">
+                        <a href="javascript:;"><span class="badge"><?php echo $skippedProducts["product_count"] ?></span>
+                        </a>
+                    </span>
+                </div>    
+            <?php } ?>  
             <div class="card col-lg-6" style="margin:auto;float:none;">
                 <h1><?php echo "#" . $product->id . " " . $product->name ?></h1>
                 <p class="price">SKU : <a href="https://www.google.com/search?q=<?= $product->sku ?>" target="_blank"><?php echo $product->sku ?></a></p>
