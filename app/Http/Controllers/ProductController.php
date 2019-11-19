@@ -1447,8 +1447,9 @@ class ProductController extends Controller
         })->groupBy('products.id');
 
         $products = $products->select(['id','name','short_description','color','sku', 'size', 'price_special', 'supplier', 'purchase_status', 'media_id']);
-        $products_count = $products->get()->count();
-        $all_product_ids = $products->get()->pluck('media_id')->toArray();
+        $productRes  = $products->get();
+        $products_count = $productRes->count();
+        $all_product_ids = $productRes->pluck('media_id')->toArray();
         $products = $products->paginate(Setting::get('pagination'));
 
         if ($request->ajax()) {
