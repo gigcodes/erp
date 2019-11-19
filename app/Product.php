@@ -121,7 +121,21 @@ class Product extends Model
                 $product->price_special = $formattedPrices[ 'price_special' ];
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->save();
+                if($product){
+                    foreach ($json->images as $image) {
+                        try {
+                             $jpg = \Image::make($image)->encode('jpg');
+                        } catch (\Exception $e) {
+                             $jpg = \Image::make(public_path() . '/uploads/excel-import/5dd3a2caa85299.71906716.A2.png')->encode('jpg');
+                        }
+                        $filename = substr($image, strrpos($image, '/'));
+                        $filename = str_replace("/","",$filename);
+                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                        $product->attachMedia($media, config('constants.excelimporter'));
+                    }
 
+                }
+                
                 // Update the product status
                 ProductStatus::updateStatus($product->id, 'UPDATED_EXISTING_PRODUCT_BY_JSON', 1);
 
