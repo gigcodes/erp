@@ -2127,7 +2127,7 @@ class ProductController extends Controller
         \App\Jobs\AttachImagesSend::dispatch($data);
 
         if ($request->get('return_url')) {
-            return redirect("/".$request->get('return_url'));
+            return redirect($request->get('return_url'));
         }
 
         return redirect()->route('customer.post.show',$request->customer_id)->withSuccess('Message Send For Queue');
