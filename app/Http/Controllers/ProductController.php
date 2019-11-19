@@ -1346,6 +1346,7 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
+        \DB::connection()->enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
         $products = Product::where(function ($query) {
             $query->whereRaw("(stock>0 OR (supplier LIKE '%In-Stock%'))");
@@ -1435,11 +1436,9 @@ class ProductController extends Controller
 //				$request->request->add(['page' => $page]);
 //			}
         }
-        if($request->random){
+        /*if($request->random){
             $products = $products->inRandomOrder();
-        }
-        // commented to see that the order by causing the issue
-        /*else{
+        }else{
             $products = $products->orderby('id','desc');
         }*/
         // assign query to get media records only
@@ -1466,6 +1465,9 @@ class ProductController extends Controller
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->get();
+
+        $queries = \DB::getQueryLog();
+        \Log::info(print_r($queries,true));
 
         return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
     }
@@ -2120,6 +2122,10 @@ class ProductController extends Controller
         $data['status'] = $request->status;
 
         \App\Jobs\AttachImagesSend::dispatch($data);
+
+        if ($request->get('return_url')) {
+            return redirect("/".$request->get('return_url'));
+        }
 
         return redirect()->route('customer.post.show',$request->customer_id)->withSuccess('Message Send For Queue');
     }
