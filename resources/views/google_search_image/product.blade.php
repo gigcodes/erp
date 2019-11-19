@@ -67,6 +67,12 @@
             <?php } ?>  
             <div class="card col-lg-6" style="margin:auto;float:none;">
                 <h1><?php echo "#" . $product->id . " " . $product->name ?></h1>
+                <?php if ($product->hasMedia(config('constants.excel_importer'))) { ?>
+                    <?php $media = $product->getMedia(config('constants.excel_importer'))->first() ?>
+                    <?php if($media) { ?>
+                        <img style="width: 300px;height: 300px;margin: auto;" class="card-img-top" src="<?php echo $media->getUrl(); ?>" alt="">
+                    <?php } ?>    
+                <?php } ?>    
                 <p class="price">SKU : <a href="https://www.google.com/search?q=<?= $product->sku ?>" target="_blank"><?php echo $product->sku ?></a></p>
                 <p class="price">Brand : <?php echo isset($product->brands->name) ? $product->brands->name : ""; ?></p>
                 <p class="price">Description : <?php echo $product->short_description ?></p>
