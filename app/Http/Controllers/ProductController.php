@@ -1437,9 +1437,11 @@ class ProductController extends Controller
         }
         if($request->random){
             $products = $products->inRandomOrder();
-        }else{
-            $products = $products->orderby('id','desc');
         }
+        // commented to see that the order by causing the issue
+        /*else{
+            $products = $products->orderby('id','desc');
+        }*/
         // assign query to get media records only
         $products = $products->join("mediables", function ($query) {
             $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
