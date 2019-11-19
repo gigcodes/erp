@@ -5,9 +5,7 @@
                 <span class="td-mini-container">
                  @if(isset($vendor->category->title)) {{ strlen($vendor->category->title ) > 7 ? substr($vendor->category->title , 0, 7) : $vendor->category->title  }} @endif
                 </span>
-
-                        <span class="td-full-container hidden">
-                  @if(isset($vendor->category->title)) {{ $vendor->category->title  }} @endif
+                       {{ strlen($vendor->category_name) > 7 ? substr($vendor->category_name, 0, 7) : $vendor->category_name }}
                 </span>
                     </td>
                     <td style="word-break: break-all;">{{ $vendor->name }}

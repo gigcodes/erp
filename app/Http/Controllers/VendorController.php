@@ -126,7 +126,47 @@ class VendorController extends Controller
           }
 
       }else{
-        $vendors = Vendor::orderby('name','asc')->paginate(Setting::get('pagination'));  
+
+       
+        $vendors = DB::select('
+                  SELECT *,
+                  (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
+                  (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
+                  (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
+
+                  FROM (SELECT vendors.id, vendors.frequency, vendors.is_blocked ,vendors.reminder_message, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.account_swift,
+                  category_name,
+                  chat_messages.message_id FROM vendors
+
+                  LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
+                  ON vendors.id = chat_messages.vendor_id
+
+                  LEFT JOIN (SELECT id, title AS category_name FROM vendor_categories) AS vendor_categories
+                  ON vendors.category_id = vendor_categories.id WHERE '. $whereArchived . '
+                  )
+
+                  AS vendors
+
+                  WHERE (name LIKE "%' . $term . '%" OR
+                  phone LIKE "%' . $term . '%" OR
+                  email LIKE "%' . $term . '%" OR
+                  address LIKE "%' . $term . '%" OR
+                  social_handle LIKE "%' . $term . '%" OR
+                  category_id IN (SELECT id FROM vendor_categories WHERE title LIKE "%' . $term . '%") OR
+                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))
+                  ORDER BY ' . $sortByClause . ' message_created_at DESC;
+              ');
+
+              // dd($vendors);
+
+      $currentPage = LengthAwarePaginator::resolveCurrentPage();
+      $perPage = Setting::get('pagination');
+      $currentItems = array_slice($vendors, $perPage * ($currentPage - 1), $perPage);
+
+      $vendors = new LengthAwarePaginator($currentItems, count($vendors), $perPage, $currentPage, [
+        'path'  => LengthAwarePaginator::resolveCurrentPath()
+      ]);
+      
       }
      
 
