@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Validator;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\ScrapedProducts;
@@ -121,7 +122,31 @@ class Product extends Model
                 $product->price_special = $formattedPrices[ 'price_special' ];
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->save();
+                if($product){
+                    if($isExcel == 1){
+                    foreach ($json->images as $image) {
+                        try {
+                             $jpg = \Image::make($image)->encode('jpg');
+                        } catch (\Exception $e) {
+                             $array  = explode('/',$image);
+                             $filename_path = end($array);
+                             $jpg = \Image::make(public_path() . '/uploads/excel-import/'.$filename_path)->encode('jpg');
+                        }
+                        $filename = substr($image, strrpos($image, '/'));
+                        $filename = str_replace("/","",$filename);
+                        try {
+                           if (strpos($filename, '.png') !== false) {
+                            $filename = str_replace(".png","",$filename);
+                            } 
+                        } catch (\Exception $e) {}
+                        
+                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                        $product->attachMedia($media, config('constants.excelimporter'));
+                        }
+                    }
 
+                }
+                
                 // Update the product status
                 ProductStatus::updateStatus($product->id, 'UPDATED_EXISTING_PRODUCT_BY_JSON', 1);
 
