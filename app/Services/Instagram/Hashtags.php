@@ -9,6 +9,7 @@ use App\TargetLocation;
 use Carbon\Carbon;
 use InstagramAPI\Instagram;
 use InstagramAPI\Signatures;
+use Config;
 
 /**
  * Class Hashtags
@@ -27,8 +28,10 @@ class Hashtags {
      */
     public function login() {
         $instagram = new Instagram();
-//        $instagram->login('rishabh_aryal', 'R1shabh@12345');
-        $instagram->login('sololuxury.official', "m69]T.X6wg-%");
+     //   $instagram->login('rishabh_aryal', 'R1shabh@12345');
+        $username = Config('instagram.admin_account');
+        $password = Config('instagram.admin_password');
+        $instagram->login($username , $password);
         $this->token = Signatures::generateUUID();
         $this->instagram = $instagram;
     }

@@ -390,4 +390,17 @@ class UserController extends Controller
 
 		Log::info(Carbon::now() . " end of checking users logins");
 	}
+
+	public function searchUser(Request $request)
+	{
+		$q = $request->input( 'q' );
+
+		$results = User::select( 'id', 'name')
+		                  ->orWhere( 'name', 'LIKE', '%' . $q . '%' )
+		                  ->offset(0)
+		                  ->limit(15)
+		                  ->get();
+
+		return $results;
+	}
 }

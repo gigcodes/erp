@@ -57,9 +57,33 @@ var productTemplate = {
 
         $(document).on("click",".create-product-template",function(e){
             if ($("#product-template-from").valid()) {
+                var noOfImages = $("#product-template-from").find(".template_no option:selected").data('no-of-images');
+                var uploadImage = 0;
+                
+                $("#product-template-from").find(".product_media_list").each(function(){
+                    if ($(this).prop('checked')) {
+                        uploadImage++;
+                    }
+                });
+                
+                $("#product-template-from").find(".uploadFile").each(function(){
+                    if ($(this).val()) {
+                        uploadImage++;
+                    }
+                });
+                
+                if (noOfImages != uploadImage) {
+                    alert('Please '+noOfImages+' Image Upload');
+                    return false;
+                }
+
                 productTemplate.submitForm($(this));
+
             }
         });
+        if (productTemplate.config.isOpenCreateFrom == 'true') {
+            productTemplate.openForm();
+        }
     },
     validationRule : function() {
          $(document).find("#product-template-from").validate({
@@ -116,25 +140,46 @@ var productTemplate = {
             var _z = {
                 url: "/product-templates/select-product-id",
                 data : {
-                    'product_id' : $(this).val()
+                    'product_ids' : $(this).val()
                 }
             }
             productTemplate.sendAjax(_z, "selectProductId");
+
+            $(document).find("#product-template-from").find('.product_title').val('');
+            $(document).find("#product-template-from").find('.select-2-brand').val('').trigger('change');
+            
+            $(this).find('option:selected').each(function(){
+                if ($(this).data('brand')) {
+                    $(document).find("#product-template-from").find('.select-2-brand').val($(this).data('brand')).trigger('change');
+                }
+                if ($(this).data('product-title')) {
+                    $(document).find("#product-template-from").find('.product_title').val($(this).data('product-title'));
+                }
+                
+            });
         });
 
         $( ".show-product-image" ).sortable();
+
+        if (productTemplate.config.isOpenCreateFrom == 'true') {
+            $('.ddl-select-product').trigger('change');
+            /*
+            $('.div-select-product').find('li').each(function() {
+                $(this).find('span').before($(this).attr('title') + ' ');
+            })*/
+        }
     },
     selectProductId : function(response) {
          $('.show-product-image').html(response.data);
     },
     changeTemplateNo : function(response) {
-        var changeTemplateImage = ["\/images\/product-templates\/Bvlgari Bag 17-09.jpg","\/images\/product-templates\/Chloe Bag 17-09.jpg","\/images\/product-templates\/Fendi Bag 20-09.jpg","\/images\/product-templates\/Fendi Shoes 19-09.jpg","\/images\/product-templates\/Fendi T-shirt.jpg","\/images\/product-templates\/Ferragamo Sneaker.jpg","\/images\/product-templates\/Gucci Bag 13-08.jpg","\/images\/product-templates\/Gucci Bag 16-08.jpg","\/images\/product-templates\/Gucci Marmont Bag.jpg","\/images\/product-templates\/Gucci Marmont Sachel.jpg","\/images\/product-templates\/Gucci Marmont Top Handle Bag.jpg","\/images\/product-templates\/Gucci Mens Shoes.jpg","\/images\/product-templates\/Gucci Sneakers.jpg","\/images\/product-templates\/Gucci Women Shoes.jpg","\/images\/product-templates\/Kenzo T-shirt 19-09 A.jpg","\/images\/product-templates\/Marc Jacob 04-09-2019.jpg","\/images\/product-templates\/Off-white02-09 A.jpg","\/images\/product-templates\/Off-white02-09 B.jpg","\/images\/product-templates\/Prada Sneakers.jpg","\/images\/product-templates\/Sliders.jpg","\/images\/product-templates\/Tods Lofers.jpg","\/images\/product-templates\/Tory Miller 10-05 B.jpg","\/images\/product-templates\/Valentino Bag 1.jpg","\/images\/product-templates\/Valentino Bag.jpg","\/images\/product-templates\/YSL Bag 1.jpg","\/images\/product-templates\/YSL Bag.jpg","\/images\/product-templates\/YSL Sneakers.jpg","\/images\/product-templates\/jimmychoo03-09.jpg","\/images\/product-templates\/tory-tote.jpg"]; 
         
         $(document).on("change",".template_no",function(e){
             var id = $(this).val();
             var html = '';
-            if (changeTemplateImage && changeTemplateImage[id]) {
-                html = '<img src="'+changeTemplateImage[id]+'" width="100%">';
+            var changeTemplateImage = $(this).find("option:selected").data('image');
+            if (changeTemplateImage) {
+                html = '<img src="'+changeTemplateImage+'" width="100%">';
             }
             $('.image_template_no').html(html);
         });
@@ -151,7 +196,7 @@ var productTemplate = {
     },
     closeForm : function(response) {
         if(response.code == 1) {
-            location.reload();
+            location.href = '/product-templates';
         }
     },
     deleteRecord : function(ele) {
@@ -163,6 +208,7 @@ var productTemplate = {
     },
     productSearch : function() {
         $('.ddl-select-product').select2({
+            data: productTemplate.config.ddlSelectProduct,
             ajax: {
                 url: '/productSearch',
                 dataType: 'json',
@@ -200,18 +246,9 @@ var productTemplate = {
                 }
 
             },
-            templateSelection: function (product) {
-                
-                $(document).find("#product-template-from").find('.product_title').val('');
-                if (product.name) {
-                    $(document).find("#product-template-from").find('.product_title').val(product.name);
-                }
-
-                $(document).find("#product-template-from").find('.select-2-brand').val('').trigger('change');
-                if (product.brand) {
-                    $(document).find("#product-template-from").find('.select-2-brand').val(product.brand).trigger('change');
-                }
-
+            templateSelection: function (product, container) {
+                $(product.element).attr('data-brand', product.brand);
+                $(product.element).attr('data-product-title', product.name);
                 return product.name;
             }
         });

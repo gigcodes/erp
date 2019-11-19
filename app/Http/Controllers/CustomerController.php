@@ -1927,7 +1927,7 @@ class CustomerController extends Controller
             $products = (new Product)->newQuery();
         }
 
-        $products = $products->where('is_scraped', 1)->where('is_without_image', 0)->where('category', '!=', 1)->orderBy(DB::raw('products.created_   at'), 'DESC')->take(20)->get();
+        $products = $products->where('is_scraped', 1)->where('is_without_image', 0)->where('category', '!=', 1)->orderBy(DB::raw('products.created_at'), 'DESC')->take(20)->get();
         if (count($products) > 0) {
             $params = [
                 'number' => null,
@@ -2307,12 +2307,19 @@ class CustomerController extends Controller
             if (!empty(array_filter($product_ids))) {
 
                 foreach($product_ids as $pid) {
+                    $product = \App\Product::where("id",$pid)->first();
+
                     $quick_lead = ErpLeads::create([
                         'customer_id' => $customer->id,
                         //'rating' => 1,
                         'lead_status_id' => 3,
                         //'assigned_user' => 6,
                         'product_id' => $pid,
+                        'brand_id' => $product ? $product->brand : null,
+                        'category_id' => $product ? $product->category : null,
+                        'brand_segment' => $product && $product->brands ? $product->brands->brand_segment : null,
+                        'color' => $customer->color,
+                        'size' => $customer->size,
                         'created_at' => Carbon::now()
                     ]);
                 }

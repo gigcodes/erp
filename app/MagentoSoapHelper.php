@@ -80,10 +80,17 @@ class MagentoSoapHelper
         }
 
         // Check for readiness to go to Magento
-        //if (!ProductHelper::checkReadinessForLive($product)) {
-        //    Log::channel('listMagento')->emergency("Failed readiness test for product ID " . $product->id);
-        //    return false;
-        //}
+        if (!ProductHelper::checkReadinessForLive($product)) {
+            // Write to log file
+            Log::channel('listMagento')->emergency("Failed readiness test for product ID " . $product->id);
+
+            // Update product status - sent to manual attribute
+            $product->status_id = StatusHelper::$manualAttribute;
+            $product->save();
+
+            // Return false
+            return false;
+        }
 
         // Check for existing product references and remove them
         if ($product->references) {
@@ -374,5 +381,49 @@ class MagentoSoapHelper
 
         // Return
         return;
+    }
+
+    public function catalogCategoryInfo($magentoId = 0)
+    {
+        // Check for product and session
+        if ((int)$magentoId == 0 || !$this->_sessionId) {
+            exit("A");
+            return false;
+        }
+
+        try {
+            $result = $this->_proxy->catalogCategoryInfo(
+                $this->_sessionId,
+                $magentoId
+            );
+        } catch (\SoapFault $e) {
+            echo $e->getMessage();
+            return false;
+        }
+
+        // Return result
+        return $result;
+    }
+
+    public function catalogCategoryCreate($parentId = 0, $arrCategoryData=[])
+    {
+        // Check for product and session
+        if (!$this->_sessionId) {
+            return false;
+        }
+
+        try {
+            $result = $this->_proxy->catalogCategoryCreate(
+                $this->_sessionId,
+                $parentId,
+                $arrCategoryData
+            );
+        } catch (\SoapFault $e) {
+            echo $e->getMessage();
+            return false;
+        }
+
+        // Return result
+        return $result;
     }
 }

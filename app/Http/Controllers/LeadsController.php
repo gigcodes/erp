@@ -277,11 +277,6 @@ class LeadsController extends Controller
         // }
         $customer = Customer::find($request->customer_id);
 
-        //$data[ 'client_name' ] = $customer->name;
-        //$data[ 'contactno' ] = $customer->phone;
-
-        //$data[ 'userid' ] = Auth::id();
-        //$data[ 'selected_product' ] = json_encode($request->input('selected_product'));
         $lead = null;
         if ($request->type == 'product-lead') {
             $brand_array = [];
@@ -296,6 +291,7 @@ class LeadsController extends Controller
                     "customer_id"       => $request->customer_id,
                     "product_id"        => $product_id,
                     "brand_id"          => $product->brand,
+                    "brand_segment"     => !empty($product->brands->brand_segment) ? $product->brands->brand_segment : '',
                     "category_id"       => $product->category,
                     "color"             => $product->color,
                     "size"              => $product->size_value,
@@ -313,6 +309,10 @@ class LeadsController extends Controller
             //$data[ 'multi_brand' ] = $brand_array ? json_encode($brand_array) : null;
             //$data[ 'multi_category' ] = $category_array ? json_encode($category_array) : null;
         } else {
+            $data[ 'client_name' ] = $customer->name;
+            $data[ 'contactno' ] = $customer->phone;
+            $data[ 'userid' ] = Auth::id();
+            $data[ 'selected_product' ] = json_encode($request->input('selected_product'));
             $data[ 'multi_brand' ] = $request->input('multi_brand') ? json_encode($request->input('multi_brand')) : null;
             $data[ 'multi_category' ] = $request->input('multi_category');
             $data['multi_category'] = json_encode( $request->input( 'multi_category' ) );
@@ -320,7 +320,9 @@ class LeadsController extends Controller
             $lead = Leads::create($data);
             if ($request->hasfile('image')) {
                 foreach ($request->file('image') as $image) {
-                    $media = MediaUploader::fromSource($image)->upload();
+                    $media = MediaUploader::fromSource($image)
+                                            ->toDirectory('leads/'.floor($lead->id / config('constants.image_per_folder')))
+                                            ->upload();
                     $lead->attachMedia($media, config('constants.media_tags'));
                 }
             }
@@ -552,7 +554,9 @@ class LeadsController extends Controller
                 self::removeImage($old);
             } elseif ($old == -1) {
                 foreach ($request->file('image') as $image) {
-                    $media = MediaUploader::fromSource($image)->upload();
+                    $media = MediaUploader::fromSource($image)
+                                            ->toDirectory('leads/'.floor($leads->id / config('constants.image_per_folder')))
+                                            ->upload();
                     $leads->attachMedia($media, config('constants.media_tags'));
                 }
             } elseif ($old == 0) {
@@ -563,7 +567,9 @@ class LeadsController extends Controller
         if ($count > 0) {
             if ($request->hasFile('image')) {
                 foreach ($request->file('image') as $image) {
-                    $media = MediaUploader::fromSource($image)->upload();
+                    $media = MediaUploader::fromSource($image)
+                                            ->toDirectory('leads/'.floor($leads->id / config('constants.image_per_folder')))
+                                            ->upload();
                     $leads->attachMedia($media, config('constants.media_tags'));
                 }
             }
@@ -899,6 +905,8 @@ class LeadsController extends Controller
         }
 
         $total = $source->count();
+        $source2 = clone $source;
+        $allLeadCustomersId = $source2->select('erp_leads.customer_id')->pluck('customer_id', 'customer_id')->toArray();
 
         $source = $source->offset($request->get('start', 0));
         $source = $source->limit($request->get('length', 10));
@@ -923,7 +931,8 @@ class LeadsController extends Controller
             'draw' => $request->get('draw'),
             'recordsTotal' => $total,
             'recordsFiltered' => $total,
-            'data' => $source
+            'data' => $source,
+            'allLeadCustomersId' => $allLeadCustomersId,
         ]);
     }
 
@@ -971,6 +980,31 @@ class LeadsController extends Controller
         $params["product_id"] = $productId;
         if (isset($params["brand_segment"])) {
             $params["brand_segment"] = implode(",", (array)$params["brand_segment"]);
+        }
+
+        if ($product) {
+            if (empty($params["brand_id"])) {
+                $params["brand_id"] = $product->brand;
+                if (empty($params["brand_segment"])) {
+                    $brand = \App\Brand::where("id",$product->brand)->first();
+                    if ($brand) {
+                        $params["brand_segment"] = $brand->brand_segment;
+                    }
+                }
+            }
+
+            if (empty($params["category_id"])) {
+                $params["category_id"] = $product->category;
+            }
+
+        }
+
+        if (empty($params["color"])) {
+            $params["color"] = $customer->color;
+        }
+
+        if (empty($params["size"])) {
+            $params["size"] = $customer->size;
         }
 
         $erpLeads = \App\ErpLeads::where("id",$id)->first();

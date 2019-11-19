@@ -156,7 +156,10 @@ class SaveProductsImages extends Command
 
                                 file_put_contents($file_path, $response->getBody()->getContents());
 
-                                $media = MediaUploader::fromSource($file_path)->useFilename(uniqid(true))->upload();
+                                $media = MediaUploader::fromSource($file_path)
+                                                        ->useFilename(uniqid(true))
+                                                        ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                                        ->upload();
 
                                 unlink($file_path);
                             } else {
@@ -176,7 +179,10 @@ class SaveProductsImages extends Command
 
                                     file_put_contents($file_path, $response->getBody()->getContents());
 
-                                    $media = MediaUploader::fromSource($file_path)->useFilename(uniqid(true))->upload();
+                                    $media = MediaUploader::fromSource($file_path)
+                                                            ->useFilename(uniqid(true))
+                                                            ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                                            ->upload();
 
                                     unlink($file_path);
                                 } else {
@@ -196,11 +202,17 @@ class SaveProductsImages extends Command
 
                                         file_put_contents($file_path, $response->getBody()->getContents());
 
-                                        $media = MediaUploader::fromSource($file_path)->useFilename(uniqid(true))->upload();
+                                        $media = MediaUploader::fromSource($file_path)
+                                                                ->useFilename(uniqid(true))
+                                                                ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                                                ->upload();
 
                                         unlink($file_path);
                                     } else {
-                                        $media = MediaUploader::fromSource($formatted_final)->useFilename(uniqid(true))->upload();
+                                        $media = MediaUploader::fromSource($formatted_final)
+                                                                ->useFilename(uniqid(true))
+                                                                ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                                                ->upload();
                                     }
                                 }
                             }
