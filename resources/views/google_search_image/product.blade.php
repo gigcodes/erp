@@ -60,7 +60,7 @@
                 <p>
                     <div class="row">
                         <div class="col-12 mb-4">
-                            <input type="text" name="search-keyword" class="form-control" id="search-keyword" value="<?php echo implode(',', array_filter([$brand, $product->name, $product->sku])); ?>">
+                            <input type="text" name="search-keyword" class="form-control" id="search-keyword" value="<?php echo implode(',', array_filter([$brand, $product->name,$product->color, $product->sku])); ?>">
                         </div>
                         <div class="col-12 mb-4">
                             <?php echo Form::select("server",\App\Helpers\ProductHelper::googleServerList(),null,["class" => "form-control server-select"]) ?>
