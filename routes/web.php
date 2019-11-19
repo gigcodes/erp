@@ -13,7 +13,7 @@
 
 Auth::routes();
 
-
+    
 //Route::get('/test/test','TestController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
@@ -338,9 +338,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('attachProducts/{model_type}/{model_id}/{type?}/{customer_id?}', 'ProductController@attachProducts')->name('attachProducts');
     Route::post('attachProductToModel/{model_type}/{model_id}/{product_id}', 'ProductController@attachProductToModel')->name('attachProductToModel');
     Route::post('deleteOrderProduct/{order_product}', 'OrderController@deleteOrderProduct')->name('deleteOrderProduct');
-
     Route::get('attachImages/{model_type}/{model_id?}/{status?}/{assigned_user?}', 'ProductController@attachImages')->name('attachImages');
     Route::post('selected_customer/sendMessage', 'ProductController@sendMessageSelectedCustomer')->name('whatsapp.send_selected_customer');
+
+    
     Route::post('download', 'MessageController@downloadImages')->name('download.images');
 
     Route::get('quickSell', 'QuickSellController@index')->name('quicksell.index');
@@ -1068,7 +1069,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'marketing'], function () {
     Route::get('test', function(){
         return 'hello';
     });
-    
+
 });
 
 //Hubstaff Module
@@ -1195,10 +1196,10 @@ Route::group(['middleware' => 'auth'], function () {
 Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'marketing'], function()
 {
     // Whats App Config
-    Route::get('whatsapp-config','WhatsAppConfigController@index')->name('whatsapp.config.index');
-    Route::post('whatsapp-config/store', 'WhatsAppConfigController@store')->name('whatsapp.config.store');
-    Route::post('whatsapp-config/edit', 'WhatsAppConfigController@edit')->name('whatsapp.config.edit');
-    Route::post('whatsapp-config/delete', 'WhatsAppConfigController@destroy')->name('whatsapp.config.delete');
+    Route::get('whatsapp-config','WhatsappConfigController@index')->name('whatsapp.config.index');
+    Route::post('whatsapp-config/store', 'WhatsappConfigController@store')->name('whatsapp.config.store');
+    Route::post('whatsapp-config/edit', 'WhatsappConfigController@edit')->name('whatsapp.config.edit');
+    Route::post('whatsapp-config/delete', 'WhatsappConfigController@destroy')->name('whatsapp.config.delete');
 
     // Marketing Platform
     Route::get('platforms','MarketingPlatformController@index')->name('platforms.index');
@@ -1212,11 +1213,11 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
     Route::post('broadcast/addremark', 'BroadCastController@addRemark')->name('broadcast.add.remark');
     Route::get('broadcast/manual','BroadCastController@addManual')->name('broadcast.add.manual');
     Route::post('broadcast/update', 'BroadCastController@updateWhatsAppNumber')->name('broadcast.update.whatsappnumber');
-    
+
 
 });
 
-
+Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
 Route::group(['middleware' => 'auth'], function () {
     Route::prefix('tmp-task')->group(function () {
         Route::get('import-leads', 'TmpTaskController@importLeads')->name('importLeads');

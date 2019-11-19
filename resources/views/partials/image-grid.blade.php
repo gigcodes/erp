@@ -147,6 +147,9 @@
                     &nbsp;
                     <input type="checkbox" class="is_on_sale" id="is_on_sale" name="is_on_sale"><label
                             for="is_on_sale">Sale Products</label>
+                    <input type="checkbox" class="random" id="random" name="random"><label
+                            for="random">Random</label>
+
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                     {{-- </div>
@@ -171,8 +174,8 @@
     <div class="productGrid" id="productGrid">
         @include('partials.image-load')
     </div>
-    @php 
-        $action = url('whatsapp/updateAndCreate/'); 
+    @php
+        $action = url('whatsapp/updateAndCreate/');
         if ($model_type == 'images') {
             $action =  route('image.grid.attach');
         } else if ($model_type == 'customers') {
@@ -182,7 +185,7 @@
         } else if ($model_type == 'broadcast-images') {
             $action =  route('broadcast.images.link');
         } else if ($model_type == 'customer') {
-            $action =  route('whatsapp.send', 'customer');
+            $action =  route('attachImages.queue');
         } else if ($model_type == 'selected_customer') {
             $action =  route('whatsapp.send_selected_customer');
         } else if ($model_type == 'product-templates') {
@@ -210,17 +213,17 @@
         <input type="hidden" name="status" value="{{ $status }}">
     </form>
     <div id="confirmPdf" class="modal" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-body">
-            <p>Do you want to send with Pdf ?</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary btn-approve-pdf">Yes</button>
-            <button type="button" class="btn btn-secondary btn-ignore-pdf">No</button>
-          </div>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p>Choose the format for sending</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-approve-pdf">PDF</button>
+                    <button type="button" class="btn btn-secondary btn-ignore-pdf">Images</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
 
@@ -517,7 +520,7 @@
                     $("#confirmPdf").modal("show");
                 }else{
                     $('#attachImageForm').submit();
-                } 
+                }
             }
         });
 
@@ -542,5 +545,15 @@
         });
 
     </script>
+
+@endsection
+
+@section('scripts')
+<script type="text/javascript">
+    function myFunction(id){
+    $('#description'+id).toggle();
+    $('#description_full'+id).toggle();
+   }
+</script>
 
 @endsection
