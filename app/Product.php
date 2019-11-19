@@ -134,6 +134,12 @@ class Product extends Model
                         }
                         $filename = substr($image, strrpos($image, '/'));
                         $filename = str_replace("/","",$filename);
+                        try {
+                           if (strpos($filename, '.png') !== false) {
+                            $filename = str_replace(".png","",$filename);
+                            } 
+                        } catch (\Exception $e) {}
+                        
                         $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
                         $product->attachMedia($media, config('constants.excelimporter'));
                         }
