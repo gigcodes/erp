@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Validator;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\ScrapedProducts;
@@ -126,7 +127,9 @@ class Product extends Model
                         try {
                              $jpg = \Image::make($image)->encode('jpg');
                         } catch (\Exception $e) {
-                             $jpg = \Image::make(public_path() . '/uploads/excel-import/5dd3a2caa85299.71906716.A2.png')->encode('jpg');
+                             $array  = explode('/',$image);
+                             $filename_path = end($array);
+                             $jpg = \Image::make(public_path() . '/uploads/excel-import/'.$filename_path)->encode('jpg');
                         }
                         $filename = substr($image, strrpos($image, '/'));
                         $filename = str_replace("/","",$filename);
