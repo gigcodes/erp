@@ -123,6 +123,7 @@ class Product extends Model
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->save();
                 if($product){
+                    if($isExcel == 1){
                     foreach ($json->images as $image) {
                         try {
                              $jpg = \Image::make($image)->encode('jpg');
@@ -135,6 +136,7 @@ class Product extends Model
                         $filename = str_replace("/","",$filename);
                         $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
                         $product->attachMedia($media, config('constants.excelimporter'));
+                        }
                     }
 
                 }
