@@ -32,14 +32,14 @@ class AttachImagesSend implements ShouldQueue
     public function __construct($data)
     {
         // Set product
-        $this->_token = $data['_token'];
-        $this->send_pdf = $data['send_pdf'];
-        $this->images = $data['images'];
-        $this->image = $data['image'];
-        $this->screenshot_path = $data['screenshot_path'];
-        $this->message = $data['message'];
-        $this->customer_id = $data['customer_id'];
-        $this->status = $data['status'];
+        $this->_token = $data[ '_token' ];
+        $this->send_pdf = $data[ 'send_pdf' ];
+        $this->images = $data[ 'images' ];
+        $this->image = $data[ 'image' ];
+        $this->screenshot_path = $data[ 'screenshot_path' ];
+        $this->message = $data[ 'message' ];
+        $this->customer_id = $data[ 'customer_id' ];
+        $this->status = $data[ 'status' ];
     }
 
     /**
@@ -51,13 +51,22 @@ class AttachImagesSend implements ShouldQueue
     {
         // Set time limit
         set_time_limit(0);
-        $request->request->add(['_token' => $this->_token , 'send_pdf' => $this->send_pdf , 'images' => $this->images , 'image' => $this->image , 'screenshot_path' => $this->screenshot_path , 'message' => $this->message , 'customer_id' => $this->customer_id , 'status' => $this->status ]);
-        
-        app('App\Helpers\InstantMessagingHelper')->sendWhatsAppMessage($request, 'customer');
-        
+
+        $requestData = new Request();
+        $requestData->setMethod('POST');
+        $requestData->request->add([
+            '_token' => $this->_token,
+            'send_pdf' => $this->send_pdf,
+            'images' => $this->images,
+            'image' => $this->image,
+            'screenshot_path' => $this->screenshot_path,
+            'message' => $this->message,
+            'customer_id' => $this->customer_id,
+            'status' => $this->status
+        ]);
+
+        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
     }
-
-
 
 
 }

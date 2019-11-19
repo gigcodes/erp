@@ -1816,7 +1816,6 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context)
     {
-
         $this->validate($request, [
             // 'message'         => 'nullable|required_without:image,images,screenshot_path|string',
 //        'image'           => 'nullable|required_without:message',
@@ -2188,7 +2187,7 @@ class WhatsAppController extends FindByNumberController
                                                     ->groupBy('products.id')
                                                     ->where('quicksell_group_id', $group->group)
                                                     ->get();
-                                
+
                                 foreach ($products as $product) {
                                     $image = $product->media->first();
                                     if ( $image) {
@@ -2450,7 +2449,7 @@ class WhatsAppController extends FindByNumberController
             }
 
         }
-        
+
         if ($request->screenshot_path != '') {
             $image_path = public_path() . '/uploads/temp_screenshot.png';
             $img = substr($request->screenshot_path, strpos($request->screenshot_path, ",") + 1);
@@ -2474,7 +2473,7 @@ class WhatsAppController extends FindByNumberController
             $approveMessage = $request->session()->get('is_approve_message');
         } catch (\Exception $e) {
         }
-        
+
         if (($approveMessage == '1' || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0) {
             $myRequest = new Request();
             $myRequest->setMethod('POST');
