@@ -2091,12 +2091,42 @@ class ProductController extends Controller
     {
         $customerIds = $request->get('customers_id', '');
         $customerIds = explode(',', $customerIds);
+        $brand       = request()->get("brand",null);
+        $category    = request()->get("category",null);
+        $numberOfProduts = request()->get("number_of_products",10);
+        
+
+        $product = new \App\Product;
+
+        $toBeRun =  false;
+        if(!empty($brand)) {
+            $toBeRun =  true;
+            $product = $product->where("brand",$brand);
+        }
+
+        if(!empty($category)) {
+            $toBeRun =  true;
+            $product = $product->where("category",$category);
+        }
+
+        $extraParams = [];
+
+        if($toBeRun) {
+            $limit = (!empty($numberOfProduts) && is_numeric($numberOfProduts)) ? $numberOfProduts : 10;
+            $imagesQuery = $product->join("mediables as m","m.mediable_id", "products.id")->select("media_id")->groupBy("products.id")
+            ->limit($limit)
+            ->get()->pluck("media_id")->toArray();
+            if(!empty($imagesQuery)) {
+                $extraParams["images"] = json_encode(array_unique($imagesQuery));
+            }
+        }
+
         foreach ($customerIds as $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');
             $params = $request->except(['_token', 'customers_id', 'return_url']);
             $params['customer_id'] = $customerId;
-            $requestData->request->add($params);
+            $requestData->request->add($params + $extraParams);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
         }

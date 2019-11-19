@@ -2464,9 +2464,11 @@ class WhatsAppController extends FindByNumberController
             } else {
                 foreach (array_unique($imagesDecoded) as $image) {
                     $media = Media::find($image);
-                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
-                    if (!$isExists) {
-                        $chat_message->attachMedia($media, config('constants.media_tags'));
+                    if(!empty($media)) {
+                        $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
+                        if (!$isExists) {
+                            $chat_message->attachMedia($media, config('constants.media_tags'));
+                        }
                     }
                 }
             }
