@@ -53,13 +53,16 @@
                 </div>
                 
             <?php } ?>
-            <?php if(!empty($skippedProducts)) { ?>
-                <div class="card col-lg-3" style="margin:auto;float:right;">
-                    <h3>Skipped Products</h3>
-                    <span style="margin:5px;">
-                        <a href="javascript:;"><span class="badge"><?php echo $skippedProducts["product_count"] ?></span>
-                        </a>
-                    </span>
+            <?php if(!empty($skippedSuppliers)) { ?>
+                <div class="card col-lg-3" style="margin:auto;float:right; overflow: auto;overflow-x: hidden;-ms-overflow-x: hidden; height: 250px;">
+                    <h3>Skipped Supplier</h3>
+                    <?php foreach($skippedSuppliers as $list) { ?>
+                        <span style="margin:5px;">
+                            <a href="javascript:;"><?php echo $list["supplier"] ?> 
+                                <span class="badge"><?php echo $list["supplier_count"] ?></span>
+                            </a>
+                        </span>
+                    <?php } ?>
                 </div>    
             <?php } ?>  
             <div class="card col-lg-6" style="margin:auto;float:none;">

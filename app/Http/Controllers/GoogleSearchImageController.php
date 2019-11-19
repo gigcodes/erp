@@ -231,10 +231,10 @@ class GoogleSearchImageController extends Controller
         ->select([\DB::raw("count(*) as supplier_count"),"supplier"])
         ->get()->toArray();
 
-        $skippedProducts = \App\Product::where("status_id","22")
-        ->select([\DB::raw("count(*) as product_count")])
-        ->first();
+        $skippedSuppliers = \App\Product::where("status_id","22")->groupBy("supplier")
+        ->select([\DB::raw("count(*) as supplier_count"),"supplier"])
+        ->get()->toArray();
 
-        return view("google_search_image.product",compact(['product','supplierList','skippedProducts']));
+        return view("google_search_image.product",compact(['product','supplierList','skippedSuppliers']));
     }
 }
