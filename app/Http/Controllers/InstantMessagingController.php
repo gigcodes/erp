@@ -90,6 +90,7 @@ class InstantMessagingController extends Controller
 
                 // Add to chat_messages if we have a customer
                 $params = [
+                    'unique_id' => $receivedJson->id,
                     'message' => $imQueue->message,
                     'customer_id' => $customer != null ? $customer->id : null,
                     'approved' => 1,
