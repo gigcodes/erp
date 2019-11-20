@@ -112,7 +112,7 @@
             <select class="form-control" name="status_id">
               <option value="">Select Status</option>
               @foreach (\App\Helpers\StatusHelper::getStatus() as $index => $status)
-                <option value="{{ $index }}" {{ $index == ( old('status_id') ? old('status_id') : $productselection->status_id ) ? 'selected' : '' }}>{{ $status }}</option>
+                <option value="{{ $index }}" {{ $index == ( old('status_id') ? old('status_id') : $productselection->status_id ) ? 'selected' : (request()->get('status_id') == $index) ? 'selected' : '' }}>{{ $status }}</option>
               @endforeach
             </select>
           </div>

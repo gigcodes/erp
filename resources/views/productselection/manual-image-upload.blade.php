@@ -135,7 +135,7 @@
             var id = $(this).data('id');
             $.ajax(
                 {
-                    url: '/productselection/'+id+'/edit?open_from=1',
+                    url: '/productselection/'+id+'/edit?open_from=1&status_id=3',
                     type: "get",
                 }).done(function (html) {
                   $("#open_edit_frm").find('.modal_content').html(html);
