@@ -25,6 +25,7 @@ Route::get('/products/affiliate', 'ProductController@affiliateProducts');
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
 Route::get('/productsearcher/list', 'ProductSearcherController@sList')->name('productsearcher.list');
+
 // adding chat contro
 
 Route::get('sop', 'ProductController@showSOP');
@@ -120,6 +121,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/bulk/update', 'ProductController@bulkUpdate')->name('products.bulk.update');
     Route::post('products/{id}/archive', 'ProductController@archive')->name('products.archive');
     Route::post('products/{id}/restore', 'ProductController@restore')->name('products.restore');
+    Route::get('/manual-image-upload', 'ProductSelectionController@manualImageUpload')->name('manual.image.upload');
     Route::resource('productselection', 'ProductSelectionController');
     Route::get('productattribute/delSizeQty/{id}', 'ProductAttributeController@delSizeQty');
     Route::resource('productattribute', 'ProductAttributeController');

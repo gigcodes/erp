@@ -219,7 +219,8 @@ class GoogleSearchImageController extends Controller
 
         }
 
-        $product = \App\Product::where("status_id","14")->where("stock",">",0);
+        $productCount = \App\Product::where("status_id", StatusHelper::$unableToScrapeImages)->where("stock",">",0)->count();
+        $product = \App\Product::where("status_id", StatusHelper::$unableToScrapeImages)->where("stock",">",0);
 
         if($request->has("supplier")) {
             $product = $product->where("supplier",$request->get("supplier"));
@@ -235,6 +236,6 @@ class GoogleSearchImageController extends Controller
         ->select([\DB::raw("count(*) as supplier_count"),"supplier"])
         ->get()->toArray();
 
-        return view("google_search_image.product",compact(['product','supplierList','skippedSuppliers']));
+        return view("google_search_image.product",compact(['product', 'productCount', 'supplierList','skippedSuppliers']));
     }
 }
