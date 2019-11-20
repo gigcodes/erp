@@ -1435,12 +1435,17 @@ class ProductController extends Controller
 //				$request->request->add(['page' => $page]);
 //			}
         }
-
+        if($request->random){
+            $products = $products->inRandomOrder();
+        }else{
+            $products = $products->orderby('id','desc');
+        }
         // assign query to get media records only
         $products = $products->join("mediables", function ($query) {
             $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
         })->groupBy('products.id');
-        $products = $products->select(['id', 'sku', 'size', 'price_special', 'supplier', 'purchase_status', 'media_id']);
+
+        $products = $products->select(['id','name','short_description','color','sku', 'size', 'price_special', 'supplier', 'purchase_status', 'media_id']);
         $products_count = $products->get()->count();
         $all_product_ids = $products->get()->pluck('media_id')->toArray();
         $products = $products->paginate(Setting::get('pagination'));
@@ -1459,7 +1464,7 @@ class ProductController extends Controller
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->get();
-        
+
         return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
     }
 
@@ -2089,7 +2094,7 @@ class ProductController extends Controller
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
         }
 
-        if ($request->ajax()) {            
+        if ($request->ajax()) {
             return response()->json(['msg' => 'success']);
         }
 
@@ -2098,6 +2103,22 @@ class ProductController extends Controller
         }
 
         return redirect('/erp-leads');
-        
+
+    }
+
+    public function queueCustomerAttachImages(Request $request)
+    {
+        $data['_token'] = $request->_token;
+        $data['send_pdf'] = $request->send_pdf;
+        $data['images'] = $request->images;
+        $data['image'] = $request->image;
+        $data['screenshot_path'] = $request->screenshot_path;
+        $data['message'] = $request->message;
+        $data['customer_id'] = $request->customer_id;
+        $data['status'] = $request->status;
+
+        \App\Jobs\AttachImagesSend::dispatch($data);
+
+        return redirect()->route('customer.post.show',$request->customer_id)->withSuccess('Message Send For Queue');
     }
 }
