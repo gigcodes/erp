@@ -351,6 +351,7 @@
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Images<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Image Search</a>
+                                                <a class="dropdown-item" href="{{ route('manual.image.upload') }}">Manual Image Upload</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -645,6 +646,10 @@
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('users.create') }}">Add New</a>
+                                        </li>
+
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('userlogs.index') }}">User Logs</a>
                                         </li>
 
                                         <li class="nav-item dropdown">

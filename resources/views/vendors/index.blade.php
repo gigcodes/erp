@@ -17,12 +17,24 @@
           margin-left: -80px;
           display: none;
     }
+ .input-sm{
+    width: 60px;
+    }
+
+    #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+        }
 
   </style>
 @endsection
 
 @section('large_content')
-
+     <div id="myDiv">
+       <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+   </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Vendor Info</h2>
@@ -31,7 +43,7 @@
                     <div class="form-group">
                         <input name="term" type="text" class="form-control"
                                value="{{ isset($term) ? $term : '' }}"
-                               placeholder="Search">
+                               placeholder="Search" id="search_id">
                     </div>
 
                     {{-- <div class="form-group ml-3">
@@ -97,7 +109,7 @@
     </div>
 
     <div class="table-responsive mt-3">
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
                 <th width="5%">ID</th>
@@ -112,93 +124,31 @@
                 <th width="20%">Communication</th>
                 <th width="10%">Action</th>
             </tr>
+
+            <tr>
+                <th width="5%"><input type="text" id="id" class="search form-control" placeholder="Id"></th>
+                <th width="5%"><input type="text" id="category" class="search form-control" placeholder="Category"></th>
+                <th width="10%"><input type="text" id="name" class="search form-control" placeholder="Name" name="name"></th>
+                <th width="10%"><input type="text" id="phone" class="search form-control" placeholder="Phone"></th>
+                <th width="10%"><input type="text" id="email" class="search form-control" placeholder="Email"></th>
+                <th width="10%"><input type="text" id="address" class="search form-control" placeholder="Address"></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
             </thead>
 
-            <tbody>
-            @foreach ($vendors as $vendor)
-                <tr>
-                    <td>{{ $vendor->id }}</td>
-                    <td class="expand-row table-hover-cell">
-                <span class="td-mini-container">
-                  {{ strlen($vendor->category_name) > 7 ? substr($vendor->category_name, 0, 7) : $vendor->category_name }}
-                </span>
+            <tbody id="vendor-body">
+                  
+            @include('vendors.partials.data')
 
-                        <span class="td-full-container hidden">
-                  {{ $vendor->category_name }}
-                </span>
-                    </td>
-                    <td style="word-break: break-all;">{{ $vendor->name }}
-                    @if($vendor->phone)
-                        <div>
-                            <button type="button" class="btn btn-image call-select popup" data-id="{{ $vendor->id }}"><img src="/images/call.png"/></button>
-                              <div class="numberSend" id="show{{ $vendor->id }}">
-                              <select class="form-control call-twilio" data-context="vendors" data-id="{{ $vendor->id }}" data-phone="{{ $vendor->phone }}">
-                                <option disabled selected>Select Number</option>
-                                @foreach(\Config::get("twilio.caller_id") as $caller)
-                                <option value="{{ $caller }}">{{ $caller }}</option>
-                                @endforeach
-                              </select>
-                              </div>
-
-                        @if ($vendor->is_blocked == 1)
-                                <button type="button" class="btn btn-image block-twilio" data-id="{{ $vendor->id }}"><img src="/images/blocked-twilio.png"/></button>
-                            @else
-                                <button type="button" class="btn btn-image block-twilio" data-id="{{ $vendor->id }}"><img src="/images/unblocked-twilio.png"/></button>
-                            @endif
-                        </div>
-                    @endif
-                    </td>
-                    <td>{{ $vendor->phone }}</td>
-                    <td class="expand-row table-hover-cell" style="word-break: break-all;">
-                <span class="td-mini-container">
-                  {{ strlen($vendor->email) > 10 ? substr($vendor->email, 0, 10) : $vendor->email }}
-                </span>
-
-                        <span class="td-full-container hidden">
-                  {{ $vendor->email }}
-                </span>
-                    </td>
-                    <td style="word-break: break-all;">{{ $vendor->address }}</td>
-
-                    {{-- <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
-                    <td style="word-break: break-all;">{{ $vendor->website }}</td> --}}
-                    <td>
-                        <div class="d-flex">
-                            <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
-                            <button class="btn btn-sm btn-image send-message" data-vendorid="{{ $vendor->id }}"><img src="/images/filled-sent.png"/></button>
-                        </div>
-                    </td>
-                    <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
-                        <span class="td-full-container">
-                            {{ $vendor->message }}
-                            <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='vendor' data-id="{{ $vendor->id }}" title="Load More..."><img src="/images/chat.png" alt=""></button>
-                        </span>
-                    </td>
-                    <td>
-                        <div class="d-flex">
-                            <a href="{{ route('vendor.show', $vendor->id) }}" class="btn btn-image" href=""><img src="/images/view.png"/></a>
-
-                            <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $vendor->id }}" data-frequency="{{ $vendor->frequency ?? '0' }}" data-reminder_message="{{ $vendor->reminder_message }}">
-                                <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px;">
-                            </button>
-
-                            <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#vendorEditModal" data-vendor="{{ json_encode($vendor) }}"><img src="/images/edit.png"/></button>
-                            <a href="{{route('vendor.payments', $vendor->id)}}" class="btn btn-sm" title="Vendor Payments" target="_blank"><i class="fa fa-money"></i> </a>
-                            <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $vendor->id }}"><img src="/images/remark.png"/></a>
-                                <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $vendor->id }}" data-type="vendor"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
-                                {!! Form::open(['method' => 'DELETE','route' => ['vendor.destroy', $vendor->id],'style'=>'display:inline']) !!}
-                                <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
-                            {!! Form::close() !!}
-                        </div>
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
+                     </tbody>
         </table>
     </div>
 
-    {!! $vendors->appends(Request::except('page'))->links() !!}
-
+    {!! $vendors->render(); !!}
     @include('partials.modals.remarks')
     @include('vendors.partials.modal-emailToAll')
     @include('vendors.partials.vendor-modals')
@@ -271,6 +221,8 @@
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="{{asset('js/zoom-meetings.js')}}"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     <script type="text/javascript">
 
         var vendorToRemind = null;
@@ -571,5 +523,87 @@
         $('#show'+id).toggle();
         console.log('#show'+id);
       });
+
+          $(document).ready(function() {
+        src = "{{ route('vendor.index') }}";
+        $(".search").autocomplete({
+        source: function(request, response) {
+            id = $('#id').val();
+            name = $('#name').val();
+            email = $('#email').val();
+            phone = $('#phone').val();
+            address = $('#address').val();
+            category = $('#category').val();
+
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    id : id,
+                    name : name,
+                    phone : phone,
+                    email : email,
+                    address : address,
+                    category : category,
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#vendor-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });
+
+
+
+       $(document).ready(function() {
+        src = "{{ route('vendor.index') }}";
+        $("#search_id").autocomplete({
+        source: function(request, response) {
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    term : request.term
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#vendor-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+         });
+
+       
     </script>
 @endsection
