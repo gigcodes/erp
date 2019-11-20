@@ -264,7 +264,7 @@
                     e.preventDefault();
 
                     $('#selected_products').val(JSON.stringify(image_array));
-                    var url = "";
+                    /*var url = "";
                     var pageLink = $(".pagination").find('.page-link');
                         if(pageLink.length > 0) {
                             $.each(pageLink, function(k,v) {
@@ -278,12 +278,24 @@
 
                     
                     url = replaceUrlParam(url,'page','1');
+                    */
+
+                    $('#selected_products').val(JSON.stringify(image_array));
+                    var formData = $('#searchForm').serializeArray();
+                    formData.push({name: "limit", value: vcount}) ;
+                    formData.push({name: "page", value: 1}) ;
+                    
+                    if (isQuickProductsFrom) {
+                        formData.push({name: "quick_product", value: 'true'});
+                    };
+                    
+                    var url = "{{ route('search') }}";
+
 
                     $.ajax({
                         url: url,
-                        data : {
-                            limit : vcount
-                        },beforeSend: function() {
+                        data : formData,
+                        beforeSend: function() {
                             $('#productGrid').html('<img id="loading-image" src="/images/pre-loader.gif"/>');
                         }
                     }).done(function (data) {
@@ -475,7 +487,7 @@
 
         $('#searchForm button[type="submit"]').on('click', function (e) {
             e.preventDefault();
-
+            isQuickProductsFrom = false;
             $('#selected_products').val(JSON.stringify(image_array));
 
             var url = "{{ route('search') }}";
@@ -495,10 +507,10 @@
                 alert('Error searching for products');
             });
         });
-
+        var isQuickProductsFrom = false;
         $('#quickProducts').on('submit', function (e) {
             e.preventDefault();
-
+            isQuickProductsFrom = true;
             var url = "{{ route('search') }}?quick_product=true";
             var formData = $('#searchForm').serialize();
 
