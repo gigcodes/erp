@@ -600,7 +600,7 @@ class PurchaseController extends Controller
         }
 
         $new_products = [];
-        $products = $products->select(['id', 'sku', 'supplier', 'brand', 'category'])->get()->sortBy('supplier');
+        $products = $products->select(['id', 'sku', 'supplier', 'brand', 'category', 'price', 'price_inr'])->get()->sortBy('supplier');
         $count = 0;
         $productIds = [];
         foreach ($products as $key => $product) {
@@ -668,11 +668,12 @@ class PurchaseController extends Controller
                     ];
                 }
             }
-
             $productIds[] = $product->id;
 
             $new_products[ $count ][ 'id' ] = $product->id;
             $new_products[ $count ][ 'sku' ] = $product->sku;
+            $new_products[ $count ][ 'price' ] = $product->price;
+            $new_products[ $count ][ 'price_inr' ] = $product->price_inr;
             $new_products[ $count ][ 'supplier' ] = $product->supplier;
             $new_products[ $count ][ 'supplier_list' ] = $supplier_list;
             $new_products[ $count ][ 'single_supplier' ] = $single_supplier;
