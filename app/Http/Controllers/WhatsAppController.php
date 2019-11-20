@@ -69,6 +69,7 @@ use App\ProductQuicksellGroup;
 
 class WhatsAppController extends FindByNumberController
 {
+    CONST MEDIA_PDF_CHUNKS = 50;
     /**
      * Incoming message URL for whatsApp
      *
@@ -2425,25 +2426,49 @@ class WhatsAppController extends FindByNumberController
 
                 $folder = "temppdf_view_" . time();
 
-                $medias = Media::whereIn('id', $imagesDecoded)->get();
-                $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
-                $pdf = new Dompdf();
-                $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
-                $pdf->loadHtml($pdfView);
-                $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
-                $pdf->render();
+                $mediasH = Media::whereIn('id', $imagesDecoded)->get();
 
-                File::put($fileName, $pdf->output());
-                $media = MediaUploader::fromSource($fileName)
-                    ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
-                    ->upload();
-                $chat_message->attachMedia($media, 'gallery');
+                $number = 0;
+                foreach($mediasH->chunk(self::MEDIA_PDF_CHUNKS) as $medias) {
+
+                    $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
+                    $pdf = new Dompdf();
+                    $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
+                    $pdf->loadHtml($pdfView);
+                    $fileName = public_path() . '/' . uniqid('sololuxury_'.time(), true) . '.pdf';
+                    $pdf->render();
+
+                    File::put($fileName, $pdf->output());
+                    
+                    // send images in chunks to chat media
+                    try{
+                        if($number == 0) {
+                            $media = MediaUploader::fromSource($fileName)
+                                ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
+                                ->upload();
+                            $chat_message->attachMedia($media, 'gallery');    
+                        }else{
+                            $extra_chat_message = ChatMessage::create($data);
+                            $media = MediaUploader::fromSource($fileName)
+                                ->toDirectory('chatmessage/' . floor($extra_chat_message->id / config('constants.image_per_folder')))
+                                ->upload();
+                            $extra_chat_message->attachMedia($media, 'gallery');     
+                        }
+
+                        $number++;    
+                    }catch(\Exception $e) {
+
+                    }
+                }
+                
             } else {
                 foreach (array_unique($imagesDecoded) as $image) {
                     $media = Media::find($image);
-                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
-                    if (!$isExists) {
-                        $chat_message->attachMedia($media, config('constants.media_tags'));
+                    if(!empty($media)) {
+                        $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
+                        if (!$isExists) {
+                            $chat_message->attachMedia($media, config('constants.media_tags'));
+                        }
                     }
                 }
             }

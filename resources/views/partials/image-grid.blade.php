@@ -225,10 +225,6 @@
             </div>
         </div>
     </div>
-
-
-
-
     <?php $stage = new \App\Stage(); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
@@ -253,7 +249,7 @@
             });
 
             var selectAllBtn = $(".select-all-product-btn");
-            selectAllBtn.on("click", function () {
+            selectAllBtn.on("click", function (e) {
                 var $this = $(this);
                 var vcount = 0;
 
@@ -261,35 +257,92 @@
                 if (vcount == 0) {
                     vcount = 'all';
                 }
+                var productCardCount = $(".product-list-card").length;
 
-                if ($this.hasClass("has-all-selected") === false) {
-                    $this.html("Deselect " + vcount);
-                    if (vcount == 'all') {
-                        $(".select-pr-list-chk").prop("checked", true).trigger('change');
-                    } else {
-                        var boxes = $(".select-pr-list-chk");
-                        for (i = 0; i < vcount; i++) {
-                            try {
-                                $(boxes[i]).prop("checked", true).trigger('change');
-                            } catch (err) {
+                if((vcount == "all" || 1 == 1) && $this.hasClass("has-all-selected") === false && (productCardCount < vcount || vcount == "all") ) {
+
+                    e.preventDefault();
+
+                    $('#selected_products').val(JSON.stringify(image_array));
+                    var url = "";
+                    var pageLink = $(".pagination").find('.page-link');
+                        if(pageLink.length > 0) {
+                            $.each(pageLink, function(k,v) {
+                                var href = $(v).attr("href");
+                                if(typeof href != "undefined") {
+                                    url = href;
+                                    return false;
+                                }
+                            });
+                        }
+
+                    
+                    url = replaceUrlParam(url,'page','1');
+
+                    $.ajax({
+                        url: url,
+                        data : {
+                            limit : vcount
+                        },beforeSend: function() {
+                            $('#productGrid').html('<img id="loading-image" src="/images/pre-loader.gif"/>');
+                        }
+                    }).done(function (data) {
+                        all_product_ids = data.all_product_ids;
+                        $('#productGrid').html(data.html);
+                        $('#products_count').text(data.products_count);
+                        $('.lazy').Lazy({
+                            effect: 'fadeIn'
+                        });
+
+                        if ($this.hasClass("has-all-selected") === false) {
+                            $this.html("Deselect " + vcount);
+                            if (vcount == 'all') {
+                                $(".select-pr-list-chk").prop("checked", true).trigger('change');
+                            } else {
+                                var boxes = $(".select-pr-list-chk");
+                                for (i = 0; i < vcount; i++) {
+                                    try {
+                                        $(boxes[i]).prop("checked", true).trigger('change');
+                                    } catch (err) {
+                                    }
+                                }
+                            }
+                            $this.addClass("has-all-selected");
+                        } 
+                    }).fail(function () {
+                        alert('Error searching for products');
+                    });
+
+                }else {
+                    if ($this.hasClass("has-all-selected") === false) {
+                        $this.html("Deselect " + vcount);
+                        if (vcount == 'all') {
+                            $(".select-pr-list-chk").prop("checked", true).trigger('change');
+                        } else {
+                            var boxes = $(".select-pr-list-chk");
+                            for (i = 0; i < vcount; i++) {
+                                try {
+                                    $(boxes[i]).prop("checked", true).trigger('change');
+                                } catch (err) {
+                                }
                             }
                         }
-                    }
-                    $this.addClass("has-all-selected");
-                } else {
-                    $this.html("Select " + vcount);
-                    if (vcount == 'all') {
-                        $(".select-pr-list-chk").prop("checked", false).trigger('change');
-                    } else {
-                        var boxes = $(".select-pr-list-chk");
-                        for (i = 0; i < vcount; i++) {
-                            try {
-                                $(boxes[i]).prop("checked", false).trigger('change');
-                            } catch (err) {
+                        $this.addClass("has-all-selected");
+                    }else {
+                        $this.html("Select " + vcount);
+                        if (vcount == 'all') {
+                            $(".select-pr-list-chk").prop("checked", false).trigger('change');
+                        } else {
+                            var boxes = $(".select-pr-list-chk");
+                            for (i = 0; i < vcount; i++) {
+                                try {
+                                    $(boxes[i]).prop("checked", false).trigger('change');
+                                } catch (err) {
+                                }
                             }
                         }
+                        $this.removeClass("has-all-selected");
                     }
-                    $this.removeClass("has-all-selected");
                 }
 
                 /*// Add all images to array
@@ -543,6 +596,19 @@
 
             $('#searchForm').submit();
         });
+
+        function replaceUrlParam(url, paramName, paramValue)
+        {
+            if (paramValue == null) {
+                paramValue = '';
+            }
+            var pattern = new RegExp('\\b('+paramName+'=).*?(&|#|$)');
+            if (url.search(pattern)>=0) {
+                return url.replace(pattern,'$1' + paramValue + '$2');
+            }
+            url = url.replace(/[?#]$/,'');
+            return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
+        }
 
     </script>
 
