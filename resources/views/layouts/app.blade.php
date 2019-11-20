@@ -10,7 +10,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <link rel="shortcut icon" type="image/png" href="/favicon/>@yield ('favicon')"/>
+    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')"/>
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
 

@@ -3,6 +3,8 @@
 
 @section('favicon' , 'task.png')
 
+@section('title', 'Task List')
+
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
