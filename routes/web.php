@@ -82,7 +82,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('unauthorized', 'RoleController@unAuthorized');
     Route::get('users/logins', 'UserController@login')->name('users.login.index');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
-    Route::get('userlogs', 'UserLogController@index');
+    Route::get('userlogs', 'UserLogController@index')->name('userlogs.index');
     Route::get('userlogs/{$id}', 'UserLogController@index');
     Route::get('userlogs/datatables', 'UserLogController@getData')->name('userlogs.datatable');
     Route::get('users/{id}/assigned', 'UserController@showAllAssignedProductsForUser');
