@@ -50,12 +50,13 @@ class ImportIssues extends Command
                 'subject'               =>  $issue->subject,
                 'task'                  =>  $issue->issue,
                 'status'                =>  'Issue',
-                'submitted_by'          =>  $issue->submitted_by,
+                'created_by'            =>  $issue->submitted_by,
                 'is_resolved'           =>  $issue->is_resolved,
                 'estimate_time'         =>  $issue->estimate_time,
                 'cost'                  =>  $issue->cost,
                 'task_type_id'          =>  2,
-                'responsible_user_id'   =>  $issue->responsible_user_id
+                'responsible_user_id'   =>  $issue->responsible_user_id,
+                'created_at'            =>  $issue->created_at
             );
         }
 

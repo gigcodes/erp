@@ -277,7 +277,7 @@
                         </td>
                     </tr>
                 @else
-                    @if($issue->submitted_by == Auth::user()->id || $issue->user_id == Auth::user()->id || $issue->responsible_user_id == Auth::user()->id)
+                    @if($issue->created_by == Auth::user()->id || $issue->user_id == Auth::user()->id || $issue->responsible_user_id == Auth::user()->id)
                         <tr>
                             <td>{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</td>
                             <td>

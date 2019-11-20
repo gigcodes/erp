@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Setting;
 use App\TaskAttachment;
 use File;
 use Illuminate\Http\Request;
@@ -333,7 +334,7 @@ class DevelopmentController extends Controller
         } else {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
         }
-        $issues = $issues->paginate(10);
+        $issues = $issues->paginate(Setting::get('pagination'));
 
         return view('development.issue', [
             'issues'    => $issues,
@@ -888,7 +889,8 @@ class DevelopmentController extends Controller
 
     public function assignUser(Request $request)
     {
-        $issue = Issue::find($request->get('issue_id'));
+       // $issue = Issue::find($request->get('issue_id'));
+        $issue = DeveloperTask::find($request->get('issue_id'));
         $issue->user_id = $request->get('user_id');
         $issue->save();
 
@@ -899,7 +901,8 @@ class DevelopmentController extends Controller
 
     public function assignResponsibleUser(Request $request)
     {
-        $issue = Issue::find($request->get('issue_id'));
+        $issue = DeveloperTask::find($request->get('issue_id'));
+        //$issue = Issue::find($request->get('issue_id'));
         $issue->responsible_user_id = $request->get('responsible_user_id');
         $issue->save();
 
