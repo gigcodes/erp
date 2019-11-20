@@ -673,12 +673,14 @@
       @if (count($customer->leads) > 0)
         <div class="tab-pane mt-3" id="2">
           <div id="leadAccordion">
+            <?php $leadCount = count($customer->leads);?>
             @foreach ($customer->leads as $key => $lead)
               <div class="card">
                 <div class="card-header" id="headingLead{{ $key + 1 }}">
                   <h5 class="mb-0">
                     <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#lead{{ $key + 1 }}" aria-expanded="false" aria-controls="lead{{ $key + 1 }}">
-                      Lead {{ $key + 1 }}
+                      Lead {{ $leadCount }}
+                      <?php $leadCount--;?>
                       <a href="{{ route('leads.show', $lead->id) }}" class="btn-image" target="_blank"><img src="/images/view.png" /></a>
                     </button>
                   </h5>
@@ -1557,7 +1559,7 @@
               </div>
 
               <div class="">
-                <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+                <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}?return_url={{ request()->getRequestUri() }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
 
 
                 <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button>
@@ -2348,6 +2350,75 @@
   </div>
 </div>
 
+<div id="add_lead" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <form action="{{ route('leads.erpLeads.store') }}" method="POST" enctype="multipart/form-data" class="erp_lead_frm" data-reload='1'>
+            <div class="modal-header">
+                <h2>Add Lead</h2>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    @csrf
+                    <input type="hidden" name="customer_id" value="{{$customer->id}}">
+                    <input type="hidden" name="assigned_user" value="6">
+                    <input type="hidden" name="rating" value="1">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <strong>Brand:</strong>
+                                <select name="brand_id" class="form-control multi_brand multi_brand_select multi_select2" multiple>
+                                    <option value="">Brand</option>
+                                    @foreach($brands as $brand_item)
+                                        <option value="{{$brand_item['id']}}" data-brand-segment="{{$brand_item['brand_segment']}}">{{$brand_item['name']}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <strong>Category</strong>
+                                {!! \App\Category::attr(['name' => 'category_id','class' => 'form-control multi_select2 add_lead_category_id'])->selected(['1'])->renderAsDropdown()  !!}
+                            </div>
+                            <div class="form-group">
+                                <strong>Brand Segment:</strong>
+                                {{ App\Helpers\ProductHelper::getBrandSegment('brand_segment[]', [], ['class' => "form-control brand_segment_select", 'multiple' => ''])}}
+                            </div>
+                            <div class="form-group">
+                                <strong>status:</strong>
+                                    <Select name="lead_status_id" class="form-control">
+                                        @foreach($lead_status as $key => $value)
+                                            <option value="{{$value}}" {{$value == '3' ? 'selected':''}}>{{$key}}</option>
+                                        @endforeach
+                                    </Select>
+                            </div>
+                            <div class="form-group">
+                                <strong>Sizes:</strong>
+                                <input type="text" name="size" value="" class="form-control" placeholder="S, M, L">
+                            </div>
+                            <div class="form-group">
+                                <strong>Gender:</strong>
+                                <select name="gender" class="form-control">
+                                    <option value="male" selected>Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+                            <input type="hidden"  name="oldImage[0]" value="-1">
+                            <div class="form-group new-image" style="">
+                                <strong>Upload Image:</strong>
+                                <input  type="file" enctype="multipart/form-data" class="form-control" name="image[]" multiple />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-default">Add</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+        </div>
+    </form>
+  </div>
+</div>
+
 
 <form action="" method="POST" id="product-remove-form">
   @csrf
@@ -2820,7 +2891,9 @@
             contentType: false,
             processData: false
           }).done( function(response) {
-            
+            if (thiss.data('reload')) {
+                window.location.reload();
+            }
             $(thiss).find('.erp_update_message').fadeIn(400);
             $('html, body').animate({
                 scrollTop: $(thiss).find('.erp_update_message').offset().top-150
@@ -3344,32 +3417,8 @@
 
       $('#quick_add_lead').on('click', function(e) {
         e.preventDefault();
-
-        var thiss = $(this);
-        var token = "{{ csrf_token() }}";
-        var url = "{{ route('leads.erpLeads.store') }}";
-        var customer_id = {{ $customer->id }};
-        
-        $.ajax({
-          type: 'POST',
-          url: url,
-          data: {
-            _token: token,
-            customer_id: customer_id,
-            rating: 1,
-            lead_status_id: 3,
-            assigned_user: 6
-          },
-          beforeSend: function() {
-            $(thiss).text('Creating...');
-          },
-          success: function() {
-            location.reload();
-          }
-        }).fail(function(error) {
-          console.log(error);
-          alert('There was an error creating a lead');
-        });
+        $('.add_lead_category_id').val('1').trigger('change');
+        $('#add_lead').modal('show');
       });
 
       $('#quick_add_order').on('click', function(e) {

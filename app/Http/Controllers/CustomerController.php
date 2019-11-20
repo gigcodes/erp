@@ -2503,4 +2503,6 @@ class CustomerController extends Controller
             $pdf->stream($id.'-label.pdf');
         }
     }
+
+    
 }

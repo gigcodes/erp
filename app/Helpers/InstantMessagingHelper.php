@@ -2,7 +2,12 @@
 
 namespace App\Helpers;
 
+use Dompdf\Dompdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\ChatMessage;
 use App\Customer;
 use App\ImQueue;
 
@@ -29,15 +34,18 @@ class InstantMessagingHelper
             if ($numberFrom == null) {
                 $numberFrom = env('DEFAULT_SEND_NUMBER');
             }
+
             //setting default client name
             if ($client == null) {
                 $client = 'whatsapp';
             }
+
             //saving queue
             $queue = new ImQueue();
             $queue->im_client = $client;
             $queue->number_to = $numberTo;
             $queue->number_from = $numberFrom;
+
             //getting image or text
             if ($image != null && $text != null) {
                 $queue->image = self::encodeImage($text, $image);
@@ -46,15 +54,18 @@ class InstantMessagingHelper
             } else {
                 $queue->text = $text;
             }
+
             //setting priority
             if ($priority == null) {
                 $queue->priority = 10;
             } else {
                 $queue->priority = $priority;
             }
+
             //setting send after
             $queue->send_after = $sendAfter;
             $queue->save();
+
             //returning response
             return redirect()->back()->withSuccess('Mesage Saved');
         } else {
@@ -151,5 +162,4 @@ class InstantMessagingHelper
         // Return message
         return $message;
     }
-
 }

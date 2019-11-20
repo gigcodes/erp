@@ -37,8 +37,42 @@
     <div class="row" style="padding-top: 10px;">
         <?php if(!empty($product)) { ?>
         <div class="col-md-12">
+            <?php if(!empty($supplierList)) { ?>
+                <div class="card col-lg-3" style="margin:auto;float:left;">
+                    <h3>Supplier List</h3>
+                    <?php foreach($supplierList as $list) { ?>
+                        <span style="margin:5px;">
+                            <a href="<?php echo route('google.search.product', ['supplier' => $list["supplier"]]); ?>"><?php echo $list["supplier"] ?> 
+                                <span class="badge"><?php echo $list["supplier_count"] ?></span>
+                            </a>
+                            <?php if(request()->get("supplier") == $list["supplier"]) { ?>
+                                <i class="glyphicon glyphicon-ok"></i>
+                            <?php } ?>
+                        </span>
+                    <?php } ?>
+                </div>
+                
+            <?php } ?>
+            <?php if(!empty($skippedSuppliers)) { ?>
+                <div class="card col-lg-3" style="margin:auto;float:right; overflow: auto;overflow-x: hidden;-ms-overflow-x: hidden; height: 250px;">
+                    <h3>Skipped Supplier</h3>
+                    <?php foreach($skippedSuppliers as $list) { ?>
+                        <span style="margin:5px;">
+                            <a href="javascript:;"><?php echo $list["supplier"] ?> 
+                                <span class="badge"><?php echo $list["supplier_count"] ?></span>
+                            </a>
+                        </span>
+                    <?php } ?>
+                </div>    
+            <?php } ?>  
             <div class="card col-lg-6" style="margin:auto;float:none;">
                 <h1><?php echo "#" . $product->id . " " . $product->name ?></h1>
+                <?php if ($product->hasMedia(config('constants.excel_importer'))) { ?>
+                    <?php $media = $product->getMedia(config('constants.excel_importer'))->first() ?>
+                    <?php if($media) { ?>
+                        <img style="width: 300px;height: 300px;margin: auto;" class="card-img-top" src="<?php echo $media->getUrl(); ?>" alt="">
+                    <?php } ?>    
+                <?php } ?>    
                 <p class="price">SKU : <a href="https://www.google.com/search?q=<?= $product->sku ?>" target="_blank"><?php echo $product->sku ?></a></p>
                 <p class="price">Brand : <?php echo isset($product->brands->name) ? $product->brands->name : ""; ?></p>
                 <p class="price">Description : <?php echo $product->short_description ?></p>
@@ -46,7 +80,10 @@
                 <p>
                     <div class="row">
                         <div class="col-12 mb-4">
-                            <input type="text" name="search-keyword" class="form-control" id="search-keyword" value="<?php echo implode(',', array_filter([$brand, $product->name, $product->sku])); ?>">
+                            <input type="text" name="search-keyword" class="form-control" id="search-keyword" value="<?php echo implode(',', array_filter([$brand, $product->name,$product->color, $product->sku])); ?>">
+                        </div>
+                        <div class="col-12 mb-4">
+                            <?php echo Form::select("server",\App\Helpers\ProductHelper::googleServerList(),null,["class" => "form-control server-select"]) ?>
                         </div>
                     </div>
                 </p>
@@ -62,7 +99,7 @@
             <button class="attach-and-continue btn btn-lg btn-success">Attach And Continue</button>
             <button class="skip-product btn btn-lg btn-danger pull-left">Skip Product</button>
         </div>
-        <form method="post" id="save-images" action="{{ route('google.search.product-save') }}">
+        <form method="post" id="save-images" action="{{ route('google.search.product-save',request()->all()) }}">
             {{ csrf_field() }}
             <input type="hidden" name="product_id" value="<?php echo $product->id; ?>">
             <div class="col-md-12 image-result-show">
@@ -83,8 +120,11 @@
         var productSearch = $(".get-images");
         productSearch.on("click", function () {
             var keyword = $("#search-keyword").val();
+            var googleServer = "{!! env('GOOGLE_CUSTOM_SEARCH') !!}";
+            var regEx = /([?&]cx)=([^#&]*)/g;
+            var googleServerUrl = googleServer.replace(regEx, '$1='+$(".server-select").val());
             $.ajax({
-                url: "{!! env('GOOGLE_CUSTOM_SEARCH') !!}&q=" + keyword + "&searchType=image&imgSize=large", success: function (result) {
+                url: googleServerUrl+"&q=" + keyword + "&searchType=image&imgSize=large", success: function (result) {
                     // console.log(result);
                     if (result.searchInformation.totalResults != undefined && parseInt(result.searchInformation.totalResults) > 0) {
                         var i = 1;

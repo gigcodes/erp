@@ -69,6 +69,7 @@ use App\ProductQuicksellGroup;
 
 class WhatsAppController extends FindByNumberController
 {
+    CONST MEDIA_PDF_CHUNKS = 50;
     /**
      * Incoming message URL for whatsApp
      *
@@ -1816,7 +1817,6 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context)
     {
-
         $this->validate($request, [
             // 'message'         => 'nullable|required_without:image,images,screenshot_path|string',
 //        'image'           => 'nullable|required_without:message',
@@ -2178,10 +2178,26 @@ class WhatsAppController extends FindByNumberController
                         if ($groups != null) {
                             foreach ($groups as $group) {
 
-                                $productsQuickSell = ProductQuicksellGroup::where('quicksell_group_id', $group->group)->get();
+                                //$productsQuickSell = ProductQuicksellGroup::where('quicksell_group_id', $group->group)->get();
                                 //dd($productsQuickSell[0]->product_id);
                                 $images = [];
-                                foreach ($productsQuickSell as $product) {
+
+                                $products = Product::with('media')
+                                                    ->select('products.*')
+                                                    ->join('product_quicksell_groups', 'product_quicksell_groups.product_id', '=', 'products.id')
+                                                    ->groupBy('products.id')
+                                                    ->where('quicksell_group_id', $group->group)
+                                                    ->get();
+
+                                foreach ($products as $product) {
+                                    $image = $product->media->first();
+                                    if ( $image) {
+                                        array_push($images, $image->filename);
+                                    }
+
+                                }
+
+                                /*foreach ($productsQuickSell as $product) {
                                     if ($product != null) {
 
                                         //Getting product from id
@@ -2200,7 +2216,7 @@ class WhatsAppController extends FindByNumberController
 
                                         }
                                     }
-                                }
+                                }*/
 
                                 if (isset($images) && count($images) > 0) {
                                     $temp_chat_message = ChatMessage::create($data);
@@ -2387,7 +2403,9 @@ class WhatsAppController extends FindByNumberController
         }
 
         if ($request->images) {
+
             $imagesDecoded = json_decode($request->images);
+
             if (!empty($request->send_pdf) && $request->send_pdf == 1) {
 
                 $temp_chat_message = ChatMessage::create($data);
@@ -2408,25 +2426,49 @@ class WhatsAppController extends FindByNumberController
 
                 $folder = "temppdf_view_" . time();
 
-                $medias = Media::whereIn('id', $imagesDecoded)->get();
-                $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
-                $pdf = new Dompdf();
-                $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
-                $pdf->loadHtml($pdfView);
-                $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
-                $pdf->render();
+                $mediasH = Media::whereIn('id', $imagesDecoded)->get();
 
-                File::put($fileName, $pdf->output());
-                $media = MediaUploader::fromSource($fileName)
-                    ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
-                    ->upload();
-                $chat_message->attachMedia($media, 'gallery');
+                $number = 0;
+                foreach($mediasH->chunk(self::MEDIA_PDF_CHUNKS) as $medias) {
+
+                    $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
+                    $pdf = new Dompdf();
+                    $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
+                    $pdf->loadHtml($pdfView);
+                    $fileName = public_path() . '/' . uniqid('sololuxury_'.time(), true) . '.pdf';
+                    $pdf->render();
+
+                    File::put($fileName, $pdf->output());
+                    
+                    // send images in chunks to chat media
+                    try{
+                        if($number == 0) {
+                            $media = MediaUploader::fromSource($fileName)
+                                ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
+                                ->upload();
+                            $chat_message->attachMedia($media, 'gallery');    
+                        }else{
+                            $extra_chat_message = ChatMessage::create($data);
+                            $media = MediaUploader::fromSource($fileName)
+                                ->toDirectory('chatmessage/' . floor($extra_chat_message->id / config('constants.image_per_folder')))
+                                ->upload();
+                            $extra_chat_message->attachMedia($media, 'gallery');     
+                        }
+
+                        $number++;    
+                    }catch(\Exception $e) {
+
+                    }
+                }
+                
             } else {
                 foreach (array_unique($imagesDecoded) as $image) {
                     $media = Media::find($image);
-                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
-                    if (!$isExists) {
-                        $chat_message->attachMedia($media, config('constants.media_tags'));
+                    if(!empty($media)) {
+                        $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
+                        if (!$isExists) {
+                            $chat_message->attachMedia($media, config('constants.media_tags'));
+                        }
                     }
                 }
             }
@@ -2450,7 +2492,7 @@ class WhatsAppController extends FindByNumberController
             File::delete('uploads/temp_screenshot.png');
         }
 
-        $approveMessage = 0;
+        $approveMessage = 1;
 
         try {
             $approveMessage = $request->session()->get('is_approve_message');
@@ -2463,6 +2505,8 @@ class WhatsAppController extends FindByNumberController
             $myRequest->request->add(['messageId' => $chat_message->id]);
             $this->approveMessage($context, $myRequest);
         }
+
+
 
         if ($request->ajax()) {
             return response()->json(['message' => $chat_message]);
@@ -3631,10 +3675,10 @@ class WhatsAppController extends FindByNumberController
         }
         // array_reverse($result);
         // $result = array_values(array_sort($result, function ($value) {
-        // 				return $value['creation_date'];
-        // 		}));
+        //              return $value['creation_date'];
+        //      }));
         // //
-        // 		$result = array_reverse($result);
+        //      $result = array_reverse($result);
         dd($filtered_data);
 
 

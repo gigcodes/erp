@@ -147,6 +147,9 @@
                     &nbsp;
                     <input type="checkbox" class="is_on_sale" id="is_on_sale" name="is_on_sale"><label
                             for="is_on_sale">Sale Products</label>
+                    <input type="checkbox" class="random" id="random" name="random"><label
+                            for="random">Random</label>
+
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                     {{-- </div>
@@ -171,8 +174,8 @@
     <div class="productGrid" id="productGrid">
         @include('partials.image-load')
     </div>
-    @php 
-        $action = url('whatsapp/updateAndCreate/'); 
+    @php
+        $action = url('whatsapp/updateAndCreate/');
         if ($model_type == 'images') {
             $action =  route('image.grid.attach');
         } else if ($model_type == 'customers') {
@@ -182,7 +185,7 @@
         } else if ($model_type == 'broadcast-images') {
             $action =  route('broadcast.images.link');
         } else if ($model_type == 'customer') {
-            $action =  route('whatsapp.send', 'customer');
+            $action =  route('attachImages.queue');
         } else if ($model_type == 'selected_customer') {
             $action =  route('whatsapp.send_selected_customer');
         } else if ($model_type == 'product-templates') {
@@ -210,22 +213,18 @@
         <input type="hidden" name="status" value="{{ $status }}">
     </form>
     <div id="confirmPdf" class="modal" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-body">
-            <p>Do you want to send with Pdf ?</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary btn-approve-pdf">Yes</button>
-            <button type="button" class="btn btn-secondary btn-ignore-pdf">No</button>
-          </div>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p>Choose the format for sending</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-approve-pdf">PDF</button>
+                    <button type="button" class="btn btn-secondary btn-ignore-pdf">Images</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-
-
-
-
     <?php $stage = new \App\Stage(); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
@@ -250,7 +249,7 @@
             });
 
             var selectAllBtn = $(".select-all-product-btn");
-            selectAllBtn.on("click", function () {
+            selectAllBtn.on("click", function (e) {
                 var $this = $(this);
                 var vcount = 0;
 
@@ -258,35 +257,92 @@
                 if (vcount == 0) {
                     vcount = 'all';
                 }
+                var productCardCount = $(".product-list-card").length;
 
-                if ($this.hasClass("has-all-selected") === false) {
-                    $this.html("Deselect " + vcount);
-                    if (vcount == 'all') {
-                        $(".select-pr-list-chk").prop("checked", true).trigger('change');
-                    } else {
-                        var boxes = $(".select-pr-list-chk");
-                        for (i = 0; i < vcount; i++) {
-                            try {
-                                $(boxes[i]).prop("checked", true).trigger('change');
-                            } catch (err) {
+                if((vcount == "all" || 1 == 1) && $this.hasClass("has-all-selected") === false && (productCardCount < vcount || vcount == "all") ) {
+
+                    e.preventDefault();
+
+                    $('#selected_products').val(JSON.stringify(image_array));
+                    var url = "";
+                    var pageLink = $(".pagination").find('.page-link');
+                        if(pageLink.length > 0) {
+                            $.each(pageLink, function(k,v) {
+                                var href = $(v).attr("href");
+                                if(typeof href != "undefined") {
+                                    url = href;
+                                    return false;
+                                }
+                            });
+                        }
+
+                    
+                    url = replaceUrlParam(url,'page','1');
+
+                    $.ajax({
+                        url: url,
+                        data : {
+                            limit : vcount
+                        },beforeSend: function() {
+                            $('#productGrid').html('<img id="loading-image" src="/images/pre-loader.gif"/>');
+                        }
+                    }).done(function (data) {
+                        all_product_ids = data.all_product_ids;
+                        $('#productGrid').html(data.html);
+                        $('#products_count').text(data.products_count);
+                        $('.lazy').Lazy({
+                            effect: 'fadeIn'
+                        });
+
+                        if ($this.hasClass("has-all-selected") === false) {
+                            $this.html("Deselect " + vcount);
+                            if (vcount == 'all') {
+                                $(".select-pr-list-chk").prop("checked", true).trigger('change');
+                            } else {
+                                var boxes = $(".select-pr-list-chk");
+                                for (i = 0; i < vcount; i++) {
+                                    try {
+                                        $(boxes[i]).prop("checked", true).trigger('change');
+                                    } catch (err) {
+                                    }
+                                }
+                            }
+                            $this.addClass("has-all-selected");
+                        } 
+                    }).fail(function () {
+                        alert('Error searching for products');
+                    });
+
+                }else {
+                    if ($this.hasClass("has-all-selected") === false) {
+                        $this.html("Deselect " + vcount);
+                        if (vcount == 'all') {
+                            $(".select-pr-list-chk").prop("checked", true).trigger('change');
+                        } else {
+                            var boxes = $(".select-pr-list-chk");
+                            for (i = 0; i < vcount; i++) {
+                                try {
+                                    $(boxes[i]).prop("checked", true).trigger('change');
+                                } catch (err) {
+                                }
                             }
                         }
-                    }
-                    $this.addClass("has-all-selected");
-                } else {
-                    $this.html("Select " + vcount);
-                    if (vcount == 'all') {
-                        $(".select-pr-list-chk").prop("checked", false).trigger('change');
-                    } else {
-                        var boxes = $(".select-pr-list-chk");
-                        for (i = 0; i < vcount; i++) {
-                            try {
-                                $(boxes[i]).prop("checked", false).trigger('change');
-                            } catch (err) {
+                        $this.addClass("has-all-selected");
+                    }else {
+                        $this.html("Select " + vcount);
+                        if (vcount == 'all') {
+                            $(".select-pr-list-chk").prop("checked", false).trigger('change');
+                        } else {
+                            var boxes = $(".select-pr-list-chk");
+                            for (i = 0; i < vcount; i++) {
+                                try {
+                                    $(boxes[i]).prop("checked", false).trigger('change');
+                                } catch (err) {
+                                }
                             }
                         }
+                        $this.removeClass("has-all-selected");
                     }
-                    $this.removeClass("has-all-selected");
                 }
 
                 /*// Add all images to array
@@ -517,7 +573,7 @@
                     $("#confirmPdf").modal("show");
                 }else{
                     $('#attachImageForm').submit();
-                } 
+                }
             }
         });
 
@@ -541,6 +597,29 @@
             $('#searchForm').submit();
         });
 
+        function replaceUrlParam(url, paramName, paramValue)
+        {
+            if (paramValue == null) {
+                paramValue = '';
+            }
+            var pattern = new RegExp('\\b('+paramName+'=).*?(&|#|$)');
+            if (url.search(pattern)>=0) {
+                return url.replace(pattern,'$1' + paramValue + '$2');
+            }
+            url = url.replace(/[?#]$/,'');
+            return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
+        }
+
     </script>
+
+@endsection
+
+@section('scripts')
+<script type="text/javascript">
+    function myFunction(id){
+    $('#description'+id).toggle();
+    $('#description_full'+id).toggle();
+   }
+</script>
 
 @endsection
