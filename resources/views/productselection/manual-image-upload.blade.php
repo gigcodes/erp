@@ -80,7 +80,7 @@
     <div class="productGrid" id="productGrid">
         @foreach ($products as $product)
             <div class="col-md-3 col-xs-6 text-center mb-5">
-                  <a href="{{route( 'productselection.edit', $product->id )}}" target="_balnk">
+                  <a href="javascript:;" class="js-open-frm" data-id="{{$product->id}}">
                       <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" />
                       <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
                       <p>Id : {{ $product->id }}</p>
@@ -107,6 +107,21 @@
         @endforeach
     </div>
     {!! $products->links() !!}
+
+<div id="open_edit_frm" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="row">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-10 modal_content">
+        </div>
+        <div class="col-lg-1"></div>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -116,5 +131,20 @@
          $(document).ready(function() {
            $(".select-multiple2").select2();
         });
+         $('.js-open-frm').click(function() {
+            var id = $(this).data('id');
+            $.ajax(
+                {
+                    url: '/productselection/'+id+'/edit?open_from=1',
+                    type: "get",
+                }).done(function (html) {
+                  $("#open_edit_frm").find('.modal_content').html(html);
+                  $("#open_edit_frm").find('.js-back').html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
+                  $("#open_edit_frm").modal('show');
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            }); 
+         })
+         
     </script>
 @endsection

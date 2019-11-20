@@ -217,6 +217,9 @@ class ProductSelectionController extends Controller
 		$locations = \App\ProductLocation::pluck("name","name");
 		$suppliers = Supplier::select(['id', 'supplier'])->get();
 
+		if (request()->get('open_from')) {
+			return view('productselection.edit-from',compact('productselection', 'locations', 'suppliers'));
+		}
 		return view('productselection.edit',compact('productselection', 'locations', 'suppliers'));
 	}
 
@@ -234,7 +237,7 @@ class ProductSelectionController extends Controller
 		$productselection->sku = $request->input('sku');
 		$productselection->size = $request->input('size');
 		$productselection->price = $request->input('price');
-		$productselection->status = $request->input('status');
+		$productselection->status_id = $request->input('status_id');
 		// $productselection->supplier = $request->input('supplier');
 		$productselection->supplier_link = $request->input('supplier_link');
 		$productselection->location = $request->input('location');
