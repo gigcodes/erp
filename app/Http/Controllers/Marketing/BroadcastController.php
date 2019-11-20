@@ -203,8 +203,8 @@ class BroadcastController extends Controller
                 }
 
                 // Update customer with new number
-                $customer->whatsapp_number = $numberWithLeastCustomers;
-                $customer->update();
+//                $customer->whatsapp_number = $numberWithLeastCustomers;
+//                $customer->update();
 
                 // Send the welcome message
                 InstantMessagingHelper::scheduleMessage($customer->phone, $numberWithLeastCustomers, $welcomeMessage);
