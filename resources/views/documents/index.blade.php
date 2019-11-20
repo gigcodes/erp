@@ -17,22 +17,22 @@
                     <div class="form-group">
                         <div class="row">
                             <div class="col-md-4">
-                                <input name="term" type="text" class="form-control"
+                                <input name="term" type="text" class="form-control global"
                                        value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="user,department,filename">
+                                       placeholder="user,department,filename" id="term">
                             </div>
-                            <div class="col-md-4">
+                          <!--   <div class="col-md-4">
                                 <select class="form-control select-multiple2" name="category[]" data-placeholder="Select Category.." multiple>
                                     <option>Select Category</option>
                                     @foreach($category as $cat)
                                         <option value="{{ $cat->id }}" data-list="{{ $cat->id }}">{{ $cat->name }}</option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </div> -->
 
                             <div class="col-md-3">
                                 <div class='input-group date' id='filter-date'>
-                                    <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" />
+                                    <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
 
                                     <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
@@ -74,7 +74,7 @@
     @endif
 
     <div class="table-responsive mt-3">
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="documents-table">
             <thead>
             <tr>
                 <th>Date</th>
@@ -86,34 +86,20 @@
                 <th>Actions</th>
                 <th>Remarks</th>
             </tr>
+            <tr>
+            <th></th>    
+            <th><input type="text" id="user" class="search form-control"></th>
+            <th></th>
+            <th><input type="text" id="document_type" class="search form-control"></th>
+            <th><input type="text" id="category" class="search form-control"></th>
+            <th><input type="text" id="filename" class="search form-control"></th>
+            <th></th>
+            <th></th>
+          </tr>
             </thead>
 
             <tbody>
-            @foreach ($documents as $document)
-                <tr>
-                    <td>{{ $document->updated_at->format('d.m-Y') }}</td>
-                    <td>{{ $document->user->name }}</td>
-                    <td>{{ $document->user->agent_role  }}</td>
-                    <td>{{ $document->name}}</td>
-                    <td>@if(isset($document->documentCategory->name)){{ $document->documentCategory->name }} @endif</td>
-                    <td>{{ $document->filename }}</td>
-                    <td>
-                        <a href="{{ route('document.download', $document->id) }}" class="btn btn-xs btn-secondary">Download</a>
-                        <button type="button" class="btn btn-image sendWhatsapp" data-id="{{ $document->id }}"><img src="/images/send.png" /></button>
-                        <button type="button" class="btn btn-image sendEmail" data-id="{{ $document->id }}"><img src="/images/customer-email.png" /></button>
-
-                        {!! Form::open(['method' => 'DELETE','route' => ['document.destroy', $document->id],'style'=>'display:inline']) !!}
-
-                        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-
-                        {!! Form::close() !!}
-                        <button type="button" class="btn btn-image uploadDocument" data-id="{{ $document->id }}"><img src="/images/upload.png" /></button>
-
-                        V: {{ $document->version }}
-                    </td>
-                    <td><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $document->id }}"><img src="/images/remark.png" /></button></td>
-                </tr>
-            @endforeach
+            @include('documents.data')
             </tbody>
         </table>
     </div>
@@ -233,7 +219,8 @@
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
         $('#filter-date').datetimepicker({
             format: 'YYYY-MM-DD'
@@ -548,6 +535,87 @@
         });
 
 
+
+        $(document).ready(function() {
+        src = "{{ route('document.index') }}";
+        $(".search").autocomplete({
+        source: function(request, response) {
+            user = $('#user').val();
+            document_type = $('#document_type').val();
+            category = $('#category').val();
+            filename = $('#filename').val();
+          
+
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    user : user,
+                    document_type : document_type,
+                    category : category,
+                    filename : filename,
+                
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#documents-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });
+
+        $(document).ready(function() {
+        src = "{{ route('document.index') }}";
+        $(".global").autocomplete({
+        source: function(request, response) {
+            term = $('#term').val();
+            date = $('#date').val();
+          
+          $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    term : term,
+                    date : date,
+                
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#documents-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });   
     </script>
 
 
