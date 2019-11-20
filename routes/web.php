@@ -1199,12 +1199,12 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
     Route::post('platforms/edit', 'MarketingPlatformController@edit')->name('platforms.edit');
     Route::post('platforms/delete', 'MarketingPlatformController@destroy')->name('platforms.delete');
 
-    Route::get('broadcast','BroadCastController@index')->name('broadcasts.index');
-    Route::get('broadcast/dnd','BroadCastController@addToDND')->name('broadcast.add.dnd');
-    Route::get('broadcast/gettaskremark', 'BroadCastController@getBroadCastRemark')->name('broadcast.gets.remark');
-    Route::post('broadcast/addremark', 'BroadCastController@addRemark')->name('broadcast.add.remark');
-    Route::get('broadcast/manual','BroadCastController@addManual')->name('broadcast.add.manual');
-    Route::post('broadcast/update', 'BroadCastController@updateWhatsAppNumber')->name('broadcast.update.whatsappnumber');
+    Route::get('broadcast','BroadcastController@index')->name('broadcasts.index');
+    Route::get('broadcast/dnd','BroadcastController@addToDND')->name('broadcast.add.dnd');
+    Route::get('broadcast/gettaskremark', 'BroadcastController@getBroadCastRemark')->name('broadcast.gets.remark');
+    Route::post('broadcast/addremark', 'BroadcastController@addRemark')->name('broadcast.add.remark');
+    Route::get('broadcast/manual','BroadcastController@addManual')->name('broadcast.add.manual');
+    Route::post('broadcast/update', 'BroadcastController@updateWhatsAppNumber')->name('broadcast.update.whatsappnumber');
 
 
 });

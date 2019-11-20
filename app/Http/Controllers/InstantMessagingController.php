@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use \Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\ChatMessage;
 use App\ImQueue;
 use App\Helpers\InstantMessagingHelper;
 
@@ -60,12 +61,25 @@ class InstantMessagingController extends Controller
         // Valid json?
         if ($receivedJson !== null && is_object($receivedJson)) {
             // Get message from queue
-            $imQueue = ImQueue::where(['id'=>$receivedJson->queueNumber])->first();
+            $imQueue = ImQueue::where(['id' => $receivedJson->queueNumber])->first();
 
             // message found in the queue
             if ($imQueue !== null && empty($imQueue->sent_at)) {
+                // Update status in im_queues
                 $imQueue->sent_at = $receivedJson->sent == true ? date('Y-m-d H:i:s', Carbon::now()->timestamp) : '2002-20-02 20:02:00';
                 $imQueue->save();
+
+                // Find customer for this number
+                $customer = Customer::where('phone', '=', $imQueue->number_to)->first();
+
+                // Add to chat_messages if we have a customer
+                $params = [
+                    'message' => $imQueue->message,
+                    'customer_id' => $customer != null ? $customer->id : null,
+                    'approved' => 1,
+                    'status' => 2
+                ];
+                $chatMessage = ChatMessage::create($params);
             }
         }
 

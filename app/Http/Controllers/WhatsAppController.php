@@ -3291,7 +3291,7 @@ class WhatsAppController extends FindByNumberController
 
             foreach ($data as $whatsapp_number => $customers) {
 
-                
+
                 $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
@@ -3806,11 +3806,12 @@ class WhatsAppController extends FindByNumberController
 
             preg_match_all("/\[[^\]]*\]]/", $message, $matches);
             $values = $matches[0];
-            
-            foreach ($values as $value) {
-                $message = str_replace($value, $fields[$value], $message);
-            }
 
+            foreach ($values as $value) {
+                if ( isset($fields[$value]) ) {
+                    $message = str_replace($value, $fields[ $value ], $message);
+                }
+            }
         }
 
         $encodedNumber = '+' . $number;
