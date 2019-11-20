@@ -1446,9 +1446,16 @@ class ProductController extends Controller
         })->groupBy('products.id');
 
         $products = $products->select(['id','name','short_description','color','sku', 'size', 'price_special', 'supplier', 'purchase_status', 'media_id']);
-        $products_count = $products->get()->count();
-        $all_product_ids = $products->get()->pluck('media_id')->toArray();
-        $products = $products->paginate(Setting::get('pagination'));
+        $productRes  = $products->get();
+        $products_count = $productRes->count();
+        $all_product_ids = $productRes->pluck('media_id')->toArray();
+
+        $limit = Setting::get('pagination');
+        if($request->has("limit")) {
+            $limit = ($request->get("limit") == "all") ? $products_count : $request->get("limit");
+        }
+        
+        $products = $products->paginate($limit);
 
         if ($request->ajax()) {
             $html = view('partials.image-load', ['products' => $products, 'all_product_ids' => $all_product_ids, 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [], 'model_type' => $model_type])->render();
@@ -1463,9 +1470,9 @@ class ProductController extends Controller
         $locations = \App\ProductLocation::pluck("name","name");
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
-        $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->get();
+        $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
 
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
+        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category',  'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
     }
 
 
@@ -2084,12 +2091,42 @@ class ProductController extends Controller
     {
         $customerIds = $request->get('customers_id', '');
         $customerIds = explode(',', $customerIds);
+        $brand       = request()->get("brand",null);
+        $category    = request()->get("category",null);
+        $numberOfProduts = request()->get("number_of_products",10);
+        
+
+        $product = new \App\Product;
+
+        $toBeRun =  false;
+        if(!empty($brand)) {
+            $toBeRun =  true;
+            $product = $product->where("brand",$brand);
+        }
+
+        if(!empty($category)) {
+            $toBeRun =  true;
+            $product = $product->where("category",$category);
+        }
+
+        $extraParams = [];
+
+        if($toBeRun) {
+            $limit = (!empty($numberOfProduts) && is_numeric($numberOfProduts)) ? $numberOfProduts : 10;
+            $imagesQuery = $product->join("mediables as m","m.mediable_id", "products.id")->select("media_id")->groupBy("products.id")
+            ->limit($limit)
+            ->get()->pluck("media_id")->toArray();
+            if(!empty($imagesQuery)) {
+                $extraParams["images"] = json_encode(array_unique($imagesQuery));
+            }
+        }
+
         foreach ($customerIds as $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');
             $params = $request->except(['_token', 'customers_id', 'return_url']);
             $params['customer_id'] = $customerId;
-            $requestData->request->add($params);
+            $requestData->request->add($params + $extraParams);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
         }
@@ -2118,6 +2155,10 @@ class ProductController extends Controller
         $data['status'] = $request->status;
 
         \App\Jobs\AttachImagesSend::dispatch($data);
+
+        if ($request->get('return_url')) {
+            return redirect($request->get('return_url'));
+        }
 
         return redirect()->route('customer.post.show',$request->customer_id)->withSuccess('Message Send For Queue');
     }
