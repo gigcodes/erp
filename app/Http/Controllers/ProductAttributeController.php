@@ -253,7 +253,7 @@ class ProductAttributeController extends Controller
 		NotificaitonContoller::store('has added attribute', ['Supervisors'], $productattribute->id);
 		ActivityConroller::create($productattribute->id,'attribute','create');
 
-		foreach ($request->get('qty') as $k=>$qty) {
+		foreach ($request->get('qty', []) as $k=>$qty) {
 		    if (!$qty) {
 		        continue;
             }
@@ -264,8 +264,7 @@ class ProductAttributeController extends Controller
 		    $q->save();
         }
 
-		return redirect()->route( 'productimagecropper.index' )
-		                 ->with( 'success', $success_message);
+		return redirect()->back()->with( 'success', $success_message);
 	}
 
 	public function calculateSpecialDiscount($price,$brand) {

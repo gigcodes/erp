@@ -1559,7 +1559,7 @@
               </div>
 
               <div class="">
-                <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
+                <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}?return_url={{ request()->getRequestUri() }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
 
 
                 <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button>
