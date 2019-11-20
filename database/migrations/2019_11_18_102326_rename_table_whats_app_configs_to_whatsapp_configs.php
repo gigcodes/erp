@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateChatMessagesTable extends Migration
+class RenameTableWhatsappConfigsToWhatsappConfigs extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,7 @@ class UpdateChatMessagesTable extends Migration
      */
     public function up()
     {
-        Schema::table('chat_messages',function($table){
-            $table->string('old_id')->nullable();
-        });
+        Schema::rename('whats_app_configs', 'whatsapp_configs');
     }
 
     /**
@@ -25,6 +23,6 @@ class UpdateChatMessagesTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::rename('whatsapp_configs', 'whats_app_configs');
     }
 }

@@ -369,6 +369,11 @@ class SearchController extends Controller
         $products_count = $products->get()->count();
         $data[ 'products_count' ] = $products_count;
         $data[ 'all_products_ids' ] = $products->pluck('id')->toArray();
+
+        if($request->has("limit")) {
+            $perPageLimit = ($request->get("limit") == "all") ? $products_count : $request->get("limit");
+        }
+        
         $data[ 'products' ] = $products->paginate($perPageLimit);
 
         if ($request->model_type == 'broadcast-images') {

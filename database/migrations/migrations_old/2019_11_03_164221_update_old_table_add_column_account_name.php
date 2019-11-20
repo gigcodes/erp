@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateChatMessageTables extends Migration
+class UpdateOldTableAddColumnAccountName extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class UpdateChatMessageTables extends Migration
      */
     public function up()
     {
-        Schema::table('chat_messages', function($table){
-            $table->integer('message_application_id')->default(0);
-
+        Schema::table('old',function($table){
+            $table->string('account_name')->nullable()->after('gst');
         });
     }
 
@@ -26,6 +25,8 @@ class UpdateChatMessageTables extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('old',function($table){
+            $table->dropIfExists('account_name');
+        });
     }
 }

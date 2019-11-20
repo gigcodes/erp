@@ -10,7 +10,7 @@ class ProductDispatch extends Model
     use Mediable;
     
 	public $table  = "product_dispatch";
-    protected $fillable = ['modeof_shipment','awb','eta','date_time','product_id','created_by'];
+    protected $fillable = ['modeof_shipment','awb','eta','delivery_person','date_time','product_id','created_by'];
 
     public function product()
     {
