@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 
+@section('favicon' , 'task.png')
+
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">

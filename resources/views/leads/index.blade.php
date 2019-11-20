@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-
+@section('favicon' , 'lead.png')
 
 @section("styles")
 
