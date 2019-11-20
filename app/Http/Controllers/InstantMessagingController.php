@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Marketing\WhatsappConfig;
 use \Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
 use App\ChatMessage;
+use App\Customer;
 use App\ImQueue;
-use App\Helpers\InstantMessagingHelper;
 
 class InstantMessagingController extends Controller
 {
@@ -80,7 +79,8 @@ class InstantMessagingController extends Controller
             $imQueue = ImQueue::where(['id' => $receivedJson->queueNumber])->first();
 
             // message found in the queue
-            if ($imQueue !== null && empty($imQueue->sent_at)) {
+            //if ($imQueue !== null && empty($imQueue->sent_at)) {
+            if ( $imQueue !== null ) {
                 // Update status in im_queues
                 $imQueue->sent_at = $receivedJson->sent == true ? date('Y-m-d H:i:s', Carbon::now()->timestamp) : '2002-20-02 20:02:00';
                 $imQueue->save();
@@ -91,12 +91,16 @@ class InstantMessagingController extends Controller
                 // Add to chat_messages if we have a customer
                 $params = [
                     'unique_id' => $receivedJson->id,
-                    'message' => $imQueue->message,
+                    'message' => $imQueue->text,
                     'customer_id' => $customer != null ? $customer->id : null,
                     'approved' => 1,
                     'status' => 2
                 ];
+
+                // Create chat message
                 $chatMessage = ChatMessage::create($params);
+
+                // TODO: Attach images to chatMessage
             }
         }
 
