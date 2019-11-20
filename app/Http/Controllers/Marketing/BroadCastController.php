@@ -11,7 +11,7 @@ use Auth;
 use Validator;
 use Response;
 use App\ApiKey;
-use App\Marketing\WhatsAppConfig;
+use App\Marketing\WhatsappConfig;
 
 class BroadCastController extends Controller
 {
@@ -45,11 +45,11 @@ class BroadCastController extends Controller
             $query->whereDate('created_at', request('date'));
         }
 
-               //if number is not null 
+               //if number is not null
         if (request('number') != null) {
             $query->where('whatsapp_number','LIKE', '%' . request('number') . '%');
         }
-                //if number is not null 
+                //if number is not null
         if (request('name') != null) {
             $query->where('name','LIKE', '%' . request('name') . '%');
         }
@@ -64,20 +64,20 @@ class BroadCastController extends Controller
             $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($request) {
                 $qu->where('active', request('manual'));
             });
-        }    
-        
+        }
+
         if (request('remark') != null) {
             $query->whereHas('customerMarketingPlatformRemark', function ($qu) use ($request) {
                 $qu->where('remark', 'LIKE', '%' . request('remark') . '%');
             });
-        }      
+        }
 
-        $customers = $query->orderby('id','desc')->where('do_not_disturb',0)->paginate(Setting::get('pagination')); 
+        $customers = $query->orderby('id','desc')->where('do_not_disturb',0)->paginate(Setting::get('pagination'));
 
     }else{
-      $customers = Customer::select('id','name','whatsapp_number')->orderby('id','desc')->where('do_not_disturb',0)->paginate(Setting::get('pagination'));   
+      $customers = Customer::select('id','name','whatsapp_number')->orderby('id','desc')->where('do_not_disturb',0)->paginate(Setting::get('pagination'));
     }
-    $numbers = WhatsAppConfig::where('is_customer_support',0)->get();
+    $numbers = WhatsappConfig::where('is_customer_support',0)->get();
     $apiKeys = ApiKey::all();
     if ($request->ajax()) {
         return response()->json([
@@ -104,11 +104,11 @@ class BroadCastController extends Controller
 
 	public function addToDND(Request $request)
 	{
-		
+
        $id = $request->id;
        $customer = Customer::findOrFail($id);
        $customer->do_not_disturb = $request->type;
-       $customer->update(); 
+       $customer->update();
        return response()->json([
             'status' => 'success'
         ]);
@@ -169,13 +169,13 @@ class BroadCastController extends Controller
             if(count($customer->orders) == 0 && count($customer->leads) == 0){
 
             $welcomeMessage = Setting::get('welcome_message');
-            
+
             app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, '',$welcomeMessage, '', '','',$id);
 
             }
             //Getting WhatsApp Number with Lowest Customer Number Active
             $numberWithCount = array();
-            $whatsapps = WhatsAppConfig::where('is_customer_support',0)->get();
+            $whatsapps = WhatsappConfig::where('is_customer_support',0)->get();
             if(count($whatsapps) != null){
                 foreach ($whatsapps as $whatsapp) {
                     $count = 0;
@@ -184,7 +184,7 @@ class BroadCastController extends Controller
                         foreach ($customerss as $customers) {
                             if(isset($customers->customerMarketingPlatformActive)){
                                 if($customers->customerMarketingPlatformActive->active == 1){
-                                        $count++;    
+                                        $count++;
                                 }
                             }
                         }
@@ -201,14 +201,14 @@ class BroadCastController extends Controller
                     if($values['count']<=$temp)
                     {
                         $temp=$values['count'];
-                        $number=$values['number']; 
+                        $number=$values['number'];
                     }
                 }
 
                 $customer->whatsapp_number = $number;
                 $customer->update();
 
-            }   
+            }
         }
         //Adding Customer to Customer Marketing Table
         $remark = CustomerMarketingPlatform::where('customer_id',$id)->whereNull('remark')->first();

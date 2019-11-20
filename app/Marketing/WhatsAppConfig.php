@@ -5,7 +5,7 @@ namespace App\Marketing;
 use Illuminate\Database\Eloquent\Model;
 use App\Customer;
 
-class WhatsAppConfig extends Model
+class WhatsappConfig extends Model
 {
     protected $fillable = ['number','provider','username','password','is_customer_support'];
 
@@ -13,5 +13,5 @@ class WhatsAppConfig extends Model
     {
     	return $this->hasMany(Customer::class,'whatsapp_number','number');
     }
-   
+
 }

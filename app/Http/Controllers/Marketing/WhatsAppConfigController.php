@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\Marketing\WhatsAppConfig;
+use App\Marketing\WhatsappConfig;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Setting;
@@ -10,7 +10,7 @@ use Validator;
 use Crypt;
 use Response;
 
-class WhatsAppConfigController extends Controller
+class WhatsappConfigController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,7 +22,7 @@ class WhatsAppConfigController extends Controller
 
        if($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date){
 
-        $query =  WhatsAppConfig::query();
+        $query =  WhatsappConfig::query();
 
             //global search term
         if (request('term') != null) {
@@ -38,30 +38,30 @@ class WhatsAppConfigController extends Controller
         }
 
 
-               //if number is not null 
+               //if number is not null
         if (request('number') != null) {
             $query->where('number','LIKE', '%' . request('number') . '%');
         }
 
-            //If username is not null 
+            //If username is not null
         if (request('username') != null) {
             $query->where('username','LIKE', '%' . request('username') . '%');
-        } 
+        }
 
-           //if provider with is not null 
+           //if provider with is not null
         if (request('provider') != null) {
             $query->where('provider', 'LIKE', '%' . request('provider') . '%');
         }
 
-           //if provider with is not null 
+           //if provider with is not null
         if (request('customer_support') != null) {
             $query->where('is_customer_support', request('customer_support'));
         }
 
-        $whatsAppConfigs = $query->orderby('id','desc')->paginate(Setting::get('pagination')); 
-        
+        $whatsAppConfigs = $query->orderby('id','desc')->paginate(Setting::get('pagination'));
+
     }else{
-        $whatsAppConfigs = WhatsAppConfig::latest()->paginate(Setting::get('pagination'));
+        $whatsAppConfigs = WhatsappConfig::latest()->paginate(Setting::get('pagination'));
     }
 
     if ($request->ajax()) {
@@ -99,7 +99,7 @@ class WhatsAppConfigController extends Controller
     {
 
         $this->validate($request, [
-        'number'   => 'required|max:13|unique:whats_app_configs,number',
+        'number'   => 'required|max:13|unique:whatsapp_configs,number',
         'provider'       => 'required',
         'customer_support' => 'required',
         'username'  => 'required|min:3|max:255',
@@ -110,7 +110,7 @@ class WhatsAppConfigController extends Controller
       $data['password'] = Crypt::encrypt($request->password);
       $data['is_customer_support'] = $request->customer_support;
 
-      WhatsAppConfig::create($data);
+      WhatsappConfig::create($data);
 
       return redirect()->back()->withSuccess('You have successfully stored Whats App Config');
     }
@@ -118,10 +118,10 @@ class WhatsAppConfigController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\WhatsAppConfig  $whatsAppConfig
+     * @param  \App\WhatsappConfig  $whatsAppConfig
      * @return \Illuminate\Http\Response
      */
-    public function show(WhatsAppConfig $whatsAppConfig)
+    public function show(WhatsappConfig $whatsAppConfig)
     {
         //
     }
@@ -129,7 +129,7 @@ class WhatsAppConfigController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\WhatsAppConfig  $whatsAppConfig
+     * @param  \App\WhatsappConfig  $whatsAppConfig
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
@@ -142,7 +142,7 @@ class WhatsAppConfigController extends Controller
         'username'  => 'required|min:3|max:255',
         'password'  => 'required|min:6|max:255',
         ]);
-        $config = WhatsAppConfig::findorfail($request->id);
+        $config = WhatsappConfig::findorfail($request->id);
         $data = $request->except('_token','id');
         $data['password'] = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
@@ -155,10 +155,10 @@ class WhatsAppConfigController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\WhatsAppConfig  $whatsAppConfig
+     * @param  \App\WhatsappConfig  $whatsAppConfig
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, WhatsAppConfig $whatsAppConfig)
+    public function update(Request $request, WhatsappConfig $whatsAppConfig)
     {
         //
     }
@@ -166,12 +166,12 @@ class WhatsAppConfigController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\WhatsAppConfig  $whatsAppConfig
+     * @param  \App\WhatsappConfig  $whatsAppConfig
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
     {
-        $config = WhatsAppConfig::findorfail($request->id);
+        $config = WhatsappConfig::findorfail($request->id);
         $config->delete();
         return Response::json(array(
             'success' => true,
