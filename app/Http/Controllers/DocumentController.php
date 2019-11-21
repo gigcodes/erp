@@ -28,33 +28,66 @@ class DocumentController extends Controller
      */
     public function index(Request $request)
     {
-            if($request->term || $request->date || $request->category) {
 
-                if($request->date){
+         
+            if($request->term || $request->date || $request->document_type || $request->category || $request->filename || $request->user) {
 
-                    $documents  = Document::query()
-                        ->whereDate('created_at', $request->date)
-                        ->paginate(10);
+                 $query =  Document::query();
 
-                }
+            if (request('term') != null) {
+                $query->where('name', 'LIKE', "%{$request->term}%")
+                    ->orWhere('filename', 'LIKE', "%{$request->term}%")
+                    ->orWhereHas('documentCategory', function ($qu) use ($request) {
+                      $qu->where('name', 'LIKE', "%{$request->term}%");
+                      });
+            }
 
-                if($request->term){
 
-                    $documents  = Document::query()
-                        ->where('filename', 'LIKE', "%{$request->term}%")
-                        ->orWhere('name', 'LIKE', "%{$request->term}%")
-                        ->paginate(10);
+            if (request('date') != null) {
+                $query->whereDate('created_at', request('website'));
+            }
 
-                }
 
-                if($request->category){
-                    $documents = Document::whereIn('category_id', $request->category)->paginate(10);
+               //if name is not null 
+            if (request('document_type') != null) {
+                $query->where('name','LIKE', '%' . request('document_type') . '%');
+            }
 
-                    }
+            //If username is not null 
+            if (request('filename') != null) {
+                $query->where('filename','LIKE', '%' . request('filename') . '%');
+            }
+
+             if (request('category') != null) {
+                $query->whereHas('documentCategory', function ($qu) use ($request) {
+                    $qu->where('name', 'LIKE', '%' . request('category') . '%');
+                    });
+            } 
+
+            
+            if (request('user') != null) {
+                $query->whereHas('user', function ($qu) use ($request) {
+                    $qu->where('name', 'LIKE', '%' . request('user') . '%');
+                    });
+            } 
+
+           
+           $documents = $query->where('status',1)->orderby('name','asc')->paginate(Setting::get('pagination')); 
+                
 
             }else{
                 $documents = Document::where('status',1)->latest()->paginate(Setting::get('pagination'));
             }
+
+
+          if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('documents.data', compact('documents'))->render(),
+                'links' => (string)$documents->render()
+            ], 200);
+        }
+
+
             $users = User::select(['id', 'name', 'email', 'agent_role'])->get();
             $category = DocumentCategory::select('id', 'name')->get();
             $api_keys = ApiKey::select('number')->get();

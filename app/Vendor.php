@@ -40,7 +40,7 @@ class Vendor extends Model
 
     public function chat_messages()
     {
-        return $this->hasMany('App\ChatMessage');
+        return $this->hasMany('App\ChatMessage')->orderBy('id','desc');
     }
 
     public function category()
