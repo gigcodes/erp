@@ -82,11 +82,17 @@ class InstantMessagingController extends Controller
             //if ($imQueue !== null && empty($imQueue->sent_at)) {
             if ( $imQueue !== null ) {
                 // Update status in im_queues
-                $imQueue->sent_at = $receivedJson->sent == true ? date('Y-m-d H:i:s', Carbon::now()->timestamp) : '2002-02-20 20:02:00';
+                $imQueue->sent_at = $receivedJson->sent == true ? date('Y-m-d H:i:s', Carbon::now()->timestamp) : '2002-02-02 02:02:02';
                 $imQueue->save();
 
                 // Find customer for this number
                 $customer = Customer::where('phone', '=', $imQueue->number_to)->first();
+
+                // Number times -1 if sent is false
+                if ( $receivedJson->sent == false ) {
+                    $customer->phone = (int) $customer->phone * -1;
+                    $customer->save();
+                }
 
                 // Add to chat_messages if we have a customer
                 $params = [
@@ -94,7 +100,8 @@ class InstantMessagingController extends Controller
                     'message' => $imQueue->text,
                     'customer_id' => $customer != null ? $customer->id : null,
                     'approved' => 1,
-                    'status' => 2
+                    'status' => 2,
+                    'is_delivered' => $receivedJson->sent == true ? 1 : 0
                 ];
 
                 // Create chat message

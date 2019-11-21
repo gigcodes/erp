@@ -11,6 +11,6 @@ class WhatsappConfig extends Model
 
     public function customer()
     {
-        return $this->hasMany(Customer::class, 'whatsapp_number', 'number');
+        return $this->hasMany(Customer::class, 'broadcast_number', 'number');
     }
 }

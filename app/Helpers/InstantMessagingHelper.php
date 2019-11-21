@@ -77,7 +77,7 @@ class InstantMessagingHelper
     public static function scheduleMessage($numberTo, $numberFrom, $message = null, $image = null, $priority = 1, $sendAfter = null)
     {
         // Check last message to this number - TODO: This works for now, but not once we start scheduling messages from the system
-        $maxTime = ImQueue::select(DB::raw('IF(MAX(send_after)>MAX(sent_at), MAX(send_after), MAX(sent_at)) AS maxTime'))->first();
+        $maxTime = ImQueue::select(DB::raw('IF(MAX(send_after)>MAX(sent_at), MAX(send_after), MAX(sent_at)) AS maxTime'))->where('number_from', $numberFrom)->first();
 
         // Convert maxTime to unixtime
         $maxTime = strtotime($maxTime->maxTime);
