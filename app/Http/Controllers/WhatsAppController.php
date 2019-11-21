@@ -1118,6 +1118,7 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 // Create message
+                var_dump($params); exit();
                 $message = ChatMessage::create($params);
 
                 // Continue to the next record
@@ -2439,28 +2440,28 @@ class WhatsAppController extends FindByNumberController
                     $pdf->render();
 
                     File::put($fileName, $pdf->output());
-                    
+
                     // send images in chunks to chat media
                     try{
                         if($number == 0) {
                             $media = MediaUploader::fromSource($fileName)
                                 ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
-                            $chat_message->attachMedia($media, 'gallery');    
+                            $chat_message->attachMedia($media, 'gallery');
                         }else{
                             $extra_chat_message = ChatMessage::create($data);
                             $media = MediaUploader::fromSource($fileName)
                                 ->toDirectory('chatmessage/' . floor($extra_chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
-                            $extra_chat_message->attachMedia($media, 'gallery');     
+                            $extra_chat_message->attachMedia($media, 'gallery');
                         }
 
-                        $number++;    
+                        $number++;
                     }catch(\Exception $e) {
 
                     }
                 }
-                
+
             } else {
                 foreach (array_unique($imagesDecoded) as $image) {
                     $media = Media::find($image);
