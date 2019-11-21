@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('favicon' , 'purchase.png')
+
+
 @section('title', 'Purchase List - ERP Sololuxury')
 
 @section('content')

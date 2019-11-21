@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('favicon' , 'task.png')
+
 @section('title', 'Tasks')
 
 @section('styles')

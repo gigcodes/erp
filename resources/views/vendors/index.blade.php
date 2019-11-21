@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('favicon' , 'vendor.png')
+
 @section('title', 'Vendor Info')
 
 @section('styles')

@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('favicon' , 'lead.png')
+
+@section('title', 'Leads List')
 
 
 @section("styles")
