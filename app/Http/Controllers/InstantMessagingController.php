@@ -82,7 +82,7 @@ class InstantMessagingController extends Controller
             //if ($imQueue !== null && empty($imQueue->sent_at)) {
             if ( $imQueue !== null ) {
                 // Update status in im_queues
-                $imQueue->sent_at = $receivedJson->sent == true ? date('Y-m-d H:i:s', Carbon::now()->timestamp) : '2002-20-02 20:02:00';
+                $imQueue->sent_at = $receivedJson->sent == true ? date('Y-m-d H:i:s', Carbon::now()->timestamp) : '2002-02-20 20:02:00';
                 $imQueue->save();
 
                 // Find customer for this number
