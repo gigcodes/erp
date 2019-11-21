@@ -2094,6 +2094,7 @@ class ProductController extends Controller
         $brand       = request()->get("brand",null);
         $category    = request()->get("category",null);
         $numberOfProduts = request()->get("number_of_products",10);
+        $quick_sell_groups = request()->get("quick_sell_groups",[]);
         
 
         $product = new \App\Product;
@@ -2107,6 +2108,11 @@ class ProductController extends Controller
         if(!empty($category)) {
             $toBeRun =  true;
             $product = $product->where("category",$category);
+        }
+
+        if (!empty($quick_sell_groups)) {
+            $toBeRun =  true;
+            $product = $product->whereRaw("(products.id in (select product_id from product_quicksell_groups where quicksell_group_id in (". $quick_sell_groups.") ))");
         }
 
         $extraParams = [];
