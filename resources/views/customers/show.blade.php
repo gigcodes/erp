@@ -946,6 +946,7 @@
           <div id="orderAccordion">
             @php
               $refunded_orders = [];
+              $orderCount = count($customer->orders);
             @endphp
             @foreach ($customer->orders as $key => $order)
               @if ($order->order_status == 'Refund to be processed')
@@ -955,7 +956,10 @@
               @endif
 
               <div class="card">
-                <div class="card-header" id="headingOrder{{ $key + 1 }}">
+                <div class="card-header" id="headingOrder{{ $orderCount }}">
+                  @php
+                    $orderCount--;
+                  @endphp
                   <h5 class="mb-0">
                     <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#order{{ $key + 1 }}" aria-expanded="false" aria-controls="order{{ $key + 1 }}">
                       <span class="{{ $order->is_priority == 1 ? 'text-danger' : '' }}">Order {{ $key + 1 }}</span>
@@ -2418,7 +2422,139 @@
     </form>
   </div>
 </div>
+</div>
 
+<div id="add_order" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{  route('order.store') }}" method="POST" enctype="multipart/form-data" class="add_order_frm" data-reload='1'>
+                <div class="modal-header">
+                    <h2>Add Order</h2>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{$customer->id}}">
+                        <input type="hidden" name="return_url_back" value="1">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong> Order Type :</strong>
+                                    <?php
+
+                                    $order_types = [
+                                        'offline' => 'offline',
+                                        'online' => 'online'
+                                    ];
+
+                                    echo Form::select('order_type',$order_types, 'offline', ['class' => 'form-control']);?>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Order Date:</strong>
+                                    <input type="date" class="form-control" name="order_date" placeholder="Order Date" value=""/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Date of Delivery:</strong>
+                                    <input type="date" class="form-control" name="date_of_delivery" placeholder="Date of Delivery" value="" />
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Advance Amount:</strong>
+                                    <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail" value="" />
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Advance Date:</strong>
+                                    <input type="date" class="form-control" name="advance_date" placeholder="Advance Date" value="" />
+                                </div>
+                            </div>
+                             <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Balance Amount:</strong>
+                                    <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount" value="" />
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong> Name of Order Handler :</strong>
+                                    <?php 
+                                        $sales_persons = \App\Helpers::getUsersArrayByRole( 'Sales' );
+                                        echo Form::select('sales_person',$sales_persons, null, ['placeholder' => 'Select a name','class' => 'form-control']); 
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Office Phone Number:</strong>
+                                    <Select name="whatsapp_number" class="form-control">
+                                          <option value>None</option>
+                                           <option value="919167152579">00</option>
+                                           <option value="918291920452">02</option>
+                                           <option value="918291920455">03</option>
+                                           <option value="919152731483">04</option>
+                                           <option value="919152731484">05</option>
+                                           <option value="971562744570">06</option>
+                                           <option value="918291352520">08</option>
+                                           <option value="919004008983">09</option>
+                                   </Select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong> Status :</strong>
+                                    <?php
+                                        $orderStatus = new \App\ReadOnly\OrderStatus;
+                                        echo Form::select('order_status',$orderStatus->all(), 'Follow up for advance', ['placeholder' => 'Select a status','class' => 'form-control']);
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Estimated Delivery Date:</strong>
+                                    <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date" />
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Received By:</strong>
+                                    <input type="text" class="form-control" name="received_by" placeholder="Received By" /> 
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong> Payment Mode :</strong>
+                                    <?php
+                                        $paymentModes = new \App\ReadOnly\PaymentModes(); 
+                                        echo Form::select('payment_mode',$paymentModes->all(), null, ['placeholder' => 'Select a mode','class' => 'form-control']);
+                                    ?>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Note if any:</strong>
+                                    <input type="text" class="form-control" name="note_if_any" placeholder="Note if any" /> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-default">Add</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <form action="" method="POST" id="product-remove-form">
   @csrf
@@ -3422,6 +3558,12 @@
       });
 
       $('#quick_add_order').on('click', function(e) {
+            e.preventDefault();
+            $('#add_order').modal('show');
+      });
+
+      /*
+      $('#quick_add_order').on('click', function(e) {
         e.preventDefault();
 
         var thiss = $(this);
@@ -3449,7 +3591,7 @@
           alert('There was an error creating a order');
         });
       });
-
+*/
       $(document).on('click', '.complete-call', function(e) {
         e.preventDefault();
 
