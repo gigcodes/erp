@@ -23,7 +23,7 @@ use App\Services\Products\ProductsCreator;
 class Product extends Model
 {
 
-//	use LogsActivity;
+//  use LogsActivity;
     use Mediable;
     use SoftDeletes;
     /**
@@ -103,7 +103,7 @@ class Product extends Model
                         $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'material_used' ] ?? ''), 'composition');
                     }
                 }
-                dd('hello');
+
                 // Add sizes to the product
                 if (isset($json->properties[ 'size' ]) && is_array($json->properties[ 'size' ]) && count($json->properties[ 'size' ]) > 0) {
                     // Implode the keys
