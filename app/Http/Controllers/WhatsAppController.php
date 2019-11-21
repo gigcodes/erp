@@ -7,6 +7,7 @@ use App\DeveloperTask;
 use App\Issue;
 use App\Lawyer;
 use App\LegalCase;
+use App\Marketing\WhatsappConfig;
 use App\Old;
 use App\Services\BulkCustomerMessage\KeywordsChecker;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
@@ -1011,6 +1012,14 @@ class WhatsAppController extends FindByNumberController
 
         // Loop over messages
         foreach ($data[ 'messages' ] as $chatapiMessage) {
+            // Convert false and true text to false and true
+            if ( $chatapiMessage['fromMe'] === "false" ) {
+                $chatapiMessage['fromMe'] = false;
+            }
+            if ( $chatapiMessage['fromMe'] === "true" ) {
+                $chatapiMessage['fromMe'] = true;
+            }
+
             // Set default parameters
             $from = str_replace('@c.us', '', $chatapiMessage[ 'author' ]);
             $instanceId = $data[ 'instanceId' ];
