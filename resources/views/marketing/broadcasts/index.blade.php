@@ -110,6 +110,10 @@
                 </form>
             </div>
             <div class="pull-right">
+                <button type="button" class="btn btn-secondary">Total Customers : {{ $totalCustomers }}</button>
+                <button type="button" class="btn btn-secondary">DND Customers : {{ $countDNDCustomers }}</button>
+                <button type="button" class="btn btn-secondary">Broadcast Send : {{ $customerBroadcastSend }}</button>
+                <button type="button" class="btn btn-secondary">Broadcast Pending : {{ $customerBroadcastPending }}</button>
             </div>
         </div>
     </div>

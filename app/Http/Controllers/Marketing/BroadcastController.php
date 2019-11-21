@@ -96,10 +96,15 @@ class BroadcastController extends Controller
 
         }
         $numbers = WhatsappConfig::where('is_customer_support', 0)->get();
+        $customerBroadcastSend = Customer::whereNotNull('broadcast_number')->count();
+        $customerBroadcastPending = Customer::whereNull('broadcast_number')->count();
+        $countDNDCustomers = Customer::where('do_not_disturb','1')->count();
+        $totalCustomers = Customer::count();
+
         $apiKeys = ApiKey::all();
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.broadcasts.partials.data', compact('customers', 'apiKeys', 'numbers'))->render(),
+                'tbody' => view('marketing.broadcasts.partials.data', compact('customers', 'apiKeys', 'numbers','customerBroadcastSend','customerBroadcastPending','countDNDCustomers','totalCustomers'))->render(),
                 'links' => (string)$customers->render()
             ], 200);
         }
@@ -108,6 +113,10 @@ class BroadcastController extends Controller
             'customers' => $customers,
             'apiKeys' => $apiKeys,
             'numbers' => $numbers,
+            'customerBroadcastSend' => $customerBroadcastSend,
+            'customerBroadcastPending' => $customerBroadcastPending,
+            'countDNDCustomers' => $countDNDCustomers,
+            'totalCustomers' => $totalCustomers,
         ]);
 
     }
