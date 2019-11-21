@@ -128,8 +128,8 @@
 
                             <div class="form-group mr-3">
                               <strong class="mr-3">Price</strong>
-                                <input type="text" name="price_min" class="form-control" placeholder="min. price" value="{{ isset($_GET['price_min']) ? (int) $_GET['price_min'] : '' }}">
-                                <input type="text" name="price_max" class="form-control" placeholder="max. price" value="{{ isset($_GET['price_max']) ? (int) $_GET['price_max'] : '' }}">
+                                <input type="text" name="price_min" class="form-control" placeholder="min. price" value="{{ isset($_GET['price_min']) ? $_GET['price_min'] : '' }}">
+                                <input type="text" name="price_max" class="form-control" placeholder="max. price" value="{{ isset($_GET['price_max']) ? $_GET['price_max'] : '' }}">
                             </div>
 
                             <div class="form-group ml-3">
