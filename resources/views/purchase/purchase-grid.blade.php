@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('favicon' , 'purchase-grid.png')
+
 @section('title', 'Purchase Grid - ERP Sololuxury')
 
 @section("styles")
@@ -280,6 +282,45 @@
                                             </td>
                                         </tr>
                                     @endif
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="6">
+                            <table class="table table-bordered" width="100%">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Supplier</th>
+                                    <th>Date</th>
+                                    <th>EURO Price</th>
+                                    <th>Discount</th>
+                                    <th>Final Price</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach ($product['supplier_msg'] as $supplier_id => $supplier_msg)
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="supplier_ids[]" value="{{$supplier_id}}">
+                                        </td>
+
+                                        <td>
+                                            <a href="{{ route('supplier.show', $supplier_id) }}">{{$supplier_msg['supplier']}}</a>
+                                        </td>
+                                        <td>{{ date('d-m-Y', strtotime($supplier_msg['chat_messages'][0]['created_at']))}}</td>
+                                        <td>
+                                            {{$product['price'] }}
+                                        </td>
+                                        <td>
+                                            -
+                                        </td>
+                                        <td>
+                                            {{$product['price_inr'] }}
+                                        </td>
+                                    </tr>
                                 @endforeach
                                 </tbody>
                             </table>

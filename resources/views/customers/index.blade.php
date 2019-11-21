@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('favicon' , 'customer.png')
+
 @section('title', 'Customer List')
 
 @section('styles')
