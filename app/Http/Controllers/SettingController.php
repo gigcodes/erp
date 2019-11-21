@@ -44,6 +44,7 @@ class SettingController extends Controller
 		$data['forward_end_date'] = Setting::get('forward_end_date');
 		$data['start_time'] = Setting::get('start_time');
 		$data['end_time'] = Setting::get('end_time');
+		$data['welcome_message'] = Setting::get('welcome_message');
 		$data['forward_users'] = json_decode(Setting::get('forward_users'));
 		$data['api_keys'] = ApiKey::get()->toArray();
 
@@ -95,6 +96,10 @@ class SettingController extends Controller
 		// Working Hours
 		Setting::add('start_time', $request->start_time, 'string');
 		Setting::add('end_time', $request->end_time, 'string');
+
+		//Welcome Message
+		Setting::add('welcome_message', $request->welcome_message, 'string');
+		
 
 		$old_api_keys = ApiKey::all();
 

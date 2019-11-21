@@ -614,4 +614,18 @@ class ProductHelper extends Model
         // Return
         return true;
     }
+
+    /**
+     * Get google server list
+     *
+     */
+
+    public static function googleServerList()
+    {
+       return [
+            "003745236201931391893:igsnhgfj79x" => "Group A",
+            "003745236201931391893:gstsjpibsrr0" => "Group B",
+            "003745236201931391893:fnc4ssmvo8m" => "Group C"
+        ];
+    }
 }

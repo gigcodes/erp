@@ -13,7 +13,7 @@
 
 Auth::routes();
 
-    
+
 //Route::get('/test/test','TestController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
@@ -25,6 +25,7 @@ Route::get('/products/affiliate', 'ProductController@affiliateProducts');
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
 Route::get('/productsearcher/list', 'ProductSearcherController@sList')->name('productsearcher.list');
+
 // adding chat contro
 
 Route::get('sop', 'ProductController@showSOP');
@@ -81,7 +82,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('unauthorized', 'RoleController@unAuthorized');
     Route::get('users/logins', 'UserController@login')->name('users.login.index');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
-    Route::get('userlogs', 'UserLogController@index');
+    Route::get('userlogs', 'UserLogController@index')->name('userlogs.index');
     Route::get('userlogs/{$id}', 'UserLogController@index');
     Route::get('userlogs/datatables', 'UserLogController@getData')->name('userlogs.datatable');
     Route::get('users/{id}/assigned', 'UserController@showAllAssignedProductsForUser');
@@ -120,6 +121,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/bulk/update', 'ProductController@bulkUpdate')->name('products.bulk.update');
     Route::post('products/{id}/archive', 'ProductController@archive')->name('products.archive');
     Route::post('products/{id}/restore', 'ProductController@restore')->name('products.restore');
+    Route::get('/manual-image-upload', 'ProductSelectionController@manualImageUpload')->name('manual.image.upload');
     Route::resource('productselection', 'ProductSelectionController');
     Route::get('productattribute/delSizeQty/{id}', 'ProductAttributeController@delSizeQty');
     Route::resource('productattribute', 'ProductAttributeController');
@@ -341,7 +343,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('attachImages/{model_type}/{model_id?}/{status?}/{assigned_user?}', 'ProductController@attachImages')->name('attachImages');
     Route::post('selected_customer/sendMessage', 'ProductController@sendMessageSelectedCustomer')->name('whatsapp.send_selected_customer');
 
-    
+
     Route::post('download', 'MessageController@downloadImages')->name('download.images');
 
     Route::get('quickSell', 'QuickSellController@index')->name('quicksell.index');
@@ -1207,14 +1209,12 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
     Route::post('platforms/edit', 'MarketingPlatformController@edit')->name('platforms.edit');
     Route::post('platforms/delete', 'MarketingPlatformController@destroy')->name('platforms.delete');
 
-    Route::get('broadcast','BroadCastController@index')->name('broadcasts.index');
-    Route::get('broadcast/dnd','BroadCastController@addToDND')->name('broadcast.add.dnd');
-    Route::get('broadcast/gettaskremark', 'BroadCastController@getBroadCastRemark')->name('broadcast.gets.remark');
-    Route::post('broadcast/addremark', 'BroadCastController@addRemark')->name('broadcast.add.remark');
-    Route::get('broadcast/manual','BroadCastController@addManual')->name('broadcast.add.manual');
-    Route::post('broadcast/update', 'BroadCastController@updateWhatsAppNumber')->name('broadcast.update.whatsappnumber');
-
-
+    Route::get('broadcast','BroadcastController@index')->name('broadcasts.index');
+    Route::get('broadcast/dnd','BroadcastController@addToDND')->name('broadcast.add.dnd');
+    Route::get('broadcast/gettaskremark', 'BroadcastController@getBroadCastRemark')->name('broadcast.gets.remark');
+    Route::post('broadcast/addremark', 'BroadcastController@addRemark')->name('broadcast.add.remark');
+    Route::get('broadcast/manual','BroadcastController@addManual')->name('broadcast.add.manual');
+    Route::post('broadcast/update', 'BroadcastController@updateWhatsAppNumber')->name('broadcast.update.whatsappnumber');
 });
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');

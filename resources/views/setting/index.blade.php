@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-te/1.4.0/jquery-te.css">
 @endsection
 
 @section('content')
@@ -298,38 +299,12 @@
                                   @endif
                                 </div>
 
-                                <h4>Apiwha keys</h4>
-
+                                <h4>Welcome Message</h4>
+                                {!! $welcome_message !!}
                                 <div class="form-group">
-                                  <input type="checkbox" name="whatsapp_number_change" id="whatsapp_number_change" {{ $whatsapp_number_change ? 'checked' : '' }} />
-                                  <label for="whatsapp_number_change">Let Customers know about number change</label>
+                                  <input name="welcome_message" type="text" value="{!! $welcome_message !!}" class="jqte-test">
                                 </div>
 
-                                <div id="apiwha-container">
-                                  <div class="form-row">
-                                    <div class="form-group col">
-                                      <strong>Number:</strong>
-                                      <input type="number" class="form-control" name="number[]" id="first_number" value="" required>
-
-                                      @if ($errors->has('number'))
-                                        <div class="alert alert-danger">{{$errors->first('number')}}</div>
-                                      @endif
-                                    </div>
-
-                                    <div class="form-group col ml-3">
-                                      <strong>API Key:</strong>
-                                      <input type="text" class="form-control" name="key[]" id="first_key" value="" required>
-
-                                      @if ($errors->has('key'))
-                                        <div class="alert alert-danger">{{$errors->first('key')}}</div>
-                                      @endif
-
-                                      <input type="radio" name="default" id="first_default" value="1">
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <button type="button" id="add-more-fields" data-count="1" class="btn btn-xs btn-secondary">Add More</button>
                             </div>
                         </div>
                     </div>
@@ -352,6 +327,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-te/1.4.0/jquery-te.min.js"></script>
   <script type="text/javascript">
     $('#add-more-fields').on('click', function() {
       var count = $(this).data('count') + 1;
@@ -400,5 +376,17 @@
          format: 'HH:mm'
        });
     });
+
+    $('.jqte-test').jqte();
+  
+  // settings of status
+  var jqteStatus = true;
+  $(".status").click(function()
+  {
+    jqteStatus = jqteStatus ? false : true;
+    $('.jqte-test').jqte({"status" : jqteStatus})
+  });
+
+
   </script>
 @endsection

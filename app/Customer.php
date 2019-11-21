@@ -29,7 +29,7 @@ class Customer extends Model
 
     public function orders()
     {
-        return $this->hasMany('App\Order');
+        return $this->hasMany('App\Order')->orderBy('created_at', 'DESC');
     }
 
     public function latestOrder()
@@ -181,11 +181,11 @@ class Customer extends Model
         return $this->hasOne('App\ChatMessage','customer_id','id')->where('status','8')->where('group_id','>',0)->latest();
     }
 
-    public function remark()
+    public function customerMarketingPlatformRemark()
     {
         return $this->hasMany(CustomerMarketingPlatform::class,'customer_id','id')->whereNotNull('remark');
     }
-    public function manual()
+    public function customerMarketingPlatformActive()
     {
         return $this->hasOne(CustomerMarketingPlatform::class,'customer_id','id')->whereNull('remark');
     }
