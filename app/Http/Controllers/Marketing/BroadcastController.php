@@ -187,8 +187,8 @@ class BroadcastController extends Controller
                 // Loop over numbers
                 foreach ($whatsappConfigs as $whatsappConfig) {
                     // Check if number is already set
-                    if ($customer->whatsapp_number == $whatsappConfig->number) {
-                        $numberWithLeastCustomers = $customer->whatsapp_number;
+                    if ($customer->broadcast_number == $whatsappConfig->number) {
+                        $numberWithLeastCustomers = $customer->broadcast_number;
                         break;
                     }
 
@@ -203,8 +203,8 @@ class BroadcastController extends Controller
                 }
 
                 // Update customer with new number
-//                $customer->whatsapp_number = $numberWithLeastCustomers;
-//                $customer->update();
+                $customer->broadcast_number = $numberWithLeastCustomers;
+                $customer->update();
 
                 // Send the welcome message
                 InstantMessagingHelper::scheduleMessage($customer->phone, $numberWithLeastCustomers, $welcomeMessage);
