@@ -95,6 +95,7 @@ class BroadcastController extends Controller
             $customers = Customer::select('id', 'name', 'whatsapp_number',\DB::raw('IF(id IN ('.$orderList.') , 1 , 0) AS priority_order , IF(id IN ('.$orderList.') , 1 , 0) AS priority_lead'))->orderby('priority_order','desc')->orderby('priority_lead','desc')->paginate(Setting::get('pagination'));
 
         }
+        
         $numbers = WhatsappConfig::where('is_customer_support', 0)->get();
         $customerBroadcastSend = Customer::whereNotNull('broadcast_number')->count();
         $customerBroadcastPending = Customer::whereNull('broadcast_number')->count();
