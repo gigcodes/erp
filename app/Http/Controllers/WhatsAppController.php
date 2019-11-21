@@ -1118,7 +1118,6 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 // Create message
-                var_dump($params); exit();
                 $message = ChatMessage::create($params);
 
                 // Continue to the next record
