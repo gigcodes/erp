@@ -83,8 +83,11 @@
                         <div class="col-12 mb-4">
                             <input type="text" name="search-keyword" class="form-control" id="search-keyword" value="<?php echo implode(',', array_filter([$brand, $product->name,$product->color, $product->sku])); ?>">
                         </div>
-                        <div class="col-12 mb-4">
+                        <div class="col-11 mb-4">
                             <?php echo Form::select("server",\App\Helpers\ProductHelper::googleServerList(),null,["class" => "form-control server-select"]) ?>
+                        </div>
+                        <div class="col-1 mb-4" style="padding-left: 0;">
+                            <a href="{{route('google-server.index')}}" class="btn btn-secondary">+</a>
                         </div>
                     </div>
                 </p>
