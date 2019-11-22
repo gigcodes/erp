@@ -10,7 +10,7 @@
 @foreach ($customers as $customer)
 
 <tr>
-  <td>{{ $customer->id }}</td>
+  <td><a href="/customers/{{ $customer->id }}/post-show" target="_blank">{{ $customer->id }}</a></td>
   <td>{{ $customer->name }}</td>
   <td>
   	 <label class="switch">

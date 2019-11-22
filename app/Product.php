@@ -23,7 +23,7 @@ use App\Services\Products\ProductsCreator;
 class Product extends Model
 {
 
-//	use LogsActivity;
+//  use LogsActivity;
     use Mediable;
     use SoftDeletes;
     /**
