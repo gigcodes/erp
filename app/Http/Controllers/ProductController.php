@@ -2127,14 +2127,30 @@ class ProductController extends Controller
             }
         }
 
-        foreach ($customerIds as $customerId) {
+        
+        $approveMessage = 1;
+
+        try {
+            $approveMessage = $request->session()->get('is_approve_message');
+        } catch (\Exception $e) {
+        }
+
+        $is_queue = 0;
+        $i = 0;
+        foreach ($customerIds as $k => $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');
             $params = $request->except(['_token', 'customers_id', 'return_url']);
             $params['customer_id'] = $customerId;
+            $params['is_queue'] = $is_queue;
             $requestData->request->add($params + $extraParams);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            
+            $i++;
+            if ($i >= 11 && $approveMessage == '1') {
+                $is_queue = 1;
+            }
         }
 
         if ($request->ajax()) {
