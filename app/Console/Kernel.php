@@ -307,7 +307,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('cold-leads:move-to-customers')->daily();
 
 
-        $schedule->command('send:queue-pending-chat-messages')->cron('3 * * * *');
+        $schedule->command('send:queue-pending-chat-messages')->cron('*/3 * * * *');
     }
 
     /**
