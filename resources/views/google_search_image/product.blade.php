@@ -37,6 +37,7 @@
     <div class="row" style="padding-top: 10px;">
         <?php if(!empty($product)) { ?>
         <div class="col-md-12">
+            <h2 class="page-heading">Google Image Search ({{$productCount}}) </h2>
             <?php if(!empty($supplierList)) { ?>
                 <div class="card col-lg-3" style="margin:auto;float:left;">
                     <h3>Supplier List</h3>
@@ -64,7 +65,7 @@
                         </span>
                     <?php } ?>
                 </div>    
-            <?php } ?>  
+            <?php } ?>
             <div class="card col-lg-6" style="margin:auto;float:none;">
                 <h1><?php echo "#" . $product->id . " " . $product->name ?></h1>
                 <?php if ($product->hasMedia(config('constants.excel_importer'))) { ?>

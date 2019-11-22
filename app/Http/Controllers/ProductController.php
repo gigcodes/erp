@@ -1470,9 +1470,9 @@ class ProductController extends Controller
         $locations = \App\ProductLocation::pluck("name","name");
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
-        $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->get();
+        $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
 
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'color', 'supplier', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
+        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category',  'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
     }
 
 
@@ -2094,6 +2094,7 @@ class ProductController extends Controller
         $brand       = request()->get("brand",null);
         $category    = request()->get("category",null);
         $numberOfProduts = request()->get("number_of_products",10);
+        $quick_sell_groups = request()->get("quick_sell_groups",[]);
         
 
         $product = new \App\Product;
@@ -2109,6 +2110,11 @@ class ProductController extends Controller
             $product = $product->where("category",$category);
         }
 
+        if (!empty($quick_sell_groups)) {
+            $toBeRun =  true;
+            $product = $product->whereRaw("(products.id in (select product_id from product_quicksell_groups where quicksell_group_id in (". $quick_sell_groups.") ))");
+        }
+
         $extraParams = [];
 
         if($toBeRun) {
@@ -2121,14 +2127,30 @@ class ProductController extends Controller
             }
         }
 
-        foreach ($customerIds as $customerId) {
+        
+        $approveMessage = 1;
+
+        try {
+            $approveMessage = $request->session()->get('is_approve_message');
+        } catch (\Exception $e) {
+        }
+
+        $is_queue = 0;
+        $i = 0;
+        foreach ($customerIds as $k => $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');
             $params = $request->except(['_token', 'customers_id', 'return_url']);
             $params['customer_id'] = $customerId;
+            $params['is_queue'] = $is_queue;
             $requestData->request->add($params + $extraParams);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            
+            $i++;
+            if ($i >= 11 && $approveMessage == '1') {
+                $is_queue = 1;
+            }
         }
 
         if ($request->ajax()) {
