@@ -114,4 +114,35 @@ class InstantMessagingController extends Controller
         // Return json ack
         return json_encode('ack', 200);
     }
+
+    public function updatePhoneStatus($client, $numberFrom, Request $request)
+    {
+        // Get client class
+        $clientClass = '\\App\\Marketing\\' . ucfirst($client) . 'Config';
+
+        // Check credentials
+        $whatsappConfig = $clientClass::where('number', $numberFrom)->first();
+
+
+        // Nothing found
+        if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
+            $message = ['error' => 'Invalid token'];
+            return json_encode($message, 400);
+        }
+
+
+        //Updating the status
+        $whatsappConfig->status = $request->status;
+
+        //Adding Last Login
+        $whatsappConfig->last_online = now();
+
+        //Updating Whats App Config details
+        $whatsappConfig->update();
+
+        $output = ['phone' => $numberFrom, 'body' => 'SuccesFully Updated Status'];
+
+        return json_encode($output, 200);
+
+    }
 }

@@ -42,7 +42,7 @@ class KeywordsChecker
 
         foreach ($keywords as $keyword) {
             $keywordValue = strtolower($keyword->value);
-            dump($message . " => " .$keywordValue);
+            // dump($message . " => " .$keywordValue);
             if (stripos($message, $keywordValue) !== false) {
                 $dataToInsert[] = ['keyword_id' => $keyword->id, 'customer_id' => $customer->id];
             }
