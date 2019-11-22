@@ -624,7 +624,7 @@ class ProductHelper extends Model
     {
        return [
             "003745236201931391893:igsnhgfj79x" => "Group A",
-            "003745236201931391893:gstsjpibsrr0" => "Group B",
+            "003745236201931391893:gstsjpibsrr" => "Group B",
             "003745236201931391893:fnc4ssmvo8m" => "Group C"
         ];
     }
