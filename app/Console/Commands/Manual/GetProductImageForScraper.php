@@ -98,10 +98,8 @@ class GetProductImageForScraper extends Command
                         }
                     }
                     if ($countImageUpdated != 0) {
-                        $product->status_id = StatusHelper::$AI;
-                        $product->save();
                         // Call status update handler
-                        StatusHelper::updateStatus($product, StatusHelper::$AI);
+                        StatusHelper::updateStatus($product, StatusHelper::$autoCrop);
                         dump('images saved for product ID ' . $product->id);
                     }
                 }
