@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@section('favicon' , 'instagram.png')
+
+@section('title', 'Instagram Info')
+
+
 @section('styles')
 <style type="text/css">
     .switch {
