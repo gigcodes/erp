@@ -2456,7 +2456,9 @@ class WhatsAppController extends FindByNumberController
                                 ->upload();
                             $chat_message->attachMedia($media, 'gallery');
                         }else{
-                            $extra_chat_message = ChatMessage::create($data);
+                            $extradata = $data
+                            $extradata['is_queue'] = 0;
+                            $extra_chat_message = ChatMessage::create($extradata);
                             $media = MediaUploader::fromSource($fileName)
                                 ->toDirectory('chatmessage/' . floor($extra_chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
