@@ -2416,8 +2416,7 @@ class WhatsAppController extends FindByNumberController
             $imagesDecoded = json_decode($request->images);
 
             if (!empty($request->send_pdf) && $request->send_pdf == 1) {
-
-                $temp_chat_message = ChatMessage::create($data);
+                /*$temp_chat_message = ChatMessage::create($data);
                 foreach ($imagesDecoded as $image) {
                     $media = Media::find($image);
                     $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $temp_chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
@@ -2425,7 +2424,7 @@ class WhatsAppController extends FindByNumberController
                         $temp_chat_message->attachMedia($media, config('constants.media_tags'));
                     }
 
-                }
+                }*/
 
 
                 $fn = '';
