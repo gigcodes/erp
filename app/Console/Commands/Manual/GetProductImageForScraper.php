@@ -89,12 +89,12 @@ class GetProductImageForScraper extends Command
                                     $filename = str_replace(".JPG", "", $filename);
                                 }
                             } catch (\Exception $e) {
+                                //
                             }
                             //save image to media
-                            $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                            $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
                             $product->attachMedia($media, config('constants.media_tags'));
                             $countImageUpdated++;
-
                         }
                     }
                     if ($countImageUpdated != 0) {
