@@ -1029,15 +1029,15 @@ class WhatsAppController extends FindByNumberController
             $originalMessage = $text;
             $numberPath = substr($from, 0, 3) . '/' . substr($from, 3, 1);
 
+            // Check if message already exists
+            $chatMessage = ChatMessage::where('unique_id', $chatapiMessage[ 'id' ])->first();
+            if ($chatMessage != null) {
+                continue;
+            }
+
             // Find connection with this number in our database
             if ($chatapiMessage[ 'fromMe' ] == true) {
                 $searchNumber = str_replace('@c.us', '', $chatapiMessage[ 'chatId' ]);
-
-                // Check if message already exists
-                $chatMessage = ChatMessage::where('unique_id', $chatapiMessage[ 'id' ])->first();
-                if ($chatMessage != null) {
-                    return;
-                }
             } else {
                 $searchNumber = $from;
             }
