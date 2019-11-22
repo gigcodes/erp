@@ -1603,7 +1603,7 @@ class WhatsAppController extends FindByNumberController
                   ORDER BY chat_messages.created_at DESC
       ');
 
-        dd($messages);
+        // dd($messages);
 
         if (Setting::get('show_automated_messages') == 0) {
             $messages = $messages->where('status', '!=', 9);
@@ -1658,7 +1658,7 @@ class WhatsAppController extends FindByNumberController
                 // ');
 
                 foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
-                    dd($image);
+                    // dd($image);
                     $temp_image = [
                         'key' => $image->getKey(),
                         'image' => $image->getUrl(),
@@ -3702,7 +3702,7 @@ class WhatsAppController extends FindByNumberController
         //      }));
         // //
         //      $result = array_reverse($result);
-        dd($filtered_data);
+        //dd($filtered_data);
 
 
         return $result;
