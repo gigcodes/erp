@@ -116,7 +116,7 @@ $(document).on('click', '.load-communication-modal', function () {
                                 approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>";
 
                                  $(approveBtn).click(function() {
-                                     approveMessage( this, message );
+                                     btnApproveMessage( this, message );
                                  });
 
                                 button += approveBtn;
@@ -160,7 +160,31 @@ $(document).on('click', '.load-communication-modal', function () {
         console.log(response);
     });
 });
+function btnApproveMessage(element, message) {
+   if (!$(element).attr('disabled')) {
+     $.ajax({
+       type: "POST",
+       url: "/whatsapp/approve/customer",
+       data: {
+         _token: "{{ csrf_token() }}",
+         messageId: message.id
+       },
+       beforeSend: function() {
+         $(element).attr('disabled', true);
+         $(element).text('Approving...');
+       }
+     }).done(function( data ) {
+       element.remove();
+       console.log(data);
+     }).fail(function(response) {
+       $(element).attr('disabled', false);
+       $(element).text('Approve');
 
+       console.log(response);
+       alert(response.responseJSON.message);
+     });
+   }
+ }
 function getImageToDisplay(imageUrl) {
     // Trim imageUrl
     imageUrl = imageUrl.trim();
