@@ -42,7 +42,7 @@ class BroadcastController extends Controller
                         $qu->where('remark', 'LIKE', "%{$request->term}%");
                     });
             }
-
+            
             if (request('date') != null) {
                 $query->whereDate('created_at', request('date'));
             }

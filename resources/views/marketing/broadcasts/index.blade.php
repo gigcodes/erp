@@ -97,11 +97,21 @@
                 <form action="{{ route('document.index') }}" method="GET">
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-3">
                                 <input name="term" type="text" class="form-control global"
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="whatsapp number , broadcast id , remark" id="term">
                             </div>
+                            <div class="col-md-3">
+                                <div class='input-group date' id='filter-date'>
+                                    <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
+
+                                    <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
+                                </div>
+                            </div>
+
 
                             <div class="col-md-1">
                                 <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
@@ -231,6 +241,49 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+       
+        $('#filter-date').datetimepicker(
+            { format: 'YYYY/MM/DD' }).on('dp.change', 
+            function (e) 
+            { var formatedValue = e.date.format(e.date._f);
+
+
+                term = $('#term').val();
+                date = $('#date').val();
+
+
+                $.ajax({
+                    url: src,
+                    dataType: "json",
+                    data: {
+                        term: term,
+                        date: date,
+
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#customers-table tbody").empty().html(data.tbody);
+                    if (data.links.length > 10) {
+                        $('ul.pagination').replaceWith(data.links);
+                    } else {
+                        $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                    }
+
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });  
+
+            });
+
+
+        
+    </script>
     <script type="text/javascript">
         $(".checkbox").change(function () {
             id = $(this).val();
