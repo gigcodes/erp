@@ -162,7 +162,7 @@ $(document).on('click', '.btn-approve', function (e) {
        type: "POST",
        url: "/whatsapp/approve/customer",
        data: {
-         _token: $('meta[name="csrf-token"]').attr('content');,
+         _token: $('meta[name="csrf-token"]').attr('content'),
          messageId: $(this).data('messageid')
        },
        beforeSend: function() {
