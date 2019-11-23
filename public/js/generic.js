@@ -134,9 +134,9 @@ $(document).on('click', '.load-communication-modal', function () {
                 }
             }
             if (message.inout == 'in') {
-                li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+                li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
             } else if (message.inout == 'out') {
-                li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+                li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
             } else {
                 li += '<div>' + index + '</div>';
             }
@@ -457,4 +457,11 @@ $(document).on('click', '.create-product-order', function(e) {
 $(document).on('click', '.forward-btn', function() {
 var id = $(this).data('id');
 $('#forward_message_id').val(id);
+});
+
+$(document).on("keyup", '.search_chat_pop', function() {
+    var value = $(this).val().toLowerCase();
+    $(".speech-wrapper .bubble").filter(function() {
+        $(this).toggle($(this).find('.message').data('message').toLowerCase().indexOf(value) > -1)
+    });
 });
