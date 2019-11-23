@@ -14,8 +14,8 @@ class UpdateWhatsappConfigAddLastOnlineAndStatusTable extends Migration
     public function up()
     {
         Schema::table('whatsapp_configs', function($table){
-            $table->dateTime('last_online')->nullable();
-            $table->tinyInteger('status')->default(0);
+            $table->dateTime('last_online')->nullable()->after('is_customer_support');
+            // $table->tinyInteger('status')->default(0)->after('is_customer_support');
         });
     }
 
@@ -28,7 +28,7 @@ class UpdateWhatsappConfigAddLastOnlineAndStatusTable extends Migration
     {
         Schema::table('whatsapp_configs', function($table){
             $table->dropColumn('last_online');
-            $table->dropColumn('status');
+            // $table->dropColumn('status');
         });
     }
 }
