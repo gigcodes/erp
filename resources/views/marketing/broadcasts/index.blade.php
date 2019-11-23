@@ -118,13 +118,6 @@
             </div>
         </div>
     </div>
-     <div class="row">
-        <div class="col-md-12">
-            <div class="panel-group">
-               <canvas id="myChart" width="400" height="400"></canvas> 
-            </div>
-        </div>
-    </div>
     @if ($message = Session::get('success'))
         <div class="alert alert-success">
             <p>{{ $message }}</p>
@@ -238,48 +231,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
-    <script>
-    var ctx = document.getElementById('myChart');
-    var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: [ @foreach($numbers as $number) {{ $number->number }} , @endforeach],
-        datasets: [{
-            label: 'Number Of Whatsapp Send',
-            data: [@foreach($numbers as $number) {{ $number->imQueueCurrentDateMessageSend->count() }} , @endforeach ],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-         responsive: true,
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
-        }
-    }
-});
-</script>
-    </script>
     <script type="text/javascript">
         $(".checkbox").change(function () {
             id = $(this).val();
