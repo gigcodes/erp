@@ -113,11 +113,11 @@ $(document).on('click', '.load-communication-modal', function () {
                          
                          if (!message.approved) {
                              if (is_admin || is_hod_crm) {
-                                approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>";
+                                approveBtn = "<button class='btn btn-xs btn-secondary btn-approve btn-approve-" + message.id + " ml-3'>Approve</button>";
 
-                                 $(approveBtn).click(function() {
-                                     btnApproveMessage( this, message );
-                                 });
+                                 $(document).on('click', '.btn-approve-' + message.id, function (e) {
+                                    btnApproveMessage( this, message );
+                                 });   
 
                                 button += approveBtn;
                                 button += '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>';
