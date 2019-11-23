@@ -54,18 +54,21 @@
                 </div>
                 
             <?php } ?>
-            <?php if(!empty($skippedSuppliers)) { ?>
-                <div class="card col-lg-3" style="margin:auto;float:right; overflow: auto;overflow-x: hidden;-ms-overflow-x: hidden; height: 250px;">
-                    <h3>Skipped Supplier</h3>
-                    <?php foreach($skippedSuppliers as $list) { ?>
-                        <span style="margin:5px;">
-                            <a href="javascript:;"><?php echo $list["supplier"] ?> 
-                                <span class="badge"><?php echo $list["supplier_count"] ?></span>
-                            </a>
-                        </span>
-                    <?php } ?>
-                </div>    
-            <?php } ?>
+            <div class="card col-lg-3" style="margin:auto;float:right; overflow: auto;overflow-x: hidden;-ms-overflow-x: hidden; max-height: 603px;">
+                <?php if(!empty($skippedSuppliers)) { ?>
+                    
+                        <h3>Skipped Supplier</h3>
+                        <?php foreach($skippedSuppliers as $list) { ?>
+                            <span style="margin:5px;">
+                                <a href="javascript:;"><?php echo $list["supplier"] ?> 
+                                    <span class="badge"><?php echo $list["supplier_count"] ?></span>
+                                </a>
+                            </span>
+                        <?php } ?>                    
+                <?php } ?>
+                <br>
+                <div class="server-detail"></div>
+            </div>    
             <div class="card col-lg-6" style="margin:auto;float:none;">
                 <h1><?php echo "#" . $product->id . " " . $product->name ?></h1>
                 <?php if ($product->hasMedia(config('constants.excel_importer'))) { ?>
@@ -84,7 +87,14 @@
                             <input type="text" name="search-keyword" class="form-control" id="search-keyword" value="<?php echo implode(',', array_filter([$brand, $product->name,$product->color, $product->sku])); ?>">
                         </div>
                         <div class="col-11 mb-4">
-                            <?php echo Form::select("server",\App\Helpers\ProductHelper::googleServerList(),null,["class" => "form-control server-select"]) ?>
+                            <select class="form-control server-select" name="server">
+                                <?php 
+                                    $googleServer = \App\GoogleServer::all();
+                                    foreach($googleServer as $list) { 
+                                ?>
+                                    <option value="{{$list->key}}" data-description="{{$list->description}}">{{$list->name}}</option>
+                                <?php } ?>
+                            </select>
                         </div>
                         <div class="col-1 mb-4" style="padding-left: 0;">
                             <a href="{{route('google-server.index')}}" class="btn btn-secondary">+</a>
@@ -120,6 +130,11 @@
 @section('scripts')
 
     <script type="text/javascript">
+        $('.server-select').change(function(){
+            $('.server-detail').html('<b>' + $('.server-select').find(":selected").text()+' : '+ $('.server-select').find(":selected").val()+'</b><br>'+$('.server-select').find(":selected").data('description'));
+        });
+
+        $('.server-select').trigger('change');
 
         var productSearch = $(".get-images");
         productSearch.on("click", function () {
