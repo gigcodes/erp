@@ -14,8 +14,12 @@
   <td>{{ $customer->name }}</td>
   <td>
   	 <label class="switch">
-  	 	 <input type="checkbox" class="checkbox" value="{{ $customer->id }}">
-  	 	 <span class="slider round"></span>
+      @if($customer->do_not_disturb == 1)
+       <input type="checkbox" class="checkbox" checked value="{{ $customer->id }}">
+       @else
+        <input type="checkbox" class="checkbox" value="{{ $customer->id }}">
+       @endif
+       <span class="slider round"></span>
   	 </label>
   </td>
   <td></td>

@@ -74,7 +74,7 @@ class BroadcastController extends Controller
                 });
             }
 
-            $customers = $query->orderby('id', 'desc')->where('do_not_disturb', 0)->paginate(Setting::get('pagination'));
+            $customers = $query->orderby('id', 'desc')->paginate(Setting::get('pagination'));
 
         } else {
             //Order List
@@ -98,7 +98,7 @@ class BroadcastController extends Controller
             }
             $marketingList = implode(",", $marketingArray);
            
-            $customers = Customer::select('id', 'name', 'whatsapp_number',\DB::raw('IF(id IN ('.$orderList.') , 1 , 0) AS priority_order , IF(id IN ('.$orderList.') , 1 , 0) AS priority_lead , IF(id IN ('.$marketingList.') , 1 , 0) AS priority_marketing '))->orderby('priority_order','desc')->orderby('priority_lead','desc')->orderby('priority_marketing','asc')->paginate(Setting::get('pagination'));
+            $customers = Customer::select('id', 'name', 'do_not_disturb' ,'whatsapp_number',\DB::raw('IF(id IN ('.$orderList.') , 1 , 0) AS priority_order , IF(id IN ('.$orderList.') , 1 , 0) AS priority_lead , IF(id IN ('.$marketingList.') , 1 , 0) AS priority_marketing '))->orderby('priority_order','desc')->orderby('priority_lead','desc')->orderby('priority_marketing','asc')->paginate(Setting::get('pagination'));
 
         }
         
