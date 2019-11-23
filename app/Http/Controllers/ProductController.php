@@ -2130,7 +2130,7 @@ class ProductController extends Controller
         $approveMessage = 1;
 
         try {
-            $approveMessage = $request->session()->get('is_approve_message');
+            $approveMessage = session()->get('is_approve_message');
         } catch (\Exception $e) {
         }
 
