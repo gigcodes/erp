@@ -114,7 +114,6 @@ $(document).on('click', '.load-communication-modal', function () {
                          if (!message.approved) {
                              if (is_admin || is_hod_crm) {
                                 approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" + message.id + "'>Approve</button>";
-                                
                                 button += approveBtn;
                                 button += '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>';
                                 button += ' <a href="#" style="font-size: 9px" class="edit-message whatsapp-message ml-2" data-messageid="' + message.id + '">Edit</a>';
