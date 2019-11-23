@@ -49,7 +49,7 @@ class ImportIssues extends Command
                 'priority'              =>  $issue->priority,
                 'subject'               =>  $issue->subject,
                 'task'                  =>  $issue->issue,
-                'status'                =>  'Issue',
+                'status'                =>  'Planned',
                 'created_by'            =>  $issue->submitted_by,
                 'is_resolved'           =>  $issue->is_resolved,
                 'estimate_time'         =>  $issue->estimate_time,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DevelopmentHelper;
 use App\Setting;
 use App\TaskAttachment;
 use File;
@@ -924,8 +925,10 @@ class DevelopmentController extends Controller
 
     public function resolveIssue(Request $request)
     {
-        $issue = Issue::find($request->get('issue_id'));
-        $issue->is_resolved = $request->get('is_resolved');
+        $issue = DeveloperTask::find($request->get('issue_id'));
+        //$issue = Issue::find($request->get('issue_id'));
+        //$issue->is_resolved = $request->get('is_resolved');
+        $issue->status = $request->get('task_status');
         $issue->save();
 
         return response()->json([
@@ -935,7 +938,8 @@ class DevelopmentController extends Controller
 
     public function saveEstimateTime(Request $request)
     {
-        $issue = Issue::find($request->get('issue_id'));
+        $issue = DeveloperTask::find($request->get('issue_id'));
+        //$issue = Issue::find($request->get('issue_id'));
         $issue->estimate_time = $request->get('estimate_time');
         $issue->save();
 
@@ -983,12 +987,28 @@ class DevelopmentController extends Controller
         if (empty($status)) {
             $status = 'In Progress';
         }
+        $task_type = 1;
+        $taskTypes  = TaskTypes::all();
+        $users      = Helpers::getUsersByRoleName('Developer');
 
-        $users = Helpers::getUsersByRoleName('Developer');
+        if ( !empty($request->get('task_type')) ) {
+            $task_type = $request->get('task_type');
+            //$issues = $issues->where('submitted_by', $request->get('submitted_by'));
+        }
+        if ( !empty($request->get('task_status')) ) {
+            $status     = $request->get('task_status');
+            //$issues = $issues->where('responsible_user_id', $request->get('responsible_user'));
+        }
+        if(!empty($request->get('task_type')) && !empty($request->get('task_status'))){
+            $status     = $request->get('task_status');
+            $task_type  = $request->get('task_type');
+        }
 
         return view('development.overview', [
-            'users' => $users,
-            'status' => $status
+            'taskTypes' => $taskTypes,
+            'users'     => $users,
+            'status'    => $status,
+            'task_type' =>$task_type,
         ]);
     }
 
