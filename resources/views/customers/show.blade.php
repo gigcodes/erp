@@ -3299,7 +3299,7 @@
                contentType: false
              }).done(function(response) {
                console.log(response);
-               pollMessages();
+               $('.load-communication-modal').trigger('click');
                $(thiss).closest('form').find('textarea').val('');
                $('#paste-container').empty();
                $('#screenshot_path').val('');
@@ -3342,7 +3342,7 @@
 
                can_load_more = false;
 
-               pollMessages(next_page, true);
+               $('.load-communication-modal').trigger('click');
              }
            }
          });
@@ -3353,7 +3353,7 @@
            var next_page = $(this).data('nextpage');
            $('#load-more-messages').text('Loading...');
 
-           pollMessages(next_page, true);
+           $('.load-communication-modal').trigger('click');
          });
 
          $(document).on('click', '#sendAdvanceLink', function(e) {
@@ -3375,7 +3375,7 @@
                $(thiss).text('Sending...');
              }
            }).done(function() {
-             pollMessages();
+             $('.load-communication-modal').trigger('click');
 
              $(thiss).text('Send Link');
 
