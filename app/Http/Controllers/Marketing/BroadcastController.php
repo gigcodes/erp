@@ -27,8 +27,9 @@ class BroadcastController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->term || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name) {
 
+        if ($request->term || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name || $request->customrange) {
+            
             $query = Customer::query();
 
             //global search term
@@ -42,9 +43,14 @@ class BroadcastController extends Controller
                         $qu->where('remark', 'LIKE', "%{$request->term}%");
                     });
             }
-            
+
             if (request('date') != null) {
                 $query->whereDate('created_at', request('date'));
+            }
+
+             if (request('customrange') != null) {
+                $range = explode(' - ', request('customrange'));
+                $query->whereBetween('created_at', [$range[0], end($range)]);
             }
 
             //if number is not null

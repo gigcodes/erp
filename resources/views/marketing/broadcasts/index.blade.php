@@ -4,6 +4,7 @@
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <style type="text/css">
         .switch {
             position: relative;
@@ -94,7 +95,7 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Broadcast List</h2>
             <div class="pull-left">
-                <form action="{{ route('document.index') }}" method="GET">
+                <form action="{{ route('broadcasts.index') }}" method="GET">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-md-3">
@@ -111,10 +112,19 @@
                                   </span>
                                 </div>
                             </div>
-
-
+                            <div class="col-md-3">
+                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                <input type="hidden" name="customrange" id="custom">
+                                <i class="fa fa-calendar"></i>&nbsp;
+                                <span></span> <i class="fa fa-caret-down"></i>
+                            </div>
+                            </div>
+     
                             <div class="col-md-1">
-                                <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+                                <button type="button" class="btn btn-image" id="resetFilter"><img src="/images/resend2.png"/></button>    
+                            </div>
+                            <div class="col-md-1">
+                               <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                             </div>
                         </div>
                     </div>
@@ -240,6 +250,7 @@
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
        
@@ -282,7 +293,31 @@
             });
 
 
-        
+            $(function() {
+
+                var start = moment().subtract(29, 'days');
+                var end = moment();
+
+                function cb(start, end) {
+                    $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                    $('#custom').val(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
+                }
+
+                $('#reportrange').daterangepicker({
+                    startDate: start,
+                    endDate: end,
+                    ranges: {
+                     'Today': [moment(), moment()],
+                     'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                     'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                     'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                     'This Month': [moment().startOf('month'), moment().endOf('month')],
+                     'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                 }
+             }, cb)
+                cb(start, end);
+
+            });
     </script>
     <script type="text/javascript">
         $(".checkbox").change(function () {
@@ -513,6 +548,38 @@
                 },
                 minLength: 1,
 
+            });
+        });
+
+        resetFilter
+
+        $("#resetFilter").click(function(){
+            src = "{{ route('broadcasts.index') }}";
+            reset = '';
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    reset: reset,
+
+
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+
+            }).done(function (data) {
+                $("#loading-image").hide();
+                console.log(data);
+                $("#customers-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
             });
         });
     </script>
