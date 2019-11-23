@@ -66,7 +66,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-8">
                     <div class="row customer-raw-line">
                         <div class="col-12 d-inline form-inline">
                             <h3 style="display: inline" >Customer</h3>
@@ -75,7 +75,7 @@
                         <div class="col-md-12">
                             <table class="table table-striped">
                                 <tr>
-                                    <td>ID</td>
+                                    <td width="20%">ID</td>
                                     <td>{{ $instruction->customer->id}}</td>
                                 </tr>
                                 <tr>
@@ -97,198 +97,208 @@
                             </table>
                         </div>
                         <div class="col-md-12 mb-3 ">
-                            <div class="row row_next_action">
-                                <div class="col-12 d-inline form-inline">
-                                    <input style="width: 87%" type="text" name="add_next_action" placeholder="Add New Next Action" class="form-control mb-3 add_next_action_txt">
-                                    <button class="btn btn-secondary add_next_action" style="position: absolute;  margin-left: 8px;">+</button>
-                                </div>
-                                <div class="col-12 d-inline form-inline">
-                                    <div style="float: left; width: 88%">
-                                        <select name="next_action" class="form-control next_action" data-id="{{$customer->id}}">
-                                            <option value="">Select Next Action</option> 
-                                            <?php foreach ($nextActionArr as $value => $option) { ?>
-                                                <option value="{{$value}}" {{$value == $customer->customer_next_action_id ? 'selected' : ''}}>{{$option}}</option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                    <div style="float: right; width: 12%;">
-                                        <a class="btn btn-image delete_next_action"><img src="/images/delete.png"></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <br>
-                        <div class="col-md-12 mb-3 ">
-                            <div class="row">
-                                <div class="col-md-12 form-inline">
-                                    <input style="width: 92%" type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
-                                    <button style="display: inline;width: 5%" class="btn btn-sm btn-image send-message" data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png"/></button>
-                                </div>
-                                <div class="col-md-12">
-                                    <div  class="communication-div-{{$customer->id}}">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <?php
-                                                    $whatsApp = $customer->whatsAppAll()->first();
-                                                    if ($whatsApp) {
-                                                        $message = trim($whatsApp->message);
-                                                        if($message != '') {
-                                                            echo trim($message);
-                                                        }
-                                                        echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="' . $customer->id . '" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>';
-                                                        echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="' . $customer->id . '" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>';
-                                                    }
-                                                ?>
-                                                @if ($customer->is_error_flagged == 1)
-                                                    <span class="btn btn-image"><img src="/images/flagged.png"/></span>
-                                                @endif
-                                             </div>   
+                            <table class="table table-bordered" style="border: 1px solid #ddd;">
+                                <tr>
+                                    <th width="27%">Next Action</th>
+                                    <th width="30%">Communication</th>
+                                    <th>Shortcuts</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                         <div class="row_next_action">
+                                            <div>
+                                                <input style="width: 87%;display: inline;" type="text" name="add_next_action" placeholder="Add New Next Action" class="form-control mb-3 add_next_action_txt">
+                                                <button class="btn btn-secondary add_next_action" style="position: absolute; margin-left: 6px; padding-right: 5px; padding-left: 5px;">+</button>
+                                            </div>
+                                            <div>
+                                                <div style="float: left; width: 88%">
+                                                    <select name="next_action" class="form-control next_action" data-id="{{$customer->id}}">
+                                                        <option value="">Select Next Action</option> 
+                                                        <?php foreach ($nextActionArr as $value => $option) { ?>
+                                                            <option value="{{$value}}" {{$value == $customer->customer_next_action_id ? 'selected' : ''}}>{{$option}}</option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                                <div style="float: right; width: 12%;">
+                                                    <a class="btn btn-image delete_next_action" style="padding-left: 5px;"><img src="/images/delete.png"></a>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 form-inline " style="padding-top: 2px;">
-                                    <select class="multiselect-2" name="group" id="group{{ $customer->id }}" multiple data-placeholder="Select Group">
-                                        @foreach($groups as $group)
-                                            <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }}@endif</option>
-                                        @endforeach
-                                    </select>
-                                    <button style="display: inline;width: 5%" class="btn btn-sm btn-image send-group " data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png"></button>
-                                </div>      
-                            </div>
-                        </div>
-                         <div class="col-md-12  mb-3 communication">
-                            <div class="row">
-                                <div class="col-6 d-inline form-inline">
-                                    <input style="width: 87%" type="text" name="category_name" placeholder="Enter New Category" class="form-control mb-3 quick_category">
-                                    <button class="btn btn-secondary quick_category_add" style="position: absolute;  margin-left: 8px;">+</button>
-                                </div>
-                                <div class="col-6 d-inline form-inline">
-                                    <div style="float: left; width: 86%">
-                                        <select name="quickCategory" class="form-control mb-3 quickCategory">
-                                            <option value="">Select Category</option>
-                                            @foreach($reply_categories as $category)
-                                                <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div style="float: right; width: 14%;">
-                                        <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
-                                    </div>
-                                </div>
-                                <div class="col-6 d-inline form-inline">
-                                    <input style="width: 87%" type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control mb-3 quick_comment">
-                                    <button class="btn btn-secondary quick_comment_add" style="position: absolute;  margin-left: 8px;">+</button>
-                                </div>
-                                <div  class="col-6 d-inline form-inline">
-                                    <div style="float: left; width: 86%">
-                                        <select name="quickComment" class="form-control quickComment">
-                                            <option value="">Quick Reply</option>
-                                        </select>
-                                    </div>
-                                    <div style="float: right; width: 14%;">
-                                        <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                                <input type="hidden" name="instruction" value="Send images">
-                                <input type="hidden" name="category_id" value="6">
-                                <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['image_shortcut'] }}">
-                                <button type="submit" class="btn btn-image quick-shortcut-button" title="Send Images"><img src="/images/attach.png"/></button>
-                            </form>
-                            <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                                <input type="hidden" name="instruction" value="Send price">
-                                <input type="hidden" name="category_id" value="3">
-                                <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['price_shortcut'] }}">
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <div style="padding-bottom: 5px;">
+                                                <input style="width: 92%; display: inline;" type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+                                                <button style="position: absolute; padding-left: 3px;" class="btn btn-sm btn-image send-message" data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png"/></button>
+                                            </div>
+                                            <div style="padding-bottom: 5px;">
+                                                <div  class="communication-div-{{$customer->id}}">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <?php
+                                                                $whatsApp = $customer->whatsAppAll()->first();
+                                                                if ($whatsApp) {
+                                                                    $message = trim($whatsApp->message);
+                                                                    if($message != '') {
+                                                                        echo trim($message);
+                                                                    }
+                                                                    echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="' . $customer->id . '" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>';
+                                                                    echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="' . $customer->id . '" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>';
+                                                                }
+                                                            ?>
+                                                            @if ($customer->is_error_flagged == 1)
+                                                                <span class="btn btn-image"><img src="/images/flagged.png"/></span>
+                                                            @endif
+                                                         </div>   
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <select class="multiselect-2" name="group" id="group{{ $customer->id }}" multiple data-placeholder="Select Group" style="width: 92%; display: inline;">
+                                                    @foreach($groups as $group)
+                                                        <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }}@endif</option>
+                                                    @endforeach
+                                                </select>
+                                                <button style="position: absolute; padding-left: 3px;" class="btn btn-sm btn-image send-group " data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png"></button>
+                                            </div>      
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row communication">
+                                            <div class="col-6 d-inline form-inline">
+                                                <input style="width: 87%" type="text" name="category_name" placeholder="Enter New Category" class="form-control mb-3 quick_category">
+                                                <button class="btn btn-secondary quick_category_add" style="position: absolute;  margin-left: 8px;">+</button>
+                                            </div>
+                                            <div class="col-6 d-inline form-inline">
+                                                <div style="float: left; width: 86%">
+                                                    <select name="quickCategory" class="form-control mb-3 quickCategory">
+                                                        <option value="">Select Category</option>
+                                                        @foreach($reply_categories as $category)
+                                                            <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div style="float: right; width: 14%;">
+                                                    <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 d-inline form-inline">
+                                                <input style="width: 87%" type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control mb-3 quick_comment">
+                                                <button class="btn btn-secondary quick_comment_add" style="position: absolute;  margin-left: 8px;">+</button>
+                                            </div>
+                                            <div  class="col-6 d-inline form-inline">
+                                                <div style="float: left; width: 86%">
+                                                    <select name="quickComment" class="form-control quickComment">
+                                                        <option value="">Quick Reply</option>
+                                                    </select>
+                                                </div>
+                                                <div style="float: right; width: 14%;">
+                                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                                                    <input type="hidden" name="instruction" value="Send images">
+                                                    <input type="hidden" name="category_id" value="6">
+                                                    <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['image_shortcut'] }}">
+                                                    <button type="submit" class="btn btn-image quick-shortcut-button" title="Send Images"><img src="/images/attach.png"/></button>
+                                                </form>
+                                                <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                                                    <input type="hidden" name="instruction" value="Send price">
+                                                    <input type="hidden" name="category_id" value="3">
+                                                    <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['price_shortcut'] }}">
 
-                                <button type="submit" class="btn btn-image quick-shortcut-button" title="Send Price"><img src="/images/price.png"/></button>
-                            </form>
+                                                    <button type="submit" class="btn btn-image quick-shortcut-button" title="Send Price"><img src="/images/price.png"/></button>
+                                                </form>
 
-                            <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                                <input type="hidden" name="instruction" value="{{ $users_array[$settingShortCuts['call_shortcut']] }} call this client">
-                                <input type="hidden" name="category_id" value="10">
-                                <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['call_shortcut'] }}">
+                                                <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                                                    <input type="hidden" name="instruction" value="{{ $users_array[$settingShortCuts['call_shortcut']] }} call this client">
+                                                    <input type="hidden" name="category_id" value="10">
+                                                    <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['call_shortcut'] }}">
 
-                                <button type="submit" class="btn btn-image quick-shortcut-button" title="Call this Client"><img src="/images/call.png"/></button>
-                            </form>
+                                                    <button type="submit" class="btn btn-image quick-shortcut-button" title="Call this Client"><img src="/images/call.png"/></button>
+                                                </form>
 
-                            <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                                <input type="hidden" name="instruction" value="Attach image">
-                                <input type="hidden" name="category_id" value="8">
-                                <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['screenshot_shortcut'] }}">
+                                                <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                                                    <input type="hidden" name="instruction" value="Attach image">
+                                                    <input type="hidden" name="category_id" value="8">
+                                                    <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['screenshot_shortcut'] }}">
 
-                                <button type="submit" class="btn btn-image quick-shortcut-button" title="Attach Images"><img src="/images/upload.png"/></button>
-                            </form>
+                                                    <button type="submit" class="btn btn-image quick-shortcut-button" title="Attach Images"><img src="/images/upload.png"/></button>
+                                                </form>
 
-                            <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                                <input type="hidden" name="instruction" value="Attach screenshot">
-                                <input type="hidden" name="category_id" value="12">
-                                <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['screenshot_shortcut'] }}">
+                                                <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                                                    <input type="hidden" name="instruction" value="Attach screenshot">
+                                                    <input type="hidden" name="category_id" value="12">
+                                                    <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['screenshot_shortcut'] }}">
 
-                                <button type="submit" class="btn btn-image quick-shortcut-button" title="Attach Screenshot"><img src="/images/screenshot.png"/></button>
-                            </form>
+                                                    <button type="submit" class="btn btn-image quick-shortcut-button" title="Attach Screenshot"><img src="/images/screenshot.png"/></button>
+                                                </form>
 
-                            <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                                <input type="hidden" name="instruction" value="Give details">
-                                <input type="hidden" name="category_id" value="14">
-                                <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['details_shortcut'] }}">
+                                                <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                                                    <input type="hidden" name="instruction" value="Give details">
+                                                    <input type="hidden" name="category_id" value="14">
+                                                    <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['details_shortcut'] }}">
 
-                                <button type="submit" class="btn btn-image quick-shortcut-button" title="Give Details"><img src="/images/details.png"/></button>
-                            </form>
+                                                    <button type="submit" class="btn btn-image quick-shortcut-button" title="Give Details"><img src="/images/details.png"/></button>
+                                                </form>
 
-                            <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                                <input type="hidden" name="instruction" value="Check for the Purchase">
-                                <input type="hidden" name="category_id" value="7">
-                                <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['purchase_shortcut'] }}">
+                                                <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                                                    <input type="hidden" name="instruction" value="Check for the Purchase">
+                                                    <input type="hidden" name="category_id" value="7">
+                                                    <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['purchase_shortcut'] }}">
 
-                                <button type="submit" class="btn btn-image quick-shortcut-button" title="Check for the Purchase"><img src="/images/purchase.png"/></button>
-                            </form>
+                                                    <button type="submit" class="btn btn-image quick-shortcut-button" title="Check for the Purchase"><img src="/images/purchase.png"/></button>
+                                                </form>
 
-                            <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                                <input type="hidden" name="instruction" value="Please Show Client Chat">
-                                <input type="hidden" name="category_id" value="13">
-                                <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['purchase_shortcut'] }}">
+                                                <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                                                    <input type="hidden" name="instruction" value="Please Show Client Chat">
+                                                    <input type="hidden" name="category_id" value="13">
+                                                    <input type="hidden" name="assigned_to" value="{{ $settingShortCuts['purchase_shortcut'] }}">
 
-                                <button type="submit" class="btn btn-image quick-shortcut-button" title="Show Client Chat"><img src="/images/chat.png"/></button>
-                            </form>
-                            <div class="d-inline">
-                                <button type="button" class="btn btn-image btn-broadcast-send" data-id="{{ $customer->id }}">
-                                    <img src="/images/broadcast-icon.png"/>
-                                </button>
-                            </div>
-                            <div class="d-inline">
-                                <a href="{{ route('customer.download.contact-pdf',[$customer->id]) }}" target="_blank">
-                                  <button type="button" class="btn btn-image"><img src="/images/download.png" /></button>
-                                </a>
-                            </div>
-                            <div class="d-inline">
-                                <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
-                            </div>
-                            <div class="d-inline">
-                                <button type="button" class="btn btn-image latest-scraped-shortcut" data-id="{{ $customer->id }}" data-toggle="modal" data-target="#categoryBrandModal" style="padding: 6px 0px !important">Send 20 Scraped</button>
-                            </div>
+                                                    <button type="submit" class="btn btn-image quick-shortcut-button" title="Show Client Chat"><img src="/images/chat.png"/></button>
+                                                </form>
+                                                <div class="d-inline">
+                                                    <button type="button" class="btn btn-image btn-broadcast-send" data-id="{{ $customer->id }}">
+                                                        <img src="/images/broadcast-icon.png"/>
+                                                    </button>
+                                                </div>
+                                                <div class="d-inline">
+                                                    <a href="{{ route('customer.download.contact-pdf',[$customer->id]) }}" target="_blank">
+                                                      <button type="button" class="btn btn-image"><img src="/images/download.png" /></button>
+                                                    </a>
+                                                </div>
+                                                <div class="d-inline">
+                                                    <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
+                                                </div>
+                                                <div class="d-inline">
+                                                    <button type="button" class="btn btn-image latest-scraped-shortcut" data-id="{{ $customer->id }}" data-toggle="modal" data-target="#categoryBrandModal" style="padding: 6px 0px !important">Send 20 Scraped</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <h3>Instruction</h3>
                     <span style="background-color: #FFFF00; padding: 3px; font-size: 1.5em;">{!! nl2br($instruction->instruction) !!}</span>
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#attachImagesModal">
