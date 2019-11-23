@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('favicon' , 'password-manager.png')
+
+@section('title', 'Passwords Manager Info')
+
 @section('styles')
     <style>
         .users {
