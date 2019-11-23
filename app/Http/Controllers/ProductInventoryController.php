@@ -41,7 +41,7 @@ class ProductInventoryController extends Controller
 
 		$roletype = 'Inventory';
 
-		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
+		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
 		                                        ->selected(1)
 		                                        ->renderAsDropdown();
 

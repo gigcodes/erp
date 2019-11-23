@@ -7,6 +7,7 @@ use App\DeveloperTask;
 use App\Issue;
 use App\Lawyer;
 use App\LegalCase;
+use App\Marketing\WhatsappConfig;
 use App\Old;
 use App\Services\BulkCustomerMessage\KeywordsChecker;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
@@ -69,6 +70,7 @@ use App\ProductQuicksellGroup;
 
 class WhatsAppController extends FindByNumberController
 {
+    CONST MEDIA_PDF_CHUNKS = 50;
     /**
      * Incoming message URL for whatsApp
      *
@@ -213,8 +215,8 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
 
-                // Auto DND
-                if (array_key_exists('message', $params) && strtoupper($params[ 'message' ]) == 'DND') {
+                // Auto DND Keyword Stop Added By Satyam
+                if (array_key_exists('message', $params) && strtoupper($params[ 'message' ]) == 'DND' || strtoupper($params[ 'message' ]) == 'STOP') {
                     if ($customer = Customer::find($params[ 'customer_id' ])) {
                         $customer->do_not_disturb = 1;
                         $customer->save();
@@ -1010,6 +1012,14 @@ class WhatsAppController extends FindByNumberController
 
         // Loop over messages
         foreach ($data[ 'messages' ] as $chatapiMessage) {
+            // Convert false and true text to false and true
+            if ( $chatapiMessage['fromMe'] === "false" ) {
+                $chatapiMessage['fromMe'] = false;
+            }
+            if ( $chatapiMessage['fromMe'] === "true" ) {
+                $chatapiMessage['fromMe'] = true;
+            }
+
             // Set default parameters
             $from = str_replace('@c.us', '', $chatapiMessage[ 'author' ]);
             $instanceId = $data[ 'instanceId' ];
@@ -2426,25 +2436,49 @@ class WhatsAppController extends FindByNumberController
 
                 $folder = "temppdf_view_" . time();
 
-                $medias = Media::whereIn('id', $imagesDecoded)->get();
-                $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
-                $pdf = new Dompdf();
-                $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
-                $pdf->loadHtml($pdfView);
-                $fileName = public_path() . '/' . uniqid('sololuxury_', true) . '.pdf';
-                $pdf->render();
+                $mediasH = Media::whereIn('id', $imagesDecoded)->get();
 
-                File::put($fileName, $pdf->output());
-                $media = MediaUploader::fromSource($fileName)
-                    ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
-                    ->upload();
-                $chat_message->attachMedia($media, 'gallery');
+                $number = 0;
+                foreach($mediasH->chunk(self::MEDIA_PDF_CHUNKS) as $medias) {
+
+                    $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
+                    $pdf = new Dompdf();
+                    $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
+                    $pdf->loadHtml($pdfView);
+                    $fileName = public_path() . '/' . uniqid('sololuxury_'.time(), true) . '.pdf';
+                    $pdf->render();
+
+                    File::put($fileName, $pdf->output());
+
+                    // send images in chunks to chat media
+                    try{
+                        if($number == 0) {
+                            $media = MediaUploader::fromSource($fileName)
+                                ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
+                                ->upload();
+                            $chat_message->attachMedia($media, 'gallery');
+                        }else{
+                            $extra_chat_message = ChatMessage::create($data);
+                            $media = MediaUploader::fromSource($fileName)
+                                ->toDirectory('chatmessage/' . floor($extra_chat_message->id / config('constants.image_per_folder')))
+                                ->upload();
+                            $extra_chat_message->attachMedia($media, 'gallery');
+                        }
+
+                        $number++;
+                    }catch(\Exception $e) {
+
+                    }
+                }
+
             } else {
                 foreach (array_unique($imagesDecoded) as $image) {
                     $media = Media::find($image);
-                    $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
-                    if (!$isExists) {
-                        $chat_message->attachMedia($media, config('constants.media_tags'));
+                    if(!empty($media)) {
+                        $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
+                        if (!$isExists) {
+                            $chat_message->attachMedia($media, config('constants.media_tags'));
+                        }
                     }
                 }
             }
@@ -3290,6 +3324,7 @@ class WhatsAppController extends FindByNumberController
 
             $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0);
 
+
             if ($request->rating != '') {
                 $data = $data->where('rating', $request->rating);
             }
@@ -3309,6 +3344,8 @@ class WhatsAppController extends FindByNumberController
             $data = $data->get()->groupBy('whatsapp_number');
 
             foreach ($data as $whatsapp_number => $customers) {
+
+
                 $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
@@ -3330,6 +3367,13 @@ class WhatsAppController extends FindByNumberController
                             }
                         }
 
+                        //Changes put by satyam for connecting Old BroadCast with New BroadCast page
+                        if(isset($customer->customerMarketingPlatformActive)){
+                            if($customers->customerMarketingPlatformActive->active == 0){
+                                    continue;
+                            }
+                        }
+                        //end change
                         MessageQueue::create([
                             'user_id' => Auth::id(),
                             'customer_id' => $customer->id,
@@ -3795,7 +3839,7 @@ class WhatsAppController extends FindByNumberController
         return $result;
     }
 
-    public function sendWithThirdApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic')
+    public function sendWithThirdApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic',$customer_id = null)
     {
         // Get configs
         $config = \Config::get("apiwha.instances");
@@ -3807,6 +3851,21 @@ class WhatsAppController extends FindByNumberController
         } else {
             $instanceId = $config[ 0 ][ 'instance_id' ];
             $token = $config[ 0 ][ 'token' ];
+        }
+
+        if(isset($customer_id) && $message != null && $message != ''){
+            $customer = Customer::findOrFail($customer_id);
+
+            $fields = array('[[NAME]]' => $customer->name ,'[[CITY]]' => $customer->city ,'[[EMAIL]]' => $customer->email ,'[[PHONE]]' => $customer->phone,'[[PINCODE]]' => $customer->pincode,'[[WHATSAPP_NUMBER]]' => $customer->whatsapp_number,'[[SHOESIZE]]' => $customer->shoe_size ,'[[CLOTHINGSIZE]]' => $customer->clothing_size );
+
+            preg_match_all("/\[[^\]]*\]]/", $message, $matches);
+            $values = $matches[0];
+
+            foreach ($values as $value) {
+                if ( isset($fields[$value]) ) {
+                    $message = str_replace($value, $fields[ $value ], $message);
+                }
+            }
         }
 
         $encodedNumber = '+' . $number;

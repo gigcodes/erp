@@ -794,6 +794,10 @@ class OrderController extends Controller {
 			return response()->json(['order' => $order]);
 		}
 
+		if ($request->get('return_url_back')) {
+			return back()->with( 'message', 'Order created successfully' );
+		}
+
 		return $order;
 
 		return redirect()->route( 'order.index' )

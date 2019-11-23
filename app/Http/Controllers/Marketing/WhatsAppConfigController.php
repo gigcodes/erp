@@ -99,7 +99,7 @@ class WhatsappConfigController extends Controller
     {
 
         $this->validate($request, [
-        'number'   => 'required|max:13|unique:whats_app_configs,number',
+        'number'   => 'required|max:13|unique:whatsapp_configs,number',
         'provider'       => 'required',
         'customer_support' => 'required',
         'username'  => 'required|min:3|max:255',
