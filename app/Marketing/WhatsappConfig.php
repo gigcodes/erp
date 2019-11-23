@@ -20,4 +20,9 @@ class WhatsappConfig extends Model
     {
     	return $this->hasMany(ImQueue::class,'number_from','number')->whereDate('created_at', Carbon::today());
     }
+
+    public function  imQueueLastMessageSend()
+    {
+    	return $this->hasOne(ImQueue::class,'number_from','number')->latest();
+    }
 }
