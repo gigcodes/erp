@@ -2524,7 +2524,7 @@ class WhatsAppController extends FindByNumberController
         } catch (\Exception $e) {
         }
 
-        if (($approveMessage == '1' || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0 && $chat_message->is_queue === 0) {
+        if (($approveMessage == '1' || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0 && $chat_message->is_queue == '0') {
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $chat_message->id]);
