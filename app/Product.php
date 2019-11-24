@@ -2,11 +2,14 @@
 
 namespace App;
 
+use App\Helpers\StatusHelper;
+use Dompdf\Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Validator;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\ScrapedProducts;
@@ -14,12 +17,13 @@ use App\ScrapActivity;
 use App\SupplierInventory;
 use App\Helpers\ProductHelper;
 use App\Loggers\LogScraper;
+use App\ProductQuicksellGroup;
 use App\Services\Products\ProductsCreator;
 
 class Product extends Model
 {
 
-//	use LogsActivity;
+//  use LogsActivity;
     use Mediable;
     use SoftDeletes;
     /**
@@ -41,7 +45,7 @@ class Product extends Model
      * @param $json
      * @return bool|\Illuminate\Http\JsonResponse
      */
-    public static function createProductByJson($json, $isExcel = 0)
+    public static function createProductByJson($json, $isExcel = 0, $nextExcelStatus = 2)
     {
         // Log before validating
         LogScraper::LogScrapeValidationUsingRequest($json, $isExcel);
@@ -71,10 +75,15 @@ class Product extends Model
                     return false;
                 }
 
+                // Update from scrape to manual images
+                if (!$product->is_approved && !$product->is_listing_rejected && $product->status_id == StatusHelper::$scrape && (int)$nextExcelStatus == StatusHelper::$unableToScrapeImages) {
+                    $product->status_id = StatusHelper::$unableToScrapeImages;
+                }
+
                 // Update the name and description if the product is not approved and not rejected
                 if (!$product->is_approved && !$product->is_listing_rejected) {
-                    $product->name = ProductHelper::getRedactedText($json->title);
-                    $product->short_description = ProductHelper::getRedactedText($json->description);
+                    $product->name = ProductHelper::getRedactedText($json->title, 'name');
+                    $product->short_description = ProductHelper::getRedactedText($json->description, 'short_description');
                 }
 
                 // Update color, composition and material used if the product is not approved
@@ -86,18 +95,22 @@ class Product extends Model
 
                     // Set composition
                     if (isset($json->properties[ 'composition' ])) {
-                        $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'composition' ] ?? ''));
+                        $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'composition' ] ?? ''), 'composition');
                     }
 
                     // Set material used
                     if (isset($image->properties[ 'material_used' ])) {
-                        $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'material_used' ] ?? ''));
+                        $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'material_used' ] ?? ''), 'composition');
                     }
                 }
 
                 // Add sizes to the product
                 if (isset($json->properties[ 'size' ]) && is_array($json->properties[ 'size' ]) && count($json->properties[ 'size' ]) > 0) {
+                    // Implode the keys
                     $product->size = implode(',', array_keys($json->properties[ 'size' ]));
+
+                    // Replace texts in sizes
+                    $product->size = ProductHelper::getRedactedText($product->size, 'composition');
                 }
 
                 // Set product values
@@ -109,7 +122,31 @@ class Product extends Model
                 $product->price_special = $formattedPrices[ 'price_special' ];
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->save();
+                if($product){
+                    if($isExcel == 1){
+                    foreach ($json->images as $image) {
+                        try {
+                             $jpg = \Image::make($image)->encode('jpg');
+                        } catch (\Exception $e) {
+                             $array  = explode('/',$image);
+                             $filename_path = end($array);
+                             $jpg = \Image::make(public_path() . '/uploads/excel-import/'.$filename_path)->encode('jpg');
+                        }
+                        $filename = substr($image, strrpos($image, '/'));
+                        $filename = str_replace("/","",$filename);
+                        try {
+                           if (strpos($filename, '.png') !== false) {
+                            $filename = str_replace(".png","",$filename);
+                            } 
+                        } catch (\Exception $e) {}
+                        
+                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                        $product->attachMedia($media, config('constants.excelimporter'));
+                        }
+                    }
 
+                }
+                
                 // Update the product status
                 ProductStatus::updateStatus($product->id, 'UPDATED_EXISTING_PRODUCT_BY_JSON', 1);
 
@@ -120,19 +157,19 @@ class Product extends Model
                 }
 
                 // Check for valid supplier and store details linked to supplier
-                if ($dbSupplier = Supplier::where('supplier', $json->website)->first()) {
+                if ($dbSupplier = Supplier::where('scraper_name', $json->website)->first()) {
                     if ($product) {
                         $product->suppliers()->syncWithoutDetaching([
                             $dbSupplier->id => [
-                                'title' => ProductHelper::getRedactedText($json->title),
-                                'description' => ProductHelper::getRedactedText($json->description),
+                                'title' => ProductHelper::getRedactedText($json->title, 'name'),
+                                'description' => ProductHelper::getRedactedText($json->description, 'short_description'),
                                 'supplier_link' => $json->url,
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price' ],
                                 'price_discounted' => $formattedPrices[ 'price_discounted' ],
-                                'size' => $json->properties[ 'size' ],
+                                'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
-                                'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ]),
+                                'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
                                 'sku' => $json->original_sku
                             ]
                         ]);
@@ -191,20 +228,20 @@ class Product extends Model
                 }
 
                 // Set product values
-                $product->status_id = ($isExcel == 1 ? 2 : 3);
+                $product->status_id = ($isExcel == 1 ? $nextExcelStatus : 3);
                 $product->sku = $data[ 'sku' ];
                 $product->supplier = $json->website;
                 $product->brand = $json->brand_id;
                 $product->category = $json->properties[ 'category' ] ?? 0;
-                $product->name = ProductHelper::getRedactedText($json->title);
-                $product->short_description = ProductHelper::getRedactedText($json->description);
+                $product->name = ProductHelper::getRedactedText($json->title, 'name');
+                $product->short_description = ProductHelper::getRedactedText($json->description, 'short_description');
                 $product->supplier_link = $json->url;
                 $product->stage = 3;
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->stock = 1;
                 $product->is_without_image = 1;
                 $product->is_on_sale = $json->is_sale ? 1 : 0;
-                $product->composition = ProductHelper::getRedactedText($json->properties[ 'composition' ]);
+                $product->composition = ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition');
                 $product->color = $json->properties[ 'color' ] ?? null;
                 $product->size = $json->properties[ 'size' ] ?? null;
                 $product->lmeasurement = isset($json->properties[ 'lmeasurement' ]) && $json->properties[ 'lmeasurement' ] > 0 ? $json->properties[ 'lmeasurement' ] : null;
@@ -227,19 +264,19 @@ class Product extends Model
                 ProductStatus::updateStatus($product->id, 'CREATED_NEW_PRODUCT_BY_JSON', 1);
 
                 // Check for valid supplier and store details linked to supplier
-                if ($dbSupplier = Supplier::where('supplier', $json->website)->first()) {
+                if ($dbSupplier = Supplier::where('scraper_name', $json->website)->first()) {
                     if ($product) {
                         $product->suppliers()->syncWithoutDetaching([
                             $dbSupplier->id => [
-                                'title' => ProductHelper::getRedactedText($json->title),
-                                'description' => ProductHelper::getRedactedText($json->description),
+                                'title' => ProductHelper::getRedactedText($json->title, 'name'),
+                                'description' => ProductHelper::getRedactedText($json->description, 'short_description'),
                                 'supplier_link' => $json->url,
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price' ],
                                 'price_discounted' => $formattedPrices[ 'price_discounted' ],
-                                'size' => $json->properties[ 'size' ],
+                                'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
-                                'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ]),
+                                'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
                                 'sku' => $json->original_sku
                             ]
                         ]);
@@ -424,7 +461,6 @@ class Product extends Model
 
     public static function getPendingProductsCount($roleType)
     {
-
         $stage = new Stage();
         $stage_no = intval($stage->getID($roleType));
 
@@ -505,4 +541,64 @@ class Product extends Model
     {
         return $this->hasMany(ProductStatus::class, 'product_id', 'id');
     }
+
+    public function groups()
+    {
+        return $this->hasMany(ProductQuicksellGroup::class, 'product_id', 'id');
+    }
+
+    public function attachImagesToProduct()
+    {
+        if(!$this->hasMedia(\Config('constants.media_tags'))){
+             //getting image details from scraped Products
+            $scrapedProduct = ScrapedProducts::where('sku',$this->sku)->latest()->first();
+
+            if($scrapedProduct != null and $scrapedProduct != ''){
+                //Looping through Product Images
+                $countImageUpdated  = 0; 
+                foreach ($scrapedProduct->images as $image) {
+                    //check if image has http or https link
+                    if (strpos($image, 'http') === false) {
+                        continue;
+                    }
+
+                    try {
+                        //generating image from image
+                        $jpg = \Image::make($image)->encode('jpg');
+                    } catch (\Exception $e) {
+                        // if images are null
+                        $jpg = null;
+                    }
+                    if($jpg != null){
+                        $filename = substr($image, strrpos($image, '/'));
+                        $filename = str_replace("/","",$filename);
+                        try {
+                            if (strpos($filename, '.png') !== false) {
+                                $filename = str_replace(".png","",$filename);
+                            }
+                            if (strpos($filename, '.jpg') !== false) {
+                                $filename = str_replace(".jpg","",$filename);
+                            } 
+                            if (strpos($filename, '.JPG') !== false) {
+                                $filename = str_replace(".JPG","",$filename);
+                            } 
+                        } catch (\Exception $e) {}
+                        //save image to media
+                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                        $this->attachMedia($media, config('constants.media_tags'));
+                        $countImageUpdated++; 
+                    }
+                }
+                if($countImageUpdated != 0){
+                    //Updating the Product Status
+                    $this->status_id = StatusHelper::$AI;
+                    $this->save();
+                    // Call status update handler
+                    StatusHelper::updateStatus($this, StatusHelper::$AI);
+                }    
+                
+            }
+        }    
+    }
+
 }

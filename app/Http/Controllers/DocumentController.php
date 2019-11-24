@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DocumentSendHistory;
 use Illuminate\Http\Request;
 use Auth;
 use App\Setting;
@@ -25,10 +26,68 @@ class DocumentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
 
-            $documents = Document::latest()->paginate(Setting::get('pagination'));
+         
+            if($request->term || $request->date || $request->document_type || $request->category || $request->filename || $request->user) {
+
+                 $query =  Document::query();
+
+            if (request('term') != null) {
+                $query->where('name', 'LIKE', "%{$request->term}%")
+                    ->orWhere('filename', 'LIKE', "%{$request->term}%")
+                    ->orWhereHas('documentCategory', function ($qu) use ($request) {
+                      $qu->where('name', 'LIKE', "%{$request->term}%");
+                      });
+            }
+
+
+            if (request('date') != null) {
+                $query->whereDate('created_at', request('website'));
+            }
+
+
+               //if name is not null 
+            if (request('document_type') != null) {
+                $query->where('name','LIKE', '%' . request('document_type') . '%');
+            }
+
+            //If username is not null 
+            if (request('filename') != null) {
+                $query->where('filename','LIKE', '%' . request('filename') . '%');
+            }
+
+             if (request('category') != null) {
+                $query->whereHas('documentCategory', function ($qu) use ($request) {
+                    $qu->where('name', 'LIKE', '%' . request('category') . '%');
+                    });
+            } 
+
+            
+            if (request('user') != null) {
+                $query->whereHas('user', function ($qu) use ($request) {
+                    $qu->where('name', 'LIKE', '%' . request('user') . '%');
+                    });
+            } 
+
+           
+           $documents = $query->where('status',1)->orderby('name','asc')->paginate(Setting::get('pagination')); 
+                
+
+            }else{
+                $documents = Document::where('status',1)->latest()->paginate(Setting::get('pagination'));
+            }
+
+
+          if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('documents.data', compact('documents'))->render(),
+                'links' => (string)$documents->render()
+            ], 200);
+        }
+
+
             $users = User::select(['id', 'name', 'email', 'agent_role'])->get();
             $category = DocumentCategory::select('id', 'name')->get();
             $api_keys = ApiKey::select('number')->get();
@@ -68,7 +127,7 @@ class DocumentController extends Controller
         ]);
 
         $data = $request->except(['_token', 'file']);
-
+       // dd($data);
         foreach ($request->file('file') as $file) {
             $data[ 'filename' ] = $file->getClientOriginalName();
 
@@ -118,7 +177,14 @@ class DocumentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $document = Document::findorfail($id);
+        $document->user_id = $request->user_id;
+        $document->name = $request->name;
+        $document->category_id = $request->category_id;
+        $document->status = 1;
+        $document->update();
+
+     return redirect()->route('document.index')->withSuccess('You have successfully updated document!');
     }
 
     /**
@@ -189,6 +255,14 @@ class DocumentController extends Controller
                     $mail->bcc($bcc);
                 }
 
+                //History
+                $history[ 'send_by' ] = Auth::id();
+                $history[ 'send_to' ] = $user->id;
+                $history[ 'type' ] = 'User';
+                $history[ 'via' ] = 'Email';
+                $history[ 'document_id' ] = $document->id;
+                DocumentSendHistory::create($history);
+
                 $mail->send(new DocumentEmail($request->subject, $request->message, $file_paths));
 
                 $params = [
@@ -219,6 +293,14 @@ class DocumentController extends Controller
                 if ($bcc) {
                     $mail->bcc($bcc);
                 }
+
+                //History
+                $history[ 'send_by' ] = Auth::id();
+                $history[ 'send_to' ] = $vendor->id;
+                $history[ 'type' ] = 'Vendor';
+                $history[ 'via' ] = 'Email';
+                $history[ 'document_id' ] = $document->id;
+                DocumentSendHistory::create($history);
 
                 $mail->send(new DocumentEmail($request->subject, $request->message, $file_paths));
 
@@ -252,6 +334,14 @@ class DocumentController extends Controller
                     $mail->bcc($bcc);
                 }
 
+                //History
+                $history[ 'send_by' ] = Auth::id();
+                $history[ 'send_to' ] = $contact->id;
+                $history[ 'type' ] = 'Contact';
+                $history[ 'via' ] = 'Email';
+                $history[ 'document_id' ] = $document->id;
+                DocumentSendHistory::create($history);
+
                 $mail->send(new DocumentEmail($request->subject, $request->message, $file_paths));
 
                 $params = [
@@ -266,6 +356,44 @@ class DocumentController extends Controller
                     'additional_data' => json_encode(['attachment' => $file_paths]),
                     'cc' => $cc ? : null,
                     'bcc' => $bcc ? : null,
+                ];
+
+                Email::create($params);
+            }
+        } elseif (isset($request->emailcontact) && $request->emailcontact != null){
+            foreach ($request->emailcontact as $contacts) {
+
+                $mail = Mail::to($contacts);
+
+                if ($cc) {
+                    $mail->cc($cc);
+                }
+                if ($bcc) {
+                    $mail->bcc($bcc);
+                }
+
+                //History
+                $history[ 'send_by' ] = Auth::id();
+                $history[ 'send_to' ] = $contacts;
+                $history[ 'type' ] = 'Manual Email';
+                $history[ 'via' ] = 'Email';
+                $history[ 'document_id' ] = $document->id;
+                DocumentSendHistory::create($history);
+
+                $mail->send(new DocumentEmail($request->subject, $request->message, $file_paths));
+
+                $params = [
+                    'model_id' => $contacts,
+                    'model_type' => User::class,
+                    'from' => 'documents@amourint.com',
+                    'seen' => 1,
+                    'to' => $contacts,
+                    'subject' => $request->subject,
+                    'message' => $request->message,
+                    'template' => 'customer-simple',
+                    'additional_data' => json_encode(['attachment' => $file_paths]),
+                    'cc' => $cc ?: null,
+                    'bcc' => $bcc ?: null,
                 ];
 
                 Email::create($params);
@@ -371,5 +499,25 @@ class DocumentController extends Controller
             echo $output;
 
         }
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function email()
+    {
+        $documents = Document::where('status',0)->latest()->paginate(Setting::get('pagination'));
+        $users = User::select(['id', 'name', 'email', 'agent_role'])->get();
+        $category = DocumentCategory::select('id', 'name')->get();
+        $api_keys = ApiKey::select('number')->get();
+        return view('documents.email', [
+            'documents' => $documents,
+            'users' => $users,
+            'category' => $category,
+            'api_keys' => $api_keys,
+        ]);
+
     }
 }

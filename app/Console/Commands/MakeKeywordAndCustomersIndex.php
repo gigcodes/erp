@@ -4,7 +4,9 @@ namespace App\Console\Commands;
 
 use App\BulkCustomerRepliesKeyword;
 use App\Customer;
+use App\CronJobReport;
 use App\Services\BulkCustomerMessage\KeywordsChecker;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class MakeKeywordAndCustomersIndex extends Command
@@ -44,7 +46,14 @@ class MakeKeywordAndCustomersIndex extends Command
      */
     public function handle()
     {
-        BulkCustomerRepliesKeyword::where('is_processed', 1)->chunk(5000, function($keywords) {
+
+        $report = CronJobReport::create([
+            'signature' => $this->signature,
+            'start_time' => Carbon::now()
+        ]);
+
+
+        BulkCustomerRepliesKeyword::where('is_processed', 1)->chunk(5000, function ($keywords) {
             $customers = Customer::where('is_categorized_for_bulk_messages', 0)->get();
             $this->checker->assignCustomerAndKeyword($keywords, $customers);
         });
@@ -55,5 +64,7 @@ class MakeKeywordAndCustomersIndex extends Command
         BulkCustomerRepliesKeyword::where('is_processed', 0)->update([
             'is_processed' => 1
         ]);
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

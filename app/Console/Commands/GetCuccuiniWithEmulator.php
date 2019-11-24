@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\ScrapedProducts;
 use App\Product;
 use App\Brand;
+use App\CronJobReport;
 use App\Services\Bots\CucLoginEmulator;
 use App\Setting;
 use App\Services\Bots\WebsiteEmulator;
@@ -34,12 +35,19 @@ class GetCuccuiniWithEmulator extends Command
 
     public function handle(): void
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
         if (strpos($letters, 'C') === false) {
             return;
         }
 
         $this->authenticate();
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 
     private function authenticate() {

@@ -21,9 +21,62 @@ class PasswordController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-       $passwords = Password::latest()->paginate(Setting::get('pagination'));
+
+        if($request->website || $request->username || $request->password || $request->registered_with || $request->term || $request->date){
+            
+            $query =  Password::query();
+
+            //global search term
+            if (request('term') != null) {
+                $query->where('website', 'LIKE', "%{$request->term}%")
+                    ->orWhere('username', 'LIKE', "%{$request->term}%")
+                    ->orWhere('password', 'LIKE', "%{$request->term}%")
+                    ->orWhere('registered_with', 'LIKE', "%{$request->term}%");
+            }
+
+
+            if (request('date') != null) {
+                $query->whereDate('created_at', request('website'));
+            }
+
+
+               //if website is not null 
+            if (request('website') != null) {
+                $query->where('website','LIKE', '%' . request('website') . '%');
+            }
+
+            //If username is not null 
+          if (request('username') != null) {
+                $query->where('username','LIKE', '%' . request('username') . '%');
+            } 
+
+           
+            //if password is not null
+          if (request('password') != null) {
+                $query->where('password', 'LIKE', '%' . Crypt::encrypt(request('password')) . '%');
+            } 
+           
+           //if registered with is not null 
+          if (request('registered_with') != null) {
+                $query->where('registered_with', 'LIKE', '%' . request('registered_with') . '%');
+            }
+
+            $passwords = $query->orderby('website','asc')->paginate(Setting::get('pagination')); 
+        
+        }else{
+            $passwords = Password::latest()->paginate(Setting::get('pagination'));
+        }
+
+          if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('passwords.data', compact('passwords'))->render(),
+                'links' => (string)$passwords->render()
+            ], 200);
+        }
+
+
         $users = User::orderBy('name','asc')->get();
         return view('passwords.index', [
           'passwords' => $passwords,
@@ -121,7 +174,7 @@ class PasswordController extends Controller
             $user_id = $request->user_id;
             $user = User::findorfail($user_id);
             $number = $user->phone;
-            $whatsappnumber = '971545889192';
+            $whatsappnumber = '971502609192';
             $message = 'Password Change For '. $request->website .'is, Old Password  : ' . Crypt::decrypt($old_password) . ' New Password is : ' . $request->password;
 
             $whatsappmessage = new WhatsAppController();

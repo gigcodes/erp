@@ -6,6 +6,7 @@ use App\Category;
 use App\CategoryMap;
 use App\Product;
 use App\ScrapedProducts;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class EnrichCategoryInProductsTable extends Command
@@ -41,6 +42,11 @@ class EnrichCategoryInProductsTable extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $altList = CategoryMap::all();
         $self = $this;
         ScrapedProducts::chunk(5000, function($scrapProducts) use ($altList, $self) {
@@ -68,6 +74,8 @@ class EnrichCategoryInProductsTable extends Command
                 }
             }
         });
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 
     private function saveCategory($genderId, $item, $product) {

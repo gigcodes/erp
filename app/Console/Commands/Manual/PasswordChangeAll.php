@@ -3,9 +3,10 @@
 namespace App\Console\Commands\Manual;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use App\CronJobReport;
 use App\User;
-
 
 class PasswordChangeAll extends Command
 {
@@ -40,6 +41,11 @@ class PasswordChangeAll extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         // Get all users
         $users = User::all();
 
@@ -75,5 +81,7 @@ class PasswordChangeAll extends Command
                 echo $user->name . "\t" . $user->email . "\t" . $newPassword . "\n";
             }
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

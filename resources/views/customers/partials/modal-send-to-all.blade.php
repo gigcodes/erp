@@ -109,7 +109,7 @@
                         <option value="">Select a Number</option>
 
                         @foreach ($api_keys as $api_key)
-                          <option value="{{ $api_key->number }}">{{ $api_key->number }}</option>
+                          <option value="{{ $api_key }}">{{ $api_key }}</option>
                         @endforeach
                       </select>
                     </div>

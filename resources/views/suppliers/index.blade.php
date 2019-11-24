@@ -3,6 +3,23 @@
 @section('title', 'Suppliers List')
 
 @section('styles')
+  <style type="text/css">
+    .numberSend {
+          width: 160px;
+          background-color: transparent;
+          color: transparent;
+          text-align: center;
+          border-radius: 6px;
+          position: absolute;
+          z-index: 1;
+          left: 23%;
+          margin-left: -80px;
+          display: none;
+    }
+
+  </style>
+
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 @endsection
@@ -95,7 +112,22 @@
                 @else
                   <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
                 @endif
-
+                  @if($supplier->phone)
+                  <button type="button" class="btn btn-image call-select popup" data-id="{{ $supplier->id }}"><img src="/images/call.png"/></button>
+                  <div class="numberSend" id="show{{ $supplier->id }}">
+                  <select class="form-control call-twilio" data-context="suppliers" data-id="{{ $supplier->id }}" data-phone="{{ $supplier->phone }}">
+                     <option disabled selected>Select Number</option>
+                    @foreach(\Config::get("twilio.caller_id") as $caller)
+                    <option value="{{ $caller }}">{{ $caller }}</option>
+                    @endforeach
+                  </select>
+                  </div>
+                  @if ($supplier->is_blocked == 1)
+                      <button type="button" class="btn btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/blocked-twilio.png"/></button>
+                  @else
+                      <button type="button" class="btn btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/unblocked-twilio.png"/></button>
+                  @endif
+                  @endif
                   <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
                       <img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
                   </button>
@@ -193,6 +225,8 @@
                     </ul>
                   @endif
                 @endif
+                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
+                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
               </td>
                 <td>
                     {{ $supplier->status ? 'Active' : 'Inactive' }}
@@ -267,6 +301,21 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
     </div>
 @include('customers.zoomMeeting');
@@ -603,5 +652,55 @@
         });
 
     });
+
+      $(document).on('click', '.block-twilio', function () {
+          var supplier_id = $(this).data('id');
+          var thiss = $(this);
+
+          $.ajax({
+              type: "POST",
+              url: "{{ route('supplier.block') }}",
+              data: {
+                  _token: "{{ csrf_token() }}",
+                  supplier_id: supplier_id
+              },
+              beforeSend: function () {
+                  $(thiss).text('Blocking...');
+              }
+          }).done(function (response) {
+              if (response.is_blocked == 1) {
+                  $(thiss).html('<img src="/images/blocked-twilio.png" />');
+              } else {
+                  $(thiss).html('<img src="/images/unblocked-twilio.png" />');
+              }
+          }).fail(function (response) {
+              $(thiss).html('<img src="/images/unblocked-twilio.png" />');
+
+              alert('Could not block customer!');
+
+              console.log(response);
+          });
+      });
+
+      $(document).on('click', '.call-select', function() {
+        var id = $(this).data('id');
+        $('#show'+id).toggle();
+        console.log('#show'+id);
+      });
+
+      // $(document).on('change', '.call-twilio1', function() {
+        
+      //   console.log('hello');
+      //   var id = $(this).data('id');
+      //   var numberToCall = $(this).data('phone');
+      //   var context = $(this).data('context');
+      //   var numberCallFrom = $(this).children("option:selected").val();
+      //   //$('#show'+id).hide();
+      //   console.log(id);
+      //   console.log(numberToCall);
+      //   console.log(context);
+      //   console.log(numberCallFrom);
+
+      // });
   </script>
 @endsection

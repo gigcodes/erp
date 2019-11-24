@@ -70,4 +70,9 @@ class Task extends Model {
 	{
 		return $this->hasOne(WhatsAppGroup::class);
 	}
+
+	public function whatsappAll()
+    {
+        return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+    }
 }

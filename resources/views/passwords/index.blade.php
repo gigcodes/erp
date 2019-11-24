@@ -1,34 +1,57 @@
 @extends('layouts.app')
 
+@section('favicon' , 'password-manager.png')
+
+@section('title', 'Passwords Manager Info')
+
 @section('styles')
     <style>
         .users {
             display: none;
+        }
+
+    </style>
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <style type="text/css">
+         #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
         }
     </style>
 @endsection
 
 
 @section('content')
-
+    <div id="myDiv">
+       <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+   </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Passwords Manager</h2>
             <div class="pull-left">
-              {{-- <form action="/order/" method="GET">
-                  <div class="form-group">
-                      <div class="row">
-                          <div class="col-md-12">
-                              <input name="term" type="text" class="form-control"
-                                     value="{{ isset($term) ? $term : '' }}"
-                                     placeholder="Search">
-                          </div>
-                          <div class="col-md-4">
-                              <button hidden type="submit" class="btn btn-primary">Submit</button>
-                          </div>
-                      </div>
-                  </div>
-              </form> --}}
+                <form action="{{ route('password.index') }}" method="GET" class="form-inline align-items-start">
+                    <div class="form-group mr-3 mb-3">
+                        <input name="term" type="text" class="form-control global" id="term"
+                               value="{{ isset($term) ? $term : '' }}"
+                               placeholder="website , username, password">
+                    </div>
+                    <div class="form-group ml-3">
+                        <div class='input-group date' id='filter-date'>
+                            <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
+
+                            <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
+                        </div>
+                    </div>
+
+
+                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                </form>
             </div>
             <div class="pull-right">
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</a>
@@ -54,7 +77,7 @@
     @endif
 
     <div class="table-responsive mt-3">
-      <table class="table table-bordered">
+      <table class="table table-bordered" id="passwords-table">
         <thead>
           <tr>
             <th>Website</th>
@@ -63,28 +86,27 @@
             <th>Registered With</th>
             <th>Actions</th>
           </tr>
+
+          <tr>
+            <th><input type="text" id="website" class="search form-control"></th>
+            <th><input type="text" id="username" class="search form-control"></th>
+            <th></th>
+            <th><input type="text" id="registered_with" class="search form-control"></th>
+            <th></th>
+          </tr>
         </thead>
 
         <tbody>
-          @foreach ($passwords as $password)
-            <tr>
-              <td>
-                {{ $password->website }}
-                <br>
-                <a href="{{ $password->url }}" target="_blank"><small class="text-muted">{{ $password->url }}</small></a>
-              </td>
-              <td>{{ $password->username }}</td>
-              <td>{{ Crypt::decrypt($password->password) }}</td>
-              <td>{{ $password->registered_with }}</td>
-                <td><button onclick="changePassword({{ $password->id }})" class="btn btn-secondary btn-sm">Change</button>
-                <button onclick="getData({{ $password->id }})" class="btn btn-secondary btn-sm">History</button></td>
-            </tr>
-          @endforeach
+
+       @include('passwords.data') 
+
+          {!! $passwords->render() !!}
+          
         </tbody>
       </table>
     </div>
 
-    {!! $passwords->appends(Request::except('page'))->links() !!}
+
 
     <div id="passwordCreateModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -136,11 +158,9 @@
               </div>
               <div class="form-group">
                     <strong>Registered With:</strong>
-                    <input type="text" name="registered_with" class="form-control" value="{{ $password->registered_with }}" required>
+                    <input type="text" name="registered_with" class="form-control"  required>
 
-                    @if ($errors->has('password'))
-                        <div class="alert alert-danger" >{{$errors->first('password')}}</div>
-                    @endif
+
               </div>
 
             </div>
@@ -153,6 +173,10 @@
 
       </div>
     </div>
+    @if($passwords->isEmpty())
+
+
+    @else
     @foreach($passwords as $password)
     <div id="passwordEditModal{{$password->id}}" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -231,6 +255,7 @@
         </div>
     </div>
     @endforeach
+    @endif
     <div id="getHistory" class="modal fade" role="dialog">
         <div class="modal-dialog">
 
@@ -272,7 +297,26 @@
 
 
 @section('scripts')
-<script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+
+        $(document).ready(function() {
+            $(".select-multiple").multiselect();
+            $(".select-multiple2").select2();
+        });
+
+        $('#filter-date').datetimepicker({
+            format: 'YYYY-MM-DD',
+        });
+
+
+        // $('.date').change(function(){
+        //     alert('date selected');
+        // });
+
+
     function changePassword(password_id) {
         $("#passwordEditModal"+ password_id +"" ).modal('show');
     }
@@ -310,5 +354,91 @@
 
         });
     }
+
+        $(document).ready(function() {
+        src = "{{ route('password.index') }}";
+        $(".search").autocomplete({
+        source: function(request, response) {
+            website = $('#website').val();
+            username = $('#username').val();
+            password = $('#password').val();
+            registered_with = $('#registered_with').val();
+          
+
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    website : website,
+                    username : username,
+                    password : password,
+                    registered_with : registered_with,
+                
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#passwords-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });
+
+
+         $(document).ready(function() {
+        src = "{{ route('password.index') }}";
+        $(".global").autocomplete({
+        source: function(request, response) {
+            term = $('#term').val();
+            date = $('#date').val();
+            
+          
+
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    term : term,
+                    date : date,
+                
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#passwords-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });
+
+        
 </script>
 @endsection

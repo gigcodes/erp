@@ -2,6 +2,7 @@
 
 namespace App\Services\Products;
 
+use App\SkuColorReferences;
 use Validator;
 use Illuminate\Support\Facades\Log;
 use App\Brand;
@@ -13,7 +14,8 @@ use App\ScrapActivity;
 use App\Supplier;
 use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
-
+use App\SupplierBrandCount;
+use App\SupplierCategoryCount;
 
 class ProductsCreator
 {
@@ -33,6 +35,7 @@ class ProductsCreator
             // Return false
             return false;
         } else {
+            $supplierId = $supplier->id;
             $supplier = $supplier->supplier;
         }
 
@@ -45,6 +48,22 @@ class ProductsCreator
         $validator = Validator::make($data, [
             'sku' => 'unique:products,sku'
         ]);
+
+        // Get color
+        $color = ColorNamesReference::getProductColorFromObject($image);
+
+        // Store count
+        try {
+            SupplierBrandCount::firstOrCreate(['supplier_id' => $supplierId, 'brand_id' => $image->brand_id]);
+            if (!empty($formattedDetails[ 'category' ])) {
+                SupplierCategoryCount::firstOrCreate(['supplier_id' => $supplierId, 'category_id' => $formattedDetails[ 'category' ]]);
+            }
+            if (!empty($color)) {
+                SkuColorReferences::firstOrCreate(['brand_id' => $image->brand_id, 'color_name' => $color]);
+            }
+        } catch (\Exception $e) {
+            //
+        }
 
         // Product validated
         if ($validator->fails()) {
@@ -68,19 +87,19 @@ class ProductsCreator
                 // Check if we can update the title - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_TITLE')->first();
                 if ($manual == null || (int)$manual->value == 0) {
-                    $product->name = ProductHelper::getRedactedText($image->title);
+                    $product->name = ProductHelper::getRedactedText($image->title, 'name');
                 }
 
                 // Check if we can update the short description - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->first();
                 if ($manual == null || (int)$manual->value == 0) {
-                    $product->short_description = ProductHelper::getRedactedText($image->description);
+                    $product->short_description = ProductHelper::getRedactedText($image->description, 'short_description');
                 }
 
                 // Check if we can update the color - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_COLOR')->first();
                 if ($manual == null || (int)$manual->value == 0) {
-                    $product->color = ColorNamesReference::getProductColorFromObject($image);
+                    $product->color = $color;
                 }
 
                 // Check if we can update the composition - not manually entered
@@ -88,12 +107,12 @@ class ProductsCreator
                 if ($manual == null || (int)$manual->value == 0) {
                     // Check for composition key
                     if (isset($image->properties[ 'composition' ])) {
-                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'composition' ] ?? ''));
+                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'composition' ] ?? '', 'composition'));
                     }
 
                     // Check for material_used key
                     if (isset($image->properties[ 'material_used' ])) {
-                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'material_used' ] ?? ''));
+                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'material_used' ] ?? '', 'composition'));
                     }
                 }
 
@@ -111,7 +130,7 @@ class ProductsCreator
                 // Loop over sizes and redactText
                 if (is_array($sizes) && $sizes > 0) {
                     foreach ($sizes as $size) {
-                        $allSize[] = ProductHelper::getRedactedText($size);
+                        $allSize[] = ProductHelper::getRedactedText($size, 'composition');
                     }
                 }
 
@@ -127,7 +146,8 @@ class ProductsCreator
             $product->price_special = $formattedPrices[ 'price_special' ];
             $product->is_scraped = $isExcel == 1 ? $product->is_scraped : 1;
             $product->save();
-
+            $product->attachImagesToProduct();
+            
             if ($image->is_sale) {
                 $product->is_on_sale = 1;
                 $product->save();
@@ -227,6 +247,7 @@ class ProductsCreator
 
         try {
             $product->save();
+            $product->attachImagesToProduct();
             Log::channel('productUpdates')->debug("[New] Product created with ID " . $product->id);
         } catch (\Exception $exception) {
             Log::channel('productUpdates')->alert("[Exception] Couldn't create product");

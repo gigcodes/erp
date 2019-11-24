@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('favicon' , 'lead.png')
+
+@section('title', 'Leads List')
 
 
 @section("styles")
@@ -60,7 +63,7 @@
 
                                 @php $brands = \App\Brand::getAll(); @endphp
 
-                                {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!}
+                                {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!}
 
                             </div>
 
@@ -70,9 +73,7 @@
 
                           <div class="form-group">
 
-                            <select name="rating[]" class="form-control select-multiple" multiple>
-
-                              <option value>Select Rating</option>
+                            <select name="rating[]" class="form-control select-multiple" multiple data-placeholder="Select Rating">
 
                               <option value="1" {{ isset($rating) && in_array(1, $rating) ? 'selected' : '' }}>1</option>
 
@@ -430,7 +431,7 @@
 
 
 
-         $(".select-multiple").multiselect();
+         $(".select-multiple").select2();
 
       });
 

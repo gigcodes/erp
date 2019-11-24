@@ -1,7 +1,10 @@
 @extends('layouts.app')
 
 @section('styles')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+@section("styles")
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+@endsection
 @endsection
 
 @section('content')
@@ -10,22 +13,43 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Documents Manager</h2>
             <div class="pull-left">
-                {{-- <form action="/order/" method="GET">
+                <form action="{{ route('document.index') }}" method="GET">
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-md-12">
-                                <input name="term" type="text" class="form-control"
-                                       value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="Search">
-                            </div>
                             <div class="col-md-4">
-                                <button hidden type="submit" class="btn btn-primary">Submit</button>
+                                <input name="term" type="text" class="form-control global"
+                                       value="{{ isset($term) ? $term : '' }}"
+                                       placeholder="user,department,filename" id="term">
                             </div>
+                          <!--   <div class="col-md-4">
+                                <select class="form-control select-multiple2" name="category[]" data-placeholder="Select Category.." multiple>
+                                    <option>Select Category</option>
+                                    @foreach($category as $cat)
+                                        <option value="{{ $cat->id }}" data-list="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div> -->
+
+                            <div class="col-md-3">
+                                <div class='input-group date' id='filter-date'>
+                                    <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
+
+                                    <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-1">
+                            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                            </div>
+
                         </div>
                     </div>
-                </form> --}}
+                </form>
             </div>
             <div class="pull-right">
+                <a href="{{ route('document.email') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a>
 
             </div>
@@ -50,7 +74,7 @@
     @endif
 
     <div class="table-responsive mt-3">
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="documents-table">
             <thead>
             <tr>
                 <th>Date</th>
@@ -62,34 +86,20 @@
                 <th>Actions</th>
                 <th>Remarks</th>
             </tr>
+            <tr>
+            <th></th>    
+            <th><input type="text" id="user" class="search form-control"></th>
+            <th></th>
+            <th><input type="text" id="document_type" class="search form-control"></th>
+            <th><input type="text" id="category" class="search form-control"></th>
+            <th><input type="text" id="filename" class="search form-control"></th>
+            <th></th>
+            <th></th>
+          </tr>
             </thead>
 
             <tbody>
-            @foreach ($documents as $document)
-                <tr>
-                    <td>{{ $document->updated_at->format('d.m-Y') }}</td>
-                    <td>{{ $document->user->name }}</td>
-                    <td>{{ $document->user->agent_role  }}</td>
-                    <td>{{ $document->name}}</td>
-                    <td>@if(isset($document->documentCategory->name)){{ $document->documentCategory->name }} @endif</td>
-                    <td>{{ $document->filename }}</td>
-                    <td>
-                        <a href="{{ route('document.download', $document->id) }}" class="btn btn-xs btn-secondary">Download</a>
-                        <button type="button" class="btn btn-image sendWhatsapp" data-id="{{ $document->id }}"><img src="/images/send.png" /></button>
-                        <button type="button" class="btn btn-image sendEmail" data-id="{{ $document->id }}"><img src="/images/customer-email.png" /></button>
-
-                        {!! Form::open(['method' => 'DELETE','route' => ['document.destroy', $document->id],'style'=>'display:inline']) !!}
-
-                        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-
-                        {!! Form::close() !!}
-                        <button type="button" class="btn btn-image uploadDocument" data-id="{{ $document->id }}"><img src="/images/upload.png" /></button>
-
-                        V: {{ $document->version }}
-                    </td>
-                    <td><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $document->id }}"><img src="/images/remark.png" /></button></td>
-                </tr>
-            @endforeach
+            @include('documents.data')
             </tbody>
         </table>
     </div>
@@ -148,7 +158,7 @@
                                 <div class="alert alert-danger">{{$errors->first('category')}}</div>
                             @endif
                         </div>
-
+                        <input type="hidden" name="status" value="1">
                         <div class="form-group">
                             <strong>File:</strong>
                             <input type="file" name="file[]" class="form-control" value="" multiple required>
@@ -209,6 +219,13 @@
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+        $('#filter-date').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+    </script>
     <script type="text/javascript">
         $(document).ready(function(){
             $(".category").change(function() {
@@ -350,10 +367,18 @@
 
                                 $('.user_select_id').html(data);
                                 $('.user_select_id').multiselect('rebuild');
+
                             }
                         })
                     }
                 }
+            });
+            $('.user_select_id').multiselect({
+                nonSelectedText:'Please Select',
+                buttonWidth:'300px',
+                includeSelectAllOption: true,
+                enableFiltering: true,
+                enableCaseInsensitiveFiltering: true,
             });
         });
 
@@ -435,6 +460,163 @@
             });
         });
 
-        //
+        $(document).on('click', '.add-contact', function (e) {
+            e.preventDefault();
+
+            if ($('#contact-label').is(':hidden')) {
+                $('#contact-label').fadeIn();
+            }
+
+            var el = `<div class="row contact-input">
+            <div class="col-md-10">
+                <input type="integer" name="contact[]" class="form-control mb-3" placeholder="Please enter country code with number">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image contact-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+            $('#contact-list').append(el);
+        });
+
+        $(document).on('click', '.contact-delete-button', function (e) {
+            e.preventDefault();
+            var parent = $(this).parent().parent();
+
+            parent.hide(300, function () {
+                parent.remove();
+                var n = 0;
+
+                $('.contact-input').each(function () {
+                    n++;
+                });
+
+                if (n == 0) {
+                    $('#contact-label').fadeOut();
+                }
+            });
+        });
+
+        $(document).on('click', '.add-email-contact', function (e) {
+            e.preventDefault();
+
+            if ($('#contact-email-label').is(':hidden')) {
+                $('#contact-email-label').fadeIn();
+            }
+
+            var el = `<div class="row contact-email-input">
+            <div class="col-md-10">
+                <input type="email" name="emailcontact[]" class="form-control mb-3" placeholder="Please Enter Email">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image contact-email-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+            $('#contact-email-list').append(el);
+        });
+
+        $(document).on('click', '.contact-email-delete-button', function (e) {
+            e.preventDefault();
+            var parent = $(this).parent().parent();
+
+            parent.hide(300, function () {
+                parent.remove();
+                var n = 0;
+
+                $('.contact-email-input').each(function () {
+                    n++;
+                });
+
+                if (n == 0) {
+                    $('#contact-email-label').fadeOut();
+                }
+            });
+        });
+
+
+
+        $(document).ready(function() {
+        src = "{{ route('document.index') }}";
+        $(".search").autocomplete({
+        source: function(request, response) {
+            user = $('#user').val();
+            document_type = $('#document_type').val();
+            category = $('#category').val();
+            filename = $('#filename').val();
+          
+
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    user : user,
+                    document_type : document_type,
+                    category : category,
+                    filename : filename,
+                
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#documents-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });
+
+        $(document).ready(function() {
+        src = "{{ route('document.index') }}";
+        $(".global").autocomplete({
+        source: function(request, response) {
+            term = $('#term').val();
+            date = $('#date').val();
+          
+          $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    term : term,
+                    date : date,
+                
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#documents-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });   
     </script>
+
+
 @endsection

@@ -75,7 +75,7 @@
 
                     <div class="form-group mr-3 mb-3">
                         {{-- {!! $category_search !!} --}}
-                        <select class="form-control" name="category[]">
+                        <select class="form-control select-multiple" name="category[]" data-placeholder="Category..">
                             @foreach ($category_array as $data)
                                 <option value="{{ $data['id'] }}" {{ in_array($data['id'], $selected_categories) ? 'selected' : '' }}>{{ $data['title'] }}</option>
                                 @if ($data['title'] == 'Men')
@@ -106,7 +106,7 @@
                         <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brand..">
                             <optgroup label="Brands">
                                 @foreach ($brands as $key => $name)
-                                    <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
+                                    <option value="{{ $key }}" {{ !empty(request()->get('brand')) && in_array($key, request()->get('brand', [])) ? 'selected' : '' }}>{{ $name }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
@@ -116,7 +116,7 @@
                         <select class="form-control select-multiple" name="color[]" multiple data-placeholder="Color..">
                             <optgroup label="Colors">
                                 @foreach ($colors as $key => $col)
-                                    <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
+                                    <option value="{{ $key }}" {{ !empty(request()->get('color')) && in_array($key, request()->get('color', [])) ? 'selected' : '' }}>{{ $col }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
@@ -126,7 +126,7 @@
                         <select class="form-control select-multiple" name="supplier[]" multiple data-placeholder="Supplier..">
                             <optgroup label="Suppliers">
                                 @foreach ($suppliers as $key => $item)
-                                    <option value="{{ $item->id }}" {{ isset($supplier) && in_array($item->id, $supplier) ? 'selected' : '' }}>{{ $item->supplier }}</option>
+                                    <option value="{{ $item->id }}" {{ !empty(request()->get('supplier')) && in_array($item->id, request()->get('supplier', [])) ? 'selected' : '' }}>{{ $item->supplier }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
@@ -143,7 +143,7 @@
                     </div>
 
                     <div class="form-group mr-3">
-                        <select class="form-control" name="user_id" id="user_id">
+                        <select class="form-control select-multiple" name="user_id" id="user_id">
                             @foreach($users as $user)
                                 <option value="">Select user...</option>
                                 <option value="{{$user->id}}">{{ $user->name }}</option>
@@ -152,6 +152,7 @@
                     </div>
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+                    <a href="{{url()->current()}}" class="btn btn-image"><img src="/images/clear-filters.png"/></a>
                 </form>
             </div>
         </div>
@@ -186,6 +187,7 @@
                                         @php
                                             $product = \App\Product::find($product->id)
                                         @endphp
+                                        <?php $gridImage = ''; ?>
                                         @if ($product->hasMedia(config('constants.media_tags')))
                                             @foreach($product->getMedia('gallery') as $media)
                                                 @if(stripos($media->filename, 'crop') !== false)
@@ -386,13 +388,9 @@
                                         </table>
                                         <p class="text-right mt-5">
                                             <button class="btn btn-xs btn-default edit-product-show" data-id="{{$product->id}}">Toggle Edit</button>
-                                            @if ($product->is_approved == 0)
-                                                <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
-                                            @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
+                                            @if ($product->status_id == 9)
                                                 <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
-                                            @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
-                                                <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
-                                            @else
+                                            @elseif ($product->status_id == 12)
                                                 <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
                                             @endif
                                         </p>

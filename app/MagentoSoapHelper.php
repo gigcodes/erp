@@ -2,10 +2,9 @@
 
 namespace App;
 
+use App\Helpers\StatusHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use App\Category;
-use App\ProductReference;
 use App\Helpers\ProductHelper;
 
 class MagentoSoapHelper
@@ -60,20 +59,36 @@ class MagentoSoapHelper
         $categories = Category::getCategoryTreeMagento($product->category);
 
         // Get brand
-        $brand = $product->brands()->get();
+        // $brand = $product->brands()->get();
 
         // Push brand to categories array
-        if ($brand !== null && isset($brand[ 0 ]->magento_id)) {
-            array_push($categories, $brand[ 0 ]->magento_id);
-        }
+        // 04NOV19 Brands is an attribute
+        //if ($brand !== null && isset($brand[ 0 ]->magento_id)) {
+        //    array_push($categories, $brand[ 0 ]->magento_id);
+        //}
 
         // Add the product to the sales category
-        if ($product->is_on_sale) {
-            $categories[] = 1237;
-        }
+        // 03NOV19 We now set an attribute for bestbuys
+        //if ($product->is_on_sale) {
+        //    $categories[] = 1237;
+        //}
 
         // No categories found?
         if (count($categories) == 0) {
+            Log::channel('listMagento')->emergency("No categories found for product ID " . $product->id);
+            return false;
+        }
+
+        // Check for readiness to go to Magento
+        if (!ProductHelper::checkReadinessForLive($product)) {
+            // Write to log file
+            Log::channel('listMagento')->emergency("Failed readiness test for product ID " . $product->id);
+
+            // Update product status - sent to manual attribute
+            $product->status_id = StatusHelper::$manualAttribute;
+            $product->save();
+
+            // Return false
             return false;
         }
 
@@ -94,7 +109,10 @@ class MagentoSoapHelper
         $meta[ 'description' ] = 'Shop ' . $product->brands->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $product->product_category->title . ' Largest collection of luxury products in the world from Solo luxury at special prices';
 
         // If sizes are given we create a configurable product and several single child products
-        if (!empty($product->size)) {
+        if (!empty($product->size) && $product->size == 'OS') {
+            $product->size = null;
+            $result = $this->_pushSingleProduct($product, $categories, $meta);
+        } elseif (!empty($product->size)) {
             $result = $this->_pushConfigurableProductWithChildren($product, $categories, $meta);
         } else {
             $result = $this->_pushSingleProduct($product, $categories, $meta);
@@ -106,6 +124,7 @@ class MagentoSoapHelper
             $this->_pushImages($product, $result);
 
             // Set product to uploaded and listed
+            $product->status_id = StatusHelper::$inMagento;
             $product->isUploaded = 1;
             $product->is_uploaded_date = Carbon::now();
             $product->isListed = 1;
@@ -129,6 +148,9 @@ class MagentoSoapHelper
 
         // Loop over each size and create a single (child) product
         foreach ($arrSizes as $size) {
+            // Get correct size
+            $size = ProductHelper::getWebsiteSize($product->size_system, $size, $product->category);
+
             // Set SKU
             $sku = $product->sku . $product->color;
 
@@ -166,6 +188,8 @@ class MagentoSoapHelper
                         ['key' => 'sizes', 'value' => $size,],
                         ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
                         ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
+                        ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
+                        ['key' => 'flashsales', 'value' => 0],
                     ]
                 ]
             );
@@ -213,6 +237,9 @@ class MagentoSoapHelper
                     ['key' => 'color', 'value' => $product->color,],
                     ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
                     ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
+                    ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
+                    ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
+                    ['key' => 'flashsales', 'value' => 0],
                 ]
             ]
         );
@@ -258,6 +285,8 @@ class MagentoSoapHelper
                     ['key' => 'measurement', 'value' => $measurement,],
                     ['key' => 'country_of_manufacture', 'value' => ucwords($product->made_in),],
                     ['key' => 'brands', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
+                    ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
+                    ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0]
                 ]
             ]
         );
@@ -332,23 +361,69 @@ class MagentoSoapHelper
                 $types = $i == 1 ? ['hover_image'] : $types;
 
                 // Push image to Magento
-                try {
-                    $this->_proxy->catalogProductAttributeMediaCreate(
-                        $this->_sessionId,
-                        $magentoProductId,
-                        array('file' => $file, 'label' => $image->getBasenameAttribute(), 'position' => ++$i, 'types' => $types, 'exclude' => 0)
-                    );
+                if ($i < 5) {
+                    try {
+                        $this->_proxy->catalogProductAttributeMediaCreate(
+                            $this->_sessionId,
+                            $magentoProductId,
+                            array('file' => $file, 'label' => $image->getBasenameAttribute(), 'position' => ++$i, 'types' => $types, 'exclude' => 0)
+                        );
 
-                    // Log info
-                    Log::channel('listMagento')->info("Image for product " . $product->id . " with name " . $file[ 'name' ] . " successfully pushed to Magento");
-                } catch (\SoapFault $e) {
-                    // Log alert
-                    Log::channel('listMagento')->alert("Image for product " . $product->id . " with name " . $file[ 'name' ] . " failed while pushing to Magento with message: " . $e->getMessage());
+                        // Log info
+                        Log::channel('listMagento')->info("Image for product " . $product->id . " with name " . $file[ 'name' ] . " successfully pushed to Magento");
+                    } catch (\SoapFault $e) {
+                        // Log alert
+                        Log::channel('listMagento')->alert("Image for product " . $product->id . " with name " . $file[ 'name' ] . " failed while pushing to Magento with message: " . $e->getMessage());
+                    }
                 }
             }
         }
 
         // Return
         return;
+    }
+
+    public function catalogCategoryInfo($magentoId = 0)
+    {
+        // Check for product and session
+        if ((int)$magentoId == 0 || !$this->_sessionId) {
+            exit("A");
+            return false;
+        }
+
+        try {
+            $result = $this->_proxy->catalogCategoryInfo(
+                $this->_sessionId,
+                $magentoId
+            );
+        } catch (\SoapFault $e) {
+            echo $e->getMessage();
+            return false;
+        }
+
+        // Return result
+        return $result;
+    }
+
+    public function catalogCategoryCreate($parentId = 0, $arrCategoryData=[])
+    {
+        // Check for product and session
+        if (!$this->_sessionId) {
+            return false;
+        }
+
+        try {
+            $result = $this->_proxy->catalogCategoryCreate(
+                $this->_sessionId,
+                $parentId,
+                $arrCategoryData
+            );
+        } catch (\SoapFault $e) {
+            echo $e->getMessage();
+            return false;
+        }
+
+        // Return result
+        return $result;
     }
 }

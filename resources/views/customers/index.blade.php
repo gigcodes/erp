@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('favicon' , 'customer.png')
+
 @section('title', 'Customer List')
 
 @section('styles')
@@ -116,6 +118,21 @@
         .lt-ie9 .search input {
             line-height: 26px
         }
+
+        .numberSend {
+            width: 160px;
+            background-color: transparent;
+            color: transparent;
+            text-align: center;
+            border-radius: 6px;
+            position: absolute;
+            z-index: 1;
+            left: 10%;
+            margin-left: -80px;
+            display: none;
+        }
+
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -178,7 +195,22 @@
                     <div class="form-group ml-3">
                         <input placeholder="Clothing Size" type="text" name="clothing_size" value="{{request()->get('clothing_size')}}" class="form-control-sm form-control">
                     </div>
-
+                    <div class="form-group ml-3">
+                        <select class="form-control" name="shoe_size_group">
+                            <option value="">Select</option>
+                            <?php foreach ($shoe_size_group as $shoe_size => $customerCount) {
+                                echo '<option value="' . $shoe_size . '" ' . ($shoe_size == request()->get('shoe_size_group') ? 'selected' : '') . '>(' . $shoe_size . ' Size) ' . $customerCount . ' Customers</option>';
+                            } ?>
+                        </select>
+                    </div>
+                    <div class="form-group ml-3">
+                        <select class="form-control" name="clothing_size_group">
+                            <option value="">Select</option>
+                            <?php foreach ($clothing_size_group as $clothing_size => $customerCount) {
+                                echo '<option value="' . $clothing_size . '" ' . ($shoe_size == request()->get('shoe_size_group') ? 'selected' : '') . '>(' . $clothing_size . ' Size) ' . $customerCount . ' Customers</option>';
+                            } ?>
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
             </div>
@@ -196,6 +228,7 @@
                 @endif
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
                 <a class="btn btn-secondary" href="{{ route('customer.create') }}">+</a>
+                <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
             </div>
         </div>
     </div>
@@ -309,7 +342,16 @@
                             {{-- <a href="{{ route('customer.show', $customer->id) }}?customer_ids={{ $customer_ids_list }}">{{ $customer->name }}</a> --}}
 
                             <div>
-                                <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png"/></button>
+                                <button type="button" class="btn btn-image call-select popup" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png"/></button>
+
+                                <div class="numberSend" id="show{{ $customer->id }}">
+                                    <select class="form-control call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}">
+                                        <option disabled selected>Select Number</option>
+                                        @foreach(\Config::get("twilio.caller_id") as $caller)
+                                            <option value="{{ $caller }}">{{ $caller }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
                                 @if ($customer->is_blocked == 1)
                                     <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png"/></button>
@@ -334,7 +376,7 @@
                                     <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px;">
                                 </button>
 
-                                <button type="button" class="btn btn-image send-contact-modal-btn" data-id="{{ $customer->id }}" ><img src="/images/details.png" /></button>
+                                <button type="button" class="btn btn-image send-contact-modal-btn" data-id="{{ $customer->id }}"><img src="/images/details.png"/></button>
 
                             </div>
 
@@ -362,33 +404,33 @@
 
 
                             @if (array_key_exists($customer->id, $orders))
-                                @if (count($orders[$customer->id]) >= 1)
-                                    <?php
-                                    $order = $orders[ $customer->id ][ 0 ];
-                                    ?>
-                                    <div>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Follow up for advance' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Follow up for advance" data-id="Follow up for advance" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #666666;"></span>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Advance received' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Advance received" data-id="Advance received" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #4c4c4c;"></span>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Delivered' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Delivered" data-id="Delivered" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #323232;"></span>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Cancel' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Cancel" data-id="Cancel" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #191919;"></span>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Product shiped to Client' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Product shiped to Client" data-id="Product shiped to Client" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #414a4c;"></span>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Refund to be processed' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Refund to be processed" data-id="Refund to be processed" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #CCCCCC;"></span>
-                                        <span class="order-status change-order-status {{ $order['order_status'] == 'Refund Credited' ? 'active-bullet-status' : '' }}" data-toggle="tooltip" title="Refund Credited" data-id="Refund Credited" data-orderid="{{ $order['id'] }}" style="cursor:pointer; background-color: #95a5a6;"></span>
-                                    </div>
+                                @if(!empty($orders[$customer->id]))
+                                    @foreach($orders[$customer->id] as $customerOrder)
+                                        <div>
+                                            <a target="_blank" href="/order/{{ $customerOrder['id'] }}"><b>#{{ $customerOrder['id'] }}</b></a>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Follow up for advance' ? 'active-bullet-status' : '' }}" title="Follow up for advance" data-id="Follow up for advance" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #666666;"></span>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Advance received' ? 'active-bullet-status' : '' }}" title="Advance received" data-id="Advance received" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #4c4c4c;"></span>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Delivered' ? 'active-bullet-status' : '' }}" title="Delivered" data-id="Delivered" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #323232;"></span>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Cancel' ? 'active-bullet-status' : '' }}" title="Cancel" data-id="Cancel" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #191919;"></span>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Product shiped to Client' ? 'active-bullet-status' : '' }}" title="Product shiped to Client" data-id="Product shiped to Client" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #414a4c;"></span>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Refund to be processed' ? 'active-bullet-status' : '' }}" title="Refund to be processed" data-id="Refund to be processed" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #CCCCCC;"></span>
+                                            <span class="order-status change-order-status {{ $customerOrder['order_status'] == 'Refund Credited' ? 'active-bullet-status' : '' }}" title="Refund Credited" data-id="Refund Credited" data-orderid="{{ $customerOrder['id'] }}" style="cursor:pointer; background-color: #95a5a6;"></span>
+                                        </div>
+                                    @endforeach
                                 @endif
                             @endif
 
                             <p>
-                                <div class="form-group">
-                                  <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>">
-                                      <option value="">-No Selected-</option>
-                                      @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
-                                          @if($number != "0")
-                                              <option {{ ($number == $customer->whatsapp_number && $customer->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
-                                          @endif
-                                      @endforeach
-                                  </select>
-                                </div>
+                            <div class="form-group">
+                                <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>">
+                                    <option value="">-No Selected-</option>
+                                    @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                                        @if($number != "0")
+                                            <option {{ ($number == $customer->whatsapp_number && $customer->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
                             </p>
                         </td>
                         {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
@@ -530,7 +572,7 @@
                                         @endforeach
                                     </select>
                                     @foreach($orders[$customer->id] as $order)
-                                        <a href="/order/{{ $order['id'] }}"><img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt=""></a>
+                                        <a href="{{route('purchase.grid')}}?order_id={{$order['id']}}" style="{{in_array($order['order_status'], ['Cancel', 'Refund to be processed', 'Delivered']) ? 'background-color: #808080;' : ''}}"><img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt=""></a>
                                     @endforeach
                                 @endif
                             @else
@@ -584,13 +626,18 @@
                                 <span class="btn btn-image"><img src="/images/flagged.png"/></span>
                             @endif
 
-                            <button data-toggle="tooltip" title="Load More..." type="button" class="btn btn-xs btn-image load-more-communication" data-id="{{ $customer->id }}">
-                                <img src="{{ asset('/images/chat.png') }}" alt="">
-                            </button>
+                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='customer' data-id="{{ $customer->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
 
                             <ul class="more-communication-container">
-
                             </ul>
+
+                            <label class="form-control-label">Select Group</label>
+                            <select class="form-control multiselect-2" name="group" id="group{{ $customer->id }}" multiple>
+                                @foreach($groups as $group)
+                                    <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }}@endif</option>
+                                @endforeach
+                            </select>
+                            <button style="display: inline;width: 20%" class="btn btn-sm btn-image send-group " data-customerid="{{ $customer->id }}"><img src="/images/filled-sent.png"></button>
 
                             @if(isset($complaints[$customer->id]))
                                 <p style="cursor: pointer;" class="show-complaint" data-complaint="{{ $complaints[$customer->id] }}">
@@ -606,27 +653,49 @@
                             </div>
 
                             <p class="pb-4 mt-3" style="display: block;">
-                                <select name="quickCategory" class="form-control mb-3 quickCategory">
-                                    <option value="">Select Category</option>
-                                    @foreach($reply_categories as $category)
-                                        <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
-                                    @endforeach
-                                </select>
-
-                                <select name="quickComment" class="form-control quickComment">
-                                    <option value="">Quick Reply</option>
-                                    }}
-                                </select>
+                            <div class="d-inline form-inline">
+                                <input style="width: 87%" type="text" name="category_name" placeholder="Enter New Category" class="form-control mb-3 quick_category">
+                                <button class="btn btn-secondary quick_category_add">+</button>
+                            </div>
+                            <div>
+                                <div style="float: left; width: 86%">
+                                    <select name="quickCategory" class="form-control mb-3 quickCategory">
+                                        <option value="">Select Category</option>
+                                        @foreach($reply_categories as $category)
+                                            <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div style="float: right;">
+                                    <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
+                                </div>
+                            </div>
+                            <div class="d-inline form-inline">
+                                <input style="width: 87%" type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control mb-3 quick_comment">
+                                <button class="btn btn-secondary quick_comment_add">+</button>
+                            </div>
+                            <div>
+                                <div style="float: left; width: 86%">
+                                    <select name="quickComment" class="form-control quickComment">
+                                        <option value="">Quick Reply</option>
+                                    </select>
+                                </div>
+                                <div style="float: right;">
+                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
+                                </div>
+                            </div>
                             </p>
-                            <p>
-                                <?php
-                                if(!empty($broadcasts)) {
-                                    foreach($broadcasts as $broadcast) {
-                                        echo "<a href='javascript:;' class='fetch-broad-cast-spn' data-id='".$broadcast."' data-customer-id='".$customer->id."'>#".$broadcast."</a> ";
+                            <div>
+                                <p>
+                                    <?php
+                                    if (!empty($broadcasts)) {
+                                        foreach ($broadcasts as $broadcast) {
+                                            echo "<a href='javascript:;' class='fetch-broad-cast-spn' data-id='" . $broadcast . "' data-customer-id='" . $customer->id . "'>#" . $broadcast . "</a> ";
+                                        }
                                     }
-                                }
-                                ?>
-                            </p>
+                                    ?>
+                                </p>
+                            </div>
                         </td>
                         <td>
                             {{-- <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" data-instruction="Send images"><img src="/images/attach.png" /></button> --}}
@@ -746,6 +815,7 @@
                             {!! Form::open(['method' => 'DELETE','route' => ['customer.destroy', $customer->id],'style'=>'display:inline']) !!}
                             <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                             {!! Form::close() !!}
+                            <input type="checkbox" name="customer_message[]" class="d-inline customer_message" value="{{$customer->id}}">
                         </td>
                     </tr>
                 @endforeach
@@ -822,7 +892,7 @@
             </div>
         </div>
     </div>
-     <div id="broadcast-list-approval" class="modal fade" role="dialog">
+    <div id="broadcast-list-approval" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -838,14 +908,14 @@
             </div>
         </div>
     </div>
+
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Communication (Last 30)</h4>
+                    <h4 class="modal-title">Communication</h4>
                 </div>
-                <div class="modal-body">
-
+                <div class="modal-body" style="background-color: #999999;">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -855,29 +925,68 @@
     </div>
 
     <div id="sendContacts" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-          <div class="modal-body">
-            <div class="form-group">
-            <label for="sel1">Select User for send contact data:</label>
-            <form method="post" id="send-contact-to-user">
-                {{ Form::open(array('url' => '', 'id' => 'send-contact-user-form')) }}
-                {!! Form::hidden('customer_id',0,['id' => 'customer_id_attr']) !!}
-                {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list select2', 'style'=> 'width:100%']) !!}
-                {{ Form::close() }}
-            </form>
-          </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default send-contact-user-btn"><img style="width: 17px;" src="/images/filled-sent.png"></button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
-        </div>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="sel1">Select User for send contact data:</label>
+                        <form method="post" id="send-contact-to-user">
+                            {{ Form::open(array('url' => '', 'id' => 'send-contact-user-form')) }}
+                            {!! Form::hidden('customer_id',0,['id' => 'customer_id_attr']) !!}
+                            {!! Form::select('user_id', \App\User::all()->sortBy("name")->pluck("name","id"), 6, ['class' => 'form-control select-user-wha-list select2', 'style'=> 'width:100%']) !!}
+                            {{ Form::close() }}
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default send-contact-user-btn"><img style="width: 17px;" src="/images/filled-sent.png"></button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
 
-      </div>
+        </div>
+    </div>
+
+    <div id="create_broadcast" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Send Message to Customers</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form id="send_message" method="POST">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <strong> Selected Product :</strong>
+                            <select name="selected_product[]" class="ddl-select-product form-control" multiple="multiple"></select>
+
+                            <strong>Schedule Date:</strong>
+                            <div class='input-group date' id='schedule-datetime'>
+                                <input type='text' class="form-control" name="sending_time" id="sending_time_field" value="{{ date('Y-m-d H:i') }}" required/>
+
+                                <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <strong>Message</strong>
+                            <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Send Message</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
     </div>
 
 @endsection
@@ -892,6 +1001,214 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
     <script src="{{asset('js/zoom-meetings.js')}}"></script>
     <script type="text/javascript">
+        $(document).on('click', '.quick_category_add', function () {
+            var textBox = $(this).closest("div").find(".quick_category");
+
+            if (textBox.val() == "") {
+                alert("Please Enter Category!!");
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('add.reply.category') }}",
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'name': textBox.val()
+                }
+            }).done(function (response) {
+                textBox.val('');
+                $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+            })
+        });
+
+        $(document).on('click', '.delete_category', function () {
+            var quickCategory = $(this).closest("td").find(".quickCategory");
+
+            if (quickCategory.val() == "") {
+                alert("Please Select Category!!");
+                return false;
+            }
+
+            var quickCategoryId = quickCategory.children("option:selected").data('id');
+            if (!confirm("Are sure you want to delete category?")) {
+                return false;
+            }
+            $.ajax({
+                type: "POST",
+                url: "{{ route('destroy.reply.category') }}",
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'id': quickCategoryId
+                }
+            }).done(function (response) {
+                location.reload();
+            })
+        });
+
+        $(document).on('click', '.delete_quick_comment', function () {
+            var quickComment = $(this).closest("td").find(".quickComment");
+
+            if (quickComment.val() == "") {
+                alert("Please Select Quick Comment!!");
+                return false;
+            }
+
+            var quickCommentId = quickComment.children("option:selected").data('id');
+            if (!confirm("Are sure you want to delete comment?")) {
+                return false;
+            }
+            $.ajax({
+                type: "DELETE",
+                url: "/reply/" + quickCommentId,
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+            }).done(function (response) {
+                location.reload();
+            })
+        });
+
+        $(document).on('click', '.quick_comment_add', function () {
+            var textBox = $(this).closest("div").find(".quick_comment");
+            var quickCategory = $(this).closest("td").find(".quickCategory");
+
+            if (textBox.val() == "") {
+                alert("Please Enter New Quick Comment!!");
+                return false;
+            }
+
+            if (quickCategory.val() == "") {
+                alert("Please Select Category!!");
+                return false;
+            }
+
+            var quickCategoryId = quickCategory.children("option:selected").data('id');
+
+            var formData = new FormData();
+
+            formData.append("_token", "{{ csrf_token() }}");
+            formData.append("reply", textBox.val());
+            formData.append("category_id", quickCategoryId);
+            formData.append("model", 'Approval Lead');
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('reply.store') }}",
+                data: formData,
+                processData: false,
+                contentType: false
+            }).done(function (reply) {
+                textBox.val('');
+                $('.quickComment').append($('<option>', {
+                    value: reply,
+                    text: reply
+                }));
+            })
+        });
+
+        $(document).on('click', '.create_broadcast', function () {
+            var customers = [];
+            $(".customer_message").each(function () {
+                if ($(this).prop("checked") == true) {
+                    customers.push($(this).val());
+                }
+            });
+            if (customers.length == 0) {
+                alert('Please select costomer');
+                return false;
+            }
+            $("#create_broadcast").modal("show");
+        });
+
+        $("#send_message").submit(function (e) {
+            e.preventDefault();
+            var customers = [];
+            $(".customer_message").each(function () {
+                if ($(this).prop("checked") == true) {
+                    customers.push($(this).val());
+                }
+            });
+            if (customers.length == 0) {
+                alert('Please select costomer');
+                return false;
+            }
+
+            if ($("#send_message").find("#message_to_all_field").val() == "") {
+                alert('Please type message ');
+                return false;
+            }
+
+            if ($("#send_message").find(".ddl-select-product").val() == "") {
+                alert('Please select product');
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('erp-leads-send-message') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    products: $("#send_message").find(".ddl-select-product").val(),
+                    sending_time: $("#send_message").find("#sending_time_field").val(),
+                    message: $("#send_message").find("#message_to_all_field").val(),
+                    customers: customers
+                }
+            }).done(function () {
+                window.location.reload();
+            }).fail(function (response) {
+                $(thiss).text('No');
+
+                alert('Could not say No!');
+                console.log(response);
+            });
+        });
+        jQuery('.ddl-select-product').select2({
+            ajax: {
+                url: '/productSearch/',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Product by id, Name, Sku',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 5,
+            width: '100%',
+            templateResult: formatProduct,
+            templateSelection: function (product) {
+                return product.text || product.name;
+            },
+
+        });
+
+        function formatProduct(product) {
+            if (product.loading) {
+                return product.sku;
+            }
+
+            if (product.sku) {
+                return "<p> <b>Id:</b> " + product.id + (product.name ? " <b>Name:</b> " + product.name : "") + " <b>Sku:</b> " + product.sku + " </p>";
+            }
+
+        }
+
         var searchSuggestions = {!! json_encode($search_suggestions, true) !!};
 
         var cached_suggestions = localStorage['message_suggestions'];
@@ -979,7 +1296,6 @@
         $(document).on('click', '.change-order-status', function () {
             let orderId = $(this).attr('data-orderid');
             let status = $(this).attr('title');
-
             let url = '/order/' + orderId + '/changestatus';
 
             let thiss = $(this);
@@ -1030,15 +1346,15 @@
                     nextSelector: '.pagination li.active + li a',
                     contentSelector: 'div.infinite-scroll',
                     callback: function () {
-                        // $('ul.pagination').remove();
+                       $('.multiselect-2').multiselect({
+                        enableFiltering: true,
+                        filterBehavior: 'value'
+                        });
                     }
                 });
             });
         });
 
-        $(document).ready(function () {
-            $(".select-multiple").multiselect();
-        });
 
         $(document).ready(function () {
             $('#customer-search').autocomplete({
@@ -1105,6 +1421,7 @@
 
                 $('#customers-data').show();
                 $('#mergeButton').prop('disabled', false);
+
                 $(thiss).text('Load Data');
             }).fail(function (response) {
                 console.log(response);
@@ -1286,26 +1603,27 @@
         });
 
         $(document).on('change', '.quickCategory', function () {
-            var replies = JSON.parse($(this).val());
-            var thiss = $(this);
-
-            $(this).siblings('.quickComment').empty();
-
-            $(this).siblings('.quickComment').append($('<option>', {
-                value: '',
-                text: 'Quick Reply'
-            }));
-
-            replies.forEach(function (reply) {
-                $(thiss).siblings('.quickComment').append($('<option>', {
-                    value: reply.reply,
-                    text: reply.reply
+            if ($(this).val() != "") {
+                var replies = JSON.parse($(this).val());
+                var thiss = $(this);
+                $(this).closest("td").find('.quickComment').empty();
+                $(this).closest("td").find('.quickComment').append($('<option>', {
+                    value: '',
+                    text: 'Quick Reply'
                 }));
-            });
+
+                replies.forEach(function (reply) {
+                    $(thiss).closest("td").find('.quickComment').append($('<option>', {
+                        value: reply.reply,
+                        text: reply.reply,
+                        'data-id': reply.id
+                    }));
+                });
+            }
         });
 
         $(document).on('change', '.quickComment', function () {
-            $(this).closest('td').find('input').val($(this).val());
+            $(this).closest('td').find('.quick-message-field').val($(this).val());
         });
         $('.change_status').on('change', function () {
             var thiss = $(this);
@@ -1610,7 +1928,7 @@
                 url: "{{ url('customers') }}/" + customer_id + '/loadMoreMessages',
                 data: {
                     customer_id: customer_id,
-                    limit : 30
+                    limit: 30
                 },
                 beforeSend: function () {
                     //$(thiss).text('Loading...');
@@ -1625,7 +1943,8 @@
 
                 li += "</ul>";
 
-                $("#chat-list-history").find(".modal-body").html(li);4
+                $("#chat-list-history").find(".modal-body").html(li);
+                4
                 $(thiss).html("<img src='/images/chat.png' alt=''>");
                 $("#chat-list-history").modal("show");
 
@@ -1832,8 +2151,8 @@
         });
 
         $(document).on('click', '.fetch-broad-cast-spn', function () {
-            var broadCastId =  $(this).data("id");
-            var customerId  =  $(this).data("customer-id");
+            var broadCastId = $(this).data("id");
+            var customerId = $(this).data("customer-id");
 
             $.ajax({
                 type: "GET",
@@ -1842,24 +2161,24 @@
                 data: {
                     _token: "{{ csrf_token() }}",
                     customer_id: customerId,
-                    broadcast_id : broadCastId
+                    broadcast_id: broadCastId
                 }
             }).done(function (response) {
                 var html = "Sorry, There is no available broadcast";
-                if(response.code == 1) {
-                    html = '<div class="row selection-broadcast-list" data-customer-id='+customerId+'>';
-                    if(response.data.length > 0) {
+                if (response.code == 1) {
+                    html = '<div class="row selection-broadcast-list" data-customer-id=' + customerId + '>';
+                    if (response.data.length > 0) {
                         var res = 1;
-                        $.each(response.data, function(k,v){
-                            $.each(v, function(r,d){
+                        $.each(response.data, function (k, v) {
+                            $.each(v, function (r, d) {
                                 html += '<div class="col-md-4">';
                                 html += '<div class="thumbnail">';
-                                html += '<img src="'+d.image+'" alt="Lights" style="width:100%">';
+                                html += '<img src="' + d.image + '" alt="Lights" style="width:100%">';
                                 html += '<div class="caption">';
-                                html += '<p>Product Id(s) : '+d.products.join(",")+'</p>';
+                                html += '<p>Product Id(s) : ' + d.products.join(",") + '</p>';
                                 html += '<div class="custom-control custom-checkbox mb-4">';
-                                html += '<input type="checkbox" checked="checked" name="selecte_products_lead[]" value="'+d.products.join(",")+'" class="custom-control-input select-pr-list-chk" id="defaultUnchecked_'+res+'">';
-                                html += '<label class="custom-control-label" for="defaultUnchecked_'+res+'"></label>';
+                                html += '<input type="checkbox" checked="checked" name="selecte_products_lead[]" value="' + d.products.join(",") + '" class="custom-control-input select-pr-list-chk" id="defaultUnchecked_' + res + '">';
+                                html += '<label class="custom-control-label" for="defaultUnchecked_' + res + '"></label>';
                                 html += '</div>';
                                 html += '</div>';
                                 html += '</div>';
@@ -1867,7 +2186,7 @@
                                 res++;
                             })
                         });
-                    }else{
+                    } else {
                         html = "Sorry, There is no available broadcast";
                     }
 
@@ -1875,16 +2194,15 @@
                 }
                 $("#broadcast-list").find(".modal-body").html(html);
                 //if(needtoShowModel && typeof needtoShowModel != "undefined") {
-                    $("#broadcast-list").modal("show");
+                $("#broadcast-list").modal("show");
                 //}
             });
-
 
 
         });
 
 
-        var updateBroadCastList = function(customerId, needtoShowModel) {
+        var updateBroadCastList = function (customerId, needtoShowModel) {
             $.ajax({
                 type: "GET",
                 url: "{{ route('customer.broadcast.list') }}",
@@ -1895,38 +2213,38 @@
                 }
             }).done(function (response) {
                 var html = "Sorry, There is no available broadcast";
-                if(response.code == 1) {
+                if (response.code == 1) {
                     html = "";
-                    if(response.data.length > 0) {
-                        $.each(response.data, function(k,v){
-                            html += '<button class="badge badge-default broadcast-list-rndr" data-customer-id="'+customerId+'" data-id="'+v.id+'">'+v.id+'</button>';
+                    if (response.data.length > 0) {
+                        $.each(response.data, function (k, v) {
+                            html += '<button class="badge badge-default broadcast-list-rndr" data-customer-id="' + customerId + '" data-id="' + v.id + '">' + v.id + '</button>';
                         });
-                    }else{
+                    } else {
                         html = "Sorry, There is no available broadcast";
                     }
                 }
                 $("#broadcast-list").find(".modal-body").html(html);
-                if(needtoShowModel && typeof needtoShowModel != "undefined") {
+                if (needtoShowModel && typeof needtoShowModel != "undefined") {
                     $("#broadcast-list").modal("show");
                 }
             });
         }
 
         var broadCastIcon = $(".btn-broadcast-send");
-            broadCastIcon.on("click",function(){
-                updateBroadCastList($(this).data("id"),true);
-            });
+        broadCastIcon.on("click", function () {
+            updateBroadCastList($(this).data("id"), true);
+        });
 
-          $(document).on("click",".broadcast-list-create-lead",function(){
+        $(document).on("click", ".broadcast-list-create-lead", function () {
             var $this = $(this);
 
             var checkedProducts = $("#broadcast-list").find("input[name='selecte_products_lead[]']:checked");
             var checkedProdctsArr = [];
-                if(checkedProducts.length > 0) {
-                   $.each(checkedProducts,function(e,v){
-                      checkedProdctsArr += ","+$(v).val();
-                   })
-                }
+            if (checkedProducts.length > 0) {
+                $.each(checkedProducts, function (e, v) {
+                    checkedProdctsArr += "," + $(v).val();
+                })
+            }
 
             var selectionLead = $("#broadcast-list").find(".selection-broadcast-list").first();
 
@@ -1934,34 +2252,34 @@
             $("#broadcast-list-approval").find(".broadcast-list-approval-btn").data("customer-id", selectionLead.data("customer-id"));
             $("#broadcast-list-approval").modal("show");
 
-            $(".broadcast-list-approval-btn").unbind().on("click",function(){
-               var $this = $(this);
-                   $.ajax({
-                        type: "GET",
-                        url: "{{ route('customer.broadcast.run') }}",
-                        beforeSend: function() {
-                            // setting a timeout
-                            $this.html('Sending Request...');
-                        },
-                        dataType: "json",
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            //broadcast_id: $this.data("broadcast"),
-                            customer_id : $this.data("customer-id"),
-                            product_to_be_run : checkedProdctsArr
-                        }
-                   }).done(function (response) {
-                        //updateBroadCastList(customerId, false);
-                        $this.html('Yes');
-                        $("#broadcast-list-approval").modal("hide");
-                        $("#broadcast-list").modal("hide");
-                   }).fail(function (response) {
-                        alert("Error occured, please try again later.");
-                   });
+            $(".broadcast-list-approval-btn").unbind().on("click", function () {
+                var $this = $(this);
+                $.ajax({
+                    type: "GET",
+                    url: "{{ route('customer.broadcast.run') }}",
+                    beforeSend: function () {
+                        // setting a timeout
+                        $this.html('Sending Request...');
+                    },
+                    dataType: "json",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        //broadcast_id: $this.data("broadcast"),
+                        customer_id: $this.data("customer-id"),
+                        product_to_be_run: checkedProdctsArr
+                    }
+                }).done(function (response) {
+                    //updateBroadCastList(customerId, false);
+                    $this.html('Yes');
+                    $("#broadcast-list-approval").modal("hide");
+                    $("#broadcast-list").modal("hide");
+                }).fail(function (response) {
+                    alert("Error occured, please try again later.");
+                });
             });
-         });
+        });
 
-         $(document).on('change', '.change-whatsapp-no', function () {
+        $(document).on('change', '.change-whatsapp-no', function () {
             var $this = $(this);
             $.ajax({
                 type: "POST",
@@ -1969,7 +2287,7 @@
                 data: {
                     _token: "{{ csrf_token() }}",
                     customer_id: $this.data("customer-id"),
-                    number : $this.val()
+                    number: $this.val()
                 }
             }).done(function () {
                 alert('Number updated successfully!');
@@ -1993,8 +2311,8 @@
                 type: "POST",
                 url: "{{ route('customer.send.contact') }}",
                 data: $form.serialize(),
-                beforeSend : function(){
-                  $this.html("Sending message...");
+                beforeSend: function () {
+                    $this.html("Sending message...");
                 }
             }).done(function () {
                 $this.html('<img style="width: 17px;" src="/images/filled-sent.png">');
@@ -2004,6 +2322,50 @@
             });
         });
 
+        $(function () {
+            $('.multiselect-2').multiselect({
+                    enableFiltering: true,
+                    filterBehavior: 'value'
+                });
+        });
+
+
+
+        $(document).on('click', '.send-group', function () {
+            var thiss = $(this);
+            var customerId = $(this).data('customerid');
+            var groupId = $('#group' + customerId).val();
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'quicksell_group_send')}}",
+                type: 'POST',
+                data: {
+                    groupId: groupId,
+                    customerId: customerId,
+                    _token: "{{csrf_token()}}",
+                    status: 2
+                },
+                success: function () {
+                    toastr["success"]("Group Message sent successfully!", "Message");
+                 //   $("option:selected").prop("selected", false)
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending group message...Please select group id properly');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+            console.log(customerId);
+            console.log(groupId);
+
+        });
+
+        $(document).on('click', '.call-select', function () {
+            var id = $(this).data('id');
+            $('#show' + id).toggle();
+            console.log('#show' + id);
+        });
 
     </script>
 @endsection

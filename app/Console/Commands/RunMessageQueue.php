@@ -50,6 +50,7 @@ class RunMessageQueue extends Command
      */
     public function handle()
     {
+        return; // STOP ALL
         $report = CronJobReport::create([
             'signature' => $this->signature,
             'start_time' => Carbon::now()
@@ -79,7 +80,7 @@ class RunMessageQueue extends Command
                     ->where('sent', 0)
                     ->where('status', '!=', 1)
                     ->orderBy('sending_time', 'ASC')
-                    ->limit(30);
+                    ->limit(12);
 
                 // Do we have results?
                 if (count($message_queues->get()) > 0) {
@@ -93,9 +94,21 @@ class RunMessageQueue extends Command
                             $customer = Customer::find($message->customer_id);
                             $number = !empty($customer->whatsapp_number) ? (string)$customer->whatsapp_number : 0;
 
+                            // No number? Set to default
+                            if ($number == 0 || !key_exists($number, $allWhatsappNo)) {
+                                foreach ($allWhatsappNo as $no => $dataInstance) {
+                                    if ($dataInstance[ 'customer_number' ] == true) {
+                                        $customer->whatsapp_number = $no;
+                                        $customer->save();
+                                        $number = $no;
+                                        break;
+                                    }
+                                }
+                            }
+
                             if (!$this->isWaitingFull($number)) {
-                                if ($customer && $customer->do_not_disturb == 0 && substr($number,0,3) == '971') {
-                                    SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id);
+                                if ($customer && $customer->do_not_disturb == 0 && substr($number, 0, 3) == '971') {
+                                    SendMessageToAll::dispatchNow($message->user_id, $customer, json_decode($message->data, true), $message->id, $group->group_id);
 
                                     dump('sent to all');
                                 } else {
@@ -104,7 +117,7 @@ class RunMessageQueue extends Command
                                     dump('deleting queue');
                                 }
                             } else {
-                                if ( substr($number,0,3) == '971' ) {
+                                if (substr($number, 0, 3) == '971') {
                                     dump('sorry , message is full right now for this number : ' . $number);
                                 } else {
                                     $message->delete();
@@ -116,8 +129,8 @@ class RunMessageQueue extends Command
                         } else {
 
                             if (!$this->isWaitingFull($number)) {
-                                if ( substr($message->whatsapp_number,0,3) == '971') {
-                                    SendMessageToSelected::dispatchNow($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number);
+                                if (substr($message->whatsapp_number, 0, 3) == '971') {
+                                    SendMessageToSelected::dispatchNow($message->phone, json_decode($message->data, true), $message->id, $message->whatsapp_number, $message->group_id);
                                 } else {
                                     $message->delete();
                                 }
@@ -158,7 +171,6 @@ class RunMessageQueue extends Command
         }
 
         return false;
-
     }
 
     /**

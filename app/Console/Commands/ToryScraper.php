@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\CronJobReport;
 use App\Services\Scrap\ToryScraper as Tory;
 
 class ToryScraper extends Command
@@ -39,10 +40,18 @@ class ToryScraper extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
         if (strpos($letters, 'T') === false) {
             return;
         }
         $this->scraper->scrap();
+
+          $report->update(['end_time' => Carbon:: now()]);
     }
 }

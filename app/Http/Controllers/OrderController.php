@@ -794,6 +794,10 @@ class OrderController extends Controller {
 			return response()->json(['order' => $order]);
 		}
 
+		if ($request->get('return_url_back')) {
+			return back()->with( 'message', 'Order created successfully' );
+		}
+
 		return $order;
 
 		return redirect()->route( 'order.index' )
@@ -1223,7 +1227,9 @@ class OrderController extends Controller {
 
 		if ($request->hasfile('images')) {
 			foreach ($request->file('images') as $image) {
-				$media = MediaUploader::fromSource($image)->upload();
+				$media = MediaUploader::fromSource($image)
+										->toDirectory('order/'.floor($delivery_approval->id / config('constants.image_per_folder')))
+										->upload();
 				$delivery_approval->attachMedia($media,config('constants.media_tags'));
 			}
 		}

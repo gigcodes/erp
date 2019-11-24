@@ -9,6 +9,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')"/>
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
 
@@ -22,7 +24,8 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="{{asset('js/readmore.js')}}"></script>
+    <script src="{{asset('js/readmore.js')}}" defer></script>
+    <script src="/js/generic.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 
     @yield('link-css')
@@ -34,8 +37,8 @@
     <script>
         jQuery('.readmore').readmore({
             speed: 75,
-            moreLink: '<a href="#">Read more</a>'
-            lessLink: '<a href="#">Read less</a>',
+            moreLink: '<a href="#">Read more</a>',
+            lessLink: '<a href="#">Read less</a>'
         });
     </script>
     <script src="{{ asset('js/app.js') }}"></script>
@@ -72,17 +75,9 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
 
 
-    {{-- @if( str_contains(Route::current()->getName(),['sales','activity','leads','task','home', 'customer'] ) ) --}}
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet"/>
 
-    <script type="text/javascript"
-
-            src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
-
-    {{-- @endif --}}
-
-
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 
     @if(Auth::user())
 
@@ -332,6 +327,9 @@
                                                     <a class="dropdown-item" href="{{ route('productselection.create') }}">Add New</a>
                                                 @endif
                                                 <a class="dropdown-item" href="{{ url('/excel-importer') }}">Excel Import </a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/mapping') }}">Add Mapping For Master </a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/tools-brand') }}">Add Mapping For Excel</a>
+                                                <a class="dropdown-item" href="{{ url('/excel-importer/log') }}">Excel Importer Log</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -349,6 +347,13 @@
                                                 <a class="dropdown-item" href="{{ action('ProductCropperController@cropIssuesPage') }}">Crop Issue Summary</a>
                                                 <a class="dropdown-item" href="{{ action('ProductCropperController@showRejectedCrops') }}">Crop-Rejected Grid</a>
                                                 <a class="dropdown-item" href="{{ action('ProductCropperController@showCropVerifiedForOrdering') }}">Crop-Sequencer</a>
+                                            </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Images<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Image Search</a>
+                                                <a class="dropdown-item" href="{{ route('manual.image.upload') }}">Manual Image Upload</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -392,6 +397,12 @@
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>In Delivered<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ route('productinventory.indelivered') }}">In Delivered</a>
+                                            </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Inventory<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
@@ -416,13 +427,21 @@
                                                 <a class="dropdown-item" href="{{ action('CategoryController@brandMinMaxPricing') }}">Min/Max Pricing</a>
                                                 <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
                                                 <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
+                                                <a class="dropdown-item" href="{{ url('price-comparison-scraper') }}">Price comparison</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>SKU<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('sku-format.index') }}">SKU Format</a>
+                                                <a class="dropdown-item" href="{{ route('sku.color-codes') }}">SKU Color Codes</a>
                                             </ul>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google.search.image') }}">Google Search</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Find Images</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -436,6 +455,7 @@
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'canceled-refunded') }}">Cancel/Refund Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
+                                            <a class="dropdown-item" href="{{ route('purchase.grid', 'non_ordered') }}">Non Ordered Grid</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -465,6 +485,7 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('/erp-customer') }}">Customers - NEW</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers - unread</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
@@ -489,21 +510,20 @@
                                                 <a class="dropdown-item" href="{{ route('instruction.index') }}">Instructions</a>
                                                 <a class="dropdown-item" href="{{ route('instruction.list') }}">Instructions List</a>
                                                 <a class="dropdown-item" href="{{ action('KeywordInstructionController@index') }}">Instruction Keyword Instructions</a>
+                                                <a class="dropdown-item" href="/instruction/quick-instruction">Quick instructions</a>
+                                                <a class="dropdown-item" href="/instruction/quick-instruction?type=price">Quick instructions (price)</a>
+                                                <a class="dropdown-item" href="/instruction/quick-instruction?type=image">Quick instructions (attach)</a>
                                             </ul>
                                         </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Leeds<span class="caret"></span></a>
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Leads<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Leads<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
-                                                <a class="dropdown-item" href="{{ route('leads.create') }}">Add New</a>
-                                                <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image grid</a>
-                                            </ul>
-                                        </li>
+                                        <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
+                                        <a class="dropdown-item" href="{{ action('LeadsController@erpLeads') }}">Leads (new)</a>
+                                        <a class="dropdown-item" href="{{ route('leads.create') }}">Add new lead</a>
+                                        <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image grid</a>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -591,6 +611,16 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Marketing<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('whatsapp.config.index') }}">WhatsApp Config</a>
+                                            <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
+                                            <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -618,6 +648,10 @@
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('users.create') }}">Add New</a>
+                                        </li>
+
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('userlogs.index') }}">User Logs</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
@@ -693,6 +727,11 @@
                                                 <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
                                             </li>
 
+                                             <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('instagram/hashtag') }}">Hashtags</a>
+                                            </li>
+
+
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag monitoring & manual Commenting</a>
                                             </li>
@@ -767,6 +806,7 @@
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                             </li>
+
                                         </ul>
                                     </li>
                                 @endif
@@ -900,6 +940,9 @@
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Development --}}
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">Devtask Planner</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                 </li>
                                 <li class="nav-item">
@@ -913,6 +956,17 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('templates') }}">Templates</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
                                 </li>
                             </ul>
                         </li>
@@ -978,11 +1032,15 @@
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Old Issues<span class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('OldController@index') }}">Old Out going</a>
+                                                <a class="dropdown-item" href="{{ url('/old/') }}">Old Info</a>
                                             </li>
 
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('OldIncomingController@index') }}">Old Incoming</a>
+                                                <a class="dropdown-item" href="{{ url('/old/?type=1') }}">Old Out going</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/old/?type=2') }}">Old Incoming</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -990,7 +1048,7 @@
                             </li>
                         @endif
                         <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Username <span class="caret"></span></a>
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{{ isset(Auth::user()->name) ? Auth::user()->name : 'Settings' }}} <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
 
@@ -1080,6 +1138,9 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{url('/kb/')}}" target="_blank">Knowledge Base</a>
+                                </li>
+                                <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}</a>
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -1088,6 +1149,11 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item dropdown" id="search_li">
+                                <input type="text" class="form-control nav-link" placeholder="Search" style="margin-top : 1%;" onkeyup="filterFunction()" id="search">
+                                <ul class="dropdown-menu multi-level" id="search_container">
+                               </ul>
+                            </li>
                     @endif
 
                 </ul>
@@ -1223,7 +1289,7 @@
                     <div class="form-group">
                         <label for="category_id">Category:</label>
                         <?php
-                            $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
+                        $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
                         ?>
                         {!! Form::select('category_id', ['' => "-- select --"] + $category, null, ['class'=>'form-control', 'id'=> 'category_id']) !!}
                     </div>
@@ -1337,31 +1403,31 @@
     });
 
     var getNotesList = function () {
-        $.ajax({
-            type: "GET",
-            url: "/page-notes/list",
-            data: {
-                _token: window.token,
-                url: "<?php echo request()->url() ?>"
-            },
-            dataType: "json",
-            success: function (data) {
-                if (data.code > 0) {
-                    var listOfN = "";
-                    $.each(data.notes, function (k, v) {
-                        listOfN += "<tr>";
-                        listOfN += "<td scope='row'>" + v.id + "</td>";
-                        listOfN += "<td>" + v.note + "</td>";
-                        listOfN += "<td>" + v.category_name + "</td>";
-                        listOfN += "<td>" + v.name + "</td>";
-                        listOfN += "<td>" + v.created_at + "</td>";
-                        listOfN += "</tr>";
-                    });
-
-                    $(".page-notes-list").prepend(listOfN);
-                }
-            },
-        });
+        //$.ajax({
+//            type: "GET",
+        //          url: "/page-notes/list",
+        //        data: {
+        //          _token: window.token,
+        //        url: "<?php echo request()->url() ?>"
+        //  },
+//            dataType: "json",
+        //          success: function (data) {
+        //            if (data.code > 0) {
+        //              var listOfN = "";
+        //            $.each(data.notes, function (k, v) {
+        //              listOfN += "<tr>";
+        //            listOfN += "<td scope='row'>" + v.id + "</td>";
+        //          listOfN += "<td>" + v.note + "</td>";
+        //        listOfN += "<td>" + v.category_name + "</td>";
+        //      listOfN += "<td>" + v.name + "</td>";
+        //    listOfN += "<td>" + v.created_at + "</td>";
+        //  listOfN += "</tr>";
+//                    });
+//
+        //                  $(".page-notes-list").prepend(listOfN);
+        //            }
+        //      },
+        //});
     }
 
     if ($(".help-button-wrapper").length > 0) {
@@ -1413,10 +1479,58 @@
         }
 
         gtag('js', new Date());
-
         gtag('config', 'UA-147736165-1');
     </script>
+    <script>
+        function filterFunction() {
+          var input, filter, ul, li, a, i;
+          //getting search values
+          input = document.getElementById("search");
+          //String to upper for search
+          filter = input.value.toUpperCase();
+          //Getting Values From DOM
+          a = document.querySelectorAll("#navbarSupportedContent a");
+          //Class to open bar
+          $( "#search_li" ).addClass('open');
+          //Close when search becomes zero
+          if(a.length == 0){
+             $( "#search_li" ).removeClass('open');
+            }
+           //Limiting Search Count
+         count = 1;
+         //Empty Existing Values
+          $( "#search_container" ).empty();
+
+         //Getting All Values
+         for (i = 0; i < a.length; i++) {
+            txtValue = a[i].textContent || a[i].innerText;
+            href = a[i].href;
+            //If value doesnt have link
+            if(href == "#" || href == '' || href.indexOf('#') > -1){
+                continue;
+            }
+            //Removing old search Result From DOM
+            if(a[i].getAttribute('class') != null && a[i].getAttribute('class') != ''){
+                if(a[i].getAttribute('class').indexOf('old_search') > -1){
+                    continue;
+                }
+            }
+            //break when count goes above 30
+            if(count > 30){
+                break;
+            }
+            //Pusing values to DOM Search Input
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                $( "#search_container" ).append( '<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href='+href+'>'+txtValue+'</a></li>' );
+                count++
+            } else {
+            }
+        }
+    }
+
+    </script>
 @endif
+
 </body>
 
 </html>

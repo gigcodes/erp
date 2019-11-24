@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\HashTag;
 use App\Services\Instagram\Hashtags;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 
 class AddHahstagPostCountWeekly extends Command
 {
@@ -39,6 +40,11 @@ class AddHahstagPostCountWeekly extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $hashtags = HashTag::orderBy('post_count', 'ASC')->get();
         $ht = new Hashtags();
         $ht->login();
@@ -49,5 +55,7 @@ class AddHahstagPostCountWeekly extends Command
             $hashtag->save();
             sleep(5);
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

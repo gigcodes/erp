@@ -120,6 +120,13 @@
                                value="{{ isset($size) ? $size : '' }}"
                                placeholder="Size">
                     </div>
+                     <div class="form-group mr-3">
+                        <select class="form-control select-multiple" name="quick_sell_groups[]" multiple data-placeholder="Quick Sell Groups...">
+                            @foreach ($quick_sell_groups as $key => $quick_sell)
+                                <option value="{{ $quick_sell->id }}" {{ in_array($quick_sell->id, request()->get('quick_sell_groups', [])) ? 'selected' : '' }}>{{ $quick_sell->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="form-group mr-3">
                         {!! Form::select('per_page',[
                         "20" => "20 Images Per Page",
@@ -140,6 +147,9 @@
                     &nbsp;
                     <input type="checkbox" class="is_on_sale" id="is_on_sale" name="is_on_sale"><label
                             for="is_on_sale">Sale Products</label>
+                    <input type="checkbox" class="random" id="random" name="random"><label
+                            for="random">Random</label>
+
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                     {{-- </div>
@@ -148,7 +158,7 @@
 
                 <form action="{{ route('search') }}" method="GET" id="quickProducts" class="form-inline align-items-start my-3">
                     <input type="hidden" name="quick_product" value="true">
-                    <button type="submit" class="btn btn-xs btn-secondary">Quick Products</button>
+                    <button type="submit" class="btn btn-xs btn-secondary">Quick Sell</button>
                 </form>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="0">Select All</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="20">Select 20</button>
@@ -164,28 +174,57 @@
     <div class="productGrid" id="productGrid">
         @include('partials.image-load')
     </div>
-
-    <form action="{{ $model_type == 'images' ? route('image.grid.attach') : ($model_type == 'customers' ? route('customer.whatsapp.send.all', 'false') : ($model_type == 'purchase-replace' ? route('purchase.product.replace') : (($model_type == 'broadcast-images' ? route('broadcast.images.link') : ($model_type == 'customer' ? route('whatsapp.send', 'customer') : url('whatsapp/updateAndCreate/')))))) }}" method="POST" id="attachImageForm">
+    @php
+        $action = url('whatsapp/updateAndCreate/');
+        if ($model_type == 'images') {
+            $action =  route('image.grid.attach');
+        } else if ($model_type == 'customers') {
+            $action =  route('customer.whatsapp.send.all', 'false');
+        } else if ($model_type == 'purchase-replace') {
+            $action =  route('purchase.product.replace');
+        } else if ($model_type == 'broadcast-images') {
+            $action =  route('broadcast.images.link');
+        } else if ($model_type == 'customer') {
+            $action =  route('attachImages.queue');
+        } else if ($model_type == 'selected_customer') {
+            $action =  route('whatsapp.send_selected_customer');
+        } else if ($model_type == 'product-templates') {
+            $action =  route('product.templates');
+        }
+    @endphp
+    <form action="{{ $action }}" data-model-type="{{$model_type}}" method="POST" id="attachImageForm">
         @csrf
-
+        <input type="hidden" id="send_pdf" name="send_pdf" value="0"/>
         @if ($model_type == 'customers')
             <input type="hidden" name="sending_time" value="{{ $sending_time }}"/>
+        @endif
+
+        @if (request()->get('return_url'))
+            <input type="hidden" name="return_url" value="{{ request()->get('return_url') }}"/>
         @endif
 
         <input type="hidden" name="images" id="images" value="">
         <input type="hidden" name="image" value="">
         <input type="hidden" name="screenshot_path" value="">
-        <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : '' }}">
-        <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : 'nothing') }}" value="{{ $model_id }}">
+        <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' ? "$message_body" : '' }}">
+        <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
         {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
         <input type="hidden" name="status" value="{{ $status }}">
     </form>
-
-
-
-
-
+    <div id="confirmPdf" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p>Choose the format for sending</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-approve-pdf">PDF</button>
+                    <button type="button" class="btn btn-secondary btn-ignore-pdf">Images</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <?php $stage = new \App\Stage(); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
@@ -210,7 +249,7 @@
             });
 
             var selectAllBtn = $(".select-all-product-btn");
-            selectAllBtn.on("click", function () {
+            selectAllBtn.on("click", function (e) {
                 var $this = $(this);
                 var vcount = 0;
 
@@ -218,45 +257,114 @@
                 if (vcount == 0) {
                     vcount = 'all';
                 }
+                var productCardCount = $(".product-list-card").length;
 
-                if ($this.hasClass("has-all-selected") === false) {
-                    $this.html("Deselect " + vcount);
-                    if (vcount == 'all') {
-                        $(".select-pr-list-chk").prop("checked", true).change();
-                    } else {
-                        var boxes = $(".select-pr-list-chk");
-                        for (i = 0; i < vcount; i++) {
-                            try {
-                                $(boxes[i]).prop("checked", true).change();
-                            } catch (err) {
+                if((vcount == "all" || 1 == 1) && $this.hasClass("has-all-selected") === false && (productCardCount < vcount || vcount == "all") ) {
+
+                    e.preventDefault();
+
+                    $('#selected_products').val(JSON.stringify(image_array));
+                    /*var url = "";
+                    var pageLink = $(".pagination").find('.page-link');
+                        if(pageLink.length > 0) {
+                            $.each(pageLink, function(k,v) {
+                                var href = $(v).attr("href");
+                                if(typeof href != "undefined") {
+                                    url = href;
+                                    return false;
+                                }
+                            });
+                        }
+
+                    
+                    url = replaceUrlParam(url,'page','1');
+                    */
+
+                    $('#selected_products').val(JSON.stringify(image_array));
+                    var formData = $('#searchForm').serializeArray();
+                    formData.push({name: "limit", value: vcount}) ;
+                    formData.push({name: "page", value: 1}) ;
+                    
+                    if (isQuickProductsFrom) {
+                        formData.push({name: "quick_product", value: 'true'});
+                    };
+                    
+                    var url = "{{ route('search') }}";
+
+
+                    $.ajax({
+                        url: url,
+                        data : formData,
+                        beforeSend: function() {
+                            $('#productGrid').html('<img id="loading-image" src="/images/pre-loader.gif"/>');
+                        }
+                    }).done(function (data) {
+                        all_product_ids = data.all_product_ids;
+                        $('#productGrid').html(data.html);
+                        $('#products_count').text(data.products_count);
+                        $('.lazy').Lazy({
+                            effect: 'fadeIn'
+                        });
+
+                        if ($this.hasClass("has-all-selected") === false) {
+                            $this.html("Deselect " + vcount);
+                            if (vcount == 'all') {
+                                $(".select-pr-list-chk").prop("checked", true).trigger('change');
+                            } else {
+                                var boxes = $(".select-pr-list-chk");
+                                for (i = 0; i < vcount; i++) {
+                                    try {
+                                        $(boxes[i]).prop("checked", true).trigger('change');
+                                    } catch (err) {
+                                    }
+                                }
+                            }
+                            $this.addClass("has-all-selected");
+                        } 
+                    }).fail(function () {
+                        alert('Error searching for products');
+                    });
+
+                }else {
+                    if ($this.hasClass("has-all-selected") === false) {
+                        $this.html("Deselect " + vcount);
+                        if (vcount == 'all') {
+                            $(".select-pr-list-chk").prop("checked", true).trigger('change');
+                        } else {
+                            var boxes = $(".select-pr-list-chk");
+                            for (i = 0; i < vcount; i++) {
+                                try {
+                                    $(boxes[i]).prop("checked", true).trigger('change');
+                                } catch (err) {
+                                }
                             }
                         }
-                    }
-                    $this.addClass("has-all-selected");
-                } else {
-                    $this.html("Select " + vcount);
-                    if (vcount == 'all') {
-                        $(".select-pr-list-chk").prop("checked", false).change();
-                    } else {
-                        var boxes = $(".select-pr-list-chk");
-                        for (i = 0; i < vcount; i++) {
-                            try {
-                                $(boxes[i]).prop("checked", false).change();
-                            } catch (err) {
+                        $this.addClass("has-all-selected");
+                    }else {
+                        $this.html("Select " + vcount);
+                        if (vcount == 'all') {
+                            $(".select-pr-list-chk").prop("checked", false).trigger('change');
+                        } else {
+                            var boxes = $(".select-pr-list-chk");
+                            for (i = 0; i < vcount; i++) {
+                                try {
+                                    $(boxes[i]).prop("checked", false).trigger('change');
+                                } catch (err) {
+                                }
                             }
                         }
+                        $this.removeClass("has-all-selected");
                     }
-                    $this.removeClass("has-all-selected");
                 }
 
-                // Add all images to array
+                /*// Add all images to array
                 image_array = [];
                 console.log(all_product_ids.length);
                 for (i = 0; i < all_product_ids.length && i < vcount; i++) {
                     image_array.push(all_product_ids[i]);
                 }
                 image_array = unique(image_array);
-                console.log(image_array);
+                console.log(image_array);*/
             })
         });
 
@@ -270,21 +378,20 @@
 
         $(document).on('change', '.select-pr-list-chk', function (e) {
             var $this = $(this);
-            var productCard = $this.closest(".product-list-card").find(".attach-photo-all");
+            var productCard = $this.closest(".product-list-card").find(".attach-photo");
             if (productCard.length > 0) {
                 var image = productCard.data("image");
                 if ($this.is(":checked") === true) {
-                    Object.keys(image).forEach(function (index) {
-                        image_array.push(image[index]);
-                    });
-
+                    //Object.keys(image).forEach(function (index) {
+                    image_array.push(image);
+                    //});
                     image_array = unique(image_array);
 
                 } else {
-                    Object.keys(image).forEach(function (key) {
-                        var index = image_array.indexOf(image[key]);
-                        image_array.splice(index, 1);
-                    });
+                    //Object.keys(image).forEach(function (key) {
+                    var index = image_array.indexOf(image);
+                    image_array.splice(index, 1);
+                    //});
                     image_array = unique(image_array);
                 }
             }
@@ -380,7 +487,7 @@
 
         $('#searchForm button[type="submit"]').on('click', function (e) {
             e.preventDefault();
-
+            isQuickProductsFrom = false;
             $('#selected_products').val(JSON.stringify(image_array));
 
             var url = "{{ route('search') }}";
@@ -400,18 +507,19 @@
                 alert('Error searching for products');
             });
         });
-
+        var isQuickProductsFrom = false;
         $('#quickProducts').on('submit', function (e) {
             e.preventDefault();
-
-            var url = "{{ route('search') }}";
-            var formData = $('#quickProducts').serialize();
+            isQuickProductsFrom = true;
+            var url = "{{ route('search') }}?quick_product=true";
+            var formData = $('#searchForm').serialize();
 
             $.ajax({
                 url: url,
                 data: formData
             }).done(function (data) {
                 $('#productGrid').html(data.html);
+                $('#products_count').text(data.products_count);
                 $('.lazy').Lazy({
                     effect: 'fadeIn'
                 });
@@ -471,8 +579,24 @@
                 alert('Please select some images');
             } else {
                 $('#images').val(JSON.stringify(image_array));
-                $('#attachImageForm').submit();
+                var form = $('#attachImageForm');
+                var modelType = form.data("model-type");
+                if(modelType == "selected_customer" || modelType == "customer" || modelType == "customers") {
+                    $("#confirmPdf").modal("show");
+                }else{
+                    $('#attachImageForm').submit();
+                }
             }
+        });
+
+        $(".btn-approve-pdf").on("click",function() {
+            $("#send_pdf").val("1");
+            $('#attachImageForm').submit();
+        });
+
+        $(".btn-ignore-pdf").on("click",function() {
+            $("#send_pdf").val("0");
+            $('#attachImageForm').submit();
         });
         // });
 
@@ -485,6 +609,29 @@
             $('#searchForm').submit();
         });
 
+        function replaceUrlParam(url, paramName, paramValue)
+        {
+            if (paramValue == null) {
+                paramValue = '';
+            }
+            var pattern = new RegExp('\\b('+paramName+'=).*?(&|#|$)');
+            if (url.search(pattern)>=0) {
+                return url.replace(pattern,'$1' + paramValue + '$2');
+            }
+            url = url.replace(/[?#]$/,'');
+            return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
+        }
+
     </script>
+
+@endsection
+
+@section('scripts')
+<script type="text/javascript">
+    function myFunction(id){
+    $('#description'+id).toggle();
+    $('#description_full'+id).toggle();
+   }
+</script>
 
 @endsection

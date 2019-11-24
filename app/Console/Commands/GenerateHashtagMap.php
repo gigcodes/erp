@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Services\Explorer\InstagramExplorer;
 use Illuminate\Console\Command;
 
+
 class GenerateHashtagMap extends Command
 {
     /**
@@ -38,8 +39,15 @@ class GenerateHashtagMap extends Command
      */
     public function handle()
     {
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+        ]);
+
         $explorer = new InstagramExplorer();
         $explorer->loginToInstagram();
         $explorer->getSimilarHashtags();
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

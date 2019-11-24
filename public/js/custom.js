@@ -127,7 +127,7 @@ jQuery(document).ready(function () {
 
     });
 
-    jQuery('.removeOldImage').click(function (e) {
+    jQuery(document).on('click', '.removeOldImage', function (e) {
         e.preventDefault();
         let id = jQuery(this).attr('data-id');
         let image_id = jQuery(this).attr('media-id');
@@ -627,4 +627,29 @@ function copyTextToClipboard(text) {
         console.log('Oops, unable to copy');
     }
     document.body.removeChild(textArea);
+}
+
+
+function sendMessageWhatsapp(developer_task_id,message,context,token){
+    var app_url = 'http://localhost/sololux-erp/public/';
+    $.ajax({
+        url: app_url+ "whatsapp/sendMessage/"+context,
+        type: 'POST',
+        data: {
+            _token: token,
+            message: message,
+            user_id: developer_task_id,
+            status: 2
+        },
+        success: function () {
+            $(self).removeAttr('disabled');
+            $("#message_" + developer_task_id).removeAttr('disabled');
+            $(self).val('');
+            $("#message_" + developer_task_id).val('');
+            toastr['success']('Message sent successfully!', 'Message');
+        },
+        error: function () {
+            $(self).removeAttr('disabled');
+        }
+    });
 }

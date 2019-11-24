@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\MagentoSoapHelper;
 use Illuminate\Console\Command;
+use App\CronJobReport;
 use App\Jobs\PushToMagento;
 
 class UploadProductsToMagento extends Command
@@ -39,6 +40,13 @@ class UploadProductsToMagento extends Command
      */
     public function handle()
     {
+     $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
+
         // Connect
         $magentoSoapHelper = new MagentoSoapHelper();
 
@@ -56,5 +64,7 @@ class UploadProductsToMagento extends Command
                 $product->save();
             }
         }
+
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

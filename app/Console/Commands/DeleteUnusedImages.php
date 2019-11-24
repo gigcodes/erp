@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\CronJobReport;
 use File;
 
 class DeleteUnusedImages extends Command
@@ -39,6 +40,11 @@ class DeleteUnusedImages extends Command
      */
     public function handle()
     {
+      $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
       dd('stap');
       $file_types = array(
         'gif',
@@ -66,5 +72,8 @@ class DeleteUnusedImages extends Command
               unlink($file); // delete if picture isn't in use
           }
       }
+
+      $report->update(['end_time' => Carbon:: now()]);
+      
     }
 }

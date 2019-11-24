@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Colors;
 use App\Product;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class ImportColorsFromTitleAndDescription extends Command
@@ -41,6 +42,12 @@ class ImportColorsFromTitleAndDescription extends Command
     private $colors;
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
         $this->colors = (new Colors)->all();
         unset($this->colors['Red']);
         Product::where('is_approved', 0)->where('color', '')->orderBy('id', 'DESC')->chunk(1000, function($products) {
@@ -98,6 +105,8 @@ class ImportColorsFromTitleAndDescription extends Command
                 }
             }
         });
+
+         $report->update(['end_time' => Carbon:: now()]);
     }
 
     private function getColorsFromText($text) {

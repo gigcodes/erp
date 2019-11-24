@@ -30,7 +30,10 @@ class SearchController extends Controller
 
         $data[ 'term' ] = $term;
         $data[ 'roletype' ] = $roletype;
-        $perPageLimit = $request->get("per_page", Setting::get('pagination'));
+        $perPageLimit = $request->get("per_page");
+        if (empty($perPageLimit)) {
+            $perPageLimit = Setting::get('pagination');
+        }
         $sourceOfSearch = $request->get("source_of_search", "na");
 
         // start add fixing for the price range since the one request from price is in range
@@ -253,11 +256,6 @@ class SearchController extends Controller
             Cache::forget('filter-date-' . Auth::id());
         }
 
-        if ($request->quick_product === 'true') {
-            $productQuery = (new Product())->newQuery()
-                ->latest()->where('quick_product', 1);
-        }
-
         if (trim($term) != '') {
             $productQuery = (new Product())->newQuery()
                 ->latest()
@@ -307,7 +305,7 @@ class SearchController extends Controller
         // $search_suggestions = [];
         //
         //  $sku_suggestions = ( new Product() )->newQuery()
-        // 																	 ->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
+        // 									 ->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
         //
         // $brand_suggestions = Brand::getAll();
         //
@@ -332,9 +330,18 @@ class SearchController extends Controller
             $productQuery = (new Product())->newQuery()->latest();
         }
 
+        if ($request->quick_product === 'true') {
+            if (!isset($productQuery)) {
+                $productQuery = (new Product())->newQuery()
+                ->latest();
+            }
+            
+            $productQuery = $productQuery->where('quick_product', 1);
+        }
+
         // assing product to varaible so can use as per condition for join table media
         if ($request->quick_product !== 'true') {
-            $products = $productQuery->where('stock', '>=', 1);
+            $products = $productQuery->whereRaw("(stock>0 OR (supplier LIKE '%In-Stock%'))");
         } else {
             $products = $productQuery;
         }
@@ -344,6 +351,10 @@ class SearchController extends Controller
             $products = $products->join("mediables", function ($query) {
                 $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
             })->groupBy('products.id');
+        }
+
+        if (!empty($request->quick_sell_groups) && is_array($request->quick_sell_groups)) {
+            $products = $products->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (".implode(",", $request->quick_sell_groups).") ))");
         }
 
         // select fields..
@@ -358,6 +369,11 @@ class SearchController extends Controller
         $products_count = $products->get()->count();
         $data[ 'products_count' ] = $products_count;
         $data[ 'all_products_ids' ] = $products->pluck('id')->toArray();
+
+        if($request->has("limit")) {
+            $perPageLimit = ($request->get("limit") == "all") ? $products_count : $request->get("limit");
+        }
+        
         $data[ 'products' ] = $products->paginate($perPageLimit);
 
         if ($request->model_type == 'broadcast-images') {

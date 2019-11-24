@@ -16,6 +16,8 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\InventoryImport;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ProductInventoryController extends Controller
 {
@@ -39,7 +41,7 @@ class ProductInventoryController extends Controller
 
 		$roletype = 'Inventory';
 
-		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
+		$category_selection = Category::attr(['name' => 'category[]','class' => 'form-control'])
 		                                        ->selected(1)
 		                                        ->renderAsDropdown();
 
@@ -298,6 +300,14 @@ class ProductInventoryController extends Controller
 
 
 //		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
+		
+		if ($request->get('shoe_size', false)) {
+            $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
+        }
+
+        $productQuery->where(function($query){
+        	$query->where("purchase_status","!=","Delivered")->orWhereNull("purchase_status");
+        });
 
         if ($request->get('in_pdf') === 'on') {
             $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->get();
@@ -308,8 +318,7 @@ class ProductInventoryController extends Controller
 		$data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
 		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';
-
-		$data['locations'] = (new LocationList)->all();
+		$data['locations'] = (new \App\ProductLocation())->pluck('name')->toArray() + ["In-Transit" => "In-Transit"];
 
 		$data['new_category_selection'] = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'product-category'])
 		                                        ->renderAsDropdown();
@@ -347,6 +356,111 @@ class ProductInventoryController extends Controller
         }
 
 		return view( 'instock.index', $data );
+	}
+
+	public function inDelivered(Request $request)
+	{
+		$data     = [];
+		$term     = $request->input( 'term' );
+		$data['term']     = $term;
+
+		$productQuery = ( new Product() )->newQuery()->latest();
+		if ($request->brand[0] != null) {
+			$productQuery = $productQuery->whereIn('brand', $request->brand);
+			$data['brand'] = $request->brand[0];
+		}
+
+		if ($request->color[0] != null) {
+			$productQuery = $productQuery->whereIn('color', $request->color);
+			$data['color'] = $request->color[0];
+		}
+
+		if (isset($request->category) && $request->category[0] != 1) {
+			$is_parent = Category::isParent($request->category[0]);
+			$category_children = [];
+
+			if ($is_parent) {
+				$childs = Category::find($request->category[0])->childs()->get();
+
+				foreach ($childs as $child) {
+					$is_parent = Category::isParent($child->id);
+
+					if ($is_parent) {
+						$children = Category::find($child->id)->childs()->get();
+
+						foreach ($children as $chili) {
+							array_push($category_children, $chili->id);
+						}
+					} else {
+						array_push($category_children, $child->id);
+					}
+				}
+			} else {
+				array_push($category_children, $request->category[0]);
+			}
+
+			$productQuery = $productQuery->whereIn('category', $category_children);
+
+			$data['category'] = $request->category[0];
+		}
+
+		if (isset($request->price) && $request->price != null) {
+			$exploded = explode(',', $request->price);
+			$min = $exploded[0];
+			$max = $exploded[1];
+
+			if ($min != '0' || $max != '10000000') {
+				$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+			}
+
+			$data['price'][0] = $min;
+			$data['price'][1] = $max;
+		}
+
+		
+		if (trim($term) != '') {
+			$productQuery = $productQuery->where(function ($query) use ($term){
+ 	    		$query->orWhere( 'sku', 'LIKE', "%$term%" )
+					  ->orWhere( 'id', 'LIKE', "%$term%" );
+			});
+
+
+			if ( $term == - 1 ) {
+				$productQuery = $productQuery->where(function ($query){
+				 															return $query->orWhere( 'isApproved', - 1 );
+									 });
+			}
+
+			if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
+				$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
+				$productQuery = $productQuery->where(function ($query) use ($brand_id){
+																			return $query->orWhere( 'brand', 'LIKE', "%$brand_id%" );});
+			}
+
+			if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
+				$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
+				$productQuery = $productQuery->where(function ($query) use ($term){
+								return $query->orWhere( 'category', CategoryController::getCategoryIdByName( $term ));} );
+			}
+
+		}
+
+		$selected_categories = $request->category ? $request->category : 1;
+
+		$data['category_selection'] = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple2'])
+		                                        ->selected($selected_categories)
+		                                        ->renderAsDropdown();
+
+
+//		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
+		
+		if ($request->get('shoe_size', false)) {
+            $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
+        }
+
+        $data[ 'products' ] = $productQuery->where('products.purchase_status', '=', 'Delivered')->paginate( Setting::get( 'pagination' ) );
+
+		return view( 'indelivered.index', $data );
 	}
 
 	public function magentoSoapUpdateStock($product,$stockQty){
@@ -534,5 +648,284 @@ class ProductInventoryController extends Controller
 		}
 
 		return back()->with('success', 'You have successfully imported Inventory');
+	}
+
+	public function instructionCreate()
+	{
+
+		$productId = request()->get("product_id",0);
+		$users = \App\User::all()->pluck("name","id");
+		$product = \App\Product::where("id",$productId)->first();
+		$locations = \App\ProductLocation::all()->pluck("name","name");
+		$couriers = \App\Courier::all()->pluck("name","name");
+		$order = [];
+		if($product) {
+		   $order = \App\OrderProduct::where("sku",$product->sku)
+		   ->join("orders as o","o.id","order_products.order_id")
+		   ->select(["o.id",\DB::raw("concat(o.id,' => ',o.client_name) as client_name")])->pluck("client_name",'id');
+		}
+
+		$reply_categories = \App\ReplyCategory::whereHas('product_dispatch')->get();
+
+		return view("instock.instruction_create",compact(['productId','users','customers','order','locations','couriers', 'reply_categories']));
+
+	}
+
+	public function instruction()
+	{
+		$params =  request()->all();
+
+		// validate incoming request
+        
+        $validator = Validator::make($params, [
+           'product_id' => 'required',
+           'location_name' => 'required',
+           'instruction_type' => 'required',
+           'instruction_message' => 'required',
+           'courier_name' => 'required',
+           'courier_details' => 'required',
+           'date_time' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json(["code" => 0, "errors" => $validator->messages()]);
+        }
+
+        // start to store first location as per the request
+		$product = \App\Product::where("id",$params["product_id"])->first();
+		$instruction = new \App\Instruction();
+
+		if($params['instruction_type'] == "dispatch") {
+			$orderId = request()->get("order_id",0);
+			if($orderId > 0) {
+				$order = \App\Order::where("id",$params["order_id"])->first();
+				if($order) {
+				  	
+				  	$instruction->customer_id = $order->customer_id;
+				  	$order->order_status = "Delivered";
+				  	$order->save();
+
+				  	if($order->customer) {
+				  		$customer = $order->customer;
+				  		//$product->location =  null;
+					    //$product->save();
+				  	}
+				}
+			}else{
+				$instruction->customer_id = request()->get("customer_id",0);
+			}
+
+			$customer = ($instruction->customer) ? $instruction->customer->name : "";
+
+			$assign_to = request()->get("assign_to",0);
+
+			if($assign_to > 0) {
+				$user = \App\User::where('id',$assign_to)->first();
+			}
+			// if customer object found then send message
+			if(!empty($user)) {
+					
+				$extraString = "";
+				
+				// check if any date time set
+				if(!empty($params["date_time"])) {
+					$extraString = " on ".$params["date_time"];
+				}
+
+				// set for pending amount
+				if(!empty($params["pending_amount"])) {
+					$extraString .= " and ".$params["pending_amount"]." to be collected";
+				}		
+				// send message
+				$messageData = implode("\n",[
+			  		"{$product->name} to be delivered to {$customer} {$extraString}",
+			  		$params["courier_name"],
+			  		$params["courier_details"]	
+			  	]);
+
+			    $params['approved'] = 1;
+			    $params['message']  = $messageData;
+			    $params['status']   = 2;
+			    $params['user_id'] = $user->id;
+
+			    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
+			    $chat_message = \App\ChatMessage::create($params);
+			    if ($product->hasMedia(config('constants.media_tags'))) {
+	                foreach ($product->getMedia(config('constants.media_tags')) as $image) {
+	                	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,null, $image->getUrl());
+	                    $chat_message->attachMedia($image, config('constants.media_tags'));
+	                }
+	            }
+			}
+
+		}elseif ($params['instruction_type'] == "location") {
+			if($product) {
+				$product->location = "In-Transit";//$params["location_name"];
+				$product->save();
+
+				$params["location_name"] = "In-Transit - ".$params["location_name"];
+
+				$user = \App\User::where("id",$params["assign_to"])->first();
+				if($user) {
+					// send location message 
+					$pendingAmount = (!empty($params["pending_amount"])) ? " and Pending amount : ".$params["pending_amount"] : "";
+					$messageData = implode("\n",[
+				  		"Pls. Despatch {$product->name} to ".$params["location_name"].$pendingAmount,
+				  		$params['instruction_message'],
+				  		$params["courier_name"],
+				  		$params["courier_details"]	
+				  	]);
+
+				    $params['approved'] = 1;
+				    $params['message']  = $messageData;
+				    $params['status']   = 2;
+				    $params['user_id'] = $user->id;
+
+				    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,$messageData);
+				    $chat_message = \App\ChatMessage::create($params);
+				    if ($product->hasMedia(config('constants.media_tags'))) {
+		                foreach ($product->getMedia(config('constants.media_tags')) as $image) {
+		                	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone,$user->whatsapp_number,null, $image->getUrl());
+		                    $chat_message->attachMedia($image, config('constants.media_tags'));
+		                }
+		            }
+				}
+			}
+		}
+
+		$instruction->category_id = 7;
+		$instruction->instruction = $params["instruction_message"];
+		$instruction->assigned_from = \Auth::user()->id;
+		$instruction->assigned_to = $params["assign_to"];
+		$instruction->product_id = $params["product_id"];
+		$instruction->order_id = isset($params["order_id"]) ? $params["order_id"] : 0;
+		$instruction->save();
+
+
+		$productHistory = new \App\ProductLocationHistory();
+		$productHistory->fill($params);	
+		$productHistory->created_by = \Auth::user()->id;
+		$productHistory->save();
+
+
+		return response()->json(["code" => 1, "message" => "Done"]);	
+
+
+	}
+
+	public function locationHistory()
+	{
+		$productId = request()->get("product_id",0);
+		$locations = (new \App\ProductLocation())->pluck('name')->toArray();
+		$product   = \App\Product::where("id" , $productId)->First();
+		$history = \App\ProductLocationHistory::where("product_id",$productId)
+		->orderBy("date_time","desc")
+		->get();
+		return view("instock.history_list",compact(['history','locations','product']));
+	}
+
+	public function dispatchCreate()
+	{
+
+		$productId = request()->get("product_id",0);
+		//$users = \App\User::all()->pluck("name","id");
+		//$product = \App\Product::where("id",$productId)->first();
+
+		return view("instock.dispatch_create",compact(['productId','users','order']));
+
+	}
+
+	public function dispatchStore(Request $request)
+	{
+		$validator = Validator::make($request->all(), [
+           'product_id' => 'required',
+           'modeof_shipment' => 'required',
+           'delivery_person' => 'required',
+           'awb' => 'required',
+           'eta' => 'required',
+           //'date_time' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json(["code" => 0, "errors" => $validator->messages()]);
+        }
+
+        $productDispatch = new \App\ProductDispatch;
+        $productDispatch->fill($request->all());
+        $productDispatch->save();
+
+        $uploaded_images = [];	
+
+        if ($request->hasFile('file')) {
+            try{
+                foreach ($request->file('file') as $image) {
+                    $media = MediaUploader::fromSource($image)->toDirectory('dispatch-images')->upload();
+                    array_push($uploaded_images, $media);
+                    $productDispatch->attachMedia($media,config('constants.media_tags'));
+                }
+            }catch (\Exception $exception){
+               // return response($exception->getMessage(), $exception->getCode());
+            }
+        }
+        
+        if ($request->get('product_id') > 0 ) {
+        	$product = \App\Product::where("id",$request->get('product_id'))->first();
+	  		$product->purchase_status =  'Delivered';
+	  		$product->location =  null;
+		    $product->save();
+        	$instruction = \App\Instruction::where('product_id', $request->get('product_id'))->where('customer_id', '>', '0')->orderBy('id', 'desc')->first();
+        	if ($instruction) {
+
+				$customer = \App\Customer::where('id',$instruction->customer_id)->first();
+
+				// if customer object found then send message
+				if(!empty($customer)) {
+					$params = [];
+					$messageData = implode("\n",[
+				  		"We have Despatched your {$product->name} by {$productDispatch->delivery_person}",
+				  		"AWB : {$request->awb}",
+				  		"Mode Of Shipment  : {$request->modeof_shipment}"	
+				  	]);
+
+				    $params['approved'] = 1;
+				    $params['message']  = $messageData;
+				    $params['status']   = 2;
+				    $params['customer_id'] = $customer->id;
+					$chat_message = \App\ChatMessage::create($params);
+
+					// if product has image then send message with image otherwise send with photo			
+				    if ($productDispatch->hasMedia(config('constants.media_tags'))) {
+		                foreach ($productDispatch->getMedia(config('constants.media_tags')) as $image) {
+		                	$url = createProductTextImage($image->getAbsolutePath(),"product-dispatch",$messageData,$color = "000000", $fontSize = "15" , $needAbs = false);
+		                	if(!empty($url)) {
+		                	 	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,null, $url);
+		                	}
+		                    $chat_message->attachMedia($image, config('constants.media_tags'));
+		                }
+		            }else{
+		            	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,$messageData);
+		            }
+				    
+				}
+			}
+		}
+
+		
+
+        return response()->json(["code" => 1, "message" => "Done"]);
+
+	}
+
+	public function locationChange(Request $request)
+	{
+		$product = \App\Product::where("id",$request->get("product_id",0))->first();
+
+		if($product) {
+			$product->location = $request->get("location",$product->location);
+			$product->save();
+		}
+
+		return response()->json(["code" => 1]);
+
 	}
 }

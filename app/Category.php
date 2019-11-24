@@ -2,9 +2,11 @@
 
 namespace App;
 
+use App\SupplierCategoryCount;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Nestable\NestableTrait;
+
 
 class Category extends Model
 {
@@ -295,6 +297,10 @@ class Category extends Model
         }
 
         return '';
+    }
+
+    public function suppliercategorycount(){
+        return $this->hasOne(SupplierCategoryCount::class,'category_id','id');
     }
 
 }

@@ -253,7 +253,7 @@ class ProductAttributeController extends Controller
 		NotificaitonContoller::store('has added attribute', ['Supervisors'], $productattribute->id);
 		ActivityConroller::create($productattribute->id,'attribute','create');
 
-		foreach ($request->get('qty') as $k=>$qty) {
+		foreach ($request->get('qty', []) as $k=>$qty) {
 		    if (!$qty) {
 		        continue;
             }
@@ -264,8 +264,7 @@ class ProductAttributeController extends Controller
 		    $q->save();
         }
 
-		return redirect()->route( 'productimagecropper.index' )
-		                 ->with( 'success', $success_message);
+		return redirect()->back()->with( 'success', $success_message);
 	}
 
 	public function calculateSpecialDiscount($price,$brand) {
@@ -292,7 +291,6 @@ class ProductAttributeController extends Controller
 
 
 	public function replaceImages($request,$productattribute){
-
 		$delete_array = [];
 		for( $i = 0 ; $i < 5 ; $i++) {
 
@@ -301,8 +299,9 @@ class ProductAttributeController extends Controller
 			}
 
 			if( !empty($request->file('image.'.$i ) ) ){
-
-				$media = MediaUploader::fromSource($request->file('image.'.$i ))->upload();
+				$media = MediaUploader::fromSource($request->file('image.'.$i ))
+										->toDirectory('product/'.floor($productattribute->id / config('constants.image_per_folder')))
+										->upload();
 				$productattribute->attachMedia($media,config('constants.media_tags'));
 			}
 		}

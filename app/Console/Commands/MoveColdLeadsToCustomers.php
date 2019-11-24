@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\ColdLeads;
 use App\Customer;
+use App\CronJobReport;
 
 class MoveColdLeadsToCustomers extends Command
 {
@@ -39,12 +40,30 @@ class MoveColdLeadsToCustomers extends Command
      */
     public function handle()
     {
+
+        $report = CronJobReport::create([
+        'signature' => $this->signature,
+        'start_time'  => Carbon::now()
+     ]);
+
+
         // Get cold leads
         $coldLeads = ColdLeads::where('is_imported', 1)->where('customer_id', null)->inRandomOrder()->get();
 
         // Set count to 0 and maxcount to 50
         $count = 0;
         $maxCount = 50;
+
+        // Get all numbers from config
+        $config = \Config::get("apiwha.instances");
+
+        // Loop over numbers
+        $arrCustomerNumbers = [];
+        foreach ($config as $whatsAppNumber => $arrNumber) {
+            if ($arrNumber[ 'customer_number' ]) {
+                $arrCustomerNumbers[] = $arrNumber[ 'customer_number' ];
+            }
+        }
 
         // Loop over coldLeads
         if ($coldLeads !== null) {
@@ -60,12 +79,12 @@ class MoveColdLeadsToCustomers extends Command
                     $customer = new Customer();
                     $customer->name = $coldLead->name;
                     $customer->phone = $coldLead->platform_id;
-                    $customer->whatsapp_number = '971547763482';
+                    $customer->whatsapp_number = $arrCustomerNumbers[ rand(0, count($arrCustomerNumbers) - 1) ];
                     $customer->city = $coldLead->address;
                     $customer->country = 'IN';
                     $customer->save();
 
-                    if ( !empty($customer->id) ) {
+                    if (!empty($customer->id)) {
                         $coldLead->customer_id = $customer->id;
                         $coldLead->save();
                     }
@@ -75,5 +94,7 @@ class MoveColdLeadsToCustomers extends Command
 
             }
         }
+
+         $report->update(['end_time' => Carbon:: now()]);
     }
 }

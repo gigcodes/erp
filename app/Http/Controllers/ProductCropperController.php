@@ -191,7 +191,9 @@ class ProductCropperController extends Controller
 
             if (!empty($request->file('image.' . $i))) {
 
-                $media = MediaUploader::fromSource($request->file('image.' . $i))->upload();
+                $media = MediaUploader::fromSource($request->file('image.' . $i))
+                                        ->toDirectory('product/'.floor($productattribute->id / config('constants.image_per_folder')))
+                                        ->upload();
                 $productattribute->attachMedia($media, config('constants.media_tags'));
             }
         }
@@ -385,7 +387,9 @@ class ProductCropperController extends Controller
 
         if ($request->hasFile('file')) {
             $image = $request->file('file');
-            $media = MediaUploader::fromSource($image)->upload();
+            $media = MediaUploader::fromSource($image)
+                                    ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                    ->upload();
             $product->attachMedia($media, 'gallery');
         }
 
@@ -623,12 +627,29 @@ class ProductCropperController extends Controller
             $selected_categories = [$request->get('category')[ 0 ]];
         }
 
-        $category_array = Category::renderAsArray();
 
+        if (!empty($request->brand)) {
+            $products = $products->whereIn('brand', $request->brand);
+        }
+
+        if (!empty($request->color)) {
+            $products = $products->whereIn('color', $request->color);
+        }
+
+        if (!empty($request->size)) {
+            $products = $products->whereNotNull('size')->where(function ($query) use ($request) {
+                $query->where('size', $request->size)->orWhere('size', 'LIKE', "%$request->size,")->orWhere('size', 'LIKE', "%,$request->size,%");
+            });
+        }
+
+        if (!empty($request->location)) {
+            $products = $products->whereIn('location', $request->location);
+        } 
 
         $products = $products->orderBy('updated_at', 'DESC')->paginate(24);
 
-        return view('products.rejected_crop_list', compact('products', 'suppliers', 'supplier', 'reason', 'selected_categories', 'category_array', 'users'));
+        $category_array = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select2', 'placeholder' => 'Select Category'])->selected(request()->get('category', 1))->renderAsDropdown();
+    return view('products.rejected_crop_list', compact('products', 'suppliers', 'supplier', 'reason', 'selected_categories', 'category_array', 'users'));
     }
 
     public function cropIssuesPage()

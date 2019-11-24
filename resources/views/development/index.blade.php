@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@section('favicon' , 'development.png')
+
+@section('title', 'Development')
+
+
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
@@ -50,6 +55,7 @@
                     </form>
                 </div>
             @endcan
+            <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Task </a>
         </div>
     </div>
 
@@ -139,7 +145,7 @@
             <div class="tab-content">
                 <div id="pending" class="tab-pane fade in active">
                     <div class="panel-group" style="margin-top: 10px;">
-                        <div class="panel panel-default">
+                        <div class="panel panel-default" style="display: none;">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
                                     <a data-toggle="collapse" href="#collapse1">
@@ -202,6 +208,19 @@
                                                     <div class="alert alert-danger">{{$errors->first('priority')}}</div>
                                                 @endif
                                             </div>
+
+                                                <div class="form-group">
+                                                    <label for="priority">Type:</label>
+                                                    <select class="form-control" name="task_type_id" id="task_type_id" required>
+                                                        @foreach($tasksTypes as $taskType)
+                                                            <option value="{{$taskType->id}}">{{$taskType->name}}</option>
+                                                        @endforeach
+                                                    </select>
+
+                                                    @if ($errors->has('priority'))
+                                                        <div class="alert alert-danger">{{$errors->first('priority')}}</div>
+                                                    @endif
+                                                </div>
 
                                             <div class="form-group">
                                                 <strong>Subject:</strong>
@@ -1248,6 +1267,27 @@
         $(document).ready(function () {
             $('.select2').select2({
                 tags: true
+            });
+        });
+
+
+        //Popup for add new task
+        $(document).on('click', '#newTaskModalBtn', function () {
+            if ($("#newTaskModal").length > 0) {
+                $("#newTaskModal").remove();
+            }
+
+            $.ajax({
+                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                type: 'GET',
+                dataType: "JSON",
+                success: function (resp) {
+                    console.log(resp);
+                    if(resp.status == 'ok') {
+                        $("body").append(resp.html);
+                        $('#newTaskModal').modal('show');
+                    }
+                }
             });
         });
 
