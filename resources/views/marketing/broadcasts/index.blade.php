@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('favicon' , 'broadcast.png')
+
+@section('title', 'Broadcast Info')
+
 @section('styles')
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">

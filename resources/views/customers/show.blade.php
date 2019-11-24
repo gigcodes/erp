@@ -1781,10 +1781,23 @@
             </div>
           </div>
         @endif
+        <div class="col-xs-6">
+          <div class="form-inline">
+             <div class="form-group">
+                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" alt=""></a> 
+                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/archive.png" alt=""></a>
+              </div>
+            </div>
+          </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+            <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message">
+        </div>
       </div>
 
       <div class="row" id="allHolder">
-        <div class="load-communication-modal" style="display: none;" data-object="customer" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-attached="1" data-id="{{ $customer->id }}">
+        <div class="load-communication-modal chat-history-load-communication-modal" style="display: none;" data-object="customer" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-attached="1" data-id="{{ $customer->id }}">
         </div>
         <div class="col-12" id="chat-history"></div>
       </div>
@@ -2584,7 +2597,7 @@
 
   <script type="text/javascript">
       $(document).ready(function () {
-          $('.load-communication-modal').trigger('click');
+          $('.chat-history-load-communication-modal').trigger('click');
       });
       jQuery(document).ready(function() {
         $('.multi_select2').select2({width: '100%'});
@@ -3299,7 +3312,7 @@
                contentType: false
              }).done(function(response) {
                console.log(response);
-               pollMessages();
+               $('.load-communication-modal').trigger('click');
                $(thiss).closest('form').find('textarea').val('');
                $('#paste-container').empty();
                $('#screenshot_path').val('');
@@ -3342,7 +3355,7 @@
 
                can_load_more = false;
 
-               pollMessages(next_page, true);
+               $('.load-communication-modal').trigger('click');
              }
            }
          });
@@ -3353,7 +3366,7 @@
            var next_page = $(this).data('nextpage');
            $('#load-more-messages').text('Loading...');
 
-           pollMessages(next_page, true);
+           $('.load-communication-modal').trigger('click');
          });
 
          $(document).on('click', '#sendAdvanceLink', function(e) {
@@ -3375,7 +3388,7 @@
                $(thiss).text('Sending...');
              }
            }).done(function() {
-             pollMessages();
+             $('.load-communication-modal').trigger('click');
 
              $(thiss).text('Send Link');
 
