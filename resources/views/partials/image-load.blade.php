@@ -17,7 +17,11 @@
         </div>
     </div>
 </div>
-
+<div class="row">
+  <div class="col text-center">
+    <button type="button" class="btn btn-image my-3" id="sendImageMessage"><img src="/images/filled-sent.png" /></button>
+  </div>
+</div>
 <div class="row">
   @foreach ($products as $kr => $product)
     @if ($product->hasMedia(config('constants.media_tags')))

@@ -2431,8 +2431,7 @@ class WhatsAppController extends FindByNumberController
             $imagesDecoded = json_decode($request->images);
 
             if (!empty($request->send_pdf) && $request->send_pdf == 1) {
-
-                $temp_chat_message = ChatMessage::create($data);
+                /*$temp_chat_message = ChatMessage::create($data);
                 foreach ($imagesDecoded as $image) {
                     $media = Media::find($image);
                     $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $temp_chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
@@ -2440,7 +2439,7 @@ class WhatsAppController extends FindByNumberController
                         $temp_chat_message->attachMedia($media, config('constants.media_tags'));
                     }
 
-                }
+                }*/
 
 
                 $fn = '';
@@ -2471,8 +2470,10 @@ class WhatsAppController extends FindByNumberController
                                 ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
                             $chat_message->attachMedia($media, 'gallery');
-                        } else {
-                            $extra_chat_message = ChatMessage::create($data);
+                        }else{
+                            $extradata = $data;
+                            $extradata['is_queue'] = 0;
+                            $extra_chat_message = ChatMessage::create($extradata);
                             $media = MediaUploader::fromSource($fileName)
                                 ->toDirectory('chatmessage/' . floor($extra_chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
@@ -2519,11 +2520,11 @@ class WhatsAppController extends FindByNumberController
         $approveMessage = 1;
 
         try {
-            $approveMessage = $request->session()->get('is_approve_message');
+            $approveMessage = session()->get('is_approve_message');
         } catch (\Exception $e) {
         }
 
-        if (($approveMessage == '1' || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0) {
+        if (($approveMessage == '1' || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0 && $chat_message->is_queue == '0') {
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $chat_message->id]);
@@ -3256,6 +3257,7 @@ class WhatsAppController extends FindByNumberController
 
         $message->update([
             'approved' => 1,
+            'is_queue' => 0,
             'status' => 2,
             'created_at' => Carbon::now()
         ]);

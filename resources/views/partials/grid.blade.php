@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('favicon' , 'inventory.png')
+
 @section('title', 'Products Grid - ERP Sololuxury')
 
 @section("styles")

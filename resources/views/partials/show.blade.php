@@ -155,10 +155,12 @@
                     <td colspan="2">
                         Category:
                         <strong>
+                            @if(isset($categories) && $categories != null)
                             @for( $i = 0 ; $i < count($categories) - 1 ; $i++)
                                 {{ $categories[$i] }}->
                             @endfor
                             {{ $categories[$i] }}
+                            @endif
                         </strong>
                     </td>
                 </tr>
