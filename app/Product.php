@@ -547,4 +547,58 @@ class Product extends Model
         return $this->hasMany(ProductQuicksellGroup::class, 'product_id', 'id');
     }
 
+    public function attachImagesToProduct()
+    {
+        if(!$this->hasMedia(\Config('constants.media_tags'))){
+             //getting image details from scraped Products
+            $scrapedProduct = ScrapedProducts::where('sku',$this->sku)->latest()->first();
+
+            if($scrapedProduct != null and $scrapedProduct != ''){
+                //Looping through Product Images
+                $countImageUpdated  = 0; 
+                foreach ($scrapedProduct->images as $image) {
+                    //check if image has http or https link
+                    if (strpos($image, 'http') === false) {
+                        continue;
+                    }
+
+                    try {
+                        //generating image from image
+                        $jpg = \Image::make($image)->encode('jpg');
+                    } catch (\Exception $e) {
+                        // if images are null
+                        $jpg = null;
+                    }
+                    if($jpg != null){
+                        $filename = substr($image, strrpos($image, '/'));
+                        $filename = str_replace("/","",$filename);
+                        try {
+                            if (strpos($filename, '.png') !== false) {
+                                $filename = str_replace(".png","",$filename);
+                            }
+                            if (strpos($filename, '.jpg') !== false) {
+                                $filename = str_replace(".jpg","",$filename);
+                            } 
+                            if (strpos($filename, '.JPG') !== false) {
+                                $filename = str_replace(".JPG","",$filename);
+                            } 
+                        } catch (\Exception $e) {}
+                        //save image to media
+                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                        $this->attachMedia($media, config('constants.media_tags'));
+                        $countImageUpdated++; 
+                    }
+                }
+                if($countImageUpdated != 0){
+                    //Updating the Product Status
+                    $this->status_id = StatusHelper::$AI;
+                    $this->save();
+                    // Call status update handler
+                    StatusHelper::updateStatus($this, StatusHelper::$AI);
+                }    
+                
+            }
+        }    
+    }
+
 }

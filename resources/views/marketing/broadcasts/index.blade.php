@@ -1,6 +1,14 @@
 @extends('layouts.app')
 
+<<<<<<< HEAD
 
+=======
+@section('favicon' , 'broadcast.png')
+
+@section('title', 'Broadcast Info')
+
+@section('styles')
+>>>>>>> c992342c181ecdb6324efe4897bb3b378845c433
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">

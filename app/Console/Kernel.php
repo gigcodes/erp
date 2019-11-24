@@ -74,6 +74,7 @@ use App\Http\Controllers\NotificationQueueController;
 use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
 use App\Console\Commands\CreateErpLeadFromCancellationOrder;
+use App\Console\Commands\SendQueuePendingChatMessages;
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -153,6 +154,7 @@ class Kernel extends ConsoleKernel
         DocumentReciever::class,
         RecieveResourceImages::class,
         CreateErpLeadFromCancellationOrder::class,
+        SendQueuePendingChatMessages::class,
         ScheduleList::class,
         CheckWhatsAppActive::class,
     ];
@@ -309,6 +311,9 @@ class Kernel extends ConsoleKernel
 
         // Move cold leads to customers
         $schedule->command('cold-leads:move-to-customers')->daily();
+
+
+        $schedule->command('send:queue-pending-chat-messages')->cron('*/3 * * * *');
     }
 
     /**
