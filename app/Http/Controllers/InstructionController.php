@@ -16,6 +16,7 @@ use App\NotificationQueue;
 use App\PushNotification;
 use Carbon\Carbon;
 use Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class InstructionController extends Controller
@@ -467,10 +468,36 @@ class InstructionController extends Controller
         // Get the first instruction
         $instruction = $instructions->orderBy('id', 'desc')->first();
 
+        $nextActionArr = DB::table('customer_next_actions')->pluck('name', 'id');
+        $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
+        $reply_categories = \App\ReplyCategory::all();
+        $users_array      = Helpers::getUserArray(\App\User::all());
+        $settingShortCuts = [
+            "image_shortcut"      => \App\Setting::get('image_shortcut'),
+            "price_shortcut"      => \App\Setting::get('price_shortcut'),
+            "call_shortcut"       => \App\Setting::get('call_shortcut'),
+            "screenshot_shortcut" => \App\Setting::get('screenshot_shortcut'),
+            "details_shortcut"    => \App\Setting::get('details_shortcut'),
+            "purchase_shortcut"   => \App\Setting::get('purchase_shortcut'),
+        ];
+
+        $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->renderAsDropdown();
+        $brands = \App\Brand::all();
+        $category_array = \App\Category::renderAsArray();
+
         // Return the view with the first instruction
         return view('instructions.quick-instruction')->with([
             'instruction' => $instruction,
-            'type' => $request->type ?? ''
+            'type' => $request->type ?? '',
+            'customer' => $instruction ? $instruction->customer : '',
+            'nextActionArr' => $nextActionArr,
+            'groups' => $groups,
+            'reply_categories' => $reply_categories,
+            'settingShortCuts' => $settingShortCuts,
+            'users_array' => $users_array,
+            'category_suggestion' => $category_suggestion,
+            'brands' => $brands,
+            'category_array' => $category_array,
         ]);
     }
 }

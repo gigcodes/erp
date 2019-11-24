@@ -6,6 +6,7 @@ use App\Category;
 use Illuminate\Database\Eloquent\Model;
 use App\AttributeReplacement;
 use App\Brand;
+use App\GoogleServer;
 
 class ProductHelper extends Model
 {
@@ -622,10 +623,13 @@ class ProductHelper extends Model
 
     public static function googleServerList()
     {
-       return [
+       return GoogleServer::pluck('name', 'key')->toArray();
+        /*
+        [
             "003745236201931391893:igsnhgfj79x" => "Group A",
             "003745236201931391893:gstsjpibsrr" => "Group B",
             "003745236201931391893:fnc4ssmvo8m" => "Group C"
         ];
+        */
     }
 }

@@ -2095,7 +2095,6 @@ class ProductController extends Controller
         $category    = request()->get("category",null);
         $numberOfProduts = request()->get("number_of_products",10);
         $quick_sell_groups = request()->get("quick_sell_groups",[]);
-        
 
         $product = new \App\Product;
 
@@ -2131,12 +2130,14 @@ class ProductController extends Controller
         $approveMessage = 1;
 
         try {
-            $approveMessage = $request->session()->get('is_approve_message');
+            $approveMessage = session()->get('is_approve_message');
         } catch (\Exception $e) {
         }
 
         $is_queue = 0;
-        $i = 0;
+        if ($approveMessage == '1') {
+            $is_queue = 1;
+        }
         foreach ($customerIds as $k => $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');
@@ -2146,11 +2147,6 @@ class ProductController extends Controller
             $requestData->request->add($params + $extraParams);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
-            
-            $i++;
-            if ($i >= 11 && $approveMessage == '1') {
-                $is_queue = 1;
-            }
         }
 
         if ($request->ajax()) {

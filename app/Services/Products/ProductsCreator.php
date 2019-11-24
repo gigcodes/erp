@@ -146,7 +146,8 @@ class ProductsCreator
             $product->price_special = $formattedPrices[ 'price_special' ];
             $product->is_scraped = $isExcel == 1 ? $product->is_scraped : 1;
             $product->save();
-
+            $product->attachImagesToProduct();
+            
             if ($image->is_sale) {
                 $product->is_on_sale = 1;
                 $product->save();
@@ -246,6 +247,7 @@ class ProductsCreator
 
         try {
             $product->save();
+            $product->attachImagesToProduct();
             Log::channel('productUpdates')->debug("[New] Product created with ID " . $product->id);
         } catch (\Exception $exception) {
             Log::channel('productUpdates')->alert("[Exception] Couldn't create product");

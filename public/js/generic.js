@@ -113,12 +113,7 @@ $(document).on('click', '.load-communication-modal', function () {
                          
                          if (!message.approved) {
                              if (is_admin || is_hod_crm) {
-                                approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>";
-
-                                 $(approveBtn).click(function() {
-                                     approveMessage( this, message );
-                                 });
-
+                                approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" + message.id + "'>Approve</button>";
                                 button += approveBtn;
                                 button += '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>';
                                 button += ' <a href="#" style="font-size: 9px" class="edit-message whatsapp-message ml-2" data-messageid="' + message.id + '">Edit</a>';
@@ -134,9 +129,9 @@ $(document).on('click', '.load-communication-modal', function () {
                 }
             }
             if (message.inout == 'in') {
-                li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+                li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
             } else if (message.inout == 'out') {
-                li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+                li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
             } else {
                 li += '<div>' + index + '</div>';
             }
@@ -159,6 +154,32 @@ $(document).on('click', '.load-communication-modal', function () {
 
         console.log(response);
     });
+});
+$(document).on('click', '.btn-approve', function (e) {
+   var element = this;
+   if (!$(element).attr('disabled')) {
+     $.ajax({
+       type: "POST",
+       url: "/whatsapp/approve/customer",
+       data: {
+         _token: $('meta[name="csrf-token"]').attr('content'),
+         messageId: $(this).data('messageid')
+       },
+       beforeSend: function() {
+         $(element).attr('disabled', true);
+         $(element).text('Approving...');
+       }
+     }).done(function( data ) {
+       element.remove();
+       console.log(data);
+     }).fail(function(response) {
+       $(element).attr('disabled', false);
+       $(element).text('Approve');
+
+       console.log(response);
+       alert(response.responseJSON.message);
+     });
+   }
 });
 
 function getImageToDisplay(imageUrl) {
@@ -521,4 +542,11 @@ $(document).on('click', '.create-product-order', function(e) {
 $(document).on('click', '.forward-btn', function() {
 var id = $(this).data('id');
 $('#forward_message_id').val(id);
+});
+
+$(document).on("keyup", '.search_chat_pop', function() {
+    var value = $(this).val().toLowerCase();
+    $(".speech-wrapper .bubble").filter(function() {
+        $(this).toggle($(this).find('.message').data('message').toLowerCase().indexOf(value) > -1)
+    });
 });
