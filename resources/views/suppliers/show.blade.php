@@ -457,10 +457,10 @@
                         @csrf
                         <button type="buttin" class="btn btn-xs btn-secondary" value="1" name="type" id="createProduct">Create Product</button>
                         <button type="button" class="btn btn-xs btn-secondary" value="2" name="type" id="createGroup">Create Product Group</button>
-                        <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
-                        <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
+                        <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
+                        <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
                         <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message">
-                        <div class="load-communication-modal chat-history-load-communication-modal" style="display: none;" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}"></div>
+                        <div class="load-communication-modal chat-history-load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"  style="display: none;" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}"></div>
                         <div class="col-12" id="chat-history"></div>
                     </form>
                 </div>

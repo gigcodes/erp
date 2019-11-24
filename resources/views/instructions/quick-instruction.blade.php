@@ -142,8 +142,8 @@
                                                                     if($message != '') {
                                                                         echo trim($message);
                                                                     }
-                                                                    echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="' . $customer->id . '" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>';
-                                                                    echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="' . $customer->id . '" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>';
+                                                                    echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="' . $customer->id . '" data-load-type="text" data-all="1" data-is_admin="'. Auth::user()->hasRole('Admin') .'" data-is_hod_crm="'.Auth::user()->hasRole('HOD of CRM').'" title="Load messages"><img src="/images/chat.png" alt=""></button>';
+                                                                    echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="' . $customer->id . '" data-attached="1" data-load-type="images" data-all="1" data-is_admin="'. Auth::user()->hasRole('Admin') .'" data-is_hod_crm="'.Auth::user()->hasRole('HOD of CRM').'" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>';
                                                                 }
                                                             ?>
                                                             @if ($customer->is_error_flagged == 1)
@@ -305,7 +305,7 @@
                         Attach Images
                     </button>
                     <h3>Chat</h3>
-                    <div id="chat-history" class="load-communication-modal" data-object="customer" data-all="1" data-attached="1" data-id="{{ $instruction->customer_id }}" style="max-height: 80vh; overflow-x: hidden; overflow-y: scroll;">
+                    <div id="chat-history" class="load-communication-modal" data-object="customer" data-all="1" data-attached="1" data-id="{{ $instruction->customer_id }}" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" style="max-height: 80vh; overflow-x: hidden; overflow-y: scroll;">
                     </div>
                 </div>
             </div>
@@ -608,6 +608,7 @@
                                 ele.attr('disabled', true);
                             },
                             doneAjax : function(response) {
+                                $('.load-communication-modal').trigger('click');
                                 ele.siblings('input').val('');
                                 ele.attr('disabled', false);
                             }

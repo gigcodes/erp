@@ -450,7 +450,7 @@
         <div class="col-xs-12 col-md-4">
             <div class="border">
                 <div class="row">
-                    <div class="load-communication-modal" style="display: none;" data-object="vendor" data-attached="1" data-id="{{ $vendor->id }}"></div>
+                    <div class="load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" style="display: none;" data-object="vendor" data-attached="1" data-id="{{ $vendor->id }}"></div>
                     <div class="col-12" id="chat-history"></div>
                 </div>
             </div>
