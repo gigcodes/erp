@@ -51,7 +51,7 @@ class CheckWhatsAppActive extends Command
                     continue;
                 }
                 $phones = ['+919004780634','+31629987287'];
-                $message = $number->number.' Phone Number is not working Please Check It';
+                $message = $number->number.'Username : '.$number->username.' Phone Number is not working Please Check It';
                 
                 foreach ($phones as $phone) {
                     app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phone, '',$message, '', '');
