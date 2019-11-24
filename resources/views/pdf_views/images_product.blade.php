@@ -47,6 +47,26 @@
 <body>
 @foreach($medias->chunk(2) as $subMedias)
     @foreach($subMedias as $subMedia)
+        <?php if (!file_exists ($subMedia->getAbsolutePath()) ) {
+            continue;
+        } ?>
+        <?php 
+            $img = Image::make($subMedia->getAbsolutePath());
+            $height = $img->height();
+            $width = $img->width();
+            $path = $subMedia->getAbsolutePath();
+            if ($height > 1000 || $width > 1000) {
+                $img->resize(1000, 1000); 
+                if(!is_dir(public_path() . '/tmp_images')) {
+                    mkdir(public_path() . '/tmp_images', 0777, true);
+                }                  
+                $path = public_path() . '/tmp_images/'.$subMedia->getBasenameAttribute();
+                $img->save($path);
+            }
+        ?>
+        <?php if (!file_exists ($path) ) {
+            continue;
+        } ?>
         <div class="page" style="page-break-after:always;">
             <?php
             $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
@@ -58,38 +78,27 @@
             }
 
             if($product) {
-            $textToSend = [];
-            $textToSend[] = $product->name . " ";
-            if ($product->brands) {
-                $textToSend[] = $product->brands->name;
-            }
-            if ($product->lmeasurement && $product->hmeasurement && $product->dmeasurement) {
-                $textToSend[] = "Dimension: " . \App\Helpers\ProductHelper::getMeasurements($product) . "";
-            }
-            $textToSend[] = "Price: Rs. " . $product->price_special; ?>
-            <?php 
-                $img = Image::make($subMedia->getAbsolutePath());
-                $height = $img->height();
-                $width = $img->width();
-                $path = $subMedia->getAbsolutePath();
-                if ($height > 1000 || $width > 1000) {
-                    $img->resize(1000, 1000);                   
-                    $path = public_path() . '/tmp_images/'.$subMedia->getBasenameAttribute();
-                    $img->save($path);
+                $textToSend = [];
+                $textToSend[] = $product->name . " ";
+                if ($product->brands) {
+                    $textToSend[] = $product->brands->name;
                 }
-            ?>
-            <div class="row">
-                <div class="col-md-12">
-                        <div class="top-up">
-                            <?php echo implode("<br>", $textToSend); ?>
+                if ($product->lmeasurement && $product->hmeasurement && $product->dmeasurement) {
+                    $textToSend[] = "Dimension: " . \App\Helpers\ProductHelper::getMeasurements($product) . "";
+                }
+                $textToSend[] = "Price: Rs. " . $product->price_special; ?>
+                <div class="row">
+                    <div class="col-md-12">
+                            <div class="top-up">
+                                <?php echo implode("<br>", $textToSend); ?>
+                            </div>
+                            <div class="top-bottom">
+                                <?php echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->id, "EAN13",3,77,array(1,1,1), true) . '" alt="barcode"   />';?>
+                            </div>
+                            <img style="padding-top: 120px;" class="img-responsive img-fluid" src="<?php echo $path; ?>" />
                         </div>
-                        <div class="top-bottom">
-                            <?php echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->id, "EAN13",3,77,array(1,1,1), true) . '" alt="barcode"   />';?>
-                        </div>
-                        <img style="padding-top: 120px;" class="img-responsive img-fluid" src="<?php echo $path; ?>" />
-                    </div>
+                    </div>    
                 </div>    
-            </div>    
             <?php } ?>
         </div>
     @endforeach
