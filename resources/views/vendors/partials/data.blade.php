@@ -52,7 +52,7 @@
                     <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
                         <span class="td-full-container">
                             @if(isset($vendor->chat_messages[0])) {{ $vendor->chat_messages[0]->message }} @endif
-                            <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='vendor' data-id="{{ $vendor->id }}" title="Load More..."><img src="/images/chat.png" alt=""></button>
+                            <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object='vendor' data-id="{{ $vendor->id }}" title="Load More..."><img src="/images/chat.png" alt=""></button>
                         </span>
                     </td>
                     <td>

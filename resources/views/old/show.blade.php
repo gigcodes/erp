@@ -311,7 +311,7 @@
         <div class="col-xs-12 col-md-4">
             <div class="border">
                 <div class="row">
-                    <div class="col-12 load-communication-modal" id="chat-history" data-object="old" data-attached="1" data-id="{{ $old->serial_no }}"></div>
+                    <div class="col-12 load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" id="chat-history" data-object="old" data-attached="1" data-id="{{ $old->serial_no }}"></div>
                 </div>
             </div>
         </div>
