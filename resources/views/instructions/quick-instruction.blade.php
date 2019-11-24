@@ -144,6 +144,7 @@
                                                                     }
                                                                     echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="' . $customer->id . '" data-load-type="text" data-all="1" data-is_admin="'. Auth::user()->hasRole('Admin') .'" data-is_hod_crm="'.Auth::user()->hasRole('HOD of CRM').'" title="Load messages"><img src="/images/chat.png" alt=""></button>';
                                                                     echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="' . $customer->id . '" data-attached="1" data-load-type="images" data-all="1" data-is_admin="'. Auth::user()->hasRole('Admin') .'" data-is_hod_crm="'.Auth::user()->hasRole('HOD of CRM').'" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>';
+                                                                     echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="' . $customer->id . '" data-attached="1" data-load-type="pdf" data-all="1" data-is_admin="'. Auth::user()->hasRole('Admin') .'" data-is_hod_crm="'.Auth::user()->hasRole('HOD of CRM').'" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>';
                                                                 }
                                                             ?>
                                                             @if ($customer->is_error_flagged == 1)
@@ -939,7 +940,7 @@
             $(document).on('click', '.send-message-with-attach-images', function () {
                 var message = $(this).closest('form').find('.quick-message-field').val();
 
-                window.location.href = "/attachImages/selected_customer/{{$customer ? $customer->id : ''}}/1?return_url=erp-customer&message="+message;
+                window.location.href = "/attachImages/selected_customer/{{$customer ? $customer->id : ''}}/1?return_url=instruction/quick-instruction&message="+message;
             });
         </script>
     @endif
