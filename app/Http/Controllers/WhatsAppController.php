@@ -3875,7 +3875,7 @@ class WhatsAppController extends FindByNumberController
             $instanceId = $config[ $whatsapp_number ][ 'instance_id' ];
             $token = $config[ $whatsapp_number ][ 'token' ];
         } else {
-            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Whatsapp config not found " . $whatsapp_number);
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Whatsapp config not found for number " . $whatsapp_number . " while sending to number " . $number);
             $instanceId = $config[ 0 ][ 'instance_id' ];
             $token = $config[ 0 ][ 'token' ];
         }
