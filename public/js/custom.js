@@ -127,7 +127,7 @@ jQuery(document).ready(function () {
 
     });
 
-    jQuery('.removeOldImage').click(function (e) {
+    jQuery(document).on('click', '.removeOldImage', function (e) {
         e.preventDefault();
         let id = jQuery(this).attr('data-id');
         let image_id = jQuery(this).attr('media-id');

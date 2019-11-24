@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('favicon' , 'instock.png')
+
+@section('title', 'Instock Info')
+
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">

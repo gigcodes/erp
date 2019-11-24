@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('favicon' , 'password-manager.png')
+
+@section('title', 'Passwords Manager Info')
+
 @section('styles')
     <style>
         .users {
@@ -10,25 +14,34 @@
 
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-
+    <style type="text/css">
+         #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+        }
+    </style>
 @endsection
 
 
 @section('content')
-
+    <div id="myDiv">
+       <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+   </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Passwords Manager</h2>
             <div class="pull-left">
                 <form action="{{ route('password.index') }}" method="GET" class="form-inline align-items-start">
                     <div class="form-group mr-3 mb-3">
-                        <input name="term" type="text" class="form-control" id="product-search"
+                        <input name="term" type="text" class="form-control global" id="term"
                                value="{{ isset($term) ? $term : '' }}"
                                placeholder="website , username, password">
                     </div>
                     <div class="form-group ml-3">
                         <div class='input-group date' id='filter-date'>
-                            <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" />
+                            <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
 
                             <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
@@ -64,7 +77,7 @@
     @endif
 
     <div class="table-responsive mt-3">
-      <table class="table table-bordered">
+      <table class="table table-bordered" id="passwords-table">
         <thead>
           <tr>
             <th>Website</th>
@@ -73,38 +86,22 @@
             <th>Registered With</th>
             <th>Actions</th>
           </tr>
+
+          <tr>
+            <th><input type="text" id="website" class="search form-control"></th>
+            <th><input type="text" id="username" class="search form-control"></th>
+            <th></th>
+            <th><input type="text" id="registered_with" class="search form-control"></th>
+            <th></th>
+          </tr>
         </thead>
 
         <tbody>
 
-        @if($passwords->isEmpty())
+       @include('passwords.data') 
 
-            <tr>
-                <td>
-                    No Result Found
-                </td>
-            </tr>
-        @else
-
-          @foreach ($passwords as $password)
-
-            <tr>
-              <td>
-                {{ $password->website }}
-                <br>
-                <a href="{{ $password->url }}" target="_blank"><small class="text-muted">{{ $password->url }}</small></a>
-              </td>
-              <td>{{ $password->username }}</td>
-              <td>{{ Crypt::decrypt($password->password) }}</td>
-              <td>{{ $password->registered_with }}</td>
-                <td><button onclick="changePassword({{ $password->id }})" class="btn btn-secondary btn-sm">Change</button>
-                <button onclick="getData({{ $password->id }})" class="btn btn-secondary btn-sm">History</button></td>
-            </tr>
-
-
-          @endforeach
-          {!! $passwords->appends(Request::except('page'))->links() !!}
-          @endif
+          {!! $passwords->render() !!}
+          
         </tbody>
       </table>
     </div>
@@ -302,6 +299,7 @@
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
 
         $(document).ready(function() {
@@ -310,8 +308,13 @@
         });
 
         $('#filter-date').datetimepicker({
-            format: 'YYYY-MM-DD'
+            format: 'YYYY-MM-DD',
         });
+
+
+        // $('.date').change(function(){
+        //     alert('date selected');
+        // });
 
 
     function changePassword(password_id) {
@@ -351,5 +354,91 @@
 
         });
     }
+
+        $(document).ready(function() {
+        src = "{{ route('password.index') }}";
+        $(".search").autocomplete({
+        source: function(request, response) {
+            website = $('#website').val();
+            username = $('#username').val();
+            password = $('#password').val();
+            registered_with = $('#registered_with').val();
+          
+
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    website : website,
+                    username : username,
+                    password : password,
+                    registered_with : registered_with,
+                
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#passwords-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });
+
+
+         $(document).ready(function() {
+        src = "{{ route('password.index') }}";
+        $(".global").autocomplete({
+        source: function(request, response) {
+            term = $('#term').val();
+            date = $('#date').val();
+            
+          
+
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    term : term,
+                    date : date,
+                
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#passwords-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        },
+        minLength: 1,
+       
+        });
+    });
+
+        
 </script>
 @endsection

@@ -1272,6 +1272,25 @@
             $("#remarks-container").find('ul').html(html);
         });
 
+        $.ajax({
+            type: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('task.gettaskremark') }}',
+            data: {
+                id: "{{ $vendor->id }}",
+                module_type: "vendor"
+            },
+        }).done(response => {
+            var html = '';
+
+            $.each(response, function (index, value) {
+                html += ' <li> ' + value.remark + ' <br> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></li>';
+            });
+            $("#remarks-container").find('ul').html(html);
+        });
+
         $('#hideRemarksButton').on('click', function () {
             $('#remarks-container').toggleClass('hidden');
         });
@@ -1300,5 +1319,84 @@
                 console.log(response);
             });
         });
+
+        $(document).on('click', '.add-cc', function (e) {
+            e.preventDefault();
+
+            if ($('#cc-label').is(':hidden')) {
+                $('#cc-label').fadeIn();
+            }
+
+            var el = `<div class="row cc-input">
+            <div class="col-md-10">
+                <input type="text" name="cc[]" class="form-control mb-3">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image cc-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+            $('#cc-list').append(el);
+        });
+
+        $(document).on('click', '.cc-delete-button', function (e) {
+            e.preventDefault();
+            var parent = $(this).parent().parent();
+
+            parent.hide(300, function () {
+                parent.remove();
+                var n = 0;
+
+                $('.cc-input').each(function () {
+                    n++;
+                });
+
+                if (n == 0) {
+                    $('#cc-label').fadeOut();
+                }
+            });
+        });
+
+        // bcc
+
+        $(document).on('click', '.add-bcc', function (e) {
+            e.preventDefault();
+
+            if ($('#bcc-label').is(':hidden')) {
+                $('#bcc-label').fadeIn();
+            }
+
+            var el = `<div class="row bcc-input">
+            <div class="col-md-10">
+                <input type="text" name="bcc[]" class="form-control mb-3">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image bcc-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+            $('#bcc-list').append(el);
+        });
+
+        $(document).on('click', '.bcc-delete-button', function (e) {
+            e.preventDefault();
+            var parent = $(this).parent().parent();
+
+            parent.hide(300, function () {
+                parent.remove();
+                var n = 0;
+
+                $('.bcc-input').each(function () {
+                    n++;
+                });
+
+                if (n == 0) {
+                    $('#bcc-label').fadeOut();
+                }
+            });
+        });
+
+        //
+
     </script>
 @endsection

@@ -946,6 +946,7 @@
           <div id="orderAccordion">
             @php
               $refunded_orders = [];
+              $orderCount = count($customer->orders);
             @endphp
             @foreach ($customer->orders as $key => $order)
               @if ($order->order_status == 'Refund to be processed')
@@ -955,7 +956,10 @@
               @endif
 
               <div class="card">
-                <div class="card-header" id="headingOrder{{ $key + 1 }}">
+                <div class="card-header" id="headingOrder{{ $orderCount }}">
+                  @php
+                    $orderCount--;
+                  @endphp
                   <h5 class="mb-0">
                     <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#order{{ $key + 1 }}" aria-expanded="false" aria-controls="order{{ $key + 1 }}">
                       <span class="{{ $order->is_priority == 1 ? 'text-danger' : '' }}">Order {{ $key + 1 }}</span>
@@ -1777,10 +1781,23 @@
             </div>
           </div>
         @endif
+        <div class="col-xs-6">
+          <div class="form-inline">
+             <div class="form-group">
+                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" alt=""></a> 
+                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/archive.png" alt=""></a>
+              </div>
+            </div>
+          </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+            <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message">
+        </div>
       </div>
 
       <div class="row" id="allHolder">
-        <div class="load-communication-modal" style="display: none;" data-object="customer" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-attached="1" data-id="{{ $customer->id }}">
+        <div class="load-communication-modal chat-history-load-communication-modal" style="display: none;" data-object="customer" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-attached="1" data-id="{{ $customer->id }}">
         </div>
         <div class="col-12" id="chat-history"></div>
       </div>
@@ -2418,7 +2435,139 @@
     </form>
   </div>
 </div>
+</div>
 
+<div id="add_order" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{  route('order.store') }}" method="POST" enctype="multipart/form-data" class="add_order_frm" data-reload='1'>
+                <div class="modal-header">
+                    <h2>Add Order</h2>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{$customer->id}}">
+                        <input type="hidden" name="return_url_back" value="1">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong> Order Type :</strong>
+                                    <?php
+
+                                    $order_types = [
+                                        'offline' => 'offline',
+                                        'online' => 'online'
+                                    ];
+
+                                    echo Form::select('order_type',$order_types, 'offline', ['class' => 'form-control']);?>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Order Date:</strong>
+                                    <input type="date" class="form-control" name="order_date" placeholder="Order Date" value=""/>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Date of Delivery:</strong>
+                                    <input type="date" class="form-control" name="date_of_delivery" placeholder="Date of Delivery" value="" />
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Advance Amount:</strong>
+                                    <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail" value="" />
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Advance Date:</strong>
+                                    <input type="date" class="form-control" name="advance_date" placeholder="Advance Date" value="" />
+                                </div>
+                            </div>
+                             <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Balance Amount:</strong>
+                                    <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount" value="" />
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong> Name of Order Handler :</strong>
+                                    <?php 
+                                        $sales_persons = \App\Helpers::getUsersArrayByRole( 'Sales' );
+                                        echo Form::select('sales_person',$sales_persons, null, ['placeholder' => 'Select a name','class' => 'form-control']); 
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Office Phone Number:</strong>
+                                    <Select name="whatsapp_number" class="form-control">
+                                          <option value>None</option>
+                                           <option value="919167152579">00</option>
+                                           <option value="918291920452">02</option>
+                                           <option value="918291920455">03</option>
+                                           <option value="919152731483">04</option>
+                                           <option value="919152731484">05</option>
+                                           <option value="971562744570">06</option>
+                                           <option value="918291352520">08</option>
+                                           <option value="919004008983">09</option>
+                                   </Select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong> Status :</strong>
+                                    <?php
+                                        $orderStatus = new \App\ReadOnly\OrderStatus;
+                                        echo Form::select('order_status',$orderStatus->all(), 'Follow up for advance', ['placeholder' => 'Select a status','class' => 'form-control']);
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Estimated Delivery Date:</strong>
+                                    <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date" />
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Received By:</strong>
+                                    <input type="text" class="form-control" name="received_by" placeholder="Received By" /> 
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong> Payment Mode :</strong>
+                                    <?php
+                                        $paymentModes = new \App\ReadOnly\PaymentModes(); 
+                                        echo Form::select('payment_mode',$paymentModes->all(), null, ['placeholder' => 'Select a mode','class' => 'form-control']);
+                                    ?>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>Note if any:</strong>
+                                    <input type="text" class="form-control" name="note_if_any" placeholder="Note if any" /> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-default">Add</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <form action="" method="POST" id="product-remove-form">
   @csrf
@@ -2448,7 +2597,7 @@
 
   <script type="text/javascript">
       $(document).ready(function () {
-          $('.load-communication-modal').trigger('click');
+          $('.chat-history-load-communication-modal').trigger('click');
       });
       jQuery(document).ready(function() {
         $('.multi_select2').select2({width: '100%'});
@@ -3163,7 +3312,7 @@
                contentType: false
              }).done(function(response) {
                console.log(response);
-               pollMessages();
+               $('.load-communication-modal').trigger('click');
                $(thiss).closest('form').find('textarea').val('');
                $('#paste-container').empty();
                $('#screenshot_path').val('');
@@ -3206,7 +3355,7 @@
 
                can_load_more = false;
 
-               pollMessages(next_page, true);
+               $('.load-communication-modal').trigger('click');
              }
            }
          });
@@ -3217,7 +3366,7 @@
            var next_page = $(this).data('nextpage');
            $('#load-more-messages').text('Loading...');
 
-           pollMessages(next_page, true);
+           $('.load-communication-modal').trigger('click');
          });
 
          $(document).on('click', '#sendAdvanceLink', function(e) {
@@ -3239,7 +3388,7 @@
                $(thiss).text('Sending...');
              }
            }).done(function() {
-             pollMessages();
+             $('.load-communication-modal').trigger('click');
 
              $(thiss).text('Send Link');
 
@@ -3418,9 +3567,25 @@
       $('#quick_add_lead').on('click', function(e) {
         e.preventDefault();
         $('.add_lead_category_id').val('1').trigger('change');
+        if ($('#add_lead').find('input[name="product_id"]').length > 0) {
+            $('#add_lead').find('input[name="product_id"]').val('');
+        }
         $('#add_lead').modal('show');
       });
 
+      $('#quick_add_order').on('click', function(e) {
+            e.preventDefault();
+            if ($('#add_order').find('input[name="selected_product[]"]').length > 0) {
+                $('#add_order').find('input[name="selected_product[]"]').val('');
+            }
+
+            if ($('#add_order').find('input[name="convert_order"]').length > 0) {
+                $('#add_order').find('input[name="convert_order"]').val('');
+            }
+            $('#add_order').modal('show');
+      });
+
+      /*
       $('#quick_add_order').on('click', function(e) {
         e.preventDefault();
 
@@ -3449,7 +3614,7 @@
           alert('There was an error creating a order');
         });
       });
-
+*/
       $(document).on('click', '.complete-call', function(e) {
         e.preventDefault();
 
