@@ -22,7 +22,7 @@
        <span class="slider round"></span>
   	 </label>
   </td>
-  <td></td>
+ <!--  <td></td> -->
   <td>
   	 <label class="switch">
       @if(isset($customer->customerMarketingPlatformActive) && $customer->customerMarketingPlatformActive->active == 1)

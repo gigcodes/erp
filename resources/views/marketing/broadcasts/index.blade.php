@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('styles')
+
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -19,6 +19,11 @@
             height: 0;
         }
 
+        .slider.round {
+            border-radius: 36px;
+            height: 28px;
+            width: 57px;
+        }
 
         .slider {
             position: absolute;
@@ -35,8 +40,8 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 26px;
-            width: 26px;
+            height: 20px;
+            width: 19px;
             left: 4px;
             bottom: 4px;
             background-color: white;
@@ -85,7 +90,7 @@
         }
     </style>
 @endsection
-@endsection
+
 
 @section('content')
     <div id="myDiv">
@@ -170,9 +175,9 @@
                                     <th>ID</th>
                                     <th>Number</th>
                                     <th>Total Customers</th>
-                                    <th>Message Send Per Day</th>
+                                    <th>Message Sent Per Day</th>
                                     <th>Last Check</th>
-                                    <th>Last Send</th>
+                                    <th>Last Sent</th>
                                 </tr>
                                 @foreach($numbers as $number)
                                     <tr>
@@ -200,7 +205,7 @@
                 <th>Customer ID</th>
                 <th>Customer Name</th>
                 <th>DND</th>
-                <th>Status</th>
+                <!-- <th>Status</th> -->
                 <th>Manual Approval</th>
                 <th>Last Broadcast ID / D.Y.N</th>
                 <th>Phone No. Assign WhatsApp</th>
@@ -210,14 +215,14 @@
                 <th></th>
                 <th><input type="text" class="search form-control" id="name"></th>
                 <th></th>
-                <th>
+               <!--  <th>
                     <select class="form-control">
                         <option>Asked Price</option>
                         <option>Communication Done Removed</option>
                         <option>Due to not delivered</option>
                         <option>Manual Reject</option>
                     </select>
-                </th>
+                </th> -->
                 <th>
                     <select class="form-control search" id="manual">
                         <option value="">Select Manual</option>
