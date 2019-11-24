@@ -1861,6 +1861,10 @@ class WhatsAppController extends FindByNumberController
         ]);
 
         $data = $request->except('_token');
+        // set if there is no queue defaut for all pages
+        if(!isset($data["is_queue"])) {
+            $data["is_queue"] = 0;
+        }
         $data[ 'user_id' ] = ((int)$request->get('user_id', 0) > 0) ? (int)$request->get('user_id', 0) : Auth::id();
         $data[ 'number' ] = $request->get('number');
         // $params['status'] = 1;
@@ -2524,18 +2528,20 @@ class WhatsAppController extends FindByNumberController
         } catch (\Exception $e) {
         }
 
-        var_dump(Auth::id());
-        exit();
-
-        if (((int)$approveMessage == 1 || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0 && $chat_message->is_queue == '0') {
-            exit("A");
+        if (
+            ((int)$approveMessage == 1 
+                || (Auth::id() == 49 && empty($chat_message->customer_id)) 
+                || Auth::id() == 56 
+                || Auth::id() == 3 
+                || Auth::id() == 65 
+                || $context == 'task' 
+                || $request->get('is_vendor_user') == 'yes'
+            ) && $chat_message->status != 0 && $chat_message->is_queue == '0') {
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $chat_message->id]);
             $this->approveMessage($context, $myRequest);
         }
-        exit("B");
-
 
         if ($request->ajax()) {
             return response()->json(['message' => $chat_message]);

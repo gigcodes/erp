@@ -708,8 +708,8 @@
                                 $(thiss).attr('disabled', true);
                             }
                         }).done(function (response) {
-                            console.log(response);
-                            pollMessages();
+                            $('.load-communication-modal').trigger('click');
+                            //pollMessages();
                             $(thiss).closest('form').find('textarea').val('');
                             $('#paste-container').empty();
                             $('#screenshot_path').val('');
@@ -743,7 +743,7 @@
                 var next_page = $(this).data('nextpage');
                 $('#load-more-messages').text('Loading...');
 
-                pollMessages(next_page, true);
+                //pollMessages(next_page, true);
             });
         });
 
