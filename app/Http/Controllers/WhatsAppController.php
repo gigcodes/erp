@@ -2529,12 +2529,12 @@ class WhatsAppController extends FindByNumberController
         }
 
         if (
-            ((int)$approveMessage == 1 
-                || (Auth::id() == 49 && empty($chat_message->customer_id)) 
-                || Auth::id() == 56 
-                || Auth::id() == 3 
-                || Auth::id() == 65 
-                || $context == 'task' 
+            ((int)$approveMessage == 1
+                || (Auth::id() == 49 && empty($chat_message->customer_id))
+                || Auth::id() == 56
+                || Auth::id() == 3
+                || Auth::id() == 65
+                || $context == 'task'
                 || $request->get('is_vendor_user') == 'yes'
             ) && $chat_message->status != 0 && $chat_message->is_queue == '0') {
             $myRequest = new Request();
@@ -3875,6 +3875,7 @@ class WhatsAppController extends FindByNumberController
             $instanceId = $config[ $whatsapp_number ][ 'instance_id' ];
             $token = $config[ $whatsapp_number ][ 'token' ];
         } else {
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Whatsapp config not found " . $whatsapp_number);
             $instanceId = $config[ 0 ][ 'instance_id' ];
             $token = $config[ 0 ][ 'token' ];
         }
