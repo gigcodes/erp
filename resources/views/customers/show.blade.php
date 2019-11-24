@@ -3567,11 +3567,21 @@
       $('#quick_add_lead').on('click', function(e) {
         e.preventDefault();
         $('.add_lead_category_id').val('1').trigger('change');
+        if ($('#add_lead').find('input[name="product_id"]').length > 0) {
+            $('#add_lead').find('input[name="product_id"]').val('');
+        }
         $('#add_lead').modal('show');
       });
 
       $('#quick_add_order').on('click', function(e) {
             e.preventDefault();
+            if ($('#add_order').find('input[name="selected_product[]"]').length > 0) {
+                $('#add_order').find('input[name="selected_product[]"]').val('');
+            }
+
+            if ($('#add_order').find('input[name="convert_order"]').length > 0) {
+                $('#add_order').find('input[name="convert_order"]').val('');
+            }
             $('#add_order').modal('show');
       });
 
