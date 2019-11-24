@@ -596,12 +596,7 @@
                      return true;
         }
 
-        const socket = io("https://sololuxury.co/?realtime_id=supplier_9");
-
-        socket.on("new-message", function (message) {
-          console.log(message);
-          renderMessage(message, null);
-        });
+        
 
         function pollMessages(page = null, tobottom = null, addElapse = null) {
                  var qs = "";

@@ -130,12 +130,8 @@ class InstantMessagingController extends Controller
             return json_encode($message, 400);
         }
 
-
-        //Updating the status
-        $whatsappConfig->status = $request->status;
-
         //Adding Last Login
-        $whatsappConfig->last_online = now();
+        $whatsappConfig->last_online = Carbon::now();
 
         //Updating Whats App Config details
         $whatsappConfig->update();

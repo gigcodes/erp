@@ -66,6 +66,7 @@ use App\Console\Commands\TwilioCallLogs;
 use App\Console\Commands\ZoomMeetingRecordings;
 use App\Console\Commands\ZoomMeetingDeleteRecordings;
 use App\Console\Commands\RecieveResourceImages;
+use App\Console\Commands\CheckWhatsAppActive;
 
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
@@ -155,6 +156,7 @@ class Kernel extends ConsoleKernel
         CreateErpLeadFromCancellationOrder::class,
         SendQueuePendingChatMessages::class,
         ScheduleList::class,
+        CheckWhatsAppActive::class,
     ];
 
     /**
@@ -188,6 +190,10 @@ class Kernel extends ConsoleKernel
 
         //This command sends the reply on products if they request...
         $schedule->command('customers:send-auto-reply')->everyFifteenMinutes();
+
+
+        //This command checks for the whatsapp number working properly...
+        $schedule->command('whatsapp:check')->everyFifteenMinutes();
 
         //assign the category to products, runs twice daily...
         $schedule->command('category:fix-by-supplier')->twiceDaily();
