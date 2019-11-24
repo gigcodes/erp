@@ -1283,9 +1283,9 @@ class WhatsAppController extends FindByNumberController
                 $whatsappConfigs = WhatsappConfig::where('is_customer_support', 0)->get();
 
                 // Loop over whatsapp configs
-                if ( $whatsappConfigs !== null ) {
-                    foreach ( $whatsappConfigs as $whatsappConfig ) {
-                        if ( $whatsappConfig->username == $instanceId ) {
+                if ($whatsappConfigs !== null) {
+                    foreach ($whatsappConfigs as $whatsappConfig) {
+                        if ($whatsappConfig->username == $instanceId) {
                             $isCustomerNumber = $whatsappConfig->number;
                         }
                     }
@@ -2470,9 +2470,9 @@ class WhatsAppController extends FindByNumberController
                                 ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
                             $chat_message->attachMedia($media, 'gallery');
-                        }else{
+                        } else {
                             $extradata = $data;
-                            $extradata['is_queue'] = 0;
+                            $extradata[ 'is_queue' ] = 0;
                             $extra_chat_message = ChatMessage::create($extradata);
                             $media = MediaUploader::fromSource($fileName)
                                 ->toDirectory('chatmessage/' . floor($extra_chat_message->id / config('constants.image_per_folder')))
@@ -2524,12 +2524,17 @@ class WhatsAppController extends FindByNumberController
         } catch (\Exception $e) {
         }
 
-        if (($approveMessage == '1' || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0 && $chat_message->is_queue == '0') {
+        var_dump(Auth::id());
+        exit();
+
+        if (((int)$approveMessage == 1 || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0 && $chat_message->is_queue == '0') {
+            exit("A");
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $chat_message->id]);
             $this->approveMessage($context, $myRequest);
         }
+        exit("B");
 
 
         if ($request->ajax()) {

@@ -14,6 +14,7 @@
         "barryvdh/laravel-ide-helper": "^2.4",
         "barryvdh/laravel-snappy": "*",
         "bugsnag/bugsnag-laravel": "^2.0",
+        "catzilla/zbar-wrapper": "^0.1.1",
         "chumper/zipper": "^1.0",
         "doctrine/dbal": "^2.9",
         "dompdf/dompdf": "^0.8.3",
