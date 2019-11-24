@@ -173,6 +173,7 @@
                                     <th>Message Send Per Day</th>
                                     <th>Last Check</th>
                                     <th>Last Send</th>
+                                    <th>Status</th>
                                 </tr>
                                 @foreach($numbers as $number)
                                     <tr>
@@ -182,6 +183,7 @@
                                         <td>{{ $number->imQueueCurrentDateMessageSend->count() }}</td>
                                         <td>{{ $number->last_online }}</td>
                                         <td> @if(isset($number->imQueueLastMessageSend)) @if($number->imQueueLastMessageSend->send_after == '2002-02-02 02:02:02') Message Failed @else Send SucessFully @endif @endif</td>
+                                        <td>@if($number->status == 0) InActive @else Active @endif</td>
                                         
                                     </tr>
                                 @endforeach

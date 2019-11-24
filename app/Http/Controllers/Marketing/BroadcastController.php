@@ -38,10 +38,8 @@ class BroadcastController extends Controller
                     ->orWhere('name', 'LIKE', "%{$request->term}%")
                     ->orWhereHas('broadcastLatest', function ($qu) use ($request) {
                         $qu->where('group_id', 'LIKE', "%{$request->term}%");
-                    })
-                    ->orWhereHas('remark', function ($qu) use ($request) {
-                        $qu->where('remark', 'LIKE', "%{$request->term}%");
                     });
+                    
             }
 
             if (request('date') != null) {
