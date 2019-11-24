@@ -34,6 +34,26 @@
 <body>
 @foreach($medias->chunk(2) as $subMedias)
     @foreach($subMedias as $subMedia)
+        <?php if (!file_exists ($subMedia->getAbsolutePath()) ) {
+            continue;
+        } ?>
+        <?php 
+            $img = Image::make($subMedia->getAbsolutePath());
+            $height = $img->height();
+            $width = $img->width();
+            $path = $subMedia->getAbsolutePath();
+            if ($height > 1000 || $width > 1000) {
+                $img->resize(1000, 1000); 
+                if(!is_dir(public_path() . '/tmp_images')) {
+                    mkdir(public_path() . '/tmp_images', 0777, true);
+                }                  
+                $path = public_path() . '/tmp_images/'.$subMedia->getBasenameAttribute();
+                $img->save($path);
+            }
+        ?>
+        <?php if (!file_exists ($path) ) {
+            continue;
+        } ?>
         <div class="page">
             <?php
             $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
@@ -54,17 +74,7 @@
                 $textToSend[] = "Dimension: " . \App\Helpers\ProductHelper::getMeasurements($product) . "";
             }
             $textToSend[] = "Price: Rs. " . $product->price_special; ?>
-            <?php 
-                $img = Image::make($subMedia->getAbsolutePath());
-                $height = $img->height();
-                $width = $img->width();
-                $path = $subMedia->getAbsolutePath();
-                if ($height > 1000 || $width > 1000) {
-                    $img->resize(1000, 1000);                   
-                    $path = public_path() . '/tmp_images/'.$subMedia->getBasenameAttribute();
-                    $img->save($path);
-                }
-            ?>
+
             <img style="padding-top: 120px;" class="product" src="<?php echo $path; ?>" />
             <div class="top-left">
                 <?php echo implode("<br>", $textToSend); ?>
