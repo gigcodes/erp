@@ -1786,6 +1786,7 @@
              <div class="form-group">
                 <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" alt=""></a> 
                 <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/archive.png" alt=""></a>
+                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/icon-pdf.svg" alt=""></a>
               </div>
             </div>
           </div>

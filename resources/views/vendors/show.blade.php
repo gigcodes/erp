@@ -450,7 +450,15 @@
         <div class="col-xs-12 col-md-4">
             <div class="border">
                 <div class="row">
-                    <div class="load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" style="display: none;" data-object="vendor" data-attached="1" data-id="{{ $vendor->id }}"></div>
+                    <div class="col-xs-12 form-inline">
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
+                        <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="load-communication-modal js-load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" style="display: none;" data-object="vendor" data-attached="1" data-id="{{ $vendor->id }}"></div>
                     <div class="col-12" id="chat-history"></div>
                 </div>
             </div>
@@ -614,7 +622,7 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            $('.load-communication-modal').trigger('click');
+            $('.js-load-communication-modal').trigger('click');
         });
         $(document).on('click', ".collapsible-message", function () {
             var selection = window.getSelection();
