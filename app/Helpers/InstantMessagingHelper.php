@@ -83,7 +83,7 @@ class InstantMessagingHelper
         $maxTime = strtotime($maxTime->maxTime);
 
         // Add interval
-        $maxTime = $maxTime + 300;
+        $maxTime = $maxTime + 900;
 
         // Check if it's in the future
         if ($maxTime < time()) {

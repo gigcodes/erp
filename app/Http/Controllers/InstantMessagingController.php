@@ -32,6 +32,23 @@ class InstantMessagingController extends Controller
             return json_encode($message, 400);
         }
 
+        // Hard coded 15 minute gap
+        $sentLast = ImQueue::where('number_from', $numberFrom)->max('sent_at');
+        if ($sentLast != null) {
+            $sentLast = strtotime($sentLast);
+        }
+
+        if ( $sentLast > time()-900 ) {
+            $message = ['error' => 'Awaiting forced time gap'];
+            return json_encode($message, 400);
+        }
+
+        // Only send at certain times
+        if ( date('H') < 8 || date('H') > 19 ) {
+            $message = ['error' => 'Sending at this hour is not allowed'];
+            return json_encode($message, 400);
+        }
+
         // Get next messsage from queue
         $queue = ImQueue::select('id', 'text', 'image', 'number_to')
             ->where('im_client', $client)
@@ -80,7 +97,7 @@ class InstantMessagingController extends Controller
 
             // message found in the queue
             //if ($imQueue !== null && empty($imQueue->sent_at)) {
-            if ( $imQueue !== null ) {
+            if ($imQueue !== null) {
                 // Update status in im_queues
                 $imQueue->sent_at = $receivedJson->sent == true ? date('Y-m-d H:i:s', Carbon::now()->timestamp) : '2002-02-02 02:02:02';
                 $imQueue->save();
@@ -89,8 +106,8 @@ class InstantMessagingController extends Controller
                 $customer = Customer::where('phone', '=', $imQueue->number_to)->first();
 
                 // Number times -1 if sent is false
-                if ( $receivedJson->sent == false ) {
-                    $customer->phone = (int) $customer->phone * -1;
+                if ($receivedJson->sent == false) {
+                    $customer->phone = (int)$customer->phone * -1;
                     $customer->save();
                 }
 
@@ -130,12 +147,8 @@ class InstantMessagingController extends Controller
             return json_encode($message, 400);
         }
 
-
-        //Updating the status
-        $whatsappConfig->status = $request->status;
-
         //Adding Last Login
-        $whatsappConfig->last_online = now();
+        $whatsappConfig->last_online = Carbon::now();
 
         //Updating Whats App Config details
         $whatsappConfig->update();

@@ -455,7 +455,7 @@
                 {{-- <h4>Messages</h4> --}}
 
                 <div class="row">
-                    <div class="col-12 my-3 load-communication-modal" id="message-wrapper" data-object="task" data-attached="1" data-id="{{ $task->id }}">
+                    <div class="col-12 my-3 load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" id="message-wrapper" data-object="task" data-attached="1" data-id="{{ $task->id }}">
                         <div id="chat-history" >
 
                         </div>

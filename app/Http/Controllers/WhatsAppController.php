@@ -1283,9 +1283,9 @@ class WhatsAppController extends FindByNumberController
                 $whatsappConfigs = WhatsappConfig::where('is_customer_support', 0)->get();
 
                 // Loop over whatsapp configs
-                if ( $whatsappConfigs !== null ) {
-                    foreach ( $whatsappConfigs as $whatsappConfig ) {
-                        if ( $whatsappConfig->username == $instanceId ) {
+                if ($whatsappConfigs !== null) {
+                    foreach ($whatsappConfigs as $whatsappConfig) {
+                        if ($whatsappConfig->username == $instanceId) {
                             $isCustomerNumber = $whatsappConfig->number;
                         }
                     }
@@ -1861,6 +1861,10 @@ class WhatsAppController extends FindByNumberController
         ]);
 
         $data = $request->except('_token');
+        // set if there is no queue defaut for all pages
+        if(!isset($data["is_queue"])) {
+            $data["is_queue"] = 0;
+        }
         $data[ 'user_id' ] = ((int)$request->get('user_id', 0) > 0) ? (int)$request->get('user_id', 0) : Auth::id();
         $data[ 'number' ] = $request->get('number');
         // $params['status'] = 1;
@@ -2470,9 +2474,9 @@ class WhatsAppController extends FindByNumberController
                                 ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
                             $chat_message->attachMedia($media, 'gallery');
-                        }else{
+                        } else {
                             $extradata = $data;
-                            $extradata['is_queue'] = 0;
+                            $extradata[ 'is_queue' ] = 0;
                             $extra_chat_message = ChatMessage::create($extradata);
                             $media = MediaUploader::fromSource($fileName)
                                 ->toDirectory('chatmessage/' . floor($extra_chat_message->id / config('constants.image_per_folder')))
@@ -2524,13 +2528,20 @@ class WhatsAppController extends FindByNumberController
         } catch (\Exception $e) {
         }
 
-        if (($approveMessage == '1' || (Auth::id() == 6 && empty($chat_message->customer_id)) || Auth::id() == 56 || Auth::id() == 3 || Auth::id() == 65 || $context == 'task' || $request->get('is_vendor_user') == 'yes') && $chat_message->status != 0 && $chat_message->is_queue == '0') {
+        if (
+            ((int)$approveMessage == 1
+                || (Auth::id() == 49 && empty($chat_message->customer_id))
+                || Auth::id() == 56
+                || Auth::id() == 3
+                || Auth::id() == 65
+                || $context == 'task'
+                || $request->get('is_vendor_user') == 'yes'
+            ) && $chat_message->status != 0 && $chat_message->is_queue == '0') {
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $chat_message->id]);
             $this->approveMessage($context, $myRequest);
         }
-
 
         if ($request->ajax()) {
             return response()->json(['message' => $chat_message]);
@@ -3864,6 +3875,7 @@ class WhatsAppController extends FindByNumberController
             $instanceId = $config[ $whatsapp_number ][ 'instance_id' ];
             $token = $config[ $whatsapp_number ][ 'token' ];
         } else {
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Whatsapp config not found for number " . $whatsapp_number . " while sending to number " . $number);
             $instanceId = $config[ 0 ][ 'instance_id' ];
             $token = $config[ 0 ][ 'token' ];
         }

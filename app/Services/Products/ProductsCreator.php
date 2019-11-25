@@ -25,7 +25,7 @@ class ProductsCreator
         Log::channel('productUpdates')->debug("[Start] createProduct is called");
 
         // Set supplier
-        $supplier = Supplier::where('scraper_name', $image->website)->first();
+        $supplier = Supplier::where(function ($query) use ($image) { $query->where('supplier', '=', $image->website)->orWhere('scraper_name', '=', $image->website); })->first();
 
         // Do we have a supplier?
         if ($supplier == null) {
@@ -62,7 +62,7 @@ class ProductsCreator
                 SkuColorReferences::firstOrCreate(['brand_id' => $image->brand_id, 'color_name' => $color]);
             }
         } catch (\Exception $e) {
-            //
+            // var_dump($e->getMessage());
         }
 
         // Product validated
@@ -147,13 +147,13 @@ class ProductsCreator
             $product->is_scraped = $isExcel == 1 ? $product->is_scraped : 1;
             $product->save();
             $product->attachImagesToProduct();
-            
+
             if ($image->is_sale) {
                 $product->is_on_sale = 1;
                 $product->save();
             }
 
-            if ($db_supplier = Supplier::where('supplier', $supplier)->first()) {
+            if ($db_supplier = Supplier::where(function ($query) use ($supplier) { $query->where('supplier', '=', $supplier)->orWhere('scraper_name', '=', $supplier); })->first()) {
                 if ($product) {
                     $product->suppliers()->syncWithoutDetaching([
                         $db_supplier->id => [
@@ -255,7 +255,7 @@ class ProductsCreator
             return;
         }
 
-        if ($db_supplier = Supplier::where('supplier', $supplier)->first()) {
+        if ($db_supplier = Supplier::where(function ($query) use ($supplier) { $query->where('supplier', '=', $supplier)->orWhere('scraper_name', '=', $supplier); })->first()) {
             $product->suppliers()->syncWithoutDetaching([
                 $db_supplier->id => [
                     'title' => $image->title,
