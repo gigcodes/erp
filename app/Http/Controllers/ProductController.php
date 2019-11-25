@@ -1566,7 +1566,7 @@ class ProductController extends Controller
         }
 
         $product->detachMediaTags(config('constants.media_tags'));
-        $media = MediaUploader::fromSource($request->file('image'))
+        $media = MediaUploader::fromSource($request->get('is_image_url') ? $request->get('image') : $request->file('image'))
                                 ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                 ->upload();
         $product->attachMedia($media, config('constants.media_tags'));
@@ -1593,6 +1593,10 @@ class ProductController extends Controller
             $stock->products()->attach($product);
 
             return response(['product' => $product, 'product_image' => $product_image]);
+        }
+
+        if ($request->ajax()) {
+            return response()->json(['msg' => 'success']);
         }
 
         return redirect()->back()->with('success', 'You have successfully uploaded product!');
