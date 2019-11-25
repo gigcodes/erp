@@ -1443,7 +1443,7 @@ class ProductController extends Controller
             $products = $products->whereIn('location', $request->location);
         }
 
-        if ($request->type[ 0 ] != null) {
+        if ($request->type[ 0 ] != null && is_array($request->type)) {
             if (count($request->type) > 1) {
                 $products = $products->where(function ($query) use ($request) {
                     $query->where('is_scraped', 1)->orWhere('status', 2);

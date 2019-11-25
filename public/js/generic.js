@@ -346,6 +346,7 @@ function createLead (thiss,dataSending) {
     
     if (selected_product_images.length > 0) {
         if ($('#add_lead').length > 0) {
+            $('#add_lead').modal('show');
             $('#add_lead').find('input[name="customer_id"]').val(customer_id);
             $('#add_lead').find('input[name="rating"]').val(1);
             $('#add_lead').find('select[name="brand_id"]').val('');
@@ -353,17 +354,23 @@ function createLead (thiss,dataSending) {
             $('#add_lead').find('select[name="brand_segment[]"]').val('').trigger('change');
             $('#add_lead').find('select[name="lead_status_id"]').val('3').trigger('change');
             $('#add_lead').find('input[name="size"]').val('');
+            
+            if (!dataSending) {
+                dataSending = {};
+            }
+
             if ($('#add_lead').find('input[name="product_id"]').length > 0) {
                 $('#add_lead').find('input[name="product_id"]').val(product_id);
+                $('#add_lead').find('input[name="product_id"]').data('object', JSON.stringify(dataSending));
             } else {
-                $('#add_lead').find('.erp_lead_frm').append($('<input>', {
+                $('#add_lead').find('form').append($('<input>', {
                     value: product_id,
                     name: 'product_id',
-                    type: 'hidden'
+                    type: 'hidden',
+                    'data-object' : JSON.stringify(dataSending),
                 }));    
             }
             
-            $('#add_lead').modal('show');
             return false;
         }
 
