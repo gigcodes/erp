@@ -2371,7 +2371,7 @@
 <div id="add_lead" class="modal fade" role="dialog">
   <div class="modal-dialog">
     <div class="modal-content">
-        <form action="{{ route('leads.erpLeads.store') }}" method="POST" enctype="multipart/form-data" class="erp_lead_frm" data-reload='1'>
+        <form action="{{ route('leads.erpLeads.store') }}" method="POST" enctype="multipart/form-data" class="js-erp-lead-frm" data-reload='1'>
             <div class="modal-header">
                 <h2>Add Lead</h2>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -4573,7 +4573,81 @@
         }); 
 
         
+        $(document).on('submit', '.js-erp-lead-frm', function (e) {
+          e.preventDefault();
+            var url = $(this).attr('action');
+            var formData = new FormData(this);
 
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                  if ($('#add_lead').find('input[name="product_id"]').length > 0 && $('#add_lead').find('input[name="product_id"]').val()) {
+                      var dataSending = $('#add_lead').find('input[name="product_id"]').data('object');
+                      if (typeof dataSending != 'object'){
+                          dataSending = {};
+                      }
+
+                      $.ajax({
+                          type: "POST",
+                          url: "/leads/sendPrices",
+                          data: $.extend({
+                              _token:  $('meta[name="csrf-token"]').attr('content'),
+                              customer_id: $('#add_lead').find('input[name="customer_id"]').val(),
+                              selected_product: [$('#add_lead').find('input[name="product_id"]').val()]
+                          },dataSending),
+                          success: function(response) {
+                            location.reload();
+                          }
+                      });
+                  } else {
+                    location.reload();
+                  }
+                }
+            }).fail(function(error) {
+                alert('There was an error creating a lead');
+            });
+        });
+
+        $(document).on('submit', '.add_order_frm', function (e) {
+            e.preventDefault();
+            var url = $(this).attr('action');
+            var formData = new FormData(this);
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                  if ($('#add_order').find('input[name="selected_product[]"]').length > 0 && $('#add_order').find('input[name="selected_product[]"]').val()) {
+                      $.ajax({
+                          type: "POST",
+                          url: "/order/send/Delivery",
+                          data: {
+                            _token:  $('meta[name="csrf-token"]').attr('content'),
+                            customer_id: $('#add_order').find('input[name="customer_id"]').val(),
+                            order_id: response.order.id,
+                            selected_product: [$('#add_order').find('input[name="selected_product[]"]').val()]
+                          },
+                          success: function(response) {
+                            location.reload();
+                          }
+                      });
+                  } else {
+                    location.reload();
+                  }
+                }
+            }).fail(function(error) {
+                alert('There was an error creating a lead');
+            });
+        });
       // $(document).on()
   </script>
 
