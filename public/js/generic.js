@@ -54,13 +54,13 @@ $(document).on('click', '.load-communication-modal', function () {
                     // Set media
                     if (imgSrc != '') {
                         media = media + '<div class="col-12">';
-                        media = media + '<a href="' + message.media[i] + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                        if (message.media[i].product_id > 0) {
+                        media = media + '<a href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                        if (message.media[i].product_id > 0 && message.customer_id > 0) {
                             media = media + '<br />';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-lead" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Lead</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-detail_image" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">Detailed Images</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-secondary ml-1 create-product-order" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Order</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Lead</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-detail_image" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">Detailed Images</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-order" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Order</a>';
                         }
                         media = media + '</div>';
                     }
@@ -113,12 +113,7 @@ $(document).on('click', '.load-communication-modal', function () {
                          
                          if (!message.approved) {
                              if (is_admin || is_hod_crm) {
-                                approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3'>Approve</button>";
-
-                                 $(approveBtn).click(function() {
-                                     approveMessage( this, message );
-                                 });
-
+                                approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" + message.id + "'>Approve</button>";
                                 button += approveBtn;
                                 button += '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>';
                                 button += ' <a href="#" style="font-size: 9px" class="edit-message whatsapp-message ml-2" data-messageid="' + message.id + '">Edit</a>';
@@ -134,9 +129,9 @@ $(document).on('click', '.load-communication-modal', function () {
                 }
             }
             if (message.inout == 'in') {
-                li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+                li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
             } else if (message.inout == 'out') {
-                li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+                li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
             } else {
                 li += '<div>' + index + '</div>';
             }
@@ -159,6 +154,32 @@ $(document).on('click', '.load-communication-modal', function () {
 
         console.log(response);
     });
+});
+$(document).on('click', '.btn-approve', function (e) {
+   var element = this;
+   if (!$(element).attr('disabled')) {
+     $.ajax({
+       type: "POST",
+       url: "/whatsapp/approve/customer",
+       data: {
+         _token: $('meta[name="csrf-token"]').attr('content'),
+         messageId: $(this).data('messageid')
+       },
+       beforeSend: function() {
+         $(element).attr('disabled', true);
+         $(element).text('Approving...');
+       }
+     }).done(function( data ) {
+       element.remove();
+       console.log(data);
+     }).fail(function(response) {
+       $(element).attr('disabled', false);
+       $(element).text('Approve');
+
+       console.log(response);
+       alert(response.responseJSON.message);
+     });
+   }
 });
 
 function getImageToDisplay(imageUrl) {
@@ -320,9 +341,39 @@ function createLead (thiss,dataSending) {
         alert('customer not found');
         return false;
     }
+
     var text = $(thiss).text();
     
     if (selected_product_images.length > 0) {
+        if ($('#add_lead').length > 0) {
+            $('#add_lead').modal('show');
+            $('#add_lead').find('input[name="customer_id"]').val(customer_id);
+            $('#add_lead').find('input[name="rating"]').val(1);
+            $('#add_lead').find('select[name="brand_id"]').val('');
+            $('#add_lead').find('select[name="category_id"]').val('1').trigger('change');
+            $('#add_lead').find('select[name="brand_segment[]"]').val('').trigger('change');
+            $('#add_lead').find('select[name="lead_status_id"]').val('3').trigger('change');
+            $('#add_lead').find('input[name="size"]').val('');
+            
+            if (!dataSending) {
+                dataSending = {};
+            }
+
+            if ($('#add_lead').find('input[name="product_id"]').length > 0) {
+                $('#add_lead').find('input[name="product_id"]').val(product_id);
+                $('#add_lead').find('input[name="product_id"]').data('object', JSON.stringify(dataSending));
+            } else {
+                $('#add_lead').find('form').append($('<input>', {
+                    value: product_id,
+                    name: 'product_id',
+                    type: 'hidden',
+                    'data-object' : JSON.stringify(dataSending),
+                }));    
+            }
+            
+            return false;
+        }
+
         var created_at = moment().format('YYYY-MM-DD HH:mm');
         $.ajax({
             type: 'POST',
@@ -413,6 +464,47 @@ $(document).on('click', '.create-product-order', function(e) {
 
     if (selected_product_images.length > 0) {
 
+        if ($('#add_order').length > 0) {
+            $('#add_order').find('input[name="customer_id"]').val(customer_id);
+            $('#add_order').find('input[name="order_date"]').val('');
+            $('#add_order').find('input[name="date_of_delivery"]').val('');
+            $('#add_order').find('input[name="advance_detail"]').val('');
+            $('#add_order').find('input[name="advance_date"]').val('');
+            $('#add_order').find('input[name="balance_amount"]').val('');
+            $('#add_order').find('input[name="estimated_delivery_date"]').val('');
+            $('#add_order').find('input[name="received_by"]').val('');
+            $('#add_order').find('input[name="note_if_any"]').val('');
+            $('#add_order').find('select[name="payment_mode"]').val('');
+            $('#add_order').find('select[name="sales_person"]').val('');
+            $('#add_order').find('select[name="whatsapp_number"]').val('');
+            $('#add_order').find('select[name="order_type"]').val('offline');
+
+            $('#add_order').find('select[name="order_status"]').val('Follow up for advance');
+
+            if ($('#add_order').find('input[name="selected_product[]"]').length > 0) {
+                $('#add_order').find('input[name="selected_product[]"]').val(product_id);
+            } else {
+                $('#add_order').find('.add_order_frm').append($('<input>', {
+                    value: product_id,
+                    name: 'selected_product[]',
+                    type: 'hidden'
+                }));    
+            }
+
+            if ($('#add_order').find('input[name="convert_order"]').length > 0) {
+                $('#add_order').find('input[name="convert_order"]').val('convert_order');
+            } else {
+                $('#add_order').find('.add_order_frm').append($('<input>', {
+                    value: 'convert_order',
+                    name: 'convert_order',
+                    type: 'hidden'
+                }));    
+            }
+            
+            $('#add_order').modal('show');
+            return false;
+        }
+
       $.ajax({
         type: 'POST',
         url: "/order",
@@ -457,4 +549,11 @@ $(document).on('click', '.create-product-order', function(e) {
 $(document).on('click', '.forward-btn', function() {
 var id = $(this).data('id');
 $('#forward_message_id').val(id);
+});
+
+$(document).on("keyup", '.search_chat_pop', function() {
+    var value = $(this).val().toLowerCase();
+    $(".speech-wrapper .bubble").filter(function() {
+        $(this).toggle($(this).find('.message').data('message').toLowerCase().indexOf(value) > -1)
+    });
 });

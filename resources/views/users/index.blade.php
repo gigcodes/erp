@@ -37,7 +37,7 @@
                         @endif
                     </td>
                     <td>
-                        <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='user' data-id="{{ $user->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                        <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='user' data-id="{{ $user->id }}" title="Load messages"><img src="/images/chat.png" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" alt=""></button>
                         @if (Auth::id() == $user->id)
                             <a class="btn btn-image" href="{{ route('users.show',$user->id) }}"><img src="/images/view.png"/></a>
                         @else

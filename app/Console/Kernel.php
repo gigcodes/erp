@@ -66,6 +66,7 @@ use App\Console\Commands\TwilioCallLogs;
 use App\Console\Commands\ZoomMeetingRecordings;
 use App\Console\Commands\ZoomMeetingDeleteRecordings;
 use App\Console\Commands\RecieveResourceImages;
+use App\Console\Commands\CheckWhatsAppActive;
 
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
@@ -73,6 +74,7 @@ use App\Http\Controllers\NotificationQueueController;
 use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
 use App\Console\Commands\CreateErpLeadFromCancellationOrder;
+use App\Console\Commands\SendQueuePendingChatMessages;
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -152,7 +154,9 @@ class Kernel extends ConsoleKernel
         DocumentReciever::class,
         RecieveResourceImages::class,
         CreateErpLeadFromCancellationOrder::class,
+        SendQueuePendingChatMessages::class,
         ScheduleList::class,
+        CheckWhatsAppActive::class,
     ];
 
     /**
@@ -186,6 +190,10 @@ class Kernel extends ConsoleKernel
 
         //This command sends the reply on products if they request...
         $schedule->command('customers:send-auto-reply')->everyFifteenMinutes();
+
+
+        //This command checks for the whatsapp number working properly...
+        $schedule->command('whatsapp:check')->everyFifteenMinutes();
 
         //assign the category to products, runs twice daily...
         $schedule->command('category:fix-by-supplier')->twiceDaily();
@@ -303,6 +311,9 @@ class Kernel extends ConsoleKernel
 
         // Move cold leads to customers
         $schedule->command('cold-leads:move-to-customers')->daily();
+
+
+        $schedule->command('send:queue-pending-chat-messages')->cron('*/3 * * * *');
     }
 
     /**
