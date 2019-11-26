@@ -81,20 +81,8 @@ class GetProductImageForScraper extends Command
                         }
                         if ($jpg != null) {
                             $filename = substr($image, strrpos($image, '/'));
-                            $filename = str_replace("/", "", $filename);
-                            try {
-                                if (strpos($filename, '.png') !== false) {
-                                    $filename = str_replace(".png", "", $filename);
-                                }
-                                if (strpos($filename, '.jpg') !== false) {
-                                    $filename = str_replace(".jpg", "", $filename);
-                                }
-                                if (strpos($filename, '.JPG') !== false) {
-                                    $filename = str_replace(".JPG", "", $filename);
-                                }
-                            } catch (\Exception $e) {
-                                //
-                            }
+                            $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
+
                             //save image to media
                             $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
                             $product->attachMedia($media, config('constants.media_tags'));
