@@ -137,16 +137,16 @@ class Product extends Model
                         try {
                            if (strpos($filename, '.png') !== false) {
                             $filename = str_replace(".png","",$filename);
-                            } 
+                            }
                         } catch (\Exception $e) {}
-                        
+
                         $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
                         $product->attachMedia($media, config('constants.excelimporter'));
                         }
                     }
 
                 }
-                
+
                 // Update the product status
                 ProductStatus::updateStatus($product->id, 'UPDATED_EXISTING_PRODUCT_BY_JSON', 1);
 
@@ -555,7 +555,7 @@ class Product extends Model
 
             if($scrapedProduct != null and $scrapedProduct != ''){
                 //Looping through Product Images
-                $countImageUpdated  = 0; 
+                $countImageUpdated  = 0;
                 foreach ($scrapedProduct->images as $image) {
                     //check if image has http or https link
                     if (strpos($image, 'http') === false) {
@@ -578,15 +578,15 @@ class Product extends Model
                             }
                             if (strpos($filename, '.jpg') !== false) {
                                 $filename = str_replace(".jpg","",$filename);
-                            } 
+                            }
                             if (strpos($filename, '.JPG') !== false) {
                                 $filename = str_replace(".JPG","",$filename);
-                            } 
+                            }
                         } catch (\Exception $e) {}
                         //save image to media
-                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                        $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->upload();
                         $this->attachMedia($media, config('constants.media_tags'));
-                        $countImageUpdated++; 
+                        $countImageUpdated++;
                     }
                 }
                 if($countImageUpdated != 0){
@@ -595,10 +595,10 @@ class Product extends Model
                     $this->save();
                     // Call status update handler
                     StatusHelper::updateStatus($this, StatusHelper::$AI);
-                }    
-                
+                }
+
             }
-        }    
+        }
     }
 
 }
