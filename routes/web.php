@@ -305,8 +305,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('google-search-image')->group(function () {
         Route::get('/', 'GoogleSearchImageController@index')->name('google.search.image');
-        Route::post('details', 'GoogleSearchImageController@details')->name('google.details.image');
-        Route::post('/', 'GoogleSearchImageController@searchImageOnGoogle');
+        Route::post('/crop', 'GoogleSearchImageController@crop')->name('google.search.crop');
+        Route::post('/crop-search', 'GoogleSearchImageController@searchImageOnGoogle')->name('google.search.crop.post');
+        Route::post('details', 'GoogleSearchImageController@details')->name('google.search.details');
     });
 
     Route::prefix('search-image')->group(function () {
