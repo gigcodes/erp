@@ -130,94 +130,94 @@ class DevelopmentController extends Controller
 
     public function index(Request $request)
     {
-        //$this->issueTaskIndex( $request,'task');
-        return Redirect::to('/development/list/task');
+//        //$this->issueTaskIndex( $request,'task');
+//        return Redirect::to('/development/list/task');
 
-//        // Set required data
-//        $user   = $request->user ?? Auth::id();
-//        $start  = $request->range_start ? "$request->range_start 00:00" : '2018-01-01 00:00';
-//        $end    = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
-//        $id     = null;
-//
-//        // Set initial variables
-//        $progressTasks = new DeveloperTask();
-//        $plannedTasks = new DeveloperTask();
-//        $completedTasks = new DeveloperTask();
-//
-//        // For non-admins get tasks assigned to the user
-//        if (!Auth::user()->hasRole('Admin')) {
-//            $progressTasks = DeveloperTask::where('user_id', Auth::id());
-//            $plannedTasks = DeveloperTask::where('user_id', Auth::id());
-//            $completedTasks = DeveloperTask::where('user_id', Auth::id());
-//        }
-//
-//        // Get tasks for specific user if you are admin
-//        if (Auth::user()->hasRole('Admin') && (int)$request->user > 0) {
-//            $progressTasks = DeveloperTask::where('user_id', $user);
-//            $plannedTasks = DeveloperTask::where('user_id', $user);
-//            $completedTasks = DeveloperTask::where('user_id', $user);
-//        }
-//
-//        // Filter by date
-//        if ($request->get('range_start') != '') {
-//            $progressTasks = $progressTasks->whereBetween('created_at', [$start, $end]);
-//            $plannedTasks = $plannedTasks->whereBetween('created_at', [$start, $end]);
-//            $completedTasks = $completedTasks->whereBetween('created_at', [$start, $end]);
-//        }
-//
-//        // Filter by ID
-//        if ($request->get('id')) {
-//            $progressTasks = $progressTasks->where(function ($query) use ($request) {
-//                $id = $request->get('id');
-//                $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
-//            });
-//            $plannedTasks = $plannedTasks->where(function ($query) use ($request) {
-//                $id = $request->get('id');
-//                $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
-//            });
-//            $completedTasks = $completedTasks->where(function ($query) use ($request) {
-//                $id = $request->get('id');
-//                $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
-//            });
-//        }
-//
-//        // Get all data with user and messages
-//        $plannedTasks = $plannedTasks->where('status', 'Planned')->orderBy('created_at')->with(['user', 'messages'])->get();
-//        $completedTasks = $completedTasks->where('status', 'Done')->orderBy('created_at')->with(['user', 'messages'])->get();
-//        $progressTasks = $progressTasks->where('status', 'In Progress')->orderBy('created_at')->with(['user', 'messages'])->get();
-//
-//        // Get all modules
-//        $modules = DeveloperModule::all();
-//
-//        // Get all developers
-//        $users = Helpers::getUserArray(User::role('Developer')->get());
-//
-//        // Get all task types
-//        $tasksTypes = TaskTypes::all();
-//
-//        // Create empty array for module names
-//        $moduleNames = [];
-//
-//        // Loop over all modules and store them
-//        foreach ($modules as $module) {
-//            $moduleNames[ $module->id ] = $module->name;
-//        }
-//
-//        $times = [];
-//        return view('development.index', [
-//            'times'         => $times,
-//            'users'         => $users,
-//            'modules'       => $modules,
-//            'user'          => $user,
-//            'start'         => $start,
-//            'end'           => $end,
-//            'moduleNames'   => $moduleNames,
-//            'completedTasks' => $completedTasks,
-//            'plannedTasks'  => $plannedTasks,
-//            'progressTasks' => $progressTasks,
-//            'tasksTypes'    => $tasksTypes,
-//            'title'         => 'Task'
-//        ]);
+        // Set required data
+        $user   = $request->user ?? Auth::id();
+        $start  = $request->range_start ? "$request->range_start 00:00" : '2018-01-01 00:00';
+        $end    = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
+        $id     = null;
+
+        // Set initial variables
+        $progressTasks = new DeveloperTask();
+        $plannedTasks = new DeveloperTask();
+        $completedTasks = new DeveloperTask();
+
+        // For non-admins get tasks assigned to the user
+        if (!Auth::user()->hasRole('Admin')) {
+            $progressTasks = DeveloperTask::where('user_id', Auth::id());
+            $plannedTasks = DeveloperTask::where('user_id', Auth::id());
+            $completedTasks = DeveloperTask::where('user_id', Auth::id());
+        }
+
+        // Get tasks for specific user if you are admin
+        if (Auth::user()->hasRole('Admin') && (int)$request->user > 0) {
+            $progressTasks = DeveloperTask::where('user_id', $user);
+            $plannedTasks = DeveloperTask::where('user_id', $user);
+            $completedTasks = DeveloperTask::where('user_id', $user);
+        }
+
+        // Filter by date
+        if ($request->get('range_start') != '') {
+            $progressTasks = $progressTasks->whereBetween('created_at', [$start, $end]);
+            $plannedTasks = $plannedTasks->whereBetween('created_at', [$start, $end]);
+            $completedTasks = $completedTasks->whereBetween('created_at', [$start, $end]);
+        }
+
+        // Filter by ID
+        if ($request->get('id')) {
+            $progressTasks = $progressTasks->where(function ($query) use ($request) {
+                $id = $request->get('id');
+                $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
+            });
+            $plannedTasks = $plannedTasks->where(function ($query) use ($request) {
+                $id = $request->get('id');
+                $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
+            });
+            $completedTasks = $completedTasks->where(function ($query) use ($request) {
+                $id = $request->get('id');
+                $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
+            });
+        }
+
+        // Get all data with user and messages
+        $plannedTasks = $plannedTasks->where('status', 'Planned')->orderBy('created_at')->with(['user', 'messages'])->get();
+        $completedTasks = $completedTasks->where('status', 'Done')->orderBy('created_at')->with(['user', 'messages'])->get();
+        $progressTasks = $progressTasks->where('status', 'In Progress')->orderBy('created_at')->with(['user', 'messages'])->get();
+
+        // Get all modules
+        $modules = DeveloperModule::all();
+
+        // Get all developers
+        $users = Helpers::getUserArray(User::role('Developer')->get());
+
+        // Get all task types
+        $tasksTypes = TaskTypes::all();
+
+        // Create empty array for module names
+        $moduleNames = [];
+
+        // Loop over all modules and store them
+        foreach ($modules as $module) {
+            $moduleNames[ $module->id ] = $module->name;
+        }
+
+        $times = [];
+        return view('development.index', [
+            'times'         => $times,
+            'users'         => $users,
+            'modules'       => $modules,
+            'user'          => $user,
+            'start'         => $start,
+            'end'           => $end,
+            'moduleNames'   => $moduleNames,
+            'completedTasks' => $completedTasks,
+            'plannedTasks'  => $plannedTasks,
+            'progressTasks' => $progressTasks,
+            'tasksTypes'    => $tasksTypes,
+            'title'         => 'Task'
+        ]);
     }
 
     public function moveTaskToProgress(Request $request)

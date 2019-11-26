@@ -21,7 +21,7 @@ class ImportIssues extends Command
      *
      * @var string
      */
-    protected $description = 'Console command for  Import issues';
+    protected $description = 'Console command to import issues';
 
     /**
      * Create a new command instance.
@@ -49,12 +49,12 @@ class ImportIssues extends Command
                 'priority'              =>  $issue->priority,
                 'subject'               =>  $issue->subject,
                 'task'                  =>  $issue->issue,
-                'status'                =>  'Planned',
+                'status'                =>  $issue->is_resolved == 1 ? 'Done' : 'Planned',
                 'created_by'            =>  $issue->submitted_by,
                 'is_resolved'           =>  $issue->is_resolved,
                 'estimate_time'         =>  $issue->estimate_time,
                 'cost'                  =>  $issue->cost,
-                'task_type_id'          =>  2,
+                'task_type_id'          =>  3,
                 'responsible_user_id'   =>  $issue->responsible_user_id,
                 'created_at'            =>  $issue->created_at
             );
