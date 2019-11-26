@@ -7,7 +7,7 @@ use App\Product;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 
-class GetProductImageForScraper extends Command
+class MediaCheckFileExists extends Command
 {
     /**
      * The name and signature of the console command.
