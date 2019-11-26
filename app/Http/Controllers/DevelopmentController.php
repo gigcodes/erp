@@ -431,7 +431,7 @@ class DevelopmentController extends Controller
         $data = $request->except('_token');
         $data[ 'user_id' ]      = $request->user_id ? $request->user_id : Auth::id();
         $data[ 'created_by' ]   = Auth::id();
-        $data[ 'submitted_by' ] = Auth::id();
+        //$data[ 'submitted_by' ] = Auth::id();
 
         $module = $request->get('module_id');
         if (!empty($module)) {

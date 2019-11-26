@@ -54,7 +54,7 @@ class ImportIssues extends Command
                 'is_resolved'           =>  $issue->is_resolved,
                 'estimate_time'         =>  $issue->estimate_time,
                 'cost'                  =>  $issue->cost,
-                'task_type_id'          =>  2,
+                'task_type_id'          =>  3,
                 'responsible_user_id'   =>  $issue->responsible_user_id,
                 'created_at'            =>  $issue->created_at
             );
