@@ -71,6 +71,8 @@ class InstantMessagingController extends Controller
             $queue->id = rand(1000000,9999999);
             $queue->phone = '31629987287';
             $queue->text = 'This is a random message id ' . rand(1000000,9999999);
+            $queue->image = null;
+            $queue->filename = null;
         }
 
         // Set output
