@@ -169,19 +169,20 @@
                     <tr>
                         <td><a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}</a></td>
                         <td data-id="{{ $issue->id }}">{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }} <hr>
-                            <div class="form-group">
+                            <div class="form-group" style="width:170px;">
                                 <div class='input-group date estimate-time'>
                                     <input style="min-width: 145px;" placeholder="Time" value="{{ $issue->estimate_time }}" type="text" class="form-control" name="estimate_time_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_completion_{{$issue->id}}">
                                     <span class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </span>
                                 </div>
-                                <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button>
+                                <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}"
+                                style="bottom: 33px;position: relative;margin-left: 190px;padding: 5px;">Save</button>
                             </div>
                         </td>
-                        <td>{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</td>
-                        <td>{{ $issue->subject ?? 'N/A' }}</td>
-                        <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
+                        <td style="vertical-align: middle;">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</td>
+                        <td style="vertical-align: middle;">{{ $issue->subject ?? 'N/A' }}</td>
+                        <td style="vertical-align: middle;">{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
                         <td class="expand-row">
                             <div class="td-mini-container">
                                 {{ strlen($issue->issue) > 20 ? substr($issue->issue, 0, 20).'...' : $issue->issue }}
