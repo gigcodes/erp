@@ -91,6 +91,10 @@
             margin: -50px 0px 0px -50px;
         }
 
+        .show_select{
+            display: none;
+        }
+
         }
     </style>
 @endsection
@@ -202,12 +206,20 @@
 
         </div>
     </div>
+    <div class="pull-right">
+                <button type="button" class="btn btn-secondary" id="select">Select</button>
+                <button type="button" class="btn btn-secondary" id="enable">Enable</button>
+                <button type="button" class="btn btn-secondary" id="merge">Merge</button>
+                
+            </div>
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="customers-table">
             <thead>
             <tr>
+                <th class="show_select">Select All</th>
                 <th>Customer ID</th>
                 <th>Customer Name</th>
+                <th>Customer Number</th>
                 <th>DND</th>
                 <!-- <th>Status</th> -->
                 <th>Manual Approval</th>
@@ -216,8 +228,10 @@
                 <th>Remarks</th>
             </tr>
             <tr>
+                <th class="show_select"><input type="checkbox" class="form-control" id="select_all"></th>
                 <th></th>
                 <th><input type="text" class="search form-control" id="name"></th>
+                <th><input type="text" class="search form-control" id="number"></th>
                 <th></th>
                <!--  <th>
                     <select class="form-control">
@@ -591,6 +605,84 @@
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
             });
+        });
+
+        //select all checkboxes
+        $("#select_all").change(function(){  //"select all" change 
+        $(".checkbox_select").prop('checked', $(this).prop("checked")); //change all ".checkbox" checked status
+        });
+
+        //".checkbox" change 
+        $('.checkbox_select').change(function(){ 
+        //uncheck "select all", if one of the listed checkbox item is unchecked
+        if(false == $(this).prop("checked")){ //if this item is unchecked
+        $("#select_all").prop('checked', false); //change "select all" checked status to false
+        }
+        //check "select all" if all checkbox items are checked
+        if ($('.checkbox_select:checked').length == $('.checkbox_select').length ){
+        $("#select_all").prop('checked', true);
+        }
+        });
+
+
+        $(document).ready(
+        function() {
+            $("#select").click(function() {
+            $(".show_select").toggle();
+            });
+        });
+
+        $("#enable").click(function(){
+            val = $('input[name="select"]:checked');
+            if(val.length == 0){
+                alert('Please Select Customer');
+            }else{
+                $('input[name="select"]:checked').each(function() {
+                    id = this.value;
+                    $.ajax({
+                        url: "{{ route('broadcast.add.manual') }}",
+                        dataType: "json",
+                        data: {
+                            id: id,
+                        },
+                        beforeSend: function () {
+                            $("#loading-image").show();
+                        },
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                        $("#row"+id).css('display','none');
+                        location.reload();
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        alert('No response from server');
+                    });
+                });
+            }
+        });
+
+        $("#merge").click(function(){
+            val = $('input[name="select"]:checked');
+            if(val.length == 0){
+                alert('Please Select Customer');
+            }else{
+                $('input[name="select"]:checked').each(function() {
+                    id = this.value;
+                    $.ajax({
+                        url: "{{ route('broadcast.add.manual') }}",
+                        dataType: "json",
+                        data: {
+                            id: id,
+                        },
+                        beforeSend: function () {
+                            $("#loading-image").show();
+                        },
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                        $("#row"+id).css('display','none');
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        alert('No response from server');
+                    });
+                });
+            }
         });
     </script>
 @endsection

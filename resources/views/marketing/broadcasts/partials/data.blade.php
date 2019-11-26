@@ -9,9 +9,11 @@
 
 @foreach ($customers as $customer)
 
-<tr>
+<tr id="row{{ $customer->id }}">
+  <td class="show_select"><input type="checkbox" name="select" class="form-control checkbox_select" value="{{ $customer->id }}"></td>
   <td><a href="/customers/{{ $customer->id }}/post-show" target="_blank">{{ $customer->id }}</a></td>
   <td>{{ $customer->name }}</td>
+  <td>{{ $customer->phone }}</td>
   <td>
   	 <label class="switch" style="margin: 0px">
       @if($customer->do_not_disturb == 1)
@@ -38,7 +40,7 @@
     <select class="form-control whatsapp" data-id="{{ $customer->id }}">
       <option>Select Number</option>
       @foreach($numbers as $number)
-      <option value="{{ $number->number }}" @if($number->number == $customer->whatsapp_number) selected @endif>{{ $number->number }}</option>
+      <option value="{{ $number->number }}" @if($number->number == $customer->broadcast_number) selected @endif>{{ $number->number }}</option>
       @endforeach
     </select>
   </td>
