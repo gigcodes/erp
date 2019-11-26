@@ -13,7 +13,7 @@
   <td><a href="/customers/{{ $customer->id }}/post-show" target="_blank">{{ $customer->id }}</a></td>
   <td>{{ $customer->name }}</td>
   <td>
-  	 <label class="switch">
+  	 <label class="switch" style="margin: 0px">
       @if($customer->do_not_disturb == 1)
        <input type="checkbox" class="checkbox" checked value="{{ $customer->id }}">
        @else
@@ -24,7 +24,7 @@
   </td>
  <!--  <td></td> -->
   <td>
-  	 <label class="switch">
+  	 <label class="switch" style="margin: 0px">
       @if(isset($customer->customerMarketingPlatformActive) && $customer->customerMarketingPlatformActive->active == 1)
        <input type="checkbox" class="checkboxs" checked value="{{ $customer->id }}">
        @else
