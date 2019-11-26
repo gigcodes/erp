@@ -103,7 +103,7 @@ class BroadcastController extends Controller
             }
             $marketingList = implode(",", $marketingArray);
            
-            $customers = Customer::select('id', 'name','phone','do_not_disturb','is_blocked' ,'whatsapp_number',\DB::raw('IF(id IN ('.$orderList.') , 1 , 0) AS priority_order , IF(id IN ('.$orderList.') , 1 , 0) AS priority_lead , IF(id IN ('.$marketingList.') , 1 , 0) AS priority_marketing '))->orderby('priority_order','desc')->orderby('priority_lead','desc')->orderby('priority_marketing','asc')->paginate(Setting::get('pagination'));
+            $customers = Customer::select('id', 'name','phone','broadcast_number','do_not_disturb','is_blocked' ,'whatsapp_number',\DB::raw('IF(id IN ('.$orderList.') , 1 , 0) AS priority_order , IF(id IN ('.$orderList.') , 1 , 0) AS priority_lead , IF(id IN ('.$marketingList.') , 1 , 0) AS priority_marketing '))->orderby('priority_order','desc')->orderby('priority_lead','desc')->orderby('priority_marketing','asc')->paginate(Setting::get('pagination'));
 
         }
         
