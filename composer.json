@@ -49,7 +49,7 @@
         "seo2websites/erp-customer": "dev-master",
         "seo2websites/erp-excel-importer": "dev-master",
         "seo2websites/google-vision": "dev-hotfix/google-image-search",
-        "seo2websites/laravel-zoom": "dev-master",
+       
         "seo2websites/price-comparison-scraper": "dev-master",
         "skovmand/mailchimp-laravel": "^1.0",
         "spatie/laravel-activitylog": "^2.8",
@@ -111,10 +111,7 @@
             "type": "vcs",
             "url": "git@bitbucket.org:seo2websites/price-comparison-scraper"
         },
-        {
-            "type": "vcs",
-            "url": "git@bitbucket.org:seo2websites/laravel-zoom"
-        },
+       
         {
             "type": "vcs",
             "url": "git@bitbucket.org:seo2websites/erp-customer"

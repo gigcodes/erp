@@ -8,6 +8,7 @@
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/css/select2.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <style type="text/css">
         .switch {
@@ -209,8 +210,7 @@
     <div class="pull-right">
                 <button type="button" class="btn btn-secondary" id="select">Select</button>
                 <button type="button" class="btn btn-secondary" id="enable">Enable</button>
-                <button type="button" class="btn btn-secondary" id="merge">Merge</button>
-                
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
             </div>
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="customers-table">
@@ -268,16 +268,21 @@
         </table>
         {!! $customers->render() !!}
     </div>
-
+@include('marketing.broadcasts.partials.modal-merge')
 @endsection
 
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+    <script type="text/javascript" src="/js/common-helper.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+   
     <script>
-       
+        $('.multiselect-2').select2({width:'92%'});
+        $('.select-multiple').select2({width: '100%'});
+
         $('#filter-date').datetimepicker(
             { format: 'YYYY/MM/DD' }).on('dp.change', 
             function (e) 
@@ -659,30 +664,277 @@
             }
         });
 
-        $("#merge").click(function(){
-            val = $('input[name="select"]:checked');
-            if(val.length == 0){
-                alert('Please Select Customer');
-            }else{
-                $('input[name="select"]:checked').each(function() {
-                    id = this.value;
-                    $.ajax({
-                        url: "{{ route('broadcast.add.manual') }}",
-                        dataType: "json",
-                        data: {
-                            id: id,
+        
+        
+    </script>
+       <script type="text/javascript" src="/js/common-helper.js"></script>
+    <script type="text/javascript">
+
+
+       
+
+        $('.multiselect-2').select2({width:'92%'});
+        $('.select-multiple').select2({width: '100%'});
+        
+        var siteHelpers = {
+            customerSearch : function(ele) {
+                ele.select2({
+                    tags: true,
+                    width : '100%',
+                    ajax: {
+                        url: '/erp-leads/customer-search',
+                        dataType: 'json',
+                        delay: 750,
+                        data: function (params) {
+                            return {
+                                q: params.term, // search term
+                            };
                         },
-                        beforeSend: function () {
-                            $("#loading-image").show();
+                        processResults: function (data, params) {
+                            params.page = params.page || 1;
+
+                            return {
+                                results: data,
+                                pagination: {
+                                    more: (params.page * 30) < data.total_count
+                                }
+                            };
                         },
-                    }).done(function (data) {
-                        $("#loading-image").hide();
-                        $("#row"+id).css('display','none');
-                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                        alert('No response from server');
-                    });
+                    },
+                    placeholder: 'Search for Customer by id, Name, No',
+                    escapeMarkup: function (markup) {
+                        return markup;
+                    },
+                    minimumInputLength: 1,
+                    templateResult: function (customer) {
+                        if (customer.loading) {
+                            return customer.name;
+                        }
+
+                        if (customer.name) {
+                            return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                        }
+                    },
+                    templateSelection: (customer) => customer.text || customer.name,
+
                 });
+            },
+            userSearch : function(ele) {
+                ele.select2({
+                    ajax: {
+                        url: '/user-search',
+                        dataType: 'json',
+                        delay: 750,
+                        data: function (params) {
+                            return {
+                                q: params.term, // search term
+                            };
+                        },
+                        processResults: function (data, params) {
+
+                            params.page = params.page || 1;
+
+                            return {
+                                results: data,
+                                pagination: {
+                                    more: (params.page * 30) < data.total_count
+                                }
+                            };
+                        },
+                    },
+                    placeholder: 'Search for User by Name',
+                    escapeMarkup: function (markup) {
+                        return markup;
+                    },
+                    minimumInputLength: 2,
+                    width: '100%',
+                    templateResult: function (user) {
+                        return user.name;
+
+                    },
+                    templateSelection: function (user) {
+                        return user.name;
+                    },
+
+                });
+            },
+           loadCustomers : function (ele) {
+                var first_customer = $('#first_customer').val();
+                var second_customer = $('#second_customer').val();
+
+                if (first_customer == second_customer) {
+                    alert('You selected the same customers');
+
+                    return;
+                }
+                var params = {
+                    data : {
+                        first_customer: first_customer,
+                        second_customer: second_customer
+                    },
+                    url: "/customers-load",
+                    beforeSend : function() {
+                        ele.text('Loading...');
+                    },
+                    doneAjax : function(response) {
+                        $('#first_customer_id').val(response.first_customer.id);
+                        $('#second_customer_id').val(response.second_customer.id);
+
+                        $('#first_customer_name').val(response.first_customer.name);
+                        $('#first_customer_email').val(response.first_customer.email);
+                        $('#first_customer_phone').val(response.first_customer.phone ? (response.first_customer.phone).replace(/[\s+]/g, '') : '');
+                        $('#first_customer_instahandler').val(response.first_customer.instahandler);
+                        $('#first_customer_rating').val(response.first_customer.rating);
+                        $('#first_customer_address').val(response.first_customer.address);
+                        $('#first_customer_city').val(response.first_customer.city);
+                        $('#first_customer_country').val(response.first_customer.country);
+                        $('#first_customer_pincode').val(response.first_customer.pincode);
+
+                        $('#second_customer_name').val(response.second_customer.name);
+                        $('#second_customer_email').val(response.second_customer.email);
+                        $('#second_customer_phone').val(response.second_customer.phone ? (response.second_customer.phone).replace(/[\s+]/g, '') : '');
+                        $('#second_customer_instahandler').val(response.second_customer.instahandler);
+                        $('#second_customer_rating').val(response.second_customer.rating);
+                        $('#second_customer_address').val(response.second_customer.address);
+                        $('#second_customer_city').val(response.second_customer.city);
+                        $('#second_customer_country').val(response.second_customer.country);
+                        $('#second_customer_pincode').val(response.second_customer.pincode);
+
+                        $('#customers-data').show();
+                        $('#mergeButton').prop('disabled', false);
+
+                        ele.text('Load Data');
+                    },
+                };
+                siteHelpers.sendAjax(params);
+            }
+            
+        };
+
+        $.extend(siteHelpers, common);
+
+        
+       
+        siteHelpers.customerSearch($('#first_customer'));
+        siteHelpers.customerSearch($('#second_customer'));
+        siteHelpers.customerSearch($('#forword_customer'));
+
+        $(".multi_brand_select").change(function() {
+            var brand_segment = [];
+            $(this).find(':selected').each(function() {
+                if ($(this).data('brand-segment') && brand_segment.indexOf($(this).data('brand-segment')) == '-1') {
+                  brand_segment.push($(this).data('brand-segment'));
+                }
+            })
+            $(this).closest('form').find(".brand_segment_select").val(brand_segment).trigger('change');
+        });
+
+        $('#customer-search').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/erp-leads/customer-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        data[i].id = data[i].name ? data[i].name : data[i].text;
+                    }
+
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Customer by id, Name, No',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+                if (customer.loading) {
+                    return customer.name;
+                }
+
+                if (customer.name) {
+                    return "<p> " + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.name,
+
+        });
+
+        $('.select-instruction-search').select2({
+            ajax: {
+                width : "100%",
+                url: '/erp-customer/instruction-search/',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    searhData = [];
+                    $.each(data, function(i, value){
+                        searhData.push({id:value.instruction, name:value.instruction});
+                    })
+                    params.page = params.page || 1;
+
+                    return {
+                        results: searhData,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for User by Name',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 2,
+            width: '100%',
+            templateResult: function (instruction) {
+                return instruction.name;
+
+            },
+            templateSelection: function (instruction) {
+                return instruction.name;
             }
         });
+
+        var all_customers = [];
+        <?php if(request()->get('all_customer') != '1') { ?>
+            setTimeout(function(){siteHelpers.autoRefreshColumn();}, 15000);
+        <?php } ?>
+
+        $('#schedule-datetime').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+
+        $('.dd-datepicker').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+
+     
+
+        $(document).on('click', '.load-customers', function () {
+            siteHelpers.loadCustomers($(this));
+        });
+
+    
+
     </script>
 @endsection
