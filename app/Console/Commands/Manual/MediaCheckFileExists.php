@@ -21,7 +21,7 @@ class MediaCheckFileExists extends Command
      *
      * @var string
      */
-    protected $description = "Check if images for products exist on the disk and remove media if it doesn't exist";
+    protected $description = "Check if images for products exist on the disk and remove media from database if it doesn't exist";
 
     /**
      * Create a new command instance.
@@ -56,7 +56,7 @@ class MediaCheckFileExists extends Command
                     foreach ($medias as $media) {
                         $file = public_path() . '/' . $media->disk . (!empty($media->directory) ? '/' . $media->directory : '') . '/' . $media->filename . '.' . $media->extension;
                         if ( !file_exists($file) ) {
-                            echo "REMOVED " . $file . " FROM DATABASE FOR PRODUCT " . $product->id . "\n";
+                            echo "REMOVED " . $file . " WITH ID " . $media->id . " FROM DATABASE FOR PRODUCT " . $product->id . "\n";
                             $cnt++;
                         }
                     }

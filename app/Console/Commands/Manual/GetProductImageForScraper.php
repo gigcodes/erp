@@ -16,7 +16,7 @@ class GetProductImageForScraper extends Command
      *
      * @var string
      */
-    protected $signature = 'product:image-scraper';
+    protected $signature = 'product:image-scraper {website?}';
 
     /**
      * The console command description.
@@ -43,7 +43,11 @@ class GetProductImageForScraper extends Command
     public function handle()
     {
         //Getting All Products
-        $scrapedProducts = ScrapedProducts::all();
+        if (!empty($this->argument('website'))) {
+            $scrapedProducts = ScrapedProducts::where('website', $this->argument('website'))->get();
+        } else {
+            $scrapedProducts = ScrapedProducts::all();
+        }
 
         foreach ($scrapedProducts as $scrapedProduct) {
 
