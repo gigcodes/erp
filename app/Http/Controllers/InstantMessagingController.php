@@ -66,7 +66,7 @@ class InstantMessagingController extends Controller
         if ($queue == null && $numberFrom != '971504752911') {
             $message = ['error' => 'The queue is empty'];
             return json_encode($message, 400);
-        } elseif ($queue == null && $numberFrom != '971504752911') {
+        } elseif ($queue == null && $numberFrom == '971504752911') {
             $queue = new stdClass();
             $queue->id = rand(1000000, 9999999);
             $queue->number_to = '31629987287';
