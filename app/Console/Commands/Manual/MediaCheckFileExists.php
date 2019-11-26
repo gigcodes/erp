@@ -4,6 +4,8 @@ namespace App\Console\Commands\Manual;
 
 use Illuminate\Console\Command;
 use App\Product;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediableCollection;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 
@@ -56,6 +58,10 @@ class MediaCheckFileExists extends Command
                     foreach ($medias as $media) {
                         $file = public_path() . '/' . $media->disk . (!empty($media->directory) ? '/' . $media->directory : '') . '/' . $media->filename . '.' . $media->extension;
                         if ( !file_exists($file) ) {
+                            // Delete media and mediables
+                            $product->detachMedia($media);
+                            $media->delete();
+
                             echo "REMOVED " . $file . " WITH ID " . $media->id . " FROM DATABASE FOR PRODUCT " . $product->id . "\n";
                             $cnt++;
                         }
