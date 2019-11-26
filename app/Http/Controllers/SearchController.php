@@ -65,32 +65,23 @@ class SearchController extends Controller
             $data[ 'selected_products' ] = ProductController::getSelectedProducts($data[ 'model_type' ], $data[ 'model_id' ]);
         }
 
+        $products = (new Product())->newQuery()->latest();
+        
+        Cache::forget('filter-brand-' . Auth::id());
         if ($request->brand[ 0 ] != null) {
-            $productQuery = (new Product())->newQuery()
-                ->latest()->whereIn('brand', $request->brand);
-
+            $products = $products->whereIn('brand', $request->brand);
             $data[ 'brand' ] = $request->brand[ 0 ];
             Cache::put('filter-brand-' . Auth::id(), $data[ 'brand' ], 120);
-        } else {
-            Cache::forget('filter-brand-' . Auth::id());
         }
 
-
+        Cache::forget('filter-color-' . Auth::id());
         if ($request->color[ 0 ] != null) {
-            if (isset($productQuery)) {
-                $productQuery = $productQuery->whereIn('color', $request->color);
-            } else {
-                $productQuery = (new Product())->newQuery()
-                    ->latest()->whereIn('color', $request->color);
-            }
-
+            $products = $products->whereIn('color', $request->color);
             $data[ 'color' ] = $request->color[ 0 ];
             Cache::put('filter-color-' . Auth::id(), $data[ 'color' ], 120);
-        } else {
-            Cache::forget('filter-color-' . Auth::id());
         }
 
-
+        Cache::forget('filter-category-' . Auth::id());
         if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
             $category_children = [];
 
@@ -118,206 +109,107 @@ class SearchController extends Controller
                 }
             }
 
-            if (isset($productQuery)) {
-                $productQuery = $productQuery->whereIn('category', $category_children);
-            } else {
-                $productQuery = (new Product())->newQuery()
-                    ->latest()->whereIn('category', $category_children);
-            }
-
+            $products = $products->whereIn('category', $category_children);
             $data[ 'category' ] = $request->category[ 0 ];
             Cache::put('filter-category-' . Auth::id(), $data[ 'category' ], 120);
-        } else {
-            Cache::forget('filter-category-' . Auth::id());
         }
 
-
+        Cache::forget('filter-price-min-' . Auth::id());
         if ($request->price_min != null) {
-            if (isset($productQuery)) {
-                $productQuery = $productQuery->where('price_special', '>=', $request->price_min);
-            } else {
-                $productQuery = (new Product())->newQuery()
-                    ->latest()->where('price_special', '>=', $request->price_min);
-            }
+            $products = $products->where('price_special', '>=', $request->price_min);
             Cache::put('filter-price-min-' . Auth::id(), $request->price_min, 120);
-        } else {
-            Cache::forget('filter-price-min-' . Auth::id());
         }
 
+        Cache::forget('filter-price-max-' . Auth::id());
         if ($request->price_max != null) {
-            if (isset($productQuery)) {
-                $productQuery = $productQuery->where('price_special', '<=', $request->price_max);
-            } else {
-                $productQuery = (new Product())->newQuery()
-                    ->latest()->where('price_special', '<=', $request->price_max);
-            }
+            $products = $products->where('price_special', '<=', $request->price_max);
             Cache::put('filter-price-max-' . Auth::id(), $request->price_max, 120);
-        } else {
-            Cache::forget('filter-price-max-' . Auth::id());
         }
 
-        //dd($productQuery->get());
+        Cache::forget('filter-supplier-' . Auth::id());
         if ($request->supplier[ 0 ] != null) {
             $suppliers_list = implode(',', $request->supplier);
 
-            if (isset($productQuery)) {
-                $productQuery = $productQuery->with('Suppliers')->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
-            } else {
-                $productQuery = (new Product())->newQuery()->with('Suppliers')
-                    ->latest()->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
-            }
-
+            $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");            
             $data[ 'supplier' ] = $request->supplier;
             Cache::put('filter-supplier-' . Auth::id(), $data[ 'supplier' ], 120);
-        } else {
-            Cache::forget('filter-supplier-' . Auth::id());
         }
 
+        Cache::forget('filter-size-' . Auth::id());
         if (trim($request->size) != '') {
-            if (isset($productQuery)) {
-                $productQuery = $productQuery->whereNotNull('size')->where(function ($query) use ($request) {
-                    $query->where('size', $request->size)->orWhere('size', 'LIKE', "%$request->size,")->orWhere('size', 'LIKE', "%,$request->size,%");
-                });
-                // ->where('size', 'LIKE', "%$request->size%");
-            } else {
-                $productQuery = (new Product())->newQuery()
-                    ->latest()->whereNotNull('size')->where(function ($query) use ($request) {
-                        $query->where('size', $request->size)->orWhere('size', 'LIKE', "%$request->size,")->orWhere('size', 'LIKE', "%,$request->size,%");
-                    });
-                // ->where('size', 'LIKE', "%$request->size%");
-            }
-
+            $products = $products->whereNotNull('size')->where(function ($query) use ($request) {
+                $query->where('size', $request->size)->orWhere('size', 'LIKE', "%$request->size,")->orWhere('size', 'LIKE', "%,$request->size,%");
+            });
             $data[ 'size' ] = $request->size;
             Cache::put('filter-size-' . Auth::id(), $data[ 'size' ], 120);
-        } else {
-            Cache::forget('filter-size-' . Auth::id());
         }
 
         if ($request->location[ 0 ] != null) {
-            if (isset($productQuery)) {
-                $productQuery = $productQuery->whereIn('location', $request->location);
-            } else {
-                $productQuery = (new Product())->newQuery()
-                    ->latest()->whereIn('location', $request->location);
-            }
-
+            $products = $products->whereIn('location', $request->location);
             $data[ 'location' ] = $request->location[ 0 ];
         }
 
         if ($request->type[ 0 ] != null) {
-            if (isset($productQuery)) {
-                if (count($request->type) > 1) {
-                    $productQuery = $productQuery->where('is_scraped', 1)->orWhere('status', 2);
-                } else {
-                    if ($request->type[ 0 ] == 'scraped') {
-                        $productQuery = $productQuery->where('is_scraped', 1);
-                    } elseif ($request->type[ 0 ] == 'imported') {
-                        $productQuery = $productQuery->where('status', 2);
-                    } else {
-                        $productQuery = $productQuery->where('isUploaded', 1);
-                    }
-                }
+            if (count($request->type) > 1) {
+                $products = $products->where(function ($query) use ($request) {
+                    $query->where('is_scraped', 1)->orWhere('status', 2);
+                });
             } else {
-                if (count($request->type) > 1) {
-                    $productQuery = (new Product())->newQuery()
-                        ->latest()->where('is_scraped', 1)->orWhere('status', 2);
+                if ($request->type[ 0 ] == 'scraped') {
+                    $products = $products->where('is_scraped', 1);
+                } elseif ($request->type[ 0 ] == 'imported') {
+                    $products = $products->where('status', 2);
                 } else {
-                    if ($request->type[ 0 ] == 'scraped') {
-                        $productQuery = (new Product())->newQuery()
-                            ->latest()->where('is_scraped', 1);
-                    } elseif ($request->type[ 0 ] == 'imported') {
-                        $productQuery = (new Product())->newQuery()
-                            ->latest()->where('status', 2);
-                    } else {
-                        $productQuery = (new Product())->newQuery()
-                            ->latest()->where('isUploaded', 1);
-                    }
+                    $products = $products->where('isUploaded', 1);
                 }
             }
-
             $data[ 'type' ] = $request->type[ 0 ];
         }
 
+        Cache::forget('filter-date-' . Auth::id());
         if ($request->date != '') {
-            if (isset($productQuery)) {
+            if (isset($products)) {
                 if ($request->type[ 0 ] != null && $request->type[ 0 ] == 'uploaded') {
-                    $productQuery = $productQuery->where('is_uploaded_date', 'LIKE', "%$request->date%");
+                    $products = $products->where('is_uploaded_date', 'LIKE', "%$request->date%");
                 } else {
-                    $productQuery = $productQuery->where('created_at', 'LIKE', "%$request->date%");
+                    $products = $products->where('created_at', 'LIKE', "%$request->date%");
                 }
-            } else {
-                $productQuery = (new Product())->newQuery()
-                    ->latest()->where('created_at', 'LIKE', "%$request->date%");
             }
-
             $data[ 'date' ] = $request->date;
             Cache::put('filter-date-' . Auth::id(), $data[ 'date' ], 120);
-        } else {
-            Cache::forget('filter-date-' . Auth::id());
         }
 
         if (trim($term) != '') {
-            $productQuery = (new Product())->newQuery()
-                ->latest()
-                ->orWhere('sku', 'LIKE', "%$term%")
-                ->orWhere('id', 'LIKE', "%$term%")//		                                 ->orWhere( 'category', $term )
-            ;
+            $products = $products->where(function ($query) use ($term) {
+                $query->where('sku', 'LIKE', "%$term%")
+                      ->orWhere('id', 'LIKE', "%$term%");
 
-            if ($term == -1) {
-                $productQuery = $productQuery->orWhere('isApproved', -1);
-            }
+                if ($term == -1) {
+                    $query = $query->orWhere('isApproved', -1);
+                }
 
-            if (Brand::where('name', 'LIKE', "%$term%")->first()) {
-                $brand_id = Brand::where('name', 'LIKE', "%$term%")->first()->id;
-                $productQuery = $productQuery->orWhere('brand', 'LIKE', "%$brand_id%");
-            }
+                $brand_id = \App\Brand::where('name', 'LIKE', "%$term%")->value('id');
+                if ($brand_id) {
+                    $products = $products->orWhere('brand', 'LIKE', "%$brand_id%");
+                }
 
-            if ($category = Category::where('title', 'LIKE', "%$term%")->first()) {
-                $category_id = $category = Category::where('title', 'LIKE', "%$term%")->first()->id;
-                $productQuery = $productQuery->orWhere('category', CategoryController::getCategoryIdByName($term));
-            }
+                $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
+                if ($category_id) {                    
+                    $products = $products->orWhere('category', $category_id);
+                }
 
-//			if ( ! empty( $stage->getIDCaseInsensitive( $term ) ) ) {
-//
-//				$productQuery = $productQuery->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
-//			}
-
-//			if ( ! ( \Auth::user()->hasRole( [ 'Admin', 'Supervisors' ] ) ) ) {
-//
-//				$productQuery = $productQuery->where( 'stage', '>=', $stage->get( $roletype ) );
-//			}
+            });
 
             if ($roletype != 'Selection' && $roletype != 'Searcher') {
 
-                $productQuery = $productQuery->whereNull('dnf');
-            }
-        } else {
-            if ($request->brand[ 0 ] == null && $request->color[ 0 ] == null && ($request->category[ 0 ] == null || $request->category[ 0 ] == 1) && $request->price == "0,400000" && $request->supplier[ 0 ] == null && trim($request->size) == '' && $request->date == '' && $request->type[ 0 ] == null && $request->location[ 0 ] == null) {
-                $productQuery = (new Product())->newQuery()->latest();
+                $products = $products->whereNull('dnf');
             }
         }
 
         if ($request->ids[ 0 ] != null) {
-            $productQuery = (new Product())->newQuery()
-                ->latest()->whereIn('id', $request->ids);
+            $products = $products->whereIn('id', $request->ids);
         }
 
-        // $search_suggestions = [];
-        //
-        //  $sku_suggestions = ( new Product() )->newQuery()
-        // 									 ->latest()->whereNotNull('sku')->select('sku')->get()->toArray();
-        //
-        // $brand_suggestions = Brand::getAll();
-        //
-        // foreach ($sku_suggestions as $key => $suggestion) {
-        // 	array_push($search_suggestions, $suggestion['sku']);
-        // }
-        //
-        // foreach ($brand_suggestions as $key => $suggestion) {
-        // 	array_push($search_suggestions, $suggestion);
-        // }
-        //
-        // $data['search_suggestions'] = $search_suggestions;
 
         $selected_categories = $request->category ? $request->category : 1;
 
@@ -325,25 +217,13 @@ class SearchController extends Controller
             ->selected($selected_categories)
             ->renderAsDropdown();
 
-        // fix if query is not setup due to some unknow condition
-        if (!isset($productQuery)) {
-            $productQuery = (new Product())->newQuery()->latest();
-        }
-
         if ($request->quick_product === 'true') {
-            if (!isset($productQuery)) {
-                $productQuery = (new Product())->newQuery()
-                ->latest();
-            }
-            
-            $productQuery = $productQuery->where('quick_product', 1);
+            $products = $products->where('quick_product', 1);
         }
 
         // assing product to varaible so can use as per condition for join table media
         if ($request->quick_product !== 'true') {
-            $products = $productQuery->whereRaw("(stock>0 OR (supplier LIKE '%In-Stock%'))");
-        } else {
-            $products = $productQuery;
+            $products = $products->whereRaw("(stock > 0 OR (supplier LIKE '%In-Stock%'))");
         }
 
         // if source is attach_media for search then check product has image exist or not

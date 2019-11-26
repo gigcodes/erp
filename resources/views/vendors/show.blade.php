@@ -450,7 +450,15 @@
         <div class="col-xs-12 col-md-4">
             <div class="border">
                 <div class="row">
-                    <div class="load-communication-modal" style="display: none;" data-object="vendor" data-attached="1" data-id="{{ $vendor->id }}"></div>
+                    <div class="col-xs-12 form-inline">
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
+                        <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="load-communication-modal js-load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" style="display: none;" data-object="vendor" data-attached="1" data-id="{{ $vendor->id }}"></div>
                     <div class="col-12" id="chat-history"></div>
                 </div>
             </div>
@@ -614,7 +622,7 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            $('.load-communication-modal').trigger('click');
+            $('.js-load-communication-modal').trigger('click');
         });
         $(document).on('click', ".collapsible-message", function () {
             var selection = window.getSelection();
@@ -708,8 +716,8 @@
                                 $(thiss).attr('disabled', true);
                             }
                         }).done(function (response) {
-                            console.log(response);
-                            pollMessages();
+                            $('.load-communication-modal').trigger('click');
+                            //pollMessages();
                             $(thiss).closest('form').find('textarea').val('');
                             $('#paste-container').empty();
                             $('#screenshot_path').val('');
@@ -743,7 +751,7 @@
                 var next_page = $(this).data('nextpage');
                 $('#load-more-messages').text('Loading...');
 
-                pollMessages(next_page, true);
+                //pollMessages(next_page, true);
             });
         });
 
@@ -1272,6 +1280,25 @@
             $("#remarks-container").find('ul').html(html);
         });
 
+        $.ajax({
+            type: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('task.gettaskremark') }}',
+            data: {
+                id: "{{ $vendor->id }}",
+                module_type: "vendor"
+            },
+        }).done(response => {
+            var html = '';
+
+            $.each(response, function (index, value) {
+                html += ' <li> ' + value.remark + ' <br> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></li>';
+            });
+            $("#remarks-container").find('ul').html(html);
+        });
+
         $('#hideRemarksButton').on('click', function () {
             $('#remarks-container').toggleClass('hidden');
         });
@@ -1300,5 +1327,84 @@
                 console.log(response);
             });
         });
+
+        $(document).on('click', '.add-cc', function (e) {
+            e.preventDefault();
+
+            if ($('#cc-label').is(':hidden')) {
+                $('#cc-label').fadeIn();
+            }
+
+            var el = `<div class="row cc-input">
+            <div class="col-md-10">
+                <input type="text" name="cc[]" class="form-control mb-3">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image cc-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+            $('#cc-list').append(el);
+        });
+
+        $(document).on('click', '.cc-delete-button', function (e) {
+            e.preventDefault();
+            var parent = $(this).parent().parent();
+
+            parent.hide(300, function () {
+                parent.remove();
+                var n = 0;
+
+                $('.cc-input').each(function () {
+                    n++;
+                });
+
+                if (n == 0) {
+                    $('#cc-label').fadeOut();
+                }
+            });
+        });
+
+        // bcc
+
+        $(document).on('click', '.add-bcc', function (e) {
+            e.preventDefault();
+
+            if ($('#bcc-label').is(':hidden')) {
+                $('#bcc-label').fadeIn();
+            }
+
+            var el = `<div class="row bcc-input">
+            <div class="col-md-10">
+                <input type="text" name="bcc[]" class="form-control mb-3">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-image bcc-delete-button"><img src="/images/delete.png"></button>
+            </div>
+        </div>`;
+
+            $('#bcc-list').append(el);
+        });
+
+        $(document).on('click', '.bcc-delete-button', function (e) {
+            e.preventDefault();
+            var parent = $(this).parent().parent();
+
+            parent.hide(300, function () {
+                parent.remove();
+                var n = 0;
+
+                $('.bcc-input').each(function () {
+                    n++;
+                });
+
+                if (n == 0) {
+                    $('#bcc-label').fadeOut();
+                }
+            });
+        });
+
+        //
+
     </script>
 @endsection

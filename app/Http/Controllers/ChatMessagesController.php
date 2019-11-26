@@ -66,10 +66,29 @@ class ChatMessagesController extends Controller
             case 'text':
                 $chatMessages = $chatMessages->whereNotNull("message")
                                              ->whereNull("media_url")
-                                             ->whereRaw('id not in (select mediable_id from mediables WHERE mediable_type LIKE "%ChatMessage")');
+                                             ->whereRaw('id not in (select mediable_id from mediables WHERE mediable_type LIKE "App%ChatMessage")');
                 break;
             case 'images':
-                $chatMessages = $chatMessages->whereRaw("(media_url is not null or id in (select mediable_id from mediables WHERE mediable_type LIKE '%ChatMessage') )");
+                $chatMessages = $chatMessages->whereRaw("(media_url is not null or id in (
+                    select 
+                        mediable_id 
+                    from 
+                        mediables 
+                        join media on id = media_id and extension != 'pdf'
+                    WHERE 
+                        mediable_type LIKE 'App%ChatMessage'
+                ) )");
+                break;
+            case 'pdf':
+                $chatMessages = $chatMessages->whereRaw("(media_url is not null or id in (
+                    select 
+                        mediable_id 
+                    from 
+                        mediables 
+                        join media on id = media_id and extension = 'pdf'
+                    WHERE 
+                        mediable_type LIKE 'App%ChatMessage'
+                ) )");
                 break;
         }
         $chatMessages = $chatMessages->get();

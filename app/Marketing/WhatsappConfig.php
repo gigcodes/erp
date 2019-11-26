@@ -4,6 +4,8 @@ namespace App\Marketing;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Customer;
+use App\ImQueue;
+use Carbon\Carbon;
 
 class WhatsappConfig extends Model
 {
@@ -12,5 +14,15 @@ class WhatsappConfig extends Model
     public function customer()
     {
         return $this->hasMany(Customer::class, 'broadcast_number', 'number');
+    }
+
+    public function imQueueCurrentDateMessageSend()
+    {
+    	return $this->hasMany(ImQueue::class,'number_from','number')->whereDate('created_at', Carbon::today());
+    }
+
+    public function  imQueueLastMessageSend()
+    {
+    	return $this->hasOne(ImQueue::class,'number_from','number')->latest();
     }
 }

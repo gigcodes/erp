@@ -11,7 +11,9 @@ use App\Setting;
 use Auth;
 use Validator;
 use Response;
+use App\Order;
 use App\ApiKey;
+use App\ErpLeads;
 use App\Marketing\WhatsappConfig;
 
 class BroadcastController extends Controller
@@ -25,8 +27,9 @@ class BroadcastController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->term || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name) {
 
+        if ($request->term || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name || $request->customrange) {
+            
             $query = Customer::query();
 
             //global search term
@@ -35,14 +38,17 @@ class BroadcastController extends Controller
                     ->orWhere('name', 'LIKE', "%{$request->term}%")
                     ->orWhereHas('broadcastLatest', function ($qu) use ($request) {
                         $qu->where('group_id', 'LIKE', "%{$request->term}%");
-                    })
-                    ->orWhereHas('remark', function ($qu) use ($request) {
-                        $qu->where('remark', 'LIKE', "%{$request->term}%");
                     });
+                    
             }
 
             if (request('date') != null) {
                 $query->whereDate('created_at', request('date'));
+            }
+
+             if (request('customrange') != null) {
+                $range = explode(' - ', request('customrange'));
+                $query->whereBetween('created_at', [$range[0], end($range)]);
             }
 
             //if number is not null
@@ -72,16 +78,44 @@ class BroadcastController extends Controller
                 });
             }
 
-            $customers = $query->orderby('id', 'desc')->where('do_not_disturb', 0)->paginate(Setting::get('pagination'));
+            $customers = $query->orderby('id', 'desc')->paginate(Setting::get('pagination'));
 
         } else {
-            $customers = Customer::select('id', 'name', 'whatsapp_number')->orderby('id', 'desc')->where('do_not_disturb', 0)->paginate(Setting::get('pagination'));
+            //Order List
+            $orders = Order::select('customer_id')->whereNotNull('customer_id')->get();
+            foreach ($orders as $order) {
+                $orderArray[] = $order->customer_id;
+            }
+            $orderList = implode(",", $orderArray);
+
+            //Leads List
+            $leads = ErpLeads::select('customer_id')->whereNotNull('customer_id')->get();
+            foreach ($leads as $lead) {
+                $leadArray[] = $lead->customer_id;
+            }
+            $leadList = implode(",", $leadArray);
+            
+            $marketings = CustomerMarketingPlatform::select('customer_id')->whereNull('remark')->get();
+
+             foreach ($marketings as $marketing) {
+                $marketingArray[] = $marketing->customer_id;
+            }
+            $marketingList = implode(",", $marketingArray);
+           
+            $customers = Customer::select('id', 'name', 'do_not_disturb' ,'whatsapp_number',\DB::raw('IF(id IN ('.$orderList.') , 1 , 0) AS priority_order , IF(id IN ('.$orderList.') , 1 , 0) AS priority_lead , IF(id IN ('.$marketingList.') , 1 , 0) AS priority_marketing '))->orderby('priority_order','desc')->orderby('priority_lead','desc')->orderby('priority_marketing','asc')->paginate(Setting::get('pagination'));
+
         }
+        
         $numbers = WhatsappConfig::where('is_customer_support', 0)->get();
+        $customerBroadcastSend = Customer::whereNotNull('broadcast_number')->count();
+        $customerBroadcastPending = Customer::whereNull('broadcast_number')->count();
+        $countDNDCustomers = Customer::where('do_not_disturb','1')->count();
+        $totalCustomers = Customer::count();
+
         $apiKeys = ApiKey::all();
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.broadcasts.partials.data', compact('customers', 'apiKeys', 'numbers'))->render(),
+                'tbody' => view('marketing.broadcasts.partials.data', compact('customers', 'apiKeys', 'numbers','customerBroadcastSend','customerBroadcastPending','countDNDCustomers','totalCustomers'))->render(),
                 'links' => (string)$customers->render()
             ], 200);
         }
@@ -90,6 +124,10 @@ class BroadcastController extends Controller
             'customers' => $customers,
             'apiKeys' => $apiKeys,
             'numbers' => $numbers,
+            'customerBroadcastSend' => $customerBroadcastSend,
+            'customerBroadcastPending' => $customerBroadcastPending,
+            'countDNDCustomers' => $countDNDCustomers,
+            'totalCustomers' => $totalCustomers,
         ]);
 
     }

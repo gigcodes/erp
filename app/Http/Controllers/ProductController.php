@@ -1347,14 +1347,8 @@ class ProductController extends Controller
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
         $roletype = $request->input('roletype') ?? 'Sale';
-        $products = Product::where(function ($query) {
-            $query->whereRaw("(stock>0 OR (supplier LIKE '%In-Stock%'))");
-        });
-
-        $filtered_category = '';
-        $brand = '';
-        $message_body = $request->message ? $request->message : '';
-        $sending_time = $request->sending_time ?? '';
+        $term = $request->input('term');
+        $perPageLimit = $request->get("per_page");
 
         if (Order::find($model_id)) {
             $selected_products = self::getSelectedProducts($model_type, $model_id);
@@ -1362,107 +1356,198 @@ class ProductController extends Controller
             $selected_products = [];
         }
 
-        if ($request->brand != '') {
-            $products = $products->where('brand', $request->brand);
-
-            $brand = $request->brand;
-        } else {
-//			if (Cache::has('filter-brand-' . Auth::id())) {
-//				$products = $products->where('brand', Cache::get('filter-brand-' . Auth::id()));
-//
-//				$brand = Cache::get('filter-brand-' . Auth::id());
-//			}
+        if (empty($perPageLimit)) {
+            $perPageLimit = Setting::get('pagination');
         }
 
-        $filtered_category = json_decode($request->category, true);
+        $sourceOfSearch = $request->get("source_of_search", "na");
 
+        // start add fixing for the price range since the one request from price is in range
+        // price  = 0 , 100
 
-        if ($filtered_category[ 0 ] == null) {
-            if (Cache::has('filter-category-' . Auth::id())) {
-//				$filtered_category[0] = Cache::get('filter-category-' . Auth::id());
+        $priceRange = $request->get("price", null);
+
+        if ($priceRange && !empty($priceRange)) {
+            @list($minPrice, $maxPrice) = explode(",", $priceRange);
+            // adding min price
+            if (isset($minPrice)) {
+                $request->request->add(['price_min' => $minPrice]);
+            }
+            // addin max price
+            if (isset($maxPrice)) {
+                $request->request->add(['price_max' => $maxPrice]);
             }
         }
 
-        if ($filtered_category[ 0 ] != null) {
-            $is_parent = Category::isParent($filtered_category[ 0 ]);
+        $products = (new Product())->newQuery()->latest();
+
+        if ($request->brand[ 0 ] != null) {
+            $products = $products->whereIn('brand', $request->brand);
+        }
+
+        if ($request->color[ 0 ] != null) {
+            $products = $products->whereIn('color', $request->color);
+        }
+
+        if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
             $category_children = [];
 
-            if ($is_parent) {
-                $childs = Category::find($filtered_category[ 0 ])->childs()->get();
+            foreach ($request->category as $category) {
+                $is_parent = Category::isParent($category);
 
-                foreach ($childs as $child) {
-                    $is_parent = Category::isParent($child->id);
+                if ($is_parent) {
+                    $childs = Category::find($category)->childs()->get();
 
-                    if ($is_parent) {
-                        $children = Category::find($child->id)->childs()->get();
+                    foreach ($childs as $child) {
+                        $is_parent = Category::isParent($child->id);
 
-                        foreach ($children as $chili) {
-                            array_push($category_children, $chili->id);
+                        if ($is_parent) {
+                            $children = Category::find($child->id)->childs()->get();
+
+                            foreach ($children as $chili) {
+                                array_push($category_children, $chili->id);
+                            }
+                        } else {
+                            array_push($category_children, $child->id);
                         }
-                    } else {
-                        array_push($category_children, $child->id);
                     }
+                } else {
+                    array_push($category_children, $category);
                 }
-            } else {
-                array_push($category_children, $filtered_category);
             }
 
             $products = $products->whereIn('category', $category_children);
         }
 
+        if ($request->price_min != null) {
+            $products = $products->where('price_special', '>=', $request->price_min);
+        }
+
+        if ($request->price_max != null) {
+            $products = $products->where('price_special', '<=', $request->price_max);
+        }
+
+        if ($request->supplier[ 0 ] != null) {
+            $suppliers_list = implode(',', $request->supplier);
+
+            $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+        }
+
+        if (trim($request->size) != '') {
+            $products = $products->whereNotNull('size')->where(function ($query) use ($request) {
+                $query->where('size', $request->size)->orWhere('size', 'LIKE', "%$request->size,")->orWhere('size', 'LIKE', "%,$request->size,%");
+            });
+        }
+
+        if ($request->location[ 0 ] != null) {
+            $products = $products->whereIn('location', $request->location);
+        }
+
+        if ($request->type[ 0 ] != null && is_array($request->type)) {
+            if (count($request->type) > 1) {
+                $products = $products->where(function ($query) use ($request) {
+                    $query->where('is_scraped', 1)->orWhere('status', 2);
+                });
+            } else {
+                if ($request->type[ 0 ] == 'scraped') {
+                    $products = $products->where('is_scraped', 1);
+                } elseif ($request->type[ 0 ] == 'imported') {
+                    $products = $products->where('status', 2);
+                } else {
+                    $products = $products->where('isUploaded', 1);
+                }
+            }
+        }
+
+        if ($request->date != '') {
+            if (isset($products)) {
+                if ($request->type[ 0 ] != null && $request->type[ 0 ] == 'uploaded') {
+                    $products = $products->where('is_uploaded_date', 'LIKE', "%$request->date%");
+                } else {
+                    $products = $products->where('created_at', 'LIKE', "%$request->date%");
+                }
+            }
+        }
+
+        if (trim($term) != '') {
+            $products = $products->where(function ($query) use ($term) {
+                $query->where('sku', 'LIKE', "%$term%")
+                      ->orWhere('id', 'LIKE', "%$term%")
+                      ->orWhere('name', 'LIKE', "%$term%")
+                      ->orWhere('short_description', 'LIKE', "%$term%");
+
+                if ($term == -1) {
+                    $query = $query->orWhere('isApproved', -1);
+                }
+
+                $brand_id = \App\Brand::where('name', 'LIKE', "%$term%")->value('id');
+                if ($brand_id) {
+                    $products = $products->orWhere('brand', 'LIKE', "%$brand_id%");
+                }
+
+                $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
+                if ($category_id) {                    
+                    $products = $products->orWhere('category', $category_id);
+                }
+
+            });
+
+            if ($roletype != 'Selection' && $roletype != 'Searcher') {
+
+                $products = $products->whereNull('dnf');
+            }
+        }
+
+        if ($request->ids[ 0 ] != null) {
+            $products = $products->whereIn('id', $request->ids);
+        }
+
+
+        $selected_categories = $request->category ? $request->category : 1;
+
+        if ($request->quick_product === 'true') {
+            $products = $products->where('quick_product', 1);
+        }
+
+        // assing product to varaible so can use as per condition for join table media
+        if ($request->quick_product !== 'true') {
+            $products = $products->whereRaw("(stock > 0 OR (supplier LIKE '%In-Stock%'))");
+        }
+
+        // if source is attach_media for search then check product has image exist or not
+         $products = $products->join("mediables", function ($query) {
+            $query->on("mediables.mediable_id", "products.id")->where("mediable_type", 'like', "App%Product");
+        })->groupBy('products.id');
+
+        if (!empty($request->quick_sell_groups) && is_array($request->quick_sell_groups)) {
+            $products = $products->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (".implode(",", $request->quick_sell_groups).") ))");
+        }
+
+        // select fields..
+        $products = $products->select(['id','name','short_description','color','sku', 'size', 'price_special', 'supplier', 'purchase_status']);
+
         if ($request->get('is_on_sale') == 'on') {
             $products = $products->where('is_on_sale', 1);
         }
 
-
-        if (Cache::has('filter-color-' . Auth::id())) {
-//			$color = Cache::get('filter-color-' . Auth::id());
-//			$products = $products->where('color', $color);
-        }
-
-        if (Cache::has('filter-supplier-' . Auth::id())) {
-            // $supplier = Cache::get('filter-supplier-' . Auth::id());
-            // $products = $products->whereHas('suppliers', function ($query) use ($supplier) {
-            // 	$query->where('suppliers.id', $supplier);
-            // });
-        }
-
-        if ($request->page) {
-            Cache::put('filter-page-' . Auth::id(), $request->page, 120);
-        } else {
-//			if (Cache::has('filter-page-' . Auth::id())) {
-//				$page = Cache::get('filter-page-' . Auth::id());
-//				$request->request->add(['page' => $page]);
-//			}
-        }
-        if($request->random){
-            $products = $products->inRandomOrder();
-        }else{
-            $products = $products->orderby('id','desc');
-        }
-        // assign query to get media records only
-        $products = $products->join("mediables", function ($query) {
-            $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
-        })->groupBy('products.id');
-
-        $products = $products->select(['id','name','short_description','color','sku', 'size', 'price_special', 'supplier', 'purchase_status', 'media_id']);
-        $productRes  = $products->get();
-        $products_count = $productRes->count();
-        $all_product_ids = $productRes->pluck('media_id')->toArray();
-
-        $limit = Setting::get('pagination');
+        $products_count = $products->get()->count();
+        
         if($request->has("limit")) {
-            $limit = ($request->get("limit") == "all") ? $products_count : $request->get("limit");
+            $perPageLimit = ($request->get("limit") == "all") ? $products_count : $request->get("limit");
         }
         
-        $products = $products->paginate($limit);
-
+        $products = $products->paginate($perPageLimit);
+        $all_product_ids = [];
         if ($request->ajax()) {
             $html = view('partials.image-load', ['products' => $products, 'all_product_ids' => $all_product_ids, 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [], 'model_type' => $model_type])->render();
 
             return response()->json(['html' => $html]);
         }
 
+        $filtered_category = json_decode($request->category, true);
+        $brand = $request->brand;
+        $message_body = $request->message ? $request->message : '';
+        $sending_time = $request->sending_time ?? '';
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'multiple' => 'multiple', 'data-placeholder' => 'Select Category..'])
             ->selected($filtered_category)
             ->renderAsDropdown();
@@ -2095,7 +2180,6 @@ class ProductController extends Controller
         $category    = request()->get("category",null);
         $numberOfProduts = request()->get("number_of_products",10);
         $quick_sell_groups = request()->get("quick_sell_groups",[]);
-        
 
         $product = new \App\Product;
 
@@ -2127,11 +2211,24 @@ class ProductController extends Controller
             }
         }
 
-        foreach ($customerIds as $customerId) {
+        
+        $approveMessage = 1;
+
+        try {
+            $approveMessage = session()->get('is_approve_message');
+        } catch (\Exception $e) {
+        }
+
+        $is_queue = 0;
+        if ($approveMessage == '1') {
+            $is_queue = 1;
+        }
+        foreach ($customerIds as $k => $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');
             $params = $request->except(['_token', 'customers_id', 'return_url']);
             $params['customer_id'] = $customerId;
+            $params['is_queue'] = $is_queue;
             $requestData->request->add($params + $extraParams);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');

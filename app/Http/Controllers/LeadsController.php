@@ -634,7 +634,7 @@ class LeadsController extends Controller
                       }
                       // add text message and create image
                       $textImage = self::createProductTextImage(
-                        public_path($mediaImage->disk.DSP.$mediaImage->filename.".".$mediaImage->extension),
+                        $mediaImage->getAbsolutePath(),
                         "instant_message_".$chat_message->id,
                         $auto_message
                       );

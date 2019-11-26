@@ -39,7 +39,7 @@
             @endif
 
             <!--Product Search Input -->
-                <form action="{{ route('search') }}" method="GET" id="searchForm" class="form-inline align-items-start">
+                <form action="{{ url()->current() }}" method="GET" id="searchForm" class="form-inline align-items-start">
                     <input type="hidden" name="source_of_search" value="attach_media">
                     @csrf
                     {{-- <div class="form-group">
@@ -156,7 +156,7 @@
                 </div> --}}
                 </form>
 
-                <form action="{{ route('search') }}" method="GET" id="quickProducts" class="form-inline align-items-start my-3">
+                <form action="{{ url()->current() }}" method="GET" id="quickProducts" class="form-inline align-items-start my-3">
                     <input type="hidden" name="quick_product" value="true">
                     <button type="submit" class="btn btn-xs btn-secondary">Quick Sell</button>
                 </form>
@@ -229,7 +229,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
         var image_array = [];
-        var all_product_ids = [<?= implode(',', $all_product_ids) ?>];
+        //var all_product_ids = [<?= implode(',', $all_product_ids) ?>];
         $(document).ready(function () {
             $(".select-multiple").select2();
             //$(".select-multiple-cat").multiselect();
@@ -289,7 +289,7 @@
                         formData.push({name: "quick_product", value: 'true'});
                     };
                     
-                    var url = "{{ route('search') }}";
+                    var url = "{{ url()->current() }}";
 
 
                     $.ajax({
@@ -299,7 +299,7 @@
                             $('#productGrid').html('<img id="loading-image" src="/images/pre-loader.gif"/>');
                         }
                     }).done(function (data) {
-                        all_product_ids = data.all_product_ids;
+                        //all_product_ids = data.all_product_ids;
                         $('#productGrid').html(data.html);
                         $('#products_count').text(data.products_count);
                         $('.lazy').Lazy({
@@ -490,14 +490,14 @@
             isQuickProductsFrom = false;
             $('#selected_products').val(JSON.stringify(image_array));
 
-            var url = "{{ route('search') }}";
+            var url = "{{ url()->current() }}";
             var formData = $('#searchForm').serialize();
 
             $.ajax({
                 url: url,
                 data: formData
             }).done(function (data) {
-                all_product_ids = data.all_product_ids;
+                //all_product_ids = data.all_product_ids;
                 $('#productGrid').html(data.html);
                 $('#products_count').text(data.products_count);
                 $('.lazy').Lazy({
@@ -511,7 +511,7 @@
         $('#quickProducts').on('submit', function (e) {
             e.preventDefault();
             isQuickProductsFrom = true;
-            var url = "{{ route('search') }}?quick_product=true";
+            var url = "{{ url()->current() }}?quick_product=true";
             var formData = $('#searchForm').serialize();
 
             $.ajax({

@@ -141,7 +141,7 @@
                     <td class="table-hover-cell {{ $old->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
                         <span class="td-full-container">
                             {{ $old->message }}
-                            <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='old' data-id="{{ $old->serial_no }}" title="Load More..."><img src="/images/chat.png" alt=""></button>
+                            <button data-toggle="tooltip" type="button" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" class="btn btn-xs btn-image load-communication-modal" data-object='old' data-id="{{ $old->serial_no }}" title="Load More..."><img src="/images/chat.png" alt=""></button>
                         </span>
                     </td>
                     <td>
