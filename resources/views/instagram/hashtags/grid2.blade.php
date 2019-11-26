@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('favicon' , 'instagram.png')
+
+@section('title', 'Instagram Info')
+
 @section('large_content')
     <div class="row">
         <div class="col-md-12">

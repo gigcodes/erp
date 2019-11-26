@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('favicon' , 'instock.png')
+
+@section('title', 'Instock Info')
+
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -18,6 +22,7 @@
         <div class="pull-right">
           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">Upload Products</button>
           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateBulkProductModal" id="bulk-update-btn">Update Products</button>
+          <button type="button" class="btn btn-secondary" id="js-send-product-btn">Send Products</button>
         </div>
 
         <!--Product Search Input -->
@@ -687,16 +692,27 @@
     });
 
     var select_products_edit_array = [];
+    var select_products_image_array = [];
 
     $(document).on('click', '.select-product-edit', function() {
       var id = $(this).data('id');
-
+      var mediaIds = ($(this).closest('a').find('.crt-attach-images').data('media-ids') + '').split(",");
       if ($(this).prop('checked')) {
         select_products_edit_array.push(id);
+        for(var i in mediaIds) {
+          if (select_products_image_array.indexOf(mediaIds[i]) == -1) {
+            select_products_image_array.push(mediaIds[i]);
+          }
+        }
       } else {
         var index = select_products_edit_array.indexOf(id);
 
         select_products_edit_array.splice(index, 1);
+        
+        for(var i in mediaIds) {
+          var index = select_products_image_array.indexOf(mediaIds[i])
+          select_products_image_array.splice(index, 1);
+        }
       }
 
       console.log(select_products_edit_array);
@@ -707,6 +723,18 @@
         e.stopPropagation();
 
         alert('Please select atleast 1 product!');
+      }
+    });
+
+    $('#js-send-product-btn').on('click', function(e) {
+      if (select_products_image_array.length == 0) {
+        e.stopPropagation();
+
+        alert('Please select atleast 1 product!');
+      } else {
+        var instructionModal = $("#crt-attach-images-model");
+            instructionModal.find("#images").val(JSON.stringify(select_products_image_array));
+            instructionModal.modal("show");
       }
     });
 

@@ -1781,10 +1781,24 @@
             </div>
           </div>
         @endif
+        <div class="col-xs-6">
+          <div class="form-inline">
+             <div class="form-group">
+                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" alt=""></a> 
+                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/archive.png" alt=""></a>
+                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/icon-pdf.svg" alt=""></a>
+              </div>
+            </div>
+          </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+            <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message">
+        </div>
       </div>
 
       <div class="row" id="allHolder">
-        <div class="load-communication-modal" style="display: none;" data-object="customer" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-attached="1" data-id="{{ $customer->id }}">
+        <div class="load-communication-modal chat-history-load-communication-modal" style="display: none;" data-object="customer" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-attached="1" data-id="{{ $customer->id }}">
         </div>
         <div class="col-12" id="chat-history"></div>
       </div>
@@ -2357,7 +2371,7 @@
 <div id="add_lead" class="modal fade" role="dialog">
   <div class="modal-dialog">
     <div class="modal-content">
-        <form action="{{ route('leads.erpLeads.store') }}" method="POST" enctype="multipart/form-data" class="erp_lead_frm" data-reload='1'>
+        <form action="{{ route('leads.erpLeads.store') }}" method="POST" enctype="multipart/form-data" class="js-erp-lead-frm" data-reload='1'>
             <div class="modal-header">
                 <h2>Add Lead</h2>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -2584,7 +2598,7 @@
 
   <script type="text/javascript">
       $(document).ready(function () {
-          $('.load-communication-modal').trigger('click');
+          $('.chat-history-load-communication-modal').trigger('click');
       });
       jQuery(document).ready(function() {
         $('.multi_select2').select2({width: '100%'});
@@ -3299,7 +3313,7 @@
                contentType: false
              }).done(function(response) {
                console.log(response);
-               pollMessages();
+               $('.load-communication-modal').trigger('click');
                $(thiss).closest('form').find('textarea').val('');
                $('#paste-container').empty();
                $('#screenshot_path').val('');
@@ -3342,7 +3356,7 @@
 
                can_load_more = false;
 
-               pollMessages(next_page, true);
+               $('.load-communication-modal').trigger('click');
              }
            }
          });
@@ -3353,7 +3367,7 @@
            var next_page = $(this).data('nextpage');
            $('#load-more-messages').text('Loading...');
 
-           pollMessages(next_page, true);
+           $('.load-communication-modal').trigger('click');
          });
 
          $(document).on('click', '#sendAdvanceLink', function(e) {
@@ -3375,7 +3389,7 @@
                $(thiss).text('Sending...');
              }
            }).done(function() {
-             pollMessages();
+             $('.load-communication-modal').trigger('click');
 
              $(thiss).text('Send Link');
 
@@ -3554,11 +3568,21 @@
       $('#quick_add_lead').on('click', function(e) {
         e.preventDefault();
         $('.add_lead_category_id').val('1').trigger('change');
+        if ($('#add_lead').find('input[name="product_id"]').length > 0) {
+            $('#add_lead').find('input[name="product_id"]').val('');
+        }
         $('#add_lead').modal('show');
       });
 
       $('#quick_add_order').on('click', function(e) {
             e.preventDefault();
+            if ($('#add_order').find('input[name="selected_product[]"]').length > 0) {
+                $('#add_order').find('input[name="selected_product[]"]').val('');
+            }
+
+            if ($('#add_order').find('input[name="convert_order"]').length > 0) {
+                $('#add_order').find('input[name="convert_order"]').val('');
+            }
             $('#add_order').modal('show');
       });
 
@@ -4549,7 +4573,81 @@
         }); 
 
         
+        $(document).on('submit', '.js-erp-lead-frm', function (e) {
+          e.preventDefault();
+            var url = $(this).attr('action');
+            var formData = new FormData(this);
 
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                  if ($('#add_lead').find('input[name="product_id"]').length > 0 && $('#add_lead').find('input[name="product_id"]').val()) {
+                      var dataSending = $('#add_lead').find('input[name="product_id"]').data('object');
+                      if (typeof dataSending != 'object'){
+                          dataSending = {};
+                      }
+
+                      $.ajax({
+                          type: "POST",
+                          url: "/leads/sendPrices",
+                          data: $.extend({
+                              _token:  $('meta[name="csrf-token"]').attr('content'),
+                              customer_id: $('#add_lead').find('input[name="customer_id"]').val(),
+                              selected_product: [$('#add_lead').find('input[name="product_id"]').val()]
+                          },dataSending),
+                          success: function(response) {
+                            location.reload();
+                          }
+                      });
+                  } else {
+                    location.reload();
+                  }
+                }
+            }).fail(function(error) {
+                alert('There was an error creating a lead');
+            });
+        });
+
+        $(document).on('submit', '.add_order_frm', function (e) {
+            e.preventDefault();
+            var url = $(this).attr('action');
+            var formData = new FormData(this);
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                  if ($('#add_order').find('input[name="selected_product[]"]').length > 0 && $('#add_order').find('input[name="selected_product[]"]').val()) {
+                      $.ajax({
+                          type: "POST",
+                          url: "/order/send/Delivery",
+                          data: {
+                            _token:  $('meta[name="csrf-token"]').attr('content'),
+                            customer_id: $('#add_order').find('input[name="customer_id"]').val(),
+                            order_id: response.order.id,
+                            selected_product: [$('#add_order').find('input[name="selected_product[]"]').val()]
+                          },
+                          success: function(response) {
+                            location.reload();
+                          }
+                      });
+                  } else {
+                    location.reload();
+                  }
+                }
+            }).fail(function(error) {
+                alert('There was an error creating a lead');
+            });
+        });
       // $(document).on()
   </script>
 
