@@ -218,8 +218,8 @@ class QuickSellController extends Controller
   			$product->price_special = $request->price_special;
   		}
       
-      if($product->is_pending !== null) {
-        $product->is_pending = $product->is_pending;
+      if($request->is_pending !== null) {
+        $product->is_pending = $request->is_pending;
       }
 
       $product->update();
