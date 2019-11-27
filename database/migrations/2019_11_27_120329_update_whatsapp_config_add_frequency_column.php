@@ -26,7 +26,7 @@ class UpdateWhatsappConfigAddFrequencyColumn extends Migration
     public function down()
     {
         Schema::table('whatsapp_configs', function($table){
-            $table->dropColumn('whatsapp_configs');
+            $table->dropColumn('frequency');
         });
     }
 }
