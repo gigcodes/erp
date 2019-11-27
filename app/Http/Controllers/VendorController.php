@@ -193,6 +193,30 @@ class VendorController extends Controller
       ]);
     }
 
+    public function email(Request $request) {
+        $vendorArr  = Vendor::join('emails', 'emails.model_id', 'vendors.id')
+                          ->where('emails.model_type', Vendor::class)
+                          ->where('vendors.id', $request->get('id',0))
+                          ->get();
+        $data = [];
+        foreach ($vendorArr as $vendor) {
+          $additional_data =  json_decode($vendor->additional_data);
+           $data[] = [
+              'from'            => $vendor->from,
+              'to'              => $vendor->to,
+              'subject'         => $vendor->subject,
+              'message'         => strip_tags($vendor->message),
+              'cc'              => $vendor->cc,
+              'bcc'             => $vendor->bcc,
+              'created_at'      => $vendor->created_at,
+              'attachment'      => !empty($additional_data->attachment) ? $additional_data->attachment : '',
+              'inout'           => $vendor->email != $vendor->from ? 'out' : 'in',
+           ];
+        }
+
+        return response()->json($data);
+    }
+
     public function assignUserToCategory(Request $request) {
         $user = $request->get('user_id');
         $category = $request->get('category_id');
