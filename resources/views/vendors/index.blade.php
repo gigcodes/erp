@@ -63,7 +63,12 @@
                 </form>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                <?php 
+                    $params = request()->all();
+                    $params['select_all'] = request()->get('select_all') == 'true' ? 'false' : 'true';
+                ?>
+                <a class="btn btn-secondary" href="{{route('vendor.index', $params)}}">{{request()->get('select_all') == 'true' ? 'Unselect All' : 'Select All'}}</a>
+                <button type="button" class="btn btn-secondary emailToAllModal" >Bulk Email</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
             </div>
@@ -134,8 +139,6 @@
                 <th width="10%"><input type="text" id="phone" class="search form-control" placeholder="Phone"></th>
                 <th width="10%"><input type="text" id="email" class="search form-control" placeholder="Email"></th>
                 <th width="10%"><input type="text" id="address" class="search form-control" placeholder="Address"></th>
-                <th></th>
-                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -245,6 +248,25 @@
     <script type="text/javascript">
 
         var vendorToRemind = null;
+
+        $(document).on('click', '.emailToAllModal', function () {
+            var select_vendor = [];
+            $('.select_vendor').each(function(){
+                if ($(this).prop("checked")) {
+                    select_vendor.push($(this).val());
+                }
+            });
+
+            if (select_vendor.length === 0) {
+                alert('Please Select vendors!!');
+                return false;
+            }
+
+            $('#emailToAllModal').find('form').find('input[name="vendor_ids"]').val(select_vendor.join());
+
+            $('#emailToAllModal').modal("show");
+
+        });
 
         $(document).on('click', '.set-reminder', function () {
             let vendorId = $(this).data('id');
