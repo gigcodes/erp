@@ -290,21 +290,39 @@ class GoogleSearchImageController extends Controller
 
         }
 
-        $productCount = \App\Product::where("status_id", StatusHelper::$unableToScrapeImages)->where("stock",">",0)->count();
-        $product = \App\Product::where("status_id", StatusHelper::$unableToScrapeImages)->where("stock",">",0);
+        $revise = $request->get("revise",0);
+
+        $products = \App\Product::where("products.stock",">",0);
+
+        if($revise == 1) {
+            $products->where("status_id", StatusHelper::$manualImageUpload);
+        }else{
+            $products->where("status_id", StatusHelper::$unableToScrapeImages);
+        }    
 
         if($request->has("supplier")) {
-            $product = $product->where("supplier",$request->get("supplier"));
+            $products = $products->join('product_suppliers as ps',"ps.product_id","products.id");
+            $products = $products->where("ps.supplier_id",$request->get("supplier"));
         }
 
-        $product = $product->orderBy("id","desc")->first();
+        $productCount = $products->count();
 
-        $supplierList = \App\Product::where("status_id","14")->groupBy("supplier")
-        ->select([\DB::raw("count(*) as supplier_count"),"supplier"])
+        $product = $products->select(["products.*"])->orderBy("products.id","desc")->first();
+        
+        $supplierList = \App\Product::where("status_id","14")
+        ->where("products.stock",">",0)
+        ->join('product_suppliers as ps',"ps.product_id","products.id")
+        ->join('suppliers as s',"s.id","ps.supplier_id")
+        ->groupBy("s.id")
+        ->select([\DB::raw("count(*) as supplier_count"),"s.supplier","s.id"])
         ->get()->toArray();
 
-        $skippedSuppliers = \App\Product::where("status_id","22")->groupBy("supplier")
-        ->select([\DB::raw("count(*) as supplier_count"),"supplier"])
+        $skippedSuppliers = \App\Product::where("status_id","22")
+        ->where("products.stock",">",0)
+        ->join('product_suppliers as ps',"ps.product_id","products.id")
+        ->join('suppliers as s',"s.id","ps.supplier_id")
+        ->groupBy("s.id")
+        ->select([\DB::raw("count(*) as supplier_count"),"s.supplier","s.id"])
         ->get()->toArray();
 
         return view("google_search_image.product",compact(['product', 'productCount', 'supplierList','skippedSuppliers']));

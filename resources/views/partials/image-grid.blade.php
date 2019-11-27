@@ -149,6 +149,8 @@
                             for="is_on_sale">Sale Products</label>
                     <input type="checkbox" class="random" id="random" name="random"><label
                             for="random">Random</label>
+                    <input type="checkbox" class="unsupported" id="unsupported" name="unsupported"><label
+                            for="unsupported">Unsupported Images</label>        
 
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>

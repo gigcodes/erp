@@ -47,7 +47,8 @@
 <body>
 @foreach($medias->chunk(2) as $subMedias)
     @foreach($subMedias as $subMedia)
-        <?php if (!file_exists ($subMedia->getAbsolutePath()) ) {
+        <?php 
+        if (!file_exists ($subMedia->getAbsolutePath())  || !in_array($subMedia->extension,config("constants.gd_supported_files"))) {
             continue;
         } ?>
         <?php 
