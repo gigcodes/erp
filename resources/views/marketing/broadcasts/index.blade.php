@@ -176,7 +176,10 @@
                         <h4 class="panel-title">
                             <a data-toggle="collapse" href="#collapse1">WhatsApp Numbers</a>
                         </h4>
-                        <div class="pull-right" style="margin-top : -25px;">
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <div class="pull-right">
                             <form action="{{ route('broadcasts.index') }}" method="GET">
                                 <div class="form-group">
                                     <div class="row">
@@ -210,9 +213,6 @@
                              </div>
                          </form>
                      </div>
-                    </div>
-                    <div id="collapse1" class="panel-collapse collapse">
-                        <div class="panel-body">
                             <table class="table table-bordered table-striped" id="phone-table">
                                 <thead>
                                 <tr>
@@ -1059,6 +1059,52 @@
         });
 
     
+      function updateCustomer(id){
+        phone = $("#phone"+id).val();
 
+        $.ajax({
+                url: "/customer/"+id+"/updatePhone",
+                type: 'POST',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function () {
+                    $("#loading-image").hide();
+                    alert('Number Updated SucessFully');
+                },
+                data: {
+                    phone: phone,
+                     _token: "{{ csrf_token() }}",
+                }
+            });
+        };
+
+        function showBroadcast(id){
+            
+            $.ajax({
+                url: "{{ route('broadcast.customer.list') }}",
+                type: 'POST',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $("#broadcast"+id).hide();
+                    $("#broadcastList"+id).empty().append(response.data);
+                    $("#broadcastList"+id).show();
+                },
+                data: {
+                    id: id,
+                     _token: "{{ csrf_token() }}",
+                }
+            });
+        };
+
+
+        function hideBroadcastList(id){
+            $("#broadcast"+id).show();
+            $("#broadcastList"+id).hide();
+        }
+        
     </script>
 @endsection

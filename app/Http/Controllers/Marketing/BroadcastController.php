@@ -342,4 +342,20 @@ class BroadcastController extends Controller
             'data' => $messageArray,
         ]);
     }
+
+    public function getCustomerBroadcastList(Request $request)
+    {
+        $id = $request->id;
+        $customer = Customer::findOrFail($id);
+        $broadcasts = $customer->broadcastAll;
+
+        foreach ($broadcasts as $broadcast) {
+            $broadcastArray[] = $broadcast->group_id .' '.$broadcast->created_at->format('Y/m/d').'<br>';
+        }
+
+         return response()->json([
+            'status' => 'success',
+            'data' => $broadcastArray,
+        ]);
+    }
 }

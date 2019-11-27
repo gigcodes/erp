@@ -13,7 +13,7 @@
   <td class="show_select"><input type="checkbox" name="select" class="form-control checkbox_select" value="{{ $customer->id }}"></td>
   <td><a href="/customers/{{ $customer->id }}/post-show" target="_blank">{{ $customer->id }}</a></td>
   <td>{{ $customer->name }}</td>
-  <td><input type="text" name="phone" value="{{ $customer->phone }}" class="form-control" id="customer_phone"></td>
+  <td><input type="text" name="phone" value="{{ $customer->phone }}" class="form-control" onfocusout="updateCustomer({{ $customer->id }})" id="phone{{ $customer->id }}"></td>
   @php
    $count = 0; 
    $duplicate_customers = \App\Customer::where('phone',$customer->phone)->where('id', '!=', $customer->id)->get();
@@ -42,7 +42,12 @@
        <span class="slider round"></span>
   	 </label>
   </td>
-  <td>@if(isset($customer->broadcastLatest)) {{ $customer->broadcastLatest->group_id }}  @if( $customer->broadcastLatest->is_delivered == 1) <span class="dot"></span> @endif @endif</td>
+  <td>@if(isset($customer->broadcastLatest)) 
+
+    <p onclick="showBroadcast({{$customer->id}})" id="broadcast{{$customer->id}}">{{ $customer->broadcastLatest->group_id }} {{ $customer->broadcastLatest->created_at->format('Y/m/d') }}  
+    <p style="display: none;" onclick="hideBroadcastList({{$customer->id}})" id="broadcastList{{$customer->id}}"></p> @if( $customer->broadcastLatest->is_delivered == 1)  <span class="dot"></span> </p>  
+
+    @endif @endif </td>
   <td>
 
     @if($customer->do_not_disturb == 1)
