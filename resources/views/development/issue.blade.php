@@ -155,31 +155,23 @@
             @endif
             <tr>
                 <th width="1%">ID</th>
-                <th width="6%">Date Created <hr><span>ETA</span></th>
+                {{--<th width="6%">Date Created <hr><span>ETA</span></th>--}}
                 <th width="5%">Module</th>
                 <th width="10%">Subject</th>
                 <th width="5%">Priority</th>
                 <th width="15%">Issue</th>
-                <th width="5%">Submitted By  <hr><span>Assigned To</span></th>
+                <th width="5%">Date Created</th>
+                <th width="5%">Est Completion Time</th>
+                <th width="5%">Submitted By  </th>
+                <th width="5%">Assigned To</th>
                 <th width="5%">Resolved</th>
-                <th width="5%">Estimated Cost<hr><span>Real Cost</span></th>
+                <th width="5%">Cost</th>
             </tr>
             @foreach ($issues as $key => $issue)
                  @if(auth()->user()->isAdmin())
                     <tr>
                         <td><a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}</a></td>
-                        <td data-id="{{ $issue->id }}">{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }} <hr>
-                            <div class="form-group" style="width:170px;">
-                                <div class='input-group date estimate-time'>
-                                    <input style="min-width: 145px;" placeholder="Time" value="{{ $issue->estimate_time }}" type="text" class="form-control" name="estimate_time_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_completion_{{$issue->id}}">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-calendar"></i>
-                                    </span>
-                                </div>
-                                <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}"
-                                style="bottom: 33px;position: relative;margin-left: 190px;padding: 5px;">Save</button>
-                            </div>
-                        </td>
+
                         <td style="vertical-align: middle;">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</td>
                         <td style="vertical-align: middle;">{{ $issue->subject ?? 'N/A' }}</td>
                         <td style="vertical-align: middle;">{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
@@ -218,8 +210,8 @@
                             </div>
 
                         </td>
-
-                        <td data-id="{{ $issue->id }}" style="display: none;">
+                        <td >{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }} </td>
+                        <td data-id="{{ $issue->id }}">
                             <div class="form-group">
                                 <div class='input-group date estimate-time'>
                                     <input style="min-width: 145px;" placeholder="Time" value="{{ $issue->estimate_time }}" type="text" class="form-control" name="estimate_time_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_completion_{{$issue->id}}">
@@ -230,20 +222,11 @@
                                 <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button>
                             </div>
                         </td>
-                        <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }} <hr>
-                            @if($issue->responsibleUser)
-                                {{ $issue->responsibleUser->name  }}
-                            @else
-                                <select class="set-responsible-user form-control" data-id="{{$issue->id}}" name="responsible_user" id="responsible_user_{{$issue->id}}">
-                                    <option value="">Select...</option>
-                                    @foreach($users as $id=>$name)
-                                        <option value="{{$id}}">{{ $name }}</option>
-                                    @endforeach
-                                </select>
-                            @endif
+                        <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}
+
                         </td>
 
-                        <td style="display: none;">
+                        <td>
                             <select class="form-control assign-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">
                                 <option value="">Select...</option>
                                 @foreach($users as $id=>$name)
@@ -302,9 +285,7 @@
                         <tr>
                             <td><a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</a>
                             </td>
-                            <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}<hr>
-                                <span>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}</span>
-                            </td>
+
                             <td>
                                 {{ $issue->task }}
                                 @if ($issue->getMedia(config('constants.media_tags'))->first())
@@ -330,7 +311,8 @@
                             <td>{{ $issue->subject }}</td>
                             <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
                             <td>{{ $issue->task }}</td>
-
+                            <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
+                            <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}</td>
                             <td>
                                 @if($issue->responsibleUser)
                                     {{ $issue->responsibleUser->name  }}
@@ -342,18 +324,21 @@
                                     {{--                    @endforeach--}}
                                     {{--                  </select>--}}
                                     N/A
-                                @endif <hr>
-                                    @if($issue->assignedUser)
-                                        {{ $issue->assignedUser->name }}
-                                    @else
-                                        {{--                  <select class="form-control assign-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">--}}
-                                        {{--                    <option value="">Select...</option>--}}
-                                        {{--                    @foreach($users as $id=>$name)--}}
-                                        {{--                      <option value="{{$id}}">{{ $name }}</option>--}}
-                                        {{--                    @endforeach--}}
-                                        {{--                  </select>--}}
-                                        Unassigned
-                                    @endif
+                                @endif
+
+                            </td>
+                            <td>
+                                @if($issue->assignedUser)
+                                    {{ $issue->assignedUser->name }}
+                                @else
+                                    {{--                  <select class="form-control assign-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">--}}
+                                    {{--                    <option value="">Select...</option>--}}
+                                    {{--                    @foreach($users as $id=>$name)--}}
+                                    {{--                      <option value="{{$id}}">{{ $name }}</option>--}}
+                                    {{--                    @endforeach--}}
+                                    {{--                  </select>--}}
+                                    Unassigned
+                                @endif
 
                             </td>
 
