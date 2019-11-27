@@ -67,4 +67,5 @@ Route::post('product-template', 'ProductTemplatesController@apiSave');
 
 Route::get('{client}/{numberFrom}/get-im','InstantMessagingController@getMessage');
 Route::post('{client}/{numberFrom}/webhook','InstantMessagingController@processWebhook');
+Route::post('{client}/{numberFrom}/readmessage','InstantMessagingController@readMessage');
 Route::get('{client}/{numberFrom}/im-status-update','InstantMessagingController@updatePhoneStatus');

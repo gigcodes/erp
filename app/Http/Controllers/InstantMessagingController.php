@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\ChatMessage;
 use App\Customer;
 use App\ImQueue;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Mediable;
 
 class InstantMessagingController extends Controller
 {
@@ -89,7 +91,7 @@ class InstantMessagingController extends Controller
     {
         // Get raw JSON
         $receivedJson = json_decode($request->getContent());
-
+        
         // Valid json?
         if ($receivedJson !== null && is_object($receivedJson)) {
             // Get message from queue
@@ -158,4 +160,64 @@ class InstantMessagingController extends Controller
         return json_encode($output, 200);
 
     }
+
+    public function readMessage(Request $request)
+    {
+     $receivedJson = json_decode($request->getContent());
+     try{
+         if(isset($receivedJson->messages)){
+            $author = $receivedJson->messages[0]->author;
+            $phone = str_replace('@c.us','',$author);
+
+                //Find Customer From Number : 
+            $customer = Customer::where('phone',$phone)->first();
+
+            if($customer != '' && $customer != null){
+              $body =   $receivedJson->messages[0]->body;
+
+              if(is_array($body)){  
+
+                foreach ($body as $value) {
+                    
+                    $params = [
+                        'unique_id' => $receivedJson->messages[0]->id,
+                        'message' => $value->text,
+                        'customer_id' => $customer != null ? $customer->id : null,
+                        'approved' => 1,
+                        'status' => 9,
+                    ];
+
+                    $chatMessage = ChatMessage::create($params);
+
+                    if($value->Images != '' && $value->Images != null){
+                        $basedir = 'images/';
+                        $imagename = strtolower($author);
+                        $filename = $basedir . $imagename . '_' . $author. '.jpg';
+                        $file_content = base64_decode($value->Images);
+                        file_put_contents($filename, $file_content);
+                        $jpg = \Image::make(public_path() . '/'.$filename)->encode('jpg');
+                        $media = MediaUploader::fromString($jpg)->useFilename($imagename)->upload();
+                        $chatMessage->attachMedia($media, config('constants.excelimporter'));
+                        
+                    } 
+                }
+            }else{
+                $params = [
+                    'unique_id' => $receivedJson->messages[0]->id,
+                    'message' => $body,
+                    'customer_id' => $customer != null ? $customer->id : null,
+                    'approved' => 1,
+                    'status' => 9,
+                ];
+                $chatMessage = ChatMessage::create($params);
+            }
+            return json_encode('ack', 200);  
+        } 
+
+
+    }
+    }catch(\Exception $e){
+     return json_encode('Issues With the JSON', 500);
+    }
+}
 }

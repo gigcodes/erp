@@ -13,7 +13,7 @@
   <td class="show_select"><input type="checkbox" name="select" class="form-control checkbox_select" value="{{ $customer->id }}"></td>
   <td><a href="/customers/{{ $customer->id }}/post-show" target="_blank">{{ $customer->id }}</a></td>
   <td>{{ $customer->name }}</td>
-  <td>{{ $customer->phone }}</td>
+  <td><input type="text" name="phone" value="{{ $customer->phone }}" class="form-control" id="customer_phone"></td>
   @php
    $count = 0; 
    $duplicate_customers = \App\Customer::where('phone',$customer->phone)->where('id', '!=', $customer->id)->get();

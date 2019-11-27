@@ -176,10 +176,45 @@
                         <h4 class="panel-title">
                             <a data-toggle="collapse" href="#collapse1">WhatsApp Numbers</a>
                         </h4>
+                        <div class="pull-right" style="margin-top : -25px;">
+                            <form action="{{ route('broadcasts.index') }}" method="GET">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <input name="phone_term" type="text" class="form-control phone_global"
+                                            value="{{ isset($phone_term) ? $phone_term : '' }}"
+                                            placeholder="whatsapp number , broadcast id , remark" id="phone_term">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class='input-group date' id='filter-phone-date'>
+                                                <input type='text' class="form-control phone_global" name="phone_date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="phone_date" />
+
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                                <input type="hidden" name="phone_customrange" id="custom">
+                                                <i class="fa fa-calendar"></i>&nbsp;
+                                                <span></span> <i class="fa fa-caret-down"></i>
+                                            </div>
+                                        </div>
+
+                                        
+                                        <div class="col-md-1">
+                                         <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+                                     </div>
+                                 </div>
+                             </div>
+                         </form>
+                     </div>
                     </div>
                     <div id="collapse1" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <table class="table table-bordered table-striped">
+                            <table class="table table-bordered table-striped" id="phone-table">
+                                <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Number</th>
@@ -188,17 +223,10 @@
                                     <th>Last Check</th>
                                     <th>Last Sent</th>
                                 </tr>
-                                @foreach($numbers as $number)
-                                    <tr>
-                                        <td>{{ $number->id }}</td>
-                                        <td>{{ $number->number }}</td>
-                                        <td>{{ $number->customer()->count() }}</td>
-                                        <td>{{ $number->imQueueCurrentDateMessageSend->count() }}</td>
-                                        <td>{{ $number->last_online }}</td>
-                                        <td> @if(isset($number->imQueueLastMessageSend)) @if($number->imQueueLastMessageSend->send_after == '2002-02-02 02:02:02') Message Failed @else Send SucessFully @endif @endif</td>
-
-                                    </tr>
-                                @endforeach
+                                </thead>
+                                <tbody>
+                                @include('marketing.broadcasts.partials.phone-data')
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -269,6 +297,7 @@
         {!! $customers->render() !!}
     </div>
 @include('marketing.broadcasts.partials.modal-merge')
+@include('marketing.broadcasts.partials.message')
 @endsection
 
 @section('scripts')
@@ -314,6 +343,67 @@
                     } else {
                         $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
                     }
+
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });  
+
+            });
+
+            function showMessage(id,number){
+                date = $("#date"+id).val();
+                    $.ajax({
+                    url: "{{ route('broadcast.message.send.list') }}",
+                    dataType: "json",
+                    data: {
+                        number: number,
+                        date: date,
+
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                        console.log(data);
+                        $("#message").empty().html(data.data);
+                        $('#sendMessageModal').modal('show');
+                    
+
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        alert('No response from server');
+                    });  
+            }
+
+
+            $('#filter-phone-date').datetimepicker(
+            { format: 'YYYY/MM/DD' }).on('dp.change', 
+            function (e) 
+            { var formatedValue = e.date.format(e.date._f);
+
+
+                phone_term = $('#phone_term').val();
+                phone_date = $('#phone_date').val();
+
+
+                $.ajax({
+                    url: src,
+                    dataType: "json",
+                    data: {
+                        phone_term: phone_term,
+                        phone_date: phone_date,
+
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#phone-table tbody").empty().html(data.tbody);
+                    
 
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
                     alert('No response from server');
@@ -580,7 +670,7 @@
             });
         });
 
-        resetFilter
+        //resetFilter
 
         $("#resetFilter").click(function(){
             src = "{{ route('broadcasts.index') }}";
@@ -665,6 +755,40 @@
         });
 
         
+          $(document).ready(function () {
+            src = "{{ route('broadcasts.index') }}";
+            $(".phone_global").autocomplete({
+                source: function (request, response) {
+                    phone_term = $('#phone_term').val();
+                    phone_date = $('#phone_date').val();
+
+
+                    $.ajax({
+                        url: src,
+                        dataType: "json",
+                        data: {
+                            phone_term: phone_term,
+                            phone_date: phone_date,
+
+                        },
+                        beforeSend: function () {
+                            $("#loading-image").show();
+                        },
+
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                        console.log(data);
+                        $("#phone-table tbody").empty().html(data.tbody);
+                        
+
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        alert('No response from server');
+                    });
+                },
+                minLength: 1,
+
+            });
+        });
         
     </script>
        <script type="text/javascript" src="/js/common-helper.js"></script>
