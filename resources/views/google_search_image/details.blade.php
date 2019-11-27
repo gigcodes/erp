@@ -269,6 +269,15 @@
             var size = $('#product-size').val();
             var quantity = $('#product-quantity').val();
             var thiss = $(this);
+            if (name == '') {
+              alert('Please Enter name!');
+              return false;
+            }
+            
+            if (sku == '') {
+              alert('Please Enter sku!');
+              return false;
+            }
 
             var form_data = new FormData();
             form_data.append('_token', token);
