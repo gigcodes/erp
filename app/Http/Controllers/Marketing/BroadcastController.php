@@ -334,7 +334,7 @@ class BroadcastController extends Controller
         $messages = ImQueue::where('number_from',$request->number)->whereDate('created_at',$request->date)->get();
         //dd($messages);
         foreach ($messages as $message) {
-            $messageArray[] = '<tr><td>'.$message->id.'</td><td>'.$message->text.'</td><td>'.$message->number_to.'</td><td>'.$message->created_at.'</td><td>Schedules</td></tr>';
+            $messageArray[] = '<tr><td>'.$message->id.'</td><td>'.$message->text.'</td><td>'.$message->number_to.'</td><td>'.$message->created_at.'</td><td>'.$message->send_after.'</td></tr>';
         }
         
         return response()->json([

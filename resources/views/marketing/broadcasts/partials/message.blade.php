@@ -17,7 +17,7 @@
                               <td>Message</td>
                               <td>Number</td>
                               <td>Date Time</td>
-                              <td>Schedules</td>
+                              <td>Schedule</td>
                             </tr>
                           </tbody>
                           <thead id="message">
@@ -28,7 +28,6 @@
                     </div>
     				<div class="modal-footer">
     					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-    					<button type="submit" class="btn btn-secondary">Store</button>
     				</div>
     			
     		</div>

@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 class WhatsappConfig extends Model
 {
-    protected $fillable = ['number', 'provider', 'username', 'password', 'is_customer_support'];
+    protected $fillable = ['number', 'provider', 'username', 'password', 'is_customer_support','frequency'];
 
     public function customer()
     {
