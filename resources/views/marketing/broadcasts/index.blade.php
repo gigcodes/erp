@@ -1098,6 +1098,10 @@
                     $("#loading-image").hide();
                     alert('Number Updated SucessFully');
                 },
+                error: function() {
+                    $("#loading-image").hide();
+                    alert('Customer Number Already Exist');
+                },
                 data: {
                     phone: phone,
                      _token: "{{ csrf_token() }}",
