@@ -1515,16 +1515,27 @@ class ProductController extends Controller
         }
 
         // if source is attach_media for search then check product has image exist or not
-         $products = $products->join("mediables", function ($query) {
+        $products = $products->join("mediables", function ($query) {
             $query->on("mediables.mediable_id", "products.id")->where("mediable_type", 'like', "App%Product");
-        })->groupBy('products.id');
+        });
+
+        if($request->get("unsupported",null) != "") {
+            
+            $mediaIds = \DB::table("media")->where("aggregate_type","image")->join("mediables", function ($query) {
+                $query->on("mediables.media_id", "media.id")->where("mediables.mediable_type", 'like', "App%Product");
+            })->whereNotIn("extension",config("constants.gd_supported_files"))->select("id")->pluck("id")->toArray();
+
+            $products = $products->whereIn("mediables.media_id",$mediaIds);
+        }
+
+        $products = $products->groupBy('products.id');
 
         if (!empty($request->quick_sell_groups) && is_array($request->quick_sell_groups)) {
             $products = $products->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (".implode(",", $request->quick_sell_groups).") ))");
         }
 
         // select fields..
-        $products = $products->select(['id','name','short_description','color','sku', 'size', 'price_special', 'supplier', 'purchase_status']);
+        $products = $products->select(['products.id','name','short_description','color','sku', 'products.size', 'price_special', 'supplier', 'purchase_status', 'products.created_at']);
 
         if ($request->get('is_on_sale') == 'on') {
             $products = $products->where('is_on_sale', 1);
@@ -1539,9 +1550,14 @@ class ProductController extends Controller
         $products = $products->paginate($perPageLimit);
         $all_product_ids = [];
         if ($request->ajax()) {
-            $html = view('partials.image-load', ['products' => $products, 'all_product_ids' => $all_product_ids, 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [], 'model_type' => $model_type])->render();
+            $html = view('partials.image-load', [
+                'products' => $products,
+                'all_product_ids' => $all_product_ids,
+                'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [], 
+                'model_type' => $model_type
+            ])->render();
 
-            return response()->json(['html' => $html]);
+            return response()->json(['html' => $html,'products_count' => $products_count]);
         }
 
         $filtered_category = json_decode($request->category, true);
@@ -1651,7 +1667,7 @@ class ProductController extends Controller
         }
 
         $product->detachMediaTags(config('constants.media_tags'));
-        $media = MediaUploader::fromSource($request->file('image'))
+        $media = MediaUploader::fromSource($request->get('is_image_url') ? $request->get('image') : $request->file('image'))
                                 ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                 ->upload();
         $product->attachMedia($media, config('constants.media_tags'));
@@ -1678,6 +1694,10 @@ class ProductController extends Controller
             $stock->products()->attach($product);
 
             return response(['product' => $product, 'product_image' => $product_image]);
+        }
+
+        if ($request->ajax()) {
+            return response()->json(['msg' => 'success']);
         }
 
         return redirect()->back()->with('success', 'You have successfully uploaded product!');

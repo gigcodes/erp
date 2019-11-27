@@ -134,17 +134,85 @@ class GoogleSearchImageController extends Controller
 
         $data['locations'] = (new \App\ProductLocation())->pluck('name');
 
-    return view( 'google_search_image.index', $data );
+        return view( 'google_search_image.index', $data );
     }
 
+    public function crop(Request $request)
+    {
+        $this->validate($request, [
+            'product_id' => 'required'
+        ]);
 
+        $product_id = $request->get('product_id');
+        $product = Product::where('id', $product_id)->first();
+        if ($product) {
+
+            $media = $product->media()->first();
+            
+            $data['image'] = '';
+            
+            if($media) {
+                $data['image'] = $media->getUrl();
+                $data['media_id'] = $media->id;
+                $data['product_id'] = $product_id;
+            }
+            
+            if (!empty($data['image'])) {
+                return view( 'google_search_image.crop', $data );
+            }
+        }
+
+        return redirect()->back()->with('message','Image Not found!!');
+    }
 
     public function searchImageOnGoogle(Request $request)
     {
         $this->validate($request, [
-            'product_ids' => 'required'
+            'media_id' => 'required',
+            'product_id' => 'required'
         ]);
 
+        $product_id = $request->get('product_id');
+        $product = Product::where('id', $product_id)->first();
+        if ($product) {
+
+            $media = $product->media()->first();
+            
+            if($media) {
+
+                $path = $media->getAbsolutePath();
+                $url = $media->getUrl();
+
+                $img = \Image::make($media->getAbsolutePath());
+                $height = $request->get('width', null);
+                $width = $request->get('height', null);
+                $x = $request->get('x', null);
+                $y = $request->get('y', null);
+
+                if ($height != null && $width != null && $x != null && $y != null) {
+                    $img->crop($width[0], $height[0], $x[0], $y[0]);
+
+                    if(!is_dir(public_path() . '/tmp_images')) {
+                        mkdir(public_path() . '/tmp_images', 0777, true);
+                    }                  
+                    $path = public_path() . '/tmp_images/crop_'.$media->getBasenameAttribute();
+                    $url = '/tmp_images/crop_'.$media->getBasenameAttribute();
+                    $img->save($path);
+                }
+            }
+            
+        }
+        
+        if ($path) {
+            $productImage = [];
+            $productImage[$url] = GoogleVisionHelper::getImageDetails($path);
+            $product = Product::where('id', $product_id)->first();
+            return view( 'google_search_image.details', compact(['productImage', 'product_id', 'product']));
+        } else {
+            return redirect(route('google.search.image'))->with('message','Please Select Products');
+        }
+
+        /*
         $productIds = $request->get('product_ids');
         $productImage = [];
         if (is_array($productIds)) {
@@ -162,8 +230,9 @@ class GoogleSearchImageController extends Controller
 	    		}
             }
         } else {
-            return redirect()->back()->with('message','Please Select Products');
+            return redirect(route('google.search.image'))->with('message','Please Select Products');
         }
+        */
 
         abort(403, 'Sorry , it looks like there is no result from the request.');
     }
@@ -171,11 +240,13 @@ class GoogleSearchImageController extends Controller
     public function details(Request $request)
     {
     	$url = $request->get("url");
+        $product_id = $request->get("product_id");
     	$productImage = [];
     	if(!empty($url)) {
     		$productImage[$url] =  GoogleVisionHelper::getImageDetails($url);
     		if(!empty($productImage)) {
-    			return view( 'google_search_image.details', compact(['productImage']));
+                $product = Product::where('id', $product_id)->first();
+    			return view( 'google_search_image.details', compact(['productImage', 'product_id', 'product']));
     		}
 		}
 
@@ -219,21 +290,39 @@ class GoogleSearchImageController extends Controller
 
         }
 
-        $productCount = \App\Product::where("status_id", StatusHelper::$unableToScrapeImages)->where("stock",">",0)->count();
-        $product = \App\Product::where("status_id", StatusHelper::$unableToScrapeImages)->where("stock",">",0);
+        $revise = $request->get("revise",0);
+
+        $products = \App\Product::where("products.stock",">",0);
+
+        if($revise == 1) {
+            $products->where("status_id", StatusHelper::$manualImageUpload);
+        }else{
+            $products->where("status_id", StatusHelper::$unableToScrapeImages);
+        }    
 
         if($request->has("supplier")) {
-            $product = $product->where("supplier",$request->get("supplier"));
+            $products = $products->join('product_suppliers as ps',"ps.product_id","products.id");
+            $products = $products->where("ps.supplier_id",$request->get("supplier"));
         }
 
-        $product = $product->orderBy("id","desc")->first();
+        $productCount = $products->count();
 
-        $supplierList = \App\Product::where("status_id","14")->groupBy("supplier")
-        ->select([\DB::raw("count(*) as supplier_count"),"supplier"])
+        $product = $products->select(["products.*"])->orderBy("products.id","desc")->first();
+        
+        $supplierList = \App\Product::where("status_id","14")
+        ->where("products.stock",">",0)
+        ->join('product_suppliers as ps',"ps.product_id","products.id")
+        ->join('suppliers as s',"s.id","ps.supplier_id")
+        ->groupBy("s.id")
+        ->select([\DB::raw("count(*) as supplier_count"),"s.supplier","s.id"])
         ->get()->toArray();
 
-        $skippedSuppliers = \App\Product::where("status_id","22")->groupBy("supplier")
-        ->select([\DB::raw("count(*) as supplier_count"),"supplier"])
+        $skippedSuppliers = \App\Product::where("status_id","22")
+        ->where("products.stock",">",0)
+        ->join('product_suppliers as ps',"ps.product_id","products.id")
+        ->join('suppliers as s',"s.id","ps.supplier_id")
+        ->groupBy("s.id")
+        ->select([\DB::raw("count(*) as supplier_count"),"s.supplier","s.id"])
         ->get()->toArray();
 
         return view("google_search_image.product",compact(['product', 'productCount', 'supplierList','skippedSuppliers']));
