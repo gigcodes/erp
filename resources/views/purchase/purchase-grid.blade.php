@@ -451,7 +451,7 @@
                 <div class="modal-body">
                     <div class="row" id="alternative_offers_con">
                         <div class="col-lg-12">
-                            <form action="{{ route('search') }}" method="GET" class="form-inline align-items-start" id="alternative_offers_search_form">
+                            <form action="{{ route('attachImages', 'customer') }}" method="GET" class="form-inline align-items-start" id="alternative_offers_search_form">
                                 <div class="form-group mr-3 mb-3">
                                     {!! $category_selection !!}
                                 </div>
@@ -470,12 +470,12 @@
                                     </select>
                                 </div>
                                 <div class="form-group mr-3 mb-3">
-                                    <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
+                                    <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control" style="width: 100px;">
                                 </div>
                                 <div class="form-group mr-3">
                                     <strong class="mr-3">Price</strong>
-                                    <input type="text" name="price_min" class="form-control" placeholder="min. price" value="{{ isset($_GET['price_min']) ? (int) $_GET['price_min'] : '' }}">
-                                    <input type="text" name="price_max" class="form-control" placeholder="max. price" value="{{ isset($_GET['price_max']) ? (int) $_GET['price_max'] : '' }}">
+                                    <input type="text" name="price_min" class="form-control" placeholder="min. price" value="{{ isset($_GET['price_min']) ? (int) $_GET['price_min'] : '' }}" style="width: 100px;">
+                                    <input type="text" name="price_max" class="form-control" placeholder="max. price" value="{{ isset($_GET['price_max']) ? (int) $_GET['price_max'] : '' }}" style="width: 100px;">
                                 </div>
                                 <input type="hidden" name="selected_products" value="" id="selected_products">
                                 <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
@@ -490,7 +490,15 @@
                                 <textarea name="message" placeholder="Message" class="form-control"></textarea>
                                 <input type="hidden" name="customer_id" value="" class="customer_id">
                                 <input type="hidden" name="status" value="1">
+                                <input type="hidden" id="send_pdf" name="send_pdf" value="0"/>
                             </form>
+                        </div>
+                        <div class="col-lg-6">
+                            <button type="button" class="btn btn-secondary select-all-product-btn" data-count="0">Select All</button>
+                            <button type="button" class="btn btn-secondary select-all-product-btn" data-count="20">Select 20</button>
+                            <button type="button" class="btn btn-secondary select-all-product-btn" data-count="30">Select 30</button>
+                            <button type="button" class="btn btn-secondary select-all-product-btn" data-count="50">Select 50</button>
+                            <button type="button" class="btn btn-secondary select-all-product-btn" data-count="100">Select 100</button>
                         </div>
                         <div class="col-lg-12">
                             <div class="productGrid" id="productGrid"></div>
@@ -505,6 +513,20 @@
         </div>
     </div>
 
+    <div id="confirmPdf" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p>Choose the format for sending</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-approve-pdf">PDF</button>
+                    <button type="button" class="btn btn-secondary btn-ignore-pdf">Images</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- {!! $leads->links() !!} --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
@@ -512,6 +534,97 @@
         /*$(document).on('change', '.supplier_msg', function(){
             supplier_msg($(this));
         })*/
+
+        var selectAllBtn = $(".select-all-product-btn");
+            selectAllBtn.on("click", function (e) {
+                var $this = $(this);
+                var vcount = 0;
+
+                vcount = $this.data('count');
+                if (vcount == 0) {
+                    vcount = 'all';
+                }
+                var productCardCount = $(".product-list-card").length;
+
+                if((vcount == "all" || 1 == 1) && $this.hasClass("has-all-selected") === false && (productCardCount < vcount || vcount == "all") ) {
+
+                    e.preventDefault();
+
+                    $('#selected_products').val(JSON.stringify(image_array));
+
+                    $('#selected_products').val(JSON.stringify(image_array));
+                    var formData = $('#searchForm').serializeArray();
+                    formData.push({name: "limit", value: vcount}) ;
+                    formData.push({name: "page", value: 1}) ;
+                    
+                    var url = "{{ route('attachImages', 'customer') }}";
+
+
+                    $.ajax({
+                        url: url,
+                        data : formData,
+                        beforeSend: function() {
+                            $('#productGrid').html('<img id="loading-image" src="/images/pre-loader.gif"/>');
+                        }
+                    }).done(function (data) {
+                        //all_product_ids = data.all_product_ids;
+                        $('#productGrid').html(data.html);
+                        $('#products_count').text(data.products_count);
+                        $('.lazy').Lazy({
+                            effect: 'fadeIn'
+                        });
+
+                        if ($this.hasClass("has-all-selected") === false) {
+                            $this.html("Deselect " + vcount);
+                            if (vcount == 'all') {
+                                $(".select-pr-list-chk").prop("checked", true).trigger('change');
+                            } else {
+                                var boxes = $(".select-pr-list-chk");
+                                for (i = 0; i < vcount; i++) {
+                                    try {
+                                        $(boxes[i]).prop("checked", true).trigger('change');
+                                    } catch (err) {
+                                    }
+                                }
+                            }
+                            $this.addClass("has-all-selected");
+                        } 
+                    }).fail(function () {
+                        alert('Error searching for products');
+                    });
+
+                }else {
+                    if ($this.hasClass("has-all-selected") === false) {
+                        $this.html("Deselect " + vcount);
+                        if (vcount == 'all') {
+                            $(".select-pr-list-chk").prop("checked", true).trigger('change');
+                        } else {
+                            var boxes = $(".select-pr-list-chk");
+                            for (i = 0; i < vcount; i++) {
+                                try {
+                                    $(boxes[i]).prop("checked", true).trigger('change');
+                                } catch (err) {
+                                }
+                            }
+                        }
+                        $this.addClass("has-all-selected");
+                    }else {
+                        $this.html("Select " + vcount);
+                        if (vcount == 'all') {
+                            $(".select-pr-list-chk").prop("checked", false).trigger('change');
+                        } else {
+                            var boxes = $(".select-pr-list-chk");
+                            for (i = 0; i < vcount; i++) {
+                                try {
+                                    $(boxes[i]).prop("checked", false).trigger('change');
+                                } catch (err) {
+                                }
+                            }
+                        }
+                        $this.removeClass("has-all-selected");
+                    }
+                }
+        })
 
         function supplier_msg(_this) {
             var suppliers = _this.val();
@@ -566,7 +679,7 @@
             $('#alternative_offers_search_form').find("input[name='price_min']").val($(this).data('price'));
             $('#attachImageForm').find(".customer_id").val($(this).data('customer_id'));
             $.ajax({
-                url: "{{ route('search') }}",
+                url: "{{ route('attachImages', 'customer') }}",
                 data: $('#alternative_offers_search_form').serialize()
             }).done(function (data) {
                 all_product_ids = data.all_product_ids;
@@ -683,7 +796,7 @@
 
             $('#selected_products').val(JSON.stringify(image_array));
 
-            var url = "{{ route('search') }}";
+            var url = "{{ route('attachImages', 'customer') }}";
             var formData = $('#alternative_offers_search_form').serialize();
 
             $.ajax({
@@ -706,18 +819,38 @@
                 alert('Please select some images');
             } else {
                 $('#images').val(JSON.stringify(image_array));
-
-                $.ajax({
-                    method: 'post',
-                    url: "{{ route('whatsapp.send', 'customer') }}",
-                    data: $('#attachImageForm').serialize()
-                }).done(function (data) {
-                    alert('You have successfully send message!');
-                    $('#alternative_offers').modal('hide');
-                }).fail(function () {
-                    alert('Error searching for products');
-                });
+                 $("#confirmPdf").modal("show");
             }
+        });
+
+        $(".btn-approve-pdf").on("click",function() {
+            $("#send_pdf").val("1");
+            $.ajax({
+                method: 'post',
+                url: "{{ route('whatsapp.send', 'customer') }}",
+                data: $('#attachImageForm').serialize()
+            }).done(function (data) {
+                alert('You have successfully send message!');
+                $('#alternative_offers').modal('hide');
+                $("#confirmPdf").modal("hide");
+            }).fail(function () {
+                alert('Error searching for products');
+            });
+        });
+
+        $(".btn-ignore-pdf").on("click",function() {
+            $("#send_pdf").val("0");
+            $.ajax({
+                method: 'post',
+                url: "{{ route('whatsapp.send', 'customer') }}",
+                data: $('#attachImageForm').serialize()
+            }).done(function (data) {
+                alert('You have successfully send message!');
+                $('#alternative_offers').modal('hide');
+                $("#confirmPdf").modal("hide");
+            }).fail(function () {
+                alert('Error searching for products');
+            });
         });
 
         // Array.prototype.groupBy = function (prop) {

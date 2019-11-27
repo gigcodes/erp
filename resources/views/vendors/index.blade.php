@@ -218,6 +218,22 @@
         </div>
     </div>
 
+    <div id="email-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Email Communication</h4>
+                    <input type="text" name="search_email_pop"  class="form-control search_email_pop" placeholder="Search Email" style="width: 200px;">
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @include('customers.zoomMeeting');
 @endsection
 
@@ -360,6 +376,91 @@
             }
         });
 
+        $(document).on('click', '.load-email-modal', function () {
+            var id = $(this).data('id');
+             $.ajax({
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route('vendor.email') }}',
+                data: {
+                    id: id
+                },
+            }).done(function (response) {
+                var html = '<div class="speech-wrapper">';
+                response.forEach(function (message) {
+                    var content = '';
+                    content += 'To : '+message.to+'<br>';
+                    content += 'From : '+message.from+'<br>';
+                    if (message.cc) {
+                        content += 'CC : '+message.cc+'<br>';
+                    }
+                    if (message.bcc) {
+                        content += 'BCC : '+message.bcc+'<br>';
+                    }
+                    content += 'Subject : '+message.subject+'<br>';
+                    content += 'Message : '+message.message+'<br>';
+                    if (message.attachment.length) {
+                        content += 'Attachment : ';
+                    }
+                    for (var i = 0; i < message.attachment.length; i++) {
+                        var imageUrl = message.attachment[i];
+                        imageUrl = imageUrl.trim();
+
+                        // Set empty imgSrc
+                        var imgSrc = '';
+
+                        // Set image type
+                        var imageType = imageUrl.substr(imageUrl.length - 4).toLowerCase();
+
+                        // Set correct icon/image
+                        if (imageType == '.jpg' || imageType == 'jpeg') {
+                            imgSrc = imageUrl;
+                        } else if (imageType == '.png') {
+                            imgSrc = imageUrl;
+                        } else if (imageType == '.gif') {
+                            imgSrc = imageUrl;
+                        } else if (imageType == 'docx' || imageType == '.doc') {
+                            imgSrc = '/images/icon-word.svg';
+                        } else if (imageType == '.xlsx' || imageType == '.xls' || imageType == '.csv') {
+                            imgSrc = '/images/icon-excel.svg';
+                        } else if (imageType == '.pdf') {
+                            imgSrc = '/images/icon-pdf.svg';
+                        } else if (imageType == '.zip' || imageType == '.tgz' || imageType == 'r.gz') {
+                            imgSrc = '/images/icon-zip.svg';
+                        } else {
+                            imgSrc = '/images/icon-file-unknown.svg';
+                        }
+
+                        // Set media
+                        if (imgSrc != '') {
+                            content += '<div class="col-4"><a href="' + message.attachment[i] + '" target="_blank"><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
+                        }
+                    }
+                    if (message.inout == 'in') {
+                        html += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + content + '</p><br/><span class="timestamp">' + message.created_at.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+                    } else if (message.inout == 'out') {
+                        html += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + content + '</p><br/><span class="timestamp">' + message.created_at.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+                    }
+                });
+
+                html += '</div>';
+
+                $("#email-list-history").find(".modal-body").html(html); 
+                $("#email-list-history").modal("show");
+            }).fail(function (response) {
+                console.log(response);
+
+                alert('Could not load email');
+            });
+        });
+        $(document).on("keyup", '.search_email_pop', function() {
+            var value = $(this).val().toLowerCase();
+            $(".speech-wrapper .bubble").filter(function() {
+                $(this).toggle($(this).find('.message').text().toLowerCase().indexOf(value) > -1)
+            });
+        });
         $(document).on('click', '.send-message', function () {
             var thiss = $(this);
             var data = new FormData();
@@ -384,6 +485,7 @@
                             $(thiss).attr('disabled', true);
                         }
                     }).done(function (response) {
+                        thiss.closest('tr').find('.chat_messages').html(thiss.siblings('input').val()); 
                         $(thiss).siblings('input').val('');
 
                         $(thiss).attr('disabled', false);
