@@ -24,15 +24,15 @@ class InstantMessagingController extends Controller
     {
         // Get client class
         $clientClass = '\\App\\Marketing\\' . ucfirst($client) . 'Config';
-        
+
         // Check credentials
         $whatsappConfig = $clientClass::where('number', $numberFrom)->first();
 
         // Nothing found
-        // if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
-        //     $message = ['error' => 'Invalid token'];
-        //     return json_encode($message, 400);
-        // }
+         if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
+             $message = ['error' => 'Invalid token'];
+             return json_encode($message, 400);
+         }
 
         // Hard coded 15 minute gap
         $sentLast = ImQueue::where('number_from', $numberFrom)->max('sent_at');
@@ -99,7 +99,7 @@ class InstantMessagingController extends Controller
     {
         // Get raw JSON
         $receivedJson = json_decode($request->getContent());
-        
+
         // Valid json?
         if ($receivedJson !== null && is_object($receivedJson)) {
             // Get message from queue
@@ -169,5 +169,5 @@ class InstantMessagingController extends Controller
 
     }
 
-    
+
 }
