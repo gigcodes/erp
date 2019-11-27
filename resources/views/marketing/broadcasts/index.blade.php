@@ -220,6 +220,7 @@
                                     <th>Number</th>
                                     <th>Total Customers</th>
                                     <th>Message Sent Per Day</th>
+                                    <th>Pending</th>
                                     <th>Last Check</th>
                                     <th>Last Sent</th>
                                 </tr>

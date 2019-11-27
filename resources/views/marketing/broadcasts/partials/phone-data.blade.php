@@ -19,7 +19,7 @@
 										@else
 										<td>{{ $number->imQueueCurrentDateMessageSend->count() }}</td>
                                         @endif
-                                        
+                                        <td>@if(isset($number->imQueueLastMessagePending)){{ $number->imQueueLastMessagePending->count() }}@else 0 @endif</td>
                                         <td>{{ $number->last_online }}</td>
                                         <td> @if(isset($number->imQueueLastMessageSend)) @if($number->imQueueLastMessageSend->send_after == '2002-02-02 02:02:02') Message Failed @else Send SucessFully @endif @endif</td>
 

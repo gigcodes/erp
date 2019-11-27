@@ -25,4 +25,9 @@ class WhatsappConfig extends Model
     {
     	return $this->hasOne(ImQueue::class,'number_from','number')->latest();
     }
+
+    public function imQueueLastMessagePending()
+    {
+        return $this->hasMany(ImQueue::class,'number_from','number')->whereNull('sent_at');
+    }
 }
