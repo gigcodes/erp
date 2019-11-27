@@ -384,6 +384,7 @@
                             $(thiss).attr('disabled', true);
                         }
                     }).done(function (response) {
+                        thiss.closest('tr').find('.chat_messages').html(thiss.siblings('input').val());
                         $(thiss).siblings('input').val('');
 
                         $(thiss).attr('disabled', false);
