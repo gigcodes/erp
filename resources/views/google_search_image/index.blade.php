@@ -85,7 +85,7 @@
 
   <div class="productGrid" id="productGrid">
     {!! $products->appends(Request::except('page'))->links() !!}
-     <form  method="POST" action="{{route('google.search.image')}}">
+     <form  method="POST" action="{{route('google.search.crop')}}">
       {{ csrf_field() }}
         <div class="row">
           @foreach ($products as $product)
@@ -103,7 +103,7 @@
               <p>Size : {{ $product->size}}</p>
               <p>Price : {{ $product->price_special }}</p>
 
-              <input type="checkbox" class="select-product-edit" name="product_ids[]" value="{{ $product->id }}">
+              <input type="radio" class="select-product-edit" name="product_id" value="{{ $product->id }}">
             </a>
           </div>
           @endforeach

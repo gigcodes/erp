@@ -11,9 +11,10 @@
   @include('partials.flash_messages')
 
   <div class="productGrid" id="productGrid">
-      <form  method="POST" action="{{route('google.details.image')}}">
+      <form  method="POST" action="{{route('google.search.details')}}">
         {{ csrf_field() }}
         <input id="search-product-url" type="hidden" name="url">
+        <input id="search-product-url" type="hidden" name="product_id" value="{{$product_id}}">
       </form>
       <?php if(!empty($productImage)) { ?>
         <?php foreach($productImage as $i => $result) { ?>
@@ -56,7 +57,7 @@
                               <div class="panel-body"><img src="<?php echo $result['image']; ?>" class="img-responsive" style="width:250px; height:250px;" alt="Image"></div>
                               <div class="panel-footer">
                                 <a href="<?php echo $pages; ?>" target="__blank">
-                                  <button title="<?php echo $pages; ?>" class="btn btn-secondary">Go To <?php echo substr($pages, 0, 30) ?> ..</button>
+                                  <button title="<?php echo $pages; ?>" class="btn btn-secondary">Go To <?php echo substr($pages, 0, 30) ?>...</button>
                                 </a>
                               </div>
                             </div>
@@ -77,6 +78,9 @@
                                   <button data-href="<?php echo $images; ?>" class="btn btn-secondary btn-img-details">
                                       Get Details
                                   </button>
+                                  <button class="btn btn-secondary add-product" data-product="{{$product_id}}" data-href="<?php echo $images; ?>">
+                                      Add Product
+                                  </button>
                               </div>
                             </div>
                           </div>
@@ -95,6 +99,9 @@
                               <div class="panel-footer">
                                   <button data-href="<?php echo $images; ?>" class="btn btn-secondary btn-img-details">
                                       Get Details
+                                  </button>
+                                  <button class="btn btn-secondary add-product" data-product="{{$product_id}}" data-href="<?php echo $images; ?>">
+                                      Add Product
                                   </button>
                               </div>
                             </div>
@@ -115,6 +122,9 @@
                                   <button data-href="<?php echo $images; ?>" class="btn btn-secondary btn-img-details">
                                       Get Details
                                   </button>
+                                  <button class="btn btn-secondary add-product" data-product="{{$product_id}}" data-href="<?php echo $images; ?>">
+                                      Add Product
+                                  </button>
                               </div>
                             </div>
                           </div>
@@ -127,7 +137,105 @@
         <?php } ?>  
       <?php } ?> 
   </div>
+<div id="productModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
 
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Create Product</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="order_id" value="">
+        <div class="form-group">
+            <strong>Image:</strong>
+            <input type="hidden" class="form-control" name="image"
+                   value="image" id="product-image"/>
+        </div>
+
+        <div class="form-group">
+            <strong>Name:</strong>
+            <input type="text" class="form-control" name="name" placeholder="Name"
+                   value="{{ $product->name }}"  id="product-name"/>
+            @if ($errors->has('name'))
+                <div class="alert alert-danger">{{$errors->first('name')}}</div>
+            @endif
+        </div>
+
+        <div class="form-group">
+            <strong>SKU:</strong>
+            <input type="text" class="form-control" name="sku" placeholder="SKU"
+                   value=""  id="product-sku"/>
+            @if ($errors->has('sku'))
+                <div class="alert alert-danger">{{$errors->first('sku')}}</div>
+            @endif
+        </div>
+
+        <div class="form-group">
+            <strong>Color:</strong>
+            <input type="text" class="form-control" name="color" placeholder="Color"
+                   value="{{ $product->color }}"  id="product-color"/>
+            @if ($errors->has('color'))
+                <div class="alert alert-danger">{{$errors->first('color')}}</div>
+            @endif
+        </div>
+
+        <div class="form-group">
+            <strong>Brand:</strong>
+            <?php
+            $brands = \App\Brand::getAll();
+            echo Form::select('brand',$brands, $product->brand , ['placeholder' => 'Select a brand','class' => 'form-control', 'id'  => 'product-brand']);?>
+              {{--<input type="text" class="form-control" name="brand" placeholder="Brand" value="{{ old('brand') ? old('brand') : $brand }}"/>--}}
+              @if ($errors->has('brand'))
+                  <div class="alert alert-danger">{{$errors->first('brand')}}</div>
+              @endif
+        </div>
+
+        <div class="form-group">
+            <strong>Price: (Euro)</strong>
+            <input type="number" class="form-control" name="price" placeholder="Price (Euro)"
+                   value="{{ $product->price }}" step=".01"  id="product-price"/>
+            @if ($errors->has('price'))
+                <div class="alert alert-danger">{{$errors->first('price')}}</div>
+            @endif
+        </div>
+
+        <div class="form-group">
+            <strong>Price:</strong>
+            <input type="number" class="form-control" name="price_special" placeholder="Price"
+                   value="{ $product->price_special }}" step=".01"  id="product-price-special"/>
+            @if ($errors->has('price_special'))
+                <div class="alert alert-danger">{{$errors->first('price_special')}}</div>
+            @endif
+        </div>
+
+        <div class="form-group">
+            <strong>Size:</strong>
+            <input type="text" class="form-control" name="size[]" placeholder="Size"
+                   value="{{$product->size }}"  id="product-size"/>
+            @if ($errors->has('size'))
+                <div class="alert alert-danger">{{$errors->first('size')}}</div>
+            @endif
+        </div>
+
+        <div class="form-group">
+            <strong>Quantity:</strong>
+            <input type="number" class="form-control" name="quantity" placeholder="Quantity"
+                   value="{{ $product->quantity }}"  id="product-quantity"/>
+            @if ($errors->has('quantity'))
+                <div class="alert alert-danger">{{$errors->first('quantity')}}</div>
+            @endif
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary createProduct">Create</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -140,6 +248,61 @@
             $("#search-product-url").val($(this).data("href"));
             $("#search-product-url").closest("form").submit();
         });
+
+        $('.add-product').on("click", function() {
+            $('#product-image').val($(this).data("href"));
+            $('#productModal').modal('show');;
+        });
+
+        $('.createProduct').on('click', function() {
+            var token = "{{ csrf_token() }}";
+            var url = "{{ route('products.store') }}";
+            // var order_id = $(this).data('orderid');
+            var order_id = $('input[name="order_id"]').val();
+            var image = $('#product-image').val();
+            var name = $('#product-name').val();
+            var sku = $('#product-sku').val();
+            var color = $('#product-color').val();
+            var brand = $('#product-brand').val();
+            var price = $('#product-price').val();
+            var price_special = $('#product-price-special').val();
+            var size = $('#product-size').val();
+            var quantity = $('#product-quantity').val();
+            var thiss = $(this);
+
+            var form_data = new FormData();
+            form_data.append('_token', token);
+            form_data.append('order_id', order_id);
+            form_data.append('image', image);
+            form_data.append('name', name);
+            form_data.append('sku', sku);
+            form_data.append('color', color);
+            form_data.append('brand', brand);
+            form_data.append('price', price);
+            form_data.append('price_special', price_special);
+            form_data.append('size', size);
+            form_data.append('quantity', quantity);
+            form_data.append('is_image_url', '1');
+
+            $.ajax({
+              type: 'POST',
+              url: url,
+              processData: false,
+              contentType: false,
+              enctype: 'multipart/form-data',
+              data: form_data,
+              beforeSend: function() {
+                $(thiss).text('Creating...');
+              }
+            }).done(function(response) {              
+              $('#productModal').find('.close').click();
+            }).fail(function(response) {
+              $(thiss).text('Create');
+
+              console.log(response);
+              alert('Could not create a product!');
+            });
+          });
 
  </script> 
   

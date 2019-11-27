@@ -163,21 +163,21 @@
                 <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
               ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
               : '' }}" class="img-responsive grid-image" alt="" />
-                <p>Supplier : {{ $product->supplier }}</p>
-                <p>Price : {{ $product->price }}</p>
-                <p>Size : {{ $product->size }}</p>
-                <p>Brand : {{ $product->brand ? $brands[$product->brand] : '' }}</p>
-                <p>Category : {{ $product->category ? $categories[$product->category] : '' }}</p>
-                 @if($product->groups)
-    
-                <p>Group :@foreach($product->groups as $group)
-                  @php 
-                $grp = \App\QuickSellGroup::where('group',$group->quicksell_group_id)->first();
-                @endphp 
-
-                @if($grp != null && $grp->name != null) {{ $grp->name }} , @else {{ $group->quicksell_group_id }}, @endif @endforeach @endif </p>
-
                 
+                <div id="set{{ $product->id }}">
+                  <p>Supplier : {{ $product->supplier }}</p>
+                  <p>Price : {{ $product->price }}</p>
+                  <p>Size : {{ $product->size }}</p>
+                  <p>Brand : {{ $product->brand ? $brands[$product->brand] : '' }}</p>
+                  <p>Category : {{ $product->category ? $categories[$product->category] : '' }}</p>
+                   @if($product->groups)
+      
+                  <p>Group :@foreach($product->groups as $group)
+                    @php 
+                  $grp = \App\QuickSellGroup::where('group',$group->quicksell_group_id)->first();
+                  @endphp
+                  @if($grp != null && $grp->name != null) {{ $grp->name }} , @else {{ $group->quicksell_group_id }}, @endif @endforeach @endif </p>
+                </div>
 
                 <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
                 {!! Form::open(['method' => 'POST','route' => ['products.archive', $product->id],'style'=>'display:inline']) !!}
@@ -221,6 +221,7 @@
             $('#location_field').val(product.location);
             @endif
             $('#category_selection').val(product.category);
+            $('#product_id').val(product.id);
         });
 
         var category_tree = {!! json_encode($category_tree) !!};
@@ -366,7 +367,49 @@ $(document).ready(function(){
          $("#activate_products").submit();         
 
     });
+
+    $("#updateEditForm").on("click", function(e){
+         e.preventDefault();
+         
+         var group_id = $('#group_old').val();
+         var supplier_id = $('#supplier_select').val();
+         var price = $('#price_field').val();
+         var special_price = $('#price_special_field').val();
+         var size_field = $('#size_field').val();
+         var brand_field = $('#brand_field').val();
+         var location_field = $('#location_field').val();
+         var category_selection = $('#category_selection').val();
+         var group_name_updated = $('#group_name_updated').val();
+         var id = $('#product_id').val();
+         
+        $.ajax({
+            type: "POST",
+            url: "{{ route('quicksell.update') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+               // _method: "POST",
+                 group_old: group_id,
+                 supplier: supplier_id,
+                 price: price,
+                 price_special: special_price,
+                 size: size_field,
+                 brand: brand_field,
+                  location: location_field,
+                 category: category_selection,
+                 group_new: group_name_updated,
+                 id: id,
+            },
+            
+        }).done(function (response) {
+            //console.log(response);
+            $("#editModal").modal("hide");
+            setid = 'set'+id;
+            
+             $("#"+setid).html("<p>Supplier : "+response.data[0]+ "</p><p>Size:"+response.data[5]+"</p><p>Price :"+response.data[1]+"</p><p>Brand : " +response.data[2]+ "</p> <p>Category : "+response.data[3]+"</p> <p>Group : "+response.data[4]+"</p>");
+            }).fail(function (response) {
+           alert('failed');
+        });
+      });
 });
 </script>
-    </script>
 @endsection
