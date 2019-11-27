@@ -471,6 +471,11 @@ class DevelopmentController extends Controller
             }
         }
 
+        $requestData = new Request();
+        $requestData->setMethod('POST');
+        $requestData->request->add(['task_id' => $task->id, 'message' => $request->input('task'), 'status' => 1]);
+
+        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'task');
         // if ($task->status == 'Done') {
         //   NotificationQueueController::createNewNotification([
         //     'message' => 'New Task to Verify',
