@@ -3,10 +3,18 @@
                                         <td>{{ $number->id }}</td>
                                         <td>@if($number->is_customer_support == 1)<span style="color: red;">{{ $number->number }}</span>@else {{ $number->number }} @endif</td>
                                         <td>{{ $number->customer()->count() }}</td>
-                                        @if(isset($date))
+                                        @if($date != '' || $startDate != '') 
                                         @php
+                                        if($date != ''){
 										$count = \App\ImQueue::where('number_from',$number->number)->whereDate('created_at', $date)->count();
-										@endphp
+                                        }
+                                        elseif($startDate != '' && $endDate != ''){
+                                        $count = \App\ImQueue::where('number_from',$number->number)->whereBetween('created_at', [$startDate,$endDate])->count();
+                                        }
+                                        else{
+                                        $count = 0;
+                                        }
+                                        @endphp
 										<td><button type="button" onclick="showMessage({{ $number->id }} ,{{ $number->number }} )" value="{{ $date }}" id="date{{ $number->id }}">{{ $count }}</button></td>
 										@else
 										<td>{{ $number->imQueueCurrentDateMessageSend->count() }}</td>
@@ -17,3 +25,4 @@
 
                                     </tr>
 @endforeach
+

@@ -115,7 +115,7 @@ class BroadcastController extends Controller
         }
 
         //Filter For WhatsApp Number
-        if($request->phone_term || $request->phone_date){
+        if($request->phone_term || $request->phone_date || $request->phone_customrange){
 
             $query = WhatsappConfig::query();
 
@@ -130,17 +130,29 @@ class BroadcastController extends Controller
                 $date = '';
             }
 
+            if (request('phone_customrange') != null) {
+                $range = explode(' - ', request('phone_customrange'));
+                $startDate = $range[0];
+                $endDate = end($range);
+            }else{
+                $startDate = '';
+                $endDate = '';
+            }
+
             $numbers = $query->get();
 
             if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.broadcasts.partials.phone-data', compact('numbers','date'))->render(),
+                'tbody' => view('marketing.broadcasts.partials.phone-data', compact('numbers','date','startDate','endDate'))->render(),
                 'links' => (string)$customers->render()
             ], 200);
             }
 
         }else{
             $numbers = WhatsappConfig::get();
+            $date = '';
+            $startDate = '';
+            $endDate = '';
         }
         
         
@@ -165,6 +177,9 @@ class BroadcastController extends Controller
             'customerBroadcastPending' => $customerBroadcastPending,
             'countDNDCustomers' => $countDNDCustomers,
             'totalCustomers' => $totalCustomers,
+            'date' => $date,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
         ]);
 
     }
