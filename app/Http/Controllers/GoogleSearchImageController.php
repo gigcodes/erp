@@ -93,27 +93,25 @@ class GoogleSearchImageController extends Controller
             $productQuery = $productQuery->where(function ($query) use ($term){
                 $query->orWhere( 'sku', 'LIKE', "%$term%" )
                       ->orWhere( 'id', 'LIKE', "%$term%" );
+
+                if ( $term == - 1 ) {
+                    $query->orWhere( 'isApproved', - 1 );
+                }
+
+                if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
+                    $brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
+                    $query->orWhere( 'brand', 'LIKE', "%$brand_id%" );
+                }
+
+                if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
+                    $category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
+                    $query->orWhere( 'category', $category_id);
+                }
             });
+        }
 
-
-            if ( $term == - 1 ) {
-                $productQuery = $productQuery->where(function ($query){
-                                                                            return $query->orWhere( 'isApproved', - 1 );
-                                     });
-            }
-
-            if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
-                $brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
-                $productQuery = $productQuery->where(function ($query) use ($brand_id){
-                                                                            return $query->orWhere( 'brand', 'LIKE', "%$brand_id%" );});
-            }
-
-            if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
-                $category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
-                $productQuery = $productQuery->where(function ($query) use ($term){
-                                return $query->orWhere( 'category', CategoryController::getCategoryIdByName( $term ));} );
-            }
-
+        if ($request->quick_product === 'true') {
+            $productQuery = $productQuery->where('quick_product', 1);
         }
 
         $selected_categories = $request->category ? $request->category : 1;
@@ -126,6 +124,10 @@ class GoogleSearchImageController extends Controller
             $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
         }
 
+        if (!empty($request->quick_sell_groups) && is_array($request->quick_sell_groups)) {
+            $productQuery = $productQuery->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (".implode(",", $request->quick_sell_groups).") ))");
+        }
+
         $data[ 'products' ] = $productQuery->join("mediables", function ($query) {
                                 $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
                             })
@@ -133,7 +135,7 @@ class GoogleSearchImageController extends Controller
                             ->paginate( Setting::get( 'pagination' ) );
 
         $data['locations'] = (new \App\ProductLocation())->pluck('name');
-
+        $data['quick_sell_groups'] = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         return view( 'google_search_image.index', $data );
     }
 
