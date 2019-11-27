@@ -122,31 +122,32 @@ class Product extends Model
                 $product->price_special = $formattedPrices[ 'price_special' ];
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->save();
-                if($product){
-                    if($isExcel == 1){
-                    foreach ($json->images as $image) {
-                        try {
-                             $jpg = \Image::make($image)->encode('jpg');
-                        } catch (\Exception $e) {
-                             $array  = explode('/',$image);
-                             $filename_path = end($array);
-                             $jpg = \Image::make(public_path() . '/uploads/excel-import/'.$filename_path)->encode('jpg');
-                        }
-                        $filename = substr($image, strrpos($image, '/'));
-                        $filename = str_replace("/","",$filename);
-                        try {
-                           if (strpos($filename, '.png') !== false) {
-                            $filename = str_replace(".png","",$filename);
-                            } 
-                        } catch (\Exception $e) {}
-                        
-                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
-                        $product->attachMedia($media, config('constants.excelimporter'));
+                if ($product) {
+                    if ($isExcel == 1) {
+                        foreach ($json->images as $image) {
+                            try {
+                                $jpg = \Image::make($image)->encode('jpg');
+                            } catch (\Exception $e) {
+                                $array = explode('/', $image);
+                                $filename_path = end($array);
+                                $jpg = \Image::make(public_path() . '/uploads/excel-import/' . $filename_path)->encode('jpg');
+                            }
+                            $filename = substr($image, strrpos($image, '/'));
+                            $filename = str_replace("/", "", $filename);
+                            try {
+                                if (strpos($filename, '.png') !== false) {
+                                    $filename = str_replace(".png", "", $filename);
+                                }
+                            } catch (\Exception $e) {
+                            }
+
+                            $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                            $product->attachMedia($media, config('constants.excelimporter'));
                         }
                     }
 
                 }
-                
+
                 // Update the product status
                 ProductStatus::updateStatus($product->id, 'UPDATED_EXISTING_PRODUCT_BY_JSON', 1);
 
@@ -549,13 +550,13 @@ class Product extends Model
 
     public function attachImagesToProduct()
     {
-        if(!$this->hasMedia(\Config('constants.media_tags'))){
-             //getting image details from scraped Products
-            $scrapedProduct = ScrapedProducts::where('sku',$this->sku)->latest()->first();
+        if (!$this->hasMedia(\Config('constants.media_tags'))) {
+            //getting image details from scraped Products
+            $scrapedProduct = ScrapedProducts::where('sku', $this->sku)->latest()->first();
 
-            if($scrapedProduct != null and $scrapedProduct != ''){
+            if ($scrapedProduct != null and $scrapedProduct != '') {
                 //Looping through Product Images
-                $countImageUpdated  = 0; 
+                $countImageUpdated = 0;
                 foreach ($scrapedProduct->images as $image) {
                     //check if image has http or https link
                     if (strpos($image, 'http') === false) {
@@ -569,36 +570,26 @@ class Product extends Model
                         // if images are null
                         $jpg = null;
                     }
-                    if($jpg != null){
+                    if ($jpg != null) {
                         $filename = substr($image, strrpos($image, '/'));
-                        $filename = str_replace("/","",$filename);
-                        try {
-                            if (strpos($filename, '.png') !== false) {
-                                $filename = str_replace(".png","",$filename);
-                            }
-                            if (strpos($filename, '.jpg') !== false) {
-                                $filename = str_replace(".jpg","",$filename);
-                            } 
-                            if (strpos($filename, '.JPG') !== false) {
-                                $filename = str_replace(".JPG","",$filename);
-                            } 
-                        } catch (\Exception $e) {}
+                        $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
+
                         //save image to media
-                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                        $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->upload();
                         $this->attachMedia($media, config('constants.media_tags'));
-                        $countImageUpdated++; 
+                        $countImageUpdated++;
                     }
                 }
-                if($countImageUpdated != 0){
+                if ($countImageUpdated != 0) {
                     //Updating the Product Status
                     $this->status_id = StatusHelper::$AI;
                     $this->save();
                     // Call status update handler
                     StatusHelper::updateStatus($this, StatusHelper::$AI);
-                }    
-                
+                }
+
             }
-        }    
+        }
     }
 
 }
