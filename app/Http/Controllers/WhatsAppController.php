@@ -1839,7 +1839,7 @@ class WhatsAppController extends FindByNumberController
      * @return \Illuminate\Http\Response
      * @throws \Plank\Mediable\Exceptions\MediaUrlException
      */
-    public function sendMessage(Request $request, $context)
+    public function sendMessage(Request $request, $context, $ajaxNeeded = false)
     {
         $this->validate($request, [
             // 'message'         => 'nullable|required_without:image,images,screenshot_path|string',
@@ -2544,7 +2544,7 @@ class WhatsAppController extends FindByNumberController
             $this->approveMessage($context, $myRequest);
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $ajaxNeeded) {
             return response()->json(['message' => $chat_message]);
         }
 
@@ -3470,7 +3470,7 @@ class WhatsAppController extends FindByNumberController
         $requestData->setMethod('POST');
         $requestData->request->add(['customer_id' => $message->customer_id, 'message' => $message->message, 'status' => 1]);
 
-        return $this->sendMessage($requestData, 'customer');
+        return $this->sendMessage($requestData, 'customer', true);
     }
 
     public function stopAll()
