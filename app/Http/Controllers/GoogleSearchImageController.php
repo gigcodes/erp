@@ -290,15 +290,24 @@ class GoogleSearchImageController extends Controller
 
         }
 
-        $productCount = \App\Product::where("status_id", StatusHelper::$unableToScrapeImages)->where("products.stock",">",0)->count();
-        $product = \App\Product::where("status_id", StatusHelper::$unableToScrapeImages)->where("products.stock",">",0);
+        $revise = $request->get("revise",0);
+
+        $products = \App\Product::where("products.stock",">",0);
+
+        if($revise == 1) {
+            $products->where("status_id", StatusHelper::$manualImageUpload);
+        }else{
+            $products->where("status_id", StatusHelper::$unableToScrapeImages);
+        }    
 
         if($request->has("supplier")) {
-            $product = $product->join('product_suppliers as ps',"ps.product_id","products.id");
-            $product = $product->where("ps.supplier_id",$request->get("supplier"));
+            $products = $products->join('product_suppliers as ps',"ps.product_id","products.id");
+            $products = $products->where("ps.supplier_id",$request->get("supplier"));
         }
 
-        $product = $product->select(["products.*"])->orderBy("products.id","desc")->first();
+        $productCount = $products->count();
+
+        $product = $products->select(["products.*"])->orderBy("products.id","desc")->first();
         
         $supplierList = \App\Product::where("status_id","14")
         ->where("products.stock",">",0)
