@@ -17,6 +17,9 @@
   <td>{{ $whatsAppConfig->provider }}</td>
   <td>{{ $whatsAppConfig->frequency }}</td>
   <td>@if($whatsAppConfig->is_customer_support == 1) Yes @else No @endif</td>
+  <td>{{ $whatsAppConfig->send_start }}</td>
+  <td>{{ $whatsAppConfig->send_end }}</td>
+  
   <td><button onclick="changewhatsAppConfig({{ $whatsAppConfig->id }})" class="btn btn-secondary btn-sm">Edit</button>
     @if(Auth::user()->hasRole('Admin'))
     <button onclick="deleteConfig({{ $whatsAppConfig->id }})" class="btn btn-sm">Delete</button>

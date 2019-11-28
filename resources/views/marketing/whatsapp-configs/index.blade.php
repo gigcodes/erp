@@ -77,6 +77,8 @@
             <th>Provider</th>
             <th>Frequency</th>
             <th>Customer Support</th>
+            <th>Start Time</th>
+            <th>End Time</th>
             <th>Actions</th>
           </tr>
 
@@ -92,6 +94,8 @@
                     <option value="1">Provide Support</option>
                     <option value="0">Does Not Provide Support</option>
                 </select></th>
+            <th></th> 
+            <th></th> 
             <th></th>    
             </th>
           </tr>
