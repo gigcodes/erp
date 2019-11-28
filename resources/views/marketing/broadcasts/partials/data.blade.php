@@ -35,8 +35,7 @@
   <td>
   	 <label class="switch" style="margin: 0px">
       @if(isset($customer->customerMarketingPlatformActive) && $customer->customerMarketingPlatformActive->active == 1)
-       <input type="checkbox" class="checkboxs" checked value="{{ $customer->id }}">
-       <br>
+      <input type="checkbox" class="checkboxs" checked value="{{ $customer->id }}">
       @else
         <input type="checkbox" class="checkboxs" value="{{ $customer->id }}">
        @endif
