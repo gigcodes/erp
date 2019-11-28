@@ -235,6 +235,78 @@ class DevelopmentController extends Controller
         ]);
     }
 
+    public function listByUserId(Request $request)
+    {
+        $user_id = $request->get('user_id' , 0);
+
+        $issues = Issue::select('issues.id', 'issues.module', 'issues.subject', 'issues.issue', 'issues.submitted_by')
+                        ->leftJoin('priorities', function($query){
+                            $query->on('priorities.model_id', '=', 'issues.id');
+                            $query->where('priorities.model_type', '=', Issue::class);
+                        })
+                        ->where('responsible_user_id', $user_id)
+                        ->where('is_resolved', '0')
+                        ->orderBy('priorities.id')
+                        ->get();
+
+        foreach ($issues as &$value) {
+            $value->submitted_by = $value->submitter->name;
+        }
+        unset($value);
+        
+        return response()->json($issues);
+    }
+
+    public function setPriority(Request $request)
+    {
+        $priority = $request->get('priority', null);
+        if (!empty($priority)) {
+            
+            //get all user task
+            $issues = Issue::where('responsible_user_id', $request->get('user_id', 0))->pluck('id')->toArray();
+            
+            //delete old priority
+            \App\Priority::whereIn('model_id', $issues)->where('model_type', '=', Issue::class)->delete();
+            
+            foreach ((array)$priority as $model_id) {
+                \App\Priority::create([
+                    'model_id' => $model_id, 
+                    'model_type' => Issue::class
+                ]);
+            }
+
+            $issues = Issue::select('issues.id', 'issues.module', 'issues.subject', 'issues.issue', 'issues.submitted_by')
+                            ->leftJoin('priorities', function($query){
+                                $query->on('priorities.model_id', '=', 'issues.id');
+                                $query->where('priorities.model_type', '=', Issue::class);
+                            })
+                            ->where('responsible_user_id', $request->get('user_id', 0))
+                            ->where('is_resolved', '0')
+                            ->orderBy('priorities.id')
+                            ->get();
+
+            $message = 'Issue Priority is :';
+
+            $i = 1;
+            foreach ($issues as $value) {
+                $message .= $i ." : #ISSUE-" . $value->id . "-" . $value->subject.' => '.$value->issue."\n";
+                $i++;
+            }
+            
+            $requestData = new Request();
+            $requestData->setMethod('POST');
+            $params = [];
+            $params['user_id'] = $request->get('user_id', 0);
+            $params['message'] = $message;
+            $params['status'] = 2;
+            $requestData->request->add($params);
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+        }
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      *

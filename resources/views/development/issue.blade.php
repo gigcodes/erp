@@ -107,6 +107,11 @@
                             <img src="{{ asset('images/search.png') }}" alt="Search">
                         </button>
                     </div>
+
+                    <div class="col-md-1" style="margin-left: -106px; margin-top: 7px;">
+                        <a  data-toggle="modal" data-target="#priority_model" class="btn btn-secondary d-inline">Priority</a>
+                    </div>
+
                 </div>
             </form>
         </div>
@@ -436,6 +441,65 @@
         </div>
     </div>
 
+    <div id="priority_model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Priority</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form action="" id="priorityForm" method="POST">
+                    @csrf
+
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <strong>User:</strong>
+                            </div>
+                            <div class="col-md-11">
+                                <div class="form-group">
+                                    @if(auth()->user()->isAdmin())
+                                        <select class="form-control" name="user_id" id="priority_user_id">
+                                            @foreach ($users as $id => $name)
+                                                <option value="{{ $id }}">{{ $name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        {{auth()->user()->name}}
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-bordered table-striped">
+                                    <tr>
+                                        <th width="1%">ID</th>
+                                        <th width="5%">Module</th>
+                                        <th width="15%">Subject</th>
+                                        <th width="69%">Issue</th>
+                                        <th width="5%">Submitted By</th>
+                                    </tr>
+                                    <tbody class="show_issue_priority">
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        @if(auth()->user()->isAdmin())
+                            <button type="submit" class="btn btn-secondary">Confirm</button>
+                        @endif
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
     <script type="text/javascript">
         $(document).on('click', '.assign-issue-button', function () {
             var issue_id = $(this).data('id');
@@ -449,15 +513,71 @@
 
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         $(document).ready(function () {
             $('.select2').select2({
                 tags: true
             });
 
+            $('#priority_user_id').select2({
+                tags: true,
+                width : '100%'
+            });
+
             $('.estimate-time').datetimepicker({
                 format: 'Y-MM-DD HH:mm'
             });
+        });
+
+        function getPriorityTaskList(id) {
+            $.ajax({
+                url: "{{route('development.issue.list.by.user.id')}}",
+                type: 'POST',
+                data: {
+                    user_id : id,
+                    _token : "{{csrf_token()}}",
+                },
+                success: function (response) {
+                    var html = '';
+                    response.forEach(function (issue) {
+                        html += '<tr>';
+                            html += '<td><input type="hidden" name="priority[]" value="'+issue.id+'">'+issue.id+'</td>';
+                            html += '<td>'+issue.module+'</td>';
+                            html += '<td>'+issue.subject+'</td>';
+                            html += '<td>'+issue.issue+'</td>';
+                            html += '<td>'+issue.submitted_by+'</td>';
+                         html += '</tr>';
+                    });
+                    $( ".show_issue_priority" ).html(html);
+                    $( ".show_issue_priority" ).sortable();
+                },
+                error: function () {
+                    alert('There was error loading priority task list data');
+                }
+            });
+        }
+        getPriorityTaskList('{{auth()->user()->id}}');
+
+        $('#priority_user_id').change(function(){
+                getPriorityTaskList($(this).val())
+        });
+
+        $(document).on('submit', '#priorityForm', function (e) {
+            e.preventDefault();
+            <?php if (auth()->user()->isAdmin()) { ?>
+                $.ajax({
+                    url: "{{route('development.issue.set.priority')}}",
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        toastr['success']('Priority successfully update!!', 'success');
+                    },
+                    error: function () {
+                        alert('There was error loading priority task list data');
+                    }
+                });
+            <?php } ?>
         });
     </script>
     <script>
