@@ -365,7 +365,7 @@ class BroadcastController extends Controller
         $broadcasts = $customer->broadcastAll;
 
         foreach ($broadcasts as $broadcast) {
-            $broadcastArray[] = $broadcast->group_id .' '.$broadcast->created_at->format('Y/m/d').'<br>';
+            $broadcastArray[] = $broadcast->group_id .' '.$broadcast->created_at->format('d-m-Y').'<br>';
         }
 
          return response()->json([
