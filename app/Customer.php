@@ -194,4 +194,8 @@ class Customer extends Model
     public function broadcastAll(){
        return $this->hasMany('App\ChatMessage','customer_id','id')->where('status','8')->where('group_id','>',0)->orderby('id','desc');
     }
+
+    public function lastBroadcastSend(){
+       return $this->hasOne(ImQueue::class,'number_to','phone')->whereNotNull('send_after')->latest();
+    }
 }

@@ -74,8 +74,8 @@
             </div>    
             <div class="card col-lg-6" style="margin:auto;float:none;">
                 <h1><?php echo "#" . $product->id . " " . $product->name ?></h1>
-                <?php if ($product->hasMedia(config('constants.excel_importer'))) { ?>
-                    <?php $media = $product->getMedia(config('constants.excel_importer'))->first() ?>
+                <?php if ($product->hasMedia(config('constants.excelimporter'))) { ?>
+                    <?php $media = $product->getMedia(config('constants.excelimporter'))->first() ?>
                     <?php if($media) { ?>
                         <img style="width: 300px;height: 300px;margin: auto;" class="card-img-top" src="<?php echo $media->getUrl(); ?>" alt="">
                     <?php } ?>    

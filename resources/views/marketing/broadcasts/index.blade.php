@@ -223,6 +223,8 @@
                                     <th>Pending</th>
                                     <th>Last Check</th>
                                     <th>Last Sent</th>
+                                    <th>Send Time</th>
+                                    <th>End Time</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -252,7 +254,8 @@
                 <th>DND</th>
                 <!-- <th>Status</th> -->
                 <th>Manual Approval</th>
-                <th>Last Broadcast ID / D.Y.N</th>
+                <th>Broadcast Sent</th>
+                <th>Last Broadcast ID</th>
                 <th>Phone No. Assign WhatsApp</th>
                 <th>Remarks</th>
             </tr>
@@ -277,6 +280,7 @@
                         <option value="0">All</option>
                     </select>
                 </th>
+                <th></th>
                 <th><input type="text" class="search form-control" id="broadcast"></th>
                 <th><select class="form-control search" id="number">
                         <option value="">Select Option</option>
