@@ -109,6 +109,7 @@
                             <tr <?php  $percentage = ($data->errors * 100) / $data->total; echo (!empty($percentage) && $percentage >= 25) ? 'style="background-color: orange; color: white;"' : '' ?>>
                                 @php
                                     $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$data->website)->orderBy('created_at','desc')->first();
+                                    $count = \App\ScraperResult::where('scraper_name',$data->website)->orderBy('created_at','desc')->first();
                                 @endphp
                                 <td>{{ ++$i }}</td>
                                 <td class="p-2">{{ $data->website }}</td>
@@ -118,9 +119,9 @@
                                 <td class="p-2 text-right">{{ !empty($data) ? $data->total : '' }}</td>
                                 <td class="p-2 text-right">{{ !empty($data) ? $data->errors : '' }}</td>
                                 <td class="p-2 text-right">{{ !empty($data) ? $data->warnings : '' }}</td>
-                                <td class="p-2 text-right">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
-                                <td class="p-2 text-right">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
-                                <td class="p-2 text-right">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
+                                <td class="p-2 text-right">{{ !empty($count) ? $count->total_urls : '' }}</td>
+                                <td class="p-2 text-right">{{ !empty($count) ? $count->existing_urls : '' }}</td>
+                                <td class="p-2 text-right">{{ !empty($count) ? $count->new_urls : '' }}</td>
                                 
                                 <td>
                                     <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img src="/images/remark.png"/></button>

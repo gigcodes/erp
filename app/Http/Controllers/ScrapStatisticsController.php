@@ -23,7 +23,7 @@ class ScrapStatisticsController extends Controller
         $endDate = date('Y-m-d H:i:s');
 
         // Get active suppliers
-        $activeSuppliers = Supplier::where('status', 1)->orderby('supplier')->get();
+        $activeSuppliers = Supplier::where('supplier_status_id', 1)->orderby('supplier')->get();
 
         // Get scrape data
         $sql = '
@@ -49,6 +49,8 @@ class ScrapStatisticsController extends Controller
             ON  
                 s.scraper_name=ls.website
             WHERE
+                ls.updated_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) AND
+                ls.updated_at < "' . $endDate . '" AND
                 ls.website != "internal_scraper"
             GROUP BY
                 ls.website
@@ -56,7 +58,7 @@ class ScrapStatisticsController extends Controller
                 s.supplier
         ';
         $scrapeData =  DB::select($sql);
-        
+
         // Return view
         return view('scrap.stats', compact('activeSuppliers', 'scrapeData'));
     }

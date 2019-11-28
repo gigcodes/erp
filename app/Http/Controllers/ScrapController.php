@@ -588,15 +588,17 @@ class ScrapController extends Controller
             //Getting Supplier by Scraper name
                 try {
                     $scraper = Supplier::where('scraper_name',$request->website)->first();
-                    $totalLinks = count($links);
-                    $pendingLinks = count($pendingUrl);
-                    $existingLinks = ($totalLinks - $pendingLinks);
+                    if($scraper != '' && $scraper != null){
+                        $totalLinks = count($links);
+                        $pendingLinks = count($pendingUrl);
+                        $existingLinks = ($totalLinks - $pendingLinks);
+                        
+                        $scraper->scraper_total_urls = $totalLinks; 
+                        $scraper->scraper_existing_urls = $existingLinks;
+                        $scraper->scraper_new_urls = $pendingLinks;
+                        $scraper->update();    
+                    }
                     
-                    $scraper->scraper_total_urls = $totalLinks; 
-                    $scraper->scraper_existing_urls = $existingLinks;
-                    $scraper->scraper_new_urls = $pendingLinks;
-                    $scraper->update();
-
                     $scraperResult = new ScraperResult();
                     $scraperResult->date = date("Y-m-d");
                     $scraperResult->scraper_name = $request->website;
