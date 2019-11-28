@@ -49,6 +49,15 @@
     						@endif
     					</div>
 
+                        <div class="form-group">
+                            <strong>Frequency:</strong>
+                            <input type="text" name="frequency" class="form-control" value="{{ old('frequency') }}" required>
+
+                            @if ($errors->has('frequency'))
+                            <div class="alert alert-danger">{{$errors->first('frequency')}}</div>
+                            @endif
+                        </div>
+
     					<div class="form-group">
     						<strong>Customer Support:</strong>
     						<select class="form-control" name="customer_support">

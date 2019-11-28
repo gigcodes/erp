@@ -15,6 +15,7 @@
   <td>{{ Crypt::decrypt($whatsAppConfig->password) }}</td>
   <td>{{ $whatsAppConfig->number }}</td>
   <td>{{ $whatsAppConfig->provider }}</td>
+  <td>{{ $whatsAppConfig->frequency }}</td>
   <td>@if($whatsAppConfig->is_customer_support == 1) Yes @else No @endif</td>
   <td><button onclick="changewhatsAppConfig({{ $whatsAppConfig->id }})" class="btn btn-secondary btn-sm">Edit</button>
     @if(Auth::user()->hasRole('Admin'))

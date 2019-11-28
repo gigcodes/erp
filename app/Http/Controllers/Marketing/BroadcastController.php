@@ -14,6 +14,7 @@ use Response;
 use App\Order;
 use App\ApiKey;
 use App\ErpLeads;
+use App\ImQueue;
 use App\Marketing\WhatsappConfig;
 
 class BroadcastController extends Controller
@@ -38,7 +39,8 @@ class BroadcastController extends Controller
                     ->orWhere('name', 'LIKE', "%{$request->term}%")
                     ->orWhereHas('broadcastLatest', function ($qu) use ($request) {
                         $qu->where('group_id', 'LIKE', "%{$request->term}%");
-                    });
+                    })
+                    ->orWhere('broadcast_number','LIKE', "%{$request->term}%");
                     
             }
 
@@ -101,12 +103,59 @@ class BroadcastController extends Controller
                 $marketingArray[] = $marketing->customer_id;
             }
             $marketingList = implode(",", $marketingArray);
-           
-            $customers = Customer::select('id', 'name', 'do_not_disturb' ,'whatsapp_number',\DB::raw('IF(id IN ('.$orderList.') , 1 , 0) AS priority_order , IF(id IN ('.$orderList.') , 1 , 0) AS priority_lead , IF(id IN ('.$marketingList.') , 1 , 0) AS priority_marketing '))->orderby('priority_order','desc')->orderby('priority_lead','desc')->orderby('priority_marketing','asc')->paginate(Setting::get('pagination'));
+
+            $dndNumbers = Customer::select('id')->where('do_not_disturb',1)->get();
+            foreach ($dndNumbers as $dndNumber) {
+                $dndCustomerNumberArray[] = $dndNumber->id;
+            }
+            $dndCustomerNumbersArray = implode(",", $dndCustomerNumberArray);
+            
+            $customers = Customer::select('id', 'name','phone','broadcast_number','do_not_disturb','is_blocked' ,'whatsapp_number',\DB::raw('IF(id IN ('.$orderList.') , 1 , 0) AS priority_order , IF(id IN ('.$orderList.') , 1 , 0) AS priority_lead , IF(id IN ('.$marketingList.') , 1 , 0) AS priority_marketing , IF(id IN ('.$orderList.') , 1 , 0) AS priority_lead , IF(id IN ('.$dndCustomerNumbersArray.') , 1 , 0) AS priority_dnd '))->orderby('priority_order','desc')->orderby('priority_lead','desc')->orderby('priority_marketing','asc')->orderby('priority_dnd','asc')->paginate(Setting::get('pagination'));
 
         }
+
+        //Filter For WhatsApp Number
+        if($request->phone_term || $request->phone_date || $request->phone_customrange){
+
+            $query = WhatsappConfig::query();
+
+            //global search term
+            if (request('phone_term') != null) {
+                $query->where('number', 'LIKE', "%{$request->phone_term}%");
+            }
+
+            if (request('phone_date') != null) {
+                $date = request('phone_date');
+            }else{
+                $date = '';
+            }
+
+            if (request('phone_customrange') != null) {
+                $range = explode(' - ', request('phone_customrange'));
+                $startDate = $range[0];
+                $endDate = end($range);
+            }else{
+                $startDate = '';
+                $endDate = '';
+            }
+
+            $numbers = $query->get();
+
+            if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('marketing.broadcasts.partials.phone-data', compact('numbers','date','startDate','endDate'))->render(),
+                'links' => (string)$customers->render()
+            ], 200);
+            }
+
+        }else{
+            $numbers = WhatsappConfig::get();
+            $date = '';
+            $startDate = '';
+            $endDate = '';
+        }
         
-        $numbers = WhatsappConfig::where('is_customer_support', 0)->get();
+        
         $customerBroadcastSend = Customer::whereNotNull('broadcast_number')->count();
         $customerBroadcastPending = Customer::whereNull('broadcast_number')->count();
         $countDNDCustomers = Customer::where('do_not_disturb','1')->count();
@@ -128,6 +177,9 @@ class BroadcastController extends Controller
             'customerBroadcastPending' => $customerBroadcastPending,
             'countDNDCustomers' => $countDNDCustomers,
             'totalCustomers' => $totalCustomers,
+            'date' => $date,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
         ]);
 
     }
@@ -283,11 +335,42 @@ class BroadcastController extends Controller
         $number = $request->number;
 
         $customer = Customer::findOrFail($id);
-        $customer->whatsapp_number = $number;
+        $customer->broadcast_number = $number;
         $customer->update();
 
         return response()->json([
             'status' => 'success'
+        ]);
+    }
+
+    public function broadCastSendMessage(Request $request)
+    {
+
+        $messages = ImQueue::where('number_from',$request->number)->whereDate('created_at',$request->date)->get();
+        //dd($messages);
+        foreach ($messages as $message) {
+            $messageArray[] = '<tr><td>'.$message->id.'</td><td>'.$message->text.'</td><td>'.$message->number_to.'</td><td>'.$message->created_at.'</td><td>'.$message->send_after.'</td></tr>';
+        }
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $messageArray,
+        ]);
+    }
+
+    public function getCustomerBroadcastList(Request $request)
+    {
+        $id = $request->id;
+        $customer = Customer::findOrFail($id);
+        $broadcasts = $customer->broadcastAll;
+
+        foreach ($broadcasts as $broadcast) {
+            $broadcastArray[] = $broadcast->group_id .' '.$broadcast->created_at->format('Y/m/d').'<br>';
+        }
+
+         return response()->json([
+            'status' => 'success',
+            'data' => $broadcastArray,
         ]);
     }
 }
