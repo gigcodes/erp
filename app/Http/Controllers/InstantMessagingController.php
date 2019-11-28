@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\ChatMessage;
 use App\Customer;
 use App\ImQueue;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Mediable;
 
 class InstantMessagingController extends Controller
 {
@@ -27,10 +29,10 @@ class InstantMessagingController extends Controller
         $whatsappConfig = $clientClass::where('number', $numberFrom)->first();
 
         // Nothing found
-        if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
-            $message = ['error' => 'Invalid token'];
-            return json_encode($message, 400);
-        }
+         if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
+             $message = ['error' => 'Invalid token'];
+             return json_encode($message, 400);
+         }
 
         // Hard coded 15 minute gap
         $sentLast = ImQueue::where('number_from', $numberFrom)->max('sent_at');
@@ -38,13 +40,14 @@ class InstantMessagingController extends Controller
             $sentLast = strtotime($sentLast);
         }
 
-        if ( $sentLast > time()-900 ) {
+
+        if ( $sentLast > time() - (3600 / $whatsappConfig->frequency) ) {
             $message = ['error' => 'Awaiting forced time gap'];
             return json_encode($message, 400);
         }
 
         // Only send at certain times
-        if ( date('H') < 8 || date('H') > 19 ) {
+        if ((date('H') < 8 || date('H') > 19) && $numberFrom != '971504752911') {
             $message = ['error' => 'Sending at this hour is not allowed'];
             return json_encode($message, 400);
         }
@@ -63,13 +66,20 @@ class InstantMessagingController extends Controller
             ->first();
 
         // Return error if no message is found
-        if ($queue == null) {
+        if ($queue == null && $numberFrom != '971504752911') {
             $message = ['error' => 'The queue is empty'];
             return json_encode($message, 400);
+        } elseif ($queue == null && $numberFrom == '971504752911') {
+            $queue = new \stdClass();
+            $queue->id = rand(1000000, 9999999);
+            $queue->number_to = '31629987287';
+            $queue->text = 'This is a random message id ' . rand(1000000, 9999999);
+            $queue->image = null;
+            $queue->filename = null;
         }
 
         // Set output
-        if ($queue->image != null) {
+        if (isset($queue->image) && $queue->image != null) {
             $output = ['queueNumber' => $queue->id, 'phone' => $queue->number_to, 'body' => $queue->image, 'filename' => urlencode(substr($queue->image, strrpos($queue->image, '/') + 1)), 'caption' => $queue->text];
 //            $output = ['queueNumber' => $queue->id, 'phone' => '31629987287', 'body' => $queue->image, 'filename' => urlencode(substr($queue->image, strrpos($queue->image, '/') + 1)), 'caption' => $queue->text];
         } else {
@@ -158,4 +168,6 @@ class InstantMessagingController extends Controller
         return json_encode($output, 200);
 
     }
+
+
 }

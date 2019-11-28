@@ -1,24 +1,21 @@
 @extends('layouts.app')
 
-<<<<<<< HEAD
 
-=======
 @section('favicon' , 'broadcast.png')
 
 @section('title', 'Broadcast Info')
 
-@section('styles')
->>>>>>> c992342c181ecdb6324efe4897bb3b378845c433
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/css/select2.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <style type="text/css">
         .switch {
             position: relative;
             display: inline-block;
-            width: 60px;
-            height: 34px;
+            width: 58px;
+            height: 27px;
         }
 
         .switch input {
@@ -93,6 +90,10 @@
             top: 50%;
             left: 50%;
             margin: -50px 0px 0px -50px;
+        }
+
+        .show_select{
+            display: none;
         }
 
         }
@@ -178,26 +179,55 @@
                     </div>
                     <div id="collapse1" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <table class="table table-bordered table-striped">
+                            <div class="pull-right">
+                            <form action="{{ route('broadcasts.index') }}" method="GET">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <input name="phone_term" type="text" class="form-control phone_global"
+                                            value="{{ isset($phone_term) ? $phone_term : '' }}"
+                                            placeholder="whatsapp number , broadcast id , remark" id="phone_term">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class='input-group date' id='filter-phone-date'>
+                                                <input type='text' class="form-control phone_global" name="phone_date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="phone_date" />
+
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div id="reportrange_phone" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                                <input type="hidden" name="phone_customrange" id="custom_phone">
+                                                <i class="fa fa-calendar"></i>&nbsp;
+                                                <span></span> <i class="fa fa-caret-down"></i>
+                                            </div>
+                                        </div>
+
+                                        
+                                        <div class="col-md-1">
+                                         <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+                                     </div>
+                                 </div>
+                             </div>
+                         </form>
+                     </div>
+                            <table class="table table-bordered table-striped" id="phone-table">
+                                <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Number</th>
                                     <th>Total Customers</th>
                                     <th>Message Sent Per Day</th>
+                                    <th>Pending</th>
                                     <th>Last Check</th>
                                     <th>Last Sent</th>
                                 </tr>
-                                @foreach($numbers as $number)
-                                    <tr>
-                                        <td>{{ $number->id }}</td>
-                                        <td>{{ $number->number }}</td>
-                                        <td>{{ $number->customer()->count() }}</td>
-                                        <td>{{ $number->imQueueCurrentDateMessageSend->count() }}</td>
-                                        <td>{{ $number->last_online }}</td>
-                                        <td> @if(isset($number->imQueueLastMessageSend)) @if($number->imQueueLastMessageSend->send_after == '2002-02-02 02:02:02') Message Failed @else Send SucessFully @endif @endif</td>
-
-                                    </tr>
-                                @endforeach
+                                </thead>
+                                <tbody>
+                                @include('marketing.broadcasts.partials.phone-data')
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -206,12 +236,19 @@
 
         </div>
     </div>
+    <div class="pull-right">
+                <button type="button" class="btn btn-secondary" id="select">Select</button>
+                <button type="button" class="btn btn-secondary" id="enable">Enable</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
+            </div>
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="customers-table">
             <thead>
             <tr>
+                <th class="show_select">Select All</th>
                 <th>Customer ID</th>
                 <th>Customer Name</th>
+                <th>Customer Number</th>
                 <th>DND</th>
                 <!-- <th>Status</th> -->
                 <th>Manual Approval</th>
@@ -220,8 +257,10 @@
                 <th>Remarks</th>
             </tr>
             <tr>
+                <th class="show_select"><input type="checkbox" class="form-control" id="select_all"></th>
                 <th></th>
                 <th><input type="text" class="search form-control" id="name"></th>
+                <th><input type="text" class="search form-control" id="number"></th>
                 <th></th>
                <!--  <th>
                     <select class="form-control">
@@ -258,16 +297,22 @@
         </table>
         {!! $customers->render() !!}
     </div>
-
+@include('marketing.broadcasts.partials.modal-merge')
+@include('marketing.broadcasts.partials.message')
 @endsection
 
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+    <script type="text/javascript" src="/js/common-helper.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+   
     <script>
-       
+        $('.multiselect-2').select2({width:'92%'});
+        $('.select-multiple').select2({width: '100%'});
+
         $('#filter-date').datetimepicker(
             { format: 'YYYY/MM/DD' }).on('dp.change', 
             function (e) 
@@ -306,6 +351,67 @@
 
             });
 
+            function showMessage(id,number){
+                date = $("#date"+id).val();
+                    $.ajax({
+                    url: "{{ route('broadcast.message.send.list') }}",
+                    dataType: "json",
+                    data: {
+                        number: number,
+                        date: date,
+
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                        console.log(data);
+                        $("#message").empty().html(data.data);
+                        $('#sendMessageModal').modal('show');
+                    
+
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        alert('No response from server');
+                    });  
+            }
+
+
+            $('#filter-phone-date').datetimepicker(
+            { format: 'YYYY/MM/DD' }).on('dp.change', 
+            function (e) 
+            { var formatedValue = e.date.format(e.date._f);
+
+
+                phone_term = $('#phone_term').val();
+                phone_date = $('#phone_date').val();
+
+
+                $.ajax({
+                    url: src,
+                    dataType: "json",
+                    data: {
+                        phone_term: phone_term,
+                        phone_date: phone_date,
+
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#phone-table tbody").empty().html(data.tbody);
+                    
+
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });  
+
+            });
+
 
             $(function() {
 
@@ -331,7 +437,33 @@
              }, cb)
                 cb(start, end);
 
+                 var start = moment().subtract(29, 'days');
+                var end = moment();
+
+                function cb(start, end) {
+                    $('#reportrange_phone span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                    $('#custom_phone').val(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
+                }
+
+                $('#reportrange_phone').daterangepicker({
+                    startDate: start,
+                    endDate: end,
+                    ranges: {
+                     'Today': [moment(), moment()],
+                     'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                     'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                     'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                     'This Month': [moment().startOf('month'), moment().endOf('month')],
+                     'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                 }
+             }, cb)
+                cb(start, end);
+
             });
+
+           
+
+           
     </script>
     <script type="text/javascript">
         $(".checkbox").change(function () {
@@ -565,7 +697,7 @@
             });
         });
 
-        resetFilter
+        //resetFilter
 
         $("#resetFilter").click(function(){
             src = "{{ route('broadcasts.index') }}";
@@ -596,5 +728,414 @@
                 alert('No response from server');
             });
         });
+
+        //select all checkboxes
+        $("#select_all").change(function(){  //"select all" change 
+        $(".checkbox_select").prop('checked', $(this).prop("checked")); //change all ".checkbox" checked status
+        });
+
+        //".checkbox" change 
+        $('.checkbox_select').change(function(){ 
+        //uncheck "select all", if one of the listed checkbox item is unchecked
+        if(false == $(this).prop("checked")){ //if this item is unchecked
+        $("#select_all").prop('checked', false); //change "select all" checked status to false
+        }
+        //check "select all" if all checkbox items are checked
+        if ($('.checkbox_select:checked').length == $('.checkbox_select').length ){
+        $("#select_all").prop('checked', true);
+        }
+        });
+
+
+        $(document).ready(
+        function() {
+            $("#select").click(function() {
+            $(".show_select").toggle();
+            });
+        });
+
+        $("#enable").click(function(){
+            val = $('input[name="select"]:checked');
+            if(val.length == 0){
+                alert('Please Select Customer');
+            }else{
+                $('input[name="select"]:checked').each(function() {
+                    id = this.value;
+                    $.ajax({
+                        url: "{{ route('broadcast.add.manual') }}",
+                        dataType: "json",
+                        data: {
+                            id: id,
+                        },
+                        beforeSend: function () {
+                            $("#loading-image").show();
+                        },
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                        $("#row"+id).css('display','none');
+                        location.reload();
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        alert('No response from server');
+                    });
+                });
+            }
+        });
+
+        
+          $(document).ready(function () {
+            src = "{{ route('broadcasts.index') }}";
+            $(".phone_global").autocomplete({
+                source: function (request, response) {
+                    phone_term = $('#phone_term').val();
+                    phone_date = $('#phone_date').val();
+
+
+                    $.ajax({
+                        url: src,
+                        dataType: "json",
+                        data: {
+                            phone_term: phone_term,
+                            phone_date: phone_date,
+
+                        },
+                        beforeSend: function () {
+                            $("#loading-image").show();
+                        },
+
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                        console.log(data);
+                        $("#phone-table tbody").empty().html(data.tbody);
+                        
+
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        alert('No response from server');
+                    });
+                },
+                minLength: 1,
+
+            });
+        });
+        
+    </script>
+       <script type="text/javascript" src="/js/common-helper.js"></script>
+    <script type="text/javascript">
+
+
+       
+
+        $('.multiselect-2').select2({width:'92%'});
+        $('.select-multiple').select2({width: '100%'});
+        
+        var siteHelpers = {
+            customerSearch : function(ele) {
+                ele.select2({
+                    tags: true,
+                    width : '100%',
+                    ajax: {
+                        url: '/erp-leads/customer-search',
+                        dataType: 'json',
+                        delay: 750,
+                        data: function (params) {
+                            return {
+                                q: params.term, // search term
+                            };
+                        },
+                        processResults: function (data, params) {
+                            params.page = params.page || 1;
+
+                            return {
+                                results: data,
+                                pagination: {
+                                    more: (params.page * 30) < data.total_count
+                                }
+                            };
+                        },
+                    },
+                    placeholder: 'Search for Customer by id, Name, No',
+                    escapeMarkup: function (markup) {
+                        return markup;
+                    },
+                    minimumInputLength: 1,
+                    templateResult: function (customer) {
+                        if (customer.loading) {
+                            return customer.name;
+                        }
+
+                        if (customer.name) {
+                            return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                        }
+                    },
+                    templateSelection: (customer) => customer.text || customer.name,
+
+                });
+            },
+            userSearch : function(ele) {
+                ele.select2({
+                    ajax: {
+                        url: '/user-search',
+                        dataType: 'json',
+                        delay: 750,
+                        data: function (params) {
+                            return {
+                                q: params.term, // search term
+                            };
+                        },
+                        processResults: function (data, params) {
+
+                            params.page = params.page || 1;
+
+                            return {
+                                results: data,
+                                pagination: {
+                                    more: (params.page * 30) < data.total_count
+                                }
+                            };
+                        },
+                    },
+                    placeholder: 'Search for User by Name',
+                    escapeMarkup: function (markup) {
+                        return markup;
+                    },
+                    minimumInputLength: 2,
+                    width: '100%',
+                    templateResult: function (user) {
+                        return user.name;
+
+                    },
+                    templateSelection: function (user) {
+                        return user.name;
+                    },
+
+                });
+            },
+           loadCustomers : function (ele) {
+                var first_customer = $('#first_customer').val();
+                var second_customer = $('#second_customer').val();
+
+                if (first_customer == second_customer) {
+                    alert('You selected the same customers');
+
+                    return;
+                }
+                var params = {
+                    data : {
+                        first_customer: first_customer,
+                        second_customer: second_customer
+                    },
+                    url: "/customers-load",
+                    beforeSend : function() {
+                        ele.text('Loading...');
+                    },
+                    doneAjax : function(response) {
+                        $('#first_customer_id').val(response.first_customer.id);
+                        $('#second_customer_id').val(response.second_customer.id);
+
+                        $('#first_customer_name').val(response.first_customer.name);
+                        $('#first_customer_email').val(response.first_customer.email);
+                        $('#first_customer_phone').val(response.first_customer.phone ? (response.first_customer.phone).replace(/[\s+]/g, '') : '');
+                        $('#first_customer_instahandler').val(response.first_customer.instahandler);
+                        $('#first_customer_rating').val(response.first_customer.rating);
+                        $('#first_customer_address').val(response.first_customer.address);
+                        $('#first_customer_city').val(response.first_customer.city);
+                        $('#first_customer_country').val(response.first_customer.country);
+                        $('#first_customer_pincode').val(response.first_customer.pincode);
+
+                        $('#second_customer_name').val(response.second_customer.name);
+                        $('#second_customer_email').val(response.second_customer.email);
+                        $('#second_customer_phone').val(response.second_customer.phone ? (response.second_customer.phone).replace(/[\s+]/g, '') : '');
+                        $('#second_customer_instahandler').val(response.second_customer.instahandler);
+                        $('#second_customer_rating').val(response.second_customer.rating);
+                        $('#second_customer_address').val(response.second_customer.address);
+                        $('#second_customer_city').val(response.second_customer.city);
+                        $('#second_customer_country').val(response.second_customer.country);
+                        $('#second_customer_pincode').val(response.second_customer.pincode);
+
+                        $('#customers-data').show();
+                        $('#mergeButton').prop('disabled', false);
+
+                        ele.text('Load Data');
+                    },
+                };
+                siteHelpers.sendAjax(params);
+            }
+            
+        };
+
+        $.extend(siteHelpers, common);
+
+        
+       
+        siteHelpers.customerSearch($('#first_customer'));
+        siteHelpers.customerSearch($('#second_customer'));
+        siteHelpers.customerSearch($('#forword_customer'));
+
+        $(".multi_brand_select").change(function() {
+            var brand_segment = [];
+            $(this).find(':selected').each(function() {
+                if ($(this).data('brand-segment') && brand_segment.indexOf($(this).data('brand-segment')) == '-1') {
+                  brand_segment.push($(this).data('brand-segment'));
+                }
+            })
+            $(this).closest('form').find(".brand_segment_select").val(brand_segment).trigger('change');
+        });
+
+        $('#customer-search').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/erp-leads/customer-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        data[i].id = data[i].name ? data[i].name : data[i].text;
+                    }
+
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Customer by id, Name, No',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+                if (customer.loading) {
+                    return customer.name;
+                }
+
+                if (customer.name) {
+                    return "<p> " + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.name,
+
+        });
+
+        $('.select-instruction-search').select2({
+            ajax: {
+                width : "100%",
+                url: '/erp-customer/instruction-search/',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    searhData = [];
+                    $.each(data, function(i, value){
+                        searhData.push({id:value.instruction, name:value.instruction});
+                    })
+                    params.page = params.page || 1;
+
+                    return {
+                        results: searhData,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for User by Name',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 2,
+            width: '100%',
+            templateResult: function (instruction) {
+                return instruction.name;
+
+            },
+            templateSelection: function (instruction) {
+                return instruction.name;
+            }
+        });
+
+        var all_customers = [];
+        <?php if(request()->get('all_customer') != '1') { ?>
+            setTimeout(function(){siteHelpers.autoRefreshColumn();}, 15000);
+        <?php } ?>
+
+        $('#schedule-datetime').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+
+        $('.dd-datepicker').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+
+     
+
+        $(document).on('click', '.load-customers', function () {
+            siteHelpers.loadCustomers($(this));
+        });
+
+    
+      function updateCustomer(id){
+        phone = $("#phone"+id).val();
+
+        $.ajax({
+                url: "/customer/"+id+"/updatePhone",
+                type: 'POST',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function () {
+                    $("#loading-image").hide();
+                    alert('Number Updated SucessFully');
+                },
+                error: function() {
+                    $("#loading-image").hide();
+                    alert('Customer Number Already Exist');
+                },
+                data: {
+                    phone: phone,
+                     _token: "{{ csrf_token() }}",
+                }
+            });
+        };
+
+        function showBroadcast(id){
+            
+            $.ajax({
+                url: "{{ route('broadcast.customer.list') }}",
+                type: 'POST',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $("#broadcast"+id).hide();
+                    $("#broadcastList"+id).empty().append(response.data);
+                    $("#broadcastList"+id).show();
+                },
+                data: {
+                    id: id,
+                     _token: "{{ csrf_token() }}",
+                }
+            });
+        };
+
+
+        function hideBroadcastList(id){
+            $("#broadcast"+id).show();
+            $("#broadcastList"+id).hide();
+        }
+        
     </script>
 @endsection

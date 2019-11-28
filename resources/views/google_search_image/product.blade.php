@@ -43,10 +43,10 @@
                     <h3>Supplier List</h3>
                     <?php foreach($supplierList as $list) { ?>
                         <span style="margin:5px;">
-                            <a href="<?php echo route('google.search.product', ['supplier' => $list["supplier"]]); ?>"><?php echo $list["supplier"] ?> 
+                            <a href="<?php echo route('google.search.product', ['supplier' => $list["id"]]); ?>"><?php echo $list["supplier"] ?> 
                                 <span class="badge"><?php echo $list["supplier_count"] ?></span>
                             </a>
-                            <?php if(request()->get("supplier") == $list["supplier"]) { ?>
+                            <?php if(request()->get("supplier") == $list["id"] && request()->get("revise",0) != 1) { ?>
                                 <i class="glyphicon glyphicon-ok"></i>
                             <?php } ?>
                         </span>
@@ -60,9 +60,12 @@
                         <h3>Skipped Supplier</h3>
                         <?php foreach($skippedSuppliers as $list) { ?>
                             <span style="margin:5px;">
-                                <a href="javascript:;"><?php echo $list["supplier"] ?> 
+                                <a href="<?php echo route('google.search.product', ['supplier' => $list["id"] , "revise" => 1]); ?>"><?php echo $list["supplier"] ?> 
                                     <span class="badge"><?php echo $list["supplier_count"] ?></span>
                                 </a>
+                                <?php if(request()->get("supplier") == $list["id"] && request()->get("revise",0) == 1) { ?>
+                                    <i class="glyphicon glyphicon-ok"></i>
+                                <?php } ?>
                             </span>
                         <?php } ?>                    
                 <?php } ?>

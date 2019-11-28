@@ -54,6 +54,13 @@
                                 <div class="alert alert-danger" >{{$errors->first('is_customer_support')}}</div>
                             @endif
                         </div>
+                        <div class="form-group">
+                            <strong>Frequency:</strong>
+                            <input type="text" name="frequency" class="form-control" value="{{ $whatsAppConfig->frequency }}">
+                            @if ($errors->has('frequency'))
+                                <div class="alert alert-danger" >{{$errors->first('frequency')}}</div>
+                            @endif
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

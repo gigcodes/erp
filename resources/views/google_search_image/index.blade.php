@@ -69,6 +69,17 @@
               <label for="no_locations">With no Locations</label>
             </div>
           @endif
+          <div class="form-group mr-3">
+            <input type="checkbox" name="quick_product" id="quick_product" {{ request()->get('quick_product') == 'true' ? 'checked' : '' }}  value="true">
+            <label for="quick_product">Quick Sell</label>
+          </div>
+           <div class="form-group mr-3">
+              <select class="form-control select-multiple2" name="quick_sell_groups[]" multiple data-placeholder="Quick Sell Groups...">
+                  @foreach ($quick_sell_groups as $key => $quick_sell)
+                      <option value="{{ $quick_sell->id }}" {{ in_array($quick_sell->id, request()->get('quick_sell_groups', [])) ? 'selected' : '' }}>{{ $quick_sell->name }}</option>
+                  @endforeach
+              </select>
+          </div>
           <div class="form-group mr-3 mb-3">
             <strong class="mr-3">Price</strong>
             <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]" />
@@ -85,7 +96,7 @@
 
   <div class="productGrid" id="productGrid">
     {!! $products->appends(Request::except('page'))->links() !!}
-     <form  method="POST" action="{{route('google.search.image')}}">
+     <form  method="POST" action="{{route('google.search.crop')}}">
       {{ csrf_field() }}
         <div class="row">
           @foreach ($products as $product)
@@ -103,7 +114,7 @@
               <p>Size : {{ $product->size}}</p>
               <p>Price : {{ $product->price_special }}</p>
 
-              <input type="checkbox" class="select-product-edit" name="product_ids[]" value="{{ $product->id }}">
+              <input type="radio" class="select-product-edit" name="product_id" value="{{ $product->id }}">
             </a>
           </div>
           @endforeach

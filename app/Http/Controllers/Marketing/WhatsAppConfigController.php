@@ -104,6 +104,7 @@ class WhatsappConfigController extends Controller
         'customer_support' => 'required',
         'username'  => 'required|min:3|max:255',
         'password'  => 'required|min:6|max:255',
+        'frequency' => 'required',
       ]);
 
       $data = $request->except('_token');
@@ -141,6 +142,7 @@ class WhatsappConfigController extends Controller
         'customer_support' => 'required',
         'username'  => 'required|min:3|max:255',
         'password'  => 'required|min:6|max:255',
+        'frequency' => 'required',
         ]);
         $config = WhatsappConfig::findorfail($request->id);
         $data = $request->except('_token','id');

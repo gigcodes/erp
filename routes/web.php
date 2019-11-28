@@ -305,8 +305,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('google-search-image')->group(function () {
         Route::get('/', 'GoogleSearchImageController@index')->name('google.search.image');
-        Route::post('details', 'GoogleSearchImageController@details')->name('google.details.image');
-        Route::post('/', 'GoogleSearchImageController@searchImageOnGoogle');
+        Route::post('/crop', 'GoogleSearchImageController@crop')->name('google.search.crop');
+        Route::post('/crop-search', 'GoogleSearchImageController@searchImageOnGoogle')->name('google.search.crop.post');
+        Route::post('details', 'GoogleSearchImageController@details')->name('google.search.details');
     });
 
     Route::prefix('search-image')->group(function () {
@@ -730,6 +731,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::put('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendor.payments.update');
     Route::delete('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendor.payments.destroy');
     Route::resource('vendor', 'VendorController');
+    Route::post('vendor/email', 'VendorController@email')->name('vendor.email');
     Route::post('vendot/block', 'VendorController@block')->name('vendor.block');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
     Route::resource('vendor_category', 'VendorCategoryController');
@@ -1209,6 +1211,8 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
     Route::post('broadcast/addremark', 'BroadcastController@addRemark')->name('broadcast.add.remark');
     Route::get('broadcast/manual','BroadcastController@addManual')->name('broadcast.add.manual');
     Route::post('broadcast/update', 'BroadcastController@updateWhatsAppNumber')->name('broadcast.update.whatsappnumber');
+    Route::get('broadcast/sendMessage/list','BroadcastController@broadCastSendMessage')->name('broadcast.message.send.list');
+    Route::post('broadcast/customer/list','BroadcastController@getCustomerBroadcastList')->name('broadcast.customer.list');
 });
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');

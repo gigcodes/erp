@@ -1392,7 +1392,7 @@ class CustomerController extends Controller
         $lead_status = (New status)->all();
         $users_array = Helpers::getUserArray(User::all());
         $brands = Brand::all()->toArray();
-        $reply_categories = ReplyCategory::all();
+        $reply_categories = ReplyCategory::orderby('id', 'DESC')->get();
         $instruction_categories = InstructionCategory::all();
         $instruction_replies = Reply::where('model', 'Instruction')->get();
         $order_status_report = OrderStatuses::all();
@@ -1734,7 +1734,7 @@ class CustomerController extends Controller
     public function updatePhone(Request $request, $id)
     {
         $this->validate($request, [
-            'phone' => 'required|numeric'
+            'phone' => 'required|numeric|unique:customers,phone'
         ]);
 
         $customer = Customer::find($id);

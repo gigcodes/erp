@@ -217,6 +217,10 @@ class QuickSellController extends Controller
   		} else {
   			$product->price_special = $request->price_special;
   		}
+      
+      if($request->is_pending !== null) {
+        $product->is_pending = $request->is_pending;
+      }
 
       $product->update();
       //dd($request);
@@ -278,15 +282,21 @@ class QuickSellController extends Controller
         $title = '';
       }
 
+      if(isset($product->size)){
+        $size = $product->size;
+      }else{
+        $size = '';
+      }
+
       if($request->group_new == null && $request->group_old == null){
         $input =  '<input type="checkbox" name="blank" class="group-checkbox checkbox" data-id='.$product->id.'>';  
-        $data = [$supplier,$price,$brand,$title,$input];
+        $data = [$supplier,$price,$brand,$title,$input,$size];
       }
       if($request->group_new != null){
-         $data = [$supplier,$price,$brand,$title,$request->group_new];
+         $data = [$supplier,$price,$brand,$title,$request->group_new,$size];
       }
       if($request->group_old != null){
-         $data = [$supplier,$price,$brand,$title,$request->group_old];
+         $data = [$supplier,$price,$brand,$title,$request->group_old,$size];
       }
       return Response::json(array(
         'success' => true,
