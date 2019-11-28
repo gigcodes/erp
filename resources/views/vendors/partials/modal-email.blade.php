@@ -29,6 +29,16 @@
           </div>
 
           <div class="form-group">
+              <strong>From Mail</strong>
+              <select class="form-control" name="from_mail">
+                <?php $emailAddressArr = \App\EmailAddress::all(); ?>
+                @foreach ($emailAddressArr as $emailAddress)
+                  <option value="{{ $emailAddress->id }}">{{ $emailAddress->from_name }} - {{ $emailAddress->from_address }} </option>
+                @endforeach
+              </select>
+          </div>
+
+          <div class="form-group">
             <a class="add-cc mr-3" href="#">Cc</a>
             <a class="add-bcc" href="#">Bcc</a>
           </div>
