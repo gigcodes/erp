@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\ChatMessage;
 use App\Customer;
 use App\ImQueue;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Mediable;
 
 class InstantMessagingController extends Controller
 {
@@ -27,10 +29,10 @@ class InstantMessagingController extends Controller
         $whatsappConfig = $clientClass::where('number', $numberFrom)->first();
 
         // Nothing found
-        if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
-            $message = ['error' => 'Invalid token'];
-            return json_encode($message, 400);
-        }
+         if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
+             $message = ['error' => 'Invalid token'];
+             return json_encode($message, 400);
+         }
 
         // Hard coded 15 minute gap
         $sentLast = ImQueue::where('number_from', $numberFrom)->max('sent_at');
@@ -38,7 +40,8 @@ class InstantMessagingController extends Controller
             $sentLast = strtotime($sentLast);
         }
 
-        if ($sentLast > time() - 900) {
+
+        if ( $sentLast > time() - (3600 / $whatsappConfig->frequency) ) {
             $message = ['error' => 'Awaiting forced time gap'];
             return json_encode($message, 400);
         }
@@ -165,4 +168,6 @@ class InstantMessagingController extends Controller
         return json_encode($output, 200);
 
     }
+
+
 }
