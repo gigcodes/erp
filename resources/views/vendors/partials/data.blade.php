@@ -62,7 +62,7 @@
                         </span>
                     </td>
                     <td>
-                        <div class="d-flex">
+                        <div style="width: 233px;">
                             <a href="{{ route('vendor.show', $vendor->id) }}" class="btn btn-image" href=""><img src="/images/view.png"/></a>
 
                             <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $vendor->id }}" data-frequency="{{ $vendor->frequency ?? '0' }}" data-reminder_message="{{ $vendor->reminder_message }}">
@@ -76,6 +76,8 @@
                                 {!! Form::open(['method' => 'DELETE','route' => ['vendor.destroy', $vendor->id],'style'=>'display:inline']) !!}
                                 <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                             {!! Form::close() !!}
+                            <input type="checkbox" class="select_vendor" name="select_vendor[]" value="{{$vendor->id}}" {{ request()->get('select_all') == 'true' ? 'checked' : '' }}>
+                            <button type="button" class="btn btn-secondary send-email-to-vender" data-id="{{$vendor->id}}">Send Email</button>
                         </div>
                     </td>
                 </tr>
