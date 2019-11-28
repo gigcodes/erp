@@ -75,6 +75,7 @@
             <th>Password</th>
             <th>Number</th>
             <th>Provider</th>
+            <th>Frequency</th>
             <th>Customer Support</th>
             <th>Actions</th>
           </tr>
@@ -85,6 +86,7 @@
             <th></th>
             <th><input type="text" id="number" class="search form-control"></th>
             <th><input type="text" id="provider" class="search form-control"></th>
+            <th></th>
             <th><select class="form-control search" id="customer_support">
                     <option value="">Select Option</option>
                     <option value="1">Provide Support</option>

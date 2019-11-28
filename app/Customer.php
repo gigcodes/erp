@@ -6,6 +6,7 @@ use App\ChatMessage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\CustomerMarketingPlatform;
+use App\ImQueue;
 
 class Customer extends Model
 {
@@ -188,5 +189,9 @@ class Customer extends Model
     public function customerMarketingPlatformActive()
     {
         return $this->hasOne(CustomerMarketingPlatform::class,'customer_id','id')->whereNull('remark');
+    }
+
+    public function broadcastAll(){
+       return $this->hasMany('App\ChatMessage','customer_id','id')->where('status','8')->where('group_id','>',0)->orderby('id','desc');
     }
 }
