@@ -41,7 +41,7 @@ class InstantMessagingController extends Controller
         }
 
 
-        if ( $sentLast > time() - $whatsappConfig->frequency ) {
+        if ( $sentLast > time() - (3600 / $whatsappConfig->frequency) ) {
             $message = ['error' => 'Awaiting forced time gap'];
             return json_encode($message, 400);
         }
