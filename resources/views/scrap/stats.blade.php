@@ -27,11 +27,13 @@
                         <th>Supplier</th>
                         <th>Server</th>
                         <th>Last Scraped</th>
-                        <th>Succesfuly</th>
+                        <th>Successful</th>
                         <th>Total</th>
                         <th>Errors</th>
                         <th>Warnings</th>
-                        <th>Remark</th>
+                        <th>Total URLs</th>
+                        <th>Existing URLs</th>
+                        <th>New URLs</th>
                         <th>Functions</th>
                     </tr>
                     </thead>
@@ -75,12 +77,10 @@
                         <td class="p-2 text-right">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                         <td class="p-2 text-right">{{ !empty($data) ? $data->total : '' }}</td>
                         <td class="p-2 text-right">{{ !empty($data) ? $data->errors : '' }}</td>
+                        <td class="p-2 text-right">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
+                        <td class="p-2 text-right">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
+                        <td class="p-2 text-right">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
                         <td class="p-2 text-right">{{ !empty($data) ? $data->warnings : '' }}</td>
-                        <td class="p-2">
-                            @if($remark != '')
-                                {{ $remark->remark }}
-                            @endif
-                        </td>
                         <td>
                             <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img src="/images/remark.png"/></button>
                         </td>
@@ -96,7 +96,9 @@
                         <th>Total</th>
                         <th>Errors</th>
                         <th>Warnings</th>
-                        <th>Remark</th>
+                        <th>Total Url's</th>
+                        <th>Existing URLs</th>
+                        <th>New URLs</th>
                         <th>Functions</th>
                     </tr>
                     </thead>
@@ -107,7 +109,6 @@
                             <tr <?php  $percentage = ($data->errors * 100) / $data->total; echo (!empty($percentage) && $percentage >= 25) ? 'style="background-color: orange; color: white;"' : '' ?>>
                                 @php
                                     $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$data->website)->orderBy('created_at','desc')->first();
-                                    $i=0;
                                 @endphp
                                 <td>{{ ++$i }}</td>
                                 <td class="p-2">{{ $data->website }}</td>
@@ -117,11 +118,10 @@
                                 <td class="p-2 text-right">{{ !empty($data) ? $data->total : '' }}</td>
                                 <td class="p-2 text-right">{{ !empty($data) ? $data->errors : '' }}</td>
                                 <td class="p-2 text-right">{{ !empty($data) ? $data->warnings : '' }}</td>
-                                <td class="p-2">
-                                    @if($remark != '')
-                                        {{ $remark->remark }}
-                                    @endif
-                                </td>
+                                <td class="p-2 text-right">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
+                                <td class="p-2 text-right">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
+                                <td class="p-2 text-right">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
+                                
                                 <td>
                                     <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img src="/images/remark.png"/></button>
                                 </td>
