@@ -124,26 +124,21 @@ class Product extends Model
                 $product->save();
                 if ($product) {
                     if ($isExcel == 1) {
-                        foreach ($json->images as $image) {
-                            try {
-                                $jpg = \Image::make($image)->encode('jpg');
-                            } catch (\Exception $e) {
-                                $array = explode('/', $image);
-                                $filename_path = end($array);
-                                $jpg = \Image::make(public_path() . '/uploads/excel-import/' . $filename_path)->encode('jpg');
-                            }
-                            $filename = substr($image, strrpos($image, '/'));
-                            $filename = str_replace("/", "", $filename);
-                            try {
-                                if (strpos($filename, '.png') !== false) {
-                                    $filename = str_replace(".png", "", $filename);
+                        if(!$product->hasMedia(\Config('constants.excelimporter'))){
+                            foreach ($json->images as $image) {
+                                try {
+                                    $jpg = \Image::make($image)->encode('jpg');
+                                } catch (\Exception $e) {
+                                    $array = explode('/', $image);
+                                    $filename_path = end($array);
+                                    $jpg = \Image::make(public_path() . '/uploads/excel-import/' . $filename_path)->encode('jpg');
                                 }
-                            } catch (\Exception $e) {
+                                $filename = substr($image, strrpos($image, '/'));
+                                $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
+                                $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
+                                $product->attachMedia($media, config('constants.excelimporter'));
                             }
-
-                            $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
-                            $product->attachMedia($media, config('constants.excelimporter'));
-                        }
+                        }    
                     }
 
                 }
