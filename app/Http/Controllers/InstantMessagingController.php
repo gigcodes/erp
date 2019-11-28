@@ -46,8 +46,18 @@ class InstantMessagingController extends Controller
             return json_encode($message, 400);
         }
 
+        //Check if send time and end time is not equal to 0 or null
+        if($whatsappConfig->send_start != '' || $whatsappConfig->send_end != ''){
+            $send_start = $whatsappConfig->send_start; 
+            $send_end = $whatsappConfig->send_end;
+        }else{
+            $send_start = 8; 
+            $send_end = 19;
+        }
+        
+
         // Only send at certain times
-        if ((date('H') < 8 || date('H') > 19) && $numberFrom != '971504752911') {
+        if ((date('H') < $send_start || date('H') > $send_end) && $numberFrom != '971504752911') {
             $message = ['error' => 'Sending at this hour is not allowed'];
             return json_encode($message, 400);
         }
