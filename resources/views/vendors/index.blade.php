@@ -268,6 +268,11 @@
 
         });
 
+        $(document).on('click', '.send-email-to-vender', function () {
+            $('#emailToAllModal').find('form').find('input[name="vendor_ids"]').val($(this).data('id'));
+            $('#emailToAllModal').modal("show");
+        });
+
         $(document).on('click', '.set-reminder', function () {
             let vendorId = $(this).data('id');
             let frequency = $(this).data('frequency');
