@@ -107,7 +107,7 @@ class Product extends Model
                 // Add sizes to the product
                 if (isset($json->properties[ 'size' ]) && is_array($json->properties[ 'size' ]) && count($json->properties[ 'size' ]) > 0) {
                     // Implode the keys
-                    $product->size = implode(',', array_keys($json->properties[ 'size' ]));
+                    $product->size = implode(',', array_values($json->properties[ 'size' ]));
 
                     // Replace texts in sizes
                     $product->size = ProductHelper::getRedactedText($product->size, 'composition');
