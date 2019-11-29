@@ -550,6 +550,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::resource('development-messages-schedules', 'DeveloperMessagesAlertSchedulesController');
     Route::get('development', 'DevelopmentController@index')->name('development.index');
+    Route::post('development/task/list-by-user-id', 'DevelopmentController@taskListByUserId')->name('development.task.list.by.user.id');
+    Route::post('development/task/set-priority', 'DevelopmentController@setTaskPriority')->name('development.task.set.priority');
     Route::post('development/create', 'DevelopmentController@store')->name('development.store');
     Route::post('development/{id}/edit', 'DevelopmentController@update')->name('development.update');
     Route::post('development/{id}/verify', 'DevelopmentController@verify')->name('development.verify');
@@ -563,7 +565,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
     Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
-    Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
+    Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');    
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
     Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
