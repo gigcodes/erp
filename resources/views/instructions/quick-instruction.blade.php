@@ -7,7 +7,10 @@
 
 @section('content')
     <div class="container">
-        <h1>Quick Instruction</h1>
+        <h1 style="display: inline-block;">Quick Instruction</h1> 
+        <?php if ($skippedCount) { ?>
+            <span>skipped (<a href="?skippedCount=1">{{$skippedCount}}</a>)</span>
+        <?php } ?>
         @if ( $instruction != null && isset($instruction->customer->id) )
             <div class="row">
                 <div class="col-md-12">
@@ -17,7 +20,7 @@
                             <th>Number</th>
                             <th>Category</th>
                             <th>Instructions</th>
-                            <th colspan="3" class="text-center">Action</th>
+                            <th colspan="4" class="text-center">Action</th>
                             <th>Created at</th>
                             <th>Remark</th>
                         </tr>
@@ -44,6 +47,9 @@
                                         Pending
                                     @endif
                                 @endif
+                            </td>
+                            <td>
+                                <a href="#" class="btn-link skipped-call" data-id="{{ $instruction->id }}">skipp ({{$instruction->skipped_count}})</a>
                             </td>
                             <td>
                                 @if ($instruction->verified == 1)
@@ -493,6 +499,30 @@
     @if ($instruction != null && isset($instruction->customer->id) )
         <script type="text/javascript" src="/js/common-helper.js"></script>
         <script>
+            $(document).on('click', '.skipped-call', function (e) {
+                e.preventDefault();
+
+                var thiss = $(this);
+                var url = "{{route('instruction.skipped.count')}}";
+                var id = $(this).data('id');
+
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        id: id
+                    },
+                    beforeSend: function () {
+                        $(thiss).text('Loading');
+                    }
+                }).done(function (response) {
+                    location.reload();
+                }).fail(function (errObj) {
+                    console.log(errObj);
+                    alert("Could not mark as completed");
+                });
+            });
             $('.multiselect-2').select2({width:'92%'});
 
             var customer_id = {{ $instruction->customer->id }};

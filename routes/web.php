@@ -216,6 +216,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
     Route::post('instruction/pending', 'InstructionController@pending')->name('instruction.pending');
     Route::post('instruction/verify', 'InstructionController@verify')->name('instruction.verify');
+    Route::post('instruction/skipped-count', 'InstructionController@skippedCount')->name('instruction.skipped.count');
     Route::post('instruction/verifySelected', 'InstructionController@verifySelected')->name('instruction.verify.selected');
     Route::get('instruction/complete/alert', 'InstructionController@completeAlert')->name('instruction.complete.alert');
     Route::post('instruction/category/store', 'InstructionController@categoryStore')->name('instruction.category.store');
@@ -562,6 +563,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
     Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+    Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
+    Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
     Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
     Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');
