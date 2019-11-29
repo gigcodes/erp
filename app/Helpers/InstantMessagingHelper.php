@@ -86,6 +86,7 @@ class InstantMessagingHelper
         if ($whatappConfig == '' && $whatappConfig == null) {
             return;
         }
+
         // Convert maxTime to unixtime
         $maxTime = strtotime($maxTime->maxTime);
 
@@ -97,13 +98,15 @@ class InstantMessagingHelper
             $maxTime = time();
         }
 
-        // Check for decent times
-        if (date('H', $maxTime) < $whatappConfig->send_start) {
-            $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime);
-        } elseif (date('H', $maxTime) > $whatappConfig->send_end) {
-            $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime + 86400);
-        } else {
-            $sendAfter = date('Y-m-d H:i:s', $maxTime);
+        if (empty($sendAfter)) {
+            // Check for decent times
+            if (date('H', $maxTime) < $whatappConfig->send_start) {
+                $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime);
+            } elseif (date('H', $maxTime) > $whatappConfig->send_end) {
+                $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime + 86400);
+            } else {
+                $sendAfter = date('Y-m-d H:i:s', $maxTime);
+            }
         }
 
         // Insert message into queue
