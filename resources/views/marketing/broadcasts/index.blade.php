@@ -218,11 +218,11 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Number</th>
-                                    <th>Total Customers</th>
-                                    <th>Message Sent Per Day</th>
-                                    <th>Pending</th>
+                                    <th>Tl Cust</th>
+                                    <th>Msg/Day</th>
+                                    <th>Pend</th>
                                     <th>Last Check</th>
-                                    <th>Last Sent</th>
+                                    <th>L. Sent</th>
                                     <th>Send Time</th>
                                     <th>End Time</th>
                                 </tr>
@@ -264,7 +264,11 @@
                 <th></th>
                 <th><input type="text" class="search form-control" id="name"></th>
                 <th><input type="text" class="search form-control" id="number"></th>
-                <th></th>
+                <th><select class="form-control search" id="dnd">
+                        <option>Select DND Users</option>
+                        <option value="0">Active Users</option>
+                        <option value="1">DND Users</option>
+                    </select></th>
                <!--  <th>
                     <select class="form-control">
                         <option>Asked Price</option>
@@ -660,6 +664,7 @@
             src = "{{ route('broadcasts.index') }}";
             $(".search").autocomplete({
                 source: function (request, response) {
+                    dnd =  $('#dnd').val();
                     number = $('#number').val();
                     broadcast = $('#broadcast').val();
                     manual = $('#manual').val();
@@ -671,6 +676,7 @@
                         url: src,
                         dataType: "json",
                         data: {
+                            dnd: dnd,
                             number: number,
                             broadcast: broadcast,
                             manual: manual,

@@ -129,6 +129,58 @@
                             <div class="alert alert-danger">{{$errors->first('send_end')}}</div>
                             @endif
                         </div>
+
+                         <div class="form-group">
+                            <strong>Device Name:</strong>
+                            <input type="text" name="device_name" class="form-control" value="{{ $whatsAppConfig->device_name }}" >
+
+                            @if ($errors->has('device_name'))
+                            <div class="alert alert-danger">{{$errors->first('device_name')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Sim Card Number:</strong>
+                            <input type="text" name="simcard_number" class="form-control" value="{{ $whatsAppConfig->simcard_number }}" >
+
+                            @if ($errors->has('simcard_number'))
+                            <div class="alert alert-danger">{{$errors->first('simcard_number')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Sim Card Owner:</strong>
+                            <input type="text" name="simcard_owner" class="form-control" value="{{ $whatsAppConfig->simcard_owner }}">
+
+                            @if ($errors->has('simcard_owner'))
+                            <div class="alert alert-danger">{{$errors->first('simcard_owner')}}</div>
+                            @endif
+                        </div>
+
+
+                        <div class="form-group">
+                            <strong>Payment :</strong>
+                            <input type="text" name="payment" class="form-control" value="{{ $whatsAppConfig->payment }}">
+
+                            @if ($errors->has('payment'))
+                            <div class="alert alert-danger">{{$errors->first('payment')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Recharge Date:</strong>
+                             <div class='input-group date' id='filter-whats-date'>
+                            <input type='text' class="form-control" name="recharge_date" placeholder="Date" value="{{ $whatsAppConfig->recharge_date }}" />
+                            <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
+                            </div>
+
+                            @if ($errors->has('recharge_date'))
+                            <div class="alert alert-danger">{{$errors->first('recharge_date')}}</div>
+                            @endif
+                        </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

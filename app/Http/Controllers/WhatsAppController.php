@@ -3281,6 +3281,7 @@ class WhatsAppController extends FindByNumberController
 
     public function sendToAll(Request $request, $validate = true)
     {
+        set_time_limit(0);
        if ($validate) {
             $this->validate($request, [
                 // 'message'         => 'required_without:images,linked_images',
@@ -3347,8 +3348,8 @@ class WhatsAppController extends FindByNumberController
             }
 
             $minutes = round(60 / $frequency);
-            $max_group_id = MessageQueue::max('group_id') + 1;
-
+            $max_group_id = ChatMessage::where('status',8)->max('group_id') + 1;
+            
             $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0);
 
 
@@ -3372,7 +3373,8 @@ class WhatsAppController extends FindByNumberController
 
             foreach ($data as $whatsapp_number => $customers) {
 
-
+                
+                $sendAfter = array('frequency' => $request->frequency, 'schedule' => $request->sending_time);
                 $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
@@ -3437,21 +3439,21 @@ class WhatsAppController extends FindByNumberController
                                             if ($product && $product->hasMedia(config('constants.media_tags'))) {
                                                 $imageLinks = $product->getMedia(config('constants.media_tags'))->all();
                                                 
-                                                //Looping Through Image 
-                                                foreach ($imageLinks as $imageLink) {
-                                                    //Queue message to send
+                                                // Attach product image to message
+                                                $chatMessage->attachMedia($product->getMedia(config('constants.media_tags'))->first()->getKey(), config('constants.media_tags'));
 
-                                                    $chatMessage->attachMedia($imageLink, config('constants.media_tags'));
-                                                    
-                                                    InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,$imageLink->getUrl(),$priority);
+                                                
+                                                foreach ($chatMessage->getMedia(config('constants.media_tags')) as $imageLink) {
+                                                    InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,$imageLink->getUrl(),$priority,$sendAfter);
                                                 }
                                                 
                                             }
                                         }
                                     }
+
                                 }else{
                                  $chatMessage = ChatMessage::create($params);
-                                 InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,'',$priority); 
+                                 InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,'',$priority,$sendAfter); 
                              }
                                 
                                  //Do Not Remove This Code
