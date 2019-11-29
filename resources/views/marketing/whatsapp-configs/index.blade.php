@@ -70,7 +70,7 @@
       <table class="table table-bordered" id="passwords-table">
         <thead>
           <tr>
-            <th style="width: 3% !important;">ID</th>
+            <!-- <th style="width: 3% !important;">ID</th> -->
             <th style="width: 3% !important;">User</th>
             <th style="width: 3% !important;">Pass</th>
             <th style="width: 3% !important;">No.</th>
@@ -80,15 +80,17 @@
             <th style="width: 3% !important;">Start Time</th>
             <th style="width: 3% !important;">End Time</th>
             <th style="width: 3% !important;">Device</th>
-            <th style="width: 3% !important;">Sim No.</th>
+           <!--  <th style="width: 3% !important;">Sim No.</th>
             <th style="width: 3% !important;">Sim Owner.</th>
-            <th style="width: 3% !important;">Payment</th>
-            <th style="width: 14% !important;">Py Date</th>
+            <th style="width: 3% !important;">Pay</th>
+            <th style="width: 14% !important;">Rech</th> -->
+            <th style="width: 1% !important;">Sts</th>
+            <th style="width: 10% !important;">Started At</th>
             <th style="width: 22% !important;">Actions</th>
           </tr>
 
           <tr>
-            <th style="width: 3% !important;"></th>
+            <!-- <th style="width: 3% !important;"></th> -->
             <th style="width: 3% !important;"><input type="text" id="username" class="search form-control"></th>
             <th style="width: 3% !important;"></th>
             <th style="width: 3% !important;"><input type="text" id="number" class="search form-control"></th>
@@ -102,10 +104,12 @@
             <th style="width: 3% !important;"></th> 
             <th style="width: 3% !important;"></th> 
             <th style="width: 3% !important;"></th> 
+          <!--   <th style="width: 3% !important;"></th>
             <th style="width: 3% !important;"></th>
             <th style="width: 3% !important;"></th>
-            <th style="width: 3% !important;"></th>
-            <th style="width: 14% !important;"></th>
+            <th style="width: 3% !important;"></th> -->
+            <th style="width: 1% !important;"></th>
+            <th style="width: 10% !important;"></th>
             <th style="width: 22% !important;"></th>   
             </th>
           </tr>

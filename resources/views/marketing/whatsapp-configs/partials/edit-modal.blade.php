@@ -168,6 +168,18 @@
                         </div>
 
                         <div class="form-group">
+                            <strong>Sim Card Type:</strong>
+                             <select class="form-control" name="sim_card_type">
+                                <option>Select Sim Card Type</option>
+                                <option value="0"  @if($whatsAppConfig->sim_card_type == 0) selected @endif>Pre Paid</option>
+                                <option value="1"  @if($whatsAppConfig->sim_card_type == 1) selected @endif>Post Paid</option>
+                             </select>   
+                            @if ($errors->has('status'))
+                            <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
                             <strong>Recharge Date:</strong>
                              <div class='input-group date' id='filter-whats-date'>
                             <input type='text' class="form-control" name="recharge_date" placeholder="Date" value="{{ $whatsAppConfig->recharge_date }}" />
@@ -178,6 +190,19 @@
 
                             @if ($errors->has('recharge_date'))
                             <div class="alert alert-danger">{{$errors->first('recharge_date')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Status:</strong>
+                             <select class="form-control" name="status">
+                                <option>Select Status</option>
+                                <option value="1" @if($whatsAppConfig->status == 1) selected @endif>Active</option>
+                                <option value="2" @if($whatsAppConfig->status == 2) selected @endif>Blocked</option>
+                                <option value="3" @if($whatsAppConfig->status == 0) selected @endif>InActive</option>
+                             </select>   
+                            @if ($errors->has('status'))
+                            <div class="alert alert-danger">{{$errors->first('status')}}</div>
                             @endif
                         </div>
 

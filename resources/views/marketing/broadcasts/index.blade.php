@@ -217,12 +217,15 @@
                                 <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>D. Name</th>
                                     <th>Number</th>
                                     <th>Tl Cust</th>
                                     <th>Msg/Day</th>
                                     <th>Pend</th>
                                     <th>Last Check</th>
                                     <th>L. Sent</th>
+                                    <th>D.O.A</th>
+                                    <th>Status</th>
                                     <th>Send Time</th>
                                     <th>End Time</th>
                                 </tr>

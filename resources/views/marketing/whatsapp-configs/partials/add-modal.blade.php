@@ -173,7 +173,17 @@
                             <div class="alert alert-danger">{{$errors->first('payment')}}</div>
                             @endif
                         </div>
-
+                        <div class="form-group">
+                            <strong>Sim Card Type:</strong>
+                             <select class="form-control" name="sim_card_type">
+                                <option>Select Sim Type</option>
+                                <option value="0">Pre Paid</option>
+                                <option value="1">Post Paid</option>
+                             </select>   
+                            @if ($errors->has('status'))
+                            <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                            @endif
+                        </div>
                         <div class="form-group">
                             <strong>Recharge Date:</strong>
                              <div class='input-group date' id='filter-whats-date'>
@@ -185,6 +195,18 @@
 
                             @if ($errors->has('recharge_date'))
                             <div class="alert alert-danger">{{$errors->first('recharge_date')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>Status:</strong>
+                             <select class="form-control" name="status">
+                                <option>Select Status</option>
+                                <option value="1">Active</option>
+                                <option value="2">Blocked</option>
+                                <option value="3">InActive</option>
+                             </select>   
+                            @if ($errors->has('status'))
+                            <div class="alert alert-danger">{{$errors->first('status')}}</div>
                             @endif
                         </div>
     				</div>
