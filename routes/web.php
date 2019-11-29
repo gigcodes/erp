@@ -736,6 +736,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::put('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendor.payments.update');
     Route::delete('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendor.payments.destroy');
     Route::resource('vendor', 'VendorController');
+    Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::post('vendor/email', 'VendorController@email')->name('vendor.email');
     Route::post('vendot/block', 'VendorController@block')->name('vendor.block');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
