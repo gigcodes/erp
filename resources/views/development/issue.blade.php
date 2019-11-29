@@ -160,7 +160,12 @@
             @foreach ($issues as $key => $issue)
                  @if(auth()->user()->isAdmin())
                     <tr>
-                        <td>{{ $issue->id }}</td>
+                        <td>{{ $issue->id }}
+                            
+                            @if($issue->is_resolved==0)
+                                <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>
+                            @endif
+                        </td>
                         <td>{{ $issue->devModule ? $issue->devModule->name : 'Not Specified' }}</td>
                         <td>{{ $issue->subject ?? 'N/A' }}</td>
                         <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
@@ -531,12 +536,21 @@
         });
 
         function getPriorityTaskList(id) {
+            var selected_issue = [0];
+
+            $('input[name ="selected_issue[]"]').each(function(){
+                if ($(this).prop("checked") == true) {
+                    selected_issue.push($(this).val());                    
+                }
+            });
+
             $.ajax({
                 url: "{{route('development.issue.list.by.user.id')}}",
                 type: 'POST',
                 data: {
                     user_id : id,
                     _token : "{{csrf_token()}}",
+                    selected_issue : selected_issue,
                 },
                 success: function (response) {
                     var html = '';

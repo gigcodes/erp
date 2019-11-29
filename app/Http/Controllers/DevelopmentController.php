@@ -227,11 +227,14 @@ class DevelopmentController extends Controller
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications')->get();
         }
 
+        $priority  = \App\ErpPriority::where('model_type', '=', Issue::class)->pluck('model_id')->toArray();
+        
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
             'modules' => $modules,
             'request' => $request,
+            'priority' => $priority,
         ]);
     }
 
@@ -245,9 +248,13 @@ class DevelopmentController extends Controller
                             $query->where('erp_priorities.model_type', '=', Issue::class);
                         })
                         ->where('responsible_user_id', $user_id)
-                        ->where('is_resolved', '0')
-                        ->orderBy('erp_priorities.id')
-                        ->get();
+                        ->where('is_resolved', '0');
+
+        if (auth()->user()->isAdmin()) {
+            $issues = $issues->whereIn('issues.id', $request->get('selected_issue' , []));
+        }
+
+        $issues = $issues->orderBy('erp_priorities.id')->get();
 
         foreach ($issues as &$value) {
             $value->submitted_by = $value->submitter->name;
