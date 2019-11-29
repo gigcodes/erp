@@ -3281,7 +3281,8 @@ class WhatsAppController extends FindByNumberController
 
     public function sendToAll(Request $request, $validate = true)
     {
-        set_time_limit(0);
+       //dd($request);
+       set_time_limit(0);
        if ($validate) {
             $this->validate($request, [
                 // 'message'         => 'required_without:images,linked_images',
@@ -3332,18 +3333,19 @@ class WhatsAppController extends FindByNumberController
             }
             // $content['linked_images'] = json_decode($request->linked_images);
         }
-
+        
         if ($request->to_all || $request->moduletype == 'customers') {
             // Create empty array for checking numbers
             $arrCustomerNumbers = [];
 
             // Get all numbers from config
-            $config = \Config::get("apiwha.instances");
+           //$config = \Config::get("apiwha.instances");
+            $configs = WhatsappConfig::where('is_customer_support',0)->get();
 
-            // Loop over numbers
-            foreach ($config as $whatsAppNumber => $arrNumber) {
-                if ($arrNumber[ 'customer_number' ]) {
-                    $arrCustomerNumbers[] = $arrNumber[ 'customer_number' ];
+            //Loop over numbers
+            foreach ($configs as  $arrNumber) {
+                if ($arrNumber[ 'number' ]) {
+                    $arrBroadcastNumbers[] = $arrNumber[ 'number' ];
                 }
             }
 
@@ -3369,23 +3371,37 @@ class WhatsAppController extends FindByNumberController
                 $data = $data->where('clothing_size', $request->clothing_size);
             }
 
-            $data = $data->get()->groupBy('whatsapp_number');
+            $data = $data->get()->groupBy('broadcast_number');
 
-            foreach ($data as $whatsapp_number => $customers) {
+            foreach ($data as $broadcastNumber => $customers) {
 
-                
-                $sendAfter = array('frequency' => $request->frequency, 'schedule' => $request->sending_time);
                 $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
 
-                if (in_array($whatsapp_number, $arrCustomerNumbers)) {
+                if (!$now->between($morning, $evening, true)) {
+                    if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
+                        // add day
+                        $now->addDay();
+                        $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
+                    } else {
+                        // dont add day
+                        $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
+                    }
+                }
+                     
+                if (in_array($broadcastNumber, $arrBroadcastNumbers)) {
+                   
                     foreach ($customers as $customer) {
 
                         //Changes put by satyam for connecting Old BroadCast with New BroadCast page
                         if (isset($customer->customerMarketingPlatformActive)) {
                             if ($customer->customerMarketingPlatformActive->active == 1) {
-                                
+
                                 //Checking For DND
                                 if($customer->do_not_disturb == 1){
                                     continue;
@@ -3414,63 +3430,45 @@ class WhatsAppController extends FindByNumberController
                                     'status' => 8, // status for Broadcast messages
                                     'group_id' => $max_group_id
                                 ];
-                                
+
                                 $priority = 5;
                                 if($request->linked_images != null){
-                                    $chatMessage = ChatMessage::create($params);
-                                    //Getting BroadCast Images ID
-                                    $ids = $request->linked_images;
-                                    $ids = str_replace(['"','[',']'],'',$ids);
-                                    $ids = explode(',',$ids);
+                                    if($content['linked_images'] != null){
 
-                                    foreach ($ids as $id) {
+                                    //Saving Message In Chat Message 
+                                        $chatMessage = ChatMessage::create($params);
 
-                                        //Getting BroadCast Id
-                                        $broadcast_images = BroadcastImage::find($id);
-                                        $products = $broadcast_images->products;
-                                        $products = str_replace(['"','[',']'],'',$products);
-                                        $products = explode(',',$products);
 
-                                        //Getting Products from BroadCast Image
-                                        foreach ($products as $productId) {
-                                            $product = Product::find($productId);
-                                            
-                                            // Getting Product Image
-                                            if ($product && $product->hasMedia(config('constants.media_tags'))) {
-                                                $imageLinks = $product->getMedia(config('constants.media_tags'))->all();
-                                                
-                                                // Attach product image to message
-                                                $chatMessage->attachMedia($product->getMedia(config('constants.media_tags'))->first()->getKey(), config('constants.media_tags'));
+                                        foreach ($content['linked_images'] as $url) {
+                                        //Attach image to chat message
+                                            $chatMessage->attachMedia($url['key'], config('constants.media_tags'));
 
-                                                
-                                                foreach ($chatMessage->getMedia(config('constants.media_tags')) as $imageLink) {
-                                                    InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,$imageLink->getUrl(),$priority,$sendAfter);
-                                                }
-                                                
+                                            $send = InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,$url['url'],$priority,$now);
+                                            if($send != false){
+                                                $now->addMinutes($minutes);
+                                            }else{
+                                                continue;
                                             }
                                         }
-                                    }
 
-                                }else{
-                                 $chatMessage = ChatMessage::create($params);
-                                 InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,'',$priority,$sendAfter); 
-                             }
+                                    }
+                                }
+
+
+                                elseif($request->linked_images == null){
+                                    $chatMessage = ChatMessage::create($params);
+
+                                    $send = InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,'',$priority,$now); 
+                                    if($send != false){
+                                        $now->addMinutes($minutes);
+                                    }
+                                }
+
+                                else{
+                                    continue;
+                                }
                                 
-                                 //Do Not Remove This Code
-                                // if (!$now->between($morning, $evening, true)) {
-                                //     if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
-                                //         // add day
-                                //         $now->addDay();
-                                //         $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                                //         $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                                //         $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
-                                //     } else {
-                                //         // dont add day
-                                //         $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                                //         $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                                //         $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
-                                //     }
-                                // }
+                                
                                 //DO NOT REMOVE THIS CODE
                                 // MessageQueue::create([
                                 //     'user_id' => Auth::id(),
@@ -3482,12 +3480,13 @@ class WhatsAppController extends FindByNumberController
                                 //     'group_id' => $max_group_id
                                 // ]);
 
-                                // $now->addMinutes($minutes);
+                                
 
                             }
                         }
-                        
+
                     }
+
                 }
             }
         } else {

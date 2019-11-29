@@ -84,34 +84,20 @@ class InstantMessagingHelper
         //Getting WhatsApp Config
         $whatappConfig = WhatsappConfig::where('number', $numberFrom)->first();
         if ($whatappConfig == '' && $whatappConfig == null) {
-            return;
+            return false;
         }
 
         // Convert maxTime to unixtime
         $maxTime = strtotime($maxTime->maxTime);
 
-
-        if (empty($sendAfter)) {
-            // Add interval
-            $maxTime = $maxTime + (3600 / $whatappConfig->frequency);
-        }else{
-            if($sendAfter['frequency'] != ''){
-                 //Add Interval
-                $maxTime = $maxTime + (3600 / $sendAfter['frequency']); 
-
-            }else{
-                // Add interval
-                $maxTime = $maxTime + (3600 / $whatappConfig->frequency);  
-            }
-        }
-
-
+        // Add interval
+        $maxTime = $maxTime + (3600 / $whatappConfig->frequency);
+        
         // Check if it's in the future
         if ($maxTime < time()) {
             $maxTime = time();
         }
 
-        
         if (empty($sendAfter)) {
             // Check for decent times
             if (date('H', $maxTime) < $whatappConfig->send_start) {
@@ -121,19 +107,8 @@ class InstantMessagingHelper
             } else {
                 $sendAfter = date('Y-m-d H:i:s', $maxTime);
             }
-        }else{
-            $datetime = \Carbon\Carbon::parse($sendAfter['schedule']);
-            
-            // Check for decent times
-            if (date(date($datetime->format('H')), $maxTime) < $whatappConfig->send_start) {
-                $sendAfter = date($datetime, $maxTime);
-            } elseif (date(date($datetime->format('H')), $maxTime) > $whatappConfig->send_end) {
-                $sendAfter = date($datetime, $maxTime + 86400);
-            } else {
-                $sendAfter = date($datetime, $maxTime);
-            }
-         }
-         
+        }
+
         // Insert message into queue
         $imQueue = new ImQueue();
         $imQueue->im_client = 'whatsapp';
