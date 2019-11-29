@@ -82,12 +82,14 @@ class InstantMessagingHelper
         $maxTime = ImQueue::select(DB::raw('IF(MAX(send_after)>MAX(sent_at), MAX(send_after), MAX(sent_at)) AS maxTime'))->where('number_from', $numberFrom)->first();
 
         //Getting WhatsApp Config
-        $whatappConfig = WhatsappConfig::where('number',$numberFrom)->first();
-        if($whatappConfig == '' && $whatappConfig == null){
-            return; 
+        $whatappConfig = WhatsappConfig::where('number', $numberFrom)->first();
+        if ($whatappConfig == '' && $whatappConfig == null) {
+            return;
         }
+
         // Convert maxTime to unixtime
         $maxTime = strtotime($maxTime->maxTime);
+
 
         if (empty($sendAfter)) {
             // Add interval
@@ -102,21 +104,23 @@ class InstantMessagingHelper
                 $maxTime = $maxTime + (3600 / $whatappConfig->frequency);  
             }
         }
+
+
         // Check if it's in the future
         if ($maxTime < time()) {
             $maxTime = time();
         }
+
         
         if (empty($sendAfter)) {
             // Check for decent times
             if (date('H', $maxTime) < $whatappConfig->send_start) {
-                $sendAfter = date('Y-m-d 0'.$whatappConfig->send_start.':00:00', $maxTime);
+                $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime);
             } elseif (date('H', $maxTime) > $whatappConfig->send_end) {
-                $sendAfter = date('Y-m-d 0'.$whatappConfig->send_start.':00:00', $maxTime + 86400);
+                $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime + 86400);
             } else {
                 $sendAfter = date('Y-m-d H:i:s', $maxTime);
             }
-
         }else{
             $datetime = \Carbon\Carbon::parse($sendAfter['schedule']);
             
