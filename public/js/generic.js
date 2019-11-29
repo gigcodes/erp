@@ -38,7 +38,7 @@ $(document).on('click', '.load-communication-modal', function () {
 
                     // Set media
                     if (imgSrc != '') {
-                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank"><input type="checkbox" name="product" value="' + productId + '" id="cb1_' + i + '" /><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
+                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank" class="show-thumbnail-image"><input type="checkbox" name="product" value="' + productId + '" id="cb1_' + i + '" /><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
                     }
                 }
             }
@@ -58,12 +58,12 @@ $(document).on('click', '.load-communication-modal', function () {
                             var imageType = (message.media[i].image).substr( (message.media[i].image).length - 4).toLowerCase();
 
                             if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
-                                media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                                media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info show-thumbnail-image"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                             } else {
-                                media = media + '<a href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                                media = media + '<a class="show-thumbnail-image" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                             } 
                         } else {
-                            media = media + '<a href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                            media = media + '<a class="show-thumbnail-image" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         }
                             
 
@@ -594,5 +594,22 @@ $(document).on("click", '.show-product-info', function() {
 });
 
 
+$(document).on("mouseover", '.show-thumbnail-image', function() {
+    if ($('#preview-image-model').length == 0) {
+        var preview_image_model =   '<div id="preview-image-model" class="modal col-6" data-backdrop="false">'+
+                                    '  <span class="close">×</span>'+
+                                    '  <div class="row">'+
+                                    '    <div class="col-12"><img class="modal-content" height="500px;" id="img01"></div>'+
+                                    '  </div>'+
+                                    '</div>';
+        $('body').append(preview_image_model);
+    }
 
-                    
+    $('#preview-image-model').find(".modal-content").attr("src",$(this).find("img").attr("src"));
+    $('#preview-image-model').modal('show');
+
+});
+
+$(document).on('mouseout', '.show-thumbnail-image', function(e) { 
+    $('#preview-image-model').modal('hide');
+});
