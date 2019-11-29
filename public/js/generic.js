@@ -54,7 +54,19 @@ $(document).on('click', '.load-communication-modal', function () {
                     // Set media
                     if (imgSrc != '') {
                         media = media + '<div class="col-12">';
-                        media = media + '<a href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                        if (message.media[i].product_id) {
+                            var imageType = (message.media[i].image).substr( (message.media[i].image).length - 4).toLowerCase();
+
+                            if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
+                                media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                            } else {
+                                media = media + '<a href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                            } 
+                        } else {
+                            media = media + '<a href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                        }
+                            
+
                         if (message.media[i].product_id > 0 && message.customer_id > 0) {
                             media = media + '<br />';
                             media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
@@ -557,3 +569,30 @@ $(document).on("keyup", '.search_chat_pop', function() {
         $(this).toggle($(this).find('.message').data('message').toLowerCase().indexOf(value) > -1)
     });
 });
+
+$(document).on("click", '.show-product-info', function() {
+    if ($('#show_product_info_model').length == 0) {
+        var show_product_info_model =   '<div id="show_product_info_model" class="modal fade" role="dialog">'+
+                                    '      <div class="modal-dialog modal-lg">'+
+                                    '        <div class="modal-content">'+
+                                    '            <div class="modal-body">'+
+                                    '                <div class="embed-responsive embed-responsive-16by9 z-depth-1-half product_page">'+
+                                    '                </div>'+
+                                    '            </div>'+
+                                    '            <div class="modal-footer">'+
+                                    '              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>'+
+                                    '            </div>'+
+                                    '        </div>'+
+                                    '      </div>'+
+                                    '    </div>';
+        $('body').append(show_product_info_model);
+    }
+
+    $('#show_product_info_model').find('.product_page').html('<iframe class="embed-responsive-item" src="/products/'+$(this).data('id')+'"></iframe>');           
+    $('#show_product_info_model').modal('show');
+
+});
+
+
+
+                    
