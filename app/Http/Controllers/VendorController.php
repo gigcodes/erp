@@ -59,6 +59,9 @@ class VendorController extends Controller
       if ($request->sortby == 'category') {
         $sortByClause = "category_name $orderby,";
       }
+      if ($request->sortby == 'id') {
+        $sortByClause = "id $orderby,";
+      }
         $whereArchived = ' `deleted_at` IS NULL ';
 
       if ($request->get('with_archived') == 'on') {
