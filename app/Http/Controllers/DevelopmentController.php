@@ -267,14 +267,13 @@ class DevelopmentController extends Controller
     public function setPriority(Request $request)
     {
         $priority = $request->get('priority', null);
+        //get all user task
+        $issues = Issue::where('responsible_user_id', $request->get('user_id', 0))->pluck('id')->toArray();
+        
+        //delete old priority
+        \App\ErpPriority::whereIn('model_id', $issues)->where('model_type', '=', Issue::class)->delete();
+        
         if (!empty($priority)) {
-            
-            //get all user task
-            $issues = Issue::where('responsible_user_id', $request->get('user_id', 0))->pluck('id')->toArray();
-            
-            //delete old priority
-            \App\ErpPriority::whereIn('model_id', $issues)->where('model_type', '=', Issue::class)->delete();
-            
             foreach ((array)$priority as $model_id) {
                 \App\ErpPriority::create([
                     'model_id' => $model_id, 
