@@ -378,4 +378,30 @@ class BroadcastController extends Controller
             'data' => $broadcastArray,
         ]);
     }
+
+
+    public function saveGlobalValues(Request $request)
+    {
+        
+            $numbers = WhatsappConfig::where('is_customer_support',0)->get();
+            foreach ($numbers as $number) {
+               if($request->frequency != null){
+                 $number->frequency = $request->frequency;
+                 $number->update();
+               }
+
+               if($request->send_start != null){
+                 $number->send_start = $request->send_start;
+                 $number->update();
+               }
+
+               if($request->send_end != null){
+                 $number->send_end = $request->send_end;
+                 $number->update();
+               }
+            }
+
+           return redirect()->back()->with('message', 'Values Updated Globally');
+        
+    }
 }

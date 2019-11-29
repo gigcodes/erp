@@ -149,6 +149,7 @@
                 <button type="button" class="btn btn-secondary">DND Customers : {{ $countDNDCustomers }}</button>
                 <button type="button" class="btn btn-secondary">First Broadcast Send : {{ $customerBroadcastSend }}</button>
                 <button type="button" class="btn btn-secondary">First Broadcast Pending : {{ $customerBroadcastPending }}</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#settingModal">Global Setting</button>
             </div>
         </div>
     </div>
@@ -219,13 +220,14 @@
                                     <th>ID</th>
                                     <th>D. Name</th>
                                     <th>Number</th>
-                                    <th>Tl Cust</th>
+                                    <th>Ttl Cust</th>
                                     <th>Msg/Day</th>
                                     <th>Pend</th>
                                     <th>Last Check</th>
                                     <th>L. Sent</th>
                                     <th>D.O.A</th>
                                     <th>Status</th>
+                                    <th>Freq</th>
                                     <th>Send Time</th>
                                     <th>End Time</th>
                                 </tr>
@@ -310,6 +312,7 @@
     </div>
 @include('marketing.broadcasts.partials.modal-merge')
 @include('marketing.broadcasts.partials.message')
+@include('marketing.broadcasts.partials.setting')
 @endsection
 
 @section('scripts')
