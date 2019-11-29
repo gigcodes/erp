@@ -119,7 +119,7 @@
         <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
-                <th width="5%">ID</th>
+                <th width="5%"><a href="/vendor{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
                 <th width="5%"><a href="/vendor{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
                 <th width="10%">Name</th>
                 <th width="10%">Phone</th>

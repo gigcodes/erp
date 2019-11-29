@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Priority extends Model
+class ErpPriority extends Model
 {
     /**
      * Fillables for the database

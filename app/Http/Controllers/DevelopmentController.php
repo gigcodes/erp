@@ -240,13 +240,13 @@ class DevelopmentController extends Controller
         $user_id = $request->get('user_id' , 0);
 
         $issues = Issue::select('issues.id', 'issues.module', 'issues.subject', 'issues.issue', 'issues.submitted_by')
-                        ->leftJoin('priorities', function($query){
-                            $query->on('priorities.model_id', '=', 'issues.id');
-                            $query->where('priorities.model_type', '=', Issue::class);
+                        ->leftJoin('erp_priorities', function($query){
+                            $query->on('erp_priorities.model_id', '=', 'issues.id');
+                            $query->where('erp_priorities.model_type', '=', Issue::class);
                         })
                         ->where('responsible_user_id', $user_id)
                         ->where('is_resolved', '0')
-                        ->orderBy('priorities.id')
+                        ->orderBy('erp_priorities.id')
                         ->get();
 
         foreach ($issues as &$value) {
@@ -266,30 +266,30 @@ class DevelopmentController extends Controller
             $issues = Issue::where('responsible_user_id', $request->get('user_id', 0))->pluck('id')->toArray();
             
             //delete old priority
-            \App\Priority::whereIn('model_id', $issues)->where('model_type', '=', Issue::class)->delete();
+            \App\ErpPriority::whereIn('model_id', $issues)->where('model_type', '=', Issue::class)->delete();
             
             foreach ((array)$priority as $model_id) {
-                \App\Priority::create([
+                \App\ErpPriority::create([
                     'model_id' => $model_id, 
                     'model_type' => Issue::class
                 ]);
             }
 
             $issues = Issue::select('issues.id', 'issues.module', 'issues.subject', 'issues.issue', 'issues.submitted_by')
-                            ->leftJoin('priorities', function($query){
-                                $query->on('priorities.model_id', '=', 'issues.id');
-                                $query->where('priorities.model_type', '=', Issue::class);
+                            ->leftJoin('erp_priorities', function($query){
+                                $query->on('erp_priorities.model_id', '=', 'issues.id');
+                                $query->where('erp_priorities.model_type', '=', Issue::class);
                             })
                             ->where('responsible_user_id', $request->get('user_id', 0))
                             ->where('is_resolved', '0')
-                            ->orderBy('priorities.id')
+                            ->orderBy('erp_priorities.id')
                             ->get();
 
             $message = 'Issue Priority is :';
 
             $i = 1;
             foreach ($issues as $value) {
-                $message .= $i ." : #ISSUE-" . $value->id . "-" . $value->subject.' => '.$value->issue."\n";
+                $message .= $i ." : #ISSUE-" . $value->id . "-" . $value->subject."\n";
                 $i++;
             }
             

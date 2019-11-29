@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePrioritiesTable extends Migration
+class CreateErpPrioritiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreatePrioritiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('priorities', function (Blueprint $table) {
+        Schema::create('erp_priorities', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('model_id');
             $table->string('model_type')->nullable();
@@ -28,6 +28,6 @@ class CreatePrioritiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('priorities');
+        Schema::dropIfExists('erp_priorities');
     }
 }
