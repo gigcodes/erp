@@ -174,29 +174,31 @@ class DevelopmentController extends Controller
             }
 
             $developerTask = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
-                        ->leftJoin('erp_priorities', function($query){
+                        ->join('erp_priorities', function($query){
                             $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
                             $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
                         })
                         ->where('user_id',  $request->get('user_id', 0))
-                        ->where('status', '!=', 'Done');
+                        ->where('status', '!=', 'Done')
+                        ->orderBy('erp_priorities.id')
+                        ->get();
 
-            $message = "Task Priority is : \n";
-
+            $message = "";
             $i = 1;
             foreach ($developerTask as $value) {
                 $message .= $i ." : #Task-" . $value->id . "-" . $value->subject."\n";
                 $i++;
             }
-            
-            $requestData = new Request();
-            $requestData->setMethod('POST');
-            $params = [];
-            $params['user_id'] = $request->get('user_id', 0);
-            $params['message'] = $message;
-            $params['status'] = 2;
-            $requestData->request->add($params);
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+            if (!empty($message)) {
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $params = [];
+                $params['user_id'] = $request->get('user_id', 0);
+                $params['message'] = "Task Priority is : \n".$message;
+                $params['status'] = 2;
+                $requestData->request->add($params);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+            }
         }
         return response()->json([
             'status' => 'success'
@@ -361,7 +363,7 @@ class DevelopmentController extends Controller
             }
 
             $issues = Issue::select('issues.id', 'issues.module', 'issues.subject', 'issues.issue', 'issues.submitted_by')
-                            ->leftJoin('erp_priorities', function($query){
+                            ->join('erp_priorities', function($query){
                                 $query->on('erp_priorities.model_id', '=', 'issues.id');
                                 $query->where('erp_priorities.model_type', '=', Issue::class);
                             })
@@ -370,7 +372,7 @@ class DevelopmentController extends Controller
                             ->orderBy('erp_priorities.id')
                             ->get();
 
-            $message = 'Issue Priority is :';
+            $message = '';
 
             $i = 1;
             foreach ($issues as $value) {
@@ -378,14 +380,16 @@ class DevelopmentController extends Controller
                 $i++;
             }
             
-            $requestData = new Request();
-            $requestData->setMethod('POST');
-            $params = [];
-            $params['user_id'] = $request->get('user_id', 0);
-            $params['message'] = $message;
-            $params['status'] = 2;
-            $requestData->request->add($params);
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+            if (!empty($message)) {
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $params = [];
+                $params['user_id'] = $request->get('user_id', 0);
+                $params['message'] = "Issue Priority is : \n".$message;
+                $params['status'] = 2;
+                $requestData->request->add($params);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+            }
         }
         return response()->json([
             'status' => 'success'
