@@ -400,7 +400,7 @@ class TaskModuleController extends Controller {
             }
 
             $developerTask = Task::select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.assign_from')
-			                        ->leftJoin('erp_priorities', function($query){
+			                        ->join('erp_priorities', function($query){
 			                            $query->on('erp_priorities.model_id', '=', 'tasks.id');
 			                            $query->where('erp_priorities.model_type', '=', Task::class);
 			                        })
@@ -409,22 +409,24 @@ class TaskModuleController extends Controller {
 			                        ->orderBy('erp_priorities.id')
 			                        ->get();
 
-            $message = "Task Priority is : \n";
-
+            $message = "";
             $i = 1;
+            
             foreach ($developerTask as $value) {
-                $message .= $i ." : #Task-" . $value->id . "-" . $value->subject."\n";
+                $message .= $i ." : #Task-" . $value->id . "-" . $value->task_subject."\n";
                 $i++;
             }
-            
-            $requestData = new Request();
-            $requestData->setMethod('POST');
-            $params = [];
-            $params['user_id'] = $request->get('user_id', 0);
-            $params['message'] = $message;
-            $params['status'] = 2;
-            $requestData->request->add($params);
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+
+            if (!empty($message)) {
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $params = [];
+                $params['user_id'] = $request->get('user_id', 0);
+                $params['message'] = "Task Priority is : \n".$message;
+                $params['status'] = 2;
+                $requestData->request->add($params);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+            }
         }
         return response()->json([
             'status' => 'success'
