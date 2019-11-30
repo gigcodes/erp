@@ -404,6 +404,13 @@ class InstructionController extends Controller
         return response("success");
     }
 
+    public function skippedCount(Request $request)
+    {
+        $instruction = Instruction::find($request->id)->increment('skipped_count', 1);
+
+        return response("success");
+    }
+
     public function verifySelected(Request $request)
     {
         $selected_instructions = json_decode($request->selected_instructions);
@@ -465,6 +472,12 @@ class InstructionController extends Controller
             $instructions = $instructions->where('assigned_to', Auth::id());
         }
 
+        if ($request->skippedCount != null) {
+            $instructions = $instructions->where('skipped_count', '!=', '0');
+        } else {
+            $instructions = $instructions->where('skipped_count', '0');
+        }
+
         // Get the first instruction
         $instruction = $instructions->orderBy('id', 'desc')->first();
 
@@ -485,6 +498,8 @@ class InstructionController extends Controller
         $brands = \App\Brand::all();
         $category_array = \App\Category::renderAsArray();
 
+        $skippedCount = Instruction::where('verified', 0)->whereNull('completed_at')->whereNotNull('customer_id')->where('skipped_count', '!=', '0')->count();
+
         // Return the view with the first instruction
         return view('instructions.quick-instruction')->with([
             'instruction' => $instruction,
@@ -498,6 +513,7 @@ class InstructionController extends Controller
             'category_suggestion' => $category_suggestion,
             'brands' => $brands,
             'category_array' => $category_array,
+            'skippedCount' => $skippedCount,
         ]);
     }
 }

@@ -59,6 +59,9 @@ class VendorController extends Controller
       if ($request->sortby == 'category') {
         $sortByClause = "category_name $orderby,";
       }
+      if ($request->sortby == 'id') {
+        $sortByClause = "id $orderby,";
+      }
         $whereArchived = ' `deleted_at` IS NULL ';
 
       if ($request->get('with_archived') == 'on') {
@@ -66,7 +69,7 @@ class VendorController extends Controller
       }
 
       //getting request 
-      if($request->term || $request->name || $request->id || $request->category || $request->phone || $request->address || $request->email || $request->term){
+      if($request->term || $request->name || $request->id || $request->category || $request->phone || $request->address || $request->email || $request->communication_history){
 
 
         //Query Initiate
@@ -116,6 +119,11 @@ class VendorController extends Controller
                     $qu->where('title', 'LIKE', '%' . request('category') . '%');
                     });
             }
+
+          if (request('communication_history') != null) {
+              $communication_history = request('communication_history');
+              $query->whereRaw("vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%".$communication_history."%')");
+          }
                         
           if($request->with_archived != null && $request->with_archived != ''){
                 $pagination = Setting::get('pagination'); 
@@ -201,6 +209,19 @@ class VendorController extends Controller
         'orderby'    => $orderby,
           'users' => $users
       ]);
+    }
+
+    public function vendorSearch()
+    {
+        $term = request()->get("q",null);
+        $search = Vendor::where('name', 'LIKE', "%".$term."%")
+                    ->orWhere('address', 'LIKE', "%".$term."%")
+                    ->orWhere('phone', 'LIKE', "%".$term."%")
+                    ->orWhere('email', 'LIKE', "%".$term."%")
+                    ->orWhereHas('category', function ($qu) use ($term) {
+                      $qu->where('title', 'LIKE', "%".$term."%");
+                      })->get();
+        return response()->json($search);
     }
 
     public function email(Request $request) {
