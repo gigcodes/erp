@@ -3396,23 +3396,23 @@ class WhatsAppController extends FindByNumberController
             $data = $data->get()->groupBy('broadcast_number');
 
             foreach ($data as $broadcastNumber => $customers) {
-
+                
                 $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
-                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
+                $morning = Carbon::create($now->year, $now->month, $now->day, Setting::get('start_time'), 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, Setting::get('end_time'), 0, 0);
 
                 if (!$now->between($morning, $evening, true)) {
                     if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
                         // add day
                         $now->addDay();
-                        $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                        $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
+                        $now = Carbon::create($now->year, $now->month, $now->day, Setting::get('start_time'), 0, 0);
+                        $morning = Carbon::create($now->year, $now->month, $now->day, Setting::get('start_time'), 0, 0);
+                        $evening = Carbon::create($now->year, $now->month, $now->day, Setting::get('end_time'), 0, 0);
                     } else {
                         // dont add day
-                        $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                        $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
+                        $now = Carbon::create($now->year, $now->month, $now->day, Setting::get('start_time'), 0, 0);
+                        $morning = Carbon::create($now->year, $now->month, $now->day, Setting::get('start_time'), 0, 0);
+                        $evening = Carbon::create($now->year, $now->month, $now->day, Setting::get('end_time'), 0, 0);
                     }
                 }
                      
@@ -3456,18 +3456,16 @@ class WhatsAppController extends FindByNumberController
                                 $priority = 5;
                                 if($request->linked_images != null){
                                     if($content['linked_images'] != null){
-
-                                    //Saving Message In Chat Message 
+                                        //Saving Message In Chat Message 
                                         $chatMessage = ChatMessage::create($params);
-
-
                                         foreach ($content['linked_images'] as $url) {
                                         //Attach image to chat message
                                             $chatMessage->attachMedia($url['key'], config('constants.media_tags'));
-
+                                                
                                             $send = InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,$url['url'],$priority,$now);
                                             if($send != false){
                                                 $now->addMinutes($minutes);
+                                                $now = InstantMessagingHelper::broadcastSendingTimeCheck($now);
                                             }else{
                                                 continue;
                                             }
@@ -3475,17 +3473,15 @@ class WhatsAppController extends FindByNumberController
 
                                     }
                                 }
-
-
                                 elseif($request->linked_images == null){
                                     $chatMessage = ChatMessage::create($params);
 
                                     $send = InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,'',$priority,$now); 
                                     if($send != false){
                                         $now->addMinutes($minutes);
+                                        $now = InstantMessagingHelper::broadcastSendingTimeCheck($now);
                                     }
                                 }
-
                                 else{
                                     continue;
                                 }
