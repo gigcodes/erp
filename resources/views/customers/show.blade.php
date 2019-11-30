@@ -2420,6 +2420,10 @@
                                     <option value="female">Female</option>
                                 </select>
                             </div>
+                            <div class="row">
+                                <div class="form-group show-product-image">                                    
+                                </div>
+                            </div>
                             <input type="hidden"  name="oldImage[0]" value="-1">
                             <div class="form-group new-image" style="">
                                 <strong>Upload Image:</strong>
@@ -3571,6 +3575,7 @@
         if ($('#add_lead').find('input[name="product_id"]').length > 0) {
             $('#add_lead').find('input[name="product_id"]').val('');
         }
+        $('#add_lead').find('.show-product-image').html('');
         $('#add_lead').modal('show');
       });
 
