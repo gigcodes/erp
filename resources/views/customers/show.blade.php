@@ -2420,6 +2420,10 @@
                                     <option value="female">Female</option>
                                 </select>
                             </div>
+                            <div class="row">
+                                <div class="form-group show-product-image">                                    
+                                </div>
+                            </div>
                             <input type="hidden"  name="oldImage[0]" value="-1">
                             <div class="form-group new-image" style="">
                                 <strong>Upload Image:</strong>
@@ -2451,24 +2455,12 @@
                         @csrf
                         <input type="hidden" name="customer_id" value="{{$customer->id}}">
                         <input type="hidden" name="return_url_back" value="1">
+                        <input type="hidden" name="order_type" value="offline">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
-                                    <strong> Order Type :</strong>
-                                    <?php
-
-                                    $order_types = [
-                                        'offline' => 'offline',
-                                        'online' => 'online'
-                                    ];
-
-                                    echo Form::select('order_type',$order_types, 'offline', ['class' => 'form-control']);?>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <div class="form-group">
                                     <strong>Order Date:</strong>
-                                    <input type="date" class="form-control" name="order_date" placeholder="Order Date" value=""/>
+                                    <input type="date" class="form-control" name="order_date" placeholder="Order Date" value="{{date('Y-m-d')}}" required/>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-12 col-md-12">
@@ -2497,42 +2489,11 @@
                             </div>
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
-                                    <strong> Name of Order Handler :</strong>
-                                    <?php 
-                                        $sales_persons = \App\Helpers::getUsersArrayByRole( 'Sales' );
-                                        echo Form::select('sales_person',$sales_persons, null, ['placeholder' => 'Select a name','class' => 'form-control']); 
-                                    ?>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <div class="form-group">
-                                    <strong>Office Phone Number:</strong>
-                                    <Select name="whatsapp_number" class="form-control">
-                                          <option value>None</option>
-                                           <option value="919167152579">00</option>
-                                           <option value="918291920452">02</option>
-                                           <option value="918291920455">03</option>
-                                           <option value="919152731483">04</option>
-                                           <option value="919152731484">05</option>
-                                           <option value="971562744570">06</option>
-                                           <option value="918291352520">08</option>
-                                           <option value="919004008983">09</option>
-                                   </Select>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <div class="form-group">
                                     <strong> Status :</strong>
                                     <?php
                                         $orderStatus = new \App\ReadOnly\OrderStatus;
                                         echo Form::select('order_status',$orderStatus->all(), 'Follow up for advance', ['placeholder' => 'Select a status','class' => 'form-control']);
                                     ?>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <div class="form-group">
-                                    <strong>Estimated Delivery Date:</strong>
-                                    <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date" />
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-12 col-md-12">
@@ -3571,6 +3532,7 @@
         if ($('#add_lead').find('input[name="product_id"]').length > 0) {
             $('#add_lead').find('input[name="product_id"]').val('');
         }
+        $('#add_lead').find('.show-product-image').html('');
         $('#add_lead').modal('show');
       });
 

@@ -358,31 +358,50 @@ function createLead (thiss,dataSending) {
     
     if (selected_product_images.length > 0) {
         if ($('#add_lead').length > 0 && $(thiss).hasClass('create-product-lead')) {
-            $('#add_lead').modal('show');
-            $('#add_lead').find('input[name="customer_id"]').val(customer_id);
-            $('#add_lead').find('input[name="rating"]').val(1);
-            $('#add_lead').find('select[name="brand_id"]').val('').trigger('change');;
-            $('#add_lead').find('select[name="category_id"]').val('1').trigger('change');
-            $('#add_lead').find('select[name="brand_segment[]"]').val('').trigger('change');
-            $('#add_lead').find('select[name="lead_status_id"]').val('3').trigger('change');
-            $('#add_lead').find('input[name="size"]').val('');
-            
-            if (!dataSending) {
-                dataSending = {};
-            }
+            $.ajax({
+                url: "/lead-auto-fill-info",
+                data:{
+                    product_id : product_id,
+                    customer_id : customer_id
+                }
+            }).done(function(response) {
+                $('#add_lead').modal('show');
+                $('#add_lead').find('input[name="customer_id"]').val(customer_id);
+                $('#add_lead').find('input[name="rating"]').val(1);
+                $('#add_lead').find('select[name="brand_id"]').val(response.brand).trigger('change');;
+                $('#add_lead').find('select[name="category_id"]').val(response.category).trigger('change');
+                $('#add_lead').find('select[name="brand_segment[]"]').val(response.brand_segment).trigger('change');
+                $('#add_lead').find('select[name="lead_status_id"]').val('3').trigger('change');
+                $('#add_lead').find('select[name="gender"]').val(response.gender).trigger('change');
+                $('#add_lead').find('input[name="size"]').val(response.shoe_size);
+                
+                var showImageHtml = "";
+                
+                for (var i in response.media) {
+                    showImageHtml += '<div class="col-sm-3" style="padding-bottom: 10px;">';
+                    showImageHtml += '<div style="height:100px;"> <img src="'+response.media[i].url+'" width="100%" height="100%"></div>';
+                    showImageHtml += '<label class="btn btn-primary"> <input type="checkbox" name="product_media_list[]" value="'+response.media[i].id+'" checked> Select </label>';
+                    showImageHtml += '</div>';
+                }
 
-            if ($('#add_lead').find('input[name="product_id"]').length > 0) {
-                $('#add_lead').find('input[name="product_id"]').val(product_id);
-                $('#add_lead').find('input[name="product_id"]').data('object', JSON.stringify(dataSending));
-            } else {
-                $('#add_lead').find('form').append($('<input>', {
-                    value: product_id,
-                    name: 'product_id',
-                    type: 'hidden',
-                    'data-object' : JSON.stringify(dataSending),
-                }));    
-            }
-            
+                $('#add_lead').find('.show-product-image').html(showImageHtml);
+                
+                if (!dataSending) {
+                    dataSending = {};
+                }
+
+                if ($('#add_lead').find('input[name="product_id"]').length > 0) {
+                    $('#add_lead').find('input[name="product_id"]').val(product_id);
+                    $('#add_lead').find('input[name="product_id"]').data('object', JSON.stringify(dataSending));
+                } else {
+                    $('#add_lead').find('form').append($('<input>', {
+                        value: product_id,
+                        name: 'product_id',
+                        type: 'hidden',
+                        'data-object' : JSON.stringify(dataSending),
+                    }));    
+                }
+            })
             return false;
         }
 
@@ -502,19 +521,13 @@ $(document).on('click', '.create-product-order', function(e) {
 
         if ($('#add_order').length > 0) {
             $('#add_order').find('input[name="customer_id"]').val(customer_id);
-            $('#add_order').find('input[name="order_date"]').val('');
             $('#add_order').find('input[name="date_of_delivery"]').val('');
             $('#add_order').find('input[name="advance_detail"]').val('');
             $('#add_order').find('input[name="advance_date"]').val('');
             $('#add_order').find('input[name="balance_amount"]').val('');
-            $('#add_order').find('input[name="estimated_delivery_date"]').val('');
             $('#add_order').find('input[name="received_by"]').val('');
             $('#add_order').find('input[name="note_if_any"]').val('');
             $('#add_order').find('select[name="payment_mode"]').val('');
-            $('#add_order').find('select[name="sales_person"]').val('');
-            $('#add_order').find('select[name="whatsapp_number"]').val('');
-            $('#add_order').find('select[name="order_type"]').val('offline');
-
             $('#add_order').find('select[name="order_status"]').val('Follow up for advance');
 
             if ($('#add_order').find('input[name="selected_product[]"]').length > 0) {
