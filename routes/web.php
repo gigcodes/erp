@@ -268,6 +268,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/list-by-user-id', 'TaskModuleController@taskListByUserId')->name('task.list.by.user.id');
     Route::post('task/set-priority', 'TaskModuleController@setTaskPriority')->name('task.set.priority');
     Route::resource('task', 'TaskModuleController');
+    Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
     Route::post('task_category/{id}/approve', 'TaskCategoryController@approve');
     Route::resource('task_category', 'TaskCategoryController');
     Route::post('task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup')->name('task.add.whatsapp.group');
