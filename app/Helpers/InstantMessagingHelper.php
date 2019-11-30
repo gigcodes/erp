@@ -269,17 +269,15 @@ class InstantMessagingHelper
         $now = $time;
 
         //Getting Start and end time from setting
-        $startTime = Setting::where('name','start_time')->first();
-        $endTime = Setting::where('name','end_time')->first();
+        // $startTime = Setting::where('name','start_time')->first();
+        // $endTime = Setting::where('name','end_time')->first();
         
-        $morning = Carbon::create($now->year, $now->month, $now->day, $startTime->val, 0, 0);
-        $evening = Carbon::create($now->year, $now->month, $now->day, $endTime->val, 0, 0);
+        $morning = Carbon::create($now->year, $now->month, $now->day, 8, 0, 0);
+        $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
         
         if (!$now->between($morning, $evening, true)) {
             $now->addDay();
-            $now = Carbon::create($now->year, $now->month, $now->day, $startTime->val, 0, 0);
-            $morning = Carbon::create($now->year, $now->month, $now, $startTime->val, 0, 0);
-            $evening = Carbon::create($now->year, $now->month, $now, $endTime->val, 0, 0);
+            $now = Carbon::create($now->year, $now->month, $now->day, 8, 0, 0);
         }
         
         return $now;

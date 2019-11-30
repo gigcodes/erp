@@ -3398,21 +3398,21 @@ class WhatsAppController extends FindByNumberController
             foreach ($data as $broadcastNumber => $customers) {
                 
                 $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
-                $morning = Carbon::create($now->year, $now->month, $now->day, Setting::get('start_time'), 0, 0);
-                $evening = Carbon::create($now->year, $now->month, $now->day, Setting::get('end_time'), 0, 0);
+                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
 
                 if (!$now->between($morning, $evening, true)) {
                     if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
                         // add day
                         $now->addDay();
-                        $now = Carbon::create($now->year, $now->month, $now->day, Setting::get('start_time'), 0, 0);
-                        $morning = Carbon::create($now->year, $now->month, $now->day, Setting::get('start_time'), 0, 0);
-                        $evening = Carbon::create($now->year, $now->month, $now->day, Setting::get('end_time'), 0, 0);
+                        $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
                     } else {
                         // dont add day
-                        $now = Carbon::create($now->year, $now->month, $now->day, Setting::get('start_time'), 0, 0);
-                        $morning = Carbon::create($now->year, $now->month, $now->day, Setting::get('start_time'), 0, 0);
-                        $evening = Carbon::create($now->year, $now->month, $now->day, Setting::get('end_time'), 0, 0);
+                        $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
                     }
                 }
                      
@@ -3466,6 +3466,7 @@ class WhatsAppController extends FindByNumberController
                                             if($send != false){
                                                 $now->addMinutes($minutes);
                                                 $now = InstantMessagingHelper::broadcastSendingTimeCheck($now);
+                                                
                                             }else{
                                                 continue;
                                             }
