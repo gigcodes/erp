@@ -179,7 +179,9 @@ class DevelopmentController extends Controller
                             $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
                         })
                         ->where('user_id',  $request->get('user_id', 0))
-                        ->where('status', '!=', 'Done');
+                        ->where('status', '!=', 'Done')
+                        ->orderBy('erp_priorities.id')
+                        ->get();
 
             $message = "Task Priority is : \n";
 
