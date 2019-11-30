@@ -109,7 +109,7 @@
                     </div>
 
                     <div class="col-md-1" style="margin-left: -106px; margin-top: 7px;">
-                        <a  data-toggle="modal" data-target="#priority_model" class="btn btn-secondary d-inline">Priority</a>
+                        <a class="btn btn-secondary d-inline priority_model_btn">Priority</a>
                     </div>
 
                 </div>
@@ -571,7 +571,13 @@
                 }
             });
         }
-        getPriorityTaskList('{{auth()->user()->id}}');
+
+        $('.priority_model_btn').click(function(){
+            $( "#priority_user_id" ).val('');
+            $( ".show_task_priority" ).html('');
+            getPriorityTaskList('{{auth()->user()->id}}');
+            $('#priority_model').modal('show');
+        })
 
         $('#priority_user_id').change(function(){
                 getPriorityTaskList($(this).val())
