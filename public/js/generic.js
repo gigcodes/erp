@@ -38,7 +38,7 @@ $(document).on('click', '.load-communication-modal', function () {
 
                     // Set media
                     if (imgSrc != '') {
-                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank"><input type="checkbox" name="product" value="' + productId + '" id="cb1_' + i + '" /><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
+                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank" class="show-thumbnail-image"><input type="checkbox" name="product" value="' + productId + '" id="cb1_' + i + '" /><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
                     }
                 }
             }
@@ -54,7 +54,19 @@ $(document).on('click', '.load-communication-modal', function () {
                     // Set media
                     if (imgSrc != '') {
                         media = media + '<div class="col-12">';
-                        media = media + '<a href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                        if (message.media[i].product_id) {
+                            var imageType = (message.media[i].image).substr( (message.media[i].image).length - 4).toLowerCase();
+
+                            if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
+                                media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info show-thumbnail-image"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                            } else {
+                                media = media + '<a class="show-thumbnail-image" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                            } 
+                        } else {
+                            media = media + '<a class="show-thumbnail-image" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                        }
+                            
+
                         if (message.media[i].product_id > 0 && message.customer_id > 0) {
                             media = media + '<br />';
                             media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
@@ -418,6 +430,30 @@ function createLead (thiss,dataSending) {
     }
 }
 
+var observeModelOpen = function () {
+    if($("#chat-list-history").is(":visible")) {
+        $(".js-focus-visible").addClass("modal-open");
+    }
+};
+
+$(document).on('hidden.bs.modal','#add_lead', function () {
+    observeModelOpen();
+});
+
+$(document).on('hidden.bs.modal','#preview-image-model', function () {
+    observeModelOpen();
+});
+
+$(document).on('hidden.bs.modal','#add_order', function () {
+    observeModelOpen();
+});
+
+$(document).on('hidden.bs.modal','#forwardModal', function () {
+    observeModelOpen();
+});
+
+
+
 $(document).on('click', '.create-product-lead-dimension', function(e) {
         e.preventDefault();
         createLead (this,{dimension: true , auto_approve: 1});         
@@ -556,4 +592,48 @@ $(document).on("keyup", '.search_chat_pop', function() {
     $(".speech-wrapper .bubble").filter(function() {
         $(this).toggle($(this).find('.message').data('message').toLowerCase().indexOf(value) > -1)
     });
+});
+
+$(document).on("click", '.show-product-info', function() {
+    if ($('#show_product_info_model').length == 0) {
+        var show_product_info_model =   '<div id="show_product_info_model" class="modal fade" role="dialog">'+
+                                    '      <div class="modal-dialog modal-lg">'+
+                                    '        <div class="modal-content">'+
+                                    '            <div class="modal-body">'+
+                                    '                <div class="embed-responsive embed-responsive-16by9 z-depth-1-half product_page">'+
+                                    '                </div>'+
+                                    '            </div>'+
+                                    '            <div class="modal-footer">'+
+                                    '              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>'+
+                                    '            </div>'+
+                                    '        </div>'+
+                                    '      </div>'+
+                                    '    </div>';
+        $('body').append(show_product_info_model);
+    }
+
+    $('#show_product_info_model').find('.product_page').html('<iframe class="embed-responsive-item" src="/products/'+$(this).data('id')+'"></iframe>');           
+    $('#show_product_info_model').modal('show');
+
+});
+
+
+$(document).on("mouseover", '.show-thumbnail-image', function() {
+    if ($('#preview-image-model').length == 0) {
+        var preview_image_model =   '<div id="preview-image-model" class="modal col-6" data-backdrop="false">'+
+                                    '  <span class="close">×</span>'+
+                                    '  <div class="row">'+
+                                    '    <div class="col-12"><img class="modal-content" height="500px;" id="img01"></div>'+
+                                    '  </div>'+
+                                    '</div>';
+        $('body').append(preview_image_model);
+    }
+
+    $('#preview-image-model').find(".modal-content").attr("src",$(this).find("img").attr("src"));
+    $('#preview-image-model').modal('show');
+
+});
+
+$(document).on('mouseout', '.show-thumbnail-image', function(e) { 
+    $('#preview-image-model').modal('hide');
 });
