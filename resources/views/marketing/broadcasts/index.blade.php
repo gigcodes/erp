@@ -785,15 +785,15 @@
                         },
                         beforeSend: function () {
                             $("#loading-image").show();
+                            $("#marketing"+id).prop('checked', true);
                         },
                     }).done(function (data) {
                         $("#loading-image").hide();
-                        $("#row"+id).css('display','none');
-                        location.reload();
                     }).fail(function (jqXHR, ajaxOptions, thrownError) {
                         alert('No response from server');
                     });
                 });
+                alert('Customer Updated');
             }
         });
 
