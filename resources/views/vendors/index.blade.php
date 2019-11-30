@@ -42,10 +42,14 @@
             <h2 class="page-heading">Vendor Info</h2>
             <div class="pull-left">
                 <form class="form-inline" action="{{ route('vendor.index') }}" method="GET">
-                    <div class="form-group">
-                        <input name="term" type="text" class="form-control"
-                               value="{{ isset($term) ? $term : '' }}"
-                               placeholder="Search" id="search_id">
+                    <div class="form-group" style="width: 441px; margin-right: 10px;">
+                       <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
+                            <?php 
+                                if (request()->get('term')) {
+                                    echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
+                                }
+                            ?>
+                        </select>
                     </div>
 
                     {{-- <div class="form-group ml-3">
@@ -58,6 +62,9 @@
                     <div class="form-group">
                         <input type="checkbox" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
                         <label for="with_archived">Archived</label>
+                    </div>
+                    <div class="form-group" style="margin-left: 10px;">
+                       <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm form-control">
                     </div>
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
@@ -248,6 +255,46 @@
     <script type="text/javascript">
 
         var vendorToRemind = null;
+        $('#vendor-search').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/vendor-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        data[i].id = data[i].name ? data[i].name : data[i].text;
+                    }
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Vendor by name, address, phone, email, category, title',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+                
+                if (customer.name) {
+                    return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.name,
+
+        });
 
         $(document).on('click', '.emailToAllModal', function () {
             var select_vendor = [];
