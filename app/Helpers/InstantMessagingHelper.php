@@ -233,6 +233,15 @@ class InstantMessagingHelper
         $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
         try {
             $swissNumberProto = $phoneUtil->parse($customer->phone, $customer->country);
+            $isValid = $phoneUtil->isValidNumber($swissNumberProto);
+            
+            if($isValid == false){
+                $customer->broadcast_number = NULL;
+                $customer->phone = (int)$customer->phone * -1;
+                $customer->update();
+                \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                return false;
+            }
         } catch (\libphonenumber\NumberParseException $e) {
             $customer->broadcast_number = NULL;
             $customer->phone = (int)$customer->phone * -1;
