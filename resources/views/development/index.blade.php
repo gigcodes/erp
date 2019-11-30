@@ -55,8 +55,8 @@
                     </form>
                 </div>
             @endcan
-            <a  data-toggle="modal" data-target="#priority_model" class="btn btn-secondary" style="margin-left: 10px;">Priority</a>
-            <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Task </a>
+            <a  href="javascript:;"  class="btn btn-secondary priority_model_btn" style="margin-left: 5px;">Priority</a>
+            <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right; padding: 7px;">Add New Task </a>
         </div>
     </div>
 
@@ -291,7 +291,7 @@
                         @foreach($plannedTasks as $task)
                             <tr id="tr_{{$task->id}}">
                                 <td>{{ $task->id }}
-                                    @if($task->status != 'Done')
+                                    @if(auth()->user()->isAdmin() && $task->status != 'Done')
                                         <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
                                     @endif
                                 </td>
@@ -666,7 +666,15 @@
                 }
             });
         }
-        getPriorityTaskList('{{auth()->user()->id}}');
+
+        $('.priority_model_btn').click(function(){
+            $( "#priority_user_id" ).val('0');
+            $( ".show_task_priority" ).html('');
+            getPriorityTaskList('{{auth()->user()->id}}');
+            $('#priority_model').modal('show');
+        })
+
+
 
         $('#priority_user_id').change(function(){
                 getPriorityTaskList($(this).val())
