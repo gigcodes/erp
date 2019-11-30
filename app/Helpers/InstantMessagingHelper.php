@@ -88,7 +88,7 @@ class InstantMessagingHelper
             return false;
         }
 
-        $numberTo = self::customerPhoneCheck($numberTo);
+        $numberTo = self::customerPhoneCheck($numberTo,1);
         if($numberTo == false){
             return false;
         }
@@ -184,7 +184,7 @@ class InstantMessagingHelper
      *
      * @var int
      */
-    public static function customerPhoneCheck($phone)
+    public static function customerPhoneCheck($phone , $type)
     {
         $customer = Customer::where('phone',$phone)->first();
         
@@ -194,7 +194,8 @@ class InstantMessagingHelper
             $customer->update();
         }
         //Check if customer code is INDIA update it by IN
-        if($customer->country == 'INDIA'){
+        $country = strtolower($customer->country);
+        if($country == 'india'){
             $customer->country = 'IN';
             $customer->update();
         }
@@ -215,18 +216,23 @@ class InstantMessagingHelper
             $result = substr($customer->phone, 0, $length);
             
             if($result != $code){
-                $customer->broadcast_number = NULL;
-                $customer->phone = (int)$customer->phone * -1;
-                $customer->update();
-                \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
-                return false;
+                if($type == 1){
+                    $customer->broadcast_number = NULL;
+                    $customer->phone = (int)$customer->phone * -1;
+                    $customer->update();
+                    \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                }   
+                    return false;
+                
             }
 
         }catch(\Exception $e){
+                if($type == 1){
                 $customer->broadcast_number = NULL;
                 $customer->phone = (int)$customer->phone * -1;
                 $customer->update();
                 \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                }
                 return false;
         }
         
@@ -234,19 +240,22 @@ class InstantMessagingHelper
         try {
             $swissNumberProto = $phoneUtil->parse($customer->phone, $customer->country);
             $isValid = $phoneUtil->isValidNumber($swissNumberProto);
-            
             if($isValid == false){
+                if($type == 1){
                 $customer->broadcast_number = NULL;
                 $customer->phone = (int)$customer->phone * -1;
                 $customer->update();
                 \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                }
                 return false;
             }
         } catch (\libphonenumber\NumberParseException $e) {
+            if($type == 1){
             $customer->broadcast_number = NULL;
             $customer->phone = (int)$customer->phone * -1;
             $customer->update();
             \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+            }
             return false;
         }
 
