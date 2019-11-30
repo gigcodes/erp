@@ -11,6 +11,7 @@ use App\ChatMessage;
 use App\Customer;
 use App\ImQueue;
 use App\Marketing\WhatsappConfig;
+use Propaganistas\LaravelPhone\PhoneNumber;
 
 class InstantMessagingHelper
 {
@@ -84,6 +85,11 @@ class InstantMessagingHelper
         //Getting WhatsApp Config
         $whatappConfig = WhatsappConfig::where('number', $numberFrom)->first();
         if ($whatappConfig == '' && $whatappConfig == null) {
+            return false;
+        }
+
+        $numberTo = self::customerPhoneCheck($numberTo);
+        if($numberTo == false){
             return false;
         }
 
@@ -172,5 +178,57 @@ class InstantMessagingHelper
 
         // Return message
         return $message;
+    }
+    /**
+     * Check if the number is correct
+     *
+     * @var int
+     */
+    public static function customerPhoneCheck($phone)
+    {
+        $customer = Customer::where('phone',$phone)->first();
+        
+        //Check customer country code is null and update it By IN
+        if($customer->country == null){
+            $customer->country = 'IN';
+            $customer->update();
+        }
+        //Check if customer code is INDIA update it by IN
+        if($customer->country == 'INDIA'){
+            $customer->country = 'IN';
+            $customer->update();
+        }
+
+        //Check if phone is empty
+        if($customer->phone == null){
+            return false;
+        }
+        
+        
+        try{
+            $countries = \Config('countries');
+            $country = $countries[$customer->country];
+            $code = $country['code'];
+
+            //getting first 3 digit from number 
+            $length = strlen($country['code']);
+            $result = substr($customer->phone, 0, $length);
+            if($result != $code){
+                $customer->broadcast_number = NULL;
+                $customer->phone = (int)$customer->phone * -1;
+                $customer->update();
+                \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                return false;
+            }
+
+        }catch(\Exception $e){
+                $customer->broadcast_number = NULL;
+                $customer->phone = (int)$customer->phone * -1;
+                $customer->update();
+                \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                return false;
+        }
+
+        return $customer->phone;
     }
 }
