@@ -430,6 +430,30 @@ function createLead (thiss,dataSending) {
     }
 }
 
+var observeModelOpen = function () {
+    if($("#chat-list-history").is(":visible")) {
+        $(".js-focus-visible").addClass("modal-open");
+    }
+};
+
+$(document).on('hidden.bs.modal','#add_lead', function () {
+    observeModelOpen();
+});
+
+$(document).on('hidden.bs.modal','#preview-image-model', function () {
+    observeModelOpen();
+});
+
+$(document).on('hidden.bs.modal','#add_order', function () {
+    observeModelOpen();
+});
+
+$(document).on('hidden.bs.modal','#forwardModal', function () {
+    observeModelOpen();
+});
+
+
+
 $(document).on('click', '.create-product-lead-dimension', function(e) {
         e.preventDefault();
         createLead (this,{dimension: true , auto_approve: 1});         
