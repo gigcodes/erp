@@ -21,8 +21,6 @@ class GoogleSearchImageController extends Controller
      */
     public function index(Request $request)
     {
-        //$fileName = 'D:\pravin_project\soloux\sololux-erp\public\uploads\0a2243e085dfaf7ae30db984b3ae2129.jpeg';
-
         $data     = [];
         $term     = $request->input( 'term' );
         $data['term']     = $term;
@@ -260,8 +258,8 @@ class GoogleSearchImageController extends Controller
 
         if ($request->isMethod('post')) {
 
-            $images = $request->get("images",[]);
-            $productId = $request->get("product_id",0);
+            $images = $request->post("images",[]);
+            $productId = $request->post("product_id",0);
 
             $product = \App\Product::where("id",$productId)->first();
 
