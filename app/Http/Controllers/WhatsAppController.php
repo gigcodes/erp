@@ -1952,6 +1952,28 @@ class WhatsAppController extends FindByNumberController
                 // if ($data['erp_user'] != Auth::id()) {
                 //   $data['status'] = 0;
                 // }
+            } else if ($context == 'priority') {
+                $params = [];
+                $params[ 'message' ] = $request->get('message', '');
+                $params[ 'erp_user' ] = $request->get('user_id', 0);
+                $params[ 'approved' ] = 1;
+                $params[ 'status' ] = 2;
+
+                
+                $number = User::find( $request->get('user_id', 0));
+
+                if (!$number) {
+                    return response()->json(['message' => null]);
+                }
+
+                $number = $number->phone;
+
+                $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+                $chat_message = ChatMessage::create($params);
+
+
+                return response()->json(['message' => $chat_message]);
+
             } elseif ($context == 'user') {
                 $data[ 'erp_user' ] = $request->user_id;
                 $module_id = $request->user_id;

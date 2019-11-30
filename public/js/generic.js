@@ -345,11 +345,11 @@ function createLead (thiss,dataSending) {
     var text = $(thiss).text();
     
     if (selected_product_images.length > 0) {
-        if ($('#add_lead').length > 0) {
+        if ($('#add_lead').length > 0 && $(thiss).hasClass('create-product-lead')) {
             $('#add_lead').modal('show');
             $('#add_lead').find('input[name="customer_id"]').val(customer_id);
             $('#add_lead').find('input[name="rating"]').val(1);
-            $('#add_lead').find('select[name="brand_id"]').val('');
+            $('#add_lead').find('select[name="brand_id"]').val('').trigger('change');;
             $('#add_lead').find('select[name="category_id"]').val('1').trigger('change');
             $('#add_lead').find('select[name="brand_segment[]"]').val('').trigger('change');
             $('#add_lead').find('select[name="lead_status_id"]').val('3').trigger('change');
