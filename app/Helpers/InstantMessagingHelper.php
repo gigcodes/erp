@@ -209,10 +209,11 @@ class InstantMessagingHelper
             $countries = \Config('countries');
             $country = $countries[$customer->country];
             $code = $country['code'];
-
+            
             //getting first 3 digit from number 
             $length = strlen($country['code']);
             $result = substr($customer->phone, 0, $length);
+            
             if($result != $code){
                 $customer->broadcast_number = NULL;
                 $customer->phone = (int)$customer->phone * -1;
@@ -227,6 +228,17 @@ class InstantMessagingHelper
                 $customer->update();
                 \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
                 return false;
+        }
+        
+        $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+        try {
+            $swissNumberProto = $phoneUtil->parse($customer->phone, $customer->country);
+        } catch (\libphonenumber\NumberParseException $e) {
+            $customer->broadcast_number = NULL;
+            $customer->phone = (int)$customer->phone * -1;
+            $customer->update();
+            \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+            return false;
         }
 
         return $customer->phone;
