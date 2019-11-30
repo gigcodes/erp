@@ -521,19 +521,13 @@ $(document).on('click', '.create-product-order', function(e) {
 
         if ($('#add_order').length > 0) {
             $('#add_order').find('input[name="customer_id"]').val(customer_id);
-            $('#add_order').find('input[name="order_date"]').val('');
             $('#add_order').find('input[name="date_of_delivery"]').val('');
             $('#add_order').find('input[name="advance_detail"]').val('');
             $('#add_order').find('input[name="advance_date"]').val('');
             $('#add_order').find('input[name="balance_amount"]').val('');
-            $('#add_order').find('input[name="estimated_delivery_date"]').val('');
             $('#add_order').find('input[name="received_by"]').val('');
             $('#add_order').find('input[name="note_if_any"]').val('');
             $('#add_order').find('select[name="payment_mode"]').val('');
-            $('#add_order').find('select[name="sales_person"]').val('');
-            $('#add_order').find('select[name="whatsapp_number"]').val('');
-            $('#add_order').find('select[name="order_type"]').val('offline');
-
             $('#add_order').find('select[name="order_status"]').val('Follow up for advance');
 
             if ($('#add_order').find('input[name="selected_product[]"]').length > 0) {
