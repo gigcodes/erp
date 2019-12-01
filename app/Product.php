@@ -104,13 +104,22 @@ class Product extends Model
                     }
                 }
 
+                //Check if its json
+                if (isset($json->properties[ 'size' ]) && is_array($json->properties[ 'size' ])) {
+                    $json->properties[ 'size' ] = implode(',', $json->properties[ 'size' ]);
+                }
+
                 // Add sizes to the product
                 if (isset($json->properties[ 'size' ]) && is_array($json->properties[ 'size' ]) && count($json->properties[ 'size' ]) > 0) {
                     // Implode the keys
-                    $product->size = implode(',', array_keys($json->properties[ 'size' ]));
+                    $product->size = implode(',', array_values($json->properties[ 'size' ]));
 
                     // Replace texts in sizes
                     $product->size = ProductHelper::getRedactedText($product->size, 'composition');
+
+                } elseif (isset($json->properties[ 'size' ]) && $json->properties[ 'size' ] != null) {
+                    $product->size = $json->properties[ 'size' ];
+
                 }
 
                 // Set product values
@@ -122,27 +131,23 @@ class Product extends Model
                 $product->price_special = $formattedPrices[ 'price_special' ];
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->save();
+
                 if ($product) {
                     if ($isExcel == 1) {
-                        foreach ($json->images as $image) {
-                            try {
-                                $jpg = \Image::make($image)->encode('jpg');
-                            } catch (\Exception $e) {
-                                $array = explode('/', $image);
-                                $filename_path = end($array);
-                                $jpg = \Image::make(public_path() . '/uploads/excel-import/' . $filename_path)->encode('jpg');
-                            }
-                            $filename = substr($image, strrpos($image, '/'));
-                            $filename = str_replace("/", "", $filename);
-                            try {
-                                if (strpos($filename, '.png') !== false) {
-                                    $filename = str_replace(".png", "", $filename);
+                        if (!$product->hasMedia(\Config('constants.excelimporter'))) {
+                            foreach ($json->images as $image) {
+                                try {
+                                    $jpg = \Image::make($image)->encode('jpg');
+                                } catch (\Exception $e) {
+                                    $array = explode('/', $image);
+                                    $filename_path = end($array);
+                                    $jpg = \Image::make(public_path() . '/uploads/excel-import/' . $filename_path)->encode('jpg');
                                 }
-                            } catch (\Exception $e) {
+                                $filename = substr($image, strrpos($image, '/'));
+                                $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
+                                $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
+                                $product->attachMedia($media, config('constants.excelimporter'));
                             }
-
-                            $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
-                            $product->attachMedia($media, config('constants.excelimporter'));
                         }
                     }
 

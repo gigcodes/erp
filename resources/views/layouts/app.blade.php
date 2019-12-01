@@ -1044,6 +1044,9 @@
                                             </li>
                                         </ul>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Address</a>
+                                    </li>
                                 </ul>
                             </li>
                         @endif

@@ -113,6 +113,9 @@ class DevelopmentController extends Controller
         }
 
         $times = [];
+
+        $priority  = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+
         return view('development.index', [
             'times' => $times,
             'users' => $users,
@@ -124,7 +127,86 @@ class DevelopmentController extends Controller
             'completedTasks' => $completedTasks,
             'plannedTasks' => $plannedTasks,
             'progressTasks' => $progressTasks,
-            'tasksTypes' => $tasksTypes
+            'tasksTypes' => $tasksTypes,
+            'priority' => $priority,
+        ]);
+    }
+
+    public function taskListByUserId(Request $request)
+    {
+        $user_id = $request->get('user_id' , 0);
+
+        $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
+                        ->leftJoin('erp_priorities', function($query){
+                            $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
+                            $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
+                        })
+                        ->where('user_id', $user_id)
+                        ->where('status', '!=', 'Done');
+
+        if (auth()->user()->isAdmin()) {
+            $issues = $issues->whereIn('developer_tasks.id', $request->get('selected_issue' , []));
+        } else {
+            $issues = $issues->whereNotNull('erp_priorities.id');
+        }
+
+        $issues = $issues->orderBy('erp_priorities.id')->get();
+
+        foreach ($issues as &$value) {
+            $value->module = $value->developerModule->name;
+            $value->created_by = User::where('id', $value->created_by)->value('name');
+        }
+        unset($value);
+        
+        return response()->json($issues);
+    }
+
+    public function setTaskPriority(Request $request)
+    {
+        $priority = $request->get('priority', null);
+        //get all user task
+        $developerTask = DeveloperTask::where('user_id', $request->get('user_id', 0))->pluck('id')->toArray();
+        
+        //delete old priority
+        \App\ErpPriority::whereIn('model_id', $developerTask)->where('model_type', '=', DeveloperTask::class)->delete();
+        
+        if (!empty($priority)) {
+            foreach ((array)$priority as $model_id) {
+                \App\ErpPriority::create([
+                    'model_id' => $model_id, 
+                    'model_type' => DeveloperTask::class
+                ]);
+            }
+
+            $developerTask = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
+                        ->join('erp_priorities', function($query){
+                            $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
+                            $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
+                        })
+                        ->where('user_id',  $request->get('user_id', 0))
+                        ->where('status', '!=', 'Done')
+                        ->orderBy('erp_priorities.id')
+                        ->get();
+
+            $message = "";
+            $i = 1;
+            foreach ($developerTask as $value) {
+                $message .= $i ." : #Task-" . $value->id . "-" . $value->subject."\n";
+                $i++;
+            }
+            if (!empty($message)) {
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $params = [];
+                $params['user_id'] = $request->get('user_id', 0);
+                $params['message'] = "Task Priority is : \n".$message;
+                $params['status'] = 2;
+                $requestData->request->add($params);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+            }
+        }
+        return response()->json([
+            'status' => 'success'
         ]);
     }
 
@@ -325,7 +407,7 @@ class DevelopmentController extends Controller
                                     $issues = $issues->where('responsible_user_id', $request->get('responsible_user'));
                                 } else {
                                     if ((int)$request->get('submitted_by') > 0) {
-                                        $issues = $issues->where('submitted_by', $request->get('submitted_by'));
+                                        $issues = $issues->where('created_by', $request->get('submitted_by'));
                                     }
                                 }
                             }
@@ -351,12 +433,15 @@ class DevelopmentController extends Controller
         }
         $issues = $issues->paginate(Setting::get('pagination'));
 
+        $priority  = \App\ErpPriority::where('model_type', '=', Issue::class)->pluck('model_id')->toArray();
+
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
             'modules' => $modules,
             'request' => $request,
-            'title' => $type
+            'title' => $type,
+            'priority' => $priority
         ]);
 
 
@@ -403,12 +488,95 @@ class DevelopmentController extends Controller
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications')->get();
         }
 
+        $priority  = \App\ErpPriority::where('model_type', '=', Issue::class)->pluck('model_id')->toArray();
+        
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
             'modules' => $modules,
             'request' => $request,
-            'title' => 'Issue'
+            'title' => 'Issue',
+            'priority' => $priority,
+        ]);
+    }
+
+    public function listByUserId(Request $request)
+    {
+        $user_id = $request->get('user_id' , 0);
+
+        $issues = Issue::select('issues.id', 'issues.module', 'issues.subject', 'issues.issue', 'issues.submitted_by')
+                        ->leftJoin('erp_priorities', function($query){
+                            $query->on('erp_priorities.model_id', '=', 'issues.id');
+                            $query->where('erp_priorities.model_type', '=', Issue::class);
+                        })
+                        ->where('responsible_user_id', $user_id)
+                        ->where('is_resolved', '0');
+
+        if (auth()->user()->isAdmin()) {
+            $issues = $issues->whereIn('issues.id', $request->get('selected_issue' , []));
+        }  else {
+            $issues = $issues->whereNotNull('erp_priorities.id');
+        }
+
+        $issues = $issues->orderBy('erp_priorities.id')->get();
+
+        foreach ($issues as &$value) {
+            $value->module = $value->devModule->name;
+            $value->submitted_by = $value->submitter->name;
+        }
+        unset($value);
+        
+        return response()->json($issues);
+    }
+
+    public function setPriority(Request $request)
+    {
+        $priority = $request->get('priority', null);
+        //get all user task
+        $issues = Issue::where('responsible_user_id', $request->get('user_id', 0))->pluck('id')->toArray();
+        
+        //delete old priority
+        \App\ErpPriority::whereIn('model_id', $issues)->where('model_type', '=', Issue::class)->delete();
+        
+        if (!empty($priority)) {
+            foreach ((array)$priority as $model_id) {
+                \App\ErpPriority::create([
+                    'model_id' => $model_id, 
+                    'model_type' => Issue::class
+                ]);
+            }
+
+            $issues = Issue::select('issues.id', 'issues.module', 'issues.subject', 'issues.issue', 'issues.submitted_by')
+                            ->join('erp_priorities', function($query){
+                                $query->on('erp_priorities.model_id', '=', 'issues.id');
+                                $query->where('erp_priorities.model_type', '=', Issue::class);
+                            })
+                            ->where('responsible_user_id', $request->get('user_id', 0))
+                            ->where('is_resolved', '0')
+                            ->orderBy('erp_priorities.id')
+                            ->get();
+
+            $message = '';
+
+            $i = 1;
+            foreach ($issues as $value) {
+                $message .= $i ." : #ISSUE-" . $value->id . "-" . $value->subject."\n";
+                $i++;
+            }
+            
+            if (!empty($message)) {
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $params = [];
+                $params['user_id'] = $request->get('user_id', 0);
+                $params['message'] = "Issue Priority is : \n".$message;
+                $params['status'] = 2;
+                $requestData->request->add($params);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+            }
+        }
+        return response()->json([
+            'status' => 'success'
         ]);
     }
 

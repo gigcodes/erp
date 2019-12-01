@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 class WhatsappConfig extends Model
 {
-    protected $fillable = ['number', 'provider', 'username', 'password', 'is_customer_support'];
+    protected $fillable = ['number', 'provider', 'username', 'password', 'is_customer_support','frequency','send_start','send_end','device_name','simcard_number','simcard_owner','payment','recharge_date','status','sim_card_type'];
 
     public function customer()
     {
@@ -24,5 +24,10 @@ class WhatsappConfig extends Model
     public function  imQueueLastMessageSend()
     {
     	return $this->hasOne(ImQueue::class,'number_from','number')->latest();
+    }
+
+    public function imQueueLastMessagePending()
+    {
+        return $this->hasMany(ImQueue::class,'number_from','number')->whereNull('sent_at');
     }
 }

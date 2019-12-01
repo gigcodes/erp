@@ -352,9 +352,95 @@ class TaskModuleController extends Controller {
 		//My code end
 
 		$tasks_view = [];
-
-		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown'));
+		$priority  = \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
+		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority'));
 	}
+
+	public function updateApproximate(Request $request) {
+		$task = Task::find($request->task_id);
+		$task->approximate = $request->approximate;
+		$task->save();
+		return response()->json(['msg' => 'success']);
+	}
+
+	public function taskListByUserId(Request $request)
+    {
+        $user_id = $request->get('user_id' , 0);
+
+        $issues = Task::select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.assign_from')
+                        ->leftJoin('erp_priorities', function($query){
+                            $query->on('erp_priorities.model_id', '=', 'tasks.id');
+                            $query->where('erp_priorities.model_type', '=', Task::class);
+                        })
+                        ->where('assign_to', $user_id)
+                        ->whereNull('is_verified');
+
+        if (auth()->user()->isAdmin()) {
+            $issues = $issues->whereIn('tasks.id', $request->get('selected_issue' , []));
+        } else {
+            $issues = $issues->whereNotNull('erp_priorities.id');
+        }
+
+        $issues = $issues->orderBy('erp_priorities.id')->get();
+
+        foreach ($issues as &$value) {
+            $value->created_by = User::where('id', $value->assign_from)->value('name');
+        }
+        unset($value);
+        
+        return response()->json($issues);
+    }
+
+    public function setTaskPriority(Request $request)
+    {
+        $priority = $request->get('priority', null);
+        //get all user task
+        $developerTask = Task::where('assign_to', $request->get('user_id', 0))->pluck('id')->toArray();
+        
+        //delete old priority
+        \App\ErpPriority::whereIn('model_id', $developerTask)->where('model_type', '=', Task::class)->delete();
+        
+        if (!empty($priority)) {
+            foreach ((array)$priority as $model_id) {
+                \App\ErpPriority::create([
+                    'model_id' => $model_id, 
+                    'model_type' => Task::class
+                ]);
+            }
+
+            $developerTask = Task::select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.assign_from')
+			                        ->join('erp_priorities', function($query){
+			                            $query->on('erp_priorities.model_id', '=', 'tasks.id');
+			                            $query->where('erp_priorities.model_type', '=', Task::class);
+			                        })
+			                        ->where('assign_to', $request->get('user_id', 0))
+			                        ->whereNull('is_verified')
+			                        ->orderBy('erp_priorities.id')
+			                        ->get();
+
+            $message = "";
+            $i = 1;
+            
+            foreach ($developerTask as $value) {
+                $message .= $i ." : #Task-" . $value->id . "-" . $value->task_subject."\n";
+                $i++;
+            }
+
+            if (!empty($message)) {
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $params = [];
+                $params['user_id'] = $request->get('user_id', 0);
+                $params['message'] = "Task Priority is : \n".$message;
+                $params['status'] = 2;
+                $requestData->request->add($params);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+            }
+        }
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
 
 	public function store( Request $request ) {
 		$this->validate($request, [

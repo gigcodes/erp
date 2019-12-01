@@ -1734,7 +1734,7 @@ class CustomerController extends Controller
     public function updatePhone(Request $request, $id)
     {
         $this->validate($request, [
-            'phone' => 'required|numeric'
+            'phone' => 'required|numeric|unique:customers,phone'
         ]);
 
         $customer = Customer::find($id);

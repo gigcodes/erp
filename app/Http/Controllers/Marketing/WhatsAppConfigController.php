@@ -97,13 +97,16 @@ class WhatsappConfigController extends Controller
      */
     public function store(Request $request)
     {
-
+        //dd($request);
         $this->validate($request, [
         'number'   => 'required|max:13|unique:whatsapp_configs,number',
         'provider'       => 'required',
         'customer_support' => 'required',
         'username'  => 'required|min:3|max:255',
         'password'  => 'required|min:6|max:255',
+        'frequency' => 'required',
+        'send_start' => 'required',
+        'send_end' => 'required',
       ]);
 
       $data = $request->except('_token');
@@ -141,6 +144,9 @@ class WhatsappConfigController extends Controller
         'customer_support' => 'required',
         'username'  => 'required|min:3|max:255',
         'password'  => 'required|min:6|max:255',
+        'frequency' => 'required',
+        'send_start' => 'required',
+        'send_end' => 'required',
         ]);
         $config = WhatsappConfig::findorfail($request->id);
         $data = $request->except('_token','id');

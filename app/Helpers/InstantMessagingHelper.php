@@ -10,6 +10,10 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\ChatMessage;
 use App\Customer;
 use App\ImQueue;
+use App\Marketing\WhatsappConfig;
+use Propaganistas\LaravelPhone\PhoneNumber;
+use Carbon\Carbon;
+use App\Setting;
 
 class InstantMessagingHelper
 {
@@ -76,27 +80,41 @@ class InstantMessagingHelper
 
     public static function scheduleMessage($numberTo, $numberFrom, $message = null, $image = null, $priority = 1, $sendAfter = null)
     {
+
         // Check last message to this number - TODO: This works for now, but not once we start scheduling messages from the system
         $maxTime = ImQueue::select(DB::raw('IF(MAX(send_after)>MAX(sent_at), MAX(send_after), MAX(sent_at)) AS maxTime'))->where('number_from', $numberFrom)->first();
+
+        //Getting WhatsApp Config
+        $whatappConfig = WhatsappConfig::where('number', $numberFrom)->first();
+        if ($whatappConfig == '' && $whatappConfig == null) {
+            return false;
+        }
+
+        $numberTo = self::customerPhoneCheck($numberTo,1);
+        if($numberTo == false){
+            return false;
+        }
 
         // Convert maxTime to unixtime
         $maxTime = strtotime($maxTime->maxTime);
 
         // Add interval
-        $maxTime = $maxTime + 900;
-
+        $maxTime = $maxTime + (3600 / $whatappConfig->frequency);
+        
         // Check if it's in the future
         if ($maxTime < time()) {
             $maxTime = time();
         }
 
-        // Check for decent times
-        if (date('H', $maxTime) < 8) {
-            $sendAfter = date('Y-m-d 08:00:00', $maxTime);
-        } elseif (date('H', $maxTime) > 18) {
-            $sendAfter = date('Y-m-d 08:00:00', $maxTime + 86400);
-        } else {
-            $sendAfter = date('Y-m-d H:i:s', $maxTime);
+        if (empty($sendAfter)) {
+            // Check for decent times
+            if (date('H', $maxTime) < $whatappConfig->send_start) {
+                $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime);
+            } elseif (date('H', $maxTime) > $whatappConfig->send_end) {
+                $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime + 86400);
+            } else {
+                $sendAfter = date('Y-m-d H:i:s', $maxTime);
+            }
         }
 
         // Insert message into queue
@@ -108,6 +126,7 @@ class InstantMessagingHelper
         $imQueue->image = $image;
         $imQueue->priority = $priority;
         $imQueue->send_after = $sendAfter;
+        $imQueue->marketing_message_type_id = 2;
         return $imQueue->save();
     }
 
@@ -161,5 +180,106 @@ class InstantMessagingHelper
 
         // Return message
         return $message;
+    }
+    /**
+     * Check if the number is correct
+     *
+     * @var int
+     */
+    public static function customerPhoneCheck($phone , $type)
+    {
+        $customer = Customer::where('phone',$phone)->first();
+        
+        //Check customer country code is null and update it By IN
+        if($customer->country == null){
+            $customer->country = 'IN';
+            $customer->update();
+        }
+        //Check if customer code is INDIA update it by IN
+        $country = strtolower($customer->country);
+        if($country == 'india'){
+            $customer->country = 'IN';
+            $customer->update();
+        }
+
+        //Check if phone is empty
+        if($customer->phone == null){
+            return false;
+        }
+        
+        
+        try{
+            $countries = \Config('countries');
+            $country = $countries[$customer->country];
+            $code = $country['code'];
+            
+            //getting first 3 digit from number 
+            $length = strlen($country['code']);
+            $result = substr($customer->phone, 0, $length);
+            
+            if($result != $code){
+                if($type == 1){
+                    $customer->broadcast_number = NULL;
+                    $customer->phone = (int)$customer->phone * -1;
+                    $customer->update();
+                    \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                }   
+                    return false;
+                
+            }
+
+        }catch(\Exception $e){
+                if($type == 1){
+                $customer->broadcast_number = NULL;
+                $customer->phone = (int)$customer->phone * -1;
+                $customer->update();
+                \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                }
+                return false;
+        }
+        
+        $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+        try {
+            $swissNumberProto = $phoneUtil->parse($customer->phone, $customer->country);
+            $isValid = $phoneUtil->isValidNumber($swissNumberProto);
+            if($isValid == false){
+                if($type == 1){
+                $customer->broadcast_number = NULL;
+                $customer->phone = (int)$customer->phone * -1;
+                $customer->update();
+                \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                }
+                return false;
+            }
+        } catch (\libphonenumber\NumberParseException $e) {
+            if($type == 1){
+            $customer->broadcast_number = NULL;
+            $customer->phone = (int)$customer->phone * -1;
+            $customer->update();
+            \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+            }
+            return false;
+        }
+
+        return $customer->phone;
+    }
+
+    public static function broadcastSendingTimeCheck($time){
+        
+        $now = $time;
+
+        //Getting Start and end time from setting
+        // $startTime = Setting::where('name','start_time')->first();
+        // $endTime = Setting::where('name','end_time')->first();
+        
+        $morning = Carbon::create($now->year, $now->month, $now->day, 8, 0, 0);
+        $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+        
+        if (!$now->between($morning, $evening, true)) {
+            $now->addDay();
+            $now = Carbon::create($now->year, $now->month, $now->day, 8, 0, 0);
+        }
+        
+        return $now;
     }
 }

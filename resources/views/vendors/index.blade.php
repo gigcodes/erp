@@ -42,10 +42,14 @@
             <h2 class="page-heading">Vendor Info</h2>
             <div class="pull-left">
                 <form class="form-inline" action="{{ route('vendor.index') }}" method="GET">
-                    <div class="form-group">
-                        <input name="term" type="text" class="form-control"
-                               value="{{ isset($term) ? $term : '' }}"
-                               placeholder="Search" id="search_id">
+                    <div class="form-group" style="width: 441px; margin-right: 10px;">
+                       <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
+                            <?php 
+                                if (request()->get('term')) {
+                                    echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
+                                }
+                            ?>
+                        </select>
                     </div>
 
                     {{-- <div class="form-group ml-3">
@@ -59,11 +63,19 @@
                         <input type="checkbox" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
                         <label for="with_archived">Archived</label>
                     </div>
+                    <div class="form-group" style="margin-left: 10px;">
+                       <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm form-control">
+                    </div>
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                <?php 
+                    $params = request()->all();
+                    $params['select_all'] = request()->get('select_all') == 'true' ? 'false' : 'true';
+                ?>
+                <a class="btn btn-secondary" href="{{route('vendor.index', $params)}}">{{request()->get('select_all') == 'true' ? 'Unselect All' : 'Select All'}}</a>
+                <button type="button" class="btn btn-secondary emailToAllModal" >Bulk Email</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
             </div>
@@ -114,7 +126,7 @@
         <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
-                <th width="5%">ID</th>
+                <th width="5%"><a href="/vendor{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
                 <th width="5%"><a href="/vendor{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
                 <th width="10%">Name</th>
                 <th width="10%">Phone</th>
@@ -134,8 +146,6 @@
                 <th width="10%"><input type="text" id="phone" class="search form-control" placeholder="Phone"></th>
                 <th width="10%"><input type="text" id="email" class="search form-control" placeholder="Email"></th>
                 <th width="10%"><input type="text" id="address" class="search form-control" placeholder="Address"></th>
-                <th></th>
-                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -218,6 +228,22 @@
         </div>
     </div>
 
+    <div id="email-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Email Communication</h4>
+                    <input type="text" name="search_email_pop"  class="form-control search_email_pop" placeholder="Search Email" style="width: 200px;">
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @include('customers.zoomMeeting');
 @endsection
 
@@ -229,6 +255,70 @@
     <script type="text/javascript">
 
         var vendorToRemind = null;
+        $('#vendor-search').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/vendor-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        data[i].id = data[i].name ? data[i].name : data[i].text;
+                    }
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Vendor by name, address, phone, email, category, title',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+                
+                if (customer.name) {
+                    return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.name,
+
+        });
+
+        $(document).on('click', '.emailToAllModal', function () {
+            var select_vendor = [];
+            $('.select_vendor').each(function(){
+                if ($(this).prop("checked")) {
+                    select_vendor.push($(this).val());
+                }
+            });
+
+            if (select_vendor.length === 0) {
+                alert('Please Select vendors!!');
+                return false;
+            }
+
+            $('#emailToAllModal').find('form').find('input[name="vendor_ids"]').val(select_vendor.join());
+
+            $('#emailToAllModal').modal("show");
+
+        });
+
+        $(document).on('click', '.send-email-to-vender', function () {
+            $('#emailToAllModal').find('form').find('input[name="vendor_ids"]').val($(this).data('id'));
+            $('#emailToAllModal').modal("show");
+        });
 
         $(document).on('click', '.set-reminder', function () {
             let vendorId = $(this).data('id');
@@ -360,6 +450,91 @@
             }
         });
 
+        $(document).on('click', '.load-email-modal', function () {
+            var id = $(this).data('id');
+             $.ajax({
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route('vendor.email') }}',
+                data: {
+                    id: id
+                },
+            }).done(function (response) {
+                var html = '<div class="speech-wrapper">';
+                response.forEach(function (message) {
+                    var content = '';
+                    content += 'To : '+message.to+'<br>';
+                    content += 'From : '+message.from+'<br>';
+                    if (message.cc) {
+                        content += 'CC : '+message.cc+'<br>';
+                    }
+                    if (message.bcc) {
+                        content += 'BCC : '+message.bcc+'<br>';
+                    }
+                    content += 'Subject : '+message.subject+'<br>';
+                    content += 'Message : '+message.message+'<br>';
+                    if (message.attachment.length) {
+                        content += 'Attachment : ';
+                    }
+                    for (var i = 0; i < message.attachment.length; i++) {
+                        var imageUrl = message.attachment[i];
+                        imageUrl = imageUrl.trim();
+
+                        // Set empty imgSrc
+                        var imgSrc = '';
+
+                        // Set image type
+                        var imageType = imageUrl.substr(imageUrl.length - 4).toLowerCase();
+
+                        // Set correct icon/image
+                        if (imageType == '.jpg' || imageType == 'jpeg') {
+                            imgSrc = imageUrl;
+                        } else if (imageType == '.png') {
+                            imgSrc = imageUrl;
+                        } else if (imageType == '.gif') {
+                            imgSrc = imageUrl;
+                        } else if (imageType == 'docx' || imageType == '.doc') {
+                            imgSrc = '/images/icon-word.svg';
+                        } else if (imageType == '.xlsx' || imageType == '.xls' || imageType == '.csv') {
+                            imgSrc = '/images/icon-excel.svg';
+                        } else if (imageType == '.pdf') {
+                            imgSrc = '/images/icon-pdf.svg';
+                        } else if (imageType == '.zip' || imageType == '.tgz' || imageType == 'r.gz') {
+                            imgSrc = '/images/icon-zip.svg';
+                        } else {
+                            imgSrc = '/images/icon-file-unknown.svg';
+                        }
+
+                        // Set media
+                        if (imgSrc != '') {
+                            content += '<div class="col-4"><a href="' + message.attachment[i] + '" target="_blank"><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
+                        }
+                    }
+                    if (message.inout == 'in') {
+                        html += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message">' + content + '</p><br/><span class="timestamp">' + message.created_at.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+                    } else if (message.inout == 'out') {
+                        html += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message">' + content + '</p><br/><span class="timestamp">' + message.created_at.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+                    }
+                });
+
+                html += '</div>';
+
+                $("#email-list-history").find(".modal-body").html(html); 
+                $("#email-list-history").modal("show");
+            }).fail(function (response) {
+                console.log(response);
+
+                alert('Could not load email');
+            });
+        });
+        $(document).on("keyup", '.search_email_pop', function() {
+            var value = $(this).val().toLowerCase();
+            $(".speech-wrapper .bubble").filter(function() {
+                $(this).toggle($(this).find('.message').text().toLowerCase().indexOf(value) > -1)
+            });
+        });
         $(document).on('click', '.send-message', function () {
             var thiss = $(this);
             var data = new FormData();
@@ -384,6 +559,7 @@
                             $(thiss).attr('disabled', true);
                         }
                     }).done(function (response) {
+                        thiss.closest('tr').find('.chat_messages').html(thiss.siblings('input').val()); 
                         $(thiss).siblings('input').val('');
 
                         $(thiss).attr('disabled', false);

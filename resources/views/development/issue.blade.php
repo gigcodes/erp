@@ -99,7 +99,7 @@
                     </div>
                     @if($title == 'task')
                         <div class="col-md-2">
-                        <select name="task_status" id="task_status" class="form-control">
+                        <select name="task_status" id="task_status" class="form-control change-task-status" data-id="{{$issue->id}}">
                             <option value="">Please Select</option>
                             <option value="Planned" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'Planned' ? 'selected' : '') }}>Planned</option>
                             <option value="In Progress" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
@@ -117,6 +117,11 @@
                             <img src="{{ asset('images/search.png') }}" alt="Search">
                         </button>
                     </div>
+
+                    <div class="col-md-1" style="margin-left: -106px; margin-top: 7px;">
+                        <a class="btn btn-secondary d-inline priority_model_btn">Priority</a>
+                    </div>
+
                 </div>
             </form>
             @if($title == 'task')
@@ -170,8 +175,13 @@
             @foreach ($issues as $key => $issue)
                  @if(auth()->user()->isAdmin())
                     <tr>
-                        <td><a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}</a></td>
-
+                        <td>
+                            <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
+                                @if($issue->is_resolved==0)
+                                    <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>
+                                @endif
+                            </a>
+                        </td>
                         <td style="vertical-align: middle;">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</td>
                         <td style="vertical-align: middle;">{{ $issue->subject ?? 'N/A' }}</td>
                         <td style="vertical-align: middle;">{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
@@ -181,7 +191,6 @@
                             </div>
                             <div class="td-full-container hidden">
                                 {{ $issue->issue }}
-                            </div>
                             @if ($issue->getMedia(config('constants.media_tags'))->first())
                             <br />
                                 @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
@@ -351,7 +360,7 @@
                                         {{--<option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>--}}
                                     {{--</select>--}}
 
-                                    <select name="task_status" id="task_status" class="form-control">
+                                    <select name="task_status" id="task_status" class="form-control change-task-status" data-id="{{$issue->id}}">
                                         <option value="">Please Select</option>
                                         <option value="Planned" {{ (!empty($issue->status) && $issue->status ==  'Planned' ? 'selected' : '') }}>Planned</option>
                                         <option value="In Progress" {{ (!empty($issue->status) && $issue->status  ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
@@ -466,6 +475,66 @@
         </div>
     </div>
 
+    <div id="priority_model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Priority</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form action="" id="priorityForm" method="POST">
+                    @csrf
+
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <strong>User:</strong>
+                            </div>
+                            <div class="col-md-11">
+                                <div class="form-group">
+                                    @if(auth()->user()->isAdmin())
+                                        <select class="form-control" name="user_id" id="priority_user_id">
+                                            @foreach ($users as $id => $name)
+                                                <option value="{{ $id }}">{{ $name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        {{auth()->user()->name}}
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-bordered table-striped">
+                                    <tr>
+                                        <th width="1%">ID</th>
+                                        <th width="5%">Module</th>
+                                        <th width="15%">Subject</th>
+                                        <th width="67%">Issue</th>
+                                        <th width="5%">Submitted By</th>
+                                        <th width="2%">Action</th>
+                                    </tr>
+                                    <tbody class="show_issue_priority">
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        @if(auth()->user()->isAdmin())
+                            <button type="submit" class="btn btn-secondary">Confirm</button>
+                        @endif
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
     <script type="text/javascript">
         $(document).on('click', '.assign-issue-button', function () {
             var issue_id = $(this).data('id');
@@ -479,15 +548,97 @@
 
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         $(document).ready(function () {
             $('.select2').select2({
                 tags: true
             });
 
+            $('#priority_user_id').select2({
+                tags: true,
+                width : '100%'
+            });
+
             $('.estimate-time').datetimepicker({
                 format: 'Y-MM-DD HH:mm'
             });
+        });
+
+        function getPriorityTaskList(id) {
+            var selected_issue = [0];
+
+            $('input[name ="selected_issue[]"]').each(function(){
+                if ($(this).prop("checked") == true) {
+                    selected_issue.push($(this).val());                    
+                }
+            });
+
+            $.ajax({
+                url: "{{route('development.issue.list.by.user.id')}}",
+                type: 'POST',
+                data: {
+                    user_id : id,
+                    _token : "{{csrf_token()}}",
+                    selected_issue : selected_issue,
+                },
+                success: function (response) {
+                    var html = '';
+                    response.forEach(function (issue) {
+                        html += '<tr>';
+                            html += '<td><input type="hidden" name="priority[]" value="'+issue.id+'">'+issue.id+'</td>';
+                            html += '<td>'+issue.module+'</td>';
+                            html += '<td>'+issue.subject+'</td>';
+                            html += '<td>'+issue.issue+'</td>';
+                            html += '<td>'+issue.submitted_by+'</td>';
+                            html += '<td><a href="javascript:;" class="delete_priority" data-id="'+issue.id+'">Remove<a></td>';
+                         html += '</tr>';
+                    });
+                    $( ".show_issue_priority" ).html(html);
+                    <?php if (auth()->user()->isAdmin()) { ?>
+                      $( ".show_issue_priority" ).sortable();
+                    <?php } ?>
+                },
+                error: function () {
+                    alert('There was error loading priority task list data');
+                }
+            });
+        }
+        $(document).on('click', '.delete_priority', function (e) {
+            var id = $(this).data('id');
+            $('input[value ="'+id+'"]').prop('checked', false);
+            $(this).closest('tr').remove();
+        });
+        $('.priority_model_btn').click(function(){
+            $( "#priority_user_id" ).val('');
+            $( ".show_task_priority" ).html('');
+            <?php if (auth()->user()->isAdmin()) { ?>
+              getPriorityTaskList($('#priority_user_id').val());
+            <?php } else { ?>
+              getPriorityTaskList('{{auth()->user()->id}}');
+            <?php } ?>
+            $('#priority_model').modal('show');
+        })
+
+        $('#priority_user_id').change(function(){
+                getPriorityTaskList($(this).val())
+        });
+
+        $(document).on('submit', '#priorityForm', function (e) {
+            e.preventDefault();
+            <?php if (auth()->user()->isAdmin()) { ?>
+                $.ajax({
+                    url: "{{route('development.issue.set.priority')}}",
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        toastr['success']('Priority successfully update!!', 'success');
+                    },
+                    error: function () {
+                        alert('There was error loading priority task list data');
+                    }
+                });
+            <?php } ?>
         });
     </script>
     <script>
@@ -635,6 +786,23 @@
                 }
             });
 
+        });
+
+        $(document).on('change', '.change-task-status', function () {
+           var taskId       = $(this).data("id");
+           var status      = $(this).val();
+            $.ajax({
+                url: "{{ action('DevelopmentController@changeTaskStatus') }}",
+                type: 'POST',
+                data: {
+                    task_id: taskId,
+                    _token: "{{csrf_token()}}",
+                    status: status
+                },
+                success: function () {
+                    toastr['success']('Status Changed successfully!')
+                }
+            });
         });
 
         function sendImage(id){

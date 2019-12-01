@@ -398,6 +398,7 @@ $(document).ready(function(){
                  category: category_selection,
                  group_new: group_name_updated,
                  id: id,
+                 is_pending: 0,
             },
             
         }).done(function (response) {
