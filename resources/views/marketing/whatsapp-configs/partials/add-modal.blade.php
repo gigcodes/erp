@@ -136,7 +136,7 @@
                             <div class="alert alert-danger">{{$errors->first('send_end')}}</div>
                             @endif
                         </div>
-                        
+
                         <div class="form-group">
                             <strong>Device Name:</strong>
                             <input type="text" name="device_name" class="form-control" value="{{ old('device_name') }}" >
@@ -179,7 +179,7 @@
                                 <option>Select Sim Type</option>
                                 <option value="0">Pre Paid</option>
                                 <option value="1">Post Paid</option>
-                             </select>   
+                             </select>
                             @if ($errors->has('status'))
                             <div class="alert alert-danger">{{$errors->first('status')}}</div>
                             @endif
@@ -203,8 +203,8 @@
                                 <option>Select Status</option>
                                 <option value="1">Active</option>
                                 <option value="2">Blocked</option>
-                                <option value="3">InActive</option>
-                             </select>   
+                                <option value="3">Inactive</option>
+                             </select>
                             @if ($errors->has('status'))
                             <div class="alert alert-danger">{{$errors->first('status')}}</div>
                             @endif
