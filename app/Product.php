@@ -105,10 +105,13 @@ class Product extends Model
                 }
 
                 //Check if its json
-                if(isset($json->properties[ 'size' ]) && is_array(json_decode($json->properties[ 'size' ], true))){
-                    
-                    $json->properties[ 'size' ] = json_decode($json->properties[ 'size' ]);
+                try {
+                     if(isset($json->properties[ 'size' ]) && is_array(json_decode($json->properties[ 'size' ], true))){
+                     $json->properties[ 'size' ] = json_decode($json->properties[ 'size' ]);
+                     }
+                } catch (Exception $e) {
                 }
+               
                 
                 // Add sizes to the product
                 if (isset($json->properties[ 'size' ]) && is_array($json->properties[ 'size' ]) && count($json->properties[ 'size' ]) > 0) {
@@ -119,9 +122,11 @@ class Product extends Model
                     $product->size = ProductHelper::getRedactedText($product->size, 'composition');
                     
                 }
-
-                if(isset($json->properties[ 'size' ]) && $json->properties[ 'size' ] != null){
+                elseif(isset($json->properties[ 'size' ]) && $json->properties[ 'size' ] != null)
+                
+                {
                     $product->size = $json->properties[ 'size' ];
+                
                 }
                 
                 // Set product values
