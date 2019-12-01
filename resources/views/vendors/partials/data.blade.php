@@ -77,7 +77,7 @@
                                 <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                             {!! Form::close() !!}
                             <input type="checkbox" class="select_vendor" name="select_vendor[]" value="{{$vendor->id}}" {{ request()->get('select_all') == 'true' ? 'checked' : '' }}>
-                            <button type="button" class="btn btn-secondary send-email-to-vender" data-id="{{$vendor->id}}">Send Email</button>
+                            <button type="button" class="btn send-email-to-vender" data-id="{{$vendor->id}}"><i class="fa fa-envelope-square"></i></button>
                         </div>
                     </td>
                 </tr>

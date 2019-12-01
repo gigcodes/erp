@@ -1041,6 +1041,12 @@ class LeadsController extends Controller
             }
 
         }
+
+        foreach ($request->get('product_media_list', []) as $id) {
+            $media = Media::find($id);
+            $erpLeads->attachMedia($media, config('constants.media_tags'));
+        }
+        
         return response()->json(["code"=> 1 , "data" => []]);
     }
 
@@ -1150,5 +1156,26 @@ class LeadsController extends Controller
             $lead->lead_status_id = $request->status;
             $lead->save();
         }
+    }
+
+    public function leadAutoFillInfo(Request $request)
+    {
+        $product = Product::find($request->get('product_id'));
+        $customer = Customer::find($request->get('customer_id'));
+        $mediaArr =  $product ? $product->getMedia(config('constants.media_tags')) : [];
+        $media = [];
+        
+        foreach ($mediaArr as $value) {
+            $media[] = ['url' => $value->getUrl(), 'id' => $value->id];
+        }
+
+        return response()->json([
+            'brand' => $product ? $product->brand : '',
+            'category' => $product ? $product->category : '1',
+            'brand_segment' => $product && $product->brands ? $product->brands->brand_segment : '',
+            'shoe_size' => $customer ? $customer->shoe_size : '',
+            'gender' => $customer ? $customer->gender : '',
+            'media' => $media,
+        ]);
     }
 }
