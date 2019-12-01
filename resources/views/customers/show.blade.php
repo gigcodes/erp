@@ -295,6 +295,80 @@
             z-index: -1;
         }
 
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 58px;
+            height: 27px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider.round {
+            border-radius: 36px;
+            height: 28px;
+            width: 57px;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 19px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .dot {
+            height: 10px;
+            width: 10px;
+            background-color: green;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
     </style>
 @endsection
 
@@ -583,6 +657,26 @@
                           @endif    
                       @endforeach
                   </select>
+                </div>
+              </div>
+             
+              <div class="col-9">
+                <div class="form-group">
+                  <label>Broadcast Number</label>
+                  <input type="text"  class="form-control input-sm" value="{{ $customer->broadcast_number }}" disabled>
+                
+                </div>
+              </div>
+               <div class="col-3">
+                <div class="form-group">
+                 <label class="switch" style="margin: 0px">
+                    @if(isset($customer->customerMarketingPlatformActive) && $customer->customerMarketingPlatformActive->active == 1)
+                    <input type="checkbox" class="checkboxs" checked value="{{ $customer->id }}">
+                    @else
+                      <input type="checkbox" class="checkboxs" value="{{ $customer->id }}" id="marketing{{ $customer->id }}">
+                    @endif
+                    <span class="slider round"></span>
+                  </label>
                 </div>
               </div>
               <div class="col-6">
@@ -2420,6 +2514,10 @@
                                     <option value="female">Female</option>
                                 </select>
                             </div>
+                            <div class="row">
+                                <div class="form-group show-product-image">                                    
+                                </div>
+                            </div>
                             <input type="hidden"  name="oldImage[0]" value="-1">
                             <div class="form-group new-image" style="">
                                 <strong>Upload Image:</strong>
@@ -2451,24 +2549,12 @@
                         @csrf
                         <input type="hidden" name="customer_id" value="{{$customer->id}}">
                         <input type="hidden" name="return_url_back" value="1">
+                        <input type="hidden" name="order_type" value="offline">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
-                                    <strong> Order Type :</strong>
-                                    <?php
-
-                                    $order_types = [
-                                        'offline' => 'offline',
-                                        'online' => 'online'
-                                    ];
-
-                                    echo Form::select('order_type',$order_types, 'offline', ['class' => 'form-control']);?>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <div class="form-group">
                                     <strong>Order Date:</strong>
-                                    <input type="date" class="form-control" name="order_date" placeholder="Order Date" value=""/>
+                                    <input type="date" class="form-control" name="order_date" placeholder="Order Date" value="{{date('Y-m-d')}}" required/>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-12 col-md-12">
@@ -2497,42 +2583,11 @@
                             </div>
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
-                                    <strong> Name of Order Handler :</strong>
-                                    <?php 
-                                        $sales_persons = \App\Helpers::getUsersArrayByRole( 'Sales' );
-                                        echo Form::select('sales_person',$sales_persons, null, ['placeholder' => 'Select a name','class' => 'form-control']); 
-                                    ?>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <div class="form-group">
-                                    <strong>Office Phone Number:</strong>
-                                    <Select name="whatsapp_number" class="form-control">
-                                          <option value>None</option>
-                                           <option value="919167152579">00</option>
-                                           <option value="918291920452">02</option>
-                                           <option value="918291920455">03</option>
-                                           <option value="919152731483">04</option>
-                                           <option value="919152731484">05</option>
-                                           <option value="971562744570">06</option>
-                                           <option value="918291352520">08</option>
-                                           <option value="919004008983">09</option>
-                                   </Select>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <div class="form-group">
                                     <strong> Status :</strong>
                                     <?php
                                         $orderStatus = new \App\ReadOnly\OrderStatus;
                                         echo Form::select('order_status',$orderStatus->all(), 'Follow up for advance', ['placeholder' => 'Select a status','class' => 'form-control']);
                                     ?>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <div class="form-group">
-                                    <strong>Estimated Delivery Date:</strong>
-                                    <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date" />
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-12 col-md-12">
@@ -3571,6 +3626,7 @@
         if ($('#add_lead').find('input[name="product_id"]').length > 0) {
             $('#add_lead').find('input[name="product_id"]').val('');
         }
+        $('#add_lead').find('.show-product-image').html('');
         $('#add_lead').modal('show');
       });
 
@@ -4649,6 +4705,43 @@
             });
         });
       // $(document).on()
+
+      $(".checkboxs").change(function () {
+            id = $(this).val();
+
+            if (this.checked) {
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route('broadcast.add.manual') }}',
+                    data: {
+                        id: id,
+                        type: 1,
+                    }, success: function (data) {
+                        console.log(data);
+                        if (data.status == 'error') {
+                            alert('Something went wrong');
+                        } else {
+                            // alert('Customer Added to Broadcastlist');
+                        }
+
+                    },
+                    error: function (data) {
+                        alert('Something went wrong');
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route('broadcast.add.manual') }}',
+                    data: {
+                        id: id,
+                        type: 0
+                    },
+                }).done(response => {
+                    //alert('Customer Removed From Broadcastlist');
+                });
+            }
+        });
   </script>
 
   <style>

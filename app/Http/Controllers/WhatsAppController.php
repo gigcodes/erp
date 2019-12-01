@@ -66,6 +66,7 @@ use App\WhatsAppGroup;
 use App\DocumentSendHistory;
 use App\QuickSellGroup;
 use App\ProductQuicksellGroup;
+use App\Helpers\InstantMessagingHelper;
 
 
 class WhatsAppController extends FindByNumberController
@@ -1951,6 +1952,28 @@ class WhatsAppController extends FindByNumberController
                 // if ($data['erp_user'] != Auth::id()) {
                 //   $data['status'] = 0;
                 // }
+            } else if ($context == 'priority') {
+                $params = [];
+                $params[ 'message' ] = $request->get('message', '');
+                $params[ 'erp_user' ] = $request->get('user_id', 0);
+                $params[ 'approved' ] = 1;
+                $params[ 'status' ] = 2;
+
+
+                $number = User::find( $request->get('user_id', 0));
+
+                if (!$number) {
+                    return response()->json(['message' => null]);
+                }
+
+                $number = $number->phone;
+
+                $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+                $chat_message = ChatMessage::create($params);
+
+
+                return response()->json(['message' => $chat_message]);
+
             } elseif ($context == 'user') {
                 $data[ 'erp_user' ] = $request->user_id;
                 $module_id = $request->user_id;
@@ -3280,7 +3303,9 @@ class WhatsAppController extends FindByNumberController
 
     public function sendToAll(Request $request, $validate = true)
     {
-        if ($validate) {
+       //dd($request);
+       set_time_limit(0);
+       if ($validate) {
             $this->validate($request, [
                 // 'message'         => 'required_without:images,linked_images',
                 // 'images'          => 'required_without:message|mimetypes:image/jpeg,image/png',
@@ -3336,17 +3361,18 @@ class WhatsAppController extends FindByNumberController
             $arrCustomerNumbers = [];
 
             // Get all numbers from config
-            $config = \Config::get("apiwha.instances");
+           //$config = \Config::get("apiwha.instances");
+            $configs = WhatsappConfig::where('is_customer_support',0)->get();
 
-            // Loop over numbers
-            foreach ($config as $whatsAppNumber => $arrNumber) {
-                if ($arrNumber[ 'customer_number' ]) {
-                    $arrCustomerNumbers[] = $arrNumber[ 'customer_number' ];
+            //Loop over numbers
+            foreach ($configs as  $arrNumber) {
+                if ($arrNumber[ 'number' ]) {
+                    $arrBroadcastNumbers[] = $arrNumber[ 'number' ];
                 }
             }
 
             $minutes = round(60 / $frequency);
-            $max_group_id = MessageQueue::max('group_id') + 1;
+            $max_group_id = ChatMessage::where('status',8)->max('group_id') + 1;
 
             $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0);
 
@@ -3367,51 +3393,119 @@ class WhatsAppController extends FindByNumberController
                 $data = $data->where('clothing_size', $request->clothing_size);
             }
 
-            $data = $data->get()->groupBy('whatsapp_number');
+            $data = $data->get()->groupBy('broadcast_number');
 
-            foreach ($data as $whatsapp_number => $customers) {
-
+            foreach ($data as $broadcastNumber => $customers) {
 
                 $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
+                $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
 
-                if (in_array($whatsapp_number, $arrCustomerNumbers)) {
+                if (!$now->between($morning, $evening, true)) {
+                    if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
+                        // add day
+                        $now->addDay();
+                        $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+                    } else {
+                        // dont add day
+                        $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+                    }
+                }
+
+                if (in_array($broadcastNumber, $arrBroadcastNumbers)) {
+
                     foreach ($customers as $customer) {
-                        if (!$now->between($morning, $evening, true)) {
-                            if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
-                                // add day
-                                $now->addDay();
-                                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
-                            } else {
-                                // dont add day
-                                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                                $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
-                            }
-                        }
 
                         //Changes put by satyam for connecting Old BroadCast with New BroadCast page
                         if (isset($customer->customerMarketingPlatformActive)) {
-                            if ($customers->customerMarketingPlatformActive->active == 0) {
-                                continue;
+                            if ($customer->customerMarketingPlatformActive->active == 1) {
+
+                                //Checking For DND
+                                if($customer->do_not_disturb == 1){
+                                    continue;
+                                }
+
+                                //Checking For Last Message Send 24 hours
+                                if(isset($customer->lastImQueueSend) && $customer->lastImQueueSend->sent_at >= Carbon::now()->subDay()->toDateTimeString()){
+                                    continue;
+                                }
+
+                                //Check if customer has Phone
+                                if($customer->phone == '' || $customer->phone == null){
+                                    continue;
+                                }
+
+                                //Check if customer has broadcast
+                                if($customer->broadcast_number == '' || $customer->broadcast_number == null){
+                                    continue;
+                                }
+
+                                $params = [
+                                    'number' => null,
+                                    'user_id' => Auth::id(),
+                                    'customer_id' => $customer->id,
+                                    'approved' => 0,
+                                    'status' => 8, // status for Broadcast messages
+                                    'group_id' => $max_group_id
+                                ];
+
+                                $priority = null; // Priority for broadcast messages, now the same as for normal messages
+                                if($request->linked_images != null){
+                                    if($content['linked_images'] != null){
+                                        //Saving Message In Chat Message
+                                        $chatMessage = ChatMessage::create($params);
+                                        foreach ($content['linked_images'] as $url) {
+                                        //Attach image to chat message
+                                            $chatMessage->attachMedia($url['key'], config('constants.media_tags'));
+
+                                            $send = InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,$url['url'],$priority,$now);
+                                            if($send != false){
+                                                $now->addMinutes($minutes);
+                                                $now = InstantMessagingHelper::broadcastSendingTimeCheck($now);
+
+                                            }else{
+                                                continue;
+                                            }
+                                        }
+
+                                    }
+                                }
+                                elseif($request->linked_images == null){
+                                    $chatMessage = ChatMessage::create($params);
+
+                                    $send = InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,'',$priority,$now);
+                                    if($send != false){
+                                        $now->addMinutes($minutes);
+                                        $now = InstantMessagingHelper::broadcastSendingTimeCheck($now);
+                                    }
+                                }
+                                else{
+                                    continue;
+                                }
+
+
+                                //DO NOT REMOVE THIS CODE
+                                // MessageQueue::create([
+                                //     'user_id' => Auth::id(),
+                                //     'customer_id' => $customer->id,
+                                //     'phone' => null,
+                                //     'type' => 'message_all',
+                                //     'data' => json_encode($content),
+                                //     'sending_time' => $now,
+                                //     'group_id' => $max_group_id
+                                // ]);
+
+
+
                             }
                         }
-                        //end change
-                        MessageQueue::create([
-                            'user_id' => Auth::id(),
-                            'customer_id' => $customer->id,
-                            'phone' => null,
-                            'type' => 'message_all',
-                            'data' => json_encode($content),
-                            'sending_time' => $now,
-                            'group_id' => $max_group_id
-                        ]);
 
-                        $now->addMinutes($minutes);
                     }
+
                 }
             }
         } else {

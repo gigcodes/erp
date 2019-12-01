@@ -29,7 +29,7 @@ class BroadcastController extends Controller
     public function index(Request $request)
     {
 
-        if ($request->term || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name || $request->customrange) {
+        if ($request->term || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name || $request->customrange || $request->dnd) {
             
             $query = Customer::query();
 
@@ -60,6 +60,11 @@ class BroadcastController extends Controller
             //if number is not null
             if (request('name') != null) {
                 $query->where('name', 'LIKE', '%' . request('name') . '%');
+            }
+
+            //getting customer with DND
+            if (request('dnd') != null) {
+                $query->where('do_not_disturb', request('dnd'));
             }
 
             if (request('broadcast') != null) {
@@ -372,5 +377,31 @@ class BroadcastController extends Controller
             'status' => 'success',
             'data' => $broadcastArray,
         ]);
+    }
+
+
+    public function saveGlobalValues(Request $request)
+    {
+        
+            $numbers = WhatsappConfig::where('is_customer_support',0)->get();
+            foreach ($numbers as $number) {
+               if($request->frequency != null){
+                 $number->frequency = $request->frequency;
+                 $number->update();
+               }
+
+               if($request->send_start != null){
+                 $number->send_start = $request->send_start;
+                 $number->update();
+               }
+
+               if($request->send_end != null){
+                 $number->send_end = $request->send_end;
+                 $number->update();
+               }
+            }
+
+           return redirect()->back()->with('message', 'Values Updated Globally');
+        
     }
 }

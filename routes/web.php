@@ -59,6 +59,7 @@ Route::prefix('category-messages')->group(function () {
 
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
+    Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
     Route::get('crop/approved', 'ProductCropperController@getApprovedImages');
     Route::get('order-cropped-images', 'ProductCropperController@showCropVerifiedForOrdering');
@@ -216,6 +217,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
     Route::post('instruction/pending', 'InstructionController@pending')->name('instruction.pending');
     Route::post('instruction/verify', 'InstructionController@verify')->name('instruction.verify');
+    Route::post('instruction/skipped-count', 'InstructionController@skippedCount')->name('instruction.skipped.count');
     Route::post('instruction/verifySelected', 'InstructionController@verifySelected')->name('instruction.verify.selected');
     Route::get('instruction/complete/alert', 'InstructionController@completeAlert')->name('instruction.complete.alert');
     Route::post('instruction/category/store', 'InstructionController@categoryStore')->name('instruction.category.store');
@@ -263,6 +265,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/{id}/addNote', 'TaskModuleController@addNote')->name('task.add.note');
     Route::post('task/{id}/addSubnote', 'TaskModuleController@addSubnote')->name('task.add.subnote');
     Route::post('task/{id}/updateCategory', 'TaskModuleController@updateCategory')->name('task.update.category');
+    Route::post('task/list-by-user-id', 'TaskModuleController@taskListByUserId')->name('task.list.by.user.id');
+    Route::post('task/set-priority', 'TaskModuleController@setTaskPriority')->name('task.set.priority');
     Route::resource('task', 'TaskModuleController');
     Route::post('task_category/{id}/approve', 'TaskCategoryController@approve');
     Route::resource('task_category', 'TaskCategoryController');
@@ -549,6 +553,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::resource('development-messages-schedules', 'DeveloperMessagesAlertSchedulesController');
     Route::get('development', 'DevelopmentController@index')->name('development.index');
+    Route::post('development/task/list-by-user-id', 'DevelopmentController@taskListByUserId')->name('development.task.list.by.user.id');
+    Route::post('development/task/set-priority', 'DevelopmentController@setTaskPriority')->name('development.task.set.priority');
     Route::post('development/create', 'DevelopmentController@store')->name('development.store');
     Route::post('development/{id}/edit', 'DevelopmentController@update')->name('development.update');
     Route::post('development/{id}/verify', 'DevelopmentController@verify')->name('development.verify');
@@ -562,6 +568,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
     Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+    Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');    
+    Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
     Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
     Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');
@@ -731,6 +739,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::put('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendor.payments.update');
     Route::delete('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendor.payments.destroy');
     Route::resource('vendor', 'VendorController');
+    Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::post('vendor/email', 'VendorController@email')->name('vendor.email');
     Route::post('vendot/block', 'VendorController@block')->name('vendor.block');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
@@ -1214,6 +1223,7 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
     Route::post('broadcast/update', 'BroadcastController@updateWhatsAppNumber')->name('broadcast.update.whatsappnumber');
     Route::get('broadcast/sendMessage/list','BroadcastController@broadCastSendMessage')->name('broadcast.message.send.list');
     Route::post('broadcast/customer/list','BroadcastController@getCustomerBroadcastList')->name('broadcast.customer.list');
+    Route::post('broadcast/global/save','BroadcastController@saveGlobalValues')->name('broadcast.global.save');
 });
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
