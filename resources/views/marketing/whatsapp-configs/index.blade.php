@@ -70,33 +70,47 @@
       <table class="table table-bordered" id="passwords-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Password</th>
-            <th>Number</th>
-            <th>Provider</th>
-            <th>Frequency</th>
-            <th>Customer Support</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Actions</th>
+            <!-- <th style="width: 3% !important;">ID</th> -->
+            <th style="width: 3% !important;">User</th>
+            <th style="width: 3% !important;">Pass</th>
+            <th style="width: 3% !important;">No.</th>
+            <th style="width: 3% !important;">Provider</th>
+            <th style="width: 3% !important;">Freq</th>
+            <th style="width: 3% !important;">Cust Support</th>
+            <th style="width: 3% !important;">Start Time</th>
+            <th style="width: 3% !important;">End Time</th>
+            <th style="width: 3% !important;">Device</th>
+           <!--  <th style="width: 3% !important;">Sim No.</th>
+            <th style="width: 3% !important;">Sim Owner.</th>
+            <th style="width: 3% !important;">Pay</th>
+            <th style="width: 14% !important;">Rech</th> -->
+            <th style="width: 1% !important;">Sts</th>
+            <th style="width: 10% !important;">Started At</th>
+            <th style="width: 22% !important;">Actions</th>
           </tr>
 
           <tr>
-            <th></th>
-            <th><input type="text" id="username" class="search form-control"></th>
-            <th></th>
-            <th><input type="text" id="number" class="search form-control"></th>
-            <th><input type="text" id="provider" class="search form-control"></th>
-            <th></th>
-            <th><select class="form-control search" id="customer_support">
+            <!-- <th style="width: 3% !important;"></th> -->
+            <th style="width: 3% !important;"><input type="text" id="username" class="search form-control"></th>
+            <th style="width: 3% !important;"></th>
+            <th style="width: 3% !important;"><input type="text" id="number" class="search form-control"></th>
+            <th style="width: 3% !important;"><input type="text" id="provider" class="search form-control"></th>
+            <th style="width: 3% !important;"></th>
+            <th style="width: 3% !important;"><select class="form-control search" id="customer_support">
                     <option value="">Select Option</option>
                     <option value="1">Provide Support</option>
                     <option value="0">Does Not Provide Support</option>
                 </select></th>
-            <th></th> 
-            <th></th> 
-            <th></th>    
+            <th style="width: 3% !important;"></th> 
+            <th style="width: 3% !important;"></th> 
+            <th style="width: 3% !important;"></th> 
+          <!--   <th style="width: 3% !important;"></th>
+            <th style="width: 3% !important;"></th>
+            <th style="width: 3% !important;"></th>
+            <th style="width: 3% !important;"></th> -->
+            <th style="width: 1% !important;"></th>
+            <th style="width: 10% !important;"></th>
+            <th style="width: 22% !important;"></th>   
             </th>
           </tr>
         </thead>
@@ -128,6 +142,10 @@
         });
 
         $('#filter-date').datetimepicker({
+            format: 'YYYY-MM-DD',
+        });
+
+        $('#filter-whats-date').datetimepicker({
             format: 'YYYY-MM-DD',
         });
 
