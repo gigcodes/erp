@@ -946,10 +946,11 @@ class DevelopmentController extends Controller
 
     public function resolveIssue(Request $request)
     {
+
         $issue = DeveloperTask::find($request->get('issue_id'));
         //$issue = Issue::find($request->get('issue_id'));
         //$issue->is_resolved = $request->get('is_resolved');
-        $issue->status = $request->get('task_status');
+        $issue->status = $request->get('is_resolved');
         $issue->save();
 
         return response()->json([
