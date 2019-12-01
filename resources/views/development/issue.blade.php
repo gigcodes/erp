@@ -99,7 +99,7 @@
                     </div>
                     @if($title == 'task')
                         <div class="col-md-2">
-                        <select name="task_status" id="task_status" class="form-control">
+                        <select name="task_status" id="task_status" class="form-control change-task-status" data-id="{{$issue->id}}">
                             <option value="">Please Select</option>
                             <option value="Planned" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'Planned' ? 'selected' : '') }}>Planned</option>
                             <option value="In Progress" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
@@ -256,7 +256,7 @@
                                     <option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>
                                 </select>
 
-                                <select name="task_status" id="task_status" class="form-control">
+                                <select name="task_status" id="task_status" class="form-control change-task-status" data-id="{{$issue->id}}">
                                     <option value="">Please Select</option>
                                     <option value="Planned" {{ (!empty($issue->status) && $issue->status ==  'Planned' ? 'selected' : '') }}>Planned</option>
                                     <option value="In Progress" {{ (!empty($issue->status) && $issue->status  ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
@@ -360,7 +360,7 @@
                                         <option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>
                                     </select>
 
-                                    <select name="task_status" id="task_status" class="form-control">
+                                    <select name="task_status" id="task_status" class="form-control change-task-status" data-id="{{$issue->id}}">
                                         <option value="">Please Select</option>
                                         <option value="Planned" {{ (!empty($issue->status) && $issue->status ==  'Planned' ? 'selected' : '') }}>Planned</option>
                                         <option value="In Progress" {{ (!empty($issue->status) && $issue->status  ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
@@ -786,6 +786,23 @@
                 }
             });
 
+        });
+
+        $(document).on('change', '.change-task-status', function () {
+           var taskId       = $(this).data("id");
+           var status      = $(this).val();
+            $.ajax({
+                url: "{{ action('DevelopmentController@changeTaskStatus') }}",
+                type: 'POST',
+                data: {
+                    task_id: taskId,
+                    _token: "{{csrf_token()}}",
+                    status: status
+                },
+                success: function () {
+                    toastr['success']('Status Changed successfully!')
+                }
+            });
         });
 
         function sendImage(id){
