@@ -816,6 +816,12 @@ Route::post('exotel/recordingCallback', 'ExotelController@recordingCallback');
 
 /* ---------------------------------------------------------------------------------- */
 
+/* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
+
+Route::post('livechat/incoming','LiveChatController@incoming');
+
+/* ---------------------------------------------------------------------------------- */
+
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/incomingNew', 'WhatsAppController@incomingMessageNew');
 Route::post('whatsapp/outgoingProcessed', 'WhatsAppController@outgoingProcessed');
