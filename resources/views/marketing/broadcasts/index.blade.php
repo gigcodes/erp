@@ -249,7 +249,7 @@
                 <div class="panel mt-5 panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" href="#collapse2">Customer Enable Detials</a>
+                            <a data-toggle="collapse" href="#collapse2">Customer Enable Details</a>
                         </h4>
                     </div>
                     <div id="collapse2" class="panel-collapse collapse">
@@ -551,7 +551,15 @@
                 cb(start, end);
 
 
-                $('#reportrange_count').daterangepicker({
+                var start = moment().subtract(29, 'days');
+                var end = moment();
+
+                function cb(start, end) {
+                    $('#reportrange_count span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                     $('#custom_count').val(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
+                }
+
+               $('#reportrange_count').daterangepicker({
                     startDate: start,
                     endDate: end,
                     ranges: {
@@ -562,9 +570,8 @@
                      'This Month': [moment().startOf('month'), moment().endOf('month')],
                      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                  }
-             }, cb)
-                cb(start, end);
-
+             }, cb) 
+             cb(start, end)  
             });
 
            
