@@ -596,8 +596,9 @@
                                     <th width="1%">ID</th>
                                     <th width="5%">Module</th>
                                     <th width="15%">Subject</th>
-                                    <th width="69%">Task</th>
+                                    <th width="67%">Task</th>
                                     <th width="5%">Submitted By</th>
+                                    <th width="2%">Action</th>
                                 </tr>
                                 <tbody class="show_task_priority">
                                     
@@ -656,7 +657,8 @@
                             html += '<td>'+task.subject+'</td>';
                             html += '<td>'+task.task+'</td>';
                             html += '<td>'+task.created_by+'</td>';
-                         html += '</tr>';
+                            html += '<td><a href="javascript:;" class="delete_priority" data-id="'+task.id+'">Remove<a></td>';
+                         html += '</tdr>';
                     });
                     $( ".show_task_priority" ).html(html);
                     <?php if (auth()->user()->isAdmin()) { ?>
@@ -669,10 +671,20 @@
             });
         }
 
+        $(document).on('click', '.delete_priority', function (e) {
+            var id = $(this).data('id');
+            $('input[value ="'+id+'"]').prop('checked', false);
+            $(this).closest('tr').remove();
+        });
+
         $('.priority_model_btn').click(function(){
             $( "#priority_user_id" ).val('0');
             $( ".show_task_priority" ).html('');
-            getPriorityTaskList('{{auth()->user()->id}}');
+            <?php if (auth()->user()->isAdmin()) { ?>
+              getPriorityTaskList($('#priority_user_id').val());
+            <?php } else { ?>
+              getPriorityTaskList('{{auth()->user()->id}}');
+            <?php } ?>
             $('#priority_model').modal('show');
         })
 
