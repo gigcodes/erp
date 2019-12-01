@@ -170,14 +170,14 @@ class InstructionController extends Controller
 
         $orderby = 'desc';
 
-        if ($request->orderby == '') {
+        if ($request->orderby) {
             $orderby = 'asc';
         }
 
-        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->where('assigned_from', Auth::id())->orderBy('created_at', $orderby);
-        $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_from', Auth::id())->orderBy('created_at', $orderby);
-        $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_from', Auth::id())->orderBy('created_at', $orderby);
-        $completed_instructions = Instruction::where('verified', 1)->where('assigned_from', Auth::id())->orderBy('created_at', $orderby);
+        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->where('assigned_from', Auth::id())->orderBy('id', $orderby);
+        $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_from', Auth::id())->orderBy('id', $orderby);
+        $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_from', Auth::id())->orderBy('id', $orderby);
+        $completed_instructions = Instruction::where('verified', 1)->where('assigned_from', Auth::id())->orderBy('id', $orderby);
         
         if ($request->category_id) {
             $instructions = $instructions->where('category_id', $request->category_id);
@@ -203,14 +203,18 @@ class InstructionController extends Controller
             $completed_instructions = $completed_instructions->whereRaw($sql);
         }
 
-        if ($request->start_end_date) {
-            $start_end_date = $request->start_end_date;
-            $sql = "'".$start_end_date."' BETWEEN start_time AND end_time";
-            
-            $instructions = $instructions->whereRaw($sql);
-            $pending_instructions = $pending_instructions->whereRaw($sql);
-            $verify_instructions = $verify_instructions->whereRaw($sql);
-            $completed_instructions = $completed_instructions->whereRaw($sql);
+        if ($request->start_date) {
+            $instructions = $instructions->where('start_time', ">=", $request->start_date);
+            $pending_instructions = $pending_instructions->where('start_time', ">=", $request->start_date);
+            $verify_instructions = $verify_instructions->where('start_time', ">=", $request->start_date);
+            $completed_instructions = $completed_instructions->where('start_time', ">=", $request->start_date);
+        }
+
+        if ($request->end_date) {
+            $instructions = $instructions->where('end_time', "<=", $request->end_date);
+            $pending_instructions = $pending_instructions->where('end_time', "<=", $request->end_date);
+            $verify_instructions = $verify_instructions->where('end_time', "<=", $request->end_date);
+            $completed_instructions = $completed_instructions->where('end_time', "<=", $request->end_date);
         }
         
         $instructions = $instructions->get()->toArray();
