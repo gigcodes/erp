@@ -154,10 +154,64 @@ class LiveChatController extends Controller
 	}
 
 	public function sendMessage(Request $request){
-		
-		//send text
+		    $login = \Config('livechat.account_id');
+            $password = \Config('livechat.password');
+            $values = array('chat_id' => 'Q1RREQQMC2', 'event' => array('type' => 'message', 'text' => 'asdasd', 'recipients' => 'all'));
+		    $values = json_encode($values);
+		    
+            $curl = curl_init();
 
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => "https://api.livechatinc.com/v3.1/agent/action/send_event",
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => "",
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 30,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => "POST",
+              CURLOPT_POSTFIELDS => "$values",
+              CURLOPT_USERPWD, "$login:$password",
+              CURLOPT_HTTPHEADER => array(
+                "Accept: */*",
+                "Accept-Encoding: gzip, deflate",
+                "Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
+                "Cache-Control: no-cache",
+                "Connection: keep-alive",
+                "Content-Length: 2",
+                "Content-Type: application/json",
+                "Cookie: AASID=AA1-DAL10",
+                "Host: api.livechatinc.com",
+                "Postman-Token: 4cedf58b-a89a-4654-bb94-20ab2936060b,97c6a781-69d0-47a5-925e-527a02523144",
+                "User-Agent: PostmanRuntime/7.19.0",
+                "cache-control: no-cache"
+            ),
+            ));
+
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+
+            curl_close($curl);
+
+            if ($err) {
+              echo "cURL Error #:" . $err;
+            } else {
+			echo $response;
+		}
 		//Send File
+	}
+
+	public function getChats(Request $request)
+	{
+		$chatId = $request->id;
+
+		$messages = ChatMessage::where('unique_id',$chatId)->get();
+
+		foreach ($messages as $message) {
+			//dd($message->message);
+			$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">8:40 AM, Today</span></div></div>';
+		}
+
+		return $messagess;
 	}
 }
 

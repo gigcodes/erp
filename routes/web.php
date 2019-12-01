@@ -13,7 +13,7 @@
 
 Auth::routes();
 
-
+Route::get('/test/test', 'LiveChatController@sendMessage');
 //Route::get('/test/test','TestController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
@@ -819,6 +819,8 @@ Route::post('exotel/recordingCallback', 'ExotelController@recordingCallback');
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
 Route::post('livechat/incoming','LiveChatController@incoming');
+Route::post('livechat/getChats','LiveChatController@getChats')->name('livechat.get.message');
+Route::post('livechat/sendMessage','LiveChatController@sendMessage')->name('livechat.send.message');
 
 /* ---------------------------------------------------------------------------------- */
 

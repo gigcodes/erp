@@ -37,26 +37,27 @@
     "dependencies": {
         "bootstrap-sass": "^3.3.7",
         "chart.js": "^2.8.0",
+        "clipboard": "^2.0.4",
+        "codemirror": "^5.47.0",
         "cross-env": "^5.2.0",
+        "dropzone": "^5.5.1",
         "laravel-echo": "^1.4.0",
+        "livechatapi": "^0.6.0",
         "luxon": "^1.15.0",
+        "markdown-it": "^8.4.2",
+        "markdown-it-task-lists": "^2.1.1",
         "popper": "^1.0.1",
         "pusher-js": "^4.3.1",
         "readmore-js": "^2.2.1",
+        "sortablejs": "^1.9.0",
+        "vue": "^2.6.10",
         "vue-chartjs": "^3.4.2",
         "vue-datetime": "^1.0.0-beta.10",
         "vue-resource": "^1.5.1",
-        "weekstart": "^1.0.0",
-        "clipboard": "^2.0.4",
-        "codemirror": "^5.47.0",
-        "dropzone": "^5.5.1",
-        "markdown-it": "^8.4.2",
-        "markdown-it-task-lists": "^2.1.1",
-        "sortablejs": "^1.9.0",
-        "vue": "^2.6.10",
-        "vuedraggable": "^2.21.0"
+        "vuedraggable": "^2.21.0",
+        "weekstart": "^1.0.0"
     },
     "browser": {
-     "vue": "vue/dist/vue.common.js "
+        "vue": "vue/dist/vue.common.js "
     }
 }

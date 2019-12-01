@@ -10591,6 +10591,52 @@ a.text-dark:focus {
     display: none;
 }
 
+/*Floating chat css start*/
+
+.chat-button-wrapper {
+    position: fixed;
+    top: 1em;
+    right: 2em;
+    z-index: 9999;
+    width: 70%;
+}
+
+.chat-button {
+    height: 3em;
+    width: 3em;
+    font-size: 14px;
+    border-radius: 50%;
+    border: 0 none;
+    background: #72AB59;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    transform: scale(1);
+    transition: all 200ms ease;
+}
+
+.chat-button:hover,
+.chat-button:focus,
+.chat-button:active {
+    box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+    outline: 0;
+}
+
+
+.chat-button span{
+    height: 20px;
+    width: 20px;
+    background-color: red;
+    border-radius: 50%;
+    display: inline-block;
+    font-size: 1em;
+    transform: scale(1);
+    transition: transform 100ms ease;
+}
+
+
+
+
 /* WhatsApp Bubble */
 .speech-wrapper {
     padding: 10px 20px;
