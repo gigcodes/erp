@@ -1090,6 +1090,7 @@
                                     <th width="15%">Subject</th>
                                     <th width="69%">Task</th>
                                     <th width="5%">Submitted By</th>
+                                    <th width="2%">Action</th>
                                 </tr>
                                 <tbody class="show_task_priority">
                                     
@@ -1157,6 +1158,7 @@
                         html += '<td>'+task.task_subject+'</td>';
                         html += '<td>'+task.task_details+'</td>';
                         html += '<td>'+task.created_by+'</td>';
+                        html += '<td><a href="javascript:;" class="delete_priority" data-id="'+issue.id+'">Remove<a></td>';
                      html += '</tr>';
                 });
                 $( ".show_task_priority" ).html(html);
@@ -1169,6 +1171,12 @@
             }
         });
     }
+
+    $(document).on('click', '.delete_priority', function (e) {
+        var id = $(this).data('id');
+        $('input[value ="'+id+'"]').prop('checked', false);
+        $(this).closest('tr').remove();
+    });
 
     $('.priority_model_btn').click(function(){
         $( "#priority_user_id" ).val('0');
