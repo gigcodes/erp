@@ -29,7 +29,7 @@
                   <input type="text" name="term" class="form-control" placeholder="Search..."  value="{{request()->get('term')}}">
                 </div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-2">
                 <div class="form-group mr-3">
                   <select class="form-control select-multiple" name="user[]" multiple>
                     @foreach ($users_array as $index => $name)
@@ -38,7 +38,7 @@
                   </select>
                 </div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-2">
                 <div class="form-group mr-3">
                   <select class="form-control" name="category_id">
                     <option value="">Select a Category</option>
@@ -49,9 +49,11 @@
                   </select>
                 </div>
               </div>
-              <div class="col-md-3">
-                <div class="form-group mr-2">
-                  <input type="date" name="start_end_date" class="form-control" placeholder="Between start end date..." value="{{request()->get('start_end_date')}}">
+              <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" class="form-control start_date" value="{{request()->get('start_date')}}" name="start_date" placeholder="Start Date...">
+                    <div class="input-group-addon">to</div>
+                    <input type="text" class="form-control end_date" value="{{request()->get('end_date')}}" name="end_date"  placeholder="End Date...">
                 </div>
               </div>
               <div class="col-md-1"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
@@ -94,7 +96,7 @@
               <th rowspan="2">Instructions</th>
               <th rowspan="2" colspan="3" class="text-center">Action</th>
               <th colspan="4" class="text-center">Timing</th>
-              <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
+              <th rowspan="2"><a href="/instruction/list{{ ($orderby == 'desc') ? '?orderby=asc' : '' }}">Created at</a></th>
               <th rowspan="2">Remark</th>
             </tr>
 
@@ -178,7 +180,7 @@
               <th rowspan="2">Instructions</th>
               <th rowspan="2" colspan="3" class="text-center">Action</th>
               <th colspan="4" class="text-center">Timing</th>
-              <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
+              <th rowspan="2"><a href="/instruction/list{{ ($orderby == 'desc') ? '?orderby=asc' : '' }}">Created at</a></th>
               <th rowspan="2">Remark</th>
             </tr>
 
@@ -277,7 +279,7 @@
               <th rowspan="2">Instructions</th>
               <th rowspan="2" colspan="3" class="text-center">Action</th>
               <th colspan="4" class="text-center">Timing</th>
-              <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
+              <th rowspan="2"><a href="/instruction/list{{ ($orderby == 'desc') ? '?orderby=asc' : '' }}">Created at</a></th>
               <th rowspan="2">Remark</th>
             </tr>
 
@@ -365,7 +367,7 @@
                 <th rowspan="2">Instructions</th>
                 <th rowspan="2" colspan="3" class="text-center">Action</th>
                 <th colspan="4">Timing</th>
-                <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
+                <th rowspan="2"><a href="/instruction/list{{ ($orderby == 'desc') ? '?orderby=asc' : '' }}">Created at</a></th>
                 <th rowspan="2">Remark</th>
               </tr>
 
@@ -553,6 +555,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
+       $('.start_date').datetimepicker({
+         format: 'YYYY-MM-DD HH:mm'
+       });
+        $('.end_date').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm',
+            useCurrent: false //Important! See issue #1075
+        }); 
+        $(".start_date").on("dp.change", function (e) {
+            $('.end_date').data("DateTimePicker").minDate(e.date);
+        });
+        $(".end_date").on("dp.change", function (e) {
+            $('.start_date').data("DateTimePicker").maxDate(e.date);
+        });
        $(".select-multiple").multiselect();
        $('.instruction-start-time').datetimepicker({
          format: 'YYYY-MM-DD HH:mm'
