@@ -251,12 +251,12 @@
                             @if($issue->is_resolved)
                                 <strong>Resolved</strong>
                             @else
-                                <select name="resolved" id="resolved_{{$issue->id}}" style="display: none;" class="form-control resolve-issue" data-id="{{$issue->id}}">
-                                    <option {{ $issue->is_resolved==0 ? 'selected' : '' }} value="0">Not Resolved</option>
-                                    <option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>
-                                </select>
+                                {{--<select name="resolved" id="resolved_{{$issue->id}}" style="display: none;" class="form-control resolve-issue" data-id="{{$issue->id}}">--}}
+                                    {{--<option {{ $issue->is_resolved==0 ? 'selected' : '' }} value="0">Not Resolved</option>--}}
+                                    {{--<option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>--}}
+                                {{--</select>--}}
 
-                                <select name="task_status" id="task_status" class="form-control change-task-status" data-id="{{$issue->id}}">
+                                <select name="task_status" id="{{$issue->id}}" class="form-control resolve-issue" onchange="resolveIssue(this,'<?php echo $issue->id; ?>')">
                                     <option value="">Please Select</option>
                                     <option value="Planned" {{ (!empty($issue->status) && $issue->status ==  'Planned' ? 'selected' : '') }}>Planned</option>
                                     <option value="In Progress" {{ (!empty($issue->status) && $issue->status  ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
@@ -355,10 +355,10 @@
                                 @if($issue->is_resolved)
                                     <strong>Resolved</strong>
                                 @else
-                                    <select style="display:none;" name="resolved" id="resolved_{{$issue->id}}" class="form-control resolve-issue" data-id="{{$issue->id}}">
-                                        <option {{ $issue->is_resolved==0 ? 'selected' : '' }} value="0">Not Resolved</option>
-                                        <option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>
-                                    </select>
+                                    {{--<select style="display:none;" name="resolved" id="resolved_{{$issue->id}}" class="form-control resolve-issue" data-id="{{$issue->id}}">--}}
+                                        {{--<option {{ $issue->is_resolved==0 ? 'selected' : '' }} value="0">Not Resolved</option>--}}
+                                        {{--<option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>--}}
+                                    {{--</select>--}}
 
                                     <select name="task_status" id="task_status" class="form-control change-task-status" data-id="{{$issue->id}}">
                                         <option value="">Please Select</option>
@@ -739,22 +739,22 @@
                 }
             });
         });
-        $(document).on('change', '.resolve-issue', function (event) {
-            let id = $(this).attr('data-id');
-            let status = $(this).val();
-            let self = this;
-
-            $.ajax({
-                url: "{{action('DevelopmentController@resolveIssue')}}",
-                data: {
-                    issue_id: id,
-                    is_resolved: status
-                },
-                success: function () {
-                    toastr["success"]("Status updated!", "Message")
-                }
-            });
-        });
+        {{--$(document).on('change', '.resolve-issue', function (event) {--}}
+            {{--let id = $(this).data('id');--}}
+            {{--let status = $(this).val();--}}
+            {{--let self = this;--}}
+{{--alert(id);--}}
+            {{--$.ajax({--}}
+                {{--url: "{{action('DevelopmentController@resolveIssue')}}",--}}
+                {{--data: {--}}
+                    {{--issue_id: id,--}}
+                    {{--is_resolved: status--}}
+                {{--},--}}
+                {{--success: function () {--}}
+                    {{--toastr["success"]("Status updated!", "Message")--}}
+                {{--}--}}
+            {{--});--}}
+        {{--});--}}
 
         $(document).on('click', '.expand-row', function () {
             var selection = window.getSelection();
@@ -892,6 +892,24 @@
                 }
             });
         });
+
+        function resolveIssue(obj,task_id){
+
+            let id = task_id;
+            let status = $(obj).val();
+            let self = this;
+
+            $.ajax({
+                url: "{{action('DevelopmentController@resolveIssue')}}",
+                data: {
+                    issue_id: id,
+                    is_resolved: status
+                },
+                success: function () {
+                    toastr["success"]("Status updated!", "Message")
+                }
+            });
+        }
 
 
     </script>
