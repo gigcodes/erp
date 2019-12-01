@@ -564,7 +564,9 @@
                          html += '</tr>';
                     });
                     $( ".show_issue_priority" ).html(html);
-                    $( ".show_issue_priority" ).sortable();
+                    <?php if (auth()->user()->isAdmin()) { ?>
+                      $( ".show_issue_priority" ).sortable();
+                    <?php } ?>
                 },
                 error: function () {
                     alert('There was error loading priority task list data');

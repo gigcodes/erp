@@ -21,10 +21,15 @@
 
     @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
       <div class="row mb-3">
-        <div class="col-md-10 col-sm-12">
-          <form action="{{ route('instruction.index') }}" method="GET" class="form-inline align-items-start" id="searchForm">
+        <div class="col-sm-12">
+          <form action="{{ route('instruction.list') }}" method="GET" class="form-inline align-items-start" id="searchForm">
             <div class="row full-width" style="width: 100%;">
-              <div class="col-md-4 col-sm-12">
+              <div class="col-md-3">
+                <div class="form-group mr-3">
+                  <input type="text" name="term" class="form-control" placeholder="Search..."  value="{{request()->get('term')}}">
+                </div>
+              </div>
+              <div class="col-md-3">
                 <div class="form-group mr-3">
                   <select class="form-control select-multiple" name="user[]" multiple>
                     @foreach ($users_array as $index => $name)
@@ -33,7 +38,23 @@
                   </select>
                 </div>
               </div>
-              <div class="col-md-2"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
+              <div class="col-md-3">
+                <div class="form-group mr-3">
+                  <select class="form-control" name="category_id">
+                    <option value="">Select a Category</option>
+
+                    @foreach ($categories_array as $id => $category)
+                      <option value="{{ $id }}" {{ request()->get('category_id') == $id ? 'selected' : '' }}>{{ $category['name'] }}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mr-2">
+                  <input type="date" name="start_end_date" class="form-control" placeholder="Between start end date..." value="{{request()->get('start_end_date')}}">
+                </div>
+              </div>
+              <div class="col-md-1"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
             </div>
           </form>
         </div>
@@ -72,7 +93,7 @@
               <th rowspan="2">Category</th>
               <th rowspan="2">Instructions</th>
               <th rowspan="2" colspan="3" class="text-center">Action</th>
-              <th colspan="3" class="text-center">Timing</th>
+              <th colspan="4" class="text-center">Timing</th>
               <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
               <th rowspan="2">Remark</th>
             </tr>
@@ -80,6 +101,7 @@
             <tr>
               <th>Start</th>
               <th>End</th>
+              <th>Total Minutes</th>
               <th>Action</th>
             </tr>
             @foreach ($instructions as $instruction)
@@ -128,6 +150,7 @@
                       {{ \Carbon\Carbon::parse($instruction['end_time'])->format('H:i d-m') }}
                     @endif
                   </td>
+                   <td>{{ \App\InstructionTime::selectRaw('sum(total_minutes) as total_minutes')->where('id', $instruction['id'])->groupBy('instructions_id')->value('total_minutes') }}</td>
                   <td>
                     <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
                   </td>
@@ -154,7 +177,7 @@
               <th rowspan="2">Category</th>
               <th rowspan="2">Instructions</th>
               <th rowspan="2" colspan="3" class="text-center">Action</th>
-              <th colspan="3" class="text-center">Timing</th>
+              <th colspan="4" class="text-center">Timing</th>
               <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
               <th rowspan="2">Remark</th>
             </tr>
@@ -162,6 +185,7 @@
             <tr>
               <th>Start</th>
               <th>End</th>
+              <th>Total Minutes</th>
               <th>Action</th>
             </tr>
             @foreach ($pending_instructions as $instruction)
@@ -210,6 +234,7 @@
                       {{ \Carbon\Carbon::parse($instruction['end_time'])->format('H:i d-m') }}
                     @endif
                   </td>
+                  <td>{{ \App\InstructionTime::selectRaw('sum(total_minutes) as total_minutes')->where('id', $instruction['id'])->groupBy('instructions_id')->value('total_minutes') }}</td>
                   <td>
                     <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
                   </td>
@@ -251,7 +276,7 @@
               <th rowspan="2">Category</th>
               <th rowspan="2">Instructions</th>
               <th rowspan="2" colspan="3" class="text-center">Action</th>
-              <th colspan="3" class="text-center">Timing</th>
+              <th colspan="4" class="text-center">Timing</th>
               <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
               <th rowspan="2">Remark</th>
             </tr>
@@ -259,6 +284,7 @@
             <tr>
               <th>Start</th>
               <th>End</th>
+              <th>Total Minutes</th>
               <th>Action</th>
             </tr>
             @foreach ($verify_instructions as $instruction)
@@ -310,6 +336,7 @@
                       {{ \Carbon\Carbon::parse($instruction['end_time'])->format('H:i d-m') }}
                     @endif
                   </td>
+                  <td>{{ \App\InstructionTime::selectRaw('sum(total_minutes) as total_minutes')->where('id', $instruction['id'])->groupBy('instructions_id')->value('total_minutes') }}</td>
                   <td>
                     <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
                   </td>
@@ -337,7 +364,7 @@
                 <th rowspan="2">Category</th>
                 <th rowspan="2">Instructions</th>
                 <th rowspan="2" colspan="3" class="text-center">Action</th>
-                <th colspan="3">Timing</th>
+                <th colspan="4">Timing</th>
                 <th rowspan="2"><a href="/instruction?sortby=created_at{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Created at</a></th>
                 <th rowspan="2">Remark</th>
               </tr>
@@ -345,6 +372,7 @@
               <tr>
                 <th>Start</th>
                 <th>End</th>
+                <th>Total Minutes</th>
                 <th>Action</th>
               </tr>
               @foreach ($completed_instructions as $instruction)
@@ -393,6 +421,7 @@
                         {{ \Carbon\Carbon::parse($instruction['end_time'])->format('H:i d-m') }}
                       @endif
                     </td>
+                     <td>{{ \App\InstructionTime::selectRaw('sum(total_minutes) as total_minutes')->where('id', $instruction['id'])->groupBy('instructions_id')->value('total_minutes') }}</td>
                     <td>
                       <button type="button" class="btn-link instruction-edit-button" data-toggle="modal" data-target="#instructionEditModal" data-id="{{ $instruction['id'] }}" data-start="{{ $instruction['start_time'] }}" data-end="{{ $instruction['end_time'] }}">Edit</button>
                     </td>

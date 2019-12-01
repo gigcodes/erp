@@ -1160,7 +1160,9 @@
                      html += '</tr>';
                 });
                 $( ".show_task_priority" ).html(html);
-                $( ".show_task_priority" ).sortable();
+                <?php if (auth()->user()->isAdmin()) { ?>
+                  $( ".show_task_priority" ).sortable();
+                <?php } ?>
             },
             error: function () {
                 alert('There was error loading priority task list data');
