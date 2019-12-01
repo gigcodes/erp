@@ -583,7 +583,11 @@
         $('.priority_model_btn').click(function(){
             $( "#priority_user_id" ).val('');
             $( ".show_task_priority" ).html('');
-            getPriorityTaskList('{{auth()->user()->id}}');
+            <?php if (auth()->user()->isAdmin()) { ?>
+              getPriorityTaskList($('#priority_user_id').val());
+            <?php } else { ?>
+              getPriorityTaskList('{{auth()->user()->id}}');
+            <?php } ?>
             $('#priority_model').modal('show');
         })
 

@@ -657,7 +657,7 @@
                             html += '<td>'+task.subject+'</td>';
                             html += '<td>'+task.task+'</td>';
                             html += '<td>'+task.created_by+'</td>';
-                            html += '<td><a href="javascript:;" class="delete_priority" data-id="'+issue.id+'">Remove<a></td>';
+                            html += '<td><a href="javascript:;" class="delete_priority" data-id="'+task.id+'">Remove<a></td>';
                          html += '</tdr>';
                     });
                     $( ".show_task_priority" ).html(html);
@@ -680,7 +680,11 @@
         $('.priority_model_btn').click(function(){
             $( "#priority_user_id" ).val('0');
             $( ".show_task_priority" ).html('');
-            getPriorityTaskList('{{auth()->user()->id}}');
+            <?php if (auth()->user()->isAdmin()) { ?>
+              getPriorityTaskList($('#priority_user_id').val());
+            <?php } else { ?>
+              getPriorityTaskList('{{auth()->user()->id}}');
+            <?php } ?>
             $('#priority_model').modal('show');
         })
 
