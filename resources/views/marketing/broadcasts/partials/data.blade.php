@@ -37,7 +37,7 @@
       @if(isset($customer->customerMarketingPlatformActive) && $customer->customerMarketingPlatformActive->active == 1)
       <input type="checkbox" class="checkboxs" checked value="{{ $customer->id }}">
       @else
-        <input type="checkbox" class="checkboxs" value="{{ $customer->id }}">
+        <input type="checkbox" class="checkboxs" value="{{ $customer->id }}" id="marketing{{ $customer->id }}">
        @endif
        <span class="slider round"></span>
   	 </label>

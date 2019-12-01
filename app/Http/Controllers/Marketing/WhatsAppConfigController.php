@@ -97,7 +97,7 @@ class WhatsappConfigController extends Controller
      */
     public function store(Request $request)
     {
-
+        //dd($request);
         $this->validate($request, [
         'number'   => 'required|max:13|unique:whatsapp_configs,number',
         'provider'       => 'required',

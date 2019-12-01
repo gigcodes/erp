@@ -102,6 +102,13 @@ return [
             'days' => 7,
         ],
 
+        'customer' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/general/general.log'),
+            'level' => 'debug',
+            'days' => 7,
+        ],
+
         'whatsapp'=> [
             'driver' => 'daily',
             'path' => storage_path('logs/whatsapp/whatsapp.log'),

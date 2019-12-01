@@ -21,6 +21,7 @@
         "facebook/graph-sdk": "~5.0",
         "facebook/php-business-sdk": "^3.2",
         "fideloper/proxy": "^4.0",
+        "giggsey/libphonenumber-for-php": "^8.11",
         "google/apiclient": "^2.0",
         "guzzlehttp/guzzle": "^6.3",
         "intervention/image": "^2.5",
@@ -49,7 +50,6 @@
         "seo2websites/erp-customer": "dev-master",
         "seo2websites/erp-excel-importer": "dev-master",
         "seo2websites/google-vision": "dev-hotfix/google-image-search",
-       
         "seo2websites/price-comparison-scraper": "dev-master",
         "skovmand/mailchimp-laravel": "^1.0",
         "spatie/laravel-activitylog": "^2.8",
@@ -82,7 +82,7 @@
             "App\\": "app/",
             "Modules\\": "Modules/"
         },
-        "files" : [
+        "files": [
             "Modules/BookStack/helpers.php",
             "app/Helpers/common_functions.php"
         ]
@@ -94,8 +94,7 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": [
-            ]
+            "dont-discover": []
         }
     },
     "repositories": [
@@ -111,7 +110,6 @@
             "type": "vcs",
             "url": "git@bitbucket.org:seo2websites/price-comparison-scraper"
         },
-       
         {
             "type": "vcs",
             "url": "git@bitbucket.org:seo2websites/erp-customer"
