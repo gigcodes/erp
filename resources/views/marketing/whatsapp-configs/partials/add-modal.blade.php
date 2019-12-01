@@ -12,8 +12,7 @@
     				</div>
     				<div class="modal-body">
 
-
-    					<div class="form-group">
+                        <div class="form-group">
     						<strong>Username:</strong>
     						<input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
 
@@ -70,7 +69,146 @@
     						@endif
     					</div>
 
+                        <div class="form-group">
+                            <strong>Start Time:</strong>
+                            <select class="form-control" name="send_start">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23">23</option>
+                            </select>
 
+                            @if ($errors->has('send_at'))
+                            <div class="alert alert-danger">{{$errors->first('send_at')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>End Time:</strong>
+                             <select class="form-control" name="send_end">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23">23</option>
+                            </select>
+
+                            @if ($errors->has('send_end'))
+                            <div class="alert alert-danger">{{$errors->first('send_end')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Device Name:</strong>
+                            <input type="text" name="device_name" class="form-control" value="{{ old('device_name') }}" >
+
+                            @if ($errors->has('device_name'))
+                            <div class="alert alert-danger">{{$errors->first('device_name')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Sim Card Number:</strong>
+                            <input type="text" name="simcard_number" class="form-control" value="{{ old('simcard_number') }}" >
+
+                            @if ($errors->has('simcard_number'))
+                            <div class="alert alert-danger">{{$errors->first('simcard_number')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Sim Card Owner:</strong>
+                            <input type="text" name="simcard_owner" class="form-control" value="{{ old('simcard_owner') }}" >
+
+                            @if ($errors->has('simcard_owner'))
+                            <div class="alert alert-danger">{{$errors->first('simcard_owner')}}</div>
+                            @endif
+                        </div>
+
+
+                        <div class="form-group">
+                            <strong>Payment :</strong>
+                            <input type="text" name="payment" class="form-control" value="{{ old('payment') }}" >
+
+                            @if ($errors->has('payment'))
+                            <div class="alert alert-danger">{{$errors->first('payment')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>Sim Card Type:</strong>
+                             <select class="form-control" name="sim_card_type">
+                                <option>Select Sim Type</option>
+                                <option value="0">Pre Paid</option>
+                                <option value="1">Post Paid</option>
+                             </select>
+                            @if ($errors->has('status'))
+                            <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>Recharge Date:</strong>
+                             <div class='input-group date' id='filter-whats-date'>
+                            <input type='text' class="form-control" name="recharge_date" placeholder="Date"/>
+                            <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
+                            </div>
+
+                            @if ($errors->has('recharge_date'))
+                            <div class="alert alert-danger">{{$errors->first('recharge_date')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>Status:</strong>
+                             <select class="form-control" name="status">
+                                <option>Select Status</option>
+                                <option value="1">Active</option>
+                                <option value="2">Blocked</option>
+                                <option value="3">Inactive</option>
+                             </select>
+                            @if ($errors->has('status'))
+                            <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                            @endif
+                        </div>
     				</div>
     				<div class="modal-footer">
     					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

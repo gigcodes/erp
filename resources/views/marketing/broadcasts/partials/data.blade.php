@@ -35,16 +35,21 @@
   <td>
   	 <label class="switch" style="margin: 0px">
       @if(isset($customer->customerMarketingPlatformActive) && $customer->customerMarketingPlatformActive->active == 1)
-       <input type="checkbox" class="checkboxs" checked value="{{ $customer->id }}">
-       @else
-        <input type="checkbox" class="checkboxs" value="{{ $customer->id }}">
+      <input type="checkbox" class="checkboxs" checked value="{{ $customer->id }}">
+      @else
+        <input type="checkbox" class="checkboxs" value="{{ $customer->id }}" id="marketing{{ $customer->id }}">
        @endif
        <span class="slider round"></span>
   	 </label>
+     @if(isset($customer->customerMarketingPlatformActive) && $customer->customerMarketingPlatformActive->active == 1)
+     <br>
+     {{ \Carbon\Carbon::parse($customer->customerMarketingPlatformActive->created_at)->format('d-m-Y H:i:s') }}
+       @endif
   </td>
+  <td>@if(isset($customer->lastBroadcastSend)){{ \Carbon\Carbon::parse($customer->lastBroadcastSend->send_after)->format('d-m-Y H:i:s')  }} @endif</td>
   <td>@if(isset($customer->broadcastLatest)) 
 
-    <p onclick="showBroadcast({{$customer->id}})" id="broadcast{{$customer->id}}">{{ $customer->broadcastLatest->group_id }} {{ $customer->broadcastLatest->created_at->format('Y/m/d') }}  
+    <p onclick="showBroadcast({{$customer->id}})" id="broadcast{{$customer->id}}">{{ $customer->broadcastLatest->group_id }} {{ $customer->broadcastLatest->created_at->format('d-m-Y') }}  
     <p style="display: none;" onclick="hideBroadcastList({{$customer->id}})" id="broadcastList{{$customer->id}}"></p> @if( $customer->broadcastLatest->is_delivered == 1)  <span class="dot"></span> </p>  
 
     @endif @endif </td>

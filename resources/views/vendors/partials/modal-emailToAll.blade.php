@@ -9,6 +9,7 @@
             </div>
 
             <form action="{{ route('vendor.email.send.bulk') }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="vendor_ids" value="">
                 @csrf
 
                 <div class="modal-body">
@@ -20,6 +21,16 @@
                             @foreach ($vendors as $vendor)
                                 <option value="{{ $vendor->id }}">{{ $vendor->name }} - {{ $vendor->email }}</option>
                             @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>From Mail</strong>
+                        <select class="form-control" name="from_mail">
+                          <?php $emailAddressArr = \App\EmailAddress::all(); ?>
+                          @foreach ($emailAddressArr as $emailAddress)
+                            <option value="{{ $emailAddress->id }}">{{ $emailAddress->from_name }} - {{ $emailAddress->from_address }} </option>
+                          @endforeach
                         </select>
                     </div>
 

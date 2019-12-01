@@ -49,7 +49,7 @@ use App\Console\Commands\UpdateWiseProducts;
 use App\Console\Commands\UpdateWiseCategory;
 use App\Console\Commands\UpdateDoubleProducts;
 use App\Console\Commands\ScheduleList;
-
+use App\Console\Commands\IncrementFrequencyWhatsappConfig;
 use App\Console\Commands\SendHourlyReports;
 use App\Console\Commands\RunMessageQueue;
 use App\Console\Commands\MonitorCronJobs;
@@ -157,6 +157,7 @@ class Kernel extends ConsoleKernel
         SendQueuePendingChatMessages::class,
         ScheduleList::class,
         CheckWhatsAppActive::class,
+        IncrementFrequencyWhatsappConfig::class,
     ];
 
     /**
@@ -187,6 +188,9 @@ class Kernel extends ConsoleKernel
 
         //Flag customer if they have a complaint
         $schedule->command('flag:customers-with-complaints')->daily();
+
+        //Imcrement Frequency Every Day Once Whats App Config
+        $schedule->command('whatsppconfig:frequency')->daily();
 
         //This command sends the reply on products if they request...
         $schedule->command('customers:send-auto-reply')->everyFifteenMinutes();

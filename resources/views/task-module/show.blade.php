@@ -69,6 +69,7 @@
 
 
           <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png" /></button>
+          <a  href="javascript:;"  class="btn btn-secondary priority_model_btn">Priority</a>
         </form>
       </div>
 
@@ -369,8 +370,9 @@
                                       <th width="15%">Task Subject</th>
                                       {{-- <th width="5%">Est Completion Date</th> --}}
                                       <th width="5%" colspan="2">From / To</th>
+                                      <th width="5%">Estimate Minute</th>
                                       {{-- <th width="5%">Assigned To</th> --}}
-                                      <th width="25%">Communication</th>
+                                      <th width="20%">Communication</th>
                                       <th width="20%">Send Message</th>
                                       {{-- <th>Remarks</th> --}}
                                       <th width="10%">Action</th>
@@ -381,7 +383,9 @@
                                   <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
                                       <td class="p-2">
                                         {{ $task->id }}
-
+                                        @if(auth()->user()->isAdmin())
+                                            <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
+                                        @endif
                                         <input type="checkbox" class="select_task_checkbox" name="task" data-id="{{ $task->id }}" value="">
                                       </td>
                                       <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
@@ -468,7 +472,17 @@
                                           {{ $users_list }}
                                         </span>
                                       </td>
+                                      <td>
+                                        @if(auth()->user()->isAdmin() || auth()->user()->id == $task->assign_from)
+                                            {{$task->approximate}}
+                                        @endif
 
+                                        @if(auth()->user()->id == $task->assign_to)
+                                          <input type="text" class="update_approximate" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
+                                          <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
+                                        @endif
+
+                                      </td>
                                       <td class="expand-row table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
                                         {{-- ($task->message && $task->message_status == 0 && $task->message_user_id != Auth::id()) --}}
                                         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
@@ -584,6 +598,7 @@
                                     <th width="5%">Reccuring</th>
                                     {{-- <th width="5%">Assigned To</th> --}}
                                     {{-- <th width="5%">Remark</th> --}}
+                                    <th width="5%">Estimate Minute</th>
                                     <th width="20%">Communication</th>
                                     <th width="20%">Send Message</th>
                                     {{-- <th width="5%">Completed at</th> --}}
@@ -593,7 +608,11 @@
                                 <tbody>
                                   @foreach(  $data['task']['statutory_not_completed'] as $task)
                                 <tr id="task_{{ $task->id }}">
-                                    <td class="p-2">{{ $task->id }}</td>
+                                    <td class="p-2">{{ $task->id }}
+                                      @if(auth()->user()->isAdmin())
+                                          <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
+                                      @endif
+                                    </td>
                                     <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
                                     <td class="expand-row table-hover-cell p-2">
                                       @if (isset($categories[$task->category]))
@@ -679,7 +698,17 @@
                                     <td class="p-2">
                                       {{ strlen($task->recurring_type) > 6 ? substr($task->recurring_type, 0, 6) : $task->recurring_type }}
                                     </td>
+                                    <td>
+                                        @if(auth()->user()->isAdmin() || auth()->user()->id == $task->assign_from)
+                                            {{$task->approximate}}
+                                        @endif
 
+                                        @if(auth()->user()->id == $task->assign_to)
+                                          <input type="text" class="update_approximate" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
+                                          <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
+                                        @endif
+
+                                    </td>
                                     <td class="expand-row table-hover-cell p-2 {{ $task->message && $task->message_status == 0 ? 'text-danger' : '' }}">
                                       @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                         @if (isset($task->message))
@@ -776,7 +805,11 @@
                                 <tbody>
                                     @foreach(  $data['task']['statutory'] as $task)
                                             <tr>
-                                                <td>{{ $task['id'] }}</td>
+                                                <td>{{ $task['id'] }}
+                                                  @if(auth()->user()->isAdmin())
+                                                      <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
+                                                  @endif
+                                                </td>
                                                 <td> {{ Carbon\Carbon::parse($task['created_at'])->format('d-m H:i') }}</td>
                                                 <td> {{ isset( $categories[$task['category']] ) ? $categories[$task['category']] : '' }}</td>
                                                 <td class="task-subject" data-subject="{{$task['task_subject'] ? $task['task_subject'] : 'Task Details'}}" data-details="{{$task['task_details']}}" data-switch="0">{{ $task['task_subject'] ? $task['task_subject'] : 'Task Details' }}</td>
@@ -1017,7 +1050,66 @@
             </div>
         </div>
 
+<div id="priority_model" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
 
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Priority</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="" id="priorityForm" method="POST">
+                @csrf
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <strong>User:</strong>
+                        </div>
+                        <div class="col-md-11">
+                            <div class="form-group">
+                                @if(auth()->user()->isAdmin())
+                                    <select class="form-control" name="user_id" id="priority_user_id">
+                                        <option value="0">Select User</option>
+                                        @foreach ($users as $id => $name)
+                                            <option value="{{ $id }}">{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    {{auth()->user()->name}}
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-bordered table-striped">
+                                <tr>
+                                    <th width="1%">ID</th>
+                                    <th width="15%">Subject</th>
+                                    <th width="69%">Task</th>
+                                    <th width="5%">Submitted By</th>
+                                    <th width="2%">Action</th>
+                                </tr>
+                                <tbody class="show_task_priority">
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    @if(auth()->user()->isAdmin())
+                        <button type="submit" class="btn btn-secondary">Confirm</button>
+                    @endif
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
 
 @endsection
 
@@ -1035,6 +1127,91 @@
   var suggestions = [];
 
   $(document).ready(function() {
+
+    $('#priority_user_id').select2({
+        tags: true,
+        width : '100%'
+    });
+    
+    function getPriorityTaskList(id) {
+        var selected_issue = [0];
+
+        $('input[name ="selected_issue[]"]').each(function(){
+            if ($(this).prop("checked") == true) {
+                selected_issue.push($(this).val());                    
+            }
+        });
+
+        $.ajax({
+            url: "{{route('task.list.by.user.id')}}",
+            type: 'POST',
+            data: {
+                user_id : id,
+                _token : "{{csrf_token()}}",
+                selected_issue : selected_issue,
+            },
+            success: function (response) {
+                var html = '';
+                response.forEach(function (task) {
+                    html += '<tr>';
+                        html += '<td><input type="hidden" name="priority[]" value="'+task.id+'">'+task.id+'</td>';
+                        html += '<td>'+task.task_subject+'</td>';
+                        html += '<td>'+task.task_details+'</td>';
+                        html += '<td>'+task.created_by+'</td>';
+                        html += '<td><a href="javascript:;" class="delete_priority" data-id="'+task.id+'">Remove<a></td>';
+                     html += '</tr>';
+                });
+                $( ".show_task_priority" ).html(html);
+                <?php if (auth()->user()->isAdmin()) { ?>
+                  $( ".show_task_priority" ).sortable();
+                <?php } ?>
+            },
+            error: function () {
+                alert('There was error loading priority task list data');
+            }
+        });
+    }
+
+    $(document).on('click', '.delete_priority', function (e) {
+        var id = $(this).data('id');
+        $('input[value ="'+id+'"]').prop('checked', false);
+        $(this).closest('tr').remove();
+    });
+
+    $('.priority_model_btn').click(function(){
+        $( "#priority_user_id" ).val('0');
+        $( ".show_task_priority" ).html('');
+        <?php if (auth()->user()->isAdmin()) { ?>
+          getPriorityTaskList($('#priority_user_id').val());
+        <?php } else { ?>
+          getPriorityTaskList('{{auth()->user()->id}}');
+        <?php } ?>
+        $('#priority_model').modal('show');
+    })
+
+
+
+    $('#priority_user_id').change(function(){
+            getPriorityTaskList($(this).val())
+    });
+
+    $(document).on('submit', '#priorityForm', function (e) {
+        e.preventDefault();
+        <?php if (auth()->user()->isAdmin()) { ?>
+            $.ajax({
+                url: "{{route('task.set.priority')}}",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Priority successfully update!!', 'success');
+                },
+                error: function () {
+                    alert('There was error loading priority task list data');
+                }
+            });
+        <?php } ?>
+    });
+
     $('#task_subject, #task_details').autocomplete({
       source: function(request, response) {
         var results = $.ui.autocomplete.filter(taskSuggestions, request.term);
@@ -2222,5 +2399,32 @@
 
              })
           });
+        $('.update_approximate').keypress(function (e) {
+            var key = e.which;
+            var thiss = $(this);
+            if (key == 13) {
+                e.preventDefault();
+                var approximate = $(thiss).val();
+                var task_id = $(thiss).data('id');
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('task.update.approximate') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        approximate: approximate,
+                        task_id: task_id
+                    }
+                }).done(function () {
+                    $(thiss).closest('td').find('.update_approximate_msg').fadeIn(400);
+                    setTimeout(function () {
+                      $(thiss).closest('td').find('.update_approximate_msg').fadeOut(400);
+                    }, 2000);
+
+                }).fail(function (response) {
+                    alert('Could not update!!');
+                });
+            }
+        });
   </script>
 @endsection

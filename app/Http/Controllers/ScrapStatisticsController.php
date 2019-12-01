@@ -30,6 +30,9 @@ class ScrapStatisticsController extends Controller
             SELECT
                 s.supplier,
                 s.inventory_lifetime,
+                s.scraper_new_urls,
+                s.scraper_existing_urls,
+                s.scraper_total_urls,
                 ls.website,
                 ls.ip_address,
                 COUNT(ls.id) AS total,

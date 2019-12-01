@@ -59,6 +59,9 @@ class VendorController extends Controller
       if ($request->sortby == 'category') {
         $sortByClause = "category_name $orderby,";
       }
+      if ($request->sortby == 'id') {
+        $sortByClause = "id $orderby,";
+      }
         $whereArchived = ' `deleted_at` IS NULL ';
 
       if ($request->get('with_archived') == 'on') {
@@ -66,7 +69,7 @@ class VendorController extends Controller
       }
 
       //getting request 
-      if($request->term || $request->name || $request->id || $request->category || $request->phone || $request->address || $request->email || $request->term){
+      if($request->term || $request->name || $request->id || $request->category || $request->phone || $request->address || $request->email || $request->communication_history){
 
 
         //Query Initiate
@@ -116,13 +119,24 @@ class VendorController extends Controller
                     $qu->where('title', 'LIKE', '%' . request('category') . '%');
                     });
             }
+
+          if (request('communication_history') != null) {
+              $communication_history = request('communication_history');
+              $query->whereRaw("vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%".$communication_history."%')");
+          }
                         
           if($request->with_archived != null && $request->with_archived != ''){
-
-                 $vendors = $query->orderby('name','asc')->whereNotNull('deleted_at')->paginate(Setting::get('pagination'));  
+                $pagination = Setting::get('pagination'); 
+                if (request()->get('select_all') == 'true') {
+                    $pagination = $vendors->count();
+                }
+                 $vendors = $query->orderby('name','asc')->whereNotNull('deleted_at')->paginate($pagination);  
            }else{
-
-                 $vendors = $query->orderby('name','asc')->paginate(Setting::get('pagination'));
+                $pagination = Setting::get('pagination'); 
+                if (request()->get('select_all') == 'true') {
+                    $pagination = $vendors->count();
+                }
+                $vendors = $query->orderby('name','asc')->paginate($pagination);
           }
 
       }else{
@@ -160,7 +174,11 @@ class VendorController extends Controller
               // dd($vendors);
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
-      $perPage = Setting::get('pagination');
+      $perPage = Setting::get('pagination'); 
+      if (request()->get('select_all') == 'true') {
+          $perPage = count($vendors);
+          $currentPage = 1;
+      }
       $currentItems = array_slice($vendors, $perPage * ($currentPage - 1), $perPage);
 
       $vendors = new LengthAwarePaginator($currentItems, count($vendors), $perPage, $currentPage, [
@@ -191,6 +209,19 @@ class VendorController extends Controller
         'orderby'    => $orderby,
           'users' => $users
       ]);
+    }
+
+    public function vendorSearch()
+    {
+        $term = request()->get("q",null);
+        $search = Vendor::where('name', 'LIKE', "%".$term."%")
+                    ->orWhere('address', 'LIKE', "%".$term."%")
+                    ->orWhere('phone', 'LIKE', "%".$term."%")
+                    ->orWhere('email', 'LIKE', "%".$term."%")
+                    ->orWhereHas('category', function ($qu) use ($term) {
+                      $qu->where('title', 'LIKE', "%".$term."%");
+                      })->get();
+        return response()->json($search);
     }
 
     public function email(Request $request) {
@@ -459,6 +490,37 @@ class VendorController extends Controller
             'bcc.*' => 'nullable|email'
         ]);
 
+        if ($request->from_mail) {
+          $mail = \App\EmailAddress::where('id', $request->from_mail)->first();
+          if ($mail)  {
+              $config = array(
+                  'driver'    => $mail->driver,
+                  'host'      => $mail->host,
+                  'port'      => $mail->port,
+                  'from'      => [
+                      'address' => $mail->from_address,
+                      'name' => $mail->from_name,
+                  ],
+                  'encryption'  => $mail->encryption,
+                  'username'    => $mail->username,
+                  'password'    => $mail->password,
+                  'sendmail'    => '/usr/sbin/sendmail -bs',
+                  'markdown'    => [
+                      'theme' => 'default',
+                      'paths' => [
+                          resource_path('views/vendor/mail'),
+                      ],
+                  ],
+              );
+              \Config::set('mail', $config);
+          }
+        }
+
+        if ($request->vendor_ids) {
+          $vendor_ids = explode(',', $request->vendor_ids);
+          $vendors = Vendor::whereIn('id', $vendor_ids)->get();
+        }
+
         if ($request->vendors) {
             $vendors = Vendor::where('id', $request->vendors)->get();
         } else {
@@ -545,6 +607,32 @@ class VendorController extends Controller
 
         $vendor = Vendor::find($request->vendor_id);
 
+        if ($request->from_mail) {
+          $mail = \App\EmailAddress::where('id', $request->from_mail)->first();
+          if ($mail)  {
+              $config = array(
+                  'driver'    => $mail->driver,
+                  'host'      => $mail->host,
+                  'port'      => $mail->port,
+                  'from'      => [
+                      'address' => $mail->from_address,
+                      'name' => $mail->from_name,
+                  ],
+                  'encryption'  => $mail->encryption,
+                  'username'    => $mail->username,
+                  'password'    => $mail->password,
+                  'sendmail'    => '/usr/sbin/sendmail -bs',
+                  'markdown'    => [
+                      'theme' => 'default',
+                      'paths' => [
+                          resource_path('views/vendor/mail'),
+                      ],
+                  ],
+              );
+              \Config::set('mail', $config);
+          }
+        }
+        
         if ($vendor->email != '') {
             $file_paths = [];
 

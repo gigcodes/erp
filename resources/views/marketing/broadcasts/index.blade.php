@@ -149,6 +149,7 @@
                 <button type="button" class="btn btn-secondary">DND Customers : {{ $countDNDCustomers }}</button>
                 <button type="button" class="btn btn-secondary">First Broadcast Send : {{ $customerBroadcastSend }}</button>
                 <button type="button" class="btn btn-secondary">First Broadcast Pending : {{ $customerBroadcastPending }}</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#settingModal">Global Setting</button>
             </div>
         </div>
     </div>
@@ -217,12 +218,18 @@
                                 <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>D. Name</th>
                                     <th>Number</th>
-                                    <th>Total Customers</th>
-                                    <th>Message Sent Per Day</th>
-                                    <th>Pending</th>
+                                    <th>Ttl Cust</th>
+                                    <th>Msg/Day</th>
+                                    <th>Pend</th>
                                     <th>Last Check</th>
-                                    <th>Last Sent</th>
+                                    <th>L. Sent</th>
+                                    <th>D.O.A</th>
+                                    <th>Status</th>
+                                    <th>Freq</th>
+                                    <th>Send Time</th>
+                                    <th>End Time</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -252,7 +259,8 @@
                 <th>DND</th>
                 <!-- <th>Status</th> -->
                 <th>Manual Approval</th>
-                <th>Last Broadcast ID / D.Y.N</th>
+                <th>Broadcast Sent</th>
+                <th>Last Broadcast ID</th>
                 <th>Phone No. Assign WhatsApp</th>
                 <th>Remarks</th>
             </tr>
@@ -261,7 +269,11 @@
                 <th></th>
                 <th><input type="text" class="search form-control" id="name"></th>
                 <th><input type="text" class="search form-control" id="number"></th>
-                <th></th>
+                <th><select class="form-control search" id="dnd">
+                        <option>Select DND Users</option>
+                        <option value="0">Active Users</option>
+                        <option value="1">DND Users</option>
+                    </select></th>
                <!--  <th>
                     <select class="form-control">
                         <option>Asked Price</option>
@@ -277,6 +289,7 @@
                         <option value="0">All</option>
                     </select>
                 </th>
+                <th></th>
                 <th><input type="text" class="search form-control" id="broadcast"></th>
                 <th><select class="form-control search" id="number">
                         <option value="">Select Option</option>
@@ -299,6 +312,7 @@
     </div>
 @include('marketing.broadcasts.partials.modal-merge')
 @include('marketing.broadcasts.partials.message')
+@include('marketing.broadcasts.partials.setting')
 @endsection
 
 @section('scripts')
@@ -656,6 +670,7 @@
             src = "{{ route('broadcasts.index') }}";
             $(".search").autocomplete({
                 source: function (request, response) {
+                    dnd =  $('#dnd').val();
                     number = $('#number').val();
                     broadcast = $('#broadcast').val();
                     manual = $('#manual').val();
@@ -667,6 +682,7 @@
                         url: src,
                         dataType: "json",
                         data: {
+                            dnd: dnd,
                             number: number,
                             broadcast: broadcast,
                             manual: manual,
@@ -769,15 +785,15 @@
                         },
                         beforeSend: function () {
                             $("#loading-image").show();
+                            $("#marketing"+id).prop('checked', true);
                         },
                     }).done(function (data) {
                         $("#loading-image").hide();
-                        $("#row"+id).css('display','none');
-                        location.reload();
                     }).fail(function (jqXHR, ajaxOptions, thrownError) {
                         alert('No response from server');
                     });
                 });
+                alert('Customer Updated');
             }
         });
 

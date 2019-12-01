@@ -42,10 +42,14 @@
             <h2 class="page-heading">Vendor Info</h2>
             <div class="pull-left">
                 <form class="form-inline" action="{{ route('vendor.index') }}" method="GET">
-                    <div class="form-group">
-                        <input name="term" type="text" class="form-control"
-                               value="{{ isset($term) ? $term : '' }}"
-                               placeholder="Search" id="search_id">
+                    <div class="form-group" style="width: 441px; margin-right: 10px;">
+                       <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
+                            <?php 
+                                if (request()->get('term')) {
+                                    echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
+                                }
+                            ?>
+                        </select>
                     </div>
 
                     {{-- <div class="form-group ml-3">
@@ -59,11 +63,19 @@
                         <input type="checkbox" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
                         <label for="with_archived">Archived</label>
                     </div>
+                    <div class="form-group" style="margin-left: 10px;">
+                       <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm form-control">
+                    </div>
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                <?php 
+                    $params = request()->all();
+                    $params['select_all'] = request()->get('select_all') == 'true' ? 'false' : 'true';
+                ?>
+                <a class="btn btn-secondary" href="{{route('vendor.index', $params)}}">{{request()->get('select_all') == 'true' ? 'Unselect All' : 'Select All'}}</a>
+                <button type="button" class="btn btn-secondary emailToAllModal" >Bulk Email</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
             </div>
@@ -114,7 +126,7 @@
         <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
-                <th width="5%">ID</th>
+                <th width="5%"><a href="/vendor{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
                 <th width="5%"><a href="/vendor{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
                 <th width="10%">Name</th>
                 <th width="10%">Phone</th>
@@ -134,8 +146,6 @@
                 <th width="10%"><input type="text" id="phone" class="search form-control" placeholder="Phone"></th>
                 <th width="10%"><input type="text" id="email" class="search form-control" placeholder="Email"></th>
                 <th width="10%"><input type="text" id="address" class="search form-control" placeholder="Address"></th>
-                <th></th>
-                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -245,6 +255,70 @@
     <script type="text/javascript">
 
         var vendorToRemind = null;
+        $('#vendor-search').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/vendor-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        data[i].id = data[i].name ? data[i].name : data[i].text;
+                    }
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Vendor by name, address, phone, email, category, title',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+                
+                if (customer.name) {
+                    return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.name,
+
+        });
+
+        $(document).on('click', '.emailToAllModal', function () {
+            var select_vendor = [];
+            $('.select_vendor').each(function(){
+                if ($(this).prop("checked")) {
+                    select_vendor.push($(this).val());
+                }
+            });
+
+            if (select_vendor.length === 0) {
+                alert('Please Select vendors!!');
+                return false;
+            }
+
+            $('#emailToAllModal').find('form').find('input[name="vendor_ids"]').val(select_vendor.join());
+
+            $('#emailToAllModal').modal("show");
+
+        });
+
+        $(document).on('click', '.send-email-to-vender', function () {
+            $('#emailToAllModal').find('form').find('input[name="vendor_ids"]').val($(this).data('id'));
+            $('#emailToAllModal').modal("show");
+        });
 
         $(document).on('click', '.set-reminder', function () {
             let vendorId = $(this).data('id');
