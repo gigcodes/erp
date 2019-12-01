@@ -225,16 +225,18 @@
                                 <input type="text" name="gst" id="supplier_gst" class="form-control input-sm" placeholder="GST" value="{{ $supplier->gst }}">
                             </div>
                             <div class="form-group">
-                                {!!Form::select('supplier_category_id', $suppliercategory, $supplier->supplier_category_id, ['class' => 'form-control form-control-sm' , 'id' => 'supplier_category_id'])!!}
+                                {!!Form::select('supplier_category_id', [null=>'Select a category'] + $suppliercategory->toArray(), $supplier->supplier_category_id, ['class' => 'form-control form-control-sm' , 'id' => 'supplier_category_id'])!!}
                             </div>
                             <div class="form-group">
                                 {!!Form::select('supplier_status_id', $supplierstatus, $supplier->supplier_status_id, ['class' => 'form-control form-control-sm', 'id' => 'supplier_status_id'])!!}
                             </div>
+
                             <div class="form-group">
-                                <select name="status" id="status" class="form-control form-control-sm">
-                                    <option {{ $supplier->status ? '' : 'selected' }} value="0">Inactive</option>
-                                    <option {{ $supplier->status ? 'selected' : '' }} value="1">Active</option>
-                                </select>
+                                <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" value="{{ $supplier->scraper_name }}">
+                            </div>
+
+                            <div class="form-group">
+                                <input type="text" name="inventory_lifetime" id="supplier_inventory_lifetime" class="form-control input-sm" placeholder="Inventory Lifetime (in days)" value="{{ $supplier->inventory_lifetime }}">
                             </div>
 
                             <div class="form-group">
@@ -1393,6 +1395,8 @@
             var status = $('#status').val();
             var supplier_category_id = $('#supplier_category_id').val();
             var supplier_status_id = $('#supplier_status_id').val();
+            var supplier_scraper_name = $('#supplier_scraper_name').val();
+            var supplier_inventory_lifetime = $('#supplier_inventory_lifetime').val();
 
             $.ajax({
                 type: "POST",
@@ -1413,7 +1417,9 @@
                     gst: gst,
                     status: status,
                     supplier_category_id: supplier_category_id,
-                    supplier_status_id: supplier_status_id
+                    supplier_status_id: supplier_status_id,
+                    scraper_name: supplier_scraper_name,
+                    inventory_lifetime: supplier_inventory_lifetime
                 },
                 beforeSend: function () {
                     $(thiss).text('Saving...');
@@ -1859,7 +1865,7 @@
             });
             console.log(images);
             console.log(images.length);
-            
+
             $("#images_product").val(JSON.stringify(images));
             $("#count_product_images").html(images.length);
             $('#productSingleGroupDetails').modal('show');
@@ -1873,7 +1879,7 @@
             });
             console.log(images);
             console.log(images.length);
-            
+
             $("#images").val(JSON.stringify(images));
             $("#count_images").html(images.length);
             $('#productGroupDetails').modal('show');
