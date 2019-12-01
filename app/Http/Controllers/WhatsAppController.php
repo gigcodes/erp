@@ -1959,7 +1959,7 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'approved' ] = 1;
                 $params[ 'status' ] = 2;
 
-                
+
                 $number = User::find( $request->get('user_id', 0));
 
                 if (!$number) {
@@ -3355,7 +3355,7 @@ class WhatsAppController extends FindByNumberController
             }
             // $content['linked_images'] = json_decode($request->linked_images);
         }
-        
+
         if ($request->to_all || $request->moduletype == 'customers') {
             // Create empty array for checking numbers
             $arrCustomerNumbers = [];
@@ -3373,7 +3373,7 @@ class WhatsAppController extends FindByNumberController
 
             $minutes = round(60 / $frequency);
             $max_group_id = ChatMessage::where('status',8)->max('group_id') + 1;
-            
+
             $data = Customer::whereNotNull('phone')->where('do_not_disturb', 0);
 
 
@@ -3396,7 +3396,7 @@ class WhatsAppController extends FindByNumberController
             $data = $data->get()->groupBy('broadcast_number');
 
             foreach ($data as $broadcastNumber => $customers) {
-                
+
                 $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
@@ -3415,9 +3415,9 @@ class WhatsAppController extends FindByNumberController
                         $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
                     }
                 }
-                     
+
                 if (in_array($broadcastNumber, $arrBroadcastNumbers)) {
-                   
+
                     foreach ($customers as $customer) {
 
                         //Changes put by satyam for connecting Old BroadCast with New BroadCast page
@@ -3453,20 +3453,20 @@ class WhatsAppController extends FindByNumberController
                                     'group_id' => $max_group_id
                                 ];
 
-                                $priority = 5;
+                                $priority = null; // Priority for broadcast messages, now the same as for normal messages
                                 if($request->linked_images != null){
                                     if($content['linked_images'] != null){
-                                        //Saving Message In Chat Message 
+                                        //Saving Message In Chat Message
                                         $chatMessage = ChatMessage::create($params);
                                         foreach ($content['linked_images'] as $url) {
                                         //Attach image to chat message
                                             $chatMessage->attachMedia($url['key'], config('constants.media_tags'));
-                                                
+
                                             $send = InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,$url['url'],$priority,$now);
                                             if($send != false){
                                                 $now->addMinutes($minutes);
                                                 $now = InstantMessagingHelper::broadcastSendingTimeCheck($now);
-                                                
+
                                             }else{
                                                 continue;
                                             }
@@ -3477,7 +3477,7 @@ class WhatsAppController extends FindByNumberController
                                 elseif($request->linked_images == null){
                                     $chatMessage = ChatMessage::create($params);
 
-                                    $send = InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,'',$priority,$now); 
+                                    $send = InstantMessagingHelper::scheduleMessage($customer->phone,$customer->broadcast_number,$request->message,'',$priority,$now);
                                     if($send != false){
                                         $now->addMinutes($minutes);
                                         $now = InstantMessagingHelper::broadcastSendingTimeCheck($now);
@@ -3486,8 +3486,8 @@ class WhatsAppController extends FindByNumberController
                                 else{
                                     continue;
                                 }
-                                
-                                
+
+
                                 //DO NOT REMOVE THIS CODE
                                 // MessageQueue::create([
                                 //     'user_id' => Auth::id(),
@@ -3499,7 +3499,7 @@ class WhatsAppController extends FindByNumberController
                                 //     'group_id' => $max_group_id
                                 // ]);
 
-                                
+
 
                             }
                         }
