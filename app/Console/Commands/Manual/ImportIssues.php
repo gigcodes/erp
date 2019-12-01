@@ -74,7 +74,7 @@ class ImportIssues extends Command
             $developer_task->estimate_time = $issue->estimate_time;
             $developer_task->cost = $issue->estimate_time;
             $developer_task->task_type_id = 3;
-            $developer_task->responsible_user_id = $issue->responsible_user_id;
+            $developer_task->responsible_user_id = !is_null($issue->responsible_user_id) ? $issue->responsible_user_id : "";
             $developer_task->created_at = $issue->created_at;
             $developer_task->save();
             $new_issue_id = $developer_task->id;

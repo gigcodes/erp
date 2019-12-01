@@ -407,7 +407,7 @@ class DevelopmentController extends Controller
                                     $issues = $issues->where('responsible_user_id', $request->get('responsible_user'));
                                 } else {
                                     if ((int)$request->get('submitted_by') > 0) {
-                                        $issues = $issues->where('submitted_by', $request->get('submitted_by'));
+                                        $issues = $issues->where('created_by', $request->get('submitted_by'));
                                     }
                                 }
                             }
@@ -433,12 +433,15 @@ class DevelopmentController extends Controller
         }
         $issues = $issues->paginate(Setting::get('pagination'));
 
+        $priority  = \App\ErpPriority::where('model_type', '=', Issue::class)->pluck('model_id')->toArray();
+
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
             'modules' => $modules,
             'request' => $request,
-            'title' => $type
+            'title' => $type,
+            'priority' => $priority
         ]);
 
 
