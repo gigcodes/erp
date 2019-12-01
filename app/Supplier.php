@@ -15,7 +15,7 @@ class Supplier extends Model
     ];
 
     protected $fillable = [
-        'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id', 'scraper_name', 'supplier_status_id','is_blocked','inventory_lifetime'
+        'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id', 'scraper_name', 'supplier_status_id','is_blocked','inventory_lifetime' , 'scraper_total_urls' , 'scraper_existing_urls' , 'scraper_new_urls'
     ];
 
     public function agents()

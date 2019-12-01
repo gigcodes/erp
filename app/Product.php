@@ -104,15 +104,26 @@ class Product extends Model
                     }
                 }
 
+                //Check if its json
+                if(isset($json->properties[ 'size' ]) && is_array(json_decode($json->properties[ 'size' ], true))){
+                    
+                    $json->properties[ 'size' ] = json_decode($json->properties[ 'size' ]);
+                }
+                
                 // Add sizes to the product
                 if (isset($json->properties[ 'size' ]) && is_array($json->properties[ 'size' ]) && count($json->properties[ 'size' ]) > 0) {
                     // Implode the keys
-                    $product->size = implode(',', array_keys($json->properties[ 'size' ]));
+                    $product->size = implode(',', array_values($json->properties[ 'size' ]));
 
                     // Replace texts in sizes
                     $product->size = ProductHelper::getRedactedText($product->size, 'composition');
+                    
                 }
 
+                if(isset($json->properties[ 'size' ]) && $json->properties[ 'size' ] != null){
+                    $product->size = $json->properties[ 'size' ];
+                }
+                
                 // Set product values
                 $product->lmeasurement = isset($json->properties[ 'lmeasurement' ]) && $json->properties[ 'lmeasurement' ] > 0 ? $json->properties[ 'lmeasurement' ] : null;
                 $product->hmeasurement = isset($json->properties[ 'hmeasurement' ]) && $json->properties[ 'hmeasurement' ] > 0 ? $json->properties[ 'hmeasurement' ] : null;
@@ -122,6 +133,7 @@ class Product extends Model
                 $product->price_special = $formattedPrices[ 'price_special' ];
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->save();
+                
                 if ($product) {
                     if ($isExcel == 1) {
                         if(!$product->hasMedia(\Config('constants.excelimporter'))){
