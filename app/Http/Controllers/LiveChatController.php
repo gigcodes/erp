@@ -210,34 +210,36 @@ class LiveChatController extends Controller
             $password = \Config('livechat.password');
 			$chatId = $request->id;
 			$message = $request->message;
-			// $chatId = 'Q1RREQQMC2';
-			// $message = "Hello";
-		    
+			
+			//Get Thread ID From Customer Live Chat
+			$customer = CustomerLiveChat::where('customer_id',$chatId)->first();
+			
+			if($customer != '' && $customer != null){
+				$thread = $customer->thread;
+				
+			}else{
+				return response()->json([
+            	'status' => 'errors'
+        		]);
+			}
+			$post = array('chat_id' => $thread,'event' => array('type' => 'message','text' => $message,'recipients' => 'all',));
+		    $post = json_encode($post);
+			
 			$curl = curl_init();
 
 			curl_setopt_array($curl, array(
-			  CURLOPT_URL => "https://api.livechatinc.com/v3.1/agent/action/send_event",
-			  CURLOPT_RETURNTRANSFER => true,
-			  CURLOPT_ENCODING => "",
-			  CURLOPT_MAXREDIRS => 10,
-			  CURLOPT_TIMEOUT => 30,
-			  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-			  CURLOPT_CUSTOMREQUEST => "POST",
-			  CURLOPT_POSTFIELDS => "{\n    \"chat_id\": \"'.$chatId.'\",\n    \"event\": {\n        \"type\": \"message\",\n        \"text\": \"'.$message.'\",\n        \"recipients\": \"all\"\n    }\n}",
-			  CURLOPT_HTTPHEADER => array(
-			    "Accept: */*",
-			    "Accept-Encoding: gzip, deflate",
-			    "Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
-			    "Cache-Control: no-cache",
-			    "Connection: keep-alive",
-			    "Content-Length: 138",
-			    "Content-Type: application/json",
-			    "Cookie: AASID=AA2-DAL05",
-			    "Host: api.livechatinc.com",
-			    "Postman-Token: 0841f598-e960-4303-9761-959cc286b909,437a3366-d219-488b-a687-7ff526020a8b",
-			    "User-Agent: PostmanRuntime/7.20.1",
-			    "cache-control: no-cache"
-			  ),
+			CURLOPT_URL => "https://api.livechatinc.com/v3.1/agent/action/send_event",
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => "",
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => "POST",
+			CURLOPT_POSTFIELDS => "$post",
+			CURLOPT_HTTPHEADER => array(
+				"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
+				"Content-Type: application/json",
+			),
 			));
 
 			$response = curl_exec($curl);
@@ -246,8 +248,7 @@ class LiveChatController extends Controller
 			curl_close($curl);
 
 			if ($err) {
-				dd('dss');
-			  return response()->json([
+				return response()->json([
             	'status' => 'errors'
         		]);
 			} else {
@@ -261,7 +262,6 @@ class LiveChatController extends Controller
             			'status' => 'success'
         			]);
 				}
-			  
 			}
 	}
 
