@@ -269,8 +269,8 @@ class BroadcastController extends Controller
             $numberWithCount = [];
 
             // Get Whatsapp number with lowest customer count
-            $whatsappConfigs = WhatsappConfig::where('is_customer_support', 0)->get();
-
+            $whatsappConfigs = WhatsappConfig::where('is_customer_support', 0)->where('status',1)->get();
+            
             // Check if we have results
             if ($whatsappConfigs != null && count($whatsappConfigs) > 0) {
                 // Set temp minimum value
