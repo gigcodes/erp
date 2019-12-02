@@ -173,7 +173,7 @@
                                 <option>Select Sim Card Type</option>
                                 <option value="0"  @if($whatsAppConfig->sim_card_type == 0) selected @endif>Pre Paid</option>
                                 <option value="1"  @if($whatsAppConfig->sim_card_type == 1) selected @endif>Post Paid</option>
-                             </select>   
+                             </select>
                             @if ($errors->has('status'))
                             <div class="alert alert-danger">{{$errors->first('status')}}</div>
                             @endif
@@ -199,8 +199,8 @@
                                 <option>Select Status</option>
                                 <option value="1" @if($whatsAppConfig->status == 1) selected @endif>Active</option>
                                 <option value="2" @if($whatsAppConfig->status == 2) selected @endif>Blocked</option>
-                                <option value="3" @if($whatsAppConfig->status == 0) selected @endif>InActive</option>
-                             </select>   
+                                <option value="3" @if($whatsAppConfig->status == 0) selected @endif>Inactive</option>
+                             </select>
                             @if ($errors->has('status'))
                             <div class="alert alert-danger">{{$errors->first('status')}}</div>
                             @endif

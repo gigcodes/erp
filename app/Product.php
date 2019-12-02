@@ -104,13 +104,22 @@ class Product extends Model
                     }
                 }
 
+                //Check if its json
+                if (isset($json->properties[ 'size' ]) && is_array($json->properties[ 'size' ])) {
+                    $json->properties[ 'size' ] = implode(',', $json->properties[ 'size' ]);
+                }
+
                 // Add sizes to the product
                 if (isset($json->properties[ 'size' ]) && is_array($json->properties[ 'size' ]) && count($json->properties[ 'size' ]) > 0) {
                     // Implode the keys
-                    $product->size = implode(',', array_keys($json->properties[ 'size' ]));
+                    $product->size = implode(',', array_values($json->properties[ 'size' ]));
 
                     // Replace texts in sizes
                     $product->size = ProductHelper::getRedactedText($product->size, 'composition');
+
+                } elseif (isset($json->properties[ 'size' ]) && $json->properties[ 'size' ] != null) {
+                    $product->size = $json->properties[ 'size' ];
+
                 }
 
                 // Set product values
@@ -122,9 +131,10 @@ class Product extends Model
                 $product->price_special = $formattedPrices[ 'price_special' ];
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->save();
+
                 if ($product) {
                     if ($isExcel == 1) {
-                        if(!$product->hasMedia(\Config('constants.excelimporter'))){
+                        if (!$product->hasMedia(\Config('constants.excelimporter'))) {
                             foreach ($json->images as $image) {
                                 try {
                                     $jpg = \Image::make($image)->encode('jpg');
@@ -138,7 +148,7 @@ class Product extends Model
                                 $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
                                 $product->attachMedia($media, config('constants.excelimporter'));
                             }
-                        }    
+                        }
                     }
 
                 }

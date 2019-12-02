@@ -370,8 +370,9 @@
                                       <th width="15%">Task Subject</th>
                                       {{-- <th width="5%">Est Completion Date</th> --}}
                                       <th width="5%" colspan="2">From / To</th>
+                                      <th width="5%">Estimate Minute</th>
                                       {{-- <th width="5%">Assigned To</th> --}}
-                                      <th width="25%">Communication</th>
+                                      <th width="20%">Communication</th>
                                       <th width="20%">Send Message</th>
                                       {{-- <th>Remarks</th> --}}
                                       <th width="10%">Action</th>
@@ -471,7 +472,17 @@
                                           {{ $users_list }}
                                         </span>
                                       </td>
+                                      <td>
+                                        @if(auth()->user()->isAdmin() || auth()->user()->id == $task->assign_from)
+                                            {{$task->approximate}}
+                                        @endif
 
+                                        @if(auth()->user()->id == $task->assign_to)
+                                          <input type="text" class="update_approximate" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
+                                          <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
+                                        @endif
+
+                                      </td>
                                       <td class="expand-row table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
                                         {{-- ($task->message && $task->message_status == 0 && $task->message_user_id != Auth::id()) --}}
                                         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
@@ -587,6 +598,7 @@
                                     <th width="5%">Reccuring</th>
                                     {{-- <th width="5%">Assigned To</th> --}}
                                     {{-- <th width="5%">Remark</th> --}}
+                                    <th width="5%">Estimate Minute</th>
                                     <th width="20%">Communication</th>
                                     <th width="20%">Send Message</th>
                                     {{-- <th width="5%">Completed at</th> --}}
@@ -686,7 +698,17 @@
                                     <td class="p-2">
                                       {{ strlen($task->recurring_type) > 6 ? substr($task->recurring_type, 0, 6) : $task->recurring_type }}
                                     </td>
+                                    <td>
+                                        @if(auth()->user()->isAdmin() || auth()->user()->id == $task->assign_from)
+                                            {{$task->approximate}}
+                                        @endif
 
+                                        @if(auth()->user()->id == $task->assign_to)
+                                          <input type="text" class="update_approximate" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
+                                          <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
+                                        @endif
+
+                                    </td>
                                     <td class="expand-row table-hover-cell p-2 {{ $task->message && $task->message_status == 0 ? 'text-danger' : '' }}">
                                       @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                         @if (isset($task->message))
@@ -1068,6 +1090,7 @@
                                     <th width="15%">Subject</th>
                                     <th width="69%">Task</th>
                                     <th width="5%">Submitted By</th>
+                                    <th width="2%">Action</th>
                                 </tr>
                                 <tbody class="show_task_priority">
                                     
@@ -1135,10 +1158,13 @@
                         html += '<td>'+task.task_subject+'</td>';
                         html += '<td>'+task.task_details+'</td>';
                         html += '<td>'+task.created_by+'</td>';
+                        html += '<td><a href="javascript:;" class="delete_priority" data-id="'+task.id+'">Remove<a></td>';
                      html += '</tr>';
                 });
                 $( ".show_task_priority" ).html(html);
-                $( ".show_task_priority" ).sortable();
+                <?php if (auth()->user()->isAdmin()) { ?>
+                  $( ".show_task_priority" ).sortable();
+                <?php } ?>
             },
             error: function () {
                 alert('There was error loading priority task list data');
@@ -1146,10 +1172,20 @@
         });
     }
 
+    $(document).on('click', '.delete_priority', function (e) {
+        var id = $(this).data('id');
+        $('input[value ="'+id+'"]').prop('checked', false);
+        $(this).closest('tr').remove();
+    });
+
     $('.priority_model_btn').click(function(){
         $( "#priority_user_id" ).val('0');
         $( ".show_task_priority" ).html('');
-        getPriorityTaskList('{{auth()->user()->id}}');
+        <?php if (auth()->user()->isAdmin()) { ?>
+          getPriorityTaskList($('#priority_user_id').val());
+        <?php } else { ?>
+          getPriorityTaskList('{{auth()->user()->id}}');
+        <?php } ?>
         $('#priority_model').modal('show');
     })
 
@@ -2363,5 +2399,32 @@
 
              })
           });
+        $('.update_approximate').keypress(function (e) {
+            var key = e.which;
+            var thiss = $(this);
+            if (key == 13) {
+                e.preventDefault();
+                var approximate = $(thiss).val();
+                var task_id = $(thiss).data('id');
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('task.update.approximate') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        approximate: approximate,
+                        task_id: task_id
+                    }
+                }).done(function () {
+                    $(thiss).closest('td').find('.update_approximate_msg').fadeIn(400);
+                    setTimeout(function () {
+                      $(thiss).closest('td').find('.update_approximate_msg').fadeOut(400);
+                    }, 2000);
+
+                }).fail(function (response) {
+                    alert('Could not update!!');
+                });
+            }
+        });
   </script>
 @endsection
