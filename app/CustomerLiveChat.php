@@ -12,7 +12,7 @@ class CustomerLiveChat extends Model
      *
      * @var array
      */
-    protected $fillable = ['customer_id','thread'];
+    protected $fillable = ['customer_id','thread','status','seen'];
 
 
     public function customer(){

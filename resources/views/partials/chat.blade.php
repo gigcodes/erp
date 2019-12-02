@@ -214,6 +214,15 @@
 		cursor: pointer;
 		background-color: rgba(0,0,0,0.2);
 	}
+	.new_message_icon{
+		height: 15px;
+    	width: 15px;
+    	background-color: skyblue;
+    	border-radius: 50%;
+    	bottom: 0.2em;
+    	right: 0.4em;
+    	border: 1.5px solid white;
+	}
 	@media(max-width: 576px){
 	.contacts_card{
 		margin-bottom: 15px !important;
@@ -226,17 +235,23 @@
 
 <script>
 
-function getChats(id){
+setInterval(function(){
+ getChatsWithoutRefresh();
+ getUserList();
+ }, 50000);
 
-    $.ajax({
+function getChats(id){
+	
+	$.ajax({
     	url: "{{ route('livechat.get.message') }}",
     	type: 'POST',
     	dataType: 'json',
     	data: { id : id ,   _token: "{{ csrf_token() }}" },
     })
     .done(function(data) {
-        $('#message-recieve').empty().html(data);
-        $('#message-id').val(id);
+        $('#message-recieve').empty().html(data.data.message);
+        $('#message-id').val(data.data.id);
+		$('#new_message_count').text(data.data.count);
         console.log("success");
     })
     .fail(function() {
@@ -246,9 +261,52 @@ function getChats(id){
 
 }
 
+
+function getChatsWithoutRefresh(){
+	var scrolled=0;
+	$.ajax({
+		url: "{{ route('livechat.message.withoutrefresh') }}",
+		type: 'POST',
+		dataType: 'json',
+		data: { _token: "{{ csrf_token() }}" },
+	})
+	.done(function(data) {
+		 $('#message-recieve').empty().html(data.data.message);
+		 $('#message-id').val(data.data.id);
+		 $('#new_message_count').text(data.data.count);
+		 scrolled=scrolled+300;
+         $(".cover").animate({
+			scrollTop:  scrolled
+		 });
+		console.log(data);
+	})
+	.fail(function() {
+		console.log("error");
+	});
+}
+
+function getUserList(){
+	$.ajax({
+		url: "{{ route('livechat.get.userlist') }}",
+		type: 'POST',
+		dataType: 'json',
+		data: { _token: "{{ csrf_token() }}" },
+	})
+	.done(function(data) {
+		 $('#customer-list').empty().html(data.data.message);
+		 $('#new_message_count').text(data.data.count);
+		 console.log(data);
+	})
+	.fail(function() {
+		console.log("error");
+	});
+
+}
+
 function sendMessage(){
     id = $('#message-id').val();
 	message = $('#message').val();
+	var scrolled=0;
     $.ajax({
     	url: "{{ route('livechat.send.message') }}",
     	type: 'POST',
@@ -262,6 +320,11 @@ function sendMessage(){
        console.log(data);
 		chat_message = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'+message+'<span class="msg_time"></span></div></div>';
 		$('#message-recieve').append(chat_message);
+		$('#message').val('');
+		scrolled=scrolled+300;
+        $(".cover").animate({
+			scrollTop:  scrolled
+		});
 	})
     .fail(function() {
     	alert('Chat Not Active');

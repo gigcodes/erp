@@ -1335,23 +1335,25 @@
 					</div>
 					<div class="card-body contacts_body">
                         @php 
-                            $chatIds = \App\CustomerLiveChat::all();
+                            $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
+                            $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                         @endphp
-						<ul class="contacts">
+						<ul class="contacts" id="customer-list">
                         @foreach ($chatIds as $chatId)
                             @php 
                                $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
                             @endphp
                             <li onclick="getChats('{{ $customer->id }}')">
 							<div class="d-flex bd-highlight">
-								<div class="img_cont">
+                                <div class="img_cont">
 									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
 									<span class="online_icon @if($chatId->status == 0) offline @endif "></span>
 								</div>
 								<div class="user_info">
                                      <span>{{  $customer->name }}</span>
 									<p>{{  $customer->name }} is  @if($chatId->status == 0) offline @else online @endif </p>
-								</div>
+                                </div>
+                                @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
 							</div>
 						</li>
                             
@@ -1410,7 +1412,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <button class="chat-button"><img src="/images/chat.png" class="img-responsive" /><span>1</span></button>
+            <button class="chat-button"><img src="/images/chat.png" class="img-responsive" /><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
         </div>
     </div>
 @endif

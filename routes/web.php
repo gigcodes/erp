@@ -13,7 +13,9 @@
 
 Auth::routes();
 
-Route::get('/test/test', 'LiveChatController@sendMessage');
+Route::get('/test/test', function(){
+    dd(session()->all());
+});
 //Route::get('/test/test','TestController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
@@ -820,7 +822,9 @@ Route::post('exotel/recordingCallback', 'ExotelController@recordingCallback');
 
 Route::post('livechat/incoming','LiveChatController@incoming');
 Route::post('livechat/getChats','LiveChatController@getChats')->name('livechat.get.message');
+Route::post('livechat/getChatsWithoutRefresh','LiveChatController@getChatMessagesWithoutRefresh')->name('livechat.message.withoutrefresh');
 Route::post('livechat/sendMessage','LiveChatController@sendMessage')->name('livechat.send.message');
+Route::post('livechat/getUserList','LiveChatController@getUserList')->name('livechat.get.userlist');
 
 /* ---------------------------------------------------------------------------------- */
 

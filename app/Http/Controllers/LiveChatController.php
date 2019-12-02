@@ -82,6 +82,11 @@ class LiveChatController extends Controller
 				//Check if customer which has this id
 				$customerLiveChat = CustomerLiveChat::where('thread',$chatId)->first();
 				
+				//update to not seen
+				if($customerLiveChat != '' && $customerLiveChat != null){
+					$customerLiveChat->seen = 0;
+					$customerLiveChat->update();
+				}
 				if($chatDetails->event->type == 'message'){
 					
 					$message = $chatDetails->event->text;
@@ -152,13 +157,14 @@ class LiveChatController extends Controller
 					if($customerLiveChat != '' && $customerLiveChat != null){
 						$customerLiveChat->thread = null;
 						$customerLiveChat->status = 0;
+						$customerLiveChat->seen = 1;
 						$customerLiveChat->update();
 					}
 				}
 				
 				// Add to chat_messages if we have a customer
 			}
-
+			
 			if($receivedJson->action == 'incoming_chat_thread'){
 				$chat = $receivedJson->payload->chat;
 				$chatId = $chat->id;
@@ -178,11 +184,13 @@ class LiveChatController extends Controller
 						$customerChatId->customer_id = $customer->id;
 						$customerChatId->thread = $chatId;
 						$customerChatId->status = 1;
+						$customerChatId->seen = 0;
 						$customerChatId->save();
 					}else{
 						$chatID->customer_id = $customer->id;
 						$chatID->thread = $chatId;
 						$chatID->status = 1;
+						$customerChatId->seen = 0;
 						$chatID->update();
 					}
 				}else{
@@ -197,9 +205,24 @@ class LiveChatController extends Controller
 					$customerChatId->customer_id = $customer->id;
 					$customerChatId->thread = $chatId;
 					$customerChatId->status = 1;
+					$customerChatId->seen = 0;
 					$customerChatId->save();
 
 				}
+			}
+
+			if($receivedJson->action == 'thread_closed'){
+				$chatId = $receivedJson->payload->chat_id;
+				
+				$customerLiveChat = CustomerLiveChat::where('thread',$chatId)->first();
+				
+					if($customerLiveChat != '' && $customerLiveChat != null){
+						$customerLiveChat->thread = null;
+						$customerLiveChat->status = 0;
+						$customerLiveChat->seen = 1;
+						$customerLiveChat->update();
+						
+					}
 			}
 		}
 		
@@ -269,16 +292,91 @@ class LiveChatController extends Controller
 	{
 		$chatId = $request->id;
 
+		//put session 
+		session()->put('chat_customer_id', $chatId);
+		//update chat has been seen
+		$customer = CustomerLiveChat::where('customer_id',$chatId)->first();
+
+		if($customer != '' && $customer != null){
+			$customer->seen = 1;
+			$customer->update();
+		}
+
 		$messages = ChatMessage::where('customer_id',$chatId)->where('message_application_id',2)->get();
 		
-		foreach ($messages as $message) {
+		if(count($messages) != 0){
+			foreach ($messages as $message) {
 			if($message->user_id != 0){
 				$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
 			}else{
 				$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
 			}
+			}
+
+		}
+		
+		if(!isset($messagess)){
+				$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">New Customer For Chat<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime(now()))->diffForHumans().'</span></div></div>';
 		}
 
-		return $messagess;
+		$count = CustomerLiveChat::where('seen',0)->count();
+		
+		return response()->json([
+						'status' => 'success',
+						'data' => array('id' => $chatId ,'count' => $count, 'message' => $messagess),
+        			]);
+	}
+	
+	public function getChatMessagesWithoutRefresh()
+	{
+		if(session()->has('chat_customer_id'))
+		{
+			$chatId = session()->get('chat_customer_id');
+			$messages = ChatMessage::where('customer_id',$chatId)->where('message_application_id',2)->get();
+		
+			foreach ($messages as $message) {
+				if($message->user_id != 0){
+					$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
+				}else{
+					$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
+				}
+			}
+			$count = CustomerLiveChat::where('seen',0)->count();
+			return response()->json([
+						'status' => 'success',
+						'data' => array('id' => $chatId, 'message' => $messagess , 'count' => $count),
+        			]);
+		}else{
+			return response()->json([
+            			'status' => 'errors'
+        			]);
+		}
+	}
+	
+	public function getUserList(){
+		$liveChatCustomers = CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
+
+		foreach($liveChatCustomers as $liveChatCustomer){
+			$customer = Customer::where('id',$liveChatCustomer->customer_id)->first();
+			if($liveChatCustomer->status == 0){
+				$customers[] = '<li onclick="getChats('.$customer->id.')"><div class="d-flex bd-highlight"><div class="img_cont"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"><span class="online_icon offline"></span>
+								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is offline</p></div></div></li>';
+			}elseif($liveChatCustomer->status == 1 && $liveChatCustomer->seen == 0){
+				$customers[] = '<li onclick="getChats('.$customer->id.')"><div class="d-flex bd-highlight"><div class="img_cont"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"><span class="online_icon"></span>
+								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is online</p></div><span class="new_message_icon"></span></div></li>';
+			}else{
+				$customers[] = '<li onclick="getChats('.$customer->id.')"><div class="d-flex bd-highlight"><div class="img_cont"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"><span class="online_icon"></span>
+								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is online</p></div></div></li>';
+			}
+		}
+
+		//Getting chat counts 
+		$count = CustomerLiveChat::where('seen',0)->count();
+		
+		return response()->json([
+						'status' => 'success',
+						'data' => array('count' => $count, 'message' => $customers),
+        			]);
+		
 	}
 }
