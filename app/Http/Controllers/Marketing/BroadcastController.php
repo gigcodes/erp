@@ -415,7 +415,12 @@ class BroadcastController extends Controller
 
         if (request('custom_date') != null) {
             $range = explode(' - ', request('custom_date'));
-            $query->whereBetween('created_at', [$range[0], end($range)]);
+            if($range[0] == end($range)){
+                $query->whereDate('created_at', $range[0]);
+            }else{
+                $query->whereBetween('created_at', [$range[0], end($range)]);
+            }
+            
         }
 
         $count = $query->whereNull('remark')->count();
