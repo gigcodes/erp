@@ -1327,10 +1327,10 @@
                     <div class="card mb-sm-3 mb-md-0 contacts_card">
 					<div class="card-header">
 						<div class="input-group">
-							<input type="text" placeholder="Search..." name="" class="form-control search">
+							{{-- <input type="text" placeholder="Search..." name="" class="form-control search">
 							<div class="input-group-prepend">
 								<span class="input-group-text search_btn"><i class="fa fa-search"></i></span>
-							</div>
+							</div> --}}
 						</div>
 					</div>
 					<div class="card-body contacts_body">
@@ -1342,15 +1342,15 @@
                             @php 
                                $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
                             @endphp
-                            <li onclick="getChats('{{ $chatId->thread }}')">
+                            <li onclick="getChats('{{ $customer->id }}')">
 							<div class="d-flex bd-highlight">
 								<div class="img_cont">
 									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
-									<span class="online_icon" @if($chatId->status == 0) offline @endif></span>
+									<span class="online_icon @if($chatId->status == 0) offline @endif "></span>
 								</div>
 								<div class="user_info">
                                      <span>{{  $customer->name }}</span>
-									<p>Kalid is  @if($chatId->status == 0) offline @else online @endif </p>
+									<p>{{  $customer->name }} is  @if($chatId->status == 0) offline @else online @endif </p>
 								</div>
 							</div>
 						</li>
@@ -1367,11 +1367,11 @@
 							<div class="d-flex bd-highlight">
 								<div class="img_cont">
 									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
-									<span class="online_icon"></span>
+									
 								</div>
 								<div class="user_info">
-									<span>Chat with Khalid</span>
-									<p>1767 Messages</p>
+									{{-- <span>Chat with Khalid</span>
+									<p>1767 Messages</p> --}}
 								</div>
 								<div class="video_cam">
 									<span><i class="fa fa-video"></i></span>
@@ -1380,33 +1380,16 @@
 							</div>
 							<span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
 							<div class="action_menu">
-								<ul>
+								{{-- <ul>
 									<li><i class="fa fa-user-circle"></i> View profile</li>
 									<li><i class="fa fa-users"></i> Add to close friends</li>
 									<li><i class="fa fa-plus"></i> Add to group</li>
 									<li><i class="fa fa-ban"></i> Block</li>
-								</ul>
+								</ul> --}}
 							</div>
                         </div>
                         <div class="card-body msg_card_body" id="message-recieve">
-                            <div class="d-flex justify-content-start mb-4">
-								<div class="img_cont_msg">
-									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg">
-								</div>
-								<div class="msg_cotainer">
-									Hi, how are you samim?
-									<span class="msg_time">8:40 AM, Today</span>
-								</div>
-                            </div>
-                            <div class="d-flex justify-content-end mb-4">
-								<div class="msg_cotainer_send">
-									Hi Khalid i am good tnx how about you?
-									<span class="msg_time_send">8:55 AM, Today</span>
-								</div>
-								<div class="img_cont_msg">
-							<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg">
-								</div>
-							</div>
+                            
                         </div>
                         <div class="card-footer">
 							<div class="input-group">
@@ -1414,9 +1397,9 @@
 									<span class="input-group-text attach_btn"><i class="fa fa-paperclip"></i></span>
                                 </div>
                                 <input type="hidden" id="message-id"/>
-								<textarea name="" class="form-control type_msg" placeholder="Type your message..."></textarea>
+								<textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
 								<div class="input-group-append">
-									<span class="input-group-text send_btn" onclick="sendMessage()"><i class="fas fa-location-arrow"></i></span>
+									<span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
 								</div>
 							</div>
 						</div>

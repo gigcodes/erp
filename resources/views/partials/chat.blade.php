@@ -43,11 +43,12 @@
 		.type_msg{
 			background-color: white !important;
 			border:0 !important;
-			color:white !important;
+			color:black !important;
 			height: 60px !important;
 			overflow-y: auto;
 		}
 			.type_msg:focus{
+			color : black !important;	
 		     box-shadow:none !important;
            outline:0px !important;
 		}
@@ -247,19 +248,23 @@ function getChats(id){
 
 function sendMessage(){
     id = $('#message-id').val();
+	message = $('#message').val();
     $.ajax({
     	url: "{{ route('livechat.send.message') }}",
     	type: 'POST',
     	dataType: 'json',
-    	data: { id : id ,   _token: "{{ csrf_token() }}" },
+    	data: { id : id ,
+			message : message,
+		   _token: "{{ csrf_token() }}" 
+		   },
     })
     .done(function(data) {
-       // $('#message-recieve').empty().html(data);
-       // $('#message-id').val(id);
-        console.log("success");
-    })
+       console.log(data);
+		chat_message = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'+message+'<span class="msg_time"></span></div></div>';
+		$('#message-recieve').append(chat_message);
+	})
     .fail(function() {
-    	console.log("error");
+    	alert('Chat Not Active');
     });
 }
 

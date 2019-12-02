@@ -10596,7 +10596,7 @@ a.text-dark:focus {
 .chat-button-wrapper {
     position: fixed;
     top: 1em;
-    right: 2em;
+    left: 2em;
     z-index: 9999;
     width: 70%;
 }

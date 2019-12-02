@@ -269,14 +269,16 @@ class LiveChatController extends Controller
 	{
 		$chatId = $request->id;
 
-		$messages = ChatMessage::where('unique_id',$chatId)->get();
-
+		$messages = ChatMessage::where('customer_id',$chatId)->where('message_application_id',2)->get();
+		
 		foreach ($messages as $message) {
-			//dd($message->message);
-			$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">8:40 AM, Today</span></div></div>';
+			if($message->user_id != 0){
+				$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
+			}else{
+				$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
+			}
 		}
 
 		return $messagess;
 	}
 }
-
