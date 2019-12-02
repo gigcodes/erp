@@ -10,6 +10,7 @@ use App\ChatMessage;
 use App\CustomerLiveChat;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
+use App\User;
 
 
 class LiveChatController extends Controller
@@ -51,7 +52,11 @@ class LiveChatController extends Controller
 				$phone = $detials[2];
 				//Check if customer exist 
 
-				$customer = Customer::where('email',$email)->first();	
+				$customer = Customer::where('email',$email)->first();
+				
+				if($customer == '' && $customer == null && $phone != ''){
+					$customer = Customer::where('phone',$phone)->first();
+				}	
 
 				//Save Customer
 				if($customer == null && $customer == ''){
@@ -78,8 +83,18 @@ class LiveChatController extends Controller
 				$customerLiveChat = CustomerLiveChat::where('thread',$chatId)->first();
 				
 				if($chatDetails->event->type == 'message'){
-
+					
 					$message = $chatDetails->event->text;
+					$author_id = $chatDetails->event->author_id;
+					
+					// Finding Agent 
+					$agent = User::where('email',$author_id)->first();
+					
+					if($agent != '' && $agent != null){
+						$userID = $agent->id;
+					}else{
+						$userID = null;
+					}
 					
 					$params = [
                     	'unique_id' => $chatDetails->chat_id,
@@ -87,33 +102,58 @@ class LiveChatController extends Controller
                     	'customer_id' => $customerLiveChat->customer_id,
                     	'approved' => 1,
                     	'status' => 2,
-                    	'is_delivered' => 1,
+						'is_delivered' => 1,
+						'user_id' => $userID,
+						'message_application_id' => 2,
 					];
 					
 					// Create chat message
                 	$chatMessage = ChatMessage::create($params);
-
+					
 				}
 
 				if($chatDetails->event->type == 'file'){
 					
+					$author_id = $chatDetails->event->author_id;
+					
+					// Finding Agent 
+					$agent = User::where('email',$author_id)->first();
+					
+					if($agent != '' && $agent != null){
+						$userID = $agent->id;
+					}else{
+						$userID = null;
+					}
+
 					//creating message
 					$params = [
                     	'unique_id' => $chatDetails->chat_id,
-                    	'customer_id' => 41,
+                    	'customer_id' => $customerLiveChat->customer_id,
                     	'approved' => 1,
                     	'status' => 2,
-                    	'is_delivered' => 1,
+						'is_delivered' => 1,
+						'user_id' => $userID,
+						'message_application_id' => 2,
 					];
 					
 					// Create chat message
 					$chatMessage = ChatMessage::create($params);
-					
+					$numberPath = substr($from, 0, 3) . '/' . substr($from, 3);
 					$url = $chatDetails->event->url;
 					$jpg = \Image::make($url)->encode('jpg');
 					$filename = $chatDetails->event->name;
-                    $media = MediaUploader::fromString($jpg)->toDirectory('/gallery/' . floor($chatMessage->id / 10000) . '/' . $chatMessage->id)->useFilename($filename)->upload();
+                    $media = MediaUploader::fromString($jpg)->toDirectory('/chat-messages/' . $numberPath)->useFilename($filename)->upload();
                     $chatMessage->attachMedia($media, config('constants.media_tags'));
+				}
+
+				if($chatDetails->event->type == 'system_message'){
+					
+					$customerLiveChat = CustomerLiveChat::where('thread',$chatId)->first();
+					if($customerLiveChat != '' && $customerLiveChat != null){
+						$customerLiveChat->thread = null;
+						$customerLiveChat->status = 0;
+						$customerLiveChat->update();
+					}
 				}
 				
 				// Add to chat_messages if we have a customer
@@ -128,23 +168,35 @@ class LiveChatController extends Controller
 				$userName = $chat->users[0]->name;
 				
 				$customer = Customer::where('email',$userEmail)->first();
+				
+				
 				if($customer != '' && $customer != null){
-
-					$customerChatId = new CustomerLiveChat;
-					$customerChatId->customer_id = $customer->id;
-					$customerChatId->thread = $chatId;
-					$customerChatId->save();
-
+					//Find if its has ID
+					$chatID = CustomerLiveChat::where('customer_id',$customer->id)->first();
+					if($chatID == null && $chatID == ''){
+						$customerChatId = new CustomerLiveChat;
+						$customerChatId->customer_id = $customer->id;
+						$customerChatId->thread = $chatId;
+						$customerChatId->status = 1;
+						$customerChatId->save();
+					}else{
+						$chatID->customer_id = $customer->id;
+						$chatID->thread = $chatId;
+						$chatID->status = 1;
+						$chatID->update();
+					}
 				}else{
 					$customer = new Customer;
 					$customer->name = $userName;
 					$customer->email = $userEmail;
+					$customer->phone = null;
 					$customer->save();
 
 					//Save Customer with Chat ID
 					$customerChatId = new CustomerLiveChat;
 					$customerChatId->customer_id = $customer->id;
 					$customerChatId->thread = $chatId;
+					$customerChatId->status = 1;
 					$customerChatId->save();
 
 				}
@@ -156,48 +208,61 @@ class LiveChatController extends Controller
 	public function sendMessage(Request $request){
 		    $login = \Config('livechat.account_id');
             $password = \Config('livechat.password');
-            $values = array('chat_id' => 'Q1RREQQMC2', 'event' => array('type' => 'message', 'text' => 'asdasd', 'recipients' => 'all'));
-		    $values = json_encode($values);
+			$chatId = $request->chatId;
+			$message = $request->message;
+			// $chatId = 'Q1RREQQMC2';
+			// $message = "Hello";
 		    
-            $curl = curl_init();
+			$curl = curl_init();
 
-            curl_setopt_array($curl, array(
-              CURLOPT_URL => "https://api.livechatinc.com/v3.1/agent/action/send_event",
-              CURLOPT_RETURNTRANSFER => true,
-              CURLOPT_ENCODING => "",
-              CURLOPT_MAXREDIRS => 10,
-              CURLOPT_TIMEOUT => 30,
-              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-              CURLOPT_CUSTOMREQUEST => "POST",
-              CURLOPT_POSTFIELDS => "$values",
-              CURLOPT_USERPWD, "$login:$password",
-              CURLOPT_HTTPHEADER => array(
-                "Accept: */*",
-                "Accept-Encoding: gzip, deflate",
-                "Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
-                "Cache-Control: no-cache",
-                "Connection: keep-alive",
-                "Content-Length: 2",
-                "Content-Type: application/json",
-                "Cookie: AASID=AA1-DAL10",
-                "Host: api.livechatinc.com",
-                "Postman-Token: 4cedf58b-a89a-4654-bb94-20ab2936060b,97c6a781-69d0-47a5-925e-527a02523144",
-                "User-Agent: PostmanRuntime/7.19.0",
-                "cache-control: no-cache"
-            ),
-            ));
+			curl_setopt_array($curl, array(
+			  CURLOPT_URL => "https://api.livechatinc.com/v3.1/agent/action/send_event",
+			  CURLOPT_RETURNTRANSFER => true,
+			  CURLOPT_ENCODING => "",
+			  CURLOPT_MAXREDIRS => 10,
+			  CURLOPT_TIMEOUT => 30,
+			  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			  CURLOPT_CUSTOMREQUEST => "POST",
+			  CURLOPT_POSTFIELDS => "{\n    \"chat_id\": \"'.$chatId.'\",\n    \"event\": {\n        \"type\": \"message\",\n        \"text\": \"'.$message.'\",\n        \"recipients\": \"all\"\n    }\n}",
+			  CURLOPT_HTTPHEADER => array(
+			    "Accept: */*",
+			    "Accept-Encoding: gzip, deflate",
+			    "Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
+			    "Cache-Control: no-cache",
+			    "Connection: keep-alive",
+			    "Content-Length: 138",
+			    "Content-Type: application/json",
+			    "Cookie: AASID=AA2-DAL05",
+			    "Host: api.livechatinc.com",
+			    "Postman-Token: 0841f598-e960-4303-9761-959cc286b909,437a3366-d219-488b-a687-7ff526020a8b",
+			    "User-Agent: PostmanRuntime/7.20.1",
+			    "cache-control: no-cache"
+			  ),
+			));
 
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
+			$response = curl_exec($curl);
+			$err = curl_error($curl);
 
-            curl_close($curl);
+			curl_close($curl);
 
-            if ($err) {
-              echo "cURL Error #:" . $err;
-            } else {
-			echo $response;
-		}
-		//Send File
+			if ($err) {
+				dd('dss');
+			  return response()->json([
+            	'status' => 'errors'
+        		]);
+			} else {
+				$response = json_decode($response);
+				if(isset($response->error)){
+					return response()->json([
+            			'status' => 'errors'
+        			]);
+				}else{
+					return response()->json([
+            			'status' => 'success'
+        			]);
+				}
+			  
+			}
 	}
 
 	public function getChats(Request $request)
