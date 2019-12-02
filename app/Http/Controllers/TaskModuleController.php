@@ -356,6 +356,13 @@ class TaskModuleController extends Controller {
 		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority'));
 	}
 
+	public function updateApproximate(Request $request) {
+		$task = Task::find($request->task_id);
+		$task->approximate = $request->approximate;
+		$task->save();
+		return response()->json(['msg' => 'success']);
+	}
+
 	public function taskListByUserId(Request $request)
     {
         $user_id = $request->get('user_id' , 0);
@@ -370,6 +377,8 @@ class TaskModuleController extends Controller {
 
         if (auth()->user()->isAdmin()) {
             $issues = $issues->whereIn('tasks.id', $request->get('selected_issue' , []));
+        } else {
+            $issues = $issues->whereNotNull('erp_priorities.id');
         }
 
         $issues = $issues->orderBy('erp_priorities.id')->get();

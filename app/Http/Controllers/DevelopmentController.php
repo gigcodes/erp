@@ -143,6 +143,8 @@ class DevelopmentController extends Controller
 
         if (auth()->user()->isAdmin()) {
             $issues = $issues->whereIn('developer_tasks.id', $request->get('selected_issue' , []));
+        } else {
+            $issues = $issues->whereNotNull('erp_priorities.id');
         }
 
         $issues = $issues->orderBy('erp_priorities.id')->get();
@@ -332,6 +334,8 @@ class DevelopmentController extends Controller
 
         if (auth()->user()->isAdmin()) {
             $issues = $issues->whereIn('issues.id', $request->get('selected_issue' , []));
+        }  else {
+            $issues = $issues->whereNotNull('erp_priorities.id');
         }
 
         $issues = $issues->orderBy('erp_priorities.id')->get();
