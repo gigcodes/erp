@@ -208,7 +208,7 @@ class LiveChatController extends Controller
 	public function sendMessage(Request $request){
 		    $login = \Config('livechat.account_id');
             $password = \Config('livechat.password');
-			$chatId = $request->chatId;
+			$chatId = $request->id;
 			$message = $request->message;
 			// $chatId = 'Q1RREQQMC2';
 			// $message = "Hello";
