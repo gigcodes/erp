@@ -107,7 +107,7 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Broadcast List ( {{ $customers->total() }} )</h2>
+            <h2 class="page-heading">Broadcast List (<span id="customer_count">{{ $customers->total() }}</span>) </h2>
             <div class="pull-left">
                 <form action="{{ route('broadcasts.index') }}" method="GET">
                     <div class="form-group">
@@ -785,6 +785,8 @@
                         $("#loading-image").hide();
                         console.log(data);
                         $("#customers-table tbody").empty().html(data.tbody);
+                        $("#customer_count").text(data.count);
+                        
                         if (data.links.length > 10) {
                             $('ul.pagination').replaceWith(data.links);
                         } else {
