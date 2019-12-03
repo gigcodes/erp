@@ -93,8 +93,8 @@
                     </div>
                     <div class="col-md-1">
                         <select name="order" id="order_query" class="form-control">
-                            <option value="">Order by priority</option>
-                            <option value="create">Order by date</option>
+                            <option {{$request->get('order')== "" ? 'selected' : ''}} value="">Order by priority</option>
+                            <option {{$request->get('order')== "create" ? 'selected' : ''}} value="create">Order by date</option>
                         </select>
                     </div>
                     @if($title == 'task')
@@ -169,6 +169,7 @@
                 <th width="5%">Est Completion Time</th>
                 <th width="5%">Submitted By  </th>
                 <th width="5%">Assigned To</th>
+                <th width="5%">Corrected By</th>
                 <th width="5%">Resolved</th>
                 <th width="5%">Cost</th>
             </tr>
@@ -237,6 +238,18 @@
 
                         <td>
                             <select class="form-control assign-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">
+                                <option value="">Select...</option>
+                                @foreach($users as $id=>$name)
+                                    @if( isset($issue->responsibleUser->id) && (int) $issue->responsibleUser->id == $id )
+                                        <option value="{{$id}}" selected>{{ $name }}</option>
+                                    @else
+                                        <option value="{{$id}}">{{ $name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-control set-responsible-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">
                                 <option value="">Select...</option>
                                 @foreach($users as $id=>$name)
                                     @if( isset($issue->assignedUser->id) && (int) $issue->assignedUser->id == $id )
@@ -690,9 +703,9 @@
             }
 
             $.ajax({
-                url: "{{action('DevelopmentController@assignResponsibleUser')}}",
+                url: "{{action('DevelopmentController@assignUser')}}",
                 data: {
-                    responsible_user_id: userId,
+                    user_id: userId,
                     issue_id: id
                 },
                 success: function () {
@@ -710,9 +723,9 @@
             }
 
             $.ajax({
-                url: "{{action('DevelopmentController@assignUser')}}",
+                url: "{{action('DevelopmentController@assignResponsibleUser')}}",
                 data: {
-                    user_id: userId,
+                    responsible_user_id: userId,
                     issue_id: id
                 },
                 success: function () {

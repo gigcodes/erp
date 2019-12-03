@@ -371,12 +371,43 @@ class DevelopmentController extends Controller
             $issues = DeveloperTask::where('task_type_id', '1');
         }
 
+        if ((int)$request->get('submitted_by') > 0) {
+            $issues = $issues->where('created_by', $request->get('submitted_by'));
+        }
+        if ((int)$request->get('responsible_user') > 0) {
+            $issues = $issues->where('responsible_user_id', $request->get('responsible_user'));
+        }
 
-        if (!empty($request->get('task_status')) && !empty($request->get('subject'))) {
+        if ((int)$request->get('corrected_by') > 0) {
+            $issues = $issues->where('user_id', $request->get('corrected_by'));
+        }
+
+        if ($request->get('module')) {
+            $issues = $issues->where('module_id', $request->get('module'));
+        }
+
+        if ($request->get('task_status')) {
+            $issues = $issues->where('status', $request->get('task_status'));
+        }
+
+        
+
+        if ($request->get('subject') != '') {
+            $issues = $issues->where(function ($query) use ($request) {
+                $subject = $request->get('subject');
+                $query->where('id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%");
+            });
+        }
+
+
+        /*if (!empty($request->get('task_status')) && !empty($request->get('subject'))) {
 
             $task_status = $request->get('task_status');
-            $issues = $issues->Where('subject', 'LIKE', "%$request->get('subject')%")
-                ->where('status', '=', $task_status);
+            $issues = $issues->Where(function($q) use ($request) {
+                $sub = $request->get('subject');
+                $q->where('subject', 'LIKE', "%{$sub}%");
+                $q->orWhere('id', 'LIKE', "%{$sub}%");
+            })->where('status', '=', $task_status);
 
         } else {
             if (!empty($request->get('task_status')) && !empty($request->get('module'))) {
@@ -392,7 +423,11 @@ class DevelopmentController extends Controller
                     if (!empty($request->get('subject'))) {
 
                         $subject = $request->get('subject');
-                        $issues = $issues->Where('subject', 'LIKE', "%$subject%");
+                        $issues = $issues->Where(function($q) use ($request) {
+                            $sub = $request->get('subject');
+                            $q->where('subject', 'LIKE', "%{$sub}%");
+                            $q->orWhere('id', 'LIKE', "%{$sub}%");
+                        });
 
                     } else {
                         if (!empty($request->get('task_status'))) {
@@ -415,7 +450,7 @@ class DevelopmentController extends Controller
                     }
                 }
             }
-        }
+        }*/
 
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
@@ -431,6 +466,7 @@ class DevelopmentController extends Controller
         } else {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
         }
+
         $issues = $issues->paginate(Setting::get('pagination'));
 
         $priority  = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
@@ -504,12 +540,12 @@ class DevelopmentController extends Controller
     {
         $user_id = $request->get('user_id' , 0);
 
-        $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
+        $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module','developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
                         ->leftJoin('erp_priorities', function($query){
                             $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
                             $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
                         })
-                        ->where('user_id', $user_id)
+                        ->where('responsible_user_id', $user_id)
                         ->where('is_resolved', '0');
 
         if (auth()->user()->isAdmin()) {
@@ -521,7 +557,7 @@ class DevelopmentController extends Controller
         $issues = $issues->orderBy('erp_priorities.id')->get();
 
         foreach ($issues as &$value) {
-            $value->module = $value->developerModule ? $issue->developerModule->name : 'Not Specified';
+            $value->module = $value->developerModule ? $value->developerModule->name : 'Not Specified';
             $value->submitted_by = ($value->submitter) ? $value->submitter->name : "";
         }
         unset($value);
@@ -533,7 +569,7 @@ class DevelopmentController extends Controller
     {
         $priority = $request->get('priority', null);
         //get all user task
-        $issues = DeveloperTask::where('user_id', $request->get('user_id', 0))->pluck('id')->toArray();
+        $issues = DeveloperTask::where('responsible_user_id', $request->get('user_id', 0))->pluck('id')->toArray();
         
         //delete old priority
         \App\ErpPriority::whereIn('model_id', $issues)->where('model_type', '=', DeveloperTask::class)->delete();
@@ -551,7 +587,7 @@ class DevelopmentController extends Controller
                                 $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
                                 $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
                             })
-                            ->where('user_id', $request->get('user_id', 0))
+                            ->where('responsible_user_id', $request->get('user_id', 0))
                             ->where('is_resolved', '0')
                             ->orderBy('erp_priorities.id')
                             ->get();
