@@ -179,7 +179,7 @@ class MagentoSoapHelper
                     'qty' => 1,
                     'is_in_stock' => 1,
                 ],
-                'price' => $product->price_inr, // Same price as configurable product, no price change
+                'price' => $product->price, // Same price as configurable product, no price change
                 'special_price' => $product->price_special,
                 'additional_attributes' => [
                     'single_data' => [
@@ -227,7 +227,7 @@ class MagentoSoapHelper
                 'qty' => 1,
                 'is_in_stock' => 1,
             ),
-            'price' => $product->price_inr, // Same price as configurable product, no price change
+            'price' => $product->price, // Same price as configurable product, no price change
             'special_price' => $product->price_special,
             'associated_skus' => $associatedSkus, // Simple products to associate
             'configurable_attributes' => array(155),
@@ -276,7 +276,7 @@ class MagentoSoapHelper
                 'qty' => 1,
                 'is_in_stock' => 1,
             ],
-            'price' => $product->price_inr,
+            'price' => $product->price,
             'special_price' => $product->price_special,
             'additional_attributes' => [
                 'single_data' => [
