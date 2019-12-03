@@ -834,6 +834,7 @@
                         $("#loading-image").hide();
                         console.log(data);
                         $("#customers-table tbody").empty().html(data.tbody);
+                        $("#customer_count").text(data.count);
                         if (data.links.length > 10) {
                             $('ul.pagination').replaceWith(data.links);
                         } else {
@@ -870,6 +871,7 @@
                 $("#loading-image").hide();
                 console.log(data);
                 $("#customers-table tbody").empty().html(data.tbody);
+                $("#customer_count").text(data.count);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
                 } else {
@@ -900,6 +902,7 @@
                 $("#loading-image").hide();
                 console.log(data);
                 $("#customers-table tbody").empty().html(data.tbody);
+                $("#customer_count").text(data.count);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
                 } else {
@@ -930,6 +933,7 @@
                 $("#loading-image").hide();
                 console.log(data);
                 $("#customers-table tbody").empty().html(data.tbody);
+                $("#customer_count").text(data.count);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
                 } else {
