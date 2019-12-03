@@ -40,7 +40,7 @@ class DevelopmentController extends Controller
         //  $this->middleware( 'permission:developer-tasks', [ 'except' => [ 'issueCreate', 'issueStore', 'moduleStore' ] ] );
     }
 
-    public function index_bkup(Request $request)
+    /*public function index_bkup(Request $request)
     {
         // Set required data
         $user = $request->user ?? Auth::id();
@@ -130,7 +130,7 @@ class DevelopmentController extends Controller
             'tasksTypes' => $tasksTypes,
             'priority' => $priority,
         ]);
-    }
+    }*/
 
     public function taskListByUserId(Request $request)
     {
@@ -433,7 +433,7 @@ class DevelopmentController extends Controller
         }
         $issues = $issues->paginate(Setting::get('pagination'));
 
-        $priority  = \App\ErpPriority::where('model_type', '=', Issue::class)->pluck('model_id')->toArray();
+        $priority  = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
         return view('development.issue', [
             'issues' => $issues,
@@ -521,7 +521,7 @@ class DevelopmentController extends Controller
         $issues = $issues->orderBy('erp_priorities.id')->get();
 
         foreach ($issues as &$value) {
-            $value->module = ($value->developerModule) ? $value->developerModule->name : "";
+            $value->module = $value->developerModule ? $issue->developerModule->name : 'Not Specified';
             $value->submitted_by = ($value->submitter) ? $value->submitter->name : "";
         }
         unset($value);
@@ -533,10 +533,10 @@ class DevelopmentController extends Controller
     {
         $priority = $request->get('priority', null);
         //get all user task
-        $issues = DeveloperTask::where('responsible_user_id', $request->get('user_id', 0))->pluck('id')->toArray();
+        $issues = DeveloperTask::where('user_id', $request->get('user_id', 0))->pluck('id')->toArray();
         
         //delete old priority
-        \App\ErpPriority::whereIn('model_id', $issues)->where('model_type', '=', Issue::class)->delete();
+        \App\ErpPriority::whereIn('model_id', $issues)->where('model_type', '=', DeveloperTask::class)->delete();
         
         if (!empty($priority)) {
             foreach ((array)$priority as $model_id) {
@@ -546,12 +546,12 @@ class DevelopmentController extends Controller
                 ]);
             }
 
-            $issues = DeveloperTask::select('issues.id', 'issues.module', 'issues.subject', 'issues.issue', 'issues.submitted_by')
+            $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
                             ->join('erp_priorities', function($query){
-                                $query->on('erp_priorities.model_id', '=', 'issues.id');
-                                $query->where('erp_priorities.model_type', '=', Issue::class);
+                                $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
+                                $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
                             })
-                            ->where('responsible_user_id', $request->get('user_id', 0))
+                            ->where('user_id', $request->get('user_id', 0))
                             ->where('is_resolved', '0')
                             ->orderBy('erp_priorities.id')
                             ->get();

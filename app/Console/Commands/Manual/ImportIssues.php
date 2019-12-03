@@ -5,6 +5,7 @@ namespace App\Console\Commands\Manual;
 use App\ChatMessage;
 use App\DeveloperTask;
 use App\Issue;
+use App\ErpPriority;
 use Illuminate\Console\Command;
 use App\SkuColorReferences;
 
@@ -84,6 +85,15 @@ class ImportIssues extends Command
                 $chat_msg->issue_id = $new_issue_id;
                 $chat_msg->save();
             }
+
+            // need to move priority as well
+            $priority = ErpPriority::where("model_id",$issue->id)->where("model_type" , Issue::class)->first();
+            if($priority) {
+                $priority->model_id = $new_issue_id;
+                $priority->model_type = DeveloperTask::class;
+                $priority->save();
+            }
+
             //$developer_task = DeveloperTask::insert($data);
         }
     }

@@ -589,7 +589,7 @@
                             html += '<td><input type="hidden" name="priority[]" value="'+issue.id+'">'+issue.id+'</td>';
                             html += '<td>'+issue.module+'</td>';
                             html += '<td>'+issue.subject+'</td>';
-                            html += '<td>'+issue.issue+'</td>';
+                            html += '<td>'+issue.task+'</td>';
                             html += '<td>'+issue.submitted_by+'</td>';
                             html += '<td><a href="javascript:;" class="delete_priority" data-id="'+issue.id+'">Remove<a></td>';
                          html += '</tr>';
