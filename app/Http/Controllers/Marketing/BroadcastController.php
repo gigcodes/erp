@@ -48,7 +48,7 @@ class BroadcastController extends Controller
                         });
                     }else{
                         $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
-                        $qu->where('active', 1)->whereBetween('created_at', [$range[0], end($range)]);
+                        $qu->whereBetween('created_at', [$range[0], end($range)])->where('active', 1);
                         });
                     }
                 }
@@ -517,29 +517,30 @@ class BroadcastController extends Controller
         
     }
 
-    public function getCustomerCountEnable($value='')
+    public function getCustomerCountEnable()
     {
          $query = CustomerMarketingPlatform::query();
-
-         if (request('count_date') != null) {
-            $query->whereDate('created_at', request('count_date'));
-        }
 
         if (request('custom_date') != null) {
             $range = explode(' - ', request('custom_date'));
             if($range[0] == end($range)){
-                $query->whereDate('created_at', $range[0]);
+                $query->whereDate('created_at', $range[0])->where('active', 1);
             }else{
-                $query->whereBetween('created_at', [$range[0], end($range)]);
+                $query->whereBetween('created_at', [$range[0], end($range)])->where('active', 1);
             }
             
         }
-
+        
         $count = $query->whereNull('remark')->count();
 
         return response()->json([
             'status' => 'success',
             'data' => $count,
         ]);
+    }
+    
+    public function infiniteScrollCustomer(Request $request){
+
+        
     }
 }

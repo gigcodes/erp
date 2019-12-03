@@ -295,6 +295,7 @@
                 <button type="button" class="btn btn-secondary" id="enable">Enable</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
             </div>
+            
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="customers-table">
             <thead>
@@ -351,15 +352,17 @@
             </thead>
 
             <tbody>
+                <div class="infinite-scroll">
                 {!! $customers->render() !!}
             @include('marketing.broadcasts.partials.data')
-              
+                </div>
             
             @include('marketing.broadcasts.partials.remark')
             </tbody>
         </table>
         {!! $customers->render() !!}
     </div>
+
 @include('marketing.broadcasts.partials.modal-merge')
 @include('marketing.broadcasts.partials.message')
 @include('marketing.broadcasts.partials.setting')
@@ -1352,5 +1355,25 @@
             $("#broadcastList"+id).hide();
         }
         
+       
+
+         
+        
+        $('ul.pagination').hide();
+            $(function() {
+            $('.infinite-scroll').jscroll({
+                autoTrigger: true,
+                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+                padding: 0,
+                nextSelector: '.pagination li.active + li a',
+                contentSelector: 'div.infinite-scroll',
+                callback: function() {
+                    $('ul.pagination').remove();
+                    alert('hello');
+                }
+        });
+    });
+
+
     </script>
 @endsection
