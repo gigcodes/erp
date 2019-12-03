@@ -352,23 +352,12 @@
 
             <tbody>
             @include('marketing.broadcasts.partials.data')
-            <?php
-            $query = http_build_query(Request::except('page'));
-            $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query . '&page=');
-            ?>
-            <div class="form-group position-fixed hidden-xs hidden-sm" style="top: 50px; left: 20px;">
-            Goto :
-            <select onchange="location.href = this.value;" class="form-control" id="page-goto">
-                @for($i = 1 ; $i <= $customers->lastPage() ; $i++ )
-                    <option value="{{ $query.$i }}" {{ ($i == $customers->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
-                @endfor
-            </select>
-    </div>    
-            {!! $customers->render() !!}
+              
+            
             @include('marketing.broadcasts.partials.remark')
             </tbody>
         </table>
-        {!! $customers->render() !!}
+        
     </div>
 @include('marketing.broadcasts.partials.modal-merge')
 @include('marketing.broadcasts.partials.message')

@@ -30,6 +30,8 @@ class BroadcastController extends Controller
     {
 
         if ($request->term || $request->total || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name || $request->customrange || $request->dnd) {
+            $terms =  $request->terms;
+            $total = $request->total;
             
             $query = Customer::query();
 
@@ -262,6 +264,11 @@ class BroadcastController extends Controller
             $endDate = '';
         }
         
+        if(isset($request->total)){
+            $total = $request->total;
+        }else{
+            $total = '';
+        }
         
         $customerBroadcastSend = Customer::whereNotNull('broadcast_number')->count();
         $customerBroadcastPending = Customer::whereNull('broadcast_number')->count();
@@ -271,7 +278,7 @@ class BroadcastController extends Controller
         $apiKeys = ApiKey::all();
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.broadcasts.partials.data', compact('customers', 'apiKeys', 'numbers','customerBroadcastSend','customerBroadcastPending','countDNDCustomers','totalCustomers'))->render(),
+                'tbody' => view('marketing.broadcasts.partials.data', compact('customers', 'apiKeys', 'numbers','customerBroadcastSend','customerBroadcastPending','countDNDCustomers','totalCustomers','total'))->render(),
                 'links' => (string)$customers->render()
             ], 200);
         }
@@ -287,6 +294,7 @@ class BroadcastController extends Controller
             'date' => $date,
             'startDate' => $startDate,
             'endDate' => $endDate,
+            'total' => $total,
         ]);
 
     }
