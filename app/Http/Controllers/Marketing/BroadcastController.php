@@ -29,11 +29,122 @@ class BroadcastController extends Controller
     public function index(Request $request)
     {
 
-        if ($request->term || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name || $request->customrange || $request->dnd) {
+        if ($request->term || $request->total || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name || $request->customrange || $request->dnd) {
             
             $query = Customer::query();
 
-            //global search term
+            //Total Result 
+            if (request('total') != null){
+                
+                //search with date
+                if(request('total') == 1 && request('customrange') != null){
+                    $range = explode(' - ', request('customrange'));
+                    if($range[0] == end($range)){
+                        //dd($range[0]);
+                        $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
+                            $qu->whereDate('created_at', end($range))->where('active', 1);
+                        });
+                    }else{
+                        $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
+                        $qu->where('active', 1)->whereBetween('created_at', [$range[0], end($range)]);
+                        });
+                    }
+                }
+                
+                elseif(request('total') == 1){
+                    $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($request) {
+                        $qu->where('active', 1);
+                    });
+                }
+                
+                 if(request('total') == 2 && request('customrange') != null){
+                    $range = explode(' - ', request('customrange'));
+                    if($range[0] == end($range)){
+                         $query->doesntHave('customerMarketingPlatformActive')->whereDate('created_at',end($range));
+                    }else{
+                         $query->doesntHave('customerMarketingPlatformActive')->whereBetween('created_at', [$range[0], end($range)]);
+                    }
+                }
+
+                if(request('total') == 2){
+                    $query->doesntHave('customerMarketingPlatformActive');
+                }
+               
+                if(request('total') == 3 && request('customrange') != null){
+                    $range = explode(' - ', request('customrange'));
+                    if($range[0] == end($range)){
+                        $query->where('do_not_disturb', 1)->whereDate('updated_at',end($range));
+                    }else{
+                        $query->where('do_not_disturb', 1)->whereBetween('updated_at', [$range[0], end($range)]);
+                    }
+                }
+
+                elseif(request('total') == 3){
+                    $query->where('do_not_disturb', 1);
+                }
+
+                if(request('total') == 4 && request('customrange') != null){
+                    $range = explode(' - ', request('customrange'));
+                    if($range[0] == end($range)){
+                        
+                        $query->whereHas('leads', function ($qu) use ($range) {
+                            $qu->whereDate('created_at', end($range));
+                        });
+
+                    }else{
+                        $query->whereHas('leads', function ($qu) use ($range) {
+                            $qu->whereBetween('created_at', [$range[0], end($range)]);
+                        });
+                    }
+                }
+
+                elseif(request('total') == 4){
+                    $query->whereHas('leads');
+                }
+
+                if(request('total') == 5 && request('customrange') != null){
+                    $range = explode(' - ', request('customrange'));
+                    if($range[0] == end($range)){
+                        
+                        $query->whereHas('orders', function ($qu) use ($range) {
+                            $qu->whereDate('created_at', end($range));
+                        });
+
+                    }else{
+                        $query->whereHas('orders', function ($qu) use ($range) {
+                            $qu->whereBetween('created_at', [$range[0], end($range)]);
+                        });
+                    }
+                }
+
+                elseif(request('total') == 5){
+                    $query->whereHas('orders');
+                }
+
+                if(request('total') == 6 && request('customrange') != null){
+                    $range = explode(' - ', request('customrange'));
+                    if($range[0] == end($range)){
+                        
+                        $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
+                            $qu->where('active', 1);
+                        })->where('broadcast_number',null)->whereDate('created_at', end($range));;
+
+                    }else{
+                        $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
+                           $qu->where('active', 1);
+                        })->where('broadcast_number',null)->whereBetween('created_at', [$range[0], end($range)]);
+                    }
+                }
+
+                elseif(request('total') == 6){
+                    $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($request) {
+                        $qu->where('active', 1);
+                    })->where('broadcast_number',null);
+                }
+
+            }     
+
+            // global search term
             if (request('term') != null) {
                 $query->where('whatsapp_number', 'LIKE', "%{$request->term}%")
                     ->orWhere('name', 'LIKE', "%{$request->term}%")
@@ -42,15 +153,6 @@ class BroadcastController extends Controller
                     })
                     ->orWhere('broadcast_number','LIKE', "%{$request->term}%");
                     
-            }
-
-            if (request('date') != null) {
-                $query->whereDate('created_at', request('date'));
-            }
-
-             if (request('customrange') != null) {
-                $range = explode(' - ', request('customrange'));
-                $query->whereBetween('created_at', [$range[0], end($range)]);
             }
 
             //if number is not null
@@ -84,9 +186,9 @@ class BroadcastController extends Controller
                     $qu->where('remark', 'LIKE', '%' . request('remark') . '%');
                 });
             }
-
-            $customers = $query->orderby('id', 'desc')->paginate(Setting::get('pagination'));
-
+            
+            $customers = $query->select('id', 'name','phone','broadcast_number','do_not_disturb','is_blocked' ,'whatsapp_number')->orderby('id', 'desc')->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
+           
         } else {
             //Order List
             $orders = Order::select('customer_id')->whereNotNull('customer_id')->get();
@@ -203,6 +305,7 @@ class BroadcastController extends Controller
         $customer = Customer::findOrFail($id);
         $customer->do_not_disturb = $request->type;
         $customer->update();
+        \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
         return response()->json([
             'status' => 'success'
         ]);

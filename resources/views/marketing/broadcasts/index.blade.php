@@ -107,28 +107,31 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Broadcast List</h2>
+            <h2 class="page-heading">Broadcast List ( {{ $customers->total() }} )</h2>
             <div class="pull-left">
                 <form action="{{ route('broadcasts.index') }}" method="GET">
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <input name="term" type="text" class="form-control global"
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="whatsapp number , broadcast id , remark" id="term">
                             </div>
-                            <div class="col-md-3">
-                                <div class='input-group date' id='filter-date'>
-                                    <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
-
-                                    <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                  </span>
-                                </div>
+                            
+                             <div class="col-md-3">
+                                   <select class="form-control" id="total" name="total">
+                                        <option>Select Customer Type</option>
+                                        <option value="1" @if(isset($total) && $total == 1)  selected @endif>Enabled Customer</option>
+                                        <option value="2" @if(isset($total) && $total == 2)  selected @endif>Pending Customer For Enable</option>
+                                        <option value="3" @if(isset($total) && $total == 3)  selected @endif>DND Customer</option>
+                                        <option value="4" @if(isset($total) && $total == 4)  selected @endif>Customer With Leads</option>
+                                        <option value="5" @if(isset($total) && $total == 5)  selected @endif>Customer With Offers</option>
+                                        <option value="6" @if(isset($total) && $total == 6)  selected @endif>Enabled Customer (Missing Number)</option>
+                                    </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-5">
                             <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                                <input type="hidden" name="customrange" id="custom">
+                                <input type="hidden" name="customrange" id="custom" value="{{ isset($customrange) ? $customrange : '' }}">
                                 <i class="fa fa-calendar"></i>&nbsp;
                                 <span></span> <i class="fa fa-caret-down"></i>
                             </div>
@@ -145,8 +148,8 @@
                 </form>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary">Total Customers : {{ $totalCustomers }}</button>
-                <button type="button" class="btn btn-secondary">DND Customers : {{ $countDNDCustomers }}</button>
+                <button type="button" class="btn btn-secondary" id="totalCustomer">Total Customers : {{ $totalCustomers }}</button>
+                <button type="button" class="btn btn-secondary" id="selectDND">DND Customers : {{ $countDNDCustomers }}</button>
                 <button type="button" class="btn btn-secondary">First Broadcast Send : {{ $customerBroadcastSend }}</button>
                 <button type="button" class="btn btn-secondary">First Broadcast Pending : {{ $customerBroadcastPending }}</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#settingModal">Global Setting</button>
@@ -304,6 +307,7 @@
                 <!-- <th>Status</th> -->
                 <th>Manual Approval</th>
                 <th>Broadcast Sent</th>
+                <th>Not Delivered</th>
                 <th>Last Broadcast ID</th>
                 <th>Phone No. Assign WhatsApp</th>
                 <th>Remarks</th>
@@ -334,6 +338,7 @@
                     </select>
                 </th>
                 <th></th>
+                <th></th>
                 <th><input type="text" class="search form-control" id="broadcast"></th>
                 <th><select class="form-control search" id="number">
                         <option value="">Select Option</option>
@@ -347,7 +352,18 @@
 
             <tbody>
             @include('marketing.broadcasts.partials.data')
-
+            <?php
+            $query = http_build_query(Request::except('page'));
+            $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query . '&page=');
+            ?>
+            <div class="form-group position-fixed hidden-xs hidden-sm" style="top: 50px; left: 20px;">
+            Goto :
+            <select onchange="location.href = this.value;" class="form-control" id="page-goto">
+                @for($i = 1 ; $i <= $customers->lastPage() ; $i++ )
+                    <option value="{{ $query.$i }}" {{ ($i == $customers->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
+                @endfor
+            </select>
+    </div>    
             {!! $customers->render() !!}
             @include('marketing.broadcasts.partials.remark')
             </tbody>
@@ -377,6 +393,7 @@
             { var formatedValue = e.date.format(e.date._f);
 
 
+                term = $('#term').val();
                 term = $('#term').val();
                 date = $('#date').val();
 
@@ -530,7 +547,7 @@
                  var start = moment().subtract(29, 'days');
                 var end = moment();
 
-                function cb(start, end) {
+                function cs(start, end) {
                     $('#reportrange_phone span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
                     $('#custom_phone').val(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
                     $('#custom_count').val(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
@@ -547,14 +564,14 @@
                      'This Month': [moment().startOf('month'), moment().endOf('month')],
                      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                  }
-             }, cb)
-                cb(start, end);
+             }, cs)
+                cs(start, end);
 
 
                 var start = moment().subtract(29, 'days');
                 var end = moment();
 
-                function cb(start, end) {
+                function cd(start, end) {
                     $('#reportrange_count span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
                      $('#custom_count').val(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
                 }
@@ -570,8 +587,8 @@
                      'This Month': [moment().startOf('month'), moment().endOf('month')],
                      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                  }
-             }, cb) 
-             cb(start, end)  
+             }, cd) 
+             cd(start, end)  
             });
 
            
@@ -759,6 +776,7 @@
                 source: function (request, response) {
                     term = $('#term').val();
                     date = $('#date').val();
+                    total = $('#total').val();
 
 
                     $.ajax({
@@ -767,6 +785,7 @@
                         data: {
                             term: term,
                             date: date,
+                            total: total,
 
                         },
                         beforeSend: function () {
@@ -849,6 +868,66 @@
                 dataType: "json",
                 data: {
                     reset: reset,
+
+
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+
+            }).done(function (data) {
+                $("#loading-image").hide();
+                console.log(data);
+                $("#customers-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        });
+
+        $("#totalCustomer").click(function(){
+            src = "{{ route('broadcasts.index') }}";
+            reset = '';
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    reset: reset,
+
+
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+
+            }).done(function (data) {
+                $("#loading-image").hide();
+                console.log(data);
+                $("#customers-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        });
+
+        $("#selectDND").click(function(){
+            src = "{{ route('broadcasts.index') }}";
+            dnd = 1;
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    dnd: dnd,
 
 
                 },
@@ -1233,15 +1312,15 @@
                 url: "/customer/"+id+"/updatePhone",
                 type: 'POST',
                 beforeSend: function () {
-                    $("#loading-image").show();
+                   // $("#loading-image").show();
                 },
                 success: function () {
-                    $("#loading-image").hide();
+                   // $("#loading-image").hide();
                     alert('Number Updated SucessFully');
                 },
                 error: function() {
-                    $("#loading-image").hide();
-                    alert('Customer Number Already Exist');
+                    //$("#loading-image").hide();
+                    //alert('Customer Number Already Exist');
                 },
                 data: {
                     phone: phone,
