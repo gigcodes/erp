@@ -71,7 +71,7 @@ use App\Helpers\InstantMessagingHelper;
 
 class WhatsAppController extends FindByNumberController
 {
-    CONST MEDIA_PDF_CHUNKS = 2;
+    CONST MEDIA_PDF_CHUNKS = 50;
 
     /**
      * Incoming message URL for whatsApp
