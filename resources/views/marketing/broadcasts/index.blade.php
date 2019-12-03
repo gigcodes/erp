@@ -119,7 +119,7 @@
                             </div>
                             
                              <div class="col-md-3">
-                                   <select class="form-control" id="total" name="total">
+                                   <select class="form-control global" id="total" name="total">
                                         <option>Select Customer Type</option>
                                         <option value="1" @if(isset($total) && $total == 1)  selected @endif>Enabled Customer</option>
                                         <option value="2" @if(isset($total) && $total == 2)  selected @endif>Pending Customer For Enable</option>
