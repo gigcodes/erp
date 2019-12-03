@@ -20,7 +20,7 @@ class CheckWhatsAppActive extends Command
      *
      * @var string
      */
-    protected $description = 'It is used to check if the whatsappnumber is active , if not active will send whatsapp message';
+    protected $description = 'Check if the Whatsapp number is active and alert if the number is inactive';
 
     /**
      * Create a new command instance.
@@ -39,27 +39,31 @@ class CheckWhatsAppActive extends Command
      */
     public function handle()
     {
-        $numbers = WhatsappConfig::where('is_customer_support','!=',1)->where('status',1)->get();
-        
+        // Check only active numbers which are not customer support numbers
+        $numbers = WhatsappConfig::where('is_customer_support', '!=', 1)->where('status', 1)->get();
+
+        // Set the current time
         $time = Carbon::now();
+
+        // Check only during the day
         $morning = Carbon::create($time->year, $time->month, $time->day, 8, 0, 0);
-        $evening = Carbon::create($time->year, $time->month, $time->day, 17, 00, 0);
+        $evening = Carbon::create($time->year, $time->month, $time->day, 18, 00, 0);
         if ($time->between($morning, $evening, true)) {
-        foreach ($numbers as $number) {
+            foreach ($numbers as $number) {
                 //Checking if device was active from last 15 mins
-                if($number->last_online > Carbon::now()->subMinutes(15)->toDateTimeString()){
+                if ($number->last_online > Carbon::now()->subMinutes(15)->toDateTimeString()) {
                     continue;
                 }
-                $phones = ['+919004780634','+31629987287'];
-                $message = $number->number.'Username : '.$number->username.' Phone Number is not working Please Check It';
-                
+                $phones = ['+919004780634', '+31629987287'];
+                $message = $number->number . 'Username : ' . $number->username . ' Phone Number is not working Please Check It';
+
                 foreach ($phones as $phone) {
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phone, '',$message, '', '');
+                    // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phone, '', $message, '', '');
                 }
-                            
+
             }
-        }else{
-            dump('Not Proper Time To Check');
+        } else {
+            dump('We only check during the day');
         }
     }
 }
