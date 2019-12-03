@@ -2270,6 +2270,7 @@ class ProductController extends Controller
     {
         $data['_token'] = $request->_token;
         $data['send_pdf'] = $request->send_pdf;
+        $data['pdf_file_name'] = !empty($request->pdf_file_name) ? $request->pdf_file_name : "";
         $data['images'] = $request->images;
         $data['image'] = $request->image;
         $data['screenshot_path'] = $request->screenshot_path;

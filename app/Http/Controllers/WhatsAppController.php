@@ -2292,7 +2292,11 @@ class WhatsAppController extends FindByNumberController
                                         $pdf = new Dompdf();
                                         $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
                                         $pdf->loadHtml($pdfView);
-                                        $random = uniqid('sololuxury_', true);
+                                        if(!empty($request->pdf_file_name)) {
+                                            $random = str_replace(" ", "-", $request->pdf_file_name."-".date("Y-m-d-H-i-s-").rand());
+                                        }else{
+                                            $random = uniqid('sololuxury_', true);
+                                        }
                                         if (!File::isDirectory(public_path() . '/pdf/')) {
                                             File::makeDirectory(public_path() . '/pdf/', 0777, true, true);
                                         }
@@ -2479,13 +2483,18 @@ class WhatsAppController extends FindByNumberController
                 $mediasH = Media::whereIn('id', $imagesDecoded)->get();
 
                 $number = 0;
-                foreach ($mediasH->chunk(self::MEDIA_PDF_CHUNKS) as $medias) {
+                foreach ($mediasH->chunk(self::MEDIA_PDF_CHUNKS) as $key => $medias) {
 
                     $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
                     $pdf = new Dompdf();
                     $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
                     $pdf->loadHtml($pdfView);
-                    $fileName = public_path() . '/' . uniqid('sololuxury_' . time(), true) . '.pdf';
+                    if(!empty($request->pdf_file_name)) {
+                        $random = str_replace(" ", "-", $request->pdf_file_name."-".($key + 1)."-".date("Y-m-d-H-i-s-").rand());
+                    }else{
+                        $random = uniqid('sololuxury_', true);
+                    }
+                    $fileName = public_path() . '/' . $random . '.pdf';
                     $pdf->render();
 
                     File::put($fileName, $pdf->output());
