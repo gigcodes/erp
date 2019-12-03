@@ -269,8 +269,8 @@ class BroadcastController extends Controller
             $numberWithCount = [];
 
             // Get Whatsapp number with lowest customer count
-            $whatsappConfigs = WhatsappConfig::where('is_customer_support', 0)->get();
-
+            $whatsappConfigs = WhatsappConfig::where('is_customer_support', 0)->where('status',1)->get();
+            
             // Check if we have results
             if ($whatsappConfigs != null && count($whatsappConfigs) > 0) {
                 // Set temp minimum value
@@ -382,26 +382,52 @@ class BroadcastController extends Controller
 
     public function saveGlobalValues(Request $request)
     {
+
+        $numbers = WhatsappConfig::where('is_customer_support',0)->get();
+        foreach ($numbers as $number) {
+         if($request->frequency != null){
+           $number->frequency = $request->frequency;
+           $number->update();
+        }
+
+        if($request->send_start != null){
+           $number->send_start = $request->send_start;
+           $number->update();
+        }
+
+        if($request->send_end != null){
+           $number->send_end = $request->send_end;
+           $number->update();
+        }
+        }
+
+        return redirect()->back()->with('message', 'Values Updated Globally');
         
-            $numbers = WhatsappConfig::where('is_customer_support',0)->get();
-            foreach ($numbers as $number) {
-               if($request->frequency != null){
-                 $number->frequency = $request->frequency;
-                 $number->update();
-               }
+    }
 
-               if($request->send_start != null){
-                 $number->send_start = $request->send_start;
-                 $number->update();
-               }
+    public function getCustomerCountEnable($value='')
+    {
+         $query = CustomerMarketingPlatform::query();
 
-               if($request->send_end != null){
-                 $number->send_end = $request->send_end;
-                 $number->update();
-               }
+         if (request('count_date') != null) {
+            $query->whereDate('created_at', request('count_date'));
+        }
+
+        if (request('custom_date') != null) {
+            $range = explode(' - ', request('custom_date'));
+            if($range[0] == end($range)){
+                $query->whereDate('created_at', $range[0]);
+            }else{
+                $query->whereBetween('created_at', [$range[0], end($range)]);
             }
+            
+        }
 
-           return redirect()->back()->with('message', 'Values Updated Globally');
-        
+        $count = $query->whereNull('remark')->count();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $count,
+        ]);
     }
 }

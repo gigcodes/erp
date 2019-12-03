@@ -243,6 +243,50 @@
 
         </div>
     </div>
+     <div class="row">
+        <div class="col-md-12">
+            <div class="panel-group">
+                <div class="panel mt-5 panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse2">Customer Enable Details</a>
+                        </h4>
+                    </div>
+                    <div id="collapse2" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table table-bordered table-striped" id="phone-table">
+                                <thead>
+                                <tr>
+                                    <th>Count</th>
+                                    <th><span id="count">0</span></th>
+                                    <th style="width: 20%"> 
+                                        <div class='input-group date' id='filter-count-date'>
+                                                <input type='text' class="form-control phone_global" name="count_date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="count_date" />
+
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </th>
+                                    <th><div id="reportrange_count" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                                <input type="hidden"  id="custom_count">
+                                                <i class="fa fa-calendar"></i>&nbsp;
+                                                <span></span> <i class="fa fa-caret-down"></i>
+                                            </div></th>
+                                            
+                                    <th> <button type="button" class="btn btn-image" id="count_filter"><img src="/images/filter.png"/></button></th>     
+                                    
+                                </tr>
+                                </thead>
+                                
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
     <div class="pull-right">
                 <button type="button" class="btn btn-secondary" id="select">Select</button>
                 <button type="button" class="btn btn-secondary" id="enable">Enable</button>
@@ -426,6 +470,38 @@
 
             });
 
+             $('#filter-count-date').datetimepicker(
+            { format: 'YYYY/MM/DD' }).on('dp.change', 
+            function (e) 
+            { var formatedValue = e.date.format(e.date._f);
+
+                count_date = $('#count_date').val();
+
+                    $.ajax({
+                    url: "{{ route('broadcast.enable.count') }}",
+                    dataType: "json",
+                    type: 'POST',
+                    data: {
+                         count_date: count_date,
+                          _token: "{{ csrf_token() }}",
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#count").text(data.data);
+
+                    
+
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });  
+
+            });
+
 
             $(function() {
 
@@ -457,6 +533,7 @@
                 function cb(start, end) {
                     $('#reportrange_phone span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
                     $('#custom_phone').val(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
+                    $('#custom_count').val(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
                 }
 
                 $('#reportrange_phone').daterangepicker({
@@ -473,9 +550,58 @@
              }, cb)
                 cb(start, end);
 
+
+                var start = moment().subtract(29, 'days');
+                var end = moment();
+
+                function cb(start, end) {
+                    $('#reportrange_count span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                     $('#custom_count').val(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
+                }
+
+               $('#reportrange_count').daterangepicker({
+                    startDate: start,
+                    endDate: end,
+                    ranges: {
+                     'Today': [moment(), moment()],
+                     'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                     'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                     'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                     'This Month': [moment().startOf('month'), moment().endOf('month')],
+                     'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                 }
+             }, cb) 
+             cb(start, end)  
             });
 
            
+            
+             $("#count_filter").click(function () {
+                custom_date = $("#custom_count").val();
+                
+                 $.ajax({
+                    url: "{{ route('broadcast.enable.count') }}",
+                    dataType: "json",
+                    type: 'POST',
+                    data: {
+                         custom_date: custom_date,
+                          _token: "{{ csrf_token() }}",
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#count").text(data.data);
+
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });  
+
+
+             });
 
            
     </script>
@@ -1083,9 +1209,9 @@
         });
 
         var all_customers = [];
-        <?php if(request()->get('all_customer') != '1') { ?>
-            setTimeout(function(){siteHelpers.autoRefreshColumn();}, 15000);
-        <?php } ?>
+        // <?php if(request()->get('all_customer') != '1') { ?>
+        //     setTimeout(function(){siteHelpers.autoRefreshColumn();}, 15000);
+        // <?php } ?>
 
         $('#schedule-datetime').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
@@ -1094,8 +1220,6 @@
         $('.dd-datepicker').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });
-
-     
 
         $(document).on('click', '.load-customers', function () {
             siteHelpers.loadCustomers($(this));
