@@ -302,7 +302,7 @@
                                 </thead>
                                 <tbody>
                                 @foreach ($product['supplier_msg'] as $supplier_id => $supplier_msg)
-                                    <tr>
+                                    <tr class="price-row-db" data-inr="{{$product['price_inr'] }}">
                                         <td>
                                             <input type="checkbox" name="supplier_ids[]" value="{{$supplier_id}}">
                                         </td>
@@ -310,12 +310,17 @@
                                         <td>
                                             <a href="{{ route('supplier.show', $supplier_id) }}">{{$supplier_msg['supplier']}}</a>
                                         </td>
-                                        <td>{{ date('d-m-Y', strtotime($supplier_msg['chat_messages'][0]['created_at']))}}</td>
+                                        <td>
+                                            {{ isset($supplier_msg['chat_messages'][0]['created_at']) 
+                                            ? date('d-m-Y', strtotime($supplier_msg['chat_messages'][0]['created_at']))
+                                            : "-"
+                                            }}
+                                        </td>
                                         <td>
                                             {{$product['price'] }}
                                         </td>
                                         <td>
-                                            -
+                                            <input type="text" name="discount" value="" placeholder="Enter discount" class="discount_db form-control col-md-6">
                                         </td>
                                         <td>
                                             {{$product['price_inr'] }}
@@ -1263,6 +1268,26 @@
         }
 
         customerSearch();
+
+        $(document).on("keyup",".discount_db",function(){
+            var discount = $(this).val();
+            if(discount < 0 || discount > 100) {
+                alert("Please enter a valid discount number");
+            }
+
+            var inrPrice = $(this).closest(".price-row-db").data("inr");
+                if(typeof inrPrice != "undefined" && discount > 0) {
+                    var discountedPrice = (inrPrice * discount) / 100;
+                    var retailPrice = inrPrice - discountedPrice;   
+                        
+                        if(retailPrice > 0) {
+                            var discountedPrice = (retailPrice * 22) / 100;
+                            var retailPrice = retailPrice - discountedPrice;
+                            $(this).closest(".price-row-db").find("td").last().html(retailPrice);   
+                        }          
+                }
+        });
+
     </script>
 
 @endsection
