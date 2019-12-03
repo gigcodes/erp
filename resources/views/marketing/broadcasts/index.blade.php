@@ -351,13 +351,14 @@
             </thead>
 
             <tbody>
+                {!! $customers->render() !!}
             @include('marketing.broadcasts.partials.data')
               
             
             @include('marketing.broadcasts.partials.remark')
             </tbody>
         </table>
-        
+        {!! $customers->render() !!}
     </div>
 @include('marketing.broadcasts.partials.modal-merge')
 @include('marketing.broadcasts.partials.message')

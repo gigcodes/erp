@@ -280,7 +280,7 @@ class BroadcastController extends Controller
             return response()->json([
                 'tbody' => view('marketing.broadcasts.partials.data', compact('customers', 'apiKeys', 'numbers','customerBroadcastSend','customerBroadcastPending','countDNDCustomers','totalCustomers','total'))->render(),
                 'links' => (string)$customers->render(),
-                'count' => $customers->count(),
+                'count' => $customers->total(),
             ], 200);
         }
 
