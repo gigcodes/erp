@@ -266,8 +266,11 @@ class BroadcastController extends Controller
         
         if(isset($request->total)){
             $total = $request->total;
+            $customrange = $request->customrange;
+            
         }else{
             $total = '';
+            $customrange = '';
         }
         
         $customerBroadcastSend = Customer::whereNotNull('broadcast_number')->count();
@@ -278,7 +281,7 @@ class BroadcastController extends Controller
         $apiKeys = ApiKey::all();
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.broadcasts.partials.data', compact('customers', 'apiKeys', 'numbers','customerBroadcastSend','customerBroadcastPending','countDNDCustomers','totalCustomers','total'))->render(),
+                'tbody' => view('marketing.broadcasts.partials.data', compact('customers', 'apiKeys', 'numbers','customerBroadcastSend','customerBroadcastPending','countDNDCustomers','totalCustomers','total','customrange'))->render(),
                 'links' => (string)$customers->render(),
                 'count' => $customers->total(),
             ], 200);
@@ -296,6 +299,7 @@ class BroadcastController extends Controller
             'startDate' => $startDate,
             'endDate' => $endDate,
             'total' => $total,
+            'customrange' => $customrange,
         ]);
 
     }
@@ -539,8 +543,5 @@ class BroadcastController extends Controller
         ]);
     }
     
-    public function infiniteScrollCustomer(Request $request){
-
-        
-    }
+    
 }

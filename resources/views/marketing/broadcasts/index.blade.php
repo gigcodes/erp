@@ -130,10 +130,18 @@
                                     </select>
                             </div>
                             <div class="col-md-5">
+                                
                             <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                                 <input type="hidden" name="customrange" id="custom" value="{{ isset($customrange) ? $customrange : '' }}">
                                 <i class="fa fa-calendar"></i>&nbsp;
-                                <span></span> <i class="fa fa-caret-down"></i>
+                                @php
+                                    if(isset($customrange)){
+                                         $customrange =  $range = explode(' - ', $customrange);
+                                        $from = \Carbon\Carbon::parse($customrange[0])->format('F d, Y'); 
+                                        $to = \Carbon\Carbon::parse(end($customrange))->format('F d, Y'); 
+                                    }
+                                @endphp
+                                <span @if(isset($customrange)) style="display:none;" @endif id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ isset($customrange) ? $from .' '.$to : '' }}</p><i class="fa fa-caret-down"></i>
                             </div>
                             </div>
      
@@ -352,10 +360,10 @@
             </thead>
 
             <tbody>
-                <div class="infinite-scroll">
-                {!! $customers->render() !!}
+                
+            {!! $customers->render() !!}
             @include('marketing.broadcasts.partials.data')
-                </div>
+                
             
             @include('marketing.broadcasts.partials.remark')
             </tbody>
@@ -1354,26 +1362,11 @@
             $("#broadcast"+id).show();
             $("#broadcastList"+id).hide();
         }
-        
-       
 
-         
-        
-        $('ul.pagination').hide();
-            $(function() {
-            $('.infinite-scroll').jscroll({
-                autoTrigger: true,
-                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-                padding: 0,
-                nextSelector: '.pagination li.active + li a',
-                contentSelector: 'div.infinite-scroll',
-                callback: function() {
-                    $('ul.pagination').remove();
-                    alert('hello');
-                }
+        $("#reportrange").on("click", function(){
+            $('#date_current_show').toggle();
+            $('#date_value_show').toggle();
         });
-    });
-
-
+        
     </script>
 @endsection
