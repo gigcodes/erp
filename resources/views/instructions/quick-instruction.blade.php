@@ -972,6 +972,20 @@
 
                 window.location.href = "/attachImages/selected_customer/{{$customer ? $customer->id : ''}}/1?return_url=instruction/quick-instruction&message="+message;
             });
+
+            $(window).bind('unload',function(){
+                $.ajax({
+                    type: 'POST',
+                    url: '/instruction/store-instruction-end-time',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        id: '{{$instructionTime ? $instructionTime->id : ''}}',
+                        instructions_id: '{{$instructionTime ? $instructionTime->instructions_id : ''}}',
+                    },
+                    async:false
+                })
+            });
+            
         </script>
     @endif
 @endsection

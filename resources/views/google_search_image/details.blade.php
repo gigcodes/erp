@@ -137,6 +137,9 @@
         <?php } ?>  
       <?php } ?> 
   </div>
+  <div class="row">
+      <a class="btn btn-secondary" href="<?php echo url("google-search-image"); ?>">Back</a>
+  </div>  
 <div id="productModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
