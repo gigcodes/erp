@@ -1064,22 +1064,35 @@
 
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-1">
-                            <strong>User:</strong>
-                        </div>
-                        <div class="col-md-11">
-                            <div class="form-group">
-                                @if(auth()->user()->isAdmin())
-                                    <select class="form-control" name="user_id" id="priority_user_id">
-                                        <option value="0">Select User</option>
-                                        @foreach ($users as $id => $name)
-                                            <option value="{{ $id }}">{{ $name }}</option>
-                                        @endforeach
-                                    </select>
-                                @else
-                                    {{auth()->user()->name}}
-                                @endif
+                        <div class="col-md-12">
+                            <div class="col-md-2">
+                                <strong>User:</strong>
                             </div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    @if(auth()->user()->isAdmin())
+                                        <select class="form-control" name="user_id" id="priority_user_id">
+                                            @foreach ($users as $id => $name)
+                                                <option value="{{ $id }}">{{ $name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        {{auth()->user()->name}}
+                                    @endif
+                                </div>
+                            </div>
+                        </div>    
+                        <div class="col-md-12">
+                            <div class="col-md-2">
+                                <strong>Remarks:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                @if(auth()->user()->isAdmin())
+                                     <div class="form-group">
+                                        <textarea cols="45" class="form-control" name="global_remarkes"></textarea>    
+                                    </div>
+                                @endif
+                            </div>    
                         </div>
                     </div>
                     <div class="row">
