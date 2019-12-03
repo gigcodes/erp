@@ -677,9 +677,9 @@ class DevelopmentController extends Controller
 
         $requestData = new Request();
         $requestData->setMethod('POST');
-        $requestData->request->add(['task_id' => $task->id, 'message' => $request->input('task'), 'status' => 1]);
+        $requestData->request->add(['issue_id' => $task->id, 'message' => $request->input('task'), 'status' => 1]);
 
-        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'task');
+        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
         // if ($task->status == 'Done') {
         //   NotificationQueueController::createNewNotification([
         //     'message' => 'New Task to Verify',
@@ -729,7 +729,7 @@ class DevelopmentController extends Controller
             $data[ 'module' ] = $module->id;
         }
 
-        $issue = Issue::create($data);
+        //$issue = Issue::create($data);
         $task = new DeveloperTask;
         $task->priority = $request->input('priority');
         $task->subject = $request->input('subject');
@@ -741,15 +741,15 @@ class DevelopmentController extends Controller
         $task->save();
 
 
-        $issue->submitted_by = Auth::user()->id;
-        $issue->save();
+        //$issue->submitted_by = Auth::user()->id;
+        //$issue->save();
 
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
-                    ->toDirectory('issue/' . floor($issue->id / config('constants.image_per_folder')))
+                    ->toDirectory('issue/' . floor($task->id / config('constants.image_per_folder')))
                     ->upload();
-                $issue->attachMedia($media, config('constants.media_tags'));
+                $task->attachMedia($media, config('constants.media_tags'));
             }
         }
 
@@ -1155,6 +1155,10 @@ class DevelopmentController extends Controller
         //$issue = Issue::find($request->get('issue_id'));
         //$issue->is_resolved = $request->get('is_resolved');
         $issue->status = $request->get('is_resolved');
+        if(strtolower($request->get('is_resolved')) == "done") {
+            $issue->is_resolved = 1;
+        }
+ 
         $issue->save();
 
         return response()->json([

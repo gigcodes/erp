@@ -99,7 +99,7 @@
                     </div>
                     @if($title == 'task')
                         <div class="col-md-2">
-                        <select name="task_status" id="task_status" class="form-control change-task-status" data-id="{{$issue->id}}">
+                        <select name="task_status" id="task_status" class="form-control change-task-status">
                             <option value="">Please Select</option>
                             <option value="Planned" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'Planned' ? 'selected' : '') }}>Planned</option>
                             <option value="In Progress" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
@@ -117,11 +117,9 @@
                             <img src="{{ asset('images/search.png') }}" alt="Search">
                         </button>
                     </div>
-
-                    <div class="col-md-1" style="margin-left: -106px; margin-top: 7px;">
+                    <div class="col-md-2">
                         <a class="btn btn-secondary d-inline priority_model_btn">Priority</a>
                     </div>
-
                 </div>
             </form>
             @if($title == 'task')
@@ -188,10 +186,10 @@
                         <td style="vertical-align: middle;">{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
                         <td class="expand-row">
                             <div class="td-mini-container">
-                                {{ strlen($issue->issue) > 20 ? substr($issue->issue, 0, 20).'...' : $issue->issue }}
+                                {{ strlen($issue->task) > 20 ? substr($issue->task, 0, 20).'...' : $issue->task }}
                             </div>
                             <div class="td-full-container hidden">
-                                {{ $issue->issue }}
+                                {{ $issue->task }}
                             @if ($issue->getMedia(config('constants.media_tags'))->first())
                             <br />
                                 @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
