@@ -197,6 +197,7 @@
     <form action="{{ $action }}" data-model-type="{{$model_type}}" method="POST" id="attachImageForm">
         @csrf
         <input type="hidden" id="send_pdf" name="send_pdf" value="0"/>
+        <input type="hidden" id="pdf_file_name" name="pdf_file_name" value=""/>
         @if ($model_type == 'customers')
             <input type="hidden" name="sending_time" value="{{ $sending_time }}"/>
         @endif
@@ -219,6 +220,10 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <p>Choose the format for sending</p>
+                    <div class="form-group mr-3"
+                        <strong class="mr-3">Custom File Name</strong>
+                        <input type="text" name="file_name" id="pdf-file-name" />
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary btn-approve-pdf">PDF</button>
@@ -593,11 +598,13 @@
 
         $(".btn-approve-pdf").on("click",function() {
             $("#send_pdf").val("1");
+            $("#pdf_file_name").val($("#pdf-file-name").val());
             $('#attachImageForm').submit();
         });
 
         $(".btn-ignore-pdf").on("click",function() {
             $("#send_pdf").val("0");
+            $("#pdf_file_name").val($("#pdf-file-name").val());
             $('#attachImageForm').submit();
         });
         // });
