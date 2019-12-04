@@ -82,7 +82,7 @@
 			padding: 5px 10px;
 			margin-bottom: 15px !important;
 		}
-	.active{
+	.active_chat{
 			background-color: rgba(0,0,0,0.3);
 	}
 		.user_img{

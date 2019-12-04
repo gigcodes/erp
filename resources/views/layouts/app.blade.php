@@ -1396,7 +1396,8 @@
                         <div class="card-footer">
 							<div class="input-group">
 								<div class="input-group-append">
-									<span class="input-group-text attach_btn"><i class="fa fa-paperclip"></i></span>
+                                    <span class="input-group-text attach_btn"><i class="fa fa-paperclip"></i></span>
+                                    <input type="hidden" name="message-image" />
                                 </div>
                                 <input type="hidden" id="message-id"/>
 								<textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>

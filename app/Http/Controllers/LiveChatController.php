@@ -288,6 +288,66 @@ class LiveChatController extends Controller
 			}
 	}
 
+	public function sendFile(Request $request){
+	$login = \Config('livechat.account_id');
+            $password = \Config('livechat.password');
+			$chatId = $request->id;
+			$message = $request->file;
+			
+			//Get Thread ID From Customer Live Chat
+			$customer = CustomerLiveChat::where('customer_id',$chatId)->first();
+			
+			if($customer != '' && $customer != null){
+				$thread = $customer->thread;
+				
+			}else{
+				return response()->json([
+            	'status' => 'errors'
+        		]);
+			}
+			$post = array('chat_id' => $thread,'event' => array('type' => 'message','text' => $message,'recipients' => 'all',));
+		    $post = json_encode($post);
+			
+			$curl = curl_init();
+
+			curl_setopt_array($curl, array(
+			CURLOPT_URL => "https://api.livechatinc.com/v3.1/agent/action/send_event",
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => "",
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => "POST",
+			CURLOPT_POSTFIELDS => "$post",
+			CURLOPT_HTTPHEADER => array(
+				"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
+				"Content-Type: application/json",
+			),
+			));
+
+			$response = curl_exec($curl);
+			$err = curl_error($curl);
+
+			curl_close($curl);
+
+			if ($err) {
+				return response()->json([
+            	'status' => 'errors'
+        		]);
+			} else {
+				$response = json_decode($response);
+				if(isset($response->error)){
+					return response()->json([
+            			'status' => 'errors'
+        			]);
+				}else{
+					return response()->json([
+            			'status' => 'success'
+        			]);
+				}
+			}
+	}
+
 	public function getChats(Request $request)
 	{
 		$chatId = $request->id;
@@ -333,14 +393,20 @@ class LiveChatController extends Controller
 		{
 			$chatId = session()->get('chat_customer_id');
 			$messages = ChatMessage::where('customer_id',$chatId)->where('message_application_id',2)->get();
-		
-			foreach ($messages as $message) {
-				if($message->user_id != 0){
-					$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
-				}else{
-					$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
+			if(count($messages) == 0){
+					$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>';
+					
+			}else{
+				foreach ($messages as $message) {
+					if($message->user_id != 0){
+						$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
+					}else{
+						$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
+					}
 				}
+
 			}
+			
 			$count = CustomerLiveChat::where('seen',0)->count();
 			return response()->json([
 						'status' => 'success',
