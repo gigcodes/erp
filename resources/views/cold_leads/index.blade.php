@@ -2,6 +2,7 @@
 
 @if($via == 'hashtags')
 @section('favicon' , 'coldleadshastag.png')
+@section('title', 'Cold Leads Hastag')
 @endif
 
 @section('large_content')

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('favicon' , 'coldleadsimported.png')
+@section('title', 'Cold Leads Imported')
 
 @section('content')
     <div class="row">
