@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
+
+@if($type == 'unread')
+@section('favicon' , 'customerunread.png')
+@elseif($type == 'unapproved')
+@section('favicon' , 'customerunapproved.png')
+@elseif($type == 'Refund to be processed')
+@section('favicon' , 'customerrefund.png')
+@else
 @section('favicon' , 'customer.png')
+@endif
+
 
 @section('title', 'Customer List')
 
