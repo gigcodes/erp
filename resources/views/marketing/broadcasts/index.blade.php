@@ -107,30 +107,41 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Broadcast List</h2>
+            <h2 class="page-heading">Broadcast List (<span id="customer_count">{{ $customers->total() }}</span>) </h2>
             <div class="pull-left">
                 <form action="{{ route('broadcasts.index') }}" method="GET">
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <input name="term" type="text" class="form-control global"
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="whatsapp number , broadcast id , remark" id="term">
                             </div>
-                            <div class="col-md-3">
-                                <div class='input-group date' id='filter-date'>
-                                    <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
-
-                                    <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                  </span>
-                                </div>
+                            
+                             <div class="col-md-3">
+                                   <select class="form-control global" id="total" name="total">
+                                        <option>Select Customer Type</option>
+                                        <option value="1" @if(isset($total) && $total == 1)  selected @endif>Enabled Customer</option>
+                                        <option value="2" @if(isset($total) && $total == 2)  selected @endif>Pending Customer For Enable</option>
+                                        <option value="3" @if(isset($total) && $total == 3)  selected @endif>DND Customer</option>
+                                        <option value="4" @if(isset($total) && $total == 4)  selected @endif>Customer With Leads</option>
+                                        <option value="5" @if(isset($total) && $total == 5)  selected @endif>Customer With Offers</option>
+                                        <option value="6" @if(isset($total) && $total == 6)  selected @endif>Enabled Customer (Missing Number)</option>
+                                    </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-5">
+                                
                             <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                                <input type="hidden" name="customrange" id="custom">
+                                <input type="hidden" name="customrange" id="custom" value="{{ isset($customrange) ? $customrange : '' }}">
                                 <i class="fa fa-calendar"></i>&nbsp;
-                                <span></span> <i class="fa fa-caret-down"></i>
+                                @php
+                                    if(isset($customrange)){
+                                         $customrange =  $range = explode(' - ', $customrange);
+                                        $from = \Carbon\Carbon::parse($customrange[0])->format('F d, Y'); 
+                                        $to = \Carbon\Carbon::parse(end($customrange))->format('F d, Y'); 
+                                    }
+                                @endphp
+                                <span @if(isset($customrange)) style="display:none;" @endif id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ isset($customrange) ? $from .' '.$to : '' }}</p><i class="fa fa-caret-down"></i>
                             </div>
                             </div>
      
@@ -145,8 +156,8 @@
                 </form>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary">Total Customers : {{ $totalCustomers }}</button>
-                <button type="button" class="btn btn-secondary">DND Customers : {{ $countDNDCustomers }}</button>
+                <button type="button" class="btn btn-secondary" id="totalCustomer">Total Customers : {{ $totalCustomers }}</button>
+                <button type="button" class="btn btn-secondary" id="selectDND">DND Customers : {{ $countDNDCustomers }}</button>
                 <button type="button" class="btn btn-secondary">First Broadcast Send : {{ $customerBroadcastSend }}</button>
                 <button type="button" class="btn btn-secondary">First Broadcast Pending : {{ $customerBroadcastPending }}</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#settingModal">Global Setting</button>
@@ -243,11 +254,56 @@
 
         </div>
     </div>
+     <div class="row">
+        <div class="col-md-12">
+            <div class="panel-group">
+                <div class="panel mt-5 panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse2">Customer Enable Details</a>
+                        </h4>
+                    </div>
+                    <div id="collapse2" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table table-bordered table-striped" id="phone-table">
+                                <thead>
+                                <tr>
+                                    <th>Count</th>
+                                    <th><span id="count">0</span></th>
+                                    <th style="width: 20%"> 
+                                        <div class='input-group date' id='filter-count-date'>
+                                                <input type='text' class="form-control phone_global" name="count_date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="count_date" />
+
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </th>
+                                    <th><div id="reportrange_count" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                                <input type="hidden"  id="custom_count">
+                                                <i class="fa fa-calendar"></i>&nbsp;
+                                                <span></span> <i class="fa fa-caret-down"></i>
+                                            </div></th>
+                                            
+                                    <th> <button type="button" class="btn btn-image" id="count_filter"><img src="/images/filter.png"/></button></th>     
+                                    
+                                </tr>
+                                </thead>
+                                
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
     <div class="pull-right">
                 <button type="button" class="btn btn-secondary" id="select">Select</button>
                 <button type="button" class="btn btn-secondary" id="enable">Enable</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
             </div>
+            
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="customers-table">
             <thead>
@@ -260,6 +316,7 @@
                 <!-- <th>Status</th> -->
                 <th>Manual Approval</th>
                 <th>Broadcast Sent</th>
+                <th>Not Delivered</th>
                 <th>Last Broadcast ID</th>
                 <th>Phone No. Assign WhatsApp</th>
                 <th>Remarks</th>
@@ -290,6 +347,7 @@
                     </select>
                 </th>
                 <th></th>
+                <th></th>
                 <th><input type="text" class="search form-control" id="broadcast"></th>
                 <th><select class="form-control search" id="number">
                         <option value="">Select Option</option>
@@ -302,14 +360,17 @@
             </thead>
 
             <tbody>
-            @include('marketing.broadcasts.partials.data')
-
+                
             {!! $customers->render() !!}
+            @include('marketing.broadcasts.partials.data')
+                
+            
             @include('marketing.broadcasts.partials.remark')
             </tbody>
         </table>
         {!! $customers->render() !!}
     </div>
+
 @include('marketing.broadcasts.partials.modal-merge')
 @include('marketing.broadcasts.partials.message')
 @include('marketing.broadcasts.partials.setting')
@@ -333,6 +394,7 @@
             { var formatedValue = e.date.format(e.date._f);
 
 
+                term = $('#term').val();
                 term = $('#term').val();
                 date = $('#date').val();
 
@@ -426,6 +488,38 @@
 
             });
 
+             $('#filter-count-date').datetimepicker(
+            { format: 'YYYY/MM/DD' }).on('dp.change', 
+            function (e) 
+            { var formatedValue = e.date.format(e.date._f);
+
+                count_date = $('#count_date').val();
+
+                    $.ajax({
+                    url: "{{ route('broadcast.enable.count') }}",
+                    dataType: "json",
+                    type: 'POST',
+                    data: {
+                         count_date: count_date,
+                          _token: "{{ csrf_token() }}",
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#count").text(data.data);
+
+                    
+
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });  
+
+            });
+
 
             $(function() {
 
@@ -454,9 +548,10 @@
                  var start = moment().subtract(29, 'days');
                 var end = moment();
 
-                function cb(start, end) {
+                function cs(start, end) {
                     $('#reportrange_phone span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
                     $('#custom_phone').val(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
+                    $('#custom_count').val(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
                 }
 
                 $('#reportrange_phone').daterangepicker({
@@ -470,12 +565,61 @@
                      'This Month': [moment().startOf('month'), moment().endOf('month')],
                      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                  }
-             }, cb)
-                cb(start, end);
+             }, cs)
+                cs(start, end);
 
+
+                var start = moment().subtract(29, 'days');
+                var end = moment();
+
+                function cd(start, end) {
+                    $('#reportrange_count span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                     $('#custom_count').val(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
+                }
+
+               $('#reportrange_count').daterangepicker({
+                    startDate: start,
+                    endDate: end,
+                    ranges: {
+                     'Today': [moment(), moment()],
+                     'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                     'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                     'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                     'This Month': [moment().startOf('month'), moment().endOf('month')],
+                     'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                 }
+             }, cd) 
+             cd(start, end)  
             });
 
            
+            
+             $("#count_filter").click(function () {
+                custom_date = $("#custom_count").val();
+                
+                 $.ajax({
+                    url: "{{ route('broadcast.enable.count') }}",
+                    dataType: "json",
+                    type: 'POST',
+                    data: {
+                         custom_date: custom_date,
+                          _token: "{{ csrf_token() }}",
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#count").text(data.data);
+
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });  
+
+
+             });
 
            
     </script>
@@ -633,6 +777,7 @@
                 source: function (request, response) {
                     term = $('#term').val();
                     date = $('#date').val();
+                    total = $('#total').val();
 
 
                     $.ajax({
@@ -641,6 +786,7 @@
                         data: {
                             term: term,
                             date: date,
+                            total: total,
 
                         },
                         beforeSend: function () {
@@ -651,6 +797,8 @@
                         $("#loading-image").hide();
                         console.log(data);
                         $("#customers-table tbody").empty().html(data.tbody);
+                        $("#customer_count").text(data.count);
+                        
                         if (data.links.length > 10) {
                             $('ul.pagination').replaceWith(data.links);
                         } else {
@@ -698,6 +846,7 @@
                         $("#loading-image").hide();
                         console.log(data);
                         $("#customers-table tbody").empty().html(data.tbody);
+                        $("#customer_count").text(data.count);
                         if (data.links.length > 10) {
                             $('ul.pagination').replaceWith(data.links);
                         } else {
@@ -734,6 +883,69 @@
                 $("#loading-image").hide();
                 console.log(data);
                 $("#customers-table tbody").empty().html(data.tbody);
+                $("#customer_count").text(data.count);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        });
+
+        $("#totalCustomer").click(function(){
+            src = "{{ route('broadcasts.index') }}";
+            reset = '';
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    reset: reset,
+
+
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+
+            }).done(function (data) {
+                $("#loading-image").hide();
+                console.log(data);
+                $("#customers-table tbody").empty().html(data.tbody);
+                $("#customer_count").text(data.count);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        });
+
+        $("#selectDND").click(function(){
+            src = "{{ route('broadcasts.index') }}";
+            dnd = 1;
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    dnd: dnd,
+
+
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+
+            }).done(function (data) {
+                $("#loading-image").hide();
+                console.log(data);
+                $("#customers-table tbody").empty().html(data.tbody);
+                $("#customer_count").text(data.count);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
                 } else {
@@ -1083,9 +1295,9 @@
         });
 
         var all_customers = [];
-        <?php if(request()->get('all_customer') != '1') { ?>
-            setTimeout(function(){siteHelpers.autoRefreshColumn();}, 15000);
-        <?php } ?>
+        // <?php if(request()->get('all_customer') != '1') { ?>
+        //     setTimeout(function(){siteHelpers.autoRefreshColumn();}, 15000);
+        // <?php } ?>
 
         $('#schedule-datetime').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
@@ -1094,8 +1306,6 @@
         $('.dd-datepicker').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });
-
-     
 
         $(document).on('click', '.load-customers', function () {
             siteHelpers.loadCustomers($(this));
@@ -1109,15 +1319,15 @@
                 url: "/customer/"+id+"/updatePhone",
                 type: 'POST',
                 beforeSend: function () {
-                    $("#loading-image").show();
+                   // $("#loading-image").show();
                 },
                 success: function () {
-                    $("#loading-image").hide();
+                   // $("#loading-image").hide();
                     alert('Number Updated SucessFully');
                 },
                 error: function() {
-                    $("#loading-image").hide();
-                    alert('Customer Number Already Exist');
+                    //$("#loading-image").hide();
+                    //alert('Customer Number Already Exist');
                 },
                 data: {
                     phone: phone,
@@ -1152,6 +1362,11 @@
             $("#broadcast"+id).show();
             $("#broadcastList"+id).hide();
         }
+
+        $("#reportrange").on("click", function(){
+            $('#date_current_show').toggle();
+            $('#date_value_show').toggle();
+        });
         
     </script>
 @endsection
