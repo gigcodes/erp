@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('favicon' , 'customer.png')
-@section('title', 'Customer List')
+@section('favicon' , 'selectiongrid.png')
+@section('title', 'Product Selection Grid')
 
 @section('content')
     <div class="row">
