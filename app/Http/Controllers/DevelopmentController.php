@@ -199,7 +199,16 @@ class DevelopmentController extends Controller
                 $requestData->setMethod('POST');
                 $params = [];
                 $params['user_id'] = $request->get('user_id', 0);
-                $params['message'] = "Task Priority is : \n".$message;
+
+                $string = "";
+
+                if(!empty($request->get('global_remarkes', null))) {
+                    $string .= $request->get('global_remarkes')."\n";
+                }
+
+                $string .= "Task Priority is : \n".$message;
+
+                $params['message'] = $string;
                 $params['status'] = 2;
                 $requestData->request->add($params);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
@@ -605,7 +614,16 @@ class DevelopmentController extends Controller
                 $requestData->setMethod('POST');
                 $params = [];
                 $params['user_id'] = $request->get('user_id', 0);
-                $params['message'] = "Issue Priority is : \n".$message;
+
+                $string = "";
+
+                if(!empty($request->get('global_remarkes', null))) {
+                    $string .= $request->get('global_remarkes')."\n";
+                }
+
+                $string .= "Issue Priority is : \n".$message;
+
+                $params['message'] = $string;
                 $params['status'] = 2;
                 $requestData->request->add($params);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
