@@ -61,6 +61,9 @@
                             <button type="button" class="btn btn-xs btn-image load-email-modal" title="Load Email" data-id="{{$vendor->id}}"><i class="fa fa-envelope-square"></i></button>
                         </span>
                     </td>
+                    <td>{{ $vendor->created_at }}</td>
+                    <td>{{ $vendor->updated_at }}</td>
+                    <td>{{ \App\User::getNameById($vendor->updated_by) }}</td>
                     <td>
                         <div style="width: 233px;">
                             <a href="{{ route('vendor.show', $vendor->id) }}" class="btn btn-image" href=""><img src="/images/view.png"/></a>

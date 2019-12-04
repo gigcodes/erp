@@ -25,8 +25,29 @@ class Vendor extends Model
         'account_name',
         'account_swift',
         'account_iban',
-        'is_blocked'
+        'is_blocked',
+        'updated_by'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        self::updating(function ($model) {
+            if(!empty(\Auth::id())) {
+               $model->updated_by = \Auth::id();
+            }
+        });
+        self::saving(function ($model) {
+            if(!empty(\Auth::id())) {
+               $model->updated_by = \Auth::id();
+            }
+        });
+        self::creating(function ($model) {
+            if(!empty(\Auth::id())) {
+               $model->updated_by = \Auth::id();
+            }
+        });
+    }
 
     public function products()
     {

@@ -1988,10 +1988,11 @@ class WhatsAppController extends FindByNumberController
             } elseif ($context == 'issue') {
 
                 $params[ 'issue_id' ] = $request->get('issue_id');
-                $issue = Issue::find($request->get('issue_id'));
-                $params[ 'erp_user' ] = $issue->user_id;
-                $params[ 'approved' ] = 1;
-                $params[ 'status' ] = 2;
+                //$issue                  = Issue::find($request->get('issue_id'));
+                $issue                  = DeveloperTask::find($request->get('issue_id'));
+                $params[ 'erp_user' ]   = $issue->user_id;
+                $params[ 'approved' ]   = 1;
+                $params[ 'status' ]     = 2;
 
 
                 $number = User::find($issue->user_id);
@@ -2005,7 +2006,7 @@ class WhatsAppController extends FindByNumberController
                 if ($request->type == 1) {
                     foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                         $this->sendWithThirdApi($number, null, '', $image->getUrl());
-                        $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $image->getUrl();
+                        $params[ 'message' ] = '#TASK-' . $issue->id . '-' . $issue->subject . '=>' . $image->getUrl();
                         $params[ 'media_url' ] = $image->getUrl();
                         $chat_message = ChatMessage::create($params);
                     }
@@ -2022,7 +2023,9 @@ class WhatsAppController extends FindByNumberController
                         }
                     }
                 } else {
-                    $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
+                    $params[ 'developer_task_id' ] = $request->get('issue_id');
+                    $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-"; 
+                    $params[ 'message' ] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
                     $this->sendWithThirdApi($number, null, $params[ 'message' ]);
                     $chat_message = ChatMessage::create($params);
                 }
