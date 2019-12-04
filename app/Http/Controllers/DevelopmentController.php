@@ -706,7 +706,7 @@ class DevelopmentController extends Controller
             return response()->json(['task' => $task]);
         }
 
-        return redirect()->route('development.index')->with('success', 'You have successfully added task!');
+        return redirect(url('development/list/task'))->with('success', 'You have successfully added task!');
     }
 
     public function issueStore(Request $request)
@@ -734,6 +734,7 @@ class DevelopmentController extends Controller
         $task->priority = $request->input('priority');
         $task->subject = $request->input('subject');
         $task->task = $request->input('issue');
+        $task->module_id = $module->id;
         $task->user_id = Auth::id();
         $task->status = 'Issue';
         $task->task_type_id = 3;
@@ -752,6 +753,12 @@ class DevelopmentController extends Controller
                 $task->attachMedia($media, config('constants.media_tags'));
             }
         }
+
+        $requestData = new Request();
+        $requestData->setMethod('POST');
+        $requestData->request->add(['issue_id' => $task->id, 'message' => $request->input('issue'), 'status' => 1]);
+
+        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
         return redirect()->back()->with('success', 'You have successfully submitted an issue!');
     }

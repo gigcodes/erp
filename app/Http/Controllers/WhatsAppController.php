@@ -2006,7 +2006,7 @@ class WhatsAppController extends FindByNumberController
                 if ($request->type == 1) {
                     foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                         $this->sendWithThirdApi($number, null, '', $image->getUrl());
-                        $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $image->getUrl();
+                        $params[ 'message' ] = '#TASK-' . $issue->id . '-' . $issue->subject . '=>' . $image->getUrl();
                         $params[ 'media_url' ] = $image->getUrl();
                         $chat_message = ChatMessage::create($params);
                     }
@@ -2023,7 +2023,8 @@ class WhatsAppController extends FindByNumberController
                         }
                     }
                 } else {
-                    $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
+                    $prefix = ($issue->task_type_id == 1) ? "#TASK-" : "#ISSUE-"; 
+                    $params[ 'message' ] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
                     $this->sendWithThirdApi($number, null, $params[ 'message' ]);
                     $chat_message = ChatMessage::create($params);
                 }
