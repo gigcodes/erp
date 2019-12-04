@@ -119,7 +119,7 @@
                             </div>
                             
                              <div class="col-md-3">
-                                   <select class="form-control global" id="total" name="total">
+                                   <select class="form-control customer_type" id="total" name="total">
                                         <option value="0">Select Customer Type</option>
                                         <option value="1" @if(isset($total) && $total == 1)  selected @endif>Enabled Customer</option>
                                         <option value="2" @if(isset($total) && $total == 2)  selected @endif>Pending Customer For Enable</option>
@@ -813,6 +813,46 @@
                         data: {
                             term: term,
                             date: date,
+                            total: total,
+
+                        },
+                        beforeSend: function () {
+                            $("#loading-image").show();
+                        },
+
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                        console.log(data);
+                        $("#customers-table tbody").empty().html(data.tbody);
+                        $("#customer_count").text(data.count);
+                        
+                        if (data.links.length > 10) {
+                            $('ul.pagination').replaceWith(data.links);
+                        } else {
+                            $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                        }
+
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        alert('No response from server');
+                    });
+                },
+                minLength: 1,
+
+            });
+        });
+
+         $(document).ready(function () {
+            src = "{{ route('broadcasts.index') }}";
+            $(".customer_type").autocomplete({
+                source: function (request, response) {
+                   total = $('#total').val();
+
+
+                    $.ajax({
+                        url: src,
+                        dataType: "json",
+                        data: {
+                            
                             total: total,
 
                         },
