@@ -454,6 +454,107 @@
                     });  
             }
 
+            function addToEnable(id){
+                    method = $('#checkbox_value').val();
+                    if(method == 1){
+                        $.ajax({
+                        type: 'GET',
+                        url: '{{ route('broadcast.add.manual') }}',
+                        data: {
+                            id: id,
+                            type: 1,
+                        }, success: function (data) {
+                            console.log(data);
+                            if (data.status == 'error') {
+                                alert('Something went wrong');
+                            } else {
+                                $('#checkbox_value').val('0');
+                               // alert('Customer Added to Broadcastlist');
+                            }
+
+                        },
+                        error: function (data) {
+                            alert('Something went wrong');
+                        }
+                    });
+
+                }else{
+                    $.ajax({
+                        type: 'GET',
+                        url: '{{ route('broadcast.add.manual') }}',
+                        data: {
+                            id: id,
+                            type: 0,
+                        }, success: function (data) {
+                            console.log(data);
+                            if (data.status == 'error') {
+                                alert('Something went wrong');
+                            } else {
+                                $('#checkbox_value').val('1');
+                               // alert('Customer Removed Broadcastlist');
+                            }
+                        },
+                        error: function (data) {
+                            alert('Something went wrong');
+                        }
+                    });
+                }
+                    
+            }
+
+            
+            function enableDND(id){
+                method = $('#checkbox_value_dnd').val();
+                if(method == 1){
+                    $.ajax({
+                    type: 'GET',
+                    url: '{{ route('broadcast.add.dnd') }}',
+                    data: {
+                        id: id,
+                        type: 1,
+                    }, success: function (data) {
+                        console.log(data);
+                        if (data.status == 'error') {
+                           // alert('Something went wrong');
+                        } else {
+                            $('#checkbox_value_dnd').val('0');
+                            alert('Customer Added to DND');
+
+                        }
+
+                    },
+                    error: function (data) {
+                        alert('Something went wrong');
+                    }
+                });
+
+                }else{
+                    $.ajax({
+                    type: 'GET',
+                    url: '{{ route('broadcast.add.dnd') }}',
+                    data: {
+                        id: id,
+                        type: 0,
+                    }, success: function (data) {
+                        console.log(data);
+                        if (data.status == 'error') {
+                        //    alert('Something went wrong');
+                        } else {
+                            $('#checkbox_value_dnd').val('1');
+                            alert('Customer Removed From DND');
+
+                        }
+
+                    },
+                    error: function (data) {
+                        alert('Something went wrong');
+                    }
+                });
+
+                }
+                     
+            }
+
 
             $('#filter-phone-date').datetimepicker(
             { format: 'YYYY/MM/DD' }).on('dp.change', 
@@ -625,80 +726,7 @@
            
     </script>
     <script type="text/javascript">
-        $(".checkbox").change(function () {
-            id = $(this).val();
-
-            if (this.checked) {
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ route('broadcast.add.dnd') }}',
-                    data: {
-                        id: id,
-                        type: 1,
-                    }, success: function (data) {
-                        console.log(data);
-                        if (data.status == 'error') {
-                            alert('Something went wrong');
-                        } else {
-                            alert('Customer Added to DND');
-
-                        }
-
-                    },
-                    error: function (data) {
-                        alert('Something went wrong');
-                    }
-                });
-            } else {
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ route('broadcast.add.dnd') }}',
-                    data: {
-                        id: id,
-                        type: 0
-                    },
-                }).done(response => {
-                    alert('Customer Removed From DND');
-                });
-            }
-        });
-
-        $(".checkboxs").change(function () {
-            id = $(this).val();
-
-            if (this.checked) {
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ route('broadcast.add.manual') }}',
-                    data: {
-                        id: id,
-                        type: 1,
-                    }, success: function (data) {
-                        console.log(data);
-                        if (data.status == 'error') {
-                            alert('Something went wrong');
-                        } else {
-                            // alert('Customer Added to Broadcastlist');
-                        }
-
-                    },
-                    error: function (data) {
-                        alert('Something went wrong');
-                    }
-                });
-            } else {
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ route('broadcast.add.manual') }}',
-                    data: {
-                        id: id,
-                        type: 0
-                    },
-                }).done(response => {
-                    //alert('Customer Removed From Broadcastlist');
-                });
-            }
-        });
+        
 
         $(document).on('click', '.make-remarks', function (e) {
             e.preventDefault();
@@ -751,9 +779,7 @@
             });
         });
 
-        $('.whatsapp').on('change', function () {
-            number = this.value;
-            id = $(this).data("id");
+        function updateNumber(id , number){
             $.ajax({
                 type: 'POST',
                 headers: {
@@ -769,8 +795,8 @@
             }).fail(function (response) {
                 alert('Something went wrong');
             });
-
-        });
+        }
+        
 
         $(document).ready(function () {
             src = "{{ route('broadcasts.index') }}";
@@ -995,6 +1021,7 @@
                         dataType: "json",
                         data: {
                             id: id,
+                            type: 1,
                         },
                         beforeSend: function () {
                             $("#loading-image").show();

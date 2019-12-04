@@ -176,8 +176,9 @@ class BroadcastController extends Controller
 
             //if number is not null
             if (request('number') != null) {
-                $query->where('whatsapp_number', 'LIKE', '%' . request('number') . '%');
+                $query->where('phone', 'LIKE', '%' . request('number') . '%');
             }
+            
             //if number is not null
             if (request('name') != null) {
                 $query->where('name', 'LIKE', '%' . request('name') . '%');
@@ -450,7 +451,9 @@ class BroadcastController extends Controller
             ]);
 
         } else {
-            $remark->active = $request->type;
+            $customer->broadcast_number = '';
+            $customer->save();
+            $remark->active = 0;
             $remark->update();
         }
 
