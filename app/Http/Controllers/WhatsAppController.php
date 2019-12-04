@@ -2023,6 +2023,7 @@ class WhatsAppController extends FindByNumberController
                         }
                     }
                 } else {
+                    $params[ 'developer_task_id' ] = $request->get('issue_id');
                     $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-"; 
                     $params[ 'message' ] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
                     $this->sendWithThirdApi($number, null, $params[ 'message' ]);

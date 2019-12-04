@@ -213,7 +213,7 @@
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
                                             <h4 class="panel-title">
-                                                <a data-toggle="collapse" href="#collapse_{{$issue->id}}">Messages({{count($issue->communications)}})</a>
+                                                <a data-toggle="collapse" href="#collapse_{{$issue->id}}">Messages({{count($issue->messages)}})</a>
                                             </h4>
                                         </div>
                                     </div>
@@ -292,7 +292,7 @@
                             <div id="collapse_{{$issue->id}}" class="panel-collapse collapse">
                                 <div class="panel-body">
                                     <div class="messageList" id="message_list_{{$issue->id}}">
-                                        @foreach($issue->communications as $message)
+                                        @foreach($issue->messages as $message)
                                             <li>{{ $message->message }}</li>
                                         @endforeach
                                     </div>
