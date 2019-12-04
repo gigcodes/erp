@@ -1682,7 +1682,8 @@ class CustomerController extends Controller
         $customer->save();
 
         if ($request->do_not_disturb == 'on') {
-            MessageQueue::where('customer_id', $customer->id)->delete();
+             \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
+             MessageQueue::where('customer_id', $customer->id)->delete();
 
             // foreach ($message_queues as $message_queue) {
             //   $message_queue->status = 1; // message stopped
@@ -1718,6 +1719,7 @@ class CustomerController extends Controller
         $customer->save();
 
         if ($request->do_not_disturb == 1) {
+             \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
             MessageQueue::where('customer_id', $customer->id)->delete();
 
             // foreach ($message_queues as $message_queue) {

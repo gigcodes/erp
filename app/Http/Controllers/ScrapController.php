@@ -561,6 +561,10 @@ class ScrapController extends Controller
         $pendingUrl = array();
         $links = $request->links;
 
+        if ( is_string($links) ) {
+            $links = json_decode($links);
+        }
+
         if (is_array($links)) {
             foreach ($links as $link) {
                 $logScraper = LogScraper::where('url', $link)->where('website', $request->website)->first();
@@ -591,26 +595,26 @@ class ScrapController extends Controller
                     $totalLinks = count($links);
                     $pendingLinks = count($pendingUrl);
                     $existingLinks = ($totalLinks - $pendingLinks);
-                    
+
                     if($scraper != '' && $scraper != null){
-                        $scraper->scraper_total_urls = $totalLinks; 
+                        $scraper->scraper_total_urls = $totalLinks;
                         $scraper->scraper_existing_urls = $existingLinks;
                         $scraper->scraper_new_urls = $pendingLinks;
-                        $scraper->update();    
+                        $scraper->update();
                     }
-                    
+
                     $scraperResult = new ScraperResult();
                     $scraperResult->date = date("Y-m-d");
                     $scraperResult->scraper_name = $request->website;
-                    $scraperResult->total_urls = $totalLinks; 
+                    $scraperResult->total_urls = $totalLinks;
                     $scraperResult->existing_urls = $existingLinks;
                     $scraperResult->new_urls = $pendingLinks;
                     $scraperResult->save();
-                    
+
                 } catch (Exception $e) {
-                    
+
                 }
-               
+
         }
 
         return $pendingUrl;
