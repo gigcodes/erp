@@ -1319,6 +1319,7 @@ class CustomerController extends Controller
         $purchase_status = (new PurchaseStatus)->all();
         $solo_numbers = (new SoloNumbers)->all();
         $api_keys = ApiKey::select(['number'])->get();
+        $broadcastsNumbers = collect(\DB::select("select number from whatsapp_configs where is_customer_support = 0"))->pluck("number","number")->toArray();
         $suppliers = Supplier::select(['id', 'supplier'])
             ->whereRaw("suppliers.id IN (SELECT product_suppliers.supplier_id FROM product_suppliers)")->get();
         $category_suggestion = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])
@@ -1346,7 +1347,8 @@ class CustomerController extends Controller
             'emails' => $emails,
             'category_suggestion' => $category_suggestion,
             'suppliers' => $suppliers,
-            'facebookMessages' => $facebookMessages
+            'facebookMessages' => $facebookMessages,
+            'broadcastsNumbers' => $broadcastsNumbers
         ]);
     }
 
@@ -1400,6 +1402,7 @@ class CustomerController extends Controller
         $solo_numbers = (new SoloNumbers)->all();
         $api_keys = ApiKey::select(['number'])->get();
         $suppliers = Supplier::select(['id', 'supplier'])->get();
+        $broadcastsNumbers = collect(\DB::select("select number from whatsapp_configs where is_customer_support = 0"))->pluck("number","number")->toArray();
         $category_suggestion = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])
             ->renderAsDropdown();
 
@@ -1429,7 +1432,8 @@ class CustomerController extends Controller
             'category_suggestion' => $category_suggestion,
             'suppliers' => $suppliers,
             'facebookMessages' => $facebookMessages,
-            'searchedMessages' => $searchedMessages
+            'searchedMessages' => $searchedMessages,
+            'broadcastsNumbers' => $broadcastsNumbers
         ]);
     }
 
