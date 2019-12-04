@@ -149,6 +149,8 @@ class VendorController extends Controller
                   (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
 
                   FROM (SELECT vendors.id, vendors.frequency, vendors.is_blocked ,vendors.reminder_message, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.account_swift,
+                    vendors.created_at,vendors.updated_at,
+                    vendors.updated_by,
                   category_name,
                   chat_messages.message_id FROM vendors
 
@@ -171,7 +173,7 @@ class VendorController extends Controller
                   ORDER BY ' . $sortByClause . ' message_created_at DESC;
               ');
 
-              // dd($vendors);
+              //dd($vendors);
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
       $perPage = Setting::get('pagination'); 
