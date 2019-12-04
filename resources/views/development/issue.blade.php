@@ -122,7 +122,7 @@
                     </div>
                 </div>
             </form>
-            @if($title == 'task')
+            @if($title == 'Dev Task')
             <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Task </a>
             @endif
         </div>

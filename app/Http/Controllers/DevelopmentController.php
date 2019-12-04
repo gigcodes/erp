@@ -476,7 +476,7 @@ class DevelopmentController extends Controller
             'users' => $users,
             'modules' => $modules,
             'request' => $request,
-            'title' => ($type == "task") ? "Dev Task" : $type,
+            'title' => ($type == "devtask") ? "Dev Task" : $type,
             'priority' => $priority
         ]);
 
@@ -706,7 +706,7 @@ class DevelopmentController extends Controller
             return response()->json(['task' => $task]);
         }
 
-        return redirect(url('development/list/task'))->with('success', 'You have successfully added task!');
+        return redirect(url('development/list/devtask'))->with('success', 'You have successfully added task!');
     }
 
     public function issueStore(Request $request)
