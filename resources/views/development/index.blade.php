@@ -1447,10 +1447,10 @@
                 type: 'GET',
                 dataType: "JSON",
                 success: function (resp) {
-                    console.log(resp);
                     if(resp.status == 'ok') {
                         $("body").append(resp.html);
                         $('#newTaskModal').modal('show');
+                        $('.select2').select2({tags :true});
                     }
                 }
             });

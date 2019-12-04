@@ -35,19 +35,54 @@
         </div>
     </div>
 
+
+
     @php
         $count = 0;
     @endphp
 
     <main class="content">
         <div class="container-fluid">
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <form action="{{ url("development/overview") }}" method="get">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <label>Filter By:</label>
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-control" name="task_type" id="task_type">
+                                    <option value="">Please select Task Type</option>
+                                    @foreach($taskTypes as $id=>$taskType)
+                                        <option  value="{{$taskType->id}}" {{ (!empty(app('request')->input('task_type')) && app('request')->input('task_type') ==  $taskType->id ? 'selected' : '') }}>{{ $taskType->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select name="task_status" id="task_status" class="form-control">
+                                    <option value="">Please Select Status</option>
+                                    <option value="Planned" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'Planned' ? 'selected' : '') }}>Planned</option>
+                                    <option value="In Progress" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
+                                    <option value="Done" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==   'Done' ? 'selected' : '') }}>Done</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-image">
+                                    <img src="{{ asset('images/search.png') }}" alt="Search">
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-md-12">
                     <div id="devOverview">
                         <div class="overview-container">
                             @foreach($users as $user)
                                 @php
-                                    $tasks = \App\Helpers\DevelopmentHelper::getDeveloperTasks($user->id, $status);
+                                    $tasks = \App\Helpers\DevelopmentHelper::getDeveloperTasks($user->id, $status,$task_type);
                                 @endphp
                                 @if(!empty($tasks) && count($tasks)>0)
                                     <div style="width: 200px; display: inline-block;">
