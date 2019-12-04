@@ -201,7 +201,7 @@
                                             value="{{ isset($phone_term) ? $phone_term : '' }}"
                                             placeholder="whatsapp number , broadcast id , remark" id="phone_term">
                                         </div>
-                                        <div class="col-md-3">
+                                        {{-- <div class="col-md-3">
                                             <div class='input-group date' id='filter-phone-date'>
                                                 <input type='text' class="form-control phone_global" name="phone_date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="phone_date" />
 
@@ -209,8 +209,8 @@
                                                     <span class="glyphicon glyphicon-calendar"></span>
                                                 </span>
                                             </div>
-                                        </div>
-                                        <div class="col-md-5">
+                                        </div> --}}
+                                        <div class="col-md-8">
                                             <div id="reportrange_phone" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                                                 <input type="hidden" name="phone_customrange" id="custom_phone">
                                                 <i class="fa fa-calendar"></i>&nbsp;
@@ -271,15 +271,6 @@
                                 <tr>
                                     <th>Count</th>
                                     <th><span id="count">0</span></th>
-                                    <th style="width: 20%"> 
-                                        <div class='input-group date' id='filter-count-date'>
-                                                <input type='text' class="form-control phone_global" name="count_date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="count_date" />
-
-                                                <span class="input-group-addon">
-                                                    <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
-                                            </div>
-                                        </th>
                                     <th><div id="reportrange_count" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                                                 <input type="hidden"  id="custom_count">
                                                 <i class="fa fa-calendar"></i>&nbsp;
