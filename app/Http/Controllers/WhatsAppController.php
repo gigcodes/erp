@@ -222,7 +222,8 @@ class WhatsAppController extends FindByNumberController
                     if ($customer = Customer::find($params[ 'customer_id' ])) {
                         $customer->do_not_disturb = 1;
                         $customer->save();
-
+                         \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
+       
                         $dnd_params = [
                             'number' => null,
                             'user_id' => 6,
@@ -742,7 +743,8 @@ class WhatsAppController extends FindByNumberController
                     if ($customer = Customer::find($params[ 'customer_id' ])) {
                         $customer->do_not_disturb = 1;
                         $customer->save();
-
+                         \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
+       
                         $dnd_params = [
                             'number' => null,
                             'user_id' => 6,
@@ -1382,7 +1384,8 @@ class WhatsAppController extends FindByNumberController
                     if ($customer = Customer::find($params[ 'customer_id' ])) {
                         $customer->do_not_disturb = 1;
                         $customer->save();
-
+                         \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
+       
                         $dnd_params = [
                             'number' => null,
                             'user_id' => 6,
