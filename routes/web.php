@@ -786,10 +786,15 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
-        Route::get('/', 'TemplatesController@index')->name('templates');;
+        Route::get('/', 'TemplatesController@index')->name('templates');
         Route::get('response', 'TemplatesController@response');
         Route::post('create', 'TemplatesController@create');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
+    });
+
+    Route::prefix('erp-events')->middleware('auth')->group(function () {
+        Route::get('/', 'ErpEventController@index')->name('erp-events');
+       Route::get('/dummy', 'ErpEventController@dummy')->name('erp-events.dummy');
     });
 
 });
