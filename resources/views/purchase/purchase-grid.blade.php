@@ -15,6 +15,9 @@
         .select2-container {
             width: 215px !important;
         }
+        .dis-none {
+            display: none;
+        }
     </style>
 @endsection
 
@@ -210,9 +213,11 @@
                             <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $product['id'] }}">Add</a>
                             <span> | </span>
                             <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $product['id'] }}">View</a>
+                            <span> | </span>
+                            <button class="btn btn-image expand-row-btn" data-class="purchase-expand-row-{{$product['id']}}"><img src="/images/forward.png"></button>
                         </td>
                     </tr>
-                    <tr id="product_cust_{{$product['id']}}">
+                    <tr id="product_cust_{{$product['id']}}" class="dis-none purchase-expand-row-{{$product['id']}}">
                         <td colspan="6">
                             <table class="table table-bordered" width="100%">
                                 <thead>
@@ -287,7 +292,7 @@
                             </table>
                         </td>
                     </tr>
-                    <tr>
+                    <tr class="dis-none purchase-expand-row-{{$product['id']}}">
                         <td colspan="6">
                             <table class="table table-bordered" width="100%">
                                 <thead>
@@ -1286,6 +1291,11 @@
                             $(this).closest(".price-row-db").find("td").last().html(retailPrice);   
                         }          
                 }
+        });
+
+        $(document).on("click",".expand-row-btn",function() {
+            var className = $(this).data("class");
+            $("."+className).toggleClass("dis-none");
         });
 
     </script>

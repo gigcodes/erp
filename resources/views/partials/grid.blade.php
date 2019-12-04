@@ -1,8 +1,23 @@
 @extends('layouts.app')
 
-@section('favicon' , 'inventory.png')
 
+
+@if($roletype == 'Selection')
+@section('favicon' , 'selectiongrid.png')
+@section('title', 'Selection Grid - ERP Sololuxury')
+@elseif($roletype == 'Supervisor')
+@section('favicon' , 'supervisorgrid.png')
+@section('title', 'Supervisor Grid - ERP Sololuxury')
+@elseif($roletype == 'ImageCropper')
+@section('favicon' , 'imagecroppergrid.png')
+@section('title', 'Image Cropper Grid - ERP Sololuxury')
+@else
+@section('favicon' , 'inventory.png')
 @section('title', 'Products Grid - ERP Sololuxury')
+@endif
+
+
+
 
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">

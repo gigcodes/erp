@@ -1,4 +1,10 @@
 @extends('layouts.app')
+{{ dd($cropped) }}
+
+@if($cropped == 'on')
+@endif
+@section('favicon' , 'attributeedit.png')
+@section('title', 'Approved Product Listing - ERP Sololuxury')
 
 @section('title', 'Product Listing')
 

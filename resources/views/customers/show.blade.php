@@ -649,7 +649,7 @@
               <div class="col-12">
                 <div class="form-group">
                   <label>Whatsapp No :</label>
-                  <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>">
+                  <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>" data-type="whatsapp_number">
                       <option value="">-No Selected-</option>
                       @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
                           @if($number != "0")
@@ -658,8 +658,18 @@
                       @endforeach
                   </select>
                 </div>
+                <div class="form-group">
+                    <label>Broadcast No :</label>
+                    <select class="form-control change-whatsapp-no" data-customer-id="<?php echo $customer->id; ?>" data-type="broadcast_number">
+                        <option value="">-No Selected-</option>
+                        @foreach($broadcastsNumbers as $number => $apwCate)
+                            @if($number != "0")
+                                <option {{ ($number == $customer->broadcast_number && $customer->broadcast_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                </div>
               </div>
-             
               <div class="col-9">
                 <div class="form-group">
                   <label>Broadcast Number</label>
@@ -4583,7 +4593,8 @@
                 data: {
                     _token: "{{ csrf_token() }}",
                     customer_id: $this.data("customer-id"),
-                    number : $this.val()
+                    number : $this.val(),
+                    type : $this.data("type")
                 }
             }).done(function () {
                 alert('Number updated successfully!');
