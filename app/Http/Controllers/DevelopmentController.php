@@ -298,7 +298,7 @@ class DevelopmentController extends Controller
             'plannedTasks' => $plannedTasks,
             'progressTasks' => $progressTasks,
             'tasksTypes' => $tasksTypes,
-            'title' => 'Task'
+            'title' => 'Dev'
         ]);
     }
 
@@ -476,7 +476,7 @@ class DevelopmentController extends Controller
             'users' => $users,
             'modules' => $modules,
             'request' => $request,
-            'title' => $type,
+            'title' => ($type == "task") ? "Dev Task" : $type,
             'priority' => $priority
         ]);
 
