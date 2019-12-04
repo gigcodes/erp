@@ -232,7 +232,7 @@ class ProductController extends Controller
             'type' => $type,
             'users' => $users,
             'assigned_to_users' => $assigned_to_users,
-//            'cropped'	=> $cropped,
+            'cropped'	=> $cropped,
 //            'left_for_users'	=> $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,

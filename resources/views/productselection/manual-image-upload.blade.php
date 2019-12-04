@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('favicon' , 'manualimageupload.png')
+@section('title', 'Manual Image Upload - ERP Sololuxury')
 
 @section('content')
     <div class="row">
