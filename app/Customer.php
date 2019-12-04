@@ -222,4 +222,6 @@ class Customer extends Model
     public function lastImQueueSend(){
        return $this->hasOne(ImQueue::class,'number_to','phone')->orderby('sent_at','desc');
     }
+
+    
 }
