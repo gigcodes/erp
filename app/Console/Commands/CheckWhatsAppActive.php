@@ -39,7 +39,7 @@ class CheckWhatsAppActive extends Command
      */
     public function handle()
     {
-        $numbers = WhatsappConfig::where('is_customer_support','!=',1)->get();
+        $numbers = WhatsappConfig::where('is_customer_support','!=',1)->where('status',1)->get();
         
         $time = Carbon::now();
         $morning = Carbon::create($time->year, $time->month, $time->day, 8, 0, 0);

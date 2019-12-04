@@ -196,6 +196,10 @@ class Customer extends Model
     }
 
     public function lastBroadcastSend(){
-       return $this->hasOne(ImQueue::class,'number_to','phone')->whereNotNull('send_after')->latest();
+       return $this->hasOne(ImQueue::class,'number_to','phone')->whereNotNull('sent_at')->latest();
+    }
+
+    public function lastImQueueSend(){
+       return $this->hasOne(ImQueue::class,'number_to','phone')->orderby('sent_at','desc');
     }
 }

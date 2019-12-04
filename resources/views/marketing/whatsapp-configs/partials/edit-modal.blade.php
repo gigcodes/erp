@@ -129,6 +129,83 @@
                             <div class="alert alert-danger">{{$errors->first('send_end')}}</div>
                             @endif
                         </div>
+
+                         <div class="form-group">
+                            <strong>Device Name:</strong>
+                            <input type="text" name="device_name" class="form-control" value="{{ $whatsAppConfig->device_name }}" >
+
+                            @if ($errors->has('device_name'))
+                            <div class="alert alert-danger">{{$errors->first('device_name')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Sim Card Number:</strong>
+                            <input type="text" name="simcard_number" class="form-control" value="{{ $whatsAppConfig->simcard_number }}" >
+
+                            @if ($errors->has('simcard_number'))
+                            <div class="alert alert-danger">{{$errors->first('simcard_number')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Sim Card Owner:</strong>
+                            <input type="text" name="simcard_owner" class="form-control" value="{{ $whatsAppConfig->simcard_owner }}">
+
+                            @if ($errors->has('simcard_owner'))
+                            <div class="alert alert-danger">{{$errors->first('simcard_owner')}}</div>
+                            @endif
+                        </div>
+
+
+                        <div class="form-group">
+                            <strong>Payment :</strong>
+                            <input type="text" name="payment" class="form-control" value="{{ $whatsAppConfig->payment }}">
+
+                            @if ($errors->has('payment'))
+                            <div class="alert alert-danger">{{$errors->first('payment')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Sim Card Type:</strong>
+                             <select class="form-control" name="sim_card_type">
+                                <option>Select Sim Card Type</option>
+                                <option value="0"  @if($whatsAppConfig->sim_card_type == 0) selected @endif>Pre Paid</option>
+                                <option value="1"  @if($whatsAppConfig->sim_card_type == 1) selected @endif>Post Paid</option>
+                             </select>
+                            @if ($errors->has('status'))
+                            <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Recharge Date:</strong>
+                             <div class='input-group date' id='filter-whats-date'>
+                            <input type='text' class="form-control" name="recharge_date" placeholder="Date" value="{{ $whatsAppConfig->recharge_date }}" />
+                            <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
+                            </div>
+
+                            @if ($errors->has('recharge_date'))
+                            <div class="alert alert-danger">{{$errors->first('recharge_date')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Status:</strong>
+                             <select class="form-control" name="status">
+                                <option>Select Status</option>
+                                <option value="1" @if($whatsAppConfig->status == 1) selected @endif>Active</option>
+                                <option value="2" @if($whatsAppConfig->status == 2) selected @endif>Blocked</option>
+                                <option value="3" @if($whatsAppConfig->status == 0) selected @endif>Inactive</option>
+                             </select>
+                            @if ($errors->has('status'))
+                            <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                            @endif
+                        </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

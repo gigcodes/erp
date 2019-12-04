@@ -155,7 +155,7 @@
           </div>
           <div class="form-group">
             <strong>Supplier Category:</strong>
-            {!!Form::select('supplier_category_id', $suppliercategory, old('supplier_category_id') , ['class' => 'form-control form-control-sm', 'id' => 'supplier_category_id'])!!}
+            {!!Form::select('supplier_category_id', [null=>'Select a category'] + $suppliercategory, old('supplier_category_id') , ['class' => 'form-control form-control-sm', 'id' => 'supplier_category_id'])!!}
           </div>
 
           <div class="form-group">
@@ -163,13 +163,6 @@
             {!!Form::select('supplier_status_id', $supplierstatus, old('supplier_status_id'), ['class' => 'form-control form-control-sm', 'id' => 'supplier_status_id'])!!}
           </div>
 
-          <div class="form-group">
-            <label for="status">Status</label>
-            <select name="status" id="status" class="form-control">
-              <option {{ old('status') == 0 ? 'selected' : '' }} value="0">Inactive</option>
-              <option {{ old('status') == 1 ? 'selected' : '' }} value="1">Active</option>
-            </select>
-          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

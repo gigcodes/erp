@@ -58,6 +58,7 @@ Route::prefix('category-messages')->group(function () {
 
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
+    Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
     Route::get('crop/approved', 'ProductCropperController@getApprovedImages');
     Route::get('order-cropped-images', 'ProductCropperController@showCropVerifiedForOrdering');
@@ -210,6 +211,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Instruction
     Route::get('instruction/quick-instruction', 'InstructionController@quickInstruction');
+    Route::post('instruction/store-instruction-end-time', 'InstructionController@storeInstructionEndTime');
     Route::get('instruction/list', 'InstructionController@list')->name('instruction.list');
     Route::resource('instruction', 'InstructionController');
     Route::post('instruction/complete', 'InstructionController@complete')->name('instruction.complete');
@@ -266,6 +268,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/list-by-user-id', 'TaskModuleController@taskListByUserId')->name('task.list.by.user.id');
     Route::post('task/set-priority', 'TaskModuleController@setTaskPriority')->name('task.set.priority');
     Route::resource('task', 'TaskModuleController');
+    Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
     Route::post('task_category/{id}/approve', 'TaskCategoryController@approve');
     Route::resource('task_category', 'TaskCategoryController');
     Route::post('task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup')->name('task.add.whatsapp.group');
@@ -1232,6 +1235,7 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
     Route::post('broadcast/update', 'BroadcastController@updateWhatsAppNumber')->name('broadcast.update.whatsappnumber');
     Route::get('broadcast/sendMessage/list','BroadcastController@broadCastSendMessage')->name('broadcast.message.send.list');
     Route::post('broadcast/customer/list','BroadcastController@getCustomerBroadcastList')->name('broadcast.customer.list');
+    Route::post('broadcast/global/save','BroadcastController@saveGlobalValues')->name('broadcast.global.save');
 });
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
