@@ -370,7 +370,7 @@
                                       <th width="15%">Task Subject</th>
                                       {{-- <th width="5%">Est Completion Date</th> --}}
                                       <th width="5%" colspan="2">From / To</th>
-                                      <th width="5%">Estimate Minute</th>
+                                      <th width="8%">ED</th>
                                       {{-- <th width="5%">Assigned To</th> --}}
                                       <th width="20%">Communication</th>
                                       <th width="20%">Send Message</th>
@@ -473,13 +473,11 @@
                                         </span>
                                       </td>
                                       <td>
-                                        @if(auth()->user()->isAdmin() || auth()->user()->id == $task->assign_from)
-                                            {{$task->approximate}}
-                                        @endif
-
-                                        @if(auth()->user()->id == $task->assign_to)
-                                          <input type="text" class="update_approximate" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
+                                        @if(auth()->user()->id == $task->assign_to || auth()->user()->isAdmin())
+                                          <input type="text" class="update_approximate form-control input-sm" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
                                           <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
+                                        @else 
+                                          <span class="apx-val">{{$task->approximate}}</span>
                                         @endif
 
                                       </td>
@@ -598,7 +596,7 @@
                                     <th width="5%">Reccuring</th>
                                     {{-- <th width="5%">Assigned To</th> --}}
                                     {{-- <th width="5%">Remark</th> --}}
-                                    <th width="5%">Estimate Minute</th>
+                                    <th width="8%">ED</th>
                                     <th width="20%">Communication</th>
                                     <th width="20%">Send Message</th>
                                     {{-- <th width="5%">Completed at</th> --}}
@@ -699,13 +697,11 @@
                                       {{ strlen($task->recurring_type) > 6 ? substr($task->recurring_type, 0, 6) : $task->recurring_type }}
                                     </td>
                                     <td>
-                                        @if(auth()->user()->isAdmin() || auth()->user()->id == $task->assign_from)
-                                            {{$task->approximate}}
-                                        @endif
-
-                                        @if(auth()->user()->id == $task->assign_to)
-                                          <input type="text" class="update_approximate" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
+                                        @if(auth()->user()->id == $task->assign_to || auth()->user()->isAdmin())
+                                          <input type="text" class="update_approximate form-control input-sm" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
                                           <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
+                                        @else 
+                                          <span class="apx-val">{{$task->approximate}}</span>
                                         @endif
 
                                     </td>
@@ -2429,6 +2425,7 @@
                         task_id: task_id
                     }
                 }).done(function () {
+                    $(thiss).closest("td").find(".apx-val").html(approximate);
                     $(thiss).closest('td').find('.update_approximate_msg').fadeIn(400);
                     setTimeout(function () {
                       $(thiss).closest('td').find('.update_approximate_msg').fadeOut(400);
