@@ -120,8 +120,8 @@
                             
                              <div class="col-md-3">
                                    <select class="form-control global" id="total" name="total">
-                                        <option>Select Customer Type</option>
-                                        <option value="1" @if(isset($total) && $total == 0)  selected @endif>Enabled Customer</option>
+                                        <option value="0">Select Customer Type</option>
+                                        <option value="1" @if(isset($total) && $total == 1)  selected @endif>Enabled Customer</option>
                                         <option value="2" @if(isset($total) && $total == 2)  selected @endif>Pending Customer For Enable</option>
                                         <option value="3" @if(isset($total) && $total == 3)  selected @endif>DND Customer</option>
                                         <option value="4" @if(isset($total) && $total == 4)  selected @endif>Customer With Leads</option>
