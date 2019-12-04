@@ -476,7 +476,7 @@ class DevelopmentController extends Controller
             'users' => $users,
             'modules' => $modules,
             'request' => $request,
-            'title' => ($type == "devtask") ? "Dev Task" : $type,
+            'title' => $type,
             'priority' => $priority
         ]);
 

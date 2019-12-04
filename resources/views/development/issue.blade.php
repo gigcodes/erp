@@ -2,8 +2,11 @@
 
 @section('favicon' , 'development-issue.png')
 
-@section('title', 'Development Issue')
-
+@if($title == "devtask")
+    @section('title', 'Development Issue')
+@else
+    @section('title', 'Development Task')
+@endif
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -97,7 +100,7 @@
                             <option {{$request->get('order')== "create" ? 'selected' : ''}} value="create">Order by date</option>
                         </select>
                     </div>
-                    @if($title == 'task')
+                    @if($title == 'devtask')
                         <div class="col-md-2">
                         <select name="task_status" id="task_status" class="form-control change-task-status">
                             <option value="">Please Select</option>
@@ -122,7 +125,7 @@
                     </div>
                 </div>
             </form>
-            @if($title == 'Dev Task')
+            @if($title == 'devtask')
             <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Dev Task </a>
             @endif
         </div>
