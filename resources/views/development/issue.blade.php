@@ -293,12 +293,13 @@
                                 <div class="panel-body">
                                     <div class="messageList" id="message_list_{{$issue->id}}">
                                         @foreach($issue->messages as $message)
-                                            <li>{{ $message->message }}</li>
+                                            <li>{{ date('d-m-Y H:i:s', strtotime($message->created_at)) }} : {{ $message->message }}</li>
                                         @endforeach
                                     </div>
                                 </div>
                                 <div class="panel-footer">
-                                    <input type="text" class="form-control send-message" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}">
+                                    <textarea class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}"></textarea>
+                                    <button type="submit" id="submit_message" class="btn btn-secondary ml-3 send-message" data-id="{{$issue->id}}" style="float: right;margin-top: 2%;">Submit</button>
                                 </div>
                             </div>
                         </td>
@@ -402,7 +403,8 @@
                                         </div>
                                     </div>
                                     <div class="panel-footer">
-                                        <input type="text" class="form-control send-message" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}">
+                                        <textarea class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}"></textarea>
+                                        <button type="submit" id="submit_message" class="btn btn-secondary ml-3 send-message" data-id="{{$issue->id}}" style="float: right;margin-top: 2%;">Submit</button>
                                     </div>
                                 </div>
                             </td>
@@ -656,19 +658,21 @@
         });
     </script>
     <script>
-        $(document).on('keyup', '.send-message', function (event) {
-            if (event.which != 13) {
+        $(document).on('click', '.send-message', function (event) {
+            /*if (event.which != 13) {
                 return;
-            }
+            }*/
 
-            let issueId = $(this).attr('data-id');
-            let message = $(this).val();
+            var textBox = $(this).closest(".panel-footer").find(".send-message-textbox");
+
+            let issueId = textBox.attr('data-id');
+            let message = textBox.val();
 
             if (message == '') {
                 return;
             }
 
-            let self = this;
+            let self = textBox;
 
             $.ajax({
                 url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
@@ -679,9 +683,10 @@
                     _token: "{{csrf_token()}}",
                     status: 2
                 },
-                success: function () {
+                dataType:"json",
+                success: function (response) {
                     toastr["success"]("Message sent successfully!", "Message");
-                    $('#message_list_' + issueId).append('<li>' + message + '</li>');
+                    $('#message_list_' + issueId).append('<li>'+response.message.created_at+ " : " + response.message.message + '</li>');
                     $(self).removeAttr('disabled');
                     $(self).val('');
                 },
