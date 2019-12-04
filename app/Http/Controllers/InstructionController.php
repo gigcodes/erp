@@ -391,7 +391,6 @@ class InstructionController extends Controller
         $instructionTime = \App\InstructionTime::where('instructions_id', $request->id)->where('end', '0000-00-00 00:00:00')->orderBy('id', 'desc')->first();  
         if ($instructionTime) {
             $instruction->end_time = Carbon::now();
-            $instruction->save();
             $instructionTime->end = date('Y-m-d H:i:s');
             
             $diff=date_diff(date_create($instructionTime->start), date_create(date('Y-m-d H:i:s')));
@@ -399,6 +398,7 @@ class InstructionController extends Controller
             $instructionTime->save();
         }
 
+        $instruction->save();
         // if ($instruction->instruction == '') {
         //   $message_body = 'Images attached!';
         // } else {
