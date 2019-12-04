@@ -144,6 +144,23 @@ class BroadcastController extends Controller
                     })->where('broadcast_number',null);
                 }
 
+                if(request('total') == 7 && request('customrange') != null){
+                    $range = explode(' - ', request('customrange'));
+                    if($range[0] == end($range)){
+                        $query->whereHas('notDelieveredImQueueMessage', function ($qu) use ($range) {
+                            $qu->whereDate('send_after', end($range));
+                        });
+                    }else{
+                        $query->whereHas('notDelieveredImQueueMessage', function ($qu) use ($range) {
+                           $qu->whereBetween('send_after', [$range[0], end($range)]);
+                        });
+                    }
+                }
+
+                elseif(request('total') == 7){
+                    $query->whereHas('notDelieveredImQueueMessage');
+                }
+
             }     
 
             // global search term
