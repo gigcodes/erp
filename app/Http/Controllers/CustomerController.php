@@ -2370,6 +2370,7 @@ class CustomerController extends Controller
     {
         $customerId = request()->get("customer_id", 0);
         $whatsappNo = request()->get("number", null);
+        $type       = request()->get("type","whatsapp_number");
 
         if ($customerId > 0) {
             // find the record from customer table
@@ -2378,18 +2379,23 @@ class CustomerController extends Controller
             if ($customer) {
                 // assing nummbers
                 $oldNumber = $customer->whatsapp_number;
-                $customer->whatsapp_number = $whatsappNo;
+                if($type == "broadcast_number") {
+                    $customer->broadcast_number = $whatsappNo;
+                }else{
+                    $customer->whatsapp_number = $whatsappNo;
+                }    
 
                 if ($customer->save()) {
-                    // update into whatsapp history table
-                    $wHistory = new \App\HistoryWhatsappNumber;
-                    $wHistory->date_time = date("Y-m-d H:i:s");
-                    $wHistory->object = "App\Customer";
-                    $wHistory->object_id = $customerId;
-                    $wHistory->old_number = $oldNumber;
-                    $wHistory->new_number = $whatsappNo;
-                    $wHistory->save();
-
+                    if($type == "whatsapp_number") {
+                        // update into whatsapp history table
+                        $wHistory = new \App\HistoryWhatsappNumber;
+                        $wHistory->date_time = date("Y-m-d H:i:s");
+                        $wHistory->object = "App\Customer";
+                        $wHistory->object_id = $customerId;
+                        $wHistory->old_number = $oldNumber;
+                        $wHistory->new_number = $whatsappNo;
+                        $wHistory->save();
+                    }
                 }
             }
         }
