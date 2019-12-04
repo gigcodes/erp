@@ -70,7 +70,7 @@ class ImportIssues extends Command
             $developer_task->subject = $issue->subject;
             $developer_task->task = $issue->issue;
             $developer_task->status = $issue->is_resolved == 1 ? 'Done' : 'Planned';
-            $developer_task->created_by = $issue->submitted_by;
+            $developer_task->created_by = !empty($issue->submitted_by) ? $issue->submitted_by : 6;
             $developer_task->is_resolved = $issue->is_resolved;
             $developer_task->estimate_time = $issue->estimate_time;
             $developer_task->cost = $issue->estimate_time;
