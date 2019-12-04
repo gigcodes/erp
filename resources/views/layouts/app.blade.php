@@ -946,13 +946,13 @@
                                     <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.index') }}">Tasks</a>
+                                    <a class="dropdown-item" href="{{ url('development/list/devtask') }}">Tasks</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('task-types.index') }}">Task Types</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.issue.index') }}">Issue list</a>
+                                    <a class="dropdown-item" href="{{ url('development/list/issue') }}">Issue list</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
@@ -1050,6 +1050,7 @@
                                 </ul>
                             </li>
                         @endif
+
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{{ isset(Auth::user()->name) ? Auth::user()->name : 'Settings' }}} <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
@@ -1158,6 +1159,25 @@
                                </ul>
                             </li>
                     @endif
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Hubstaff <span class="caret"></span></a>
+                        <ul class="dropdown-menu multi-level">
+                            {{-- Sub Menu Product --}}
+
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ url('hubstaff/members')  }}">Members</a>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ url('hubstaff/projects') }}">Projects</a>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ url('hubstaff/tasks') }}">Tasks</a>
+                            </li>
+                        </ul>
+                    </li>
 
                 </ul>
 
