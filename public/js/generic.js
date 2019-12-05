@@ -103,7 +103,7 @@ $(document).on('click', '.load-communication-modal', function () {
             // Set empty button var
             var button = "";
 
-            if (message.type == "task" || message.type == "customer") {
+            if (message.type == "task" || message.type == "customer" || message.type == "vendor") {
                 
                 if (message.status == 0 || message.status == 5 || message.status == 6) {
                     if (message.status == 0) {
@@ -134,9 +134,11 @@ $(document).on('click', '.load-communication-modal', function () {
                          button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
                     }
 
-                    if (message.type == "task") {
+                    if (message.type == "task" || message.type == "vendor") {
                         button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
-                        button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
+                        if(message.type != "vendor") {
+                            button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
+                        }
                      }
                 }
             }
@@ -495,6 +497,30 @@ $(document).on('click', '.resend-message-js', function(e) {
                 toastr['success']('Message resent successfully!')
           }
       });
+});
+
+$(document).on('click', '.resend-message', function () {
+    var id = $(this).data('id');
+    var thiss = $(this);
+
+    $.ajax({
+        type: "POST",
+        url: "/whatsapp/" + id + "/resendMessage",
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+        },
+        beforeSend: function () {
+            $(thiss).text('Sending...');
+        }
+    }).done(function () {
+        $(thiss).remove();
+    }).fail(function (response) {
+        $(thiss).text('Resend');
+
+        console.log(response);
+
+        alert('Could not resend message');
+    });
 });
 
 $(document).on('click', '.create-product-order', function(e) {
