@@ -1130,8 +1130,8 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function () {
 
 
     // -------v2 preview verion post requests----------
-    Route::get('v2/organizations/projects', 'HubstaffProjectController@getProject');
-    Route::post('v2/organizations/projects', 'HubstaffProjectController@postProject');
+//    Route::get('v2/organizations/projects', 'HubstaffProjectController@getProject');
+//    Route::post('v2/organizations/projects', 'HubstaffProjectController@postProject');
 
 
     Route::get('v1/organization/members', 'HubstaffController@organizationMemberPage')->name('organization.members');
