@@ -1523,7 +1523,7 @@
                         <div class="card-footer">
 							<div class="input-group">
                                 <div class="input-group-append">
-                                    <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
+                                    <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
                                     <input type="file" id="imgupload" style="display:none"/>
                                 </div>
                                 <input type="hidden" id="message-id"/>
