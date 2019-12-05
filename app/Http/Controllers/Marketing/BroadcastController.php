@@ -144,6 +144,23 @@ class BroadcastController extends Controller
                     })->where('broadcast_number',null);
                 }
 
+                if(request('total') == 7 && request('customrange') != null){
+                    $range = explode(' - ', request('customrange'));
+                    if($range[0] == end($range)){
+                        $query->whereHas('notDelieveredImQueueMessage', function ($qu) use ($range) {
+                            $qu->whereDate('send_after', end($range));
+                        });
+                    }else{
+                        $query->whereHas('notDelieveredImQueueMessage', function ($qu) use ($range) {
+                           $qu->whereBetween('send_after', [$range[0], end($range)]);
+                        });
+                    }
+                }
+
+                elseif(request('total') == 7){
+                    $query->whereHas('notDelieveredImQueueMessage');
+                }
+
             }     
 
             // global search term
@@ -159,8 +176,9 @@ class BroadcastController extends Controller
 
             //if number is not null
             if (request('number') != null) {
-                $query->where('whatsapp_number', 'LIKE', '%' . request('number') . '%');
+                $query->where('phone', 'LIKE', '%' . request('number') . '%');
             }
+            
             //if number is not null
             if (request('name') != null) {
                 $query->where('name', 'LIKE', '%' . request('name') . '%');
@@ -433,7 +451,9 @@ class BroadcastController extends Controller
             ]);
 
         } else {
-            $remark->active = $request->type;
+            $customer->broadcast_number = '';
+            $customer->save();
+            $remark->active = 0;
             $remark->update();
         }
 
