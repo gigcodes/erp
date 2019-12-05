@@ -1529,7 +1529,7 @@
                                 <input type="hidden" id="message-id"/>
 								<textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
 								<div class="input-group-append">
-									<span class="input-group-text send_btn" onclick="sendFile()"><i class="fa fa-location-arrow"></i></span>
+									<span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
                                 </div>
                             </div>
 						</div>
