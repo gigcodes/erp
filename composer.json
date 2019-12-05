@@ -112,9 +112,12 @@
             "url": "git@bitbucket.org:seo2websites/price-comparison-scraper"
         },
         {
-            "type": "vcs",
-            "url": "git@bitbucket.org:seo2websites/erp-customer"
-        },
+			"type": "path",
+			"url": "../erp-customer",
+			"options": {
+				"symlink": true
+			}
+		},
         {
             "type": "vcs",
             "url": "git@bitbucket.org:seo2websites/laravel-zoom"

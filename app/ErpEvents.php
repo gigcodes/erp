@@ -22,6 +22,8 @@ class ErpEvents extends Model
         "day_of_month",
         "month",
         "day_of_week",
+        "next_run_date",
+        "is_closed",
         "created_by"
     ];
 
