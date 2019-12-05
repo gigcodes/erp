@@ -170,6 +170,8 @@ class BroadcastMessageController extends Controller
     {
         $customer = Customer::find($id);
         $customer->do_not_disturb = 1;
+         \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
+       
         $customer->save();
 
         MessageQueue::where('sent', 0)->where('customer_id', $id)->delete();

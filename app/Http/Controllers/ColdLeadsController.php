@@ -25,8 +25,14 @@ class ColdLeadsController extends Controller
      */
     public function index(Request $request)
     {
+        
         if (!$request->isXmlHttpRequest()) {
-            return view('cold_leads.index');
+            if(isset($request->via)){
+                $via = $request->via;
+            }else{
+                $via = '';
+            }
+            return view('cold_leads.index',compact('via'));
         }
 
         $this->validate($request, [

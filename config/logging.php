@@ -102,6 +102,12 @@ return [
             'days' => 7,
         ],
 
+        'customerDnd' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/customers/dnd.log'),
+            'level' => 'debug',
+        ],
+
         'customer' => [
             'driver' => 'daily',
             'path' => storage_path('logs/general/general.log'),

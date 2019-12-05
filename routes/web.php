@@ -569,7 +569,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/upload-attachments', 'DevelopmentController@uploadAttachDocuments')->name('development.upload.files');
     Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
-    Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+    //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+    Route::get('development/list/{type}', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
+    //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');    
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
@@ -842,6 +844,12 @@ Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->na
 Route::post('whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError');
 Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
+
+//Hubstaff
+Route::get('hubstaff/members', 'HubstaffController@index');
+Route::get('hubstaff/projects', 'HubstaffController@getProjects');
+Route::get('hubstaff/tasks', 'HubstaffController@getTasks');
+
 
 
 /*

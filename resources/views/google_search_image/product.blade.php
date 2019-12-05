@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('favicon' , 'googleimagesearch.png')
+@section('title', 'Google Image Search Product- ERP Sololuxury')
+
 @section("styles")
 @endsection
 <style type="text/css">
