@@ -135,8 +135,11 @@
                 {{-- <th width="10%">Social handle</th>
                 <th width="10%">Website</th> --}}
                 <th width="20%">Send</th>
-                <th width="20%">Communication</th>
-                <th width="10%">Action</th>
+                <th width="10%">Communication</th>
+                <th width="5%">Created At</th>
+                <th width="5%">Updated At</th>
+                <th width="5%">Updated By</th>
+                <th width="2%">Action</th>
             </tr>
 
             <tr>

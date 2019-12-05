@@ -222,7 +222,8 @@ class WhatsAppController extends FindByNumberController
                     if ($customer = Customer::find($params[ 'customer_id' ])) {
                         $customer->do_not_disturb = 1;
                         $customer->save();
-
+                         \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
+       
                         $dnd_params = [
                             'number' => null,
                             'user_id' => 6,
@@ -742,7 +743,8 @@ class WhatsAppController extends FindByNumberController
                     if ($customer = Customer::find($params[ 'customer_id' ])) {
                         $customer->do_not_disturb = 1;
                         $customer->save();
-
+                         \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
+       
                         $dnd_params = [
                             'number' => null,
                             'user_id' => 6,
@@ -1382,7 +1384,8 @@ class WhatsAppController extends FindByNumberController
                     if ($customer = Customer::find($params[ 'customer_id' ])) {
                         $customer->do_not_disturb = 1;
                         $customer->save();
-
+                         \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
+       
                         $dnd_params = [
                             'number' => null,
                             'user_id' => 6,
@@ -1985,10 +1988,11 @@ class WhatsAppController extends FindByNumberController
             } elseif ($context == 'issue') {
 
                 $params[ 'issue_id' ] = $request->get('issue_id');
-                $issue = Issue::find($request->get('issue_id'));
-                $params[ 'erp_user' ] = $issue->user_id;
-                $params[ 'approved' ] = 1;
-                $params[ 'status' ] = 2;
+                //$issue                  = Issue::find($request->get('issue_id'));
+                $issue                  = DeveloperTask::find($request->get('issue_id'));
+                $params[ 'erp_user' ]   = $issue->user_id;
+                $params[ 'approved' ]   = 1;
+                $params[ 'status' ]     = 2;
 
 
                 $number = User::find($issue->user_id);
@@ -2002,7 +2006,7 @@ class WhatsAppController extends FindByNumberController
                 if ($request->type == 1) {
                     foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                         $this->sendWithThirdApi($number, null, '', $image->getUrl());
-                        $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $image->getUrl();
+                        $params[ 'message' ] = '#TASK-' . $issue->id . '-' . $issue->subject . '=>' . $image->getUrl();
                         $params[ 'media_url' ] = $image->getUrl();
                         $chat_message = ChatMessage::create($params);
                     }
@@ -2019,7 +2023,9 @@ class WhatsAppController extends FindByNumberController
                         }
                     }
                 } else {
-                    $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
+                    $params[ 'developer_task_id' ] = $request->get('issue_id');
+                    $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-"; 
+                    $params[ 'message' ] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
                     $this->sendWithThirdApi($number, null, $params[ 'message' ]);
                     $chat_message = ChatMessage::create($params);
                 }
@@ -2292,7 +2298,11 @@ class WhatsAppController extends FindByNumberController
                                         $pdf = new Dompdf();
                                         $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
                                         $pdf->loadHtml($pdfView);
-                                        $random = uniqid('sololuxury_', true);
+                                        if(!empty($request->pdf_file_name)) {
+                                            $random = str_replace(" ", "-", $request->pdf_file_name."-".date("Y-m-d-H-i-s-").rand());
+                                        }else{
+                                            $random = uniqid('sololuxury_', true);
+                                        }
                                         if (!File::isDirectory(public_path() . '/pdf/')) {
                                             File::makeDirectory(public_path() . '/pdf/', 0777, true, true);
                                         }
@@ -2479,13 +2489,18 @@ class WhatsAppController extends FindByNumberController
                 $mediasH = Media::whereIn('id', $imagesDecoded)->get();
 
                 $number = 0;
-                foreach ($mediasH->chunk(self::MEDIA_PDF_CHUNKS) as $medias) {
+                foreach ($mediasH->chunk(self::MEDIA_PDF_CHUNKS) as $key => $medias) {
 
                     $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
                     $pdf = new Dompdf();
                     $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
                     $pdf->loadHtml($pdfView);
-                    $fileName = public_path() . '/' . uniqid('sololuxury_' . time(), true) . '.pdf';
+                    if(!empty($request->pdf_file_name)) {
+                        $random = str_replace(" ", "-", $request->pdf_file_name."-".($key + 1)."-".date("Y-m-d-H-i-s-").rand());
+                    }else{
+                        $random = uniqid('sololuxury_', true);
+                    }
+                    $fileName = public_path() . '/' . $random . '.pdf';
                     $pdf->render();
 
                     File::put($fileName, $pdf->output());

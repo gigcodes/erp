@@ -2,8 +2,11 @@
 
 @section('favicon' , 'development-issue.png')
 
-@section('title', 'Development Issue')
-
+@if($title == "devtask")
+    @section('title', 'Development Issue')
+@else
+    @section('title', 'Development Task')
+@endif
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -21,7 +24,7 @@
 @section('large_content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Issue List</h2>
+            <h2 class="page-heading">{{ ucfirst($title) }} List</h2>
         </div>
     </div>
 
@@ -54,7 +57,7 @@
     </div>
     <div class="row mb-4">
         <div class="col-md-12">
-            <form action="{{ action('DevelopmentController@issueIndex') }}" method="get">
+            <form action="{{ url("development/list/$title") }}" method="get">
                 <div class="row">
                     <div class="col-md-1">
                         <select class="form-control" name="submitted_by" id="submitted_by">
@@ -89,14 +92,24 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control">
+                        <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
                     </div>
                     <div class="col-md-1">
                         <select name="order" id="order_query" class="form-control">
-                            <option value="">Order by priority</option>
-                            <option value="create">Order by date</option>
+                            <option {{$request->get('order')== "" ? 'selected' : ''}} value="">Order by priority</option>
+                            <option {{$request->get('order')== "create" ? 'selected' : ''}} value="create">Order by date</option>
                         </select>
                     </div>
+                    @if($title == 'devtask')
+                        <div class="col-md-2">
+                        <select name="task_status" id="task_status" class="form-control change-task-status">
+                            <option value="">Please Select</option>
+                            <option value="Planned" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'Planned' ? 'selected' : '') }}>Planned</option>
+                            <option value="In Progress" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
+                            <option value="Done" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'Done' ? 'selected' : '') }}>Done</option>
+                        </select>
+                        </div>
+                    @endif
                     <div class="col-md-2">
                         @if ( isset($_REQUEST['show_resolved']) && $_REQUEST['show_resolved'] == 1 )
                             <input type="checkbox" name="show_resolved" value="1" checked> incl.resolved
@@ -107,19 +120,21 @@
                             <img src="{{ asset('images/search.png') }}" alt="Search">
                         </button>
                     </div>
-
-                    <div class="col-md-1" style="margin-left: -106px; margin-top: 7px;">
+                    <div class="col-md-2">
                         <a class="btn btn-secondary d-inline priority_model_btn">Priority</a>
                     </div>
-
                 </div>
             </form>
+            @if($title == 'devtask')
+            <a href="javascript:" class="btn btn-default"  id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Dev Task </a>
+            @endif
         </div>
     </div>
 
 
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
+            @if($title == 'issue')
             <tr class="add-new-issue">
                 <form action="{{ route('development.issue.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -143,39 +158,41 @@
                     </td>
                 </form>
             </tr>
+            @endif
             <tr>
                 <th width="1%">ID</th>
+                {{--<th width="6%">Date Created <hr><span>ETA</span></th>--}}
                 <th width="5%">Module</th>
                 <th width="10%">Subject</th>
                 <th width="5%">Priority</th>
                 <th width="15%">Issue</th>
                 <th width="5%">Date Created</th>
-                <th width="5%">Est. Completion Time</th>
-                <th width="5%">Submitted By</th>
+                <th width="5%">Est Completion Time</th>
+                <th width="5%">Submitted By  </th>
                 <th width="5%">Assigned To</th>
-                <th width="5%">Correction By</th>
+                <th width="5%">Corrected By</th>
                 <th width="5%">Resolved</th>
                 <th width="5%">Cost</th>
             </tr>
             @foreach ($issues as $key => $issue)
                  @if(auth()->user()->isAdmin())
                     <tr>
-                        <td>{{ $issue->id }}
-                            
-                            @if($issue->is_resolved==0)
-                                <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>
-                            @endif
+                        <td>
+                            <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
+                                @if($issue->is_resolved==0)
+                                    <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>
+                                @endif
+                            </a>
                         </td>
-                        <td>{{ $issue->devModule ? $issue->devModule->name : 'Not Specified' }}</td>
-                        <td>{{ $issue->subject ?? 'N/A' }}</td>
-                        <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
+                        <td style="vertical-align: middle;">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</td>
+                        <td style="vertical-align: middle;">{{ $issue->subject ?? 'N/A' }}</td>
+                        <td style="vertical-align: middle;">{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
                         <td class="expand-row">
                             <div class="td-mini-container">
-                                {{ strlen($issue->issue) > 20 ? substr($issue->issue, 0, 20).'...' : $issue->issue }}
+                                {{ strlen($issue->task) > 20 ? substr($issue->task, 0, 20).'...' : $issue->task }}
                             </div>
                             <div class="td-full-container hidden">
-                                {{ $issue->issue }}
-                            </div>
+                                {{ $issue->task }}
                             @if ($issue->getMedia(config('constants.media_tags'))->first())
                             <br />
                                 @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
@@ -188,7 +205,7 @@
 
                             <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
                             <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
-                            <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple />  
+                            <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple />
 
                             <br />
                             <div>
@@ -196,7 +213,7 @@
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
                                             <h4 class="panel-title">
-                                                <a data-toggle="collapse" href="#collapse_{{$issue->id}}">Messages({{count($issue->communications)}})</a>
+                                                <a data-toggle="collapse" href="#collapse_{{$issue->id}}">Messages({{count($issue->messages)}})</a>
                                             </h4>
                                         </div>
                                     </div>
@@ -204,7 +221,7 @@
                             </div>
 
                         </td>
-                        <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
+                        <td >{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }} </td>
                         <td data-id="{{ $issue->id }}">
                             <div class="form-group">
                                 <div class='input-group date estimate-time'>
@@ -216,21 +233,24 @@
                                 <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button>
                             </div>
                         </td>
-                        <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}</td>
-                        <td>
-                            @if($issue->responsibleUser)
-                                {{ $issue->responsibleUser->name  }}
-                            @else
-                                <select class="set-responsible-user form-control" data-id="{{$issue->id}}" name="responsible_user" id="responsible_user_{{$issue->id}}">
-                                    <option value="">Select...</option>
-                                    @foreach($users as $id=>$name)
-                                        <option value="{{$id}}">{{ $name }}</option>
-                                    @endforeach
-                                </select>
-                            @endif
+                        <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}
+
                         </td>
+
                         <td>
                             <select class="form-control assign-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">
+                                <option value="">Select...</option>
+                                @foreach($users as $id=>$name)
+                                    @if( isset($issue->responsibleUser->id) && (int) $issue->responsibleUser->id == $id )
+                                        <option value="{{$id}}" selected>{{ $name }}</option>
+                                    @else
+                                        <option value="{{$id}}">{{ $name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-control set-responsible-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">
                                 <option value="">Select...</option>
                                 @foreach($users as $id=>$name)
                                     @if( isset($issue->assignedUser->id) && (int) $issue->assignedUser->id == $id )
@@ -245,9 +265,16 @@
                             @if($issue->is_resolved)
                                 <strong>Resolved</strong>
                             @else
-                                <select name="resolved" id="resolved_{{$issue->id}}" class="form-control resolve-issue" data-id="{{$issue->id}}">
-                                    <option {{ $issue->is_resolved==0 ? 'selected' : '' }} value="0">Not Resolved</option>
-                                    <option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>
+                                {{--<select name="resolved" id="resolved_{{$issue->id}}" style="display: none;" class="form-control resolve-issue" data-id="{{$issue->id}}">--}}
+                                    {{--<option {{ $issue->is_resolved==0 ? 'selected' : '' }} value="0">Not Resolved</option>--}}
+                                    {{--<option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>--}}
+                                {{--</select>--}}
+
+                                <select name="task_status" id="{{$issue->id}}" class="form-control resolve-issue" onchange="resolveIssue(this,'<?php echo $issue->id; ?>')">
+                                    <option value="">Please Select</option>
+                                    <option value="Planned" {{ (!empty($issue->status) && $issue->status ==  'Planned' ? 'selected' : '') }}>Planned</option>
+                                    <option value="In Progress" {{ (!empty($issue->status) && $issue->status  ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
+                                    <option value="Done" {{ (!empty($issue->status) && $issue->status ==   'Done' ? 'selected' : '') }}>Done</option>
                                 </select>
                             @endif
                         </td>
@@ -265,7 +292,7 @@
                             <div id="collapse_{{$issue->id}}" class="panel-collapse collapse">
                                 <div class="panel-body">
                                     <div class="messageList" id="message_list_{{$issue->id}}">
-                                        @foreach($issue->communications as $message)
+                                        @foreach($issue->messages as $message)
                                             <li>{{ $message->message }}</li>
                                         @endforeach
                                     </div>
@@ -277,11 +304,13 @@
                         </td>
                     </tr>
                 @else
-                    @if($issue->submitted_by == Auth::user()->id || $issue->user_id == Auth::user()->id || $issue->responsible_user_id == Auth::user()->id)
+                    @if($issue->created_by == Auth::user()->id || $issue->user_id == Auth::user()->id || $issue->responsible_user_id == Auth::user()->id)
                         <tr>
-                            <td>{{ $issue->devModule ? $issue->devModule->name : 'Not Specified' }}</td>
+                            <td><a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</a>
+                            </td>
+
                             <td>
-                                {{ $issue->issue }}
+                                {{ $issue->task }}
                                 @if ($issue->getMedia(config('constants.media_tags'))->first())
                                     <br>
                                     @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
@@ -302,6 +331,9 @@
                                     </div>
                                 </div>
                             </td>
+                            <td>{{ $issue->subject }}</td>
+                            <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
+                            <td>{{ $issue->task }}</td>
                             <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
                             <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}</td>
                             <td>
@@ -316,6 +348,7 @@
                                     {{--                  </select>--}}
                                     N/A
                                 @endif
+
                             </td>
                             <td>
                                 @if($issue->assignedUser)
@@ -329,14 +362,23 @@
                                     {{--                  </select>--}}
                                     Unassigned
                                 @endif
+
                             </td>
+
                             <td>
                                 @if($issue->is_resolved)
                                     <strong>Resolved</strong>
                                 @else
-                                    <select name="resolved" id="resolved_{{$issue->id}}" class="form-control resolve-issue" data-id="{{$issue->id}}">
-                                        <option {{ $issue->is_resolved==0 ? 'selected' : '' }} value="0">Not Resolved</option>
-                                        <option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>
+                                    {{--<select style="display:none;" name="resolved" id="resolved_{{$issue->id}}" class="form-control resolve-issue" data-id="{{$issue->id}}">--}}
+                                        {{--<option {{ $issue->is_resolved==0 ? 'selected' : '' }} value="0">Not Resolved</option>--}}
+                                        {{--<option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>--}}
+                                    {{--</select>--}}
+
+                                    <select name="task_status" id="task_status" class="form-control change-task-status" data-id="{{$issue->id}}">
+                                        <option value="">Please Select</option>
+                                        <option value="Planned" {{ (!empty($issue->status) && $issue->status ==  'Planned' ? 'selected' : '') }}>Planned</option>
+                                        <option value="In Progress" {{ (!empty($issue->status) && $issue->status  ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
+                                        <option value="Done" {{ (!empty($issue->status) && $issue->status ==   'Done' ? 'selected' : '') }}>Done</option>
                                     </select>
                                 @endif
                             </td>
@@ -369,6 +411,7 @@
                 @endif
             @endforeach
         </table>
+        <?php echo $issues->links(); ?>
     </div>
 
     <h3>Modules</h3>
@@ -460,22 +503,36 @@
 
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-1">
-                                <strong>User:</strong>
-                            </div>
-                            <div class="col-md-11">
-                                <div class="form-group">
-                                    @if(auth()->user()->isAdmin())
-                                        <select class="form-control" name="user_id" id="priority_user_id">
-                                            @foreach ($users as $id => $name)
-                                                <option value="{{ $id }}">{{ $name }}</option>
-                                            @endforeach
-                                        </select>
-                                    @else
-                                        {{auth()->user()->name}}
-                                    @endif
+                            <div class="col-md-12">
+                                <div class="col-md-2">
+                                    <strong>User:</strong>
                                 </div>
-                            </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        @if(auth()->user()->isAdmin())
+                                            <select class="form-control" name="user_id" id="priority_user_id">
+                                                @foreach ($users as $id => $name)
+                                                    <option value="{{ $id }}">{{ $name }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            {{auth()->user()->name}}
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>    
+                            <div class="col-md-12">
+                                <div class="col-md-2">
+                                    <strong>Remarks:</strong>
+                                </div>
+                                <div class="col-md-8">
+                                    @if(auth()->user()->isAdmin())
+                                         <div class="form-group">
+                                            <textarea cols="45" class="form-control" name="global_remarkes"></textarea>    
+                                        </div>
+                                    @endif
+                                </div>    
+                            </div>    
                         </div>
                         <div class="row">
                             <div class="col-md-12">
@@ -560,7 +617,7 @@
                             html += '<td><input type="hidden" name="priority[]" value="'+issue.id+'">'+issue.id+'</td>';
                             html += '<td>'+issue.module+'</td>';
                             html += '<td>'+issue.subject+'</td>';
-                            html += '<td>'+issue.issue+'</td>';
+                            html += '<td>'+issue.task+'</td>';
                             html += '<td>'+issue.submitted_by+'</td>';
                             html += '<td><a href="javascript:;" class="delete_priority" data-id="'+issue.id+'">Remove<a></td>';
                          html += '</tr>';
@@ -661,9 +718,9 @@
             }
 
             $.ajax({
-                url: "{{action('DevelopmentController@assignResponsibleUser')}}",
+                url: "{{action('DevelopmentController@assignUser')}}",
                 data: {
-                    responsible_user_id: userId,
+                    user_id: userId,
                     issue_id: id
                 },
                 success: function () {
@@ -681,9 +738,9 @@
             }
 
             $.ajax({
-                url: "{{action('DevelopmentController@assignUser')}}",
+                url: "{{action('DevelopmentController@assignResponsibleUser')}}",
                 data: {
-                    user_id: userId,
+                    responsible_user_id: userId,
                     issue_id: id
                 },
                 success: function () {
@@ -710,22 +767,22 @@
                 }
             });
         });
-        $(document).on('change', '.resolve-issue', function (event) {
-            let id = $(this).attr('data-id');
-            let status = $(this).val();
-            let self = this;
-
-            $.ajax({
-                url: "{{action('DevelopmentController@resolveIssue')}}",
-                data: {
-                    issue_id: id,
-                    is_resolved: status
-                },
-                success: function () {
-                    toastr["success"]("Status updated!", "Message")
-                }
-            });
-        });
+        {{--$(document).on('change', '.resolve-issue', function (event) {--}}
+            {{--let id = $(this).data('id');--}}
+            {{--let status = $(this).val();--}}
+            {{--let self = this;--}}
+{{--alert(id);--}}
+            {{--$.ajax({--}}
+                {{--url: "{{action('DevelopmentController@resolveIssue')}}",--}}
+                {{--data: {--}}
+                    {{--issue_id: id,--}}
+                    {{--is_resolved: status--}}
+                {{--},--}}
+                {{--success: function () {--}}
+                    {{--toastr["success"]("Status updated!", "Message")--}}
+                {{--}--}}
+            {{--});--}}
+        {{--});--}}
 
         $(document).on('click', '.expand-row', function () {
             var selection = window.getSelection();
@@ -759,6 +816,23 @@
 
         });
 
+        $(document).on('change', '.change-task-status', function () {
+           var taskId       = $(this).data("id");
+           var status      = $(this).val();
+            $.ajax({
+                url: "{{ action('DevelopmentController@changeTaskStatus') }}",
+                type: 'POST',
+                data: {
+                    task_id: taskId,
+                    _token: "{{csrf_token()}}",
+                    status: status
+                },
+                success: function () {
+                    toastr['success']('Status Changed successfully!')
+                }
+            });
+        });
+
         function sendImage(id){
 
            $.ajax({
@@ -773,7 +847,7 @@
                 },
                 success: function () {
                     toastr["success"]("Message sent successfully!", "Message");
-                    
+
                 },
                 beforeSend: function () {
                     $(self).attr('disabled', true);
@@ -787,15 +861,15 @@
         }
 
         function sendUploadImage(id){
-            
+
             $('#file-input'+id).trigger('click');
 
             $('#file-input'+id).change(function () {
             event.preventDefault();
             let image_upload = new FormData();
             let TotalImages = $(this)[0].files.length;  //Total Images
-            let images = $(this)[0];  
-            
+            let images = $(this)[0];
+
             for (let i = 0; i < TotalImages; i++) {
                 image_upload.append('images[]', images.files[i]);
             }
@@ -823,10 +897,49 @@
                           console.log(`Failed`)
                         }
                     })
-                }    
+                }
             })
         }
 
-       
+        //Popup for add new task
+        $(document).on('click', '#newTaskModalBtn', function () {
+            if ($("#newTaskModal").length > 0) {
+                $("#newTaskModal").remove();
+            }
+
+            $.ajax({
+                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                type: 'GET',
+                dataType: "JSON",
+                success: function (resp) {
+                    console.log(resp);
+                    if(resp.status == 'ok') {
+                        $("body").append(resp.html);
+                        $('#newTaskModal').modal('show');
+                        $('.select2').select2({tags: true});
+                    }
+                }
+            });
+        });
+
+        function resolveIssue(obj,task_id){
+
+            let id = task_id;
+            let status = $(obj).val();
+            let self = this;
+
+            $.ajax({
+                url: "{{action('DevelopmentController@resolveIssue')}}",
+                data: {
+                    issue_id: id,
+                    is_resolved: status
+                },
+                success: function () {
+                    toastr["success"]("Status updated!", "Message")
+                }
+            });
+        }
+
+
     </script>
 @endsection

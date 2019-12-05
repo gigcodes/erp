@@ -3,13 +3,11 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
-use App\Product;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class AttachImagesSend implements ShouldQueue
 {
@@ -17,6 +15,7 @@ class AttachImagesSend implements ShouldQueue
 
     protected $_token;
     protected $send_pdf;
+    protected $pdf_file_name;
     protected $images;
     protected $image;
     protected $screenshot_path;
@@ -32,14 +31,15 @@ class AttachImagesSend implements ShouldQueue
     public function __construct($data)
     {
         // Set product
-        $this->_token = $data[ '_token' ];
-        $this->send_pdf = $data[ 'send_pdf' ];
-        $this->images = $data[ 'images' ];
-        $this->image = $data[ 'image' ];
-        $this->screenshot_path = $data[ 'screenshot_path' ];
-        $this->message = $data[ 'message' ];
-        $this->customer_id = $data[ 'customer_id' ];
-        $this->status = $data[ 'status' ];
+        $this->_token          = $data['_token'];
+        $this->send_pdf        = $data['send_pdf'];
+        $this->pdf_file_name   = !empty($data["pdf_file_name"]) ? $data["pdf_file_name"] : "";
+        $this->images          = $data['images'];
+        $this->image           = $data['image'];
+        $this->screenshot_path = $data['screenshot_path'];
+        $this->message         = $data['message'];
+        $this->customer_id     = $data['customer_id'];
+        $this->status          = $data['status'];
     }
 
     /**
@@ -55,18 +55,18 @@ class AttachImagesSend implements ShouldQueue
         $requestData = new Request();
         $requestData->setMethod('POST');
         $requestData->request->add([
-            '_token' => $this->_token,
-            'send_pdf' => $this->send_pdf,
-            'images' => $this->images,
-            'image' => $this->image,
+            '_token'          => $this->_token,
+            'send_pdf'        => $this->send_pdf,
+            'pdf_file_name'   => $this->pdf_file_name,
+            'images'          => $this->images,
+            'image'           => $this->image,
             'screenshot_path' => $this->screenshot_path,
-            'message' => $this->message,
-            'customer_id' => $this->customer_id,
-            'status' => $this->status
+            'message'         => $this->message,
+            'customer_id'     => $this->customer_id,
+            'status'          => $this->status,
         ]);
 
         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
     }
-
 
 }

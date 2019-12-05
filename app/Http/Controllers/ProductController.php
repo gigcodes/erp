@@ -92,6 +92,8 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request)
     {
+        dd($request);
+        $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
         $category_tree = [];
@@ -232,7 +234,7 @@ class ProductController extends Controller
             'type' => $type,
             'users' => $users,
             'assigned_to_users' => $assigned_to_users,
-//            'cropped'	=> $cropped,
+            'cropped'	=> $cropped,
 //            'left_for_users'	=> $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
@@ -2270,6 +2272,7 @@ class ProductController extends Controller
     {
         $data['_token'] = $request->_token;
         $data['send_pdf'] = $request->send_pdf;
+        $data['pdf_file_name'] = !empty($request->pdf_file_name) ? $request->pdf_file_name : "";
         $data['images'] = $request->images;
         $data['image'] = $request->image;
         $data['screenshot_path'] = $request->screenshot_path;

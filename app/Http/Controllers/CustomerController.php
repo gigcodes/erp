@@ -1319,6 +1319,7 @@ class CustomerController extends Controller
         $purchase_status = (new PurchaseStatus)->all();
         $solo_numbers = (new SoloNumbers)->all();
         $api_keys = ApiKey::select(['number'])->get();
+        $broadcastsNumbers = collect(\DB::select("select number from whatsapp_configs where is_customer_support = 0"))->pluck("number","number")->toArray();
         $suppliers = Supplier::select(['id', 'supplier'])
             ->whereRaw("suppliers.id IN (SELECT product_suppliers.supplier_id FROM product_suppliers)")->get();
         $category_suggestion = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])
@@ -1346,7 +1347,8 @@ class CustomerController extends Controller
             'emails' => $emails,
             'category_suggestion' => $category_suggestion,
             'suppliers' => $suppliers,
-            'facebookMessages' => $facebookMessages
+            'facebookMessages' => $facebookMessages,
+            'broadcastsNumbers' => $broadcastsNumbers
         ]);
     }
 
@@ -1400,6 +1402,7 @@ class CustomerController extends Controller
         $solo_numbers = (new SoloNumbers)->all();
         $api_keys = ApiKey::select(['number'])->get();
         $suppliers = Supplier::select(['id', 'supplier'])->get();
+        $broadcastsNumbers = collect(\DB::select("select number from whatsapp_configs where is_customer_support = 0"))->pluck("number","number")->toArray();
         $category_suggestion = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])
             ->renderAsDropdown();
 
@@ -1429,7 +1432,8 @@ class CustomerController extends Controller
             'category_suggestion' => $category_suggestion,
             'suppliers' => $suppliers,
             'facebookMessages' => $facebookMessages,
-            'searchedMessages' => $searchedMessages
+            'searchedMessages' => $searchedMessages,
+            'broadcastsNumbers' => $broadcastsNumbers
         ]);
     }
 
@@ -1682,7 +1686,8 @@ class CustomerController extends Controller
         $customer->save();
 
         if ($request->do_not_disturb == 'on') {
-            MessageQueue::where('customer_id', $customer->id)->delete();
+             \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
+             MessageQueue::where('customer_id', $customer->id)->delete();
 
             // foreach ($message_queues as $message_queue) {
             //   $message_queue->status = 1; // message stopped
@@ -1718,6 +1723,7 @@ class CustomerController extends Controller
         $customer->save();
 
         if ($request->do_not_disturb == 1) {
+             \Log::channel('customerDnd')->debug("(Customer ID " . $customer->id . " line " . $customer->name. " " . $customer->number . ": Added To DND");
             MessageQueue::where('customer_id', $customer->id)->delete();
 
             // foreach ($message_queues as $message_queue) {
@@ -2368,6 +2374,7 @@ class CustomerController extends Controller
     {
         $customerId = request()->get("customer_id", 0);
         $whatsappNo = request()->get("number", null);
+        $type       = request()->get("type","whatsapp_number");
 
         if ($customerId > 0) {
             // find the record from customer table
@@ -2376,18 +2383,23 @@ class CustomerController extends Controller
             if ($customer) {
                 // assing nummbers
                 $oldNumber = $customer->whatsapp_number;
-                $customer->whatsapp_number = $whatsappNo;
+                if($type == "broadcast_number") {
+                    $customer->broadcast_number = $whatsappNo;
+                }else{
+                    $customer->whatsapp_number = $whatsappNo;
+                }    
 
                 if ($customer->save()) {
-                    // update into whatsapp history table
-                    $wHistory = new \App\HistoryWhatsappNumber;
-                    $wHistory->date_time = date("Y-m-d H:i:s");
-                    $wHistory->object = "App\Customer";
-                    $wHistory->object_id = $customerId;
-                    $wHistory->old_number = $oldNumber;
-                    $wHistory->new_number = $whatsappNo;
-                    $wHistory->save();
-
+                    if($type == "whatsapp_number") {
+                        // update into whatsapp history table
+                        $wHistory = new \App\HistoryWhatsappNumber;
+                        $wHistory->date_time = date("Y-m-d H:i:s");
+                        $wHistory->object = "App\Customer";
+                        $wHistory->object_id = $customerId;
+                        $wHistory->old_number = $oldNumber;
+                        $wHistory->new_number = $whatsappNo;
+                        $wHistory->save();
+                    }
                 }
             }
         }
