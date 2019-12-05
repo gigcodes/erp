@@ -1353,7 +1353,7 @@
             <div class="help-list well well-lg">
                 <div class="row">
                 <div class="col-md-4 chat" style="margin-top : 0px !important;">
-                    <div class="card mb-sm-3 mb-md-0 contacts_card">
+                    <div class="card card_chat mb-sm-3 mb-md-0 contacts_card">
 					<div class="card-header">
 						<div class="input-group">
 							{{-- <input type="text" placeholder="Search..." name="" class="form-control search">
@@ -1393,7 +1393,7 @@
 					<div class="card-footer"></div>
                 </div></div>
                 <div class="col-md-8 chat">
-                    <div class="card">
+                    <div class="card card_chat">
                         <div class="card-header msg_head">
 							<div class="d-flex bd-highlight">
 								<div class="img_cont">
@@ -1451,7 +1451,7 @@
             <div class="help-list well well-lg">
                 <div class="row">
                 <div class="col-md-4 chat" style="margin-top : 0px !important;">
-                    <div class="card mb-sm-3 mb-md-0 contacts_card">
+                    <div class="card card_chat mb-sm-3 mb-md-0 contacts_card">
 					<div class="card-header">
 						<div class="input-group">
 							{{-- <input type="text" placeholder="Search..." name="" class="form-control search">
@@ -1491,7 +1491,7 @@
 					<div class="card-footer"></div>
                 </div></div>
                 <div class="col-md-8 chat">
-                    <div class="card">
+                    <div class="card card_chat">
                         <div class="card-header msg_head">
 							<div class="d-flex bd-highlight">
 								<div class="img_cont">

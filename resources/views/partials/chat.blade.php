@@ -4,9 +4,13 @@
 			margin-bottom: auto;
 		}
 		.card{
-			height: 500px;
+			
+			
+		}
+
+		.card_chat{
+			height: 500px !important;
 			border-radius: 15px !important;
-			background-color: rgba(0,0,0,0.4) !important;
 		}
 		.contacts_body{
             background-color: white !important;
