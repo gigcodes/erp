@@ -470,10 +470,10 @@ class DevelopmentController extends Controller
         }
 
         // Sort
-        if ($request->order == 'create') {
-            $issues = $issues->orderBy('created_at', 'DESC')->with('communications');
-        } else {
+        if ($request->order == 'priority') {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
+        } else {
+            $issues = $issues->orderBy('created_at', 'DESC')->with('communications');
         }
 
         $issues = $issues->paginate(Setting::get('pagination'));
