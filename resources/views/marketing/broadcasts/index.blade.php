@@ -119,14 +119,15 @@
                             </div>
                             
                              <div class="col-md-3">
-                                   <select class="form-control global" id="total" name="total">
-                                        <option>Select Customer Type</option>
+                                   <select class="form-control customer_type" id="total" name="total">
+                                        <option value="0">Select Customer Type</option>
                                         <option value="1" @if(isset($total) && $total == 1)  selected @endif>Enabled Customer</option>
                                         <option value="2" @if(isset($total) && $total == 2)  selected @endif>Pending Customer For Enable</option>
                                         <option value="3" @if(isset($total) && $total == 3)  selected @endif>DND Customer</option>
                                         <option value="4" @if(isset($total) && $total == 4)  selected @endif>Customer With Leads</option>
                                         <option value="5" @if(isset($total) && $total == 5)  selected @endif>Customer With Offers</option>
                                         <option value="6" @if(isset($total) && $total == 6)  selected @endif>Enabled Customer (Missing Number)</option>
+                                         <option value="7" @if(isset($total) && $total == 7)  selected @endif>Message Send Failed</option>
                                     </select>
                             </div>
                             <div class="col-md-5">
@@ -200,7 +201,7 @@
                                             value="{{ isset($phone_term) ? $phone_term : '' }}"
                                             placeholder="whatsapp number , broadcast id , remark" id="phone_term">
                                         </div>
-                                        <div class="col-md-3">
+                                        {{-- <div class="col-md-3">
                                             <div class='input-group date' id='filter-phone-date'>
                                                 <input type='text' class="form-control phone_global" name="phone_date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="phone_date" />
 
@@ -208,8 +209,8 @@
                                                     <span class="glyphicon glyphicon-calendar"></span>
                                                 </span>
                                             </div>
-                                        </div>
-                                        <div class="col-md-5">
+                                        </div> --}}
+                                        <div class="col-md-8">
                                             <div id="reportrange_phone" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                                                 <input type="hidden" name="phone_customrange" id="custom_phone">
                                                 <i class="fa fa-calendar"></i>&nbsp;
@@ -270,15 +271,6 @@
                                 <tr>
                                     <th>Count</th>
                                     <th><span id="count">0</span></th>
-                                    <th style="width: 20%"> 
-                                        <div class='input-group date' id='filter-count-date'>
-                                                <input type='text' class="form-control phone_global" name="count_date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="count_date" />
-
-                                                <span class="input-group-addon">
-                                                    <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
-                                            </div>
-                                        </th>
                                     <th><div id="reportrange_count" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                                                 <input type="hidden"  id="custom_count">
                                                 <i class="fa fa-calendar"></i>&nbsp;
@@ -453,6 +445,107 @@
                     });  
             }
 
+            function addToEnable(id){
+                    method = $('#checkbox_value').val();
+                    if(method == 1){
+                        $.ajax({
+                        type: 'GET',
+                        url: '{{ route('broadcast.add.manual') }}',
+                        data: {
+                            id: id,
+                            type: 1,
+                        }, success: function (data) {
+                            console.log(data);
+                            if (data.status == 'error') {
+                                alert('Something went wrong');
+                            } else {
+                                $('#checkbox_value').val('0');
+                               // alert('Customer Added to Broadcastlist');
+                            }
+
+                        },
+                        error: function (data) {
+                            alert('Something went wrong');
+                        }
+                    });
+
+                }else{
+                    $.ajax({
+                        type: 'GET',
+                        url: '{{ route('broadcast.add.manual') }}',
+                        data: {
+                            id: id,
+                            type: 0,
+                        }, success: function (data) {
+                            console.log(data);
+                            if (data.status == 'error') {
+                                alert('Something went wrong');
+                            } else {
+                                $('#checkbox_value').val('1');
+                               // alert('Customer Removed Broadcastlist');
+                            }
+                        },
+                        error: function (data) {
+                            alert('Something went wrong');
+                        }
+                    });
+                }
+                    
+            }
+
+            
+            function enableDND(id){
+                method = $('#checkbox_value_dnd').val();
+                if(method == 1){
+                    $.ajax({
+                    type: 'GET',
+                    url: '{{ route('broadcast.add.dnd') }}',
+                    data: {
+                        id: id,
+                        type: 1,
+                    }, success: function (data) {
+                        console.log(data);
+                        if (data.status == 'error') {
+                           // alert('Something went wrong');
+                        } else {
+                            $('#checkbox_value_dnd').val('0');
+                            alert('Customer Added to DND');
+
+                        }
+
+                    },
+                    error: function (data) {
+                        alert('Something went wrong');
+                    }
+                });
+
+                }else{
+                    $.ajax({
+                    type: 'GET',
+                    url: '{{ route('broadcast.add.dnd') }}',
+                    data: {
+                        id: id,
+                        type: 0,
+                    }, success: function (data) {
+                        console.log(data);
+                        if (data.status == 'error') {
+                        //    alert('Something went wrong');
+                        } else {
+                            $('#checkbox_value_dnd').val('1');
+                            alert('Customer Removed From DND');
+
+                        }
+
+                    },
+                    error: function (data) {
+                        alert('Something went wrong');
+                    }
+                });
+
+                }
+                     
+            }
+
 
             $('#filter-phone-date').datetimepicker(
             { format: 'YYYY/MM/DD' }).on('dp.change', 
@@ -624,80 +717,7 @@
            
     </script>
     <script type="text/javascript">
-        $(".checkbox").change(function () {
-            id = $(this).val();
-
-            if (this.checked) {
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ route('broadcast.add.dnd') }}',
-                    data: {
-                        id: id,
-                        type: 1,
-                    }, success: function (data) {
-                        console.log(data);
-                        if (data.status == 'error') {
-                            alert('Something went wrong');
-                        } else {
-                            alert('Customer Added to DND');
-
-                        }
-
-                    },
-                    error: function (data) {
-                        alert('Something went wrong');
-                    }
-                });
-            } else {
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ route('broadcast.add.dnd') }}',
-                    data: {
-                        id: id,
-                        type: 0
-                    },
-                }).done(response => {
-                    alert('Customer Removed From DND');
-                });
-            }
-        });
-
-        $(".checkboxs").change(function () {
-            id = $(this).val();
-
-            if (this.checked) {
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ route('broadcast.add.manual') }}',
-                    data: {
-                        id: id,
-                        type: 1,
-                    }, success: function (data) {
-                        console.log(data);
-                        if (data.status == 'error') {
-                            alert('Something went wrong');
-                        } else {
-                            // alert('Customer Added to Broadcastlist');
-                        }
-
-                    },
-                    error: function (data) {
-                        alert('Something went wrong');
-                    }
-                });
-            } else {
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ route('broadcast.add.manual') }}',
-                    data: {
-                        id: id,
-                        type: 0
-                    },
-                }).done(response => {
-                    //alert('Customer Removed From Broadcastlist');
-                });
-            }
-        });
+        
 
         $(document).on('click', '.make-remarks', function (e) {
             e.preventDefault();
@@ -750,9 +770,7 @@
             });
         });
 
-        $('.whatsapp').on('change', function () {
-            number = this.value;
-            id = $(this).data("id");
+        function updateNumber(id , number){
             $.ajax({
                 type: 'POST',
                 headers: {
@@ -768,8 +786,8 @@
             }).fail(function (response) {
                 alert('Something went wrong');
             });
-
-        });
+        }
+        
 
         $(document).ready(function () {
             src = "{{ route('broadcasts.index') }}";
@@ -786,6 +804,46 @@
                         data: {
                             term: term,
                             date: date,
+                            total: total,
+
+                        },
+                        beforeSend: function () {
+                            $("#loading-image").show();
+                        },
+
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                        console.log(data);
+                        $("#customers-table tbody").empty().html(data.tbody);
+                        $("#customer_count").text(data.count);
+                        
+                        if (data.links.length > 10) {
+                            $('ul.pagination').replaceWith(data.links);
+                        } else {
+                            $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                        }
+
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        alert('No response from server');
+                    });
+                },
+                minLength: 1,
+
+            });
+        });
+
+         $(document).ready(function () {
+            src = "{{ route('broadcasts.index') }}";
+            $(".customer_type").autocomplete({
+                source: function (request, response) {
+                   total = $('#total').val();
+
+
+                    $.ajax({
+                        url: src,
+                        dataType: "json",
+                        data: {
+                            
                             total: total,
 
                         },
@@ -994,6 +1052,7 @@
                         dataType: "json",
                         data: {
                             id: id,
+                            type: 1,
                         },
                         beforeSend: function () {
                             $("#loading-image").show();

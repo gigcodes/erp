@@ -37,9 +37,11 @@
   <td>
   	 <label class="switch" style="margin: 0px">
       @if($customer->do_not_disturb == 1)
-       <input type="checkbox" class="checkbox" checked value="{{ $customer->id }}">
+        <input type="hidden" value="0" id="checkbox_value_dnd">
+       <input type="checkbox" class="checkbox" checked value="{{ $customer->id }}" onclick="disableDND({{ $customer->id }})">
        @else
-        <input type="checkbox" class="checkbox" value="{{ $customer->id }}">
+        <input type="hidden" value="1" id="checkbox_value_dnd">
+        <input type="checkbox" class="checkbox" value="{{ $customer->id }}" onclick="enableDND({{ $customer->id }})">
        @endif
        <span class="slider round"></span>
   	 </label>
@@ -48,9 +50,11 @@
   <td>
   	 <label class="switch" style="margin: 0px">
       @if(isset($customer->customerMarketingPlatformActive) && $customer->customerMarketingPlatformActive->active == 1)
-      <input type="checkbox" class="checkboxs" checked value="{{ $customer->id }}">
+        <input type="hidden" value="0" id="checkbox_value">
+      <input type="checkbox" class="checkboxs" checked value="{{ $customer->id }}" onclick="removeFromEnable({{ $customer->id }})">
       @else
-        <input type="checkbox" class="checkboxs" value="{{ $customer->id }}" id="marketing{{ $customer->id }}">
+        <input type="hidden" value="1" id="checkbox_value">
+        <input type="checkbox" class="checkboxs" value="{{ $customer->id }}" id="marketing{{ $customer->id }}" onclick="addToEnable( {{ $customer->id }})">
        @endif
        <span class="slider round"></span>
   	 </label>
@@ -77,7 +81,7 @@
     @elseif(substr($customer->phone, 0, 1) === '-')
       Not WhatsApp Number
     @else
-      <select class="form-control whatsapp" data-id="{{ $customer->id }}">
+      <select class="form-control" onchange="updateNumber('{{ $customer->id }}','{{ $customer->phone }}')">
       <option>Select Number</option>
       @foreach($numbers as $number)
       <option value="{{ $number->number }}" @if($number->number == $customer->broadcast_number) selected @endif>{{ $number->number }}</option>
