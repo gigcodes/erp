@@ -1326,6 +1326,8 @@
             <button class="help-button"><span>+</span></button>
         </div>
     </div>
+    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
+        
     <div class="chat-button-wrapper">
         <div class="col-md-9 page-chat-list-rt dis-none">
             <div class="help-list well well-lg">
@@ -1423,6 +1425,9 @@
             <button class="chat-button"><img src="/images/chat.png" class="img-responsive" /><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
         </div>
     </div>
+    @elseif($liveChatUsers != '' && $liveChatUsers != null)
+    @include('partials.chat')
+    @endif
 @endif
 
 <!-- Scripts -->
