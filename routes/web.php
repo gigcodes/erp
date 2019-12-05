@@ -795,7 +795,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
-        Route::get('/', 'ErpEventController@index')->name('erp-events');
+       Route::get('/', 'ErpEventController@index')->name('erp-events');
+       Route::post('/store','ErpEventController@store')->name('erp-events.store');
        Route::get('/dummy', 'ErpEventController@dummy')->name('erp-events.dummy');
     });
 
