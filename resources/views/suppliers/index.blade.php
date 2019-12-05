@@ -96,6 +96,9 @@
             {{-- <th width="20%">Emails</th> --}}
             <th width="25%">Communication</th>
             <th>Status</th>
+            <th>Created At</th>
+            <th>Updated At</th>
+            <th>Updated By</th>
             <th width="15%">Action</th>
           </tr>
         </thead>
@@ -141,6 +144,7 @@
                     <span class="text-danger">!!!</span>
                   @endif
                 </span>
+                <br>
               </td>
               <td class="expand-row">
                   <div class="td-mini-container">
@@ -232,6 +236,9 @@
                 <td>
                     {{ $supplier->status ? 'Active' : 'Inactive' }}
                 </td>
+                <td>{{ $supplier->created_at }}</td>
+                <td>{{ $supplier->updated_at }}</td>
+                <td>{{ $supplier->updated_by_name }}</td>
               <td>
                   <div style="min-width: 100px;">
                       <a href="{{ route('supplier.show', $supplier->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a>

@@ -571,8 +571,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/upload-attachments', 'DevelopmentController@uploadAttachDocuments')->name('development.upload.files');
     Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
-    Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
-    Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');    
+    //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+    Route::get('development/list/{type}', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
+    //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+    Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
     Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
@@ -737,7 +739,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('vendor/email/inbox', 'VendorController@emailInbox')->name('vendor.email.inbox');
     Route::post('vendor/product', 'VendorController@productStore')->name('vendor.product.store');
     Route::put('vendor/product/{id}', 'VendorController@productUpdate')->name('vendor.product.update');
-    Route::delete('vendor/product/{id}', 'vendorVendorController@productDestroy')->name('vendor.product.destroy');
+    Route::delete('vendor/product/{id}', 'VendorController@productDestroy')->name('vendor.product.destroy');
     Route::get('vendor/{vendor}/payments', 'VendorPaymentController@index')->name('vendor.payments');
     Route::post('vendor/{vendor}/payments', 'VendorPaymentController@store')->name('vendor.payments.store');
     Route::put('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendor.payments.update');
@@ -850,6 +852,12 @@ Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->na
 Route::post('whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError');
 Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
+
+//Hubstaff
+Route::get('hubstaff/members', 'HubstaffController@index');
+Route::get('hubstaff/projects', 'HubstaffController@getProjects');
+Route::get('hubstaff/tasks', 'HubstaffController@getTasks');
+
 
 
 /*
@@ -1135,8 +1143,8 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function () {
 
 
     // -------v2 preview verion post requests----------
-    Route::get('v2/organizations/projects', 'HubstaffProjectController@getProject');
-    Route::post('v2/organizations/projects', 'HubstaffProjectController@postProject');
+//    Route::get('v2/organizations/projects', 'HubstaffProjectController@getProject');
+//    Route::post('v2/organizations/projects', 'HubstaffProjectController@postProject');
 
 
     Route::get('v1/organization/members', 'HubstaffController@organizationMemberPage')->name('organization.members');
@@ -1239,6 +1247,7 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
     Route::get('broadcast/sendMessage/list','BroadcastController@broadCastSendMessage')->name('broadcast.message.send.list');
     Route::post('broadcast/customer/list','BroadcastController@getCustomerBroadcastList')->name('broadcast.customer.list');
     Route::post('broadcast/global/save','BroadcastController@saveGlobalValues')->name('broadcast.global.save');
+    Route::post('broadcast/enable/count','BroadcastController@getCustomerCountEnable')->name('broadcast.enable.count');
 });
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
