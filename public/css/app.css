@@ -10596,11 +10596,19 @@ a.text-dark:focus {
 .chat-button-wrapper {
     position: fixed;
     top: 1em;
-    left: 2em;
+    right: 2em;
     z-index: 9999;
-    width: 70%;
+   
 }
 
+li.active{
+    background: #f1f1f1 !important;
+}
+
+.chat-button-wrapper.expanded{
+    width: 80% !important;
+    right: -13em !important;
+}
 .chat-button {
     height: 3em;
     width: 3em;

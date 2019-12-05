@@ -1252,7 +1252,14 @@
         @include('partials.modals.quick-task')
         @include('partials.modals.quick-instruction')
         @include('partials.modals.quick-development-task')
+        @php
+        $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
+        @endphp    
+        @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
         @include('partials.chat')
+        @elseif($liveChatUsers != '' && $liveChatUsers != null)
+        @include('partials.chat')
+        @endif
     @endif
 
     <main class="container">
@@ -1343,7 +1350,7 @@
                             @php 
                                $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
                             @endphp
-                            <li onclick="getChats('{{ $customer->id }}')">
+                            <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
 							<div class="d-flex bd-highlight">
                                 <div class="img_cont">
 									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
@@ -1371,7 +1378,7 @@
 									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
 									
 								</div>
-								<div class="user_info">
+								<div class="user_info" id="user_name">
 									{{-- <span>Chat with Khalid</span>
 									<p>1767 Messages</p> --}}
 								</div>
@@ -1395,16 +1402,16 @@
                         </div>
                         <div class="card-footer">
 							<div class="input-group">
-								<div class="input-group-append">
-                                    <span class="input-group-text attach_btn"><i class="fa fa-paperclip"></i></span>
-                                    <input type="hidden" name="message-image" />
+                                <div class="input-group-append">
+                                    <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
+                                    <input type="file" id="imgupload" style="display:none"/>
                                 </div>
                                 <input type="hidden" id="message-id"/>
 								<textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
 								<div class="input-group-append">
-									<span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
-								</div>
-							</div>
+									<span class="input-group-text send_btn" onclick="sendFile()"><i class="fa fa-location-arrow"></i></span>
+                                </div>
+                            </div>
 						</div>
                     </div>
                     </div>

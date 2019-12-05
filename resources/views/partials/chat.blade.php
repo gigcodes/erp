@@ -252,6 +252,9 @@ function getChats(id){
         $('#message-recieve').empty().html(data.data.message);
         $('#message-id').val(data.data.id);
 		$('#new_message_count').text(data.data.count);
+		$('#user_name').text(data.data.name);
+		$("li.active").removeClass("active");
+		$("#user"+data.data.id).addClass("active");
         console.log("success");
     })
     .fail(function() {
@@ -274,6 +277,9 @@ function getChatsWithoutRefresh(){
 		 $('#message-recieve').empty().html(data.data.message);
 		 $('#message-id').val(data.data.id);
 		 $('#new_message_count').text(data.data.count);
+		 $('#user_name').text(data.data.name);
+		 $("li .active").removeClass("active");
+		 $("#user"+data.data.id).addClass("active");
 		 scrolled=scrolled+300;
          $(".cover").animate({
 			scrollTop:  scrolled
@@ -330,5 +336,42 @@ function sendMessage(){
     	alert('Chat Not Active');
     });
 }
+//Send File
+// function sendFile(){
+//     id = $('#message-id').val();
+// 	file = $('#imgupload').prop('files')[0];
+// 	var fd = new FormData();
+// 		fd.append("id", id);
+// 		fd.append("file", file);
+// 		fd.append("_token", "{{ csrf_token() }}" );
+// 	var scrolled=0;
+//     $.ajax({
+//     	url: "{{ route('livechat.send.file') }}",
+//     	type: 'POST',
+//     	dataType: 'json',
+//     	data: fd,
+// 		cache: false,
+//         contentType: false,
+//         processData: false   
+//     })
+//     .done(function(data) {
+//        console.log(data);
+// 		chat_message = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'+message+'<span class="msg_time"></span></div></div>';
+// 		$('#message-recieve').append(chat_message);
+// 		$('#message').val('');
+// 		scrolled=scrolled+300;
+//         $(".cover").animate({
+// 			scrollTop:  scrolled
+// 		});
+// 	})
+//     .fail(function() {
+//     	alert('Chat Not Active');
+//     });
+// }
+
+
+// function sendImage() {
+// 	$('#imgupload').trigger('click');
+// }
 
 </script>
