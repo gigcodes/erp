@@ -238,7 +238,7 @@
 setInterval(function(){
  getChatsWithoutRefresh();
  getUserList();
- }, 50000);
+ }, 5000);
 
 function getChats(id){
 	
