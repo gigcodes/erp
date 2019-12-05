@@ -92,6 +92,8 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request)
     {
+        dd($request);
+        $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
         $category_tree = [];
