@@ -453,7 +453,7 @@ function createLead (thiss,dataSending) {
 
 var observeModelOpen = function () {
     if($("#chat-list-history").is(":visible")) {
-        $(".js-focus-visible").addClass("modal-open");
+        $("body").addClass("modal-open");
     }
 };
 
