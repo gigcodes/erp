@@ -6,6 +6,7 @@ use App\Helpers\StatusHelper;
 use App\Product;
 use App\Category;
 use App\Setting;
+use App\Brand;
 use Illuminate\Http\Request;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -23,6 +24,8 @@ class GoogleSearchImageController extends Controller
     {
         $data     = [];
         $term     = $request->input( 'term' );
+        $quickProduct  = request("quick_product",!empty($request->all()) ? false : "true");
+        $request->request->add(["quick_product" => $quickProduct]);	
         $data['term']     = $term;
 
         $productQuery = ( new Product() )->newQuery()->latest();
@@ -108,7 +111,9 @@ class GoogleSearchImageController extends Controller
             });
         }
 
-        if ($request->quick_product === 'true') {
+        $data["quick_product"] = false;
+        if ($quickProduct === 'true') {
+        	$data["quick_product"] = true;
             $productQuery = $productQuery->where('quick_product', 1);
         }
 
