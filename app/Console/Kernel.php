@@ -80,8 +80,11 @@ use App\Benchmark;
 use App\Task;
 use Carbon\Carbon;
 use App\CronJobReport;
+use App\Console\Commands\UpdateCronSchedule;
+use App\Console\Commands\RunErpEvents;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+
 
 class Kernel extends ConsoleKernel
 {
@@ -158,6 +161,8 @@ class Kernel extends ConsoleKernel
         ScheduleList::class,
         CheckWhatsAppActive::class,
         IncrementFrequencyWhatsappConfig::class,
+        UpdateCronSchedule::class,
+        RunErpEvents::class,
     ];
 
     /**
@@ -318,6 +323,10 @@ class Kernel extends ConsoleKernel
 
 
         $schedule->command('send:queue-pending-chat-messages')->cron('*/3 * * * *');
+
+        // need to run this both cron every minutes
+        $schedule->command('cronschedule:update')->everyMinute();
+        $schedule->command('erpevents:run')->everyMinute();
     }
 
     /**
