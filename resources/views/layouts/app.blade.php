@@ -9,7 +9,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
+
     <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')"/>
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
@@ -1045,7 +1045,10 @@
                                         </ul>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Address</a>
+                                        <a class="dropdown-item" href="{{ route('assets-manager.index') }}">Assets Manager</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
                                     </li>
                                 </ul>
                             </li>

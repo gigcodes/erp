@@ -188,6 +188,7 @@
                         <td style="vertical-align: middle;">{{ $issue->subject ?? 'N/A' }}</td>
                         <td style="vertical-align: middle;">{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
                         <td class="expand-row">
+                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
                             <div class="td-mini-container">
                                 {{ strlen($issue->task) > 20 ? substr($issue->task, 0, 20).'...' : $issue->task }}
                             </div>
@@ -520,7 +521,7 @@
                                         @endif
                                     </div>
                                 </div>
-                            </div>    
+                            </div>
                             <div class="col-md-12">
                                 <div class="col-md-2">
                                     <strong>Remarks:</strong>
@@ -528,11 +529,11 @@
                                 <div class="col-md-8">
                                     @if(auth()->user()->isAdmin())
                                          <div class="form-group">
-                                            <textarea cols="45" class="form-control" name="global_remarkes"></textarea>    
+                                            <textarea cols="45" class="form-control" name="global_remarkes"></textarea>
                                         </div>
                                     @endif
-                                </div>    
-                            </div>    
+                                </div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
@@ -546,7 +547,7 @@
                                         <th width="2%">Action</th>
                                     </tr>
                                     <tbody class="show_issue_priority">
-                                        
+
                                     </tbody>
                                 </table>
                             </div>
@@ -560,9 +561,24 @@
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
+
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="text/javascript">
         $(document).on('click', '.assign-issue-button', function () {
             var issue_id = $(this).data('id');
@@ -598,7 +614,7 @@
 
             $('input[name ="selected_issue[]"]').each(function(){
                 if ($(this).prop("checked") == true) {
-                    selected_issue.push($(this).val());                    
+                    selected_issue.push($(this).val());
                 }
             });
 
