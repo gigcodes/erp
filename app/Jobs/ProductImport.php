@@ -70,6 +70,8 @@ class ProductImport implements ShouldQueue
             $updated = $itemsAdded['updated'];
             //Created Product
             $created = $itemsAdded['created'];
+
+            $count = $itemsAdded['count'];
             // Log info
             Log::channel('productUpdates')->info("[Queued job result] Successfully imported Added " . $created . " products and updated ".$updated." products");
             //Adding Log Status Product Created the LogExcelImport
