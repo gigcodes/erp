@@ -37,7 +37,7 @@
                     <div class="form-group">
                         <label for="module_id">Module:</label>
                         <br>
-                        <select class="form-control select2" id="module_id" name="module_id">
+                        <select style="width:100%" class="form-control select2" id="module_id" name="module_id">
                             <option value>Select a Module</option>
                             @foreach ($modules as $module)
                                 <option value="{{ $module->id }}" {{ $module->id == old('module_id') ? 'selected' : '' }}>{{ $module->name }}</option>

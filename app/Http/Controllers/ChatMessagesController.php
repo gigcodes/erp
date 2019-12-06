@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Customer;
+use App\DeveloperTask;
 use App\User;
 use App\Vendor;
 use App\Supplier;
@@ -38,6 +39,9 @@ class ChatMessagesController extends Controller
                 break;
             case 'task':
                 $object = Task::find($request->object_id);
+                break;
+            case 'developer_task':
+                $object = DeveloperTask::find($request->object_id);
                 break;
             case 'supplier':
                 $object = Supplier::find($request->object_id);
@@ -94,7 +98,7 @@ class ChatMessagesController extends Controller
         $chatMessages = $chatMessages->get();
         // Set empty array with messages
         $messages = [];
-        
+
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
             // Create empty media array

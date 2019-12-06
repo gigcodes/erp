@@ -1,6 +1,11 @@
 @extends('layouts.app')
 
+@if($cropped == 'on')
+@section('favicon' , 'attributeedit.png')
+@section('title', 'Attribute Edit Page - ERP Sololuxury')
+@else
 @section('title', 'Product Listing')
+@endif
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">

@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('favicon' , 'selectionnew.png')
+@section('title', 'Add New Selection Grid - ERP Sololuxury')
 
 @section('content')
     <div class="row">

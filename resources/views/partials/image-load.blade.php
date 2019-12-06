@@ -52,6 +52,7 @@
             <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>
             <p>Price : {{ $product->price_special }}</p>
             <p>Color : {{ $product->color }} </p>
+            <p>Created At : {{ date("Y-m-d g:i a",strtotime($product->created_at)) }}</p>
           </div>
           </a>
           <div style="text-align: left;">
