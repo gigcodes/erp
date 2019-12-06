@@ -56,7 +56,7 @@ class ProductImport implements ShouldQueue
 
         // ItemsAdded
         $itemsAdded = $scrapedProduct->bulkScrapeImport($this->_json, 1, $nextExcelStatus);
-
+        
         //Getting Log Details
         if(isset($this->_logId) && $this->_logId != null){
             $log = LogExcelImport::findorfail($this->_logId);
@@ -65,14 +65,21 @@ class ProductImport implements ShouldQueue
         }
         
         // Check for result
-        if ((int)$itemsAdded > 0) {
+        if (is_array($itemsAdded)) {
+            //Updated Product
+            $updated = $itemsAdded['updated'];
+            //Created Product
+            $created = $itemsAdded['created'];
             // Log info
-            Log::channel('productUpdates')->info("[Queued job result] Successfully imported " . $itemsAdded . " products");
+            Log::channel('productUpdates')->info("[Queued job result] Successfully imported Added " . $created . " products and updated ".$updated." products");
             //Adding Log Status Product Created the LogExcelImport
             if($log != '' && $log != null){
-                $log->number_products_created = $itemsAdded;
+                $log->number_products_created = $created;
+                $log->number_products_updated = $updated;
+                $log->number_of_products = $count;
                 $log->status = 2;
                 $log->update();
+               
             }
         } else {
             // Log alert

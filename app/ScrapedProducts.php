@@ -44,6 +44,12 @@ class ScrapedProducts extends Model
         // Set count to 0
         $count = 0;
 
+        //Created product count 
+        $createdProductCount = 0;
+
+        //Updated product count
+        $updatedProductCount = 0;
+
         // Loop over array
         foreach ($arrBulkJson as $json) {
             // Excel?
@@ -96,6 +102,13 @@ class ScrapedProducts extends Model
 
                     // Create the product
                     $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
+                    if(is_array($productsCreatorResult)){
+                       if($productsCreatorResult['product_created'] == 1){
+                            $createdProductCount++;
+                       }else{
+                            $updatedProductCount++;
+                       }
+                    }
                 } else {
                     // Add new scraped product
                     $scrapedProduct = new ScrapedProducts();
@@ -127,6 +140,13 @@ class ScrapedProducts extends Model
 
                     // Create the product
                     $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
+                    if(is_array($productsCreatorResult)){
+                       if($productsCreatorResult['product_created'] == 1){
+                            $createdProductCount++;
+                       }else{
+                            $updatedProductCount++;
+                       }
+                    }
                 }
 
                 // Product created successfully
@@ -139,9 +159,9 @@ class ScrapedProducts extends Model
                 }
             }
         }
-
+        
         // Return count
-        return $count;
+        return array('updated' => $updatedProductCount , 'created' => $createdProductCount , 'count' => $count);
     }
 
     public function brand()
