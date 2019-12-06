@@ -1353,7 +1353,7 @@
             <div class="help-list well well-lg">
                 <div class="row">
                 <div class="col-md-4 chat" style="margin-top : 0px !important;">
-                    <div class="card card_chat mb-sm-3 mb-md-0 contacts_card">
+                    <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
 					<div class="card-header">
 						<div class="input-group">
 							{{-- <input type="text" placeholder="Search..." name="" class="form-control search">
@@ -1367,7 +1367,7 @@
                             $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
                             $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                         @endphp
-						<ul class="contacts" id="customer-list">
+						<ul class="contacts" id="customer-list-chat">
                         @foreach ($chatIds as $chatId)
                             @php 
                                $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
@@ -1393,7 +1393,7 @@
 					<div class="card-footer"></div>
                 </div></div>
                 <div class="col-md-8 chat">
-                    <div class="card card_chat">
+                    <div class="card_chat">
                         <div class="card-header msg_head">
 							<div class="d-flex bd-highlight">
 								<div class="img_cont">
@@ -1451,7 +1451,7 @@
             <div class="help-list well well-lg">
                 <div class="row">
                 <div class="col-md-4 chat" style="margin-top : 0px !important;">
-                    <div class="card card_chat mb-sm-3 mb-md-0 contacts_card">
+                    <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
 					<div class="card-header">
 						<div class="input-group">
 							{{-- <input type="text" placeholder="Search..." name="" class="form-control search">
@@ -1465,7 +1465,7 @@
                             $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
                             $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                         @endphp
-						<ul class="contacts" id="customer-list">
+						<ul class="contacts" id="customer-list-chat">
                         @foreach ($chatIds as $chatId)
                             @php 
                                $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
@@ -1491,7 +1491,7 @@
 					<div class="card-footer"></div>
                 </div></div>
                 <div class="col-md-8 chat">
-                    <div class="card card_chat">
+                    <div class="card_chat">
                         <div class="card-header msg_head">
 							<div class="d-flex bd-highlight">
 								<div class="img_cont">
