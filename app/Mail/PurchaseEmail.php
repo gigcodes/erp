@@ -20,12 +20,14 @@ class PurchaseEmail extends Mailable
     public $subject;
     public $message;
     public $file_paths;
+    public $customConfig;
 
-    public function __construct(string $subject, string $message, array $file_paths)
+    public function __construct(string $subject, string $message, array $file_paths, $customConfig = [])
     {
       $this->subject = $subject;
       $this->message = $message;
       $this->file_paths = $file_paths;
+      $this->customConfig = $customConfig;
     }
 
     /**
@@ -35,10 +37,15 @@ class PurchaseEmail extends Mailable
      */
     public function build()
     {
-        $email = $this
-            ->from('buying@amourint.com')
-            ->subject($this->subject)
+        $email = $this->subject($this->subject)
             ->text('emails.customers.email_plain', ['body_message' => $this->message]);
+
+
+        if(!empty($this->customConfig)) {
+            $email = $email->from($this->customConfig["from"]);
+        }else{
+            $email = $email->from('buying@amourint.com');
+        }
 
         if (count($this->file_paths) > 0) {
             foreach ($this->file_paths as $file_path) {

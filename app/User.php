@@ -334,4 +334,13 @@ class User extends Authenticatable
         return '';
     }
 
+    public static function getNameById($id)
+    {
+       $q  = self::where("id",$id)->first();
+       return ($q) ? $q->name : ""; 
+    }
+
+
+
+
 }

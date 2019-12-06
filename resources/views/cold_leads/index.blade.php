@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@if($via == 'hashtags')
+@section('favicon' , 'coldleadshastag.png')
+@section('title', 'Cold Leads Hastag')
+@endif
+
 @section('large_content')
     <div class="row" id="cold_leads_vue">
         <div class="col-md-12">

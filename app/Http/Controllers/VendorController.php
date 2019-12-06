@@ -149,6 +149,8 @@ class VendorController extends Controller
                   (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
 
                   FROM (SELECT vendors.id, vendors.frequency, vendors.is_blocked ,vendors.reminder_message, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.account_swift,
+                    vendors.created_at,vendors.updated_at,
+                    vendors.updated_by,
                   category_name,
                   chat_messages.message_id FROM vendors
 
@@ -171,7 +173,7 @@ class VendorController extends Controller
                   ORDER BY ' . $sortByClause . ' message_created_at DESC;
               ');
 
-              // dd($vendors);
+              //dd($vendors);
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
       $perPage = Setting::get('pagination'); 
@@ -490,10 +492,17 @@ class VendorController extends Controller
             'bcc.*' => 'nullable|email'
         ]);
 
+        $fromEmail = 'buying@amourint.com';
+        $fromName  =  "buying";
+
         if ($request->from_mail) {
           $mail = \App\EmailAddress::where('id', $request->from_mail)->first();
           if ($mail)  {
-              $config = array(
+              $fromEmail = $mail->from_address;
+              $fromName  =  $mail->from_name;
+              $config = config("mail");
+              unset($config['sendmail']);
+              $configExtra = array(
                   'driver'    => $mail->driver,
                   'host'      => $mail->host,
                   'port'      => $mail->port,
@@ -503,16 +512,10 @@ class VendorController extends Controller
                   ],
                   'encryption'  => $mail->encryption,
                   'username'    => $mail->username,
-                  'password'    => $mail->password,
-                  'sendmail'    => '/usr/sbin/sendmail -bs',
-                  'markdown'    => [
-                      'theme' => 'default',
-                      'paths' => [
-                          resource_path('views/vendor/mail'),
-                      ],
-                  ],
+                  'password'    => $mail->password
               );
-              \Config::set('mail', $config);
+              \Config::set('mail', array_merge($config,$configExtra));
+              (new \Illuminate\Mail\MailServiceProvider(app()))->register();
           }
         }
 
@@ -573,12 +576,12 @@ class VendorController extends Controller
                 $mail->bcc($bcc);
             }
 
-            $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+            $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths, ["from" => $fromEmail]));
 
             $params = [
                 'model_id'        => $vendor->id,
                 'model_type'      => Vendor::class,
-                'from'            => 'buying@amourint.com',
+                'from'            => $fromEmail,
                 'seen'            => 1,
                 'to'              => $vendor->email,
                 'subject'         => $request->subject,
@@ -607,29 +610,30 @@ class VendorController extends Controller
 
         $vendor = Vendor::find($request->vendor_id);
 
+        $fromEmail = 'buying@amourint.com';
+        $fromName  =  "buying";
+
         if ($request->from_mail) {
           $mail = \App\EmailAddress::where('id', $request->from_mail)->first();
           if ($mail)  {
-              $config = array(
-                  'driver'    => $mail->driver,
-                  'host'      => $mail->host,
-                  'port'      => $mail->port,
-                  'from'      => [
-                      'address' => $mail->from_address,
-                      'name' => $mail->from_name,
-                  ],
-                  'encryption'  => $mail->encryption,
-                  'username'    => $mail->username,
-                  'password'    => $mail->password,
-                  'sendmail'    => '/usr/sbin/sendmail -bs',
-                  'markdown'    => [
-                      'theme' => 'default',
-                      'paths' => [
-                          resource_path('views/vendor/mail'),
-                      ],
-                  ],
+              $fromEmail = $mail->from_address;
+              $fromName  = $mail->from_name;
+              $config = config("mail");
+              unset($config['sendmail']);
+              $configExtra = array(
+                'driver'    => $mail->driver,
+                'host'      => $mail->host,
+                'port'      => $mail->port,
+                'from'      => [
+                  'address' => $mail->from_address,
+                  'name' => $mail->from_name,
+                ],
+                'encryption'  => $mail->encryption,
+                'username'    => $mail->username,
+                'password'    => $mail->password
               );
-              \Config::set('mail', $config);
+              \Config::set('mail', array_merge($config,$configExtra));
+              (new \Illuminate\Mail\MailServiceProvider(app()))->register();
           }
         }
         
@@ -669,7 +673,7 @@ class VendorController extends Controller
                     $mail->bcc($bcc);
                 }
 
-                $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+                $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths, ["from" => $fromEmail]));
             } else {
                 return redirect()->back()->withErrors('Please select an email');
             }
@@ -677,7 +681,7 @@ class VendorController extends Controller
             $params = [
                 'model_id' => $vendor->id,
                 'model_type' => Vendor::class,
-                'from' => 'buying@amourint.com',
+                'from' => $fromEmail,
                 'to' => $request->email[0],
                 'seen' => 1,
                 'subject' => $request->subject,

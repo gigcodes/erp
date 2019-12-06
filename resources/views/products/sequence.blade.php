@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@section('favicon' , 'cropsequencer.png')
+@section('title', 'Crop Sequencer List - ERP Sololuxury')
+
+
+
 @section('large_content')
     <div class="row">
         <div class="col-md-12">

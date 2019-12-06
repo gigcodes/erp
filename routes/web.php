@@ -13,8 +13,7 @@
 
 Auth::routes();
 
-
-//Route::get('/test/test','TestController@test');
+Route::get('/test/test', 'LiveChatController@sendImage');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
@@ -77,6 +76,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/auto-cropped/{id}/reject', 'ProductCropperController@rejectCrop');
     Route::get('products/auto-cropped/{id}/crop-approval-confirmation', 'ProductCropperController@cropApprovalConfirmation');
     Route::get('customer/livechat-redirect','LiveChatController@reDirect');
+    Route::get('livechat/setting','LiveChatController@setting');
+    Route::post('livechat/save','LiveChatController@save')->name('livechat.save');
+    Route::post('livechat/remove','LiveChatController@remove')->name('livechat.remove');
     Route::resource('roles', 'RoleController');
     Route::resource('permissions', 'PermissionController');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
@@ -569,8 +571,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/upload-attachments', 'DevelopmentController@uploadAttachDocuments')->name('development.upload.files');
     Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
-    Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
-    Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');    
+    //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+    Route::get('development/list/{type}', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
+    //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+    Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
     Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
@@ -735,7 +739,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('vendor/email/inbox', 'VendorController@emailInbox')->name('vendor.email.inbox');
     Route::post('vendor/product', 'VendorController@productStore')->name('vendor.product.store');
     Route::put('vendor/product/{id}', 'VendorController@productUpdate')->name('vendor.product.update');
-    Route::delete('vendor/product/{id}', 'vendorVendorController@productDestroy')->name('vendor.product.destroy');
+    Route::delete('vendor/product/{id}', 'VendorController@productDestroy')->name('vendor.product.destroy');
     Route::get('vendor/{vendor}/payments', 'VendorPaymentController@index')->name('vendor.payments');
     Route::post('vendor/{vendor}/payments', 'VendorPaymentController@store')->name('vendor.payments.store');
     Route::put('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendor.payments.update');
@@ -819,6 +823,17 @@ Route::post('exotel/recordingCallback', 'ExotelController@recordingCallback');
 
 /* ---------------------------------------------------------------------------------- */
 
+/* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
+
+Route::post('livechat/incoming','LiveChatController@incoming');
+Route::post('livechat/getChats','LiveChatController@getChats')->name('livechat.get.message');
+Route::post('livechat/getChatsWithoutRefresh','LiveChatController@getChatMessagesWithoutRefresh')->name('livechat.message.withoutrefresh');
+Route::post('livechat/sendMessage','LiveChatController@sendMessage')->name('livechat.send.message');
+Route::post('livechat/sendFile','LiveChatController@sendFile')->name('livechat.send.file');
+Route::post('livechat/getUserList','LiveChatController@getUserList')->name('livechat.get.userlist');
+
+/* ---------------------------------------------------------------------------------- */
+
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/incomingNew', 'WhatsAppController@incomingMessageNew');
 Route::post('whatsapp/outgoingProcessed', 'WhatsAppController@outgoingProcessed');
@@ -837,6 +852,12 @@ Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->na
 Route::post('whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError');
 Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
+
+//Hubstaff
+Route::get('hubstaff/members', 'HubstaffController@index');
+Route::get('hubstaff/projects', 'HubstaffController@getProjects');
+Route::get('hubstaff/tasks', 'HubstaffController@getTasks');
+
 
 
 /*
@@ -1122,8 +1143,8 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Hubstaff'], function () {
 
 
     // -------v2 preview verion post requests----------
-    Route::get('v2/organizations/projects', 'HubstaffProjectController@getProject');
-    Route::post('v2/organizations/projects', 'HubstaffProjectController@postProject');
+//    Route::get('v2/organizations/projects', 'HubstaffProjectController@getProject');
+//    Route::post('v2/organizations/projects', 'HubstaffProjectController@postProject');
 
 
     Route::get('v1/organization/members', 'HubstaffController@organizationMemberPage')->name('organization.members');

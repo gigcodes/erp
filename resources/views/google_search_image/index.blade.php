@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+
+
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -70,7 +72,7 @@
             </div>
           @endif
           <div class="form-group mr-3">
-            <input type="checkbox" name="quick_product" id="quick_product" {{ request()->get('quick_product') == 'true' ? 'checked' : '' }}  value="true">
+            <input type="checkbox" name="quick_product" id="quick_product" {{ $quick_product == 'true' ? 'checked' : '' }}  value="true">
             <label for="quick_product">Quick Sell</label>
           </div>
            <div class="form-group mr-3">
