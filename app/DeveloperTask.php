@@ -59,4 +59,8 @@ class DeveloperTask extends Model
         return $this->belongsTo(User::class, 'created_by', 'id');
     }
 
+    public function whatsappAll()
+    {
+        return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+    }
 }
