@@ -66,6 +66,7 @@ class ProductImport implements ShouldQueue
         
         // Check for result
         if (is_array($itemsAdded)) {
+            
             //Updated Product
             $updated = $itemsAdded['updated'];
             //Created Product

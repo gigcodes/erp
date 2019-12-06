@@ -103,11 +103,11 @@ class ScrapedProducts extends Model
                     // Create the product
                     $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
                     if(is_array($productsCreatorResult)){
-                       if($productsCreatorResult['product_created'] == 1){
+                        if($productsCreatorResult['product_created'] == 1){
                             $createdProductCount++;
-                       }else{
+                        }elseif($productsCreatorResult['product_updated'] == 1){
                             $updatedProductCount++;
-                       }
+                        }
                     }
                 } else {
                     // Add new scraped product
@@ -141,11 +141,11 @@ class ScrapedProducts extends Model
                     // Create the product
                     $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
                     if(is_array($productsCreatorResult)){
-                       if($productsCreatorResult['product_created'] == 1){
+                        if($productsCreatorResult['product_created'] == 1){
                             $createdProductCount++;
-                       }else{
+                        }elseif($productsCreatorResult['product_updated'] == 1){
                             $updatedProductCount++;
-                       }
+                        }
                     }
                 }
 
