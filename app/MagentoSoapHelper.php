@@ -180,7 +180,7 @@ class MagentoSoapHelper
                     'is_in_stock' => 1,
                 ],
                 'price' => $product->price, // Same price as configurable product, no price change
-                'special_price' => $product->price_special,
+                'special_price' => $product->price_eur_special,
                 'additional_attributes' => [
                     'single_data' => [
                         ['key' => 'composition', 'value' => $product->composition,],

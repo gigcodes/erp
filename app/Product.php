@@ -64,7 +64,7 @@ class Product extends Model
 
             // Get formatted prices
             $formattedPrices = self::_getPriceArray($json);
-
+               
             // If validator fails we have an existing product
             if ($validator->fails()) {
                 // Get the product from the database
@@ -129,6 +129,7 @@ class Product extends Model
                 $product->price = $formattedPrices[ 'price' ];
                 $product->price_inr = $formattedPrices[ 'price_inr' ];
                 $product->price_special = $formattedPrices[ 'price_special' ];
+                $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->save();
 
@@ -258,14 +259,16 @@ class Product extends Model
                 $product->price = $formattedPrices[ 'price' ];
                 $product->price_inr = $formattedPrices[ 'price_inr' ];
                 $product->price_special = $formattedPrices[ 'price_special' ];
-
+                $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
+               
                 // Try to save the product
                 try {
                     $product->save();
                 } catch (\Exception $exception) {
+                     $product->save();
                     return false;
                 }
-
+                
                 // Update the product status
                 ProductStatus::updateStatus($product->id, 'CREATED_NEW_PRODUCT_BY_JSON', 1);
 
@@ -356,6 +359,14 @@ class Product extends Model
         $priceSpecial = $priceInr - ($priceInr * $brand->deduction_percentage) / 100;
         $priceSpecial = round($priceSpecial, -3);
 
+        //Build Special Price In EUR
+        if (!empty($finalPrice)) {
+            $priceEurSpecial = $finalPrice - ($finalPrice * $brand->deduction_percentage) / 100;
+        }else{
+            $priceEurSpecial = '';   
+        }
+        
+        
         // Make discounted price in the correct format
         if (strpos($json->discounted_price, ',') !== false) {
             if (strpos($json->discounted_price, '.') !== false) {
@@ -396,7 +407,8 @@ class Product extends Model
             'price' => $price,
             'price_discounted' => round($finalDiscountedPrice),
             'price_inr' => $priceInr,
-            'price_special' => $priceSpecial
+            'price_special' => $priceSpecial,
+            'price_eur_special' => $priceEurSpecial,
         ];
     }
 
