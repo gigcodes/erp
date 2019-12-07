@@ -1048,7 +1048,19 @@ Route::middleware('auth')->group(function () {
     Route::post('old/category/create', 'OldController@createCategory')->name('old.category.create');
     Route::post('old/update/status', 'OldController@updateOld')->name('old.update.status');
 
+    //Simple Duty
 
+    //Simple duty category
+    Route::get('duty/category', 'SimplyDutyCategoryController@index')->name('simplyduty.category.index');
+    Route::get('duty/category/update', 'SimplyDutyCategoryController@getCategoryFromApi')->name('simplyduty.category.update');
+
+    //Simple Duty Currency
+    Route::get('duty/currency', 'SimplyDutyCurrencyController@index')->name('simplyduty.currency.index');
+    Route::get('duty/currency/update', 'SimplyDutyCurrencyController@getCurrencyFromApi')->name('simplyduty.currency.update');
+
+    //Simple Duty Country
+    Route::get('duty/country', 'SimplyDutyCountryController@index')->name('simplyduty.country.index');
+    Route::get('duty/country/update', 'SimplyDutyCountryController@getCountryFromApi')->name('simplyduty.country.update');
 
     Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
 
