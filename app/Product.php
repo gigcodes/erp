@@ -223,7 +223,8 @@ class Product extends Model
                 ScrapActivity::create($params);
 
                 // Return
-                return true;
+                //returning 1 for Product Updated
+                return array('product_created' => 0,'product_updated' => 1);
             } else {
                 // Create new product
                 $product = new Product;
@@ -289,8 +290,8 @@ class Product extends Model
                     }
                 }
 
-                // Return true
-                return true;
+                // Return true Product Created
+                return array('product_created' => 1,'product_updated' => 0);
             }
         }
 
