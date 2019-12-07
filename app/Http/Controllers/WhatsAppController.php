@@ -4260,6 +4260,39 @@ class WhatsAppController extends FindByNumberController
             ]);
         }
 
+        if($chat_message->vendor_id != "") {
+
+            $vendor = \App\Vendor::find($chat_message->vendor_id);
+
+
+            if($vendor) {
+                if ($chat_message->message != '') {
+                    if ($vendor->whatsapp_number == '971547763482' || $vendor->whatsapp_number == '971562744570') {
+                        $data = $this->sendWithNewApi($vendor->phone, $vendor->whatsapp_number, $chat_message->message, null, $chat_message->id);
+                    } else {
+                        $this->sendWithWhatsApp($vendor->phone, $vendor->whatsapp_number, $chat_message->message, true, $chat_message->id);
+                    }
+                }
+
+                if ($chat_message->hasMedia(config('constants.media_tags'))) {
+                    foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
+                        if ($vendor->whatsapp_number == '971547763482' || $vendor->whatsapp_number == '971562744570') {
+                            $data = $this->sendWithNewApi($vendor->phone, $vendor->whatsapp_number, null, $image->getUrl(), $chat_message->id);
+                        } else {
+                            $this->sendWithWhatsApp($vendor->phone, $vendor->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), true, $chat_message->id);
+                        }
+                    }
+                }
+
+                $chat_message->update([
+                    'resent' => $chat_message->resent + 1
+                ]);
+
+            }
+
+        
+        }
+
         return response()->json([
             'resent' => $chat_message->resent
         ]);

@@ -33,8 +33,8 @@
 
 
 
-<form action="{{ route('quicksell.search') }}" method="POST" id="searchForm" class="form-inline align-items-start">
-  @csrf
+<form action="{{ route('quicksell.search') }}" method="GET" id="searchForm" class="form-inline align-items-start">
+  <!-- @csrf -->
   {{-- <div class="form-group">
       <div class="row"> --}}
   <input type="hidden" name="selected_products" id="selected_products" value="">
@@ -51,21 +51,21 @@
       <select class="form-control select-multiple2" name="category[]" multiple data-placeholder="Category...">
         <optgroup label="Category">
           @foreach($category_parent as $c)
-                            <option value="{{ $c->id }}">{{ $c->title }}</option>
-                            @if($c->childs)
-                              @foreach($c->childs as $categ)
-                              <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
-                              @endforeach
-                            @endif
-                        @endforeach
-                        @foreach($category_child as $c)
-                            <option value="{{ $c->id }}">{{ $c->title }}</option>
-                            @if($c->childs)
-                              @foreach($c->childs as $categ)
-                              <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
-                              @endforeach
-                            @endif
-                        @endforeach
+                <option value="{{ $c->id }}">{{ $c->title }}</option>
+                @if($c->childs)
+                  @foreach($c->childs as $categ)
+                  <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
+                  @endforeach
+                @endif
+            @endforeach
+            @foreach($category_child as $c)
+                <option value="{{ $c->id }}">{{ $c->title }}</option>
+                @if($c->childs)
+                  @foreach($c->childs as $categ)
+                  <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
+                  @endforeach
+                @endif
+            @endforeach
         </optgroup>
       </select>
     </div>
@@ -162,50 +162,64 @@
 </div>
 
 @include('partials.flash_messages')
+<?php 
+    $query = http_build_query(Request::except('page'));
+    $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query . '&page=');
+?>
 
-<div class="row mt-6" style="margin: 10px;">
-  @foreach ($products as $index => $product)
-  <div class="col-md-3 col-xs-6 text-left">
-    <input type="checkbox" class="checkbox_select" name="quick" value="{{ $product->id }}"/>
-    {{-- <a href="{{ route('leads.show', $lead['id']) }}"> --}}
-    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
-              ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
-              : '' }}" class="img-responsive grid-image" alt="" />
-    <div class="align" id="set{{ $product->id }}">       
-    <p>Supplier : {{ $product->supplier }}</p>
-    <p>Price : {{ $product->price }}</p>
-    @if($product->size != null) <p>Size :  {{ $product->size }} </p>@endif
-    <p>Brand : {{ $product->brand ? $brands[$product->brand] : '' }}</p>
-    <p>Category : {{ $product->category ? $categories[$product->category] : '' }}</p>
-    @if($product->groups)
-    
-    <p class="groups-css">Group :@if($product->groups->count() == 0) <input type="checkbox" name="blank" class="group-checkbox checkbox" data-id="{{ $product->id }}"> @else @foreach($product->groups as $group)
-      @php 
-    $grp = \App\QuickSellGroup::where('group',$group->quicksell_group_id)->first();
-    @endphp 
+<div class="form-group position-fixed hidden-xs hidden-sm" style="top: 50px; left: 20px;z-index: 99">
+    Goto :
+    <select onchange="location.href = this.value;" class="form-control" id="page-goto">
+        @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
+            <option data-value="{{$i}}" value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
+        @endfor
+    </select>
+</div>
+<div class="infinite-scroll">
+  <div class="row mt-6 " style="margin: 10px;">
+    @foreach ($products as $index => $product)
+    <div class="col-md-3 col-xs-6 text-left">
+      <input type="checkbox" class="checkbox_select" name="quick" value="{{ $product->id }}"/>
+      {{-- <a href="{{ route('leads.show', $lead['id']) }}"> --}}
+      <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
+                ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                : '' }}" class="img-responsive grid-image" alt="" />
+      <div class="align" id="set{{ $product->id }}">       
+      <p>Supplier : {{ $product->supplier }}</p>
+      <p>Price : {{ $product->price }}</p>
+      @if($product->size != null) <p>Size :  {{ $product->size }} </p>@endif
+      <p>Brand : {{ $product->brand ? $brands[$product->brand] : '' }}</p>
+      <p>Category : {{ $product->category ? $categories[$product->category] : '' }}</p>
+      @if($product->groups)
+      
+      <p class="groups-css">Group :@if($product->groups->count() == 0) <input type="checkbox" name="blank" class="group-checkbox checkbox" data-id="{{ $product->id }}"> @else @foreach($product->groups as $group)
+        @php 
+      $grp = \App\QuickSellGroup::where('group',$group->quicksell_group_id)->first();
+      @endphp 
 
-    @if($grp != null && $grp->name != null) {{ $grp->name }} , @else {{ $group->quicksell_group_id }}, @endif @endforeach @endif </p>
+      @if($grp != null && $grp->name != null) {{ $grp->name }} , @else {{ $group->quicksell_group_id }}, @endif @endforeach @endif </p>
 
-    @endif
-    </div>   
-    <button type="button" class="btn btn-image sendWhatsapp" data-id="{{ $product->id }}"><img src="/images/send.png" /></button>
+      @endif
+      </div>   
+      <button type="button" class="btn btn-image sendWhatsapp" data-id="{{ $product->id }}"><img src="/images/send.png" /></button>
 
-    <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
-    {!! Form::open(['method' => 'POST','route' => ['products.archive', $product->id],'style'=>'display:inline']) !!}
-    <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
-    {!! Form::close() !!}
+      <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-target="#editModal" data-product="{{ $product }}"><img src="/images/edit.png" /></a>
+      {!! Form::open(['method' => 'POST','route' => ['products.archive', $product->id],'style'=>'display:inline']) !!}
+      <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+      {!! Form::close() !!}
 
-     @if(auth()->user()->isAdmin())
-    {!! Form::open(['method' => 'DELETE','route' => ['products.destroy', $product->id],'style'=>'display:inline']) !!}
-    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-    {!! Form::close() !!}
-    @endif
-    {{-- </a> --}}
+       @if(auth()->user()->isAdmin())
+      {!! Form::open(['method' => 'DELETE','route' => ['products.destroy', $product->id],'style'=>'display:inline']) !!}
+      <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+      {!! Form::close() !!}
+      @endif
+      {{-- </a> --}}
+    </div>
+    @endforeach
   </div>
-  @endforeach
+  {!! $products->appends(request()->except("page"))->links() !!}
 </div>
 
-{!! $products->links() !!}
 
 @include('quicksell.partials.modal-product')
 @include('quicksell.partials.modal-create-group')
@@ -220,8 +234,25 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.11/js/bootstrap-select.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script type="text/javascript">
-   
+    console.log($('.infinite-scroll'));
+    $('.infinite-scroll').jscroll({
+        debug: true,
+        autoTrigger: true,
+        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        padding: 0,
+        nextSelector: '.pagination li.active + li a',
+        contentSelector: '.infinite-scroll',
+        callback: function () {
+          $('ul.pagination:visible:first').remove();
+          var next_page = $('.pagination li.active + li a');
+            var page_number = next_page.attr('href').split('page=');
+            var current_page = page_number[1] - 1;
+          $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
+          
+        }
+    });
 
     $(document).on("click","#attached-all-quick",function(){
         if($(this).html() == "Attached-ALL") {
