@@ -20,7 +20,7 @@
         <?php foreach($productImage as $i => $result) { ?>
           <div class="row">
               <h1>Result for  : <img width="50px" height="50px" src="<?php echo $i; ?>"></h1>
-           </div> 
+           </div>
           <div class="row">
             <div class="col-md-12">
                 <div class="well">
@@ -29,8 +29,8 @@
                     <?php if(!empty($result["labels"])) { ?>
                       <?php foreach($result["labels"] as $labels) { ?>
                         <span class="label label-default"><?php echo $labels; ?></span>
-                      <?php } ?>  
-                    <?php } ?> 
+                      <?php } ?>
+                    <?php } ?>
                   </p>
                 </div>
                 <div class="well">
@@ -39,8 +39,8 @@
                     <?php if(!empty($result["entities"])) { ?>
                       <?php foreach($result["entities"] as $entities) { ?>
                         <span class="label label-default"><?php echo $entities; ?></span>
-                      <?php } ?>  
-                    <?php } ?> 
+                      <?php } ?>
+                    <?php } ?>
                   </p>
                 </div>
             </div>
@@ -54,7 +54,7 @@
                         <?php foreach($result["pages"] as $pages) { ?>
                           <div class="col-md-4" style="float:left">
                             <div class="panel panel-primary">
-                              <div class="panel-body"><img src="<?php echo $result['image']; ?>" class="img-responsive" style="width:250px; height:250px;" alt="Image"></div>
+                              <div class="panel-body"><img src="<?php echo substr($result['image'], strrpos($result['image'], '/public') + 6); ?>" class="img-responsive" style="width:250px; height:250px;" alt="Image"></div>
                               <div class="panel-footer">
                                 <a href="<?php echo $pages; ?>" target="__blank">
                                   <button title="<?php echo $pages; ?>" class="btn btn-secondary">Go To <?php echo substr($pages, 0, 30) ?>...</button>
@@ -64,7 +64,7 @@
                           </div>
                         <?php } ?>
                       <?php } ?>
-                  </div> 
+                  </div>
                   <div class="col-md-12">
                       <div class="well">
                         <h1> Best Full matching Images</h1>
@@ -112,7 +112,7 @@
                   <div class="col-md-12">
                       <div class="well">
                         <h1> Best Similar matching Images</h1>
-                      </div>  
+                      </div>
                       <?php if(!empty($result["similar_images"])){ ?>
                         <?php foreach($result["similar_images"] as $images) { ?>
                           <div class="col-md-4" style="float:left">
@@ -130,16 +130,16 @@
                           </div>
                         <?php } ?>
                       <?php } ?>
-                  </div>   
-                </div>  
+                  </div>
+                </div>
             </div>
           </div>
-        <?php } ?>  
-      <?php } ?> 
+        <?php } ?>
+      <?php } ?>
   </div>
   <div class="row">
       <a class="btn btn-secondary" href="<?php echo url("google-search-image"); ?>">Back</a>
-  </div>  
+  </div>
 <div id="productModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -242,9 +242,9 @@
 @endsection
 
 @section('scripts')
- 
+
  <script type="text/javascript">
-    
+
     var detailsBtn = $(".btn-img-details");
         detailsBtn.on("click", function() {
             var $this = $(this);
@@ -276,7 +276,7 @@
               alert('Please Enter name!');
               return false;
             }
-            
+
             if (sku == '') {
               alert('Please Enter sku!');
               return false;
@@ -306,7 +306,7 @@
               beforeSend: function() {
                 $(thiss).text('Creating...');
               }
-            }).done(function(response) {              
+            }).done(function(response) {
               $('#productModal').find('.close').click();
             }).fail(function(response) {
               $(thiss).text('Create');
@@ -316,7 +316,7 @@
             });
           });
 
- </script> 
-  
+ </script>
+
 
 @endsection
