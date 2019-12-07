@@ -54,7 +54,7 @@
                         <?php foreach($result["pages"] as $pages) { ?>
                           <div class="col-md-4" style="float:left">
                             <div class="panel panel-primary">
-                              <div class="panel-body"><img src="<?php echo substr($result['image'], strrpos($result['image'], '/public') + 6); ?>" class="img-responsive" style="width:250px; height:250px;" alt="Image"></div>
+                              <div class="panel-body"><img src="<?php echo substr($result['image'], strrpos($result['image'], '/public') + 7); ?>" class="img-responsive" style="width:250px; height:250px;" alt="Image"></div>
                               <div class="panel-footer">
                                 <a href="<?php echo $pages; ?>" target="__blank">
                                   <button title="<?php echo $pages; ?>" class="btn btn-secondary">Go To <?php echo substr($pages, 0, 30) ?>...</button>
