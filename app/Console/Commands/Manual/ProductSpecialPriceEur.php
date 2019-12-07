@@ -50,6 +50,10 @@ class ProductSpecialPriceEur extends Command
 
             $brand = Brand::find($product->brand);
 
+            if($brand == null && $brand == ''){
+                    continue;
+            }
+
             if($brand->deduction_percentage == null || $brand->deduction_percentage == 0){
                 continue;
             }
