@@ -29,4 +29,5 @@ class UpdateProductsAddPriceEurColums extends Migration
             $table->dropColumn('price_eur_special');
         });
     }
+
 }
