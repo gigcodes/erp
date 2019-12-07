@@ -30,6 +30,7 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Storage;
 use Carbon\Carbon;
 use App\Services\Products\ProductsCreator;
+use App\Setting;
 
 class ScrapController extends Controller
 {
@@ -618,5 +619,70 @@ class ScrapController extends Controller
         }
 
         return $pendingUrl;
+    }
+
+    public function scrapedUrls(Request $request){
+
+         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated ||$request->currency == 0) {
+            
+            $query = LogScraper::query();
+
+
+
+
+            //global search website
+            if (request('website') != null) {
+                $query->where('website', 'LIKE', "%{$request->website}%");
+            }
+
+            if (request('url') != null) {
+                $query->where('url', 'LIKE', "%{$request->url}%");
+            }
+
+            if (request('sku') != null) {
+                $query->where('sku', 'LIKE', "%{$request->sku}%");
+            }
+
+             if (request('title') != null) {
+                $query->where('title', 'LIKE', "%{$request->title}%");
+            }
+
+            if (request('currency') != null) {
+                $query->where('currency', 'LIKE', "%{$request->currency}%");
+            }
+
+            if (request('price') != null) {
+                $query->where('price', 'LIKE', "%{$request->price}%");
+            }
+
+            if (request('created') != null) {
+                $query->whereDate('created_at', request('created'));
+            }
+
+            if (request('brand') != null) {
+                $suppliers = request('brand');
+                $query->whereIn('brand', $suppliers);
+            }
+
+            if (request('updated') != null) {
+                $query->whereDate('updated_at', request('updated'));
+            }
+            
+            $paginate = (Setting::get('pagination') * 10);
+            $logs = $query->orderby('updated_at','desc')->paginate($paginate);
+        }    
+        else {
+             $paginate = (Setting::get('pagination') * 10);
+            $logs = LogScraper::orderby('updated_at','desc')->paginate($paginate);
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('scrap.partials.scraped_url_data', compact('logs'))->render(),
+                'links' => (string)$logs->render()
+            ], 200);
+            }
+       
+        return view('scrap.scraped_url',compact('logs'));
     }
 }
