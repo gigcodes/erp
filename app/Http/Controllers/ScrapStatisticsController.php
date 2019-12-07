@@ -28,11 +28,15 @@ class ScrapStatisticsController extends Controller
         // Get scrape data
         $sql = '
             SELECT
+                s.id,
                 s.supplier,
                 s.inventory_lifetime,
                 s.scraper_new_urls,
                 s.scraper_existing_urls,
                 s.scraper_total_urls,
+                s.scraper_start_time,
+                s.scraper_logic,
+                s.scraper_madeby,
                 ls.website,
                 ls.ip_address,
                 COUNT(ls.id) AS total,
@@ -49,8 +53,6 @@ class ScrapStatisticsController extends Controller
             ON  
                 s.scraper_name=ls.website
             WHERE
-                ls.updated_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) AND
-                ls.updated_at < "' . $endDate . '" AND
                 ls.website != "internal_scraper"
             GROUP BY
                 ls.website
@@ -59,8 +61,11 @@ class ScrapStatisticsController extends Controller
         ';
         $scrapeData =  DB::select($sql);
 
+        $users = \App\User::all()->pluck("name","id")->toArray();
+
+        //echo '<pre>'; print_r($scrapeData); echo '</pre>';exit;
         // Return view
-        return view('scrap.stats', compact('activeSuppliers', 'scrapeData'));
+        return view('scrap.stats', compact('activeSuppliers', 'scrapeData','users'));
     }
 
     /**
@@ -175,5 +180,22 @@ class ScrapStatisticsController extends Controller
 
 
         return response()->json(['remark' => $remark ],200);
+    }
+
+    public function updateField(Request $request)
+    {
+
+        $fieldName  = request()->get("field");
+        $fieldValue = request()->get("field_value");
+        $search     = request()->get("search");
+
+        $suplier = \App\Supplier::where("id", $search)->first();
+        if($suplier) {
+            $suplier->{$fieldName} = $fieldValue;
+            $suplier->save();
+        }
+
+        return response()->json(["code" => 200]);
+
     }
 }

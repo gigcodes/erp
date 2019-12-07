@@ -632,4 +632,13 @@ class ProductHelper extends Model
         ];
         */
     }
+
+    public static function getScraperIcon($name) {
+
+        if (strpos($name, 'excel') !== false) {
+            echo '<i class="fa fa-file-excel-o" aria-hidden="true"></i>';
+        }else {
+            echo '<i class="fa fa-globe" aria-hidden="true"></i>';
+        }
+    }
 }

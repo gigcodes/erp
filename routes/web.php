@@ -961,6 +961,7 @@ Route::prefix('comments')->group(function () {
 });
 
 Route::prefix('scrap')->middleware('auth')->group(function () {
+    Route::get('statistics/update-field', 'ScrapStatisticsController@updateField');
     Route::resource('statistics', 'ScrapStatisticsController');
     Route::get('getremark', 'ScrapStatisticsController@getRemark')->name('scrap.getremark');
     Route::post('addremark', 'ScrapStatisticsController@addRemark')->name('scrap.addRemark');
