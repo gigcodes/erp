@@ -327,7 +327,7 @@ class LogScraper extends Model
                                 return;
                             }
                         }
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         return "[error] Regex generated an exception for brand " . $brand->name . " with regex '" . $skuFormat->sku_format . "'\n";
                     }
                 }
@@ -346,7 +346,7 @@ class LogScraper extends Model
                                 return;
                             }
                         }
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         return "[error] Regex without color generated an exception for brand " . $brand->name . " with regex '" . $skuFormat->sku_format . "'\n";
                     }
                 }
