@@ -193,7 +193,7 @@
                                 {{ strlen($issue->task) > 20 ? substr($issue->task, 0, 20).'...' : $issue->task }}
                             </div>
                             <div class="td-full-container hidden">
-                                {{ nl2br($issue->task) }}
+                                {!! nl2br($issue->task) !!}
                             @if ($issue->getMedia(config('constants.media_tags'))->first())
                             <br />
                                 @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
