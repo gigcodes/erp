@@ -699,6 +699,7 @@ class DevelopmentController extends Controller
         $task->priority = $request->input('priority');
         $task->subject = $request->input('subject');
         $task->task = $request->input('issue');
+        $task->responsible_user_id = $request->get('responsible_user_id',0);
         $task->module_id = $module->id;
         $task->user_id = Auth::id();
         $task->status = 'Issue';

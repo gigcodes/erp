@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\StatusHelper;
 use App\Product;
 use App\Category;
+use App\ScrapeQueues;
 use App\Setting;
 use App\Brand;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class GoogleSearchImageController extends Controller
         $data     = [];
         $term     = $request->input( 'term' );
         $quickProduct  = request("quick_product",!empty($request->all()) ? false : "true");
-        $request->request->add(["quick_product" => $quickProduct]);	
+        $request->request->add(["quick_product" => $quickProduct]);
         $data['term']     = $term;
 
         $productQuery = ( new Product() )->newQuery()->latest();
@@ -153,15 +154,15 @@ class GoogleSearchImageController extends Controller
         if ($product) {
 
             $media = $product->media()->first();
-            
+
             $data['image'] = '';
-            
+
             if($media) {
                 $data['image'] = $media->getUrl();
                 $data['media_id'] = $media->id;
                 $data['product_id'] = $product_id;
             }
-            
+
             if (!empty($data['image'])) {
                 return view( 'google_search_image.crop', $data );
             }
@@ -182,7 +183,7 @@ class GoogleSearchImageController extends Controller
         if ($product) {
 
             $media = $product->media()->first();
-            
+
             if($media) {
 
                 $path = $media->getAbsolutePath();
@@ -199,15 +200,15 @@ class GoogleSearchImageController extends Controller
 
                     if(!is_dir(public_path() . '/tmp_images')) {
                         mkdir(public_path() . '/tmp_images', 0777, true);
-                    }                  
+                    }
                     $path = public_path() . '/tmp_images/crop_'.$media->getBasenameAttribute();
                     $url = '/tmp_images/crop_'.$media->getBasenameAttribute();
                     $img->save($path);
                 }
             }
-            
+
         }
-        
+
         if ($path) {
             $productImage = [];
             $productImage[$url] = GoogleVisionHelper::getImageDetails($path);
@@ -303,7 +304,7 @@ class GoogleSearchImageController extends Controller
             $products->where("status_id", StatusHelper::$manualImageUpload);
         }else{
             $products->where("status_id", StatusHelper::$unableToScrapeImages);
-        }    
+        }
 
         if($request->has("supplier")) {
             $products = $products->join('product_suppliers as ps',"ps.product_id","products.id");
@@ -313,7 +314,7 @@ class GoogleSearchImageController extends Controller
         $productCount = $products->count();
 
         $product = $products->select(["products.*"])->orderBy("products.id","desc")->first();
-        
+
         $supplierList = \App\Product::where("status_id","14")
         ->where("products.stock",">",0)
         ->join('product_suppliers as ps',"ps.product_id","products.id")
@@ -331,5 +332,22 @@ class GoogleSearchImageController extends Controller
         ->get()->toArray();
 
         return view("google_search_image.product",compact(['product', 'productCount', 'supplierList','skippedSuppliers']));
+    }
+
+    public function queue(Request $request) {
+        // Update product status
+        $product = Product::findOrFail($request->product_id);
+
+        // Update product
+        $product->status_id = StatusHelper::$isBeingScraped;
+        $product->save();
+
+        // Create queue item
+        $scrapeQueue = new ScrapeQueues();
+        $scrapeQueue->product_id = (int) $request->product_id;
+        $scrapeQueue->url = $request->url;
+        $scrapeQueue->save();
+
+        return redirect("/google-search-image")->with('message', 'Product is queued');
     }
 }
