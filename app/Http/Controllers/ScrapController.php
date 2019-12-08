@@ -32,6 +32,7 @@ use Storage;
 use Carbon\Carbon;
 use App\Services\Products\ProductsCreator;
 use App\Helpers\StatusHelper;
+use Validator;
 
 class ScrapController extends Controller
 {
