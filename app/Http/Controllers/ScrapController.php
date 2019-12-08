@@ -689,7 +689,7 @@ class ScrapController extends Controller
             }
        
         return view('scrap.scraped_url',compact('logs'));
-
+        }        
         
     public function getProductsToScrape()
     {
