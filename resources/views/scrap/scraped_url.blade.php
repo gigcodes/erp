@@ -324,7 +324,7 @@
                     title : title,
                     currency : currency,
                     price : price,
-                    brand : brand,
+                    
                 },
                 beforeSend: function() {
                        $("#loading-image").show();
