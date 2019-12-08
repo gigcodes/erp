@@ -350,4 +350,38 @@ class GoogleSearchImageController extends Controller
 
         return redirect("/google-search-image")->with('message', 'Product is queued');
     }
+
+    public function getImageForMultipleProduct(Request $request){
+        
+        $product = Product::where('id', $request->id)->first();
+        $media = $product->media()->first();
+        
+        if($media){
+            $count = 0;
+            $urls = GoogleVisionHelper::getImageDetails($media->getUrl());
+            
+            foreach($urls['pages'] as $url){
+                if(stristr($url, '.gucci.')){
+                    
+                    $product->status_id = StatusHelper::$isBeingScraped;
+                    $product->save();
+
+                    // Create queue item
+                    $scrapeQueue = new ScrapeQueues();
+                    $scrapeQueue->product_id = (int) $product->id;
+                    $scrapeQueue->url = $url;
+                    $scrapeQueue->save();
+                    $count++;
+                    break;
+                }
+                
+            }
+            if($count == 0){
+               $product->status_id = StatusHelper::$unableToScrapeImages;
+               $product->save(); 
+            }
+        }
+        return response()->json(['success' => 'true'], 200);
+    }
+
 }
