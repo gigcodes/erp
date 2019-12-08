@@ -561,7 +561,7 @@ class ScrapController extends Controller
         $pendingUrl = array();
         $links = $request->links;
 
-        if ( is_string($links) ) {
+        if (is_string($links)) {
             $links = json_decode($links);
         }
 
@@ -589,31 +589,32 @@ class ScrapController extends Controller
                     $pendingUrl[] = $link;
                 }
             }
+
             //Getting Supplier by Scraper name
-                try {
-                    $scraper = Supplier::where('scraper_name',$request->website)->first();
-                    $totalLinks = count($links);
-                    $pendingLinks = count($pendingUrl);
-                    $existingLinks = ($totalLinks - $pendingLinks);
+            try {
+                $scraper = Supplier::where('scraper_name', $request->website)->first();
+                $totalLinks = count($links);
+                $pendingLinks = count($pendingUrl);
+                $existingLinks = ($totalLinks - $pendingLinks);
 
-                    if($scraper != '' && $scraper != null){
-                        $scraper->scraper_total_urls = $totalLinks;
-                        $scraper->scraper_existing_urls = $existingLinks;
-                        $scraper->scraper_new_urls = $pendingLinks;
-                        $scraper->update();
-                    }
-
-                    $scraperResult = new ScraperResult();
-                    $scraperResult->date = date("Y-m-d");
-                    $scraperResult->scraper_name = $request->website;
-                    $scraperResult->total_urls = $totalLinks;
-                    $scraperResult->existing_urls = $existingLinks;
-                    $scraperResult->new_urls = $pendingLinks;
-                    $scraperResult->save();
-
-                } catch (Exception $e) {
-
+                if ($scraper != '' && $scraper != null) {
+                    $scraper->scraper_total_urls = $totalLinks;
+                    $scraper->scraper_existing_urls = $existingLinks;
+                    $scraper->scraper_new_urls = $pendingLinks;
+                    $scraper->update();
                 }
+
+                $scraperResult = new ScraperResult();
+                $scraperResult->date = date("Y-m-d");
+                $scraperResult->scraper_name = $request->website;
+                $scraperResult->total_urls = $totalLinks;
+                $scraperResult->existing_urls = $existingLinks;
+                $scraperResult->new_urls = $pendingLinks;
+                $scraperResult->save();
+
+            } catch (Exception $e) {
+
+            }
 
         }
 
