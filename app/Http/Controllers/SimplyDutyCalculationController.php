@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\SimplyDutyCalculation;
+use App\SimplyDutyCountry;
 use Illuminate\Http\Request;
+use App\Setting;
+use Validator;
 
 class SimplyDutyCalculationController extends Controller
 {
@@ -12,9 +15,31 @@ class SimplyDutyCalculationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+         if($request->code || $request->country){
+           $query = SimplyDutyCalculation::query();
+
+            if(request('code') != null){
+                $query->where('country_code','LIKE', "%{$request->code}%");
+            }
+            if(request('country') != null){
+                $query->where('country_name','LIKE', "%{$request->country}%");
+            }
+            $calculations = $query->paginate(Setting::get('pagination'));
+        }else{
+            $calculations = SimplyDutyCalculation::paginate(Setting::get('pagination'));
+            $countries = SimplyDutyCountry::all();
+        }
+        
+         if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('simplyduty.calculation.partials.data', compact('calculations'))->render(),
+                'links' => (string)$calculations->render()
+            ], 200);
+            }
+
+        return view('simplyduty.calculation.index',compact('calculations','countries'));
     }
 
     /**
@@ -84,40 +109,135 @@ class SimplyDutyCalculationController extends Controller
     }
 
     public function calculate(Request $request){
-        $this->validate(
-        $request, 
-        [   
-            'OriginCountryCode' => 'required',
-            'HSCode' => 'required',
-            'DestinationCountryCode' => 'required',
-            'Quantity' => 'required',
-            'Value' => 'required',
-            'Shipping' => 'required',
-            'Insurance' => 'required',
-        ],
-        [   
-            'HSCode.required'    => 'Please Provide HSCODE.',
-            'DestinationCountryCode.required'    => 'Please Provide Destination Country Code.',
-            'Quantity.required'    => 'Please Provide Quantity.',
-            'Value.required'    => 'Please Provide Value.',
-            'Shipping.required'    => 'Please Provide Shipping.',
-            'Insurance.required'    => 'Please Provide Insurance.',
-        ]);
+        
+        $receivedJson = json_decode($request->getContent());
+        
+        $originCountryCode = $receivedJson->OriginCountryCode;
+        if($originCountryCode == null && $originCountryCode == ''){
+            $message = ['error' => 'OriginCountryCode is required'];
+            return json_encode($message, 400);
+        }
 
-        $originCountryCode = $request->OriginCountryCode;
-        $destinationCountryCode = $request->DestinationCountryCode;
-        $destinationStateCode = $request->DestinationStateCode;
-        $hSCode = $request->HSCode;
-        $quantity = $request->Quantity;
-        $value = $request->Value;
-        $shipping = $request->Shipping;
-        $insurance = $request->Insurance;
-        $originCurrencyCode = $request->OriginCurrencyCode;
-        $destinationCurrencyCode = $request->DestinationCurrencyCode;
-        $shipInsCalculationType = $request->ShipInsCalculationType;
-        $contractInsuranceType = $request->ContractInsuranceType;
+        $destinationCountryCode = $receivedJson->DestinationCountryCode;
+        if($destinationCountryCode == null && $destinationCountryCode == ''){
+            $message = ['error' => 'Destination Country Code is required'];
+            return json_encode($message, 400);
+        }
+        
+        $items = $receivedJson->Items;
+        if($items == null && $items == ''){
+            $message = ['error' => 'Items is required'];
+            return json_encode($message, 400);
+        }
 
-       $output =  array('HsCode' => '6109.10.0000','Value' => '1000','VAT' => '144.05','Duty' => 0 , 'Shipping' => 0 , 'Insurance' => 0 , 'Total' => 0 , 'ExchangeRate' => 0 , 'CurrencyTypeOrigin' => 0 , 'CurrencyTypeDestination' => 'GBP' , 'DutyMinimis' => 131 , 'DutyRate' => 0 , 'DutyType' => 'Full Rate' , 'DutyHSCode' => 'sdfs' , 'VatMinimis' => 15 , 'VatRate' => 20 , 'Quantity' => 1);    
-        return json_encode($output);
-    }
+        $shipping = $receivedJson->Shipping;
+        if($shipping == null && $shipping == '' && $shipping != 0){
+            $shipping = 0;
+        }
+
+        $insurance = $receivedJson->Insurance;
+        if($insurance == null && $insurance == ''){
+            $insurance = 0;
+        }
+
+        if(isset($receivedJson->DestinationStateCode)){
+            $destinationStateCode = $receivedJson->DestinationStateCode;
+        }else{
+            $destinationStateCode = '';
+        }
+
+        if(isset($receivedJson->OriginCurrencyCode)){
+            $originCurrencyCode = $receivedJson->OriginCurrencyCode;
+        }else{
+            $originCurrencyCode = '';
+        }
+
+        if(isset($receivedJson->DestinationCurrencyCode)){
+            $destinationCurrencyCode = $receivedJson->DestinationCurrencyCode;
+        }else{
+            $destinationCurrencyCode = '';
+        }
+
+        if(isset($receivedJson->ContractInsuranceType)){
+            $contractInsuranceType = $receivedJson->ContractInsuranceType;
+        }else{
+            $contractInsuranceType = '';
+        }
+      
+        //Looping over items
+        foreach($items as $item){
+             
+            $hsCode = $item->HSCode;
+            if($hsCode == null){
+                $message = ['error' => 'HSCode is required'];
+                return json_encode($message, 400);
+            }
+            $quantity = $item->Quantity;
+            if($quantity == null){
+                $message = ['error' => 'Quantity is required'];
+                return json_encode($message, 400);
+            }
+            $value = $item->Value;
+            if($value == null){
+                $message = ['error' => 'Value is required'];
+                return json_encode($message, 400);
+            }
+
+         $itemsArray[]  = array('HSCode' => $hsCode,'Quantity' => $quantity,'Value' => $value);  
+        }
+
+        $output =  array('OriginCountryCode' => $originCountryCode ,'DestinationCountryCode' => $destinationCountryCode ,'Items' => $itemsArray , 'Shipping' => $shipping , 'Insurance' => $insurance , 'ContractInsuranceType' => $contractInsuranceType);    
+        $post = json_encode($output);
+        
+			
+			$curl = curl_init();
+
+			curl_setopt_array($curl, array(
+			CURLOPT_URL => "https://www.api.simplyduty.com/api/duty/calculatemultiple",
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => "",
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => "POST",
+			CURLOPT_POSTFIELDS => "$post",
+			CURLOPT_HTTPHEADER => array(
+				 "Content-Type: application/json",
+                 "Accept: application/json",
+                 "x-api-key: 7a44e06e-eb82-4c09-b197-0419b950f98f",
+			),
+			));
+
+			$response = curl_exec($curl);
+			$err = curl_error($curl);
+
+            curl_close($curl);
+            if($response){
+                $req = json_decode($response);
+                foreach($req->Items as $item){
+                $calculation = new SimplyDutyCalculation;
+                $calculation->value = $item->Value;
+                $calculation->duty = $item->Duty;
+                $calculation->duty_rate = $item->DutyRate;
+                $calculation->duty_hscode = $item->DutyHSCode;
+                $calculation->duty_type = $item->DutyType;
+                $calculation->shipping = $req->Shipping;
+                $calculation->insurance = $req->Insurance;
+                $calculation->total = $req->Total;
+                $calculation->exchange_rate = $req->ExchangeRate;
+                $calculation->currency_type_origin = $req->CurrencyTypeOrigin;
+                $calculation->currency_type_destination = $req->CurrencyTypeDestination;
+                $calculation->duty_minimis = $req->DutyMinimis;
+                $calculation->vat_minimis = $req->VatMinimis;
+                $calculation->vat_rate = $req->VatRate;
+                $calculation->vat = $req->VAT;
+                $calculation->save();
+                }
+            }
+
+            return $response;
+            
+        }
+
+    
 }

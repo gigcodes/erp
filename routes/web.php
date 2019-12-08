@@ -1062,6 +1062,10 @@ Route::middleware('auth')->group(function () {
     Route::get('duty/country', 'SimplyDutyCountryController@index')->name('simplyduty.country.index');
     Route::get('duty/country/update', 'SimplyDutyCountryController@getCountryFromApi')->name('simplyduty.country.update');
 
+    //Simple Duty Calculation
+    Route::get('duty/calculation', 'SimplyDutyCalculationController@index')->name('simplyduty.calculation.index');
+    Route::post('duty/calculation', 'SimplyDutyCalculationController@calculation')->name('simplyduty.calculation');
+
     Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
 
     Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
