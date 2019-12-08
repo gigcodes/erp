@@ -499,6 +499,7 @@ class ScrapController extends Controller
         // If product is found, update it
         if ($product) {
             // Set basic data
+            $product->title = $request->get('title');
             $product->short_description = $request->get('description');
             $product->composition = $request->get('material_used');
             $product->color = $request->get('color');
@@ -546,6 +547,9 @@ class ScrapController extends Controller
                 $product->status_id = StatusHelper::$unableToScrapeImages;
                 $product->save();
             }
+
+            // Update scrape_queues by product ID
+            ScrapeQueues::where('done', 0)->where('product_id', $product->id)->update(['done' => 1]);
 
             // Return response
             return response()->json([
@@ -655,7 +659,7 @@ class ScrapController extends Controller
         }
 
         // Only run if productsToPush is empty
-        if ( !is_array($productsToPush) || count($productsToPush) == 0 ) {
+        if (!is_array($productsToPush) || count($productsToPush) == 0) {
             // Get all products with status scrape
             $products = Product::where('status_id', StatusHelper::$scrape)->where('stock', '>=', 1)->orderBy('products.id', 'DESC')->take(50)->get();
 
