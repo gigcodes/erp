@@ -190,20 +190,28 @@ class GoogleSearchImageController extends Controller
                 $url = $media->getUrl();
 
                 $img = \Image::make($media->getAbsolutePath());
-                $height = $request->get('width', null);
-                $width = $request->get('height', null);
+                $imageWidth = $img->width();
+                $imageHeight = $img->height();
+                $width = $request->get('width', null);
+                $height = $request->get('height', null);
                 $x = $request->get('x', null);
                 $y = $request->get('y', null);
 
                 if ($height != null && $width != null && $x != null && $y != null) {
-                    $img->crop($width[0], $height[0], $x[0], $y[0]);
-
-                    if(!is_dir(public_path() . '/tmp_images')) {
-                        mkdir(public_path() . '/tmp_images', 0777, true);
+                    
+                    //Checking if width and height are same
+                    if($imageWidth != $width[0] || $imageHeight != $height[0]){
+                        
+                        $img->crop($width[0], $height[0], $x[0], $y[0]);
+                        
+                        if(!is_dir(public_path() . '/tmp_images')) {
+                            mkdir(public_path() . '/tmp_images', 0777, true);
+                        }
+                        $path = public_path() . '/tmp_images/crop_'.$media->getBasenameAttribute();
+                        $url = '/tmp_images/crop_'.$media->getBasenameAttribute();
+                        $img->save($path);
+                    
                     }
-                    $path = public_path() . '/tmp_images/crop_'.$media->getBasenameAttribute();
-                    $url = '/tmp_images/crop_'.$media->getBasenameAttribute();
-                    $img->save($path);
                 }
             }
 

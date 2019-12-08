@@ -178,9 +178,9 @@
                 }
             });
         });
-          
+      location.reload();      
       }
-      location.reload();  
+      
     }
     
   </script>
