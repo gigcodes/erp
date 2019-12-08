@@ -499,7 +499,7 @@ class ScrapController extends Controller
         // If product is found, update it
         if ($product) {
             // Set basic data
-            $product->title = $request->get('title');
+            $product->name = $request->get('title');
             $product->short_description = $request->get('description');
             $product->composition = $request->get('material_used');
             $product->color = $request->get('color');
