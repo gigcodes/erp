@@ -373,7 +373,6 @@ class GoogleSearchImageController extends Controller
 
             if ( isset($urls['pages']) ) {
                 foreach ($urls[ 'pages' ] as $url) {
-                    echo $url . "\n";
                     if (stristr($url, '.gucci.') || stristr($url, '.farfetch.')) {
                         // Create queue item
                         $scrapeQueue = new ScrapeQueues();

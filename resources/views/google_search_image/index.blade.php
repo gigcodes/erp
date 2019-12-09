@@ -179,7 +179,7 @@
                 }
             });
         });
-      //location.reload();
+      location.reload();
       }
 
     }
