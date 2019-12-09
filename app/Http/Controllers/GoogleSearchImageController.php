@@ -198,19 +198,19 @@ class GoogleSearchImageController extends Controller
                 $y = $request->get('y', null);
 
                 if ($height != null && $width != null && $x != null && $y != null) {
-                    
+
                     //Checking if width and height are same
                     if($imageWidth != $width[0] || $imageHeight != $height[0]){
-                        
+
                         $img->crop($width[0], $height[0], $x[0], $y[0]);
-                        
+
                         if(!is_dir(public_path() . '/tmp_images')) {
                             mkdir(public_path() . '/tmp_images', 0777, true);
                         }
                         $path = public_path() . '/tmp_images/crop_'.$media->getBasenameAttribute();
                         $url = '/tmp_images/crop_'.$media->getBasenameAttribute();
                         $img->save($path);
-                    
+
                     }
                 }
             }
@@ -347,7 +347,7 @@ class GoogleSearchImageController extends Controller
         $product = Product::findOrFail($request->product_id);
 
         // Update product
-        $product->status_id = StatusHelper::$isBeingScraped;
+        $product->status_id = StatusHelper::$queuedForGoogleImageSearch;
         $product->save();
 
         // Create queue item
@@ -360,18 +360,18 @@ class GoogleSearchImageController extends Controller
     }
 
     public function getImageForMultipleProduct(Request $request){
-        
+
         $product = Product::where('id', $request->id)->first();
         $media = $product->media()->first();
-        
+
         if($media){
             $count = 0;
             $urls = GoogleVisionHelper::getImageDetails($media->getUrl());
-            
+
             foreach($urls['pages'] as $url){
                 if(stristr($url, '.gucci.')){
-                    
-                    $product->status_id = StatusHelper::$isBeingScraped;
+
+                    $product->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
                     $product->save();
 
                     // Create queue item
@@ -382,11 +382,13 @@ class GoogleSearchImageController extends Controller
                     $count++;
                     break;
                 }
-                
+
             }
             if($count == 0){
-               $product->status_id = StatusHelper::$unableToScrapeImages;
-               $product->save(); 
+               $product->status_id = StatusHelper::$googleImageSearchFailed;
+               $product->save();
+            } else {
+                StatusHelper::updateStatus($product, StatusHelper::$AI);
             }
         }
         return response()->json(['success' => 'true'], 200);
