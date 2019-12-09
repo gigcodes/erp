@@ -361,13 +361,11 @@ class GoogleSearchImageController extends Controller
 
     public function getImageForMultipleProduct(Request $request){
 
-        $product = Product::where('id', $request->id)->first();
+        $product = Product::findOrFail($request->id);
+        $product->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
+        $product->save();
+        
         $media = $product->media()->first();
-
-        if ( $product != null ) {
-            $product->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
-            $product->save();
-        }
 
         if($media){
             $count = 0;
