@@ -33,7 +33,7 @@ use Carbon\Carbon;
 use App\Services\Products\ProductsCreator;
 use App\Helpers\StatusHelper;
 use Validator;
-use Plank\Mediable\MediaUploader;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ScrapController extends Controller
 {
