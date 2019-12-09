@@ -53,91 +53,91 @@
                         <?php if(!empty($result[ "pages" ])){ ?>
                         <?php foreach($result[ "pages" ] as $pages) { ?>
                         <div class="col-md-4" style="float:left">
-                        <div class="panel panel-primary">
-                            <div class="panel-footer" <?php if (stristr($pages, '.gucci.')) echo " style='background-color: lightgreen;";?>>
-                                <a href="<?php echo $pages; ?>" target="__blank">
-                                    <button title="<?php echo $pages; ?>" class="btn btn-secondary">Go To <?php echo substr($pages, 0, 30) ?>...</button>
+                            <div class="panel panel-primary">
+                                <div class="panel-footer" <?php if (stristr($pages, '.gucci.')) echo " style='background-color: lightgreen;";?>>
+                                    <a href="<?php echo $pages; ?>" target="__blank">
+                                        <button title="<?php echo $pages; ?>" class="btn btn-secondary">Go To <?php echo substr($pages, 0, 30) ?>...</button>
+                                        <br/>
+                                    </a>
                                     <br/>
-                                </a>
-                                <br/>
-                                <button data-id="{{ $product_id }}" data-url="{{ $pages }}" class="btn btn-secondary btn-scrape">Scrape this product</button>
+                                    <button data-id="{{ $product_id }}" data-url="{{ $pages }}" class="btn btn-secondary btn-scrape">Scrape this product</button>
+                                </div>
                             </div>
                         </div>
+                        <?php } ?>
+                        <?php } ?>
                     </div>
-                    <?php } ?>
-                    <?php } ?>
-                </div>
-                <div class="col-md-12">
-                    <div class="well">
-                        <h1> Best Full matching Images</h1>
-                    </div>
-                    <?php if(!empty($result[ "matching_images" ])){ ?>
-                    <?php foreach($result[ "matching_images" ] as $images) { ?>
-                    <div class="col-md-4" style="float:left">
-                        <div class="panel panel-primary">
-                            <div class="panel-body"><img src="<?php echo $images; ?>" class="img-responsive" style="width:250px; height:250px;" alt="Image"></div>
-                            <div class="panel-footer">
-                                <button data-href="<?php echo $images; ?>" class="btn btn-secondary btn-img-details">
-                                    Get Details
-                                </button>
-                                <button class="btn btn-secondary add-product" data-product="{{$product_id}}" data-href="<?php echo $images; ?>">
-                                    Add Product
-                                </button>
+                    <div class="col-md-12">
+                        <div class="well">
+                            <h1> Best Full matching Images</h1>
+                        </div>
+                        <?php if(!empty($result[ "matching_images" ])){ ?>
+                        <?php foreach($result[ "matching_images" ] as $images) { ?>
+                        <div class="col-md-4" style="float:left">
+                            <div class="panel panel-primary">
+                                <div class="panel-body"><img src="<?php echo $images; ?>" class="img-responsive" style="width:250px; height:250px;" alt="Image"></div>
+                                <div class="panel-footer">
+                                    <button data-href="<?php echo $images; ?>" class="btn btn-secondary btn-img-details">
+                                        Get Details
+                                    </button>
+                                    <button class="btn btn-secondary add-product" data-product="{{$product_id}}" data-href="<?php echo $images; ?>">
+                                        Add Product
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                        <?php } ?>
+                        <?php } ?>
                     </div>
-                    <?php } ?>
-                    <?php } ?>
-                </div>
-                <div class="col-md-12">
-                    <div class="well">
-                        <h1> Best Partial matching Images</h1>
-                    </div>
-                    <?php if(!empty($result[ "partial_matching" ])){ ?>
-                    <?php foreach($result[ "partial_matching" ] as $images) { ?>
-                    <div class="col-md-4" style="float:left;">
-                    <div class="panel panel-primary">
-                        <div class="panel-body"><img src="<?php echo $images; ?>" class="img-responsive" style="width:250px; height:250px;" alt="Image"></div>
-                        <div class="panel-footer" <?php if (stristr($images, '.gucci.')) echo " style='background-color: lightgreen;";?>>
-                            <button data-href="<?php echo $images; ?>" class="btn btn-secondary btn-img-details">
-                                Get Details
-                            </button>
-                            <button class="btn btn-secondary add-product" data-product="{{$product_id}}" data-href="<?php echo $images; ?>">
-                                Add Product
-                            </button>
+                    <div class="col-md-12">
+                        <div class="well">
+                            <h1> Best Partial matching Images</h1>
                         </div>
+                        <?php if(!empty($result[ "partial_matching" ])){ ?>
+                        <?php foreach($result[ "partial_matching" ] as $images) { ?>
+                        <div class="col-md-4" style="float:left;">
+                            <div class="panel panel-primary">
+                                <div class="panel-body"><img src="<?php echo $images; ?>" class="img-responsive" style="width:250px; height:250px;" alt="Image"></div>
+                                <div class="panel-footer" <?php if (stristr($images, '.gucci.')) echo " style='background-color: lightgreen;";?>>
+                                    <button data-href="<?php echo $images; ?>" class="btn btn-secondary btn-img-details">
+                                        Get Details
+                                    </button>
+                                    <button class="btn btn-secondary add-product" data-product="{{$product_id}}" data-href="<?php echo $images; ?>">
+                                        Add Product
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <?php } ?>
+                        <?php } ?>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="well">
+                            <h1> Best Similar matching Images</h1>
+                        </div>
+                        <?php if(!empty($result[ "similar_images" ])){ ?>
+                        <?php foreach($result[ "similar_images" ] as $images) { ?>
+                        <div class="col-md-4" style="float:left">
+                            <div class="panel panel-primary">
+                                <div class="panel-body"><img src="<?php echo $images; ?>" class="img-responsive" style="width:250px; height:250px;" alt="Image"></div>
+                                <div class="panel-footer" <?php if (stristr($images, '.gucci.')) echo " style='background-color: lightgreen;'";?>>
+                                    <button data-href="<?php echo $images; ?>" class="btn btn-secondary btn-img-details">
+                                        Get Details
+                                    </button>
+                                    <button class="btn btn-secondary add-product" data-product="{{$product_id}}" data-href="<?php echo $images; ?>">
+                                        Add Product
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <?php } ?>
+                        <?php } ?>
                     </div>
                 </div>
-                <?php } ?>
-                <?php } ?>
             </div>
-            <div class="col-md-12">
-                <div class="well">
-                    <h1> Best Similar matching Images</h1>
-                </div>
-                <?php if(!empty($result[ "similar_images" ])){ ?>
-                <?php foreach($result[ "similar_images" ] as $images) { ?>
-                <div class="col-md-4" style="float:left">
-                <div class="panel panel-primary">
-                    <div class="panel-body"><img src="<?php echo $images; ?>" class="img-responsive" style="width:250px; height:250px;" alt="Image"></div>
-                    <div class="panel-footer" <?php if (stristr($images, '.gucci.')) echo " style='background-color: lightgreen;";?>>
-                        <button data-href="<?php echo $images; ?>" class="btn btn-secondary btn-img-details">
-                            Get Details
-                        </button>
-                        <button class="btn btn-secondary add-product" data-product="{{$product_id}}" data-href="<?php echo $images; ?>">
-                            Add Product
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <?php } ?>
-            <?php } ?>
         </div>
-    </div>
-    </div>
-    </div>
-    <?php } ?>
-    <?php } ?>
+        <?php } ?>
+        <?php } ?>
     </div>
     <div class="row">
         <a class="btn btn-secondary" href="<?php echo url("google-search-image"); ?>">Back</a>
@@ -257,7 +257,6 @@
         $('.add-product').on("click", function () {
             $('#product-image').val($(this).data("href"));
             $('#productModal').modal('show');
-            ;
         });
 
         $('.btn-scrape').on("click", function () {
@@ -265,7 +264,7 @@
             var id = $(this).data('id');
             console.log(url);
             console.log(id);
-            $('<form action="{{ route('google.search.queue') }}" method="post">{{ csrf_field() }}<input type="hidden" name="product_id" value="' + id + '"><input type="hidden" name="url" value="' + url + '"></form>').appendTo('body').submit();
+            var tmpForm = $('<form action="<?php echo route("google.search.queue"); ?>" method="post"><?php echo csrf_field(); ?><input type="hidden" name="product_id" value="' + id + '"><input type="hidden" name="url" value="' + url + '"></form>').appendTo('body').submit();
         });
 
         $('.createProduct').on('click', function () {

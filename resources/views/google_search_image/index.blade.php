@@ -35,7 +35,7 @@
             {!! $category_selection !!}
           </div>
 
-          
+
 
           <div class="form-group mr-3">
             @php $brands = \App\Brand::getAll();
@@ -117,15 +117,16 @@
                   ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
                   : ''
                 }}" class="img-responsive grid-image" alt="" />
+              <p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>
               <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
-              <p>Transist Status : {{ $product->purchase_status }}</p>
+              <p>Transit Status : {{ $product->purchase_status }}</p>
               <p>Location : {{ ($product->location) ? $product->location : "" }}</p>
               <p>Sku : {{ $product->sku }}</p>
               <p>Id : {{ $product->id }}</p>
               <p>Size : {{ $product->size}}</p>
               <p>Price : {{ $product->price_special }}</p>
 
-              <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}">
+              <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">
             </a>
           </div>
           @endforeach
@@ -155,7 +156,7 @@
       $.each($("input[name='product_id']:checked"), function(){
           clicked.push($(this).val());
       });
-      
+
       if(clicked.length == 0){
         alert('Please Select Product');
       }else if(clicked.length == 1){
@@ -178,10 +179,10 @@
                 }
             });
         });
-      location.reload();      
+      location.reload();
       }
-      
+
     }
-    
+
   </script>
 @endsection

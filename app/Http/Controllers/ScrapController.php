@@ -473,14 +473,14 @@ class ScrapController extends Controller
         }
 
         // Return an error if the current product status is not set to scrape
-        if ($product->status_id != StatusHelper::$isBeingScraped) {
+        if ($product->status_id != StatusHelper::$isBeingScraped && $product->status_id != StatusHelper::$isBeingScrapedWithGoogleImageSearch ) {
             return response()->json([
                 'status' => 'Error processing your request (#2)'
             ], 400);
         }
 
         // Set product to unable to scrape - will be updated later if we have info
-        $product->status_id = StatusHelper::$unableToScrape;
+        $product->status_id = $product->status_id == StatusHelper::$isBeingScraped ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
         $product->save();
 
         // Validate request
@@ -551,7 +551,7 @@ class ScrapController extends Controller
             } else {
                 // Save product with status 'unable to scrape images'
                 $product->is_without_image = 1;
-                $product->status_id = StatusHelper::$unableToScrapeImages;
+                $product->status_id == StatusHelper::$isBeingScraped ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
                 $product->save();
             }
 
@@ -725,7 +725,7 @@ class ScrapController extends Controller
                 ];
 
                 // Update status to is being scraped
-                $product->status_id = StatusHelper::$isBeingScraped;
+                $product->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
                 $product->save();
             }
         }
