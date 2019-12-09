@@ -316,6 +316,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/crop', 'GoogleSearchImageController@crop')->name('google.search.crop');
         Route::post('/crop-search', 'GoogleSearchImageController@searchImageOnGoogle')->name('google.search.crop.post');
         Route::post('details', 'GoogleSearchImageController@details')->name('google.search.details');
+        Route::post('queue', 'GoogleSearchImageController@queue')->name('google.search.queue');
+        Route::post('/multiple-products', 'GoogleSearchImageController@getImageForMultipleProduct')->name('google.product.queue');
     });
 
     Route::prefix('search-image')->group(function () {
