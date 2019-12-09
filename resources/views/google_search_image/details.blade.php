@@ -257,7 +257,6 @@
         $('.add-product').on("click", function () {
             $('#product-image').val($(this).data("href"));
             $('#productModal').modal('show');
-            ;
         });
 
         $('.btn-scrape').on("click", function () {
