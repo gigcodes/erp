@@ -10,8 +10,17 @@
   .dis-none {
     display: none;
   }
+  #loading-image {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin: -50px 0px 0px -50px;
+  }
 </style>
 @section('content')
+<div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+</div>
   <div class="row">
     <div class="col-lg-12 margin-tb">
       <div class="">
@@ -98,7 +107,7 @@
 
   <div class="productGrid" id="productGrid">
     {!! $products->appends(Request::except('page'))->links() !!}
-     <form  method="POST" action="{{route('google.search.crop')}}">
+     <form  method="POST" action="{{route('google.search.crop')}}" id="theForm">
       {{ csrf_field() }}
         <div class="row">
           @foreach ($products as $product)
@@ -116,14 +125,14 @@
               <p>Size : {{ $product->size}}</p>
               <p>Price : {{ $product->price_special }}</p>
 
-              <input type="radio" class="select-product-edit" name="product_id" value="{{ $product->id }}">
+              <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}">
             </a>
           </div>
           @endforeach
         </div>
         <div class="row">
           <div class="col text-center">
-            <button type="submit" class="btn btn-image my-3" id="sendImageMessage"><img src="/images/filled-sent.png" /></button>
+            <button type="button" class="btn btn-image my-3" id="sendImageMessage" onclick="sendImage()"><img src="/images/filled-sent.png" /></button>
           </div>
         </div>
       </form>
@@ -140,5 +149,39 @@
        $(".select-multiple").multiselect();
        $(".select-multiple2").select2();
     });
+
+    function sendImage(){
+      var clicked = [];
+      $.each($("input[name='product_id']:checked"), function(){
+          clicked.push($(this).val());
+      });
+      
+      if(clicked.length == 0){
+        alert('Please Select Product');
+      }else if(clicked.length == 1){
+        document.getElementById('theForm').submit();
+      }else{
+        $.each($("input[name='product_id']:checked"), function(){
+          id = $(this).val();
+          $.ajax({
+                url: "{{ route('google.product.queue') }}",
+                type: 'POST',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                },
+                data: {
+                    id: id,
+                     _token: "{{ csrf_token() }}",
+                }
+            });
+        });
+      location.reload();      
+      }
+      
+    }
+    
   </script>
 @endsection

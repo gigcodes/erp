@@ -43,16 +43,7 @@ border-radius: 0 0 15px 15px !important;
 .container{
 	align-content: center;
 }
-.search{
-	border-radius: 15px 0 0 15px !important;
-	background-color: aliceblue !important;
-	border:0 !important;
-	color:white !important;
-}
-.search:focus{
-		box-shadow:none !important;
-	outline:0px !important;
-}
+
 .type_msg{
 	background-color: white !important;
 	border:0 !important;

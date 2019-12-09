@@ -316,6 +316,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/crop', 'GoogleSearchImageController@crop')->name('google.search.crop');
         Route::post('/crop-search', 'GoogleSearchImageController@searchImageOnGoogle')->name('google.search.crop.post');
         Route::post('details', 'GoogleSearchImageController@details')->name('google.search.details');
+        Route::post('queue', 'GoogleSearchImageController@queue')->name('google.search.queue');
+        Route::post('/multiple-products', 'GoogleSearchImageController@getImageForMultipleProduct')->name('google.product.queue');
     });
 
     Route::prefix('search-image')->group(function () {
@@ -361,7 +363,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('quickSell/saveGroup', 'QuickSellController@saveGroup')->name('quicksell.save.group');
     Route::get('quickSell/pending', 'QuickSellController@pending')->name('quicksell.pending');
     Route::post('quickSell/activate', 'QuickSellController@activate')->name('quicksell.activate');
-    Route::post('quickSell/search', 'QuickSellController@search')->name('quicksell.search');
+    Route::get('quickSell/search', 'QuickSellController@search')->name('quicksell.search');
      Route::post('quickSell/groupUpdate', 'QuickSellController@groupUpdate')->name('quicksell.group.update');
 
 
@@ -986,6 +988,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('/google/images', 'ScrapController@index');
     Route::post('/google/images', 'ScrapController@scrapGoogleImages');
     Route::post('/google/images/download', 'ScrapController@downloadImages');
+    Route::get('/scraped-urls', 'ScrapController@scrapedUrls');
     Route::get('/{name}', 'ScrapController@showProducts');
 });
 
