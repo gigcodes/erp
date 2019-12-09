@@ -22,7 +22,15 @@
     <div class="row no-gutters mt-3">
         <div class="col-md-12" id="plannerColumn">
             <div class="">
-                <table class="table table-bordered table-striped">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><button class="btn btn-secondary btn-set-priorities">Set Priority</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br>
+                <table class="table table-bordered table-striped sort-priority-scrapper">
                     <thead>
                         <tr>
                             <th style="width:2%">No</th>
@@ -39,6 +47,7 @@
                             <th style="width:1%">Existing URLs</th>
                             <th style="width:2%">New URLs</th>
                             <th style="width:2%">Made By</th>
+                            <th style="width:2%">Parent Scrapper</th>
                             <th style="width:2%">Functions</th>
                         </tr>
                     </thead>
@@ -62,9 +71,9 @@
 
                             // Show correct background color
                             if ( (!empty($data) && $data->running == 0) || $data == null ) {
-                                echo '<tr data-id="'.$supplier->id.'" style="background-color: red; color: white;">';
+                                echo '<tr data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'" style="background-color: red; color: white;">';
                             } elseif ( $percentage > 25 ) {
-                                echo '<tr data-id="'.$supplier->id.'" style="background-color: orange; color: white;">';
+                                echo '<tr data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'" style="background-color: orange; color: white;">';
                             } else {
                                 echo '<tr>';
                             }
@@ -76,11 +85,12 @@
                             @if(substr(strtolower($supplier->supplier), 0, 6)  == 'excel_')
                                 &nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i>
                             @endif
+                            &nbsp;<a href="javascript:;" class="call-history-scrap" data-id="<?php echo $supplier->id; ?>"><i class="fa fa-history" aria-hidden="true"></i></a>
                         </td>
                         <td class="">{{ !empty($data) ? $data->ip_address : '' }}</td>
                         <td class="">
                             <div class="input-group">
-                              <input type="text" name="start_time" value="<?php echo $supplier->scraper_start_time; ?>" class="form-control datepicker">
+                              <input type="time" name="start_time" value="<?php echo $supplier->scraper_start_time; ?>" class="form-control start_time">
                             </div>
                         </td>
                         <td class="">{{ !empty($data) ? date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) : '' }}</td>
@@ -102,12 +112,25 @@
                               <?php echo Form::select("scraper_madeby",["" => "N/A"] + $users,$supplier->scraper_madeby,["class" => "form-control scraper_madeby select2","style" => "width:120px;"]); ?>  
                             </div>
                         </td>
+                        <td class="">
+                            <div class="form-group">
+                              <?php echo Form::select("scraper_parent_id",[0 => "N/A"] + $allScrapperName,$supplier->scraper_parent_id,["class" => "form-control scraper_parent_id select2","style" => "width:120px;"]); ?>  
+                            </div>
+                        </td>
                         <td>
                             <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="10px;" src="/images/remark.png"/></button>
                         </td>
                         </tr>
                     @endforeach
                 </table>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><button class="btn btn-secondary btn-set-priorities">Set Priority</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br>
                 <table class="table table-bordered table-striped table-sm">
                         <thead>
                             <tr>
@@ -158,11 +181,42 @@
             </div>
         </div>
     </div>
-
+    <div id="scrap-history" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">History</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <table class="table">
+              <thead class="thead-dark">
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Operation</th>
+                  <th scope="col">Comment</th>
+                  <th scope="col">Created By</th>
+                  <th scope="col">Created At</th>
+                </tr>
+              </thead>
+              <tbody class="history_append">
+                
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
 @endsection
 
 @section('scripts')
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script type="text/javascript">
         $(document).on('click', '.make-remark', function (e) {
             e.preventDefault();
@@ -219,10 +273,29 @@
                
         });
 
-        $(".datepicker").datepicker({
-            format: 'yyyy-mm-dd',
-            autoclose : true
-        }).on("changeDate", function(e) {
+        $( ".sort-priority-scrapper" ).sortable({
+            items : $(".sort-priority-scrapper").find("tbody").find("tr"),
+            update: function(e,ui){
+             var lis = $(".sort-priority-scrapper tbody tr");
+             var ids = lis.map(function(i,el){return {id:el.dataset.id}}).get();
+             $.ajax({
+               url:'/scrap/statistics/update-priority',
+               headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+               },
+               method:'POST',
+               data: {
+                 ids:ids,
+               }
+             });
+           }
+        });
+
+        $(document).on("click",".btn-set-priorities",function() {
+
+        });
+
+        $(document).on("focusout",".start_time",function() {
             var tr = $(this).closest("tr");
             var id = tr.data("id");
             $.ajax({
@@ -271,6 +344,51 @@
                 },
             }).done(function (response) {
                 toastr['success']('Data updated Successfully', 'success');
+            }).fail(function (response) {
+
+            });
+        });
+
+        $(document).on("change",".scraper_parent_id",function() {
+            var tr = $(this).closest("tr");
+            var id = tr.data("id");
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/statistics/update-field',
+                data: {
+                    search: id,
+                    field : "scraper_parent_id",
+                    field_value : tr.find(".scraper_parent_id").val()
+                },
+            }).done(function (response) {
+                toastr['success']('Data updated Successfully', 'success');
+            }).fail(function (response) {
+
+            });
+        });
+
+        $(document).on("click",".call-history-scrap",function() {
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/statistics/history',
+                data: {
+                    search: $(this).data("id"),
+                    field : "supplier"
+                },
+                dataType:"json"
+            }).done(function (response) {
+
+                var table = ""; 
+                if(response.code == 200) {
+                   $.each(response.data,function(k,v) {
+                       table = '<tr><th scope="row">'+v.id+'</th><td>'+v.operation+'</td><td>'+v.text+'</td><td>'+v.created_by_name+'</td><td>'+v.created_at+'</td></tr>'; 
+                   });
+                }
+
+                $(".history_append").html(table);
+                console.log($("#scrap-history"));
+                $("#scrap-history").modal("show");
+                
             }).fail(function (response) {
 
             });

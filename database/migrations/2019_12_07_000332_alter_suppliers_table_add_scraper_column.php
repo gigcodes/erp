@@ -14,9 +14,11 @@ class AlterSuppliersTableAddScraperColumn extends Migration
     public function up()
     {
         Schema::table('suppliers', function (Blueprint $table) {
-             $table->dateTime('scraper_start_time')->nullable()->default('0000-00-00 00:00:00');
-             $table->text('scraper_logic', 65535)->nullable();
-             $table->integer('scraper_madeby')->nullable();
+             $table->string('scraper_start_time')->nullable()->after('scraper_total_urls');
+             $table->text('scraper_logic', 65535)->nullable()->after('scraper_start_time');
+             $table->integer('scraper_madeby')->nullable()->after('scraper_logic');
+             $table->integer('scraper_priority')->nullable()->default(0)->after('scraper_madeby');
+             $table->integer('scraper_parent_id')->nullable()->default(0)->after('scraper_priority');
         });
     }
 
@@ -31,6 +33,7 @@ class AlterSuppliersTableAddScraperColumn extends Migration
             $table->dropColumn('scraper_start_time');
             $table->dropColumn('scraper_logic');
             $table->dropColumn('scraper_madeby');
+            $table->dropColumn('scraper_priority');
         });
     }
 }

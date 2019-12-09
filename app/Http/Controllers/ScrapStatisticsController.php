@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use \Carbon\Carbon;
 use App\ScrapRemark;
+use App\ScrapHistory;
 use Auth;
 
 class ScrapStatisticsController extends Controller
@@ -23,7 +24,7 @@ class ScrapStatisticsController extends Controller
         $endDate = date('Y-m-d H:i:s');
 
         // Get active suppliers
-        $activeSuppliers = Supplier::where('supplier_status_id', 1)->orderby('supplier')->get();
+        $activeSuppliers = Supplier::where('supplier_status_id', 1)->orderby('scraper_priority','desc')->get();
 
         // Get scrape data
         $sql = '
@@ -57,15 +58,25 @@ class ScrapStatisticsController extends Controller
             GROUP BY
                 ls.website
             ORDER BY
-                s.supplier
+                s.scraper_priority desc
         ';
         $scrapeData =  DB::select($sql);
+
+        $allScrapperName = [];
+
+        if(!empty($scrapeData)) {
+            foreach($scrapeData as $data) {
+                if(isset($data->id) && $data->id > 0) {
+                   $allScrapperName[$data->id] = $data->website;     
+                }                 
+            }
+        }
 
         $users = \App\User::all()->pluck("name","id")->toArray();
 
         //echo '<pre>'; print_r($scrapeData); echo '</pre>';exit;
         // Return view
-        return view('scrap.stats', compact('activeSuppliers', 'scrapeData','users'));
+        return view('scrap.stats', compact('activeSuppliers', 'scrapeData','users','allScrapperName'));
     }
 
     /**
@@ -98,6 +109,8 @@ class ScrapStatisticsController extends Controller
         $stat->url = $request->get('url');
         $stat->description = $request->get('description');
         $stat->save();
+
+
 
         return response()->json([
             'status' => 'Added successfully!'
@@ -191,11 +204,84 @@ class ScrapStatisticsController extends Controller
 
         $suplier = \App\Supplier::where("id", $search)->first();
         if($suplier) {
+            $oldValue  = $suplier->{$fieldName}; 
+
+            if($fieldName == "scraper_madeby") {
+                $oldValue  = ($suplier->scraperMadeBy) ? $suplier->scraperMadeBy->name : "";
+            }
+
+            if($fieldName == "scraper_parent_id") {
+                $oldValue  = ($suplier->scraperParent) ? $suplier->scraperParent->scraper_name : "";
+            }
+
             $suplier->{$fieldName} = $fieldValue;
             $suplier->save();
+
+            $suplier = \App\Supplier::where("id", $search)->first();
+
+            $newValue = $fieldValue;
+
+            if($fieldName == "scraper_madeby") {
+                $newValue  = ($suplier->scraperMadeBy) ? $suplier->scraperMadeBy->name : "";
+            }
+
+            if($fieldName == "scraper_parent_id") {
+                $newValue  = ($suplier->scraperParent) ? $suplier->scraperParent->scraper_name : "";
+            }
+
+            ScrapHistory::create([
+              "operation" => "Update",
+              "model" =>  \App\Supplier::class, 
+              "model_id" => $suplier->id, 
+              "text" =>  "{$fieldName} updated old value was $oldValue and new value is $newValue",
+              "created_by" => \Auth::id()  
+            ]);
+
         }
 
         return response()->json(["code" => 200]);
+
+    }
+
+    public function updatePriority(Request $request)
+    {
+        $ids = $request->get("ids");
+        $prio = count($ids);
+
+        if(!empty($ids)) {
+            foreach($ids as $k => $id) {
+                if(isset($id["id"])) {
+                    $scrap = \App\Supplier::where("id",$id["id"])->first();
+                    if($scrap) {
+                        $scrap->scraper_priority = $prio;
+                        $scrap->save();
+                    }
+                }
+                $prio--;
+            }
+        }
+
+        return response()->json(["code" => 200]);
+    }
+
+    public function getHistory(Request $request)
+    {
+        $field = $request->get("field","supplier");
+        $value = $request->get("search","0");
+
+        $history = [];
+
+        if($value > 0) {
+            if($field == "supplier") {
+                $history = ScrapHistory::where("model",\App\Supplier::class)->join("users as u","u.id","scrap_histories.created_by")->where("model_id",$value)
+                ->orderBy("created_at","DESC")
+                ->select("scrap_histories.*","u.name as created_by_name")
+                ->get()
+                ->toArray();
+            }
+        }
+
+        return response()->json(["code" => 200 , "data" => $history]);
 
     }
 }
