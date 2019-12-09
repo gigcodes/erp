@@ -472,13 +472,6 @@ class ScrapController extends Controller
             ], 400);
         }
 
-        // Return an error if the current product status is not set to scrape
-        if ($product->status_id != StatusHelper::$isBeingScraped && $product->status_id != StatusHelper::$isBeingScrapedWithGoogleImageSearch ) {
-            return response()->json([
-                'status' => 'Error processing your request (#2)'
-            ], 400);
-        }
-
         // Set product to unable to scrape - will be updated later if we have info
         $product->status_id = $product->status_id == StatusHelper::$isBeingScraped ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
         $product->save();
@@ -639,7 +632,7 @@ class ScrapController extends Controller
     public function scrapedUrls(Request $request){
 
          if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated ||$request->currency == 0) {
-            
+
             $query = LogScraper::query();
 
             //global search website
@@ -679,15 +672,15 @@ class ScrapController extends Controller
             if (request('updated') != null) {
                 $query->whereDate('updated_at', request('updated'));
             }
-            
+
             $paginate = (Setting::get('pagination') * 10);
             $logs = $query->orderby('updated_at','desc')->paginate($paginate);
-        }    
+        }
         else {
-           
+
              $paginate = (Setting::get('pagination') * 10);
             $logs = LogScraper::orderby('updated_at','desc')->paginate($paginate);
-          
+
         }
 
         if ($request->ajax()) {
@@ -696,10 +689,10 @@ class ScrapController extends Controller
                 'links' => (string)$logs->render()
             ], 200);
             }
-       
+
         return view('scrap.scraped_url',compact('logs'));
-        }        
-        
+        }
+
     public function getProductsToScrape()
     {
         // Set empty value of productsToPush
