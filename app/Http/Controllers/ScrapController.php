@@ -505,6 +505,9 @@ class ScrapController extends Controller
             $product->color = $request->get('color');
             $product->description_link = $request->get('url');
             $product->made_in = $request->get('country');
+            if ((int)$product->price == 0) {
+                $product->price = $request->get('price');
+            }
 
             // Set optional data
             if (!$product->lmeasurement) {
