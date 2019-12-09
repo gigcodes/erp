@@ -472,15 +472,8 @@ class ScrapController extends Controller
             ], 400);
         }
 
-        // Return an error if the current product status is not set to scrape
-        if ($product->status_id != StatusHelper::$isBeingScraped) {
-            return response()->json([
-                'status' => 'Error processing your request (#2)'
-            ], 400);
-        }
-
         // Set product to unable to scrape - will be updated later if we have info
-        $product->status_id = StatusHelper::$unableToScrape;
+        $product->status_id = $product->status_id == StatusHelper::$isBeingScraped ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
         $product->save();
 
         // Validate request
@@ -524,36 +517,11 @@ class ScrapController extends Controller
                 $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
             }
 
-            // Download images
-            $images = $this->downloadImagesForSites($request->get('images'), $website);
+            // Save
+            $product->save();
 
             // Check if we have images
-            if (is_array($images) && count($images) > 0) {
-                // Loop over images
-                foreach ($images as $image_name) {
-                    // Set path
-                    $path = public_path('uploads') . '/social-media/' . $image_name;
-
-                    // Add media from source
-                    $media = MediaUploader::fromSource($path)->upload();
-
-                    // Attach media
-                    $product->attachMedia($media, config('constants.media_tags'));
-                }
-
-                // Set is without image to 0 (false)
-                $product->is_without_image = 0;
-                $product->status_id = StatusHelper::$AI;
-                $product->save();
-
-                // Call status update handler
-                StatusHelper::updateStatus($product, StatusHelper::$AI);
-            } else {
-                // Save product with status 'unable to scrape images'
-                $product->is_without_image = 1;
-                $product->status_id = StatusHelper::$unableToScrapeImages;
-                $product->save();
-            }
+            $product->attachImagesToProduct($request->get('images'));
 
             // Update scrape_queues by product ID
             ScrapeQueues::where('done', 0)->where('product_id', $product->id)->update(['done' => 1]);
@@ -639,15 +607,12 @@ class ScrapController extends Controller
     public function scrapedUrls(Request $request){
 
          if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated ||$request->currency == 0) {
-            
+
             $query = LogScraper::query();
-
-
-
 
             //global search website
             if (request('website') != null) {
-                $query->where('website', 'LIKE', "%{$request->website}%");
+                $query->whereIn('website', $request->website);
             }
 
             if (request('url') != null) {
@@ -682,13 +647,15 @@ class ScrapController extends Controller
             if (request('updated') != null) {
                 $query->whereDate('updated_at', request('updated'));
             }
-            
+
             $paginate = (Setting::get('pagination') * 10);
             $logs = $query->orderby('updated_at','desc')->paginate($paginate);
-        }    
+        }
         else {
+
              $paginate = (Setting::get('pagination') * 10);
             $logs = LogScraper::orderby('updated_at','desc')->paginate($paginate);
+
         }
 
         if ($request->ajax()) {
@@ -697,10 +664,10 @@ class ScrapController extends Controller
                 'links' => (string)$logs->render()
             ], 200);
             }
-       
+
         return view('scrap.scraped_url',compact('logs'));
-        }        
-        
+        }
+
     public function getProductsToScrape()
     {
         // Set empty value of productsToPush
@@ -726,7 +693,7 @@ class ScrapController extends Controller
                 ];
 
                 // Update status to is being scraped
-                $product->status_id = StatusHelper::$isBeingScraped;
+                $product->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
                 $product->save();
             }
         }

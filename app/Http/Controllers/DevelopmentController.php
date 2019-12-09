@@ -375,9 +375,9 @@ class DevelopmentController extends Controller
     public function issueTaskIndex(Request $request, $type)
     {
         if ($type == 'issue') {
-            $issues = DeveloperTask::where('task_type_id', '3');
+            $issues = DeveloperTask::with(["developerModule","assignedUser","responsibleUser","submitter"])->where('task_type_id', '3');
         } else {
-            $issues = DeveloperTask::where('task_type_id', '1');
+            $issues = DeveloperTask::with(["developerModule","assignedUser","responsibleUser","submitter"])->where('task_type_id', '1');
         }
 
         if ((int)$request->get('submitted_by') > 0) {
@@ -417,10 +417,10 @@ class DevelopmentController extends Controller
         }
 
         // Sort
-        if ($request->order == 'priority') {
-            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
+        if ($request->order == 'create') {
+            $issues = $issues->orderBy('created_at', 'DESC');
         } else {
-            $issues = $issues->orderBy('created_at', 'DESC')->with('communications');
+            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC');
         }
 
         $issues = $issues->paginate(Setting::get('pagination'));

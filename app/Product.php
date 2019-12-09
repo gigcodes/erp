@@ -64,7 +64,7 @@ class Product extends Model
 
             // Get formatted prices
             $formattedPrices = self::_getPriceArray($json);
-               
+
             // If validator fails we have an existing product
             if ($validator->fails()) {
                 // Get the product from the database
@@ -225,7 +225,7 @@ class Product extends Model
 
                 // Return
                 //returning 1 for Product Updated
-                return array('product_created' => 0,'product_updated' => 1);
+                return array('product_created' => 0, 'product_updated' => 1);
             } else {
                 // Create new product
                 $product = new Product;
@@ -261,15 +261,15 @@ class Product extends Model
                 $product->price_inr = $formattedPrices[ 'price_inr' ];
                 $product->price_special = $formattedPrices[ 'price_special' ];
                 $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
-               
+
                 // Try to save the product
                 try {
                     $product->save();
                 } catch (\Exception $exception) {
-                     $product->save();
+                    $product->save();
                     return false;
                 }
-                
+
                 // Update the product status
                 ProductStatus::updateStatus($product->id, 'CREATED_NEW_PRODUCT_BY_JSON', 1);
 
@@ -294,7 +294,7 @@ class Product extends Model
                 }
 
                 // Return true Product Created
-                return array('product_created' => 1,'product_updated' => 0);
+                return array('product_created' => 1, 'product_updated' => 0);
             }
         }
 
@@ -363,11 +363,11 @@ class Product extends Model
         //Build Special Price In EUR
         if (!empty($finalPrice)) {
             $priceEurSpecial = $finalPrice - ($finalPrice * $brand->deduction_percentage) / 100;
-        }else{
-            $priceEurSpecial = '';   
+        } else {
+            $priceEurSpecial = '';
         }
-        
-        
+
+
         // Make discounted price in the correct format
         if (strpos($json->discounted_price, ',') !== false) {
             if (strpos($json->discounted_price, '.') !== false) {
@@ -566,16 +566,27 @@ class Product extends Model
         return $this->hasMany(ProductQuicksellGroup::class, 'product_id', 'id');
     }
 
-    public function attachImagesToProduct()
+    public function attachImagesToProduct($arrImages = null)
     {
-        if (!$this->hasMedia(\Config('constants.media_tags'))) {
-            //getting image details from scraped Products
-            $scrapedProduct = ScrapedProducts::where('sku', $this->sku)->latest()->first();
+        if (!$this->hasMedia(\Config('constants.media_tags')) || is_array($arrImages)) {
+            // images given
+            if (count($arrImages) > 0) {
+                $scrapedProduct = true;
+            } else {
+                //getting image details from scraped Products
+                $scrapedProduct = ScrapedProducts::where('sku', $this->sku)->latest()->first();
+            }
 
             if ($scrapedProduct != null and $scrapedProduct != '') {
                 //Looping through Product Images
                 $countImageUpdated = 0;
-                foreach ($scrapedProduct->images as $image) {
+
+                // Set arr images
+                if (!is_array($arrImages)) {
+                    $arrImages = $scrapedProduct->images;
+                }
+
+                foreach ( $arrImages as $image) {
                     //check if image has http or https link
                     if (strpos($image, 'http') === false) {
                         continue;

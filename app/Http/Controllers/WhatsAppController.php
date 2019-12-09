@@ -2276,14 +2276,14 @@ class WhatsAppController extends FindByNumberController
                                 }*/
 
                                 if (isset($images) && count($images) > 0) {
-                                    $temp_chat_message = ChatMessage::create($data);
+                                    /*$temp_chat_message = ChatMessage::create($data);
                                     foreach ($images as $image) {
                                         $media = Media::where('filename', $image)->first();
                                         $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $temp_chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
                                         if (!$isExists) {
                                             $temp_chat_message->attachMedia($media, config('constants.media_tags'));
                                         }
-                                    }
+                                    }*/
 
                                     if (!empty($request->send_pdf) && $request->send_pdf == 1) {
                                         $fn = '';
