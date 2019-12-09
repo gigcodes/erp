@@ -19,7 +19,7 @@
         <?php if(!empty($productImage)) { ?>
         <?php foreach($productImage as $i => $result) { ?>
         <div class="row">
-            <h1>Result for : <img width="500px" height="500px" src="<?php echo $i; ?>"></h1>
+            <h1>Result for : <img style="max-height: 500px; max-width: 500px;" src="<?php echo $i; ?>"></h1>
         </div>
         <div class="row">
             <div class="col-md-12">
