@@ -127,7 +127,9 @@
                             <p>Sku : {{ $product->sku }}</p>
                             <p>Id : {{ $product->id }}</p>
                             <p>Size : {{ $product->size}}</p>
-                            <p>Price : {{ $product->price_special }}</p>
+                            <p>Price ({{ $product->currency }}) : {{ $product->price }}</p>
+                            <p>Price (INR) : {{ $product->price_inr }}</p>
+                            <p>Price Special (INR) : {{ $product->price_special }}</p>
                             <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">
                         </a>
                     </div>
