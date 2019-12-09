@@ -1,5 +1,6 @@
 @foreach ($logs as $log)
-                <tr>
+
+                <tr @if($log->validated == 0) style="background:red !important;" @endif>
                      <td>{{ $log->website }}</td>
                     <td class="expand-row table-hover-cell"><span class="td-mini-container">
                         {{ strlen( $log->url ) > 30 ? substr( $log->url , 0, 30).'...' :  $log->url }}

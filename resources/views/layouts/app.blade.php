@@ -316,26 +316,7 @@
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('ProductController@productStats') }}">Product Statistics</a>
-                                            <a class="dropdown-item" href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto Reject Statistics</a>
-                                            <a class="dropdown-item" href="{{ action('ListingPaymentsController@index') }}">Product Listing Payments</a>
-                                            <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
-                                            <a class="dropdown-item" href="{{ action('ScrapController@scrapedUrls') }}">Scrap Urls</a>
-                                            <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap activity</a>
-                                            <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scrapped</a>
-                                            <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sale Items</a>
-                                            <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
-                                            <a class="dropdown-item" href="{{ action('GmailDataController@index') }}">Gmail Inbox</a>
-                                            <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
-                                            <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
-                                            <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
-                                        </li>
-                                    </ul>
-                                </li>
+                                
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Listing<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -469,6 +450,26 @@
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
+                                </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('ProductController@productStats') }}">Product Statistics</a>
+                                            <a class="dropdown-item" href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto Reject Statistics</a>
+                                            <a class="dropdown-item" href="{{ action('ListingPaymentsController@index') }}">Product Listing Payments</a>
+                                            <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
+                                            <a class="dropdown-item" href="{{ action('ScrapController@scrapedUrls') }}">Scrap Urls</a>
+                                            <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap activity</a>
+                                            <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scrapped</a>
+                                            <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sale Items</a>
+                                            <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
+                                            <a class="dropdown-item" href="{{ action('GmailDataController@index') }}">Gmail Inbox</a>
+                                            <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
+                                            <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
+                                            <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
+                                        </li>
+                                    </ul>
                                 </li>
                                 
                             </ul>
