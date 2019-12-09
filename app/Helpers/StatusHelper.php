@@ -30,9 +30,12 @@ class StatusHelper extends Model
     public static $isBeingScraped = 20;
     public static $manualCropping = 21;
     public static $manualImageUpload = 22;
+    public static $queuedForGoogleImageSearch = 23;
+    public static $googleImageSearchFailed = 24;
+    public static $isBeingScrapedWithGoogleImageSearch = 25;
 
     public static function getStatus()
-    { 
+    {
         return [
             1 => 'import',
             2 => 'scrape',
@@ -56,6 +59,9 @@ class StatusHelper extends Model
             20 => 'is being scraped',
             21 => 'manual cropping',
             22 => 'manual image upload',
+            23 => 'queued for google image search',
+            24 => 'google image search failed',
+            25 => 'is being scraped with google image search',
         ];
     }
     public static function updateStatus(\App\Product $product, $newStatus = 0)

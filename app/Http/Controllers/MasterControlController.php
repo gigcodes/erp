@@ -34,13 +34,13 @@ class MasterControlController extends Controller
      */
     public function index(Request $request)
     {
-        if (!Auth::user()->hasRole('Admin') && Auth::user()->hasRole('Affiliate')) {
-            return redirect()->action('ProductController@affiliateProducts');
-        }
+      //   if (!Auth::user()->hasRole('Admin') && Auth::user()->hasRole('Affiliate')) {
+      //       return redirect()->action('ProductController@affiliateProducts');
+      //   }
 
-      if (!Auth::user()->hasRole('Admin')) {
-        return redirect()->route('task.index');
-      }
+      // if (!Auth::user()->hasRole('Admin')) {
+      //   return redirect()->route('task.index');
+      // }
 
       $today = Carbon::now()->format('Y-m-d');
       $yesterday = Carbon::now()->subDay()->format('Y-m-d');

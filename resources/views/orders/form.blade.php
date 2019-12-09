@@ -31,7 +31,8 @@
                  <strong>Client:</strong>
                  <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id" title="Choose a Customer" required>
                    @foreach ($customers as $customer)
-                    <option data-tokens="{{ $customer->name }} {{ $customer->email }}  {{ $customer->phone }} {{ $customer->instahandler }}" value="{{ $customer->id }}">{{ $customer->name }} - {{ $customer->phone }}</option>
+                    <option <?php echo isset($defaultSelected["customer_id"]) && $defaultSelected["customer_id"] == $customer->id  ? "selected=selected"  : "";  ?>
+                    data-tokens="{{ $customer->name }} {{ $customer->email }}  {{ $customer->phone }} {{ $customer->instahandler }}" value="{{ $customer->id }}">{{ $customer->name }} - {{ $customer->phone }}</option>
                   @endforeach
                 </select>
 
@@ -51,6 +52,10 @@
                         'online' => 'online'
                     ];
 
+                    if(isset($defaultSelected["order_typer"])) {
+                        $order_type = $defaultSelected["order_typer"];
+                    }
+
 			        echo Form::select('order_type',$order_types, ( old('order_type') ? old('order_type') : $order_type ), ['class' => 'form-control']);?>
                     @if ($errors->has('order_type'))
                         <div class="alert alert-danger">{{$errors->first('order_type')}}</div>
@@ -61,6 +66,11 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Order Date:</strong>
+                    <?php
+                        if(isset($defaultSelected["order_date"])) {
+                            $order_date = $defaultSelected["order_date"];
+                        }
+                    ?>
                     <input type="date" class="form-control" name="order_date" placeholder="Order Date"
                            value="{{ old('order_date') ? old('order_date') : $order_date }}"/>
                     @if ($errors->has('order_date'))
@@ -72,6 +82,11 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Date of Delivery:</strong>
+                    <?php
+                        if(isset($defaultSelected["date_of_delivery"])) {
+                            $date_of_delivery = $defaultSelected["date_of_delivery"];
+                        }
+                    ?>
                     <input type="date" class="form-control" name="date_of_delivery" placeholder="Date of Delivery"
                            value="{{ old('date_of_delivery') ? old('date_of_delivery') : $date_of_delivery }}"/>
                     @if ($errors->has('date_of_delivery'))
@@ -300,6 +315,11 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Advance Amount:</strong>
+                    <?php
+                        if(isset($defaultSelected["advance_detail"])) {
+                            $advance_detail = $defaultSelected["advance_detail"];
+                        }
+                    ?>
                     <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail"
                            value="{{ old('advance_detail') ? old('advance_detail') : $advance_detail }}"/>
                     @if ($errors->has('advance_detail'))
@@ -311,6 +331,11 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Advance Date:</strong>
+                    <?php
+                        if(isset($defaultSelected["advance_date"])) {
+                            $advance_date = $defaultSelected["advance_date"];
+                        }
+                    ?>
                     <input type="date" class="form-control" name="advance_date" placeholder="Advance Date"
                            value="{{ old('advance_date') ? old('advance_date') : $advance_date }}"/>
                     @if ($errors->has('advance_date'))
@@ -322,6 +347,11 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Balance Amount:</strong>
+                    <?php
+                        if(isset($defaultSelected["balance_amount"])) {
+                            $balance_amount = $defaultSelected["balance_amount"];
+                        }
+                    ?>
                     <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount"
                            value="{{ old('balance_amount') ? old('balance_amount') : $balance_amount }}"/>
                     @if ($errors->has('balance_amount'))
@@ -358,6 +388,11 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Name of Order Handler :</strong>
+                    <?php
+                        if(isset($defaultSelected["sales_person"])) {
+                            $sales_person = $defaultSelected["sales_person"];
+                        }
+                    ?>
 			        <?php
 			        echo Form::select('sales_person',$sales_persons, ( old('sales_person') ? old('sales_person') : $sales_person ), ['placeholder' => 'Select a name','class' => 'form-control']);?>
                     @if ($errors->has('sales_person'))
@@ -369,6 +404,11 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Office Phone Number:</strong>
+                    <?php
+                        if(isset($defaultSelected["whatsapp_number"])) {
+                            $whatsapp_number = $defaultSelected["whatsapp_number"];
+                        }
+                    ?>
                     <Select name="whatsapp_number" class="form-control">
                               <option value>None</option>
                                <option value="919167152579" {{old('whatsapp_number') ? (old('whatsapp_number') == '919167152579' ? 'Selected=Selected':'') : ('919167152579'== $whatsapp_number ? 'Selected=Selected':'')}}>00</option>
@@ -390,6 +430,11 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Status :</strong>
+                    <?php
+                        if(isset($defaultSelected["order_status"])) {
+                            $order_status = $defaultSelected["order_status"];
+                        }
+                    ?>
 			        <?php
 			        $orderStatus = new \App\ReadOnly\OrderStatus;
 
@@ -404,6 +449,11 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Estimated Delivery Date:</strong>
+                    <?php
+                        if(isset($defaultSelected["estimated_delivery_date"])) {
+                            $estimated_delivery_date = $defaultSelected["estimated_delivery_date"];
+                        }
+                    ?>
                     <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
                            value="{{ old('estimated_delivery_date') ? old('estimated_delivery_date') : $estimated_delivery_date }}"/>
                     @if ($errors->has('estimated_delivery_date'))
@@ -415,6 +465,11 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Received By:</strong>
+                    <?php
+                        if(isset($defaultSelected["received_by"])) {
+                            $received_by = $defaultSelected["received_by"];
+                        }
+                    ?>
                     <input type="text" class="form-control" name="received_by" placeholder="Received By"
                            value="{{ old('received_by') ? old('received_by') : $received_by }}"/>
                     @if ($errors->has('received_by'))
@@ -426,6 +481,11 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong> Payment Mode :</strong>
+                    <?php
+                        if(isset($defaultSelected["payment_mode"])) {
+                            $payment_mode = $defaultSelected["payment_mode"];
+                        }
+                    ?>
 			        <?php
 			        $paymentModes = new \App\ReadOnly\PaymentModes();
 
@@ -440,6 +500,11 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Note if any:</strong>
+                    <?php
+                        if(isset($defaultSelected["note_if_any"])) {
+                            $note_if_any = $defaultSelected["note_if_any"];
+                        }
+                    ?>
                     <input type="text" class="form-control" name="note_if_any" placeholder="Note if any"
                            value="{{ old('note_if_any') ? old('note_if_any') : $note_if_any }}"/>
                     @if ($errors->has('note_if_any'))
