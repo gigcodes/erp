@@ -509,6 +509,7 @@ class ScrapController extends Controller
             if ((int)$product->price == 0) {
                 $product->price = $request->get('price');
             }
+            $product->listing_remark = 'Original SKU: ' . $request->get('sku');
 
             // Set optional data
             if (!$product->lmeasurement) {
