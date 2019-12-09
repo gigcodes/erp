@@ -642,12 +642,9 @@ class ScrapController extends Controller
             
             $query = LogScraper::query();
 
-
-
-
             //global search website
             if (request('website') != null) {
-                $query->where('website', 'LIKE', "%{$request->website}%");
+                $query->whereIn('website', $request->website);
             }
 
             if (request('url') != null) {
@@ -687,8 +684,10 @@ class ScrapController extends Controller
             $logs = $query->orderby('updated_at','desc')->paginate($paginate);
         }    
         else {
+           
              $paginate = (Setting::get('pagination') * 10);
             $logs = LogScraper::orderby('updated_at','desc')->paginate($paginate);
+          
         }
 
         if ($request->ajax()) {
