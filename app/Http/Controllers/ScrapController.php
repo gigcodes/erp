@@ -517,36 +517,11 @@ class ScrapController extends Controller
                 $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
             }
 
-            // Download images
-            $images = $this->downloadImagesForSites($request->get('images'), $website);
+            // Save
+            $product->save();
 
             // Check if we have images
-            if (is_array($images) && count($images) > 0) {
-                // Loop over images
-                foreach ($images as $image_name) {
-                    // Set path
-                    $path = public_path('uploads') . '/social-media/' . $image_name;
-
-                    // Add media from source
-                    $media = MediaUploader::fromSource($path)->upload();
-
-                    // Attach media
-                    $product->attachMedia($media, config('constants.media_tags'));
-                }
-
-                // Set is without image to 0 (false)
-                $product->is_without_image = 0;
-                $product->status_id = StatusHelper::$AI;
-                $product->save();
-
-                // Call status update handler
-                StatusHelper::updateStatus($product, StatusHelper::$AI);
-            } else {
-                // Save product with status 'unable to scrape images'
-                $product->is_without_image = 1;
-                $product->status_id == StatusHelper::$isBeingScraped ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
-                $product->save();
-            }
+            $product->attachImagesToProduct($request->get('images'));
 
             // Update scrape_queues by product ID
             ScrapeQueues::where('done', 0)->where('product_id', $product->id)->update(['done' => 1]);
