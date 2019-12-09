@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('favicon' , 'cropapprovalgrid.png')
+@section('title', 'Crop Rejected Grid - ERP Sololuxury')
+
 @section('content')
     <div class="row">
         <div class="col-md-12">

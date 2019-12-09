@@ -129,6 +129,7 @@ class Product extends Model
                 $product->price = $formattedPrices[ 'price' ];
                 $product->price_inr = $formattedPrices[ 'price_inr' ];
                 $product->price_special = $formattedPrices[ 'price_special' ];
+                $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->save();
 
@@ -223,7 +224,8 @@ class Product extends Model
                 ScrapActivity::create($params);
 
                 // Return
-                return true;
+                //returning 1 for Product Updated
+                return array('product_created' => 0, 'product_updated' => 1);
             } else {
                 // Create new product
                 $product = new Product;
@@ -258,11 +260,13 @@ class Product extends Model
                 $product->price = $formattedPrices[ 'price' ];
                 $product->price_inr = $formattedPrices[ 'price_inr' ];
                 $product->price_special = $formattedPrices[ 'price_special' ];
+                $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
 
                 // Try to save the product
                 try {
                     $product->save();
                 } catch (\Exception $exception) {
+                    $product->save();
                     return false;
                 }
 
@@ -289,8 +293,8 @@ class Product extends Model
                     }
                 }
 
-                // Return true
-                return true;
+                // Return true Product Created
+                return array('product_created' => 1, 'product_updated' => 0);
             }
         }
 
@@ -356,6 +360,14 @@ class Product extends Model
         $priceSpecial = $priceInr - ($priceInr * $brand->deduction_percentage) / 100;
         $priceSpecial = round($priceSpecial, -3);
 
+        //Build Special Price In EUR
+        if (!empty($finalPrice)) {
+            $priceEurSpecial = $finalPrice - ($finalPrice * $brand->deduction_percentage) / 100;
+        } else {
+            $priceEurSpecial = '';
+        }
+
+
         // Make discounted price in the correct format
         if (strpos($json->discounted_price, ',') !== false) {
             if (strpos($json->discounted_price, '.') !== false) {
@@ -396,7 +408,8 @@ class Product extends Model
             'price' => $price,
             'price_discounted' => round($finalDiscountedPrice),
             'price_inr' => $priceInr,
-            'price_special' => $priceSpecial
+            'price_special' => $priceSpecial,
+            'price_eur_special' => $priceEurSpecial,
         ];
     }
 
@@ -553,16 +566,27 @@ class Product extends Model
         return $this->hasMany(ProductQuicksellGroup::class, 'product_id', 'id');
     }
 
-    public function attachImagesToProduct()
+    public function attachImagesToProduct($arrImages = null)
     {
-        if (!$this->hasMedia(\Config('constants.media_tags'))) {
-            //getting image details from scraped Products
-            $scrapedProduct = ScrapedProducts::where('sku', $this->sku)->latest()->first();
+        if (!$this->hasMedia(\Config('constants.media_tags')) || is_array($arrImages)) {
+            // images given
+            if (count($arrImages) > 0) {
+                $scrapedProduct = true;
+            } else {
+                //getting image details from scraped Products
+                $scrapedProduct = ScrapedProducts::where('sku', $this->sku)->latest()->first();
+            }
 
             if ($scrapedProduct != null and $scrapedProduct != '') {
                 //Looping through Product Images
                 $countImageUpdated = 0;
-                foreach ($scrapedProduct->images as $image) {
+
+                // Set arr images
+                if (!is_array($arrImages)) {
+                    $arrImages = $scrapedProduct->images;
+                }
+
+                foreach ( $arrImages as $image) {
                     //check if image has http or https link
                     if (strpos($image, 'http') === false) {
                         continue;

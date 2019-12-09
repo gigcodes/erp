@@ -15,8 +15,28 @@ class Supplier extends Model
     ];
 
     protected $fillable = [
-        'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id', 'scraper_name', 'supplier_status_id','is_blocked','inventory_lifetime' , 'scraper_total_urls' , 'scraper_existing_urls' , 'scraper_new_urls'
+        'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id', 'scraper_name', 'supplier_status_id','is_blocked','inventory_lifetime' , 'scraper_total_urls' , 'scraper_existing_urls' , 'scraper_new_urls', 'scraper_priority','scraper_parent_id'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        self::updating(function ($model) {
+            if(!empty(\Auth::id())) {
+               $model->updated_by = \Auth::id();
+            }
+        });
+        self::saving(function ($model) {
+            if(!empty(\Auth::id())) {
+               $model->updated_by = \Auth::id();
+            }
+        });
+        self::creating(function ($model) {
+            if(!empty(\Auth::id())) {
+               $model->updated_by = \Auth::id();
+            }
+        });
+    }
 
     public function agents()
     {
@@ -61,4 +81,20 @@ class Supplier extends Model
     {
         return $this->hasMany('App\ChatMessage', 'supplier_id')->whereNotIn('status', ['7', '8', '9'])->latest();
     }
+
+    public function whoDid()
+    {
+        return $this->hasOne('App\User',"id","updated_by");
+    }
+
+    public function scraperMadeBy()
+    {
+        return $this->hasOne('App\User',"id","scraper_madeby");
+    }
+
+    public function scraperParent()
+    {
+        return $this->hasOne('App\Supplier',"id","scraper_parent_id");
+    }
+
 }

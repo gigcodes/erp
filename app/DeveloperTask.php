@@ -13,6 +13,7 @@ class DeveloperTask extends Model
 
     protected $fillable = [
         'user_id', 'module_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_time', 'end_time', 'task_type_id', 'parent_id', 'created_by', 'submitted_by',
+        'responsible_user_id'
     ];
 
     public function user()
@@ -59,4 +60,8 @@ class DeveloperTask extends Model
         return $this->belongsTo(User::class, 'created_by', 'id');
     }
 
+    public function whatsappAll()
+    {
+        return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+    }
 }

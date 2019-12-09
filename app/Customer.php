@@ -23,6 +23,26 @@ class Customer extends Model
         'notes' => 'array'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+        self::updating(function ($model) {
+            if(!empty(\Auth::id())) {
+               $model->updated_by = \Auth::id();
+            }
+        });
+        self::saving(function ($model) {
+            if(!empty(\Auth::id())) {
+               $model->updated_by = \Auth::id();
+            }
+        });
+        self::creating(function ($model) {
+            if(!empty(\Auth::id())) {
+               $model->updated_by = \Auth::id();
+            }
+        });
+    }
+
     public function leads()
     {
         return $this->hasMany('App\ErpLeads')->orderBy('created_at', 'DESC');
@@ -201,6 +221,10 @@ class Customer extends Model
 
     public function lastImQueueSend(){
        return $this->hasOne(ImQueue::class,'number_to','phone')->orderby('sent_at','desc');
+    }
+
+    public function notDelieveredImQueueMessage(){
+       return $this->hasOne(ImQueue::class,'number_to','phone')->where('sent_at','2002-02-02 02:02:02');
     }
 
     

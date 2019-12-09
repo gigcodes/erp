@@ -15,6 +15,9 @@
         .select2-container {
             width: 215px !important;
         }
+        .dis-none {
+            display: none;
+        }
     </style>
 @endsection
 
@@ -210,9 +213,11 @@
                             <a href class="add-task" data-toggle="modal" data-target="#addRemarkModal" data-id="{{ $product['id'] }}">Add</a>
                             <span> | </span>
                             <a href class="view-remark" data-toggle="modal" data-target="#viewRemarkModal" data-id="{{ $product['id'] }}">View</a>
+                            <span> | </span>
+                            <button class="btn btn-image expand-row-btn" data-class="purchase-expand-row-{{$product['id']}}"><img src="/images/forward.png"></button>
                         </td>
                     </tr>
-                    <tr id="product_cust_{{$product['id']}}">
+                    <tr id="product_cust_{{$product['id']}}" class="dis-none purchase-expand-row-{{$product['id']}}">
                         <td colspan="6">
                             <table class="table table-bordered" width="100%">
                                 <thead>
@@ -277,7 +282,7 @@
                                             </td>
                                             <td>
                                                 @if ( isset($order_product->order->customer) )
-                                                    <button type="submit" class="btn btn-secondary alternative_offers" data-brand="{{$product['brand_id']}}" data-category="{{$product['category']}}" data-price="{{$product['order_price']}}" data-customer_id="{{$order_product->order->customer->id}}">Alternative Offers</button>
+                                                    <button type="submit" class="btn btn-secondary alternative_offers" data-brand="{{$product['brand_id']}}" data-category="{{$product['category']}}" data-price="0" data-customer_id="{{$order_product->order->customer->id}}">Alternative Offers</button>
                                                 @endif
                                             </td>
                                         </tr>
@@ -287,7 +292,7 @@
                             </table>
                         </td>
                     </tr>
-                    <tr>
+                    <tr class="dis-none purchase-expand-row-{{$product['id']}}">
                         <td colspan="6">
                             <table class="table table-bordered" width="100%">
                                 <thead>
@@ -469,7 +474,7 @@
                                 </div>
                                 <div class="form-group mr-3">
                                     <select class="form-control select-multiple2" name="supplier[]" data-placeholder="Select Supplier.." multiple>
-                                        @foreach ($activSuppliers as $activSupplier)
+                                        @foreach ($suppliers as $activSupplier)
                                             <option value="{{ $activSupplier->id }}">{{ $activSupplier->supplier }}</option>
                                         @endforeach
                                     </select>
@@ -1286,6 +1291,11 @@
                             $(this).closest(".price-row-db").find("td").last().html(retailPrice);   
                         }          
                 }
+        });
+
+        $(document).on("click",".expand-row-btn",function() {
+            var className = $(this).data("class");
+            $("."+className).toggleClass("dis-none");
         });
 
     </script>

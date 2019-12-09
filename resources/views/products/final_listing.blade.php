@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+
+@if($cropped == 'on')
+@section('favicon' , 'approvedproductlisting.png')
+@section('title', 'Approved Listing - ERP Sololuxury')
+@endif
+@section('favicon' , 'attributeedit.png')
+@section('title', 'Approved Product Listing - ERP Sololuxury')
+
 @section('title', 'Product Listing')
 
 @section('styles')

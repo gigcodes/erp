@@ -144,6 +144,7 @@ class ProductsCreator
             $product->price = $formattedPrices[ 'price' ];
             $product->price_inr = $formattedPrices[ 'price_inr' ];
             $product->price_special = $formattedPrices[ 'price_special' ];
+            $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
             $product->is_scraped = $isExcel == 1 ? $product->is_scraped : 1;
             $product->save();
             $product->attachImagesToProduct();
@@ -244,6 +245,7 @@ class ProductsCreator
         $product->price = $formattedPrices[ 'price' ];
         $product->price_inr = $formattedPrices[ 'price_inr' ];
         $product->price_special = $formattedPrices[ 'price_special' ];
+        $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
 
         try {
             $product->save();
@@ -289,13 +291,21 @@ class ProductsCreator
         $price_inr = round($price_inr, -3);
         $price_special = $price_inr - ($price_inr * $brand->deduction_percentage) / 100;
         $price_special = round($price_special, -3);
+        
+        if (!empty($image->price)) {
+            $priceEurSpecial = $image->price - ($image->price * $brand->deduction_percentage) / 100;
+        }else{
+            $priceEurSpecial = '';   
+        }
 
         // Return prices
         return [
             'price' => $image->price,
             'price_discounted' => $image->discounted_price,
             'price_inr' => $price_inr,
-            'price_special' => $price_special
+            'price_special' => $price_special,
+            'price_eur_special' => $priceEurSpecial,
+            
         ];
     }
 

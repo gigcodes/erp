@@ -546,6 +546,17 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function create() {
+
+		$defaultSelected = [];
+		$key = request()->get("key",false);
+
+		if(!empty($key)) {
+			$defaultData = session($key);
+			if(!empty($defaultData)) {
+				$defaultSelected = $defaultData;
+			}
+		}
+
 		$order = new Order();
 		$data  = [];
 		foreach ( $order->getFillable() as $item ) {
@@ -583,6 +594,7 @@ class OrderController extends Controller {
 		$data['customers'] = Customer::all();
 
 		$data['customer_suggestions'] = $customer_suggestions;
+		$data['defaultSelected'] = $defaultSelected;
 
 
 		return view( 'orders.form', $data );

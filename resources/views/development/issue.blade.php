@@ -139,22 +139,44 @@
                 <form action="{{ route('development.issue.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <td colspan="12">
-                        <select class="form-control d-inline select2" name="module" id="module" style="width: 150px !important;">
-                            <option value="0">Select Module</option>
-                            @foreach($modules as $module)
-                                <option value="{{$module->id}}">{{ $module->name }}</option>
-                            @endforeach
-                        </select>
-                        <input type="text" name="subject" placeholder="Subject..." id="subject" class="form-control d-inline" style="width: 150px !important;">
-                        <input type="text" name="issue" placeholder="Issue..." id="issue" class="form-control d-inline" style="width: 150px !important;">
-                        <select class="form-control d-inline" name="priority" required style="width: 150px !important;">
-                            <option value="">Select Priority...</option>
-                            <option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>Critical</option>
-                            <option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>Urgent</option>
-                            <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>Normal</option>
-                        </select>
-                        <input type="file" name="images[]" class="form-control d-inline" multiple style="width: 100px;">
-                        <button type="submit" class="btn btn-secondary d-inline">Add Issue</button>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <select class="form-control d-inline select2" name="module" id="module" style="width: 150px !important;">
+                                    <option value="0">Select Module</option>
+                                    @foreach($modules as $module)
+                                        <option value="{{$module->id}}">{{ $module->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>    
+                            <div class="col-md-2">  
+                                <input type="text" name="subject" placeholder="Subject..." id="subject" class="form-control d-inline" style="width: 150px !important;">
+                            </div>
+                            <div class="col-md-2">    
+                                <input type="text" name="issue" placeholder="Issue..." id="issue" class="form-control d-inline" style="width: 150px !important;">
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-control d-inline" name="priority" required style="width: 150px !important;">
+                                    <option value="">Select Priority...</option>
+                                    <option value="1" {{ old('priority') == '1' ? 'selected' : '' }}>Critical</option>
+                                    <option value="2" {{ old('priority') == '2' ? 'selected' : '' }}>Urgent</option>
+                                    <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>Normal</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-control select2" name="responsible_user_id" id="responsible_user_id">
+                                    <option value="">Responsible User...</option>
+                                    @foreach($users as $id=>$user)
+                                        <option value="{{$id}}">{{ $user }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <input type="file" name="images[]" class="form-control d-inline" multiple style="width: 100px;">
+                            </div>
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-secondary d-inline">Add Issue</button>
+                            </div>
+                        </div>
                     </td>
                 </form>
             </tr>
@@ -188,11 +210,12 @@
                         <td style="vertical-align: middle;">{{ $issue->subject ?? 'N/A' }}</td>
                         <td style="vertical-align: middle;">{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
                         <td class="expand-row">
+                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
                             <div class="td-mini-container">
                                 {{ strlen($issue->task) > 20 ? substr($issue->task, 0, 20).'...' : $issue->task }}
                             </div>
                             <div class="td-full-container hidden">
-                                {{ $issue->task }}
+                                {!! nl2br($issue->task) !!}
                             @if ($issue->getMedia(config('constants.media_tags'))->first())
                             <br />
                                 @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
@@ -413,7 +436,7 @@
                 @endif
             @endforeach
         </table>
-        <?php echo $issues->links(); ?>
+        <?php echo $issues->appends(request()->except("page"))->links(); ?>
     </div>
 
     <h3>Modules</h3>
@@ -505,19 +528,33 @@
 
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-1">
-                                <strong>User:</strong>
+                            <div class="col-md-12">
+                                <div class="col-md-2">
+                                    <strong>User:</strong>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        @if(auth()->user()->isAdmin())
+                                            <select class="form-control" name="user_id" id="priority_user_id">
+                                                @foreach ($users as $id => $name)
+                                                    <option value="{{ $id }}">{{ $name }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            {{auth()->user()->name}}
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-11">
-                                <div class="form-group">
+                            <div class="col-md-12">
+                                <div class="col-md-2">
+                                    <strong>Remarks:</strong>
+                                </div>
+                                <div class="col-md-8">
                                     @if(auth()->user()->isAdmin())
-                                        <select class="form-control" name="user_id" id="priority_user_id">
-                                            @foreach ($users as $id => $name)
-                                                <option value="{{ $id }}">{{ $name }}</option>
-                                            @endforeach
-                                        </select>
-                                    @else
-                                        {{auth()->user()->name}}
+                                         <div class="form-group">
+                                            <textarea cols="45" class="form-control" name="global_remarkes"></textarea>
+                                        </div>
                                     @endif
                                 </div>
                             </div>
@@ -534,7 +571,7 @@
                                         <th width="2%">Action</th>
                                     </tr>
                                     <tbody class="show_issue_priority">
-                                        
+
                                     </tbody>
                                 </table>
                             </div>
@@ -548,9 +585,24 @@
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
+
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="text/javascript">
         $(document).on('click', '.assign-issue-button', function () {
             var issue_id = $(this).data('id');
@@ -586,7 +638,7 @@
 
             $('input[name ="selected_issue[]"]').each(function(){
                 if ($(this).prop("checked") == true) {
-                    selected_issue.push($(this).val());                    
+                    selected_issue.push($(this).val());
                 }
             });
 
