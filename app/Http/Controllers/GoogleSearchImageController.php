@@ -364,6 +364,11 @@ class GoogleSearchImageController extends Controller
         $product = Product::where('id', $request->id)->first();
         $media = $product->media()->first();
 
+        if ( $product != null ) {
+            $product->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
+            $product->save();
+        }
+
         if($media){
             $count = 0;
             $urls = GoogleVisionHelper::getImageDetails($media->getUrl());
@@ -371,10 +376,6 @@ class GoogleSearchImageController extends Controller
             foreach($urls['pages'] as $url){
                 echo $url . "\n";
                 if(stristr($url, '.gucci.') || stristr($url, '.farfetch.')){
-
-                    $product->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
-                    $product->save();
-
                     // Create queue item
                     $scrapeQueue = new ScrapeQueues();
                     $scrapeQueue->product_id = (int) $product->id;
