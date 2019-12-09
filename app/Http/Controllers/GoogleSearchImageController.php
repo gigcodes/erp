@@ -364,25 +364,27 @@ class GoogleSearchImageController extends Controller
         $product = Product::findOrFail($request->id);
         $product->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
         $product->save();
-        
+
         $media = $product->media()->first();
 
         if($media){
             $count = 0;
             $urls = GoogleVisionHelper::getImageDetails($media->getUrl());
 
-            foreach($urls['pages'] as $url){
-                echo $url . "\n";
-                if(stristr($url, '.gucci.') || stristr($url, '.farfetch.')){
-                    // Create queue item
-                    $scrapeQueue = new ScrapeQueues();
-                    $scrapeQueue->product_id = (int) $product->id;
-                    $scrapeQueue->url = $url;
-                    $scrapeQueue->save();
-                    $count++;
-                    break;
-                }
+            if ( isset($urls['pages']) ) {
+                foreach ($urls[ 'pages' ] as $url) {
+                    echo $url . "\n";
+                    if (stristr($url, '.gucci.') || stristr($url, '.farfetch.')) {
+                        // Create queue item
+                        $scrapeQueue = new ScrapeQueues();
+                        $scrapeQueue->product_id = (int)$product->id;
+                        $scrapeQueue->url = $url;
+                        $scrapeQueue->save();
+                        $count++;
+                        break;
+                    }
 
+                }
             }
             if($count == 0){
                $product->status_id = StatusHelper::$googleImageSearchFailed;
