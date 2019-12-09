@@ -35,7 +35,7 @@
             {!! $category_selection !!}
           </div>
 
-          
+
 
           <div class="form-group mr-3">
             @php $brands = \App\Brand::getAll();
@@ -155,7 +155,7 @@
       $.each($("input[name='product_id']:checked"), function(){
           clicked.push($(this).val());
       });
-      
+
       if(clicked.length == 0){
         alert('Please Select Product');
       }else if(clicked.length == 1){
@@ -178,10 +178,10 @@
                 }
             });
         });
-      location.reload();      
+      location.reload();
       }
-      
+
     }
-    
+
   </script>
 @endsection

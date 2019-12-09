@@ -369,7 +369,8 @@ class GoogleSearchImageController extends Controller
             $urls = GoogleVisionHelper::getImageDetails($media->getUrl());
 
             foreach($urls['pages'] as $url){
-                if(stristr($url, '.gucci.')){
+                echo $url . "\n";
+                if(stristr($url, '.gucci.') || stristr($url, '.farfetch.')){
 
                     $product->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
                     $product->save();
