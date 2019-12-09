@@ -475,7 +475,9 @@
                                 <div class="form-group mr-3">
                                     <select class="form-control select-multiple2" name="supplier[]" data-placeholder="Select Supplier.." multiple>
                                         @foreach ($suppliers as $activSupplier)
-                                            <option value="{{ $activSupplier->id }}">{{ $activSupplier->supplier }}</option>
+                                            @if(isset($activSupplier->id) && isset($activSupplier->supplier))
+                                                <option value="{{ $activSupplier->id }}">{{ $activSupplier->supplier }}</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                 </div>
