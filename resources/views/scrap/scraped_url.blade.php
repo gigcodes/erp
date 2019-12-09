@@ -36,11 +36,11 @@
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
-                <th width="10%">Website</th>
+                <th width="15%">Website</th>
                 <th width="10%">Url</th>
                 <th width="10%">Sku</th>
-                <th width="25%">Brand</th>
-                <th width="15%">Title</th>
+                <th width="30%">Brand</th>
+                <th width="10%">Title</th>
                 <th width="10%">Currency</th>
                 <th width="10%">Price</th>
                 <th width="10%">Created_at</th>
@@ -48,7 +48,18 @@
 
             </tr>
             <tr>
-                <th width="10%"><input type="text" class="search form-control" id="website"></th>
+                <th width="15%">
+                    @php 
+                    $websites = \App\Loggers\LogScraper::select('id','website')->groupBy('website')->get();
+                    @endphp
+                    <select class="form-control select-multiple2" name="website[]" data-placeholder="Select websites.." multiple id="website">
+                                <optgroup label="Websites">
+                                  @foreach ($websites as $website)
+                                    <option value="{{ $website->website }}">{{ $website->website }}</option>
+                                  @endforeach
+                                </optgroup>
+                              </select>
+                </th>
                 <th width="10%"><input type="text" class="search form-control" id="url"></th>
                 <th width="10%"><input type="text" class="search form-control" id="sku"></th>
                 <th width="25%"> @php $brands = \App\Brand::getAll(); @endphp
@@ -102,6 +113,46 @@
        $(".select-multiple").multiselect();
        $(".select-multiple2").select2();
         $('#brand').on('change', function (e) {
+            website = $('#website').val();
+            brand = $('#brand').val();
+            url = $('#url').val();
+            sku = $('#sku').val();
+            title = $('#title').val();
+            currency = $('#currency').val();
+            price = $('#price').val();
+            
+           $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    website : website,
+                    url : url,
+                    sku : sku,
+                    title : title,
+                    currency : currency,
+                    price : price,
+                    brand: brand,
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $("#log-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        });
+
+        $('#website').on('change', function (e) {
             website = $('#website').val();
             brand = $('#brand').val();
             url = $('#url').val();
@@ -307,7 +358,6 @@
         src = "/scrap/scraped-urls";
         $(".search").autocomplete({
         source: function(request, response) {
-            website = $('#website').val();
             url = $('#url').val();
             sku = $('#sku').val();
             title = $('#title').val();
