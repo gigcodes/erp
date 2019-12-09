@@ -126,7 +126,7 @@
               <p>Size : {{ $product->size}}</p>
               <p>Price : {{ $product->price_special }}</p>
 
-              <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}">
+              <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin-bottom: 10px !important;">
             </a>
           </div>
           @endforeach
