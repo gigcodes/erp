@@ -265,7 +265,7 @@
             var id = $(this).data('id');
             console.log(url);
             console.log(id);
-            $('<form action="{{ route("google.search.queue") }}" method="post">{{ csrf_field() }}<input type="hidden" name="product_id" value="' + id + '"><input type="hidden" name="url" value="' + url + '"></form>').appendTo('body').submit();
+            $('<form action="<?php echo route("google.search.queue"); ?>" method="post"><?php echo csrf_field(); ?><input type="hidden" name="product_id" value="' + id + '"><input type="hidden" name="url" value="' + url + '"></form>').appendTo('body').submit();
         });
 
         $('.createProduct').on('click', function () {
