@@ -148,30 +148,29 @@
             var googleServer = "{!! env('GOOGLE_CUSTOM_SEARCH') !!}";
             var regEx = /([?&]cx)=([^#&]*)/g;
             var googleServerUrl = googleServer.replace(regEx, '$1='+$(".server-select").val());
-            alert(googleServerUrl);
-            // $.ajax({
-            //     url: googleServerUrl+"&q=" + keyword + "&searchType=image&imgSize=large", success: function (result) {
-            //         // console.log(result);
-            //         if (result.searchInformation.totalResults != undefined && parseInt(result.searchInformation.totalResults) > 0) {
-            //             var i = 1;
-            //             $(".image-result-show").html('');
-            //             $.each(result.items, function (k, v) {
+            $.ajax({
+                url: googleServerUrl+"&q=" + keyword + "&searchType=image&imgSize=large", success: function (result) {
+                    // console.log(result);
+                    if (result.searchInformation.totalResults != undefined && parseInt(result.searchInformation.totalResults) > 0) {
+                        var i = 1;
+                        $(".image-result-show").html('');
+                        $.each(result.items, function (k, v) {
 
-            //                 var template = '<div class="col-md-3"><div class="card" style="width: 18rem;">';
-            //                 template += '<img title="' + v.title + '" class="card-img-top" src="' + v.link + '" alt="' + v.title + '" onclick="toggleCheckbox(' + i + ');">';
-            //                 template += '<div class="card-body">';
-            //                 template += '<input type="checkbox" id="checkbox-' + i + '" class="selected-image" name="images[]" value="' + v.link + '">';
-            //                 template += '</div>';
-            //                 template += '</div></div>';
+                            var template = '<div class="col-md-3"><div class="card" style="width: 18rem;">';
+                            template += '<img title="' + v.title + '" class="card-img-top" src="' + v.link + '" alt="' + v.title + '" onclick="toggleCheckbox(' + i + ');">';
+                            template += '<div class="card-body">';
+                            template += '<input type="checkbox" id="checkbox-' + i + '" class="selected-image" name="images[]" value="' + v.link + '">';
+                            template += '</div>';
+                            template += '</div></div>';
 
-            //                 $(".image-result-show").append(template);
-            //                 i++;
-            //             });
-            //         } else {
-            //             alert('No images found');
-            //         }
-            //     }
-            // });
+                            $(".image-result-show").append(template);
+                            i++;
+                        });
+                    } else {
+                        alert('No images found');
+                    }
+                }
+            });
         });
 
         $(".attach-and-continue").on("click", function () {
