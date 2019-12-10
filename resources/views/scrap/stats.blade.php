@@ -18,37 +18,51 @@
     </div>
 
     @include('partials.flash_messages')
-
+     <?php $status = request()->get('status',''); ?>
+      <div class="row">
+        <div class="col-md-12">
+            <form class="" action="/scrap/statistics">
+              <div class="form-group mr-3 mb-3 col-md-2">
+                <input name="term" type="text" class="form-control" id="product-search" value="{{ request()->get('term','') }}" placeholder="Enter Supplier name">
+              </div>
+              <div class="form-group mr-3 mb-3 col-md-3">
+                <?php echo Form::select("scraper_madeby",\App\User::all()->pluck("name","id")->toArray(),request("scraper_madeby"),["class"=>"form-control select2"]) ?>
+              </div>
+              <div class="form-group mr-3 mb-3 col-md-2">
+                <select name="status" class="form-control form-group select2">
+                    <option <?php echo $status == '' ? 'selected=selected' : '' ?> value="">-- Select Status --</option>
+                    <option <?php echo $status == 1 ? 'selected=selected' : '' ?> value="1">Has Error ?</option>
+                </select>
+              </div>
+              <div class="form-group mr-3 mb-3 col-md-1">
+                <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
+              </div>
+            </form>
+        </div>
+      </div>
+    
     <div class="row no-gutters mt-3">
         <div class="col-md-12" id="plannerColumn">
             <div class="">
-                <table>
-                    <tbody>
-                        <tr>
-                            <td><button class="btn btn-secondary btn-set-priorities">Set Priority</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <br>
                 <table class="table table-bordered table-striped sort-priority-scrapper">
                     <thead>
                         <tr>
-                            <th style="width:2%">No</th>
-                            <th style="width:2%">Supplier</th>
-                            <th style="width:2%">Server</th>
-                            <th style="width:20%">Start Time</th>
-                            <th style="width:2%">Last Scraped</th>
-                            <th style="width:20%">Logic</th>
-                            <th style="width:1%">Successful</th>
-                            <th style="width:1%">Total</th>
-                            <th style="width:1%">Errors</th>
-                            <th style="width:1%">Warnings</th>
-                            <th style="width:1%">Total URLs</th>
-                            <th style="width:1%">Existing URLs</th>
-                            <th style="width:2%">New URLs</th>
-                            <th style="width:2%">Made By</th>
-                            <th style="width:2%">Parent Scrapper</th>
-                            <th style="width:2%">Functions</th>
+                            <th>No</th>
+                            <th>Supplier</th>
+                            <th>Server</th>
+                            <th>Start Time</th>
+                            <th>Last Scraped</th>
+                            <th>Logic</th>
+                            <th>Successful</th>
+                            <th>Total</th>
+                            <th>Errors</th>
+                            <th>Warnings</th>
+                            <th>Total URLs</th>
+                            <th>Existing URLs</th>
+                            <th>New URLs</th>
+                            <th>Made By</th>
+                            <th>Parent Scrapper</th>
+                            <th>Functions</th>
                         </tr>
                     </thead>
 
@@ -70,12 +84,18 @@
                             }
 
                             // Show correct background color
+                            $hasError =  false;    
                             if ( (!empty($data) && $data->running == 0) || $data == null ) {
-                                echo '<tr data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'" style="background-color: red; color: white;">';
+                                $hasError =  true;
+                                echo '<tr data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'">';
                             } elseif ( $percentage > 25 ) {
                                 echo '<tr data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'" style="background-color: orange; color: white;">';
                             } else {
                                 echo '<tr>';
+                            }
+
+                            if($status == 1 && !$hasError) {
+                                continue;
                             }
 
                             $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->orderBy('created_at','desc')->first();
@@ -86,6 +106,10 @@
                                 &nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i>
                             @endif
                             &nbsp;<a href="javascript:;" class="call-history-scrap" data-id="<?php echo $supplier->id; ?>"><i class="fa fa-history" aria-hidden="true"></i></a>
+                            <?php if($hasError){ ?>
+                               <i style="color: red;" class="fa fa-exclamation-triangle"></i>
+                            <?php } ?>    
+
                         </td>
                         <td class="">{{ !empty($data) ? $data->ip_address : '' }}</td>
                         <td class="">
@@ -93,28 +117,28 @@
                               <input type="time" name="start_time" value="<?php echo $supplier->scraper_start_time; ?>" class="form-control start_time">
                             </div>
                         </td>
-                        <td class="">{{ !empty($data) ? date('d-m-Y H:i:s', strtotime($data->last_scrape_date)) : '' }}</td>
-                        <td class="">
+                        <td class="">{{ !empty($data) ? date('d-m-y g:i a', strtotime($data->last_scrape_date)) : '' }}</td>
+                        <td style="width: 100px;" class="">
                             <div class="input-group">
                               <textarea class="form-control scraper_logic" name="scraper_logic"><?php echo $supplier->scraper_logic; ?></textarea>
                               <button class="btn btn-sm btn-image submit-logic" data-vendorid="1"><img src="/images/filled-sent.png"></button>
                             </div>
                         </td>
-                        <td class=" text-right">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
-                        <td class=" text-right">{{ !empty($data) ? $data->total : '' }}</td>
-                        <td class=" text-right">{{ !empty($data) ? $data->errors : '' }}</td>
-                        <td class=" text-right">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
-                        <td class=" text-right">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
-                        <td class=" text-right">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
-                        <td class=" text-right">{{ !empty($data) ? $data->warnings : '' }}</td>
+                        <td class="">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
+                        <td class="">{{ !empty($data) ? $data->total : '' }}</td>
+                        <td class="">{{ !empty($data) ? $data->errors : '' }}</td>
+                        <td class="">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
+                        <td class="">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
+                        <td class="">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
+                        <td class="">{{ !empty($data) ? $data->warnings : '' }}</td>
                         <td class="">
                             <div class="form-group">
-                              <?php echo Form::select("scraper_madeby",["" => "N/A"] + $users,$supplier->scraper_madeby,["class" => "form-control scraper_madeby select2","style" => "width:120px;"]); ?>  
+                              <?php echo Form::select("scraper_madeby",["" => "N/A"] + $users,$supplier->scraper_madeby,["class" => "form-control scraper_madeby select2","style" => "width:100%;"]); ?>  
                             </div>
                         </td>
                         <td class="">
                             <div class="form-group">
-                              <?php echo Form::select("scraper_parent_id",[0 => "N/A"] + $allScrapperName,$supplier->scraper_parent_id,["class" => "form-control scraper_parent_id select2","style" => "width:120px;"]); ?>  
+                              <?php echo Form::select("scraper_parent_id",[0 => "N/A"] + $allScrapperName,$supplier->scraper_parent_id,["class" => "form-control scraper_parent_id select2","style" => "width:100%;"]); ?>  
                             </div>
                         </td>
                         <td>
@@ -123,14 +147,7 @@
                         </tr>
                     @endforeach
                 </table>
-                <table>
-                    <tbody>
-                        <tr>
-                            <td><button class="btn btn-secondary btn-set-priorities">Set Priority</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <br>
+                <?php /* no needed
                 <table class="table table-bordered table-striped table-sm">
                         <thead>
                             <tr>
@@ -177,6 +194,7 @@
                         @endforeach
                         </tbody>
                 </table>
+                */ ?>
                 @include('partials.modals.remarks')
             </div>
         </div>

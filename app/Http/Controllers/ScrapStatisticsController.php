@@ -22,9 +22,23 @@ class ScrapStatisticsController extends Controller
     {
         // Set dates
         $endDate = date('Y-m-d H:i:s');
+        $keyWord = $request->get("term","");
+        $madeby  = $request->get("scraper_madeby",0);
 
         // Get active suppliers
-        $activeSuppliers = Supplier::where('supplier_status_id', 1)->orderby('scraper_priority','desc')->get();
+        $activeSuppliers = Supplier::where('supplier_status_id', 1);
+
+        if(!empty($keyWord)) {
+            $activeSuppliers->where(function($q) use($keyWord){
+                $q->where("supplier","like","%{$keyWord}%")->orWhere("scraper_name","like","%{$keyWord}%");
+            });
+        }
+
+        if($madeby > 0)  {
+            $activeSuppliers->where("scraper_madeby",$madeby);
+        }
+
+        $activeSuppliers = $activeSuppliers->orderby('scraper_priority','desc')->get();
 
         // Get scrape data
         $sql = '
