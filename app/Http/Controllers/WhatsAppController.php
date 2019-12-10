@@ -4420,20 +4420,19 @@ class WhatsAppController extends FindByNumberController
         
         if ($lastQuickSellProduct) {
             $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
-            dd($number);
         } else {
             $number = date('yz') . sprintf('%02d', 1);
         }
         
         $brand = Brand::where('name', 'LIKE', '%QUICKSELL%')->first();
-       
+        
         
         $product = new Product;
 
         $product->name = 'QUICKSELL';
         $product->sku = 'QuickSell' . $number;
         $product->size = '';
-        $product->brand = '';
+        $product->brand = $brand->id;
         $product->color = '';
         $product->location = '';
         $product->category = '';
@@ -4442,7 +4441,7 @@ class WhatsAppController extends FindByNumberController
         $product->price_special = 0;
         $product->stock = 1;
         $product->quick_product = 1;
-        $product->is_pending = 1;
+        $product->is_pending = 0;
         $product->save();
         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $imageUrl, $match);
         $imageUrl = $match[0][0];
