@@ -708,7 +708,7 @@ class DevelopmentController extends Controller
         $task->responsible_user_id = $request->get('responsible_user_id',0);
         $task->assigned_to = $request->get('responsible_user_id',0);
         $task->module_id = $module->id;
-        $task->user_id = Auth::id();
+        $task->user_id = $request->get('responsible_user_id',0);
         $task->assigned_by = Auth::id();
         $task->created_by = Auth::id();
         $task->status = 'Issue';
