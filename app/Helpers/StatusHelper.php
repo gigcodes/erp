@@ -33,6 +33,8 @@ class StatusHelper extends Model
     public static $queuedForGoogleImageSearch = 23;
     public static $googleImageSearchFailed = 24;
     public static $isBeingScrapedWithGoogleImageSearch = 25;
+    public static $pendingVerificationGoogleImageSearch = 26;
+    public static $googleImageSearchManuallyRejected = 27;
 
     public static function getStatus()
     {
@@ -62,6 +64,8 @@ class StatusHelper extends Model
             23 => 'queued for google image search',
             24 => 'google image search failed',
             25 => 'is being scraped with google image search',
+            26 => 'pending verification google image search',
+            27 => 'manually rejected google image search'
         ];
     }
     public static function updateStatus(\App\Product $product, $newStatus = 0)

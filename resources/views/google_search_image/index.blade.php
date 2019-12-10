@@ -155,37 +155,7 @@
             $(".select-multiple").multiselect();
             $(".select-multiple2").select2();
 
-            function sendImage() {
-                var clicked = [];
-                $.each($("input[name='product_id']:checked"), function () {
-                    clicked.push($(this).val());
-                });
-
-                if (clicked.length == 0) {
-                    alert('Please Select Product');
-                } else if (clicked.length == 1) {
-                    document.getElementById('theForm').submit();
-                } else {
-                    $.each($("input[name='product_id']:checked"), function () {
-                        id = $(this).val();
-                        $.ajax({
-                            url: "{{ route('google.product.queue') }}",
-                            type: 'POST',
-                            beforeSend: function () {
-                                $("#loading-image").show();
-                            },
-                            success: function (response) {
-                                $("#loading-image").hide();
-                            },
-                            data: {
-                                id: id,
-                                _token: "{{ csrf_token() }}",
-                            }
-                        });
-                    });
-                    location.reload();
-                }
-            }
+            
 
             $('.select-all-page-btn').on('click', function () {
                 var result = confirm("Do you want to send " + $("input[name='product_id']").length + " images to Google?");
@@ -239,5 +209,37 @@
                 //
             }
         });
+        function sendImage() {
+                
+                var clicked = [];
+                $.each($("input[name='product_id']:checked"), function () {
+                    clicked.push($(this).val());
+                });
+
+                if (clicked.length == 0) {
+                    alert('Please Select Product');
+                } else if (clicked.length == 1) {
+                    document.getElementById('theForm').submit();
+                } else {
+                    $.each($("input[name='product_id']:checked"), function () {
+                        id = $(this).val();
+                        $.ajax({
+                            url: "{{ route('google.product.queue') }}",
+                            type: 'POST',
+                            beforeSend: function () {
+                                $("#loading-image").show();
+                            },
+                            success: function (response) {
+                                $("#loading-image").hide();
+                            },
+                            data: {
+                                id: id,
+                                _token: "{{ csrf_token() }}",
+                            }
+                        });
+                    });
+                    location.reload();
+                }
+            }
     </script>
 @endsection
