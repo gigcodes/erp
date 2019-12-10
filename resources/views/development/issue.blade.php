@@ -68,6 +68,14 @@
                         </select>
                     </div>
                     <div class="col-md-1">
+                        <select class="form-control" name="assigned_to" id="assigned_to">
+                            <option value="">Assigned To</option>
+                            @foreach($users as $id=>$user)
+                                <option {{$request->get('assigned_to')==$id ? 'selected' : ''}} value="{{$id}}">{{ $user }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-1">
                         <select class="form-control" name="responsible_user" id="responsible_user">
                             <option value="">Responsible User...</option>
                             @foreach($users as $id=>$user)
@@ -96,8 +104,9 @@
                     </div>
                     <div class="col-md-1">
                         <select name="order" id="order_query" class="form-control">
-                            <option {{$request->get('order')== "" ? 'selected' : ''}} value="">Order by priority</option>
-                            <option {{$request->get('order')== "create" ? 'selected' : ''}} value="create">Order by date</option>
+                            <option {{$request->get('order')== "" ? 'selected' : ''}} value="create">Order by date descending</option>
+                            <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="">Order by priority</option>
+                            <option {{$request->get('order')== "create_asc" ? 'selected' : ''}} value="create">Order by date</option>
                         </select>
                     </div>
                     @if($title == 'devtask')
