@@ -138,7 +138,7 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'task_id' ] = null;
                 $params[ 'supplier_id' ] = $supplier->id;
 
-                $params = $this->modifyParamsWithMessage($params, $data);
+                $params = $this->modifyParamsWithMessage($params, $data , $supplier->id);
                 $message = ChatMessage::create($params);
                 $model_type = 'supplier';
                 $model_id = $supplier->id;
@@ -1215,7 +1215,10 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'user_id' ] = null;
                 $params[ 'contact_id' ] = null;
                 $params[ 'supplier_id' ] = $supplier->id;
-
+                if($params[ 'media_url' ] != null){
+                    self::saveProductFromSupplierIncomingImages($supplier->id , $params[ 'media_url' ]);
+                }
+                
                 $message = ChatMessage::create($params);
 
                 $this->sendRealTime($message, 'supplier_' . $supplier->id, $client);
@@ -4117,6 +4120,8 @@ class WhatsAppController extends FindByNumberController
             }
             $url = implode("/", array(\Config::get("app.url"), "apiwha", "media", $fileName));
             $params[ 'media_url' ] = $url;
+            
+            
             return $params;
         }
         $params[ 'message' ] = $data[ 'text' ];
@@ -4403,6 +4408,51 @@ class WhatsAppController extends FindByNumberController
             }
         }
         return $result;
+    }
+
+    public function saveProductFromSupplierIncomingImages($id , $imageUrl){
+        
+        //FInd Supplier 
+        $supplier = Supplier::find($id);
+        
+        //get sku
+        $lastQuickSellProduct = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
+        
+        if ($lastQuickSellProduct) {
+            $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
+            dd($number);
+        } else {
+            $number = date('yz') . sprintf('%02d', 1);
+        }
+        
+        $brand = Brand::where('name', 'LIKE', '%QUICKSELL%')->first();
+       
+        
+        $product = new Product;
+
+        $product->name = 'QUICKSELL';
+        $product->sku = 'QuickSell' . $number;
+        $product->size = '';
+        $product->brand = '';
+        $product->color = '';
+        $product->location = '';
+        $product->category = '';
+        $product->supplier = $supplier->supplier;
+        $product->price = 0;
+        $product->price_special = 0;
+        $product->stock = 1;
+        $product->quick_product = 1;
+        $product->is_pending = 1;
+        $product->save();
+        preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $imageUrl, $match);
+        $imageUrl = $match[0][0];
+        $jpg = \Image::make($imageUrl)->encode('jpg');
+        $filename = substr($imageUrl, strrpos($imageUrl, '/'));
+        $filename = str_replace("/","",$filename);
+        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+        $product->attachMedia($media, config('constants.media_tags'));
+        
+        return true;
     }
 
 
