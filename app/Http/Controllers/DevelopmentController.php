@@ -375,9 +375,9 @@ class DevelopmentController extends Controller
     public function issueTaskIndex(Request $request, $type)
     {
         if ($type == 'issue') {
-            $issues = DeveloperTask::where('task_type_id', '3');
+            $issues = DeveloperTask::with(["developerModule","assignedUser","responsibleUser","submitter"])->where('task_type_id', '3');
         } else {
-            $issues = DeveloperTask::where('task_type_id', '1');
+            $issues = DeveloperTask::with(["developerModule","assignedUser","responsibleUser","submitter"])->where('task_type_id', '1');
         }
 
         if ((int)$request->get('submitted_by') > 0) {
