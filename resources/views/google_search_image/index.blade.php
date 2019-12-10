@@ -118,20 +118,19 @@
             <div class="row">
                 @foreach ($products as $product)
                     <div class="col-md-3 col-xs-6 text-left" style="border: 1px solid #cccccc;">
-                        <a href="{{ route('products.show', $product->id) }}">
-                            <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt=""/>
-                            <p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>
-                            <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
-                            <p>Transit Status : {{ $product->purchase_status }}</p>
-                            <p>Location : {{ ($product->location) ? $product->location : "" }}</p>
-                            <p>Sku : {{ $product->sku }}</p>
-                            <p>Id : {{ $product->id }}</p>
-                            <p>Size : {{ $product->size}}</p>
-                            <p>Price ({{ $product->currency }}) : {{ $product->price }}</p>
-                            <p>Price (INR) : {{ $product->price_inr }}</p>
-                            <p>Price Special (INR) : {{ $product->price_special }}</p>
-                            <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">
-                        </a>
+                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt=""/>
+                        <p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>
+                        <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
+                        <p>Transit Status : {{ $product->purchase_status }}</p>
+                        <p>Location : {{ ($product->location) ? $product->location : "" }}</p>
+                        <p>Sku : {{ $product->sku }}</p>
+                        <p>Id : {{ $product->id }}</p>
+                        <p>Size : {{ $product->size}}</p>
+                        <p>Price ({{ $product->currency }}) : {{ $product->price }}</p>
+                        <p>Price (INR) : {{ $product->price_inr }}</p>
+                        <p>Price Special (INR) : {{ $product->price_special }}</p>
+                        <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">
+                        @if($product->status_id == 26)<a href="{{ route('products.show', $product->id) }}" target="_blank" class="btn btn-secondary">Verify</a>@endif
                     </div>
                 @endforeach
             </div>

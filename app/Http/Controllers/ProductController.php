@@ -914,6 +914,7 @@ class ProductController extends Controller
         $data[ 'brand' ] = $product->brand;
         $data[ 'color' ] = $product->color;
         $data[ 'price' ] = $product->price;
+        $data['status'] = $product->status_id;
 //		$data['price'] = $product->inr;
         $data[ 'euro_to_inr' ] = $product->euro_to_inr;
         $data[ 'price_inr' ] = $product->price_inr;

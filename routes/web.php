@@ -319,6 +319,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('queue', 'GoogleSearchImageController@queue')->name('google.search.queue');
         Route::post('/multiple-products', 'GoogleSearchImageController@getImageForMultipleProduct')->name('google.product.queue');
         Route::post('/image-crop-sequence', 'GoogleSearchImageController@cropImageSequence')->name('google.crop.sequence');
+        Route::post('/update-product-status', 'GoogleSearchImageController@updateProductStatus')->name('google.product.status');
         
     });
 

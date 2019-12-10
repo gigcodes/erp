@@ -573,4 +573,20 @@ class GoogleSearchImageController extends Controller
          return response()->json(['success' => 'true'], 200);
     }
 
+    public function updateProductStatus(Request $request){
+        $id = $request->id;
+        $type = $request->type;
+
+        $product = Product::find($id);
+
+        if($type == 'approve'){
+            $product->status_id = StatusHelper::$AI;
+            $product->save();
+        }else{
+            $product->status_id = StatusHelper::$googleImageSearchManuallyRejected;
+            $product->save();
+        }
+        return response()->json(['success' => 'true'], 200);
+    }
+
 }
