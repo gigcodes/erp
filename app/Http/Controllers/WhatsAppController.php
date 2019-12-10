@@ -4414,7 +4414,7 @@ class WhatsAppController extends FindByNumberController
             $number = date('yz') . sprintf('%02d', 1);
         }
         
-        $brand = Brand::where('name', 'LIKE', '%QUICKSELL%')->first();
+        //$brand = Brand::where('name', 'LIKE', '%QUICKSELL%')->first();
         
         
         $product = new Product;
@@ -4422,7 +4422,7 @@ class WhatsAppController extends FindByNumberController
         $product->name = 'QUICKSELL';
         $product->sku = 'QuickSell' . $number;
         $product->size = '';
-        $product->brand = $brand->id;
+        $product->brand = '';
         $product->color = '';
         $product->location = '';
         $product->category = '';
