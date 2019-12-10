@@ -391,6 +391,10 @@ class DevelopmentController extends Controller
             $issues = $issues->where('user_id', $request->get('corrected_by'));
         }
 
+        if ((int)$request->get('assigned_to') > 0) {
+            $issues = $issues->where('assigned_to', $request->get('assigned_to'));
+        }
+
         if ($request->get('module')) {
             $issues = $issues->where('module_id', $request->get('module'));
         }
@@ -417,10 +421,12 @@ class DevelopmentController extends Controller
         }
 
         // Sort
-        if ($request->order == 'create') {
-            $issues = $issues->orderBy('created_at', 'DESC');
-        } else {
-            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC');
+        if ($request->order == 'priority') {
+            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
+        }if ($request->order == 'create_asc') {
+            $issues = $issues->orderBy('created_at', 'ASC')->with('communications');
+        }else {
+            $issues = $issues->orderBy('created_at', 'DESC')->with('communications');
         }
 
         $issues = $issues->paginate(Setting::get('pagination'));
@@ -700,8 +706,11 @@ class DevelopmentController extends Controller
         $task->subject = $request->input('subject');
         $task->task = $request->input('issue');
         $task->responsible_user_id = $request->get('responsible_user_id',0);
+        $task->assigned_to = $request->get('responsible_user_id',0);
         $task->module_id = $module->id;
-        $task->user_id = Auth::id();
+        $task->user_id = $request->get('responsible_user_id',0);
+        $task->assigned_by = Auth::id();
+        $task->created_by = Auth::id();
         $task->status = 'Issue';
         $task->task_type_id = 3;
 
@@ -1103,6 +1112,8 @@ class DevelopmentController extends Controller
         $issue = DeveloperTask::find($request->get('issue_id'));
         //$issue = Issue::find($request->get('issue_id'));
         $issue->responsible_user_id = $request->get('responsible_user_id');
+        $issue->assigned_by = \Auth::id();
+        $issue->assigned_to = $request->get('responsible_user_id');
         $issue->save();
 
         return response()->json([
