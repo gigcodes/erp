@@ -48,13 +48,13 @@ class InstantMessagingController extends Controller
 
         //Check if send time and end time is not equal to 0 or null
         if($whatsappConfig->send_start != '' || $whatsappConfig->send_end != ''){
-            $send_start = $whatsappConfig->send_start; 
+            $send_start = $whatsappConfig->send_start;
             $send_end = $whatsappConfig->send_end;
         }else{
-            $send_start = 8; 
+            $send_start = 8;
             $send_end = 19;
         }
-        
+
 
         // Only send at certain times
         if ((date('H') < $send_start || date('H') > $send_end) && $numberFrom != '971504752911') {
@@ -137,7 +137,7 @@ class InstantMessagingController extends Controller
                     'message' => $imQueue->text,
                     'customer_id' => $customer != null ? $customer->id : null,
                     'approved' => 1,
-                    'status' => 2,
+                    'status' => 8,
                     'is_delivered' => $receivedJson->sent == true ? 1 : 0
                 ];
 

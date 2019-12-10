@@ -63,7 +63,11 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
-        $chatMessages = $object->whatsappAll()->whereRaw($rawWhere)->where('status', '!=', 10)->skip(0)->take($limit);
+        $chatMessages = $object
+            ->whatsappAll()
+            ->whereRaw($rawWhere)
+            ->where('status', '!=', 10)
+            ->skip(0)->take($limit);
 
         $loadType = $request->get('load_type');
         switch ($loadType) {
