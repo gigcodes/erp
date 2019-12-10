@@ -4420,7 +4420,7 @@ class WhatsAppController extends FindByNumberController
         
         try{
             if ($lastQuickSellProduct) {
-                $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
+                $number = str_ireplace('QUICKSELL', '', $lastQuickSellProduct->sku) + 1;
             } else {
                 $number = date('yz') . sprintf('%02d', 1);
             }
