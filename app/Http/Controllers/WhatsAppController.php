@@ -1990,12 +1990,12 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'issue_id' ] = $request->get('issue_id');
                 //$issue                  = Issue::find($request->get('issue_id'));
                 $issue                  = DeveloperTask::find($request->get('issue_id'));
-                $params[ 'erp_user' ]   = $issue->user_id;
+                $params[ 'erp_user' ]   = $issue->responsible_user_id;
                 $params[ 'approved' ]   = 1;
                 $params[ 'status' ]     = 2;
 
 
-                $number = User::find($issue->user_id);
+                $number = User::find($issue->responsible_user_id);
 
                 if (!$number) {
                     return response()->json(['message' => null]);
@@ -2028,6 +2028,16 @@ class WhatsAppController extends FindByNumberController
                     $params[ 'message' ] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
                     $this->sendWithThirdApi($number, null, $params[ 'message' ]);
                     $chat_message = ChatMessage::create($params);
+
+
+                    if ($issue->hasMedia(config('constants.media_tags'))) {
+                        foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
+                            $params[ 'media_url' ] = $image->getUrl();
+                            ChatMessage::create($params);
+                            $this->sendWithThirdApi($number, null, '', $image->getUrl());
+                        }
+                    }    
+
                 }
 
 
@@ -2276,14 +2286,14 @@ class WhatsAppController extends FindByNumberController
                                 }*/
 
                                 if (isset($images) && count($images) > 0) {
-                                    /*$temp_chat_message = ChatMessage::create($data);
+                                    $temp_chat_message = ChatMessage::create($data);
                                     foreach ($images as $image) {
                                         $media = Media::where('filename', $image)->first();
                                         $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $temp_chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
                                         if (!$isExists) {
                                             $temp_chat_message->attachMedia($media, config('constants.media_tags'));
                                         }
-                                    }*/
+                                    }
 
                                     if (!empty($request->send_pdf) && $request->send_pdf == 1) {
                                         $fn = '';
@@ -2524,7 +2534,7 @@ class WhatsAppController extends FindByNumberController
 
                         $number++;
                     } catch (\Exception $e) {
-
+                        \Log::error($e);
                     }
                 }
 

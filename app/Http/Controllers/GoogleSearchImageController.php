@@ -207,7 +207,9 @@ class GoogleSearchImageController extends Controller
                 $height = $request->get('height', null);
                 $x = $request->get('x', null);
                 $y = $request->get('y', null);
-
+                //dd($imageWidth / 4); //256
+               // dd($x[0]); //upper 1st 255  //2nd 500 // last 773
+              //  dd($y[0]); // upper 1st 263 0 //second 0 // 0 
                 if ($height != null && $width != null && $x != null && $y != null) {
 
                     //Checking if width and height are same
@@ -404,6 +406,185 @@ class GoogleSearchImageController extends Controller
             } else {
                 StatusHelper::updateStatus($product, StatusHelper::$AI);
             }
+        }
+        return response()->json(['success' => 'true'], 200);
+    }
+
+    public function cropImageSequence(Request $request){
+        $id = $request->id;
+        $sequence = $request->sequence;
+
+        //Updating Product Sequence
+        $product = Product::findOrFail($id);
+
+        //Getting Product Media
+        $media = $product->media()->first();
+
+        if ($media) {
+            $url = $media->getUrl();
+            
+            $img = \Image::make($media->getAbsolutePath());
+            $imageWidth = $img->width();
+            $imageHeight = $img->height();
+            if($sequence == 8){
+                $newWidth = (int)($imageWidth / 4);
+                $newHeight = (int)($imageHeight / 2);
+            
+                $count = 0;
+                $axisCount = 0;
+                for($i=0;$i<$sequence;$i++){
+                
+                    $img = \Image::make($media->getAbsolutePath());
+                    if($count < 4){
+                        $x = $newWidth * $i;
+                        $y = 0;
+                        $img->crop($newWidth, $newHeight,$x,$y);
+
+                        if (!is_dir(public_path() . '/tmp_images')) {
+                            mkdir(public_path() . '/tmp_images', 0777, true);
+                        }
+                        $path = public_path() . '/tmp_images/crop_'.$i.$media->getBasenameAttribute();
+                        $url = '/tmp_images/crop_' .$i. $media->getBasenameAttribute();
+                        $img->save($path);
+
+                        //Product save
+                        $newProduct = new Product;
+                        $newProduct->name = $product->name;
+                        $newProduct->sku = '-'.$product->sku;
+                        $newProduct->size = $product->size;
+                        $newProduct->brand = $product->brand;
+                        $newProduct->color = $product->color;
+                        $newProduct->supplier = $product->supplier;
+                        $newProduct->price = $product->price;
+                        $newProduct->quick_product = 1;
+                        $newProduct->price_inr = $product->price_inr;
+                        $newProduct->price_special = $product->price_special;
+                        $newProduct->save();
+                        //Attach Media To Post
+                        $newMedia = MediaUploader::fromSource($path)
+                                            ->toDirectory('product/'.floor($newProduct->id / config('constants.image_per_folder')))
+                                            ->upload();
+                        $newProduct->attachMedia($newMedia,config('constants.media_tags'));
+
+                        //Updating New Product Status
+                        $newProduct->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
+                        $newProduct->save();
+
+                        //Process Image For Google Search 
+                        $newUrls = GoogleVisionHelper::getImageDetails($newMedia->getUrl());
+                        
+                        $mediaUrlCount = 0;
+                        if (isset($urls[ 'pages' ])) {
+                            foreach ($urls[ 'pages' ] as $url) {
+                                if (stristr($url, '.gucci.') || stristr($url, '.farfetch.')) {
+                                    // Create queue item
+                                    $scrapeQueue = new ScrapeQueues();
+                                    $scrapeQueue->product_id = (int)$newProduct->id;
+                                    $scrapeQueue->url = $url;
+                                    $scrapeQueue->save();
+                                    $mediaUrlCount++;
+                                    break;
+                                }
+
+                            }
+                        }
+                        //If Page Is Not Found 
+                        if ($mediaUrlCount == 0) {
+                            $newProduct->status_id = StatusHelper::$googleImageSearchFailed;
+                            $newProduct->save();
+                        } else {
+                            StatusHelper::updateStatus($newProduct, StatusHelper::$AI);
+                        }
+                        $count++;
+                    }else{
+                        $x = $newWidth * $axisCount;
+                        $y = $newHeight;
+                        $img->crop($newWidth, $newHeight,$x,$y);
+
+                        if (!is_dir(public_path() . '/tmp_images')) {
+                            mkdir(public_path() . '/tmp_images', 0777, true);
+                        }
+                        $path = public_path() . '/tmp_images/crop_'.$i.$media->getBasenameAttribute();
+                        $url = '/tmp_images/crop_' .$i. $media->getBasenameAttribute();
+                        $img->save($path);
+
+                        //Product save
+                        $newProduct = new Product;
+                        $newProduct->name = $product->name;
+                        $newProduct->sku = '-'.$product->sku;
+                        $newProduct->size = $product->size;
+                        $newProduct->brand = $product->brand;
+                        $newProduct->color = $product->color;
+                        $newProduct->supplier = $product->supplier;
+                        $newProduct->price = $product->price;
+                        $newProduct->quick_product = 1;
+                        $newProduct->price_inr = $product->price_inr;
+                        $newProduct->price_special = $product->price_special;
+                        $newProduct->save();
+
+                        //Attach Media To Post
+                        $newMedia = MediaUploader::fromSource($path)
+                                            ->toDirectory('product/'.floor($newProduct->id / config('constants.image_per_folder')))
+                                            ->upload();
+                        $newProduct->attachMedia($newMedia,config('constants.media_tags'));
+
+                        //Updating New Product Status
+                        $newProduct->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
+                        $newProduct->save();
+
+                        //Process Image For Google Search 
+                        $newUrls = GoogleVisionHelper::getImageDetails($newMedia->getUrl());
+                        
+                        $mediaUrlCount = 0;
+                        if (isset($urls[ 'pages' ])) {
+                            foreach ($urls[ 'pages' ] as $url) {
+                                if (stristr($url, '.gucci.') || stristr($url, '.farfetch.')) {
+                                    // Create queue item
+                                    $scrapeQueue = new ScrapeQueues();
+                                    $scrapeQueue->product_id = (int)$newProduct->id;
+                                    $scrapeQueue->url = $url;
+                                    $scrapeQueue->save();
+                                    $mediaUrlCount++;
+                                    break;
+                                }
+
+                            }
+                        }
+                        //If Page Is Not Found 
+                        if ($mediaUrlCount == 0) {
+                            $newProduct->status_id = StatusHelper::$googleImageSearchFailed;
+                            $newProduct->save();
+                        } else {
+                            StatusHelper::updateStatus($newProduct, StatusHelper::$AI);
+                        }
+
+
+                        $axisCount++;
+                    }    
+                    
+                }
+                //Delete Old Product
+                $product->deleted_at = now();
+                $product->save();
+
+            }
+            
+        }
+         return response()->json(['success' => 'true'], 200);
+    }
+
+    public function updateProductStatus(Request $request){
+        $id = $request->id;
+        $type = $request->type;
+
+        $product = Product::find($id);
+
+        if($type == 'approve'){
+            $product->status_id = StatusHelper::$AI;
+            $product->save();
+        }else{
+            $product->status_id = StatusHelper::$googleImageSearchManuallyRejected;
+            $product->save();
         }
         return response()->json(['success' => 'true'], 200);
     }
