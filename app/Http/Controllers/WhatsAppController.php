@@ -4418,21 +4418,25 @@ class WhatsAppController extends FindByNumberController
         //get sku
         $lastQuickSellProduct = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
         
-        if ($lastQuickSellProduct) {
-            $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
-        } else {
-            $number = date('yz') . sprintf('%02d', 1);
+        try{
+            if ($lastQuickSellProduct) {
+                $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
+            } else {
+                $number = date('yz') . sprintf('%02d', 1);
+            }
+        }catch(\Exception $e){
+            $number = 0;
         }
+        
         
         //$brand = Brand::where('name', 'LIKE', '%QUICKSELL%')->first();
         
         
         $product = new Product;
-
         $product->name = 'QUICKSELL';
         $product->sku = 'QuickSell' . $number;
         $product->size = '';
-        $product->brand = '';
+        $product->brand = null;
         $product->color = '';
         $product->location = '';
         $product->category = '';
