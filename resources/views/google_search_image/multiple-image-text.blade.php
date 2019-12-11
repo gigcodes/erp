@@ -25,7 +25,7 @@
         <div class="col-lg-12 margin-tb">
             <div class="">
                 <h2 class="page-heading">Multiple Google Search Image ({{ $count_system }})</h2>
-
+                
                 <!--Product Search Input -->
                 <form method="GET" class="form-inline align-items-start">
                     <div class="form-group mr-3">
@@ -66,6 +66,18 @@
                         </select>
                     </div>
 
+                    <div class="form-group mr-3">
+                        @php $suppliers = new \App\Supplier();
+                        @endphp
+                        <select data-placeholder="Select color" class="form-control select-multiple2" name="supplier[]" multiple>
+                            <optgroup label="Suppliers">
+                                @foreach ($suppliers->select('id','supplier')->where('supplier_status_id',1)->get() as $id => $suppliers)
+                                    <option value="{{ $suppliers->supplier }}" {{ isset($supplier) && $supplier == $suppliers->supplier ? 'selected' : '' }}>{{ $suppliers->supplier }}</option>
+                                @endforeach
+                            </optgroup>
+                        </select>
+                    </div>
+
                     @if (Auth::user()->hasRole('Admin'))
                         @if(!empty($locations))
                             <div class="form-group mr-3">
@@ -84,7 +96,7 @@
                         </div>
                     @endif
                     <div class="form-group mr-3">
-                        <input type="checkbox" name="quick_product" id="quick_product" {{ $quick_product == 'true' ? 'checked' : '' }}  value="true">
+                        <input type="checkbox" name="quick_product" id="quick_product" {{ isset($quick_product) == 'true' ? 'checked' : '' }}  value="true">
                         <label for="quick_product">Quick Sell</label>
                     </div>
                     <div class="form-group mr-3">

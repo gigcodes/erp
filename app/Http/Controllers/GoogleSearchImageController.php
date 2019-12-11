@@ -598,19 +598,31 @@ class GoogleSearchImageController extends Controller
     public function nultipeImageProduct(Request $request){
         $data = [];
         $term = $request->input('term');
-        $quickProduct = request("quick_product", !empty($request->all()) ? false : "true");
-        $request->request->add(["quick_product" => $quickProduct]);
+        $statusId[] = request("status_id", !empty($request->all()) ? false :  StatusHelper::$unableToScrapeImages);
+        $request->request->add(["status_id" => StatusHelper::$unableToScrapeImages]);
+        
         $data[ 'term' ] = $term;
 
         $productQuery = (new Product())->newQuery()->latest();
-        if (isset($request->status_id) && is_array($request->status_id) && count($request->status_id) > 0) {
-            $productQuery = $productQuery->whereIn('status_id', $request->status_id);
-            $data[ 'status_id' ] = $request->status_id;
+       
+        if ($statusId != null) {
+            $productQuery = $productQuery->whereIn('status_id', $statusId);
+            $data[ 'status_id' ] = $statusId;
+        }elseif(isset($request->status_id) && is_array($request->status_id) && count($request->status_id) > 0){
+            
+             $productQuery = $productQuery->whereIn('status_id', $request->status_id);
+             $data[ 'status_id' ] = $request->status_id;
         }
-
+        
+        
         if ($request->brand[ 0 ] != null) {
             $productQuery = $productQuery->whereIn('brand', $request->brand);
             $data[ 'brand' ] = $request->brand[ 0 ];
+        }
+
+        if ($request->supplier[ 0 ] != null) {
+            $productQuery = $productQuery->whereIn('supplier', $request->supplier);
+            $data[ 'supplier' ] = $request->supplier[ 0 ];
         }
 
         if ($request->color[ 0 ] != null) {
@@ -690,9 +702,8 @@ class GoogleSearchImageController extends Controller
             });
         }
 
-        $data[ "quick_product" ] = false;
-        if ($quickProduct === 'true') {
-            $data[ "quick_product" ] = true;
+        
+        if ($request->no_locations === 'true') {
             $productQuery = $productQuery->where('quick_product', 1);
         }
 
@@ -714,11 +725,18 @@ class GoogleSearchImageController extends Controller
         $productIdsSystem = $productQuery->pluck('id')->toArray();
         $countSystem = $productQuery->count();
 
-        $data[ 'products' ] = $productQuery->join("mediables", function ($query) {
-            $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
-        })
+        if(isset($statusId)){
+            $data[ 'products' ] = $productQuery
             ->groupBy('products.id')
             ->paginate(Setting::get('pagination'));
+        }else{
+             $data[ 'products' ] = $productQuery->join("mediables", function ($query) {
+            $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
+            })
+            ->groupBy('products.id')
+            ->paginate(Setting::get('pagination'));
+        }
+        
 
         $data[ 'locations' ] = (new \App\ProductLocation())->pluck('name');
         $data[ 'quick_sell_groups' ] = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
