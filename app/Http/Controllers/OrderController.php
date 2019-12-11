@@ -595,6 +595,7 @@ class OrderController extends Controller {
 
 		$data['customer_suggestions'] = $customer_suggestions;
 		$data['defaultSelected'] = $defaultSelected;
+		$data['key'] = $key;
 
 
 		return view( 'orders.form', $data );
@@ -616,6 +617,7 @@ class OrderController extends Controller {
 		] );
 
 		$data = $request->all();
+		$key  = $request->get("key","");
 		$data['user_id'] = Auth::id();
 
 		/*if ( $request->input( 'order_type' ) == 'offline' ) {
@@ -821,7 +823,15 @@ class OrderController extends Controller {
 			return back()->with( 'message', 'Order created successfully' );
 		}
 
-		return $order;
+
+		if(!empty($key)) {
+			$defaultData = session($key);
+			if(!empty($defaultData) && !empty($defaultData["redirect_back"])) {
+				return redirect($defaultData["redirect_back"])->with( 'message', 'Order created successfully' );
+			}
+		}
+
+		//return $order;
 
 		return redirect()->route( 'order.index' )
 		                 ->with( 'message', 'Order created successfully' );

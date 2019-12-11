@@ -1317,6 +1317,7 @@ class ProductController extends Controller
         $roletype = $request->input('roletype') ?? 'Sale';
         $products = Product::where('stock', '>=', 1)
             ->select(['id', 'sku', 'size', 'price_special', 'brand', 'isApproved', 'stage', 'created_at'])
+            ->orderBy("created_at","DESC")
             ->paginate(Setting::get('pagination'));
 
         $doSelection = true;
