@@ -618,9 +618,19 @@ class OrderController extends Controller {
 		$data = $request->all();
 		$data['user_id'] = Auth::id();
 
-		if ( $request->input( 'order_type' ) == 'offline' ) {
+		/*if ( $request->input( 'order_type' ) == 'offline' ) {
 			$data['order_id'] = $this->generateNextOrderId();
+		}*/
+
+		$oPrefix = ($request->input( 'order_type' ) == 'offline') ? "OFF-".date("Ym") : "ONN-".date("Ym");
+		$statement = \DB::select("SHOW TABLE STATUS LIKE 'orders'");
+		$nextId = 0;
+		if(!empty($statement)) {
+			$nextId = $statement[0]->Auto_increment;
 		}
+
+		$data['order_id'] = $oPrefix."-".$nextId;
+
 
 		if ( empty( $request->input( 'order_date' ) ) ) {
 			$data['order_date'] = date( 'Y-m-d' );
@@ -668,6 +678,7 @@ class OrderController extends Controller {
 			}
 
 			$order->balance_amount = $balance_amount;
+			$order->order_id = $oPrefix."-".$order->id;
 			$order->save();
 			$customer->save();
 		}
