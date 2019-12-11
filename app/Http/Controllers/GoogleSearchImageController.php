@@ -611,6 +611,10 @@ class GoogleSearchImageController extends Controller
 
         $productQuery = (new Product())->newQuery()->latest();
        
+        if(!isset($statusId)){
+            $statusId = null;
+        }
+        
         if ($statusId != null) {
             $productQuery = $productQuery->whereIn('status_id', $statusId);
             $data[ 'status_id' ] = $statusId;
