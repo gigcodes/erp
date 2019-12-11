@@ -758,6 +758,8 @@ class PurchaseController extends Controller
         $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2'])->selected(1)->renderAsDropdown();
         $categoryFilter = \App\Category::attr(['name' => 'category_id', 'class' => 'form-control select-multiple2'])->selected(request()->get('category_id', 1))->renderAsDropdown();
 
+        $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
+
         return view('purchase.purchase-grid')->with([
             'products' => $new_products,
             'order_status' => $order_status,
@@ -773,6 +775,7 @@ class PurchaseController extends Controller
             'activSuppliers' => $activSuppliers,
             //'category_filter' => $category_filter,
             'categoryFilter' => $categoryFilter,
+            'suppliers' => $suppliers
 
         ]);
     }

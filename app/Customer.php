@@ -223,5 +223,9 @@ class Customer extends Model
        return $this->hasOne(ImQueue::class,'number_to','phone')->orderby('sent_at','desc');
     }
 
+    public function notDelieveredImQueueMessage(){
+       return $this->hasOne(ImQueue::class,'number_to','phone')->where('sent_at','2002-02-02 02:02:02');
+    }
+
     
 }

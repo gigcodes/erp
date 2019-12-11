@@ -282,7 +282,7 @@
                                             </td>
                                             <td>
                                                 @if ( isset($order_product->order->customer) )
-                                                    <button type="submit" class="btn btn-secondary alternative_offers" data-brand="{{$product['brand_id']}}" data-category="{{$product['category']}}" data-price="{{$product['order_price']}}" data-customer_id="{{$order_product->order->customer->id}}">Alternative Offers</button>
+                                                    <button type="submit" class="btn btn-secondary alternative_offers" data-brand="{{$product['brand_id']}}" data-category="{{$product['category']}}" data-price="0" data-customer_id="{{$order_product->order->customer->id}}">Alternative Offers</button>
                                                 @endif
                                             </td>
                                         </tr>
@@ -474,8 +474,10 @@
                                 </div>
                                 <div class="form-group mr-3">
                                     <select class="form-control select-multiple2" name="supplier[]" data-placeholder="Select Supplier.." multiple>
-                                        @foreach ($activSuppliers as $activSupplier)
-                                            <option value="{{ $activSupplier->id }}">{{ $activSupplier->supplier }}</option>
+                                        @foreach ($suppliers as $activSupplier)
+                                            @if(isset($activSupplier->id) && isset($activSupplier->supplier))
+                                                <option value="{{ $activSupplier->id }}">{{ $activSupplier->supplier }}</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                 </div>

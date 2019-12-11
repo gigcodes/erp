@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Customer;
+use App\DeveloperTask;
 use App\User;
 use App\Vendor;
 use App\Supplier;
@@ -39,6 +40,9 @@ class ChatMessagesController extends Controller
             case 'task':
                 $object = Task::find($request->object_id);
                 break;
+            case 'developer_task':
+                $object = DeveloperTask::find($request->object_id);
+                break;
             case 'supplier':
                 $object = Supplier::find($request->object_id);
                 break;
@@ -59,7 +63,11 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
-        $chatMessages = $object->whatsappAll()->whereRaw($rawWhere)->where('status', '!=', 10)->skip(0)->take($limit);
+        $chatMessages = $object
+            ->whatsappAll()
+            ->whereRaw($rawWhere)
+            ->where('status', '!=', 10)
+            ->skip(0)->take($limit);
 
         $loadType = $request->get('load_type');
         switch ($loadType) {
@@ -94,7 +102,7 @@ class ChatMessagesController extends Controller
         $chatMessages = $chatMessages->get();
         // Set empty array with messages
         $messages = [];
-        
+
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
             // Create empty media array

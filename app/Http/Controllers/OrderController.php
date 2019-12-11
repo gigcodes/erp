@@ -546,6 +546,17 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function create() {
+
+		$defaultSelected = [];
+		$key = request()->get("key",false);
+
+		if(!empty($key)) {
+			$defaultData = session($key);
+			if(!empty($defaultData)) {
+				$defaultSelected = $defaultData;
+			}
+		}
+
 		$order = new Order();
 		$data  = [];
 		foreach ( $order->getFillable() as $item ) {
@@ -583,6 +594,7 @@ class OrderController extends Controller {
 		$data['customers'] = Customer::all();
 
 		$data['customer_suggestions'] = $customer_suggestions;
+		$data['defaultSelected'] = $defaultSelected;
 
 
 		return view( 'orders.form', $data );
@@ -606,9 +618,19 @@ class OrderController extends Controller {
 		$data = $request->all();
 		$data['user_id'] = Auth::id();
 
-		if ( $request->input( 'order_type' ) == 'offline' ) {
+		/*if ( $request->input( 'order_type' ) == 'offline' ) {
 			$data['order_id'] = $this->generateNextOrderId();
+		}*/
+
+		$oPrefix = ($request->input( 'order_type' ) == 'offline') ? "OFF-".date("Ym") : "ONN-".date("Ym");
+		$statement = \DB::select("SHOW TABLE STATUS LIKE 'orders'");
+		$nextId = 0;
+		if(!empty($statement)) {
+			$nextId = $statement[0]->Auto_increment;
 		}
+
+		$data['order_id'] = $oPrefix."-".$nextId;
+
 
 		if ( empty( $request->input( 'order_date' ) ) ) {
 			$data['order_date'] = date( 'Y-m-d' );
@@ -656,6 +678,7 @@ class OrderController extends Controller {
 			}
 
 			$order->balance_amount = $balance_amount;
+			$order->order_id = $oPrefix."-".$order->id;
 			$order->save();
 			$customer->save();
 		}

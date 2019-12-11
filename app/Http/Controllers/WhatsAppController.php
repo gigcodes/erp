@@ -138,7 +138,7 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'task_id' ] = null;
                 $params[ 'supplier_id' ] = $supplier->id;
 
-                $params = $this->modifyParamsWithMessage($params, $data);
+                $params = $this->modifyParamsWithMessage($params, $data , $supplier->id);
                 $message = ChatMessage::create($params);
                 $model_type = 'supplier';
                 $model_id = $supplier->id;
@@ -1215,7 +1215,10 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'user_id' ] = null;
                 $params[ 'contact_id' ] = null;
                 $params[ 'supplier_id' ] = $supplier->id;
-
+                if($params[ 'media_url' ] != null){
+                    self::saveProductFromSupplierIncomingImages($supplier->id , $params[ 'media_url' ]);
+                }
+                
                 $message = ChatMessage::create($params);
 
                 $this->sendRealTime($message, 'supplier_' . $supplier->id, $client);
@@ -1990,12 +1993,12 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'issue_id' ] = $request->get('issue_id');
                 //$issue                  = Issue::find($request->get('issue_id'));
                 $issue                  = DeveloperTask::find($request->get('issue_id'));
-                $params[ 'erp_user' ]   = $issue->user_id;
+                $params[ 'erp_user' ]   = $issue->responsible_user_id;
                 $params[ 'approved' ]   = 1;
                 $params[ 'status' ]     = 2;
 
 
-                $number = User::find($issue->user_id);
+                $number = User::find($issue->responsible_user_id);
 
                 if (!$number) {
                     return response()->json(['message' => null]);
@@ -2028,6 +2031,16 @@ class WhatsAppController extends FindByNumberController
                     $params[ 'message' ] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
                     $this->sendWithThirdApi($number, null, $params[ 'message' ]);
                     $chat_message = ChatMessage::create($params);
+
+
+                    if ($issue->hasMedia(config('constants.media_tags'))) {
+                        foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
+                            $params[ 'media_url' ] = $image->getUrl();
+                            ChatMessage::create($params);
+                            $this->sendWithThirdApi($number, null, '', $image->getUrl());
+                        }
+                    }    
+
                 }
 
 
@@ -2524,7 +2537,7 @@ class WhatsAppController extends FindByNumberController
 
                         $number++;
                     } catch (\Exception $e) {
-
+                        \Log::error($e);
                     }
                 }
 
@@ -4107,6 +4120,8 @@ class WhatsAppController extends FindByNumberController
             }
             $url = implode("/", array(\Config::get("app.url"), "apiwha", "media", $fileName));
             $params[ 'media_url' ] = $url;
+            
+            
             return $params;
         }
         $params[ 'message' ] = $data[ 'text' ];
@@ -4260,6 +4275,39 @@ class WhatsAppController extends FindByNumberController
             ]);
         }
 
+        if($chat_message->vendor_id != "") {
+
+            $vendor = \App\Vendor::find($chat_message->vendor_id);
+
+
+            if($vendor) {
+                if ($chat_message->message != '') {
+                    if ($vendor->whatsapp_number == '971547763482' || $vendor->whatsapp_number == '971562744570') {
+                        $data = $this->sendWithNewApi($vendor->phone, $vendor->whatsapp_number, $chat_message->message, null, $chat_message->id);
+                    } else {
+                        $this->sendWithWhatsApp($vendor->phone, $vendor->whatsapp_number, $chat_message->message, true, $chat_message->id);
+                    }
+                }
+
+                if ($chat_message->hasMedia(config('constants.media_tags'))) {
+                    foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
+                        if ($vendor->whatsapp_number == '971547763482' || $vendor->whatsapp_number == '971562744570') {
+                            $data = $this->sendWithNewApi($vendor->phone, $vendor->whatsapp_number, null, $image->getUrl(), $chat_message->id);
+                        } else {
+                            $this->sendWithWhatsApp($vendor->phone, $vendor->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), true, $chat_message->id);
+                        }
+                    }
+                }
+
+                $chat_message->update([
+                    'resent' => $chat_message->resent + 1
+                ]);
+
+            }
+
+        
+        }
+
         return response()->json([
             'resent' => $chat_message->resent
         ]);
@@ -4360,6 +4408,54 @@ class WhatsAppController extends FindByNumberController
             }
         }
         return $result;
+    }
+
+    public function saveProductFromSupplierIncomingImages($id , $imageUrl){
+        
+        //FInd Supplier 
+        $supplier = Supplier::find($id);
+        
+        //get sku
+        $lastQuickSellProduct = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
+        
+        try{
+            if ($lastQuickSellProduct) {
+                $number = str_ireplace('QUICKSELL', '', $lastQuickSellProduct->sku) + 1;
+            } else {
+                $number = date('yz') . sprintf('%02d', 1);
+            }
+        }catch(\Exception $e){
+            $number = 0;
+        }
+        
+        
+        //$brand = Brand::where('name', 'LIKE', '%QUICKSELL%')->first();
+        
+        
+        $product = new Product;
+        $product->name = 'QUICKSELL';
+        $product->sku = 'QuickSell' . $number;
+        $product->size = '';
+        $product->brand = null;
+        $product->color = '';
+        $product->location = '';
+        $product->category = '';
+        $product->supplier = $supplier->supplier;
+        $product->price = 0;
+        $product->price_special = 0;
+        $product->stock = 1;
+        $product->quick_product = 1;
+        $product->is_pending = 0;
+        $product->save();
+        preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $imageUrl, $match);
+        $imageUrl = $match[0][0];
+        $jpg = \Image::make($imageUrl)->encode('jpg');
+        $filename = substr($imageUrl, strrpos($imageUrl, '/'));
+        $filename = str_replace("/","",$filename);
+        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+        $product->attachMedia($media, config('constants.media_tags'));
+        
+        return true;
     }
 
 
