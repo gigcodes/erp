@@ -57,13 +57,13 @@
                             <th>Server</th>
                             <th>Start Time</th>
                             <th>Last Scraped</th>
-                            <th>Successful</th>
-                            <th>Total</th>
+                            <th>Stock Erp</th>
+                            <th>Total Urls</th>
                             <th>Errors</th>
                             <th>Warnings</th>
-                            <th>Total URLs</th>
-                            <th>Existing URLs</th>
-                            <th>New URLs</th>
+                            <th>Total URL scrapper</th>
+                            <th>Existing products</th>
+                            <th>Total New URL</th>
                             <th>Made By</th>
                             <th>Parent Scrapper</th>
                             <th>Functions</th>
