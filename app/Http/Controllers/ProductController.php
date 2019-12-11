@@ -1607,16 +1607,21 @@ class ProductController extends Controller
 
     public static function getSelectedProducts($model_type, $model_id)
     {
+        $selected_products = [];
 
         switch ($model_type) {
             case 'order':
-                $order = Order::findOrFail($model_id);
-                $selected_products = $order->order_product()->with('product')->get()->pluck('product.id')->toArray();
+                $order = Order::find($model_id);
+                if(!empty($order)) {
+                    $selected_products = $order->order_product()->with('product')->get()->pluck('product.id')->toArray();
+                }
                 break;
 
             case 'sale':
-                $sale = Sale::findOrFail($model_id);
-                $selected_products = json_decode($sale->selected_product, true) ?? [];
+                $sale = Sale::find($model_id);
+                if(!empty($sale)) {
+                    $selected_products = json_decode($sale->selected_product, true) ?? [];
+                }
                 break;
 
             default :
