@@ -72,7 +72,7 @@
 <div class="row">
   <div class="col-lg-12 margin-tb">
     <div class="pull-left d-flex">
-      <h3>{{ $task->is_statutory == 3 ? 'Appointment' : ($task->is_statutory == 1 ? 'Statutory' : '') }} Task Page</h3>
+      <h3>{{ $task->is_statutory == 3 ? 'Discussion' : ($task->is_statutory == 1 ? 'Statutory' : '') }} Task Page</h3>
 
       @if ($task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
         @if ($task->is_completed == '')
@@ -105,6 +105,12 @@
       @else
         <button type="button" class="btn btn-image flag-task mt-3" data-id="{{ $task->id }}"><img src="/images/unflagged.png" /></button>
       @endif
+     @if ($task->task_subject)<h4 style="margin-top: 23px !important;">Subject : {{ $task->task_subject }}</h4>@endif
+      <span type="text" name="subject" id="task_subject_field" class="form-control span-sm hidden" value="{{ $task->task_subject }}">
+      <a href="#" id="edit_subject_button" class="btn btn-secondary btn-xs">Edit</a>
+                         
+      
+      
     </div>
     <div class="pull-right mt-4">
       {{-- <a class="btn btn-xs btn-secondary" href="{{ route('customer.index') }}">Back</a>
@@ -117,42 +123,34 @@
 
 @include('partials.flash_messages')
 
+<p>
+{{ $task->task_details ?? 'N/A' }}
+  </p>
 <div class="row">
+  
+  
+
+
     @if($task->is_statutory == 3)
         <table class="table table-striped table-bordered">
             <tr>
-                <th width="15%">Subject</th>
-                <th width="15%">Details</th>
-                <th width="30%">Update</th>
-                <th width="40%">Remarks</th>
+                <th width="25%">Update</th>
+                <th width="75%">Remarks</th>
 {{--                <td></td>--}}
             </tr>
             @foreach ($task->notes as $key=>$note)
                 <tr>
-                    @if($key==0)
-                        <td rowspan="{{ count($task->notes) }}">
-                            <div class="form-group">
-                                @if ($task->task_subject)
-                                    <strong class="task-subject">{{ $task->task_subject }}</strong>
-                                @endif
-
-                                <input type="text" name="subject" id="task_subject_field" class="form-control input-sm hidden" value="{{ $task->task_subject }}">
-                                    <br>
-                                <a href="#" id="edit_subject_button" class="btn btn-secondary btn-xs">Edit</a>
-                            </div>
-                        </td>
-                        <td rowspan="{{ count($task->notes) }}">{{ $task->task_details ?? 'N/A' }}</td>
-                    @endif
                     <td>
                         {{ $note->remark }}
-                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->remark }}"><img src="/images/add.png" /></button>
+                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->remark }}" style="padding-top: 0px !important;"><img src="/images/add.png" style="width: 12px !important;" /></button>
                     </td>
+
                     <td>
                         <div class="panel-group" style="margin-bottom: 0 !important;">
                             <div class="panel panel-default">
-                                <div class="panel-heading">
+                                <div class="panel-heading" style="padding: 7px 8px !important;">
                                     <h4 class="panel-title">
-                                        <a data-toggle="collapse" href="#collapse_{{$note->id}}">Remarks ({{count($note->subnotes)}})</a>
+                                        <a data-toggle="collapse" href="#collapse_{{$note->id}}">({{ count($note->subnotes) }})</a>
                                     </h4>
                                 </div>
                                 <div id="collapse_{{$note->id}}" class="panel-collapse collapse">
@@ -160,7 +158,7 @@
                                         <table class="table table-striped table-bordered" style="margin-bottom: 0 !important;">
                                             @foreach ($note->subnotes as $subnote)
                                                 <tr>
-                                                    <td><strong>{{$subnote->created_at->format('Y-m-d')}}</strong></td>
+                                                    <td><strong>{{$subnote->created_at->format('d-m-Y H:i:s')}}</strong></td>
                                                     <td>{{ $subnote->remark }}</td>
                                                     <td>
                                                         <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $subnote->remark }}"><img src="/images/add.png" /></button>
@@ -179,8 +177,6 @@
                 </tr>
             @endforeach
             <tr>
-                <td></td>
-                <td></td>
                 <td>
                     <input type="text" id="create-note-field-for-appointment" class="form-control input-sm" name="note" placeholder="Add New Update..." value="">
                 </td>

@@ -2,6 +2,7 @@
 
 @section('content')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
@@ -25,30 +26,29 @@
             @method('PUT')
         @endif
         <div class="row">
+            <div class="col">
+                <input type="hidden" name="key" value="{{ request('key') }}">
+                <div class="form-group">
+                     <strong>Client:</strong>
+                     <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id" title="Choose a Customer" required>
+                       @foreach ($customers as $customer)
+                        <option <?php echo isset($defaultSelected["customer_id"]) && $defaultSelected["customer_id"] == $customer->id  ? "selected=selected"  : "";  ?>
+                        data-tokens="{{ $customer->name }} {{ $customer->email }}  {{ $customer->phone }} {{ $customer->instahandler }}" value="{{ $customer->id }}">{{ $customer->name }} - {{ $customer->phone }}</option>
+                      @endforeach
+                    </select>
 
-          <div class="col-xs-12">
-             <div class="form-group">
-                 <strong>Client:</strong>
-                 <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id" title="Choose a Customer" required>
-                   @foreach ($customers as $customer)
-                    <option <?php echo isset($defaultSelected["customer_id"]) && $defaultSelected["customer_id"] == $customer->id  ? "selected=selected"  : "";  ?>
-                    data-tokens="{{ $customer->name }} {{ $customer->email }}  {{ $customer->phone }} {{ $customer->instahandler }}" value="{{ $customer->id }}">{{ $customer->name }} - {{ $customer->phone }}</option>
-                  @endforeach
-                </select>
-
-                 @if ($errors->has('customer_id'))
-                     <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
-                 @endif
-             </div>
-         </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
+                     @if ($errors->has('customer_id'))
+                         <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
+                     @endif
+                 </div>
+            </div>
+            <div class="col">
                 <div class="form-group">
                     <strong> Order Type :</strong>
-			        <?php
+                    <?php
 
-	                $order_types = [
-	                	'offline' => 'offline',
+                    $order_types = [
+                        'offline' => 'offline',
                         'online' => 'online'
                     ];
 
@@ -56,14 +56,13 @@
                         $order_type = $defaultSelected["order_typer"];
                     }
 
-			        echo Form::select('order_type',$order_types, ( old('order_type') ? old('order_type') : $order_type ), ['class' => 'form-control']);?>
+                    echo Form::select('order_type',$order_types, ( old('order_type') ? old('order_type') : $order_type ), ['class' => 'form-control']);?>
                     @if ($errors->has('order_type'))
                         <div class="alert alert-danger">{{$errors->first('order_type')}}</div>
                     @endif
                 </div>
             </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col">
                 <div class="form-group">
                     <strong>Order Date:</strong>
                     <?php
@@ -71,15 +70,14 @@
                             $order_date = $defaultSelected["order_date"];
                         }
                     ?>
-                    <input type="date" class="form-control" name="order_date" placeholder="Order Date"
+                    <input type="date" class="form-control datepicker-block" name="order_date" placeholder="Order Date"
                            value="{{ old('order_date') ? old('order_date') : $order_date }}"/>
                     @if ($errors->has('order_date'))
                         <div class="alert alert-danger">{{$errors->first('order_date')}}</div>
                     @endif
                 </div>
             </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col">
                 <div class="form-group">
                     <strong>Date of Delivery:</strong>
                     <?php
@@ -87,63 +85,30 @@
                             $date_of_delivery = $defaultSelected["date_of_delivery"];
                         }
                     ?>
-                    <input type="date" class="form-control" name="date_of_delivery" placeholder="Date of Delivery"
+                    <input type="date" class="form-control datepicker-block" name="date_of_delivery" placeholder="Date of Delivery"
                            value="{{ old('date_of_delivery') ? old('date_of_delivery') : $date_of_delivery }}"/>
                     @if ($errors->has('date_of_delivery'))
                         <div class="alert alert-danger">{{$errors->first('date_of_delivery')}}</div>
                     @endif
                 </div>
+            </div>   
+        </div>
+        <div class="row">
+            <div class="col">
+                 <div class="form-group">
+                    <strong>Shoe Size:</strong>
+                    <input type="text" class="form-control" name="shoe_size" placeholder="Shoe Size" value="{{ old('shoe_size') ? old('shoe_size') : '' }}"/>
+                </div>
+            </div>    
+            <div class="col">
+                 <div class="form-group">
+                    <strong>Clothing Size:</strong>
+                    <input type="text" class="form-control" name="clothing_size" placeholder="Cloth Size" value="{{ old('clothing_size') ? old('clothing_size') : '' }}"/>
+                </div>
             </div>
-
-            {{-- <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
-                    <strong>Client Name:</strong>
-                    <input type="text" class="form-control" name="client_name" placeholder="Client Name"
-                           value="{{ old('client_name') ? old('client_name') : $client_name }}" id="customer_suggestions" required/>
-                    @if ($errors->has('client_name'))
-                        <div class="alert alert-danger">{{$errors->first('client_name')}}</div>
-                    @endif
-                </div>
-            </div> --}}
-
-            {{-- <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
-                    <strong>City:</strong>
-                    <input type="text" class="form-control" name="city" placeholder="City"
-                           value="{{ old('city') ? old('city') : $city }}"/>
-                    @if ($errors->has('city'))
-                        <div class="alert alert-danger">{{$errors->first('city')}}</div>
-                    @endif
-                </div>
-            </div> --}}
-
-            {{-- <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
-                    <strong>Contact Detail:</strong>
-                    <input type="text" class="form-control" name="contact_detail" placeholder="Contact Detail"
-                           value="{{ old('contact_detail') ? old('contact_detail') : $contact_detail }}"/>
-                    @if ($errors->has('contact_detail'))
-                        <div class="alert alert-danger">{{$errors->first('contact_detail')}}</div>
-                    @endif
-                    @if ($message = Session::get('phone_error'))
-                        <div class="alert alert-danger">{{$message}}</div>
-                    @endif
-                </div>
-            </div> --}}
-
-            {{--<div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
-                    <strong>Product Price:</strong>
-                    <input type="text" class="form-control" name="product_price" placeholder="Product Price"
-                           value="{{ old('product_price') ? old('product_price') : $product_price }}"/>
-                    @if ($errors->has('product_price'))
-                        <div class="alert alert-danger">{{$errors->first('product_price')}}</div>
-                    @endif
-                </div>
-            </div>--}}
-
-            {{-- @if($modify == 1) --}}
-
+        </div>    
+        <div class="row">
+                {{-- @if($modify == 1) --}}
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group">
                         <strong> Products Attached:</strong>
@@ -213,11 +178,10 @@
                 {{-- {{dd($data)}} --}}
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group btn-group">
-                        <a href="{{ route('attachProducts',['order',$id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
+                        <a href="{{ route('attachProducts',['order',$id]) }}?key={{$key}}" class="btn btn-image"><img src="/images/attach.png" /></a>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">+</button>
                     </div>
                 </div>
-
                 <div id="productModal" class="modal fade" role="dialog">
                   <div class="modal-dialog">
 
@@ -267,8 +231,8 @@
                         <div class="form-group">
                             <strong>Brand:</strong>
                             <?php
-          	                $brands = \App\Brand::getAll();
-          	                echo Form::select('brand',$brands, ( old('brand') ? old('brand') : '' ), ['placeholder' => 'Select a brand','class' => 'form-control', 'id'  => 'product-brand']);?>
+                            $brands = \App\Brand::getAll();
+                            echo Form::select('brand',$brands, ( old('brand') ? old('brand') : '' ), ['placeholder' => 'Select a brand','class' => 'form-control', 'id'  => 'product-brand']);?>
                               {{--<input type="text" class="form-control" name="brand" placeholder="Brand" value="{{ old('brand') ? old('brand') : $brand }}"/>--}}
                               @if ($errors->has('brand'))
                                   <div class="alert alert-danger">{{$errors->first('brand')}}</div>
@@ -311,9 +275,11 @@
                   </div>
                 </div>
             {{-- @endif --}}
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
+        </div>
+                
+        <div class="row">
+            <div class="col">
+                 <div class="form-group">
                     <strong>Advance Amount:</strong>
                     <?php
                         if(isset($defaultSelected["advance_detail"])) {
@@ -327,24 +293,22 @@
                     @endif
                 </div>
             </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
+            <div class="col">
+                 <div class="form-group">
                     <strong>Advance Date:</strong>
                     <?php
                         if(isset($defaultSelected["advance_date"])) {
                             $advance_date = $defaultSelected["advance_date"];
                         }
                     ?>
-                    <input type="date" class="form-control" name="advance_date" placeholder="Advance Date"
+                    <input type="date" class="form-control datepicker-block" name="advance_date" placeholder="Advance Date"
                            value="{{ old('advance_date') ? old('advance_date') : $advance_date }}"/>
                     @if ($errors->has('advance_date'))
                         <div class="alert alert-danger">{{$errors->first('advance_date')}}</div>
                     @endif
                 </div>
             </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col">
                 <div class="form-group">
                     <strong>Balance Amount:</strong>
                     <?php
@@ -359,75 +323,7 @@
                     @endif
                 </div>
             </div>
-
-            {{--<div class="col-xs-12 col-sm-12 col-md-12">--}}
-                {{--<div class="form-group">--}}
-                    {{--<strong> Brand :</strong>--}}
-
-			        <?php
-//			        $brands = \App\Brand::getAll();
-//			        echo Form::select('brand',$brands, ( old('brand') ? old('brand') : $brand ), ['placeholder' => 'Select a brand','class' => 'form-control']);?>
-
-{{--                    @if ($errors->has('brand'))--}}
-                        {{--<div class="alert alert-danger">{{$errors->first('brand')}}</div>--}}
-                    {{--@endif--}}
-                {{--</div>--}}
-            {{--</div>--}}
-
-           {{-- <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
-                    <strong>Product Detail:</strong>
-                    <input type="text" class="form-control" name="product_detail" placeholder="Product Detail"
-                           value="{{ old('product_detail') ? old('product_detail') : $product_detail }}"/>
-                    @if ($errors->has('product_detail'))
-                        <div class="alert alert-danger">{{$errors->first('product_detail')}}</div>
-                    @endif
-                </div>
-            </div>--}}
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
-                    <strong> Name of Order Handler :</strong>
-                    <?php
-                        if(isset($defaultSelected["sales_person"])) {
-                            $sales_person = $defaultSelected["sales_person"];
-                        }
-                    ?>
-			        <?php
-			        echo Form::select('sales_person',$sales_persons, ( old('sales_person') ? old('sales_person') : $sales_person ), ['placeholder' => 'Select a name','class' => 'form-control']);?>
-                    @if ($errors->has('sales_person'))
-                        <div class="alert alert-danger">{{$errors->first('sales_person')}}</div>
-                    @endif
-                </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
-                    <strong>Office Phone Number:</strong>
-                    <?php
-                        if(isset($defaultSelected["whatsapp_number"])) {
-                            $whatsapp_number = $defaultSelected["whatsapp_number"];
-                        }
-                    ?>
-                    <Select name="whatsapp_number" class="form-control">
-                              <option value>None</option>
-                               <option value="919167152579" {{old('whatsapp_number') ? (old('whatsapp_number') == '919167152579' ? 'Selected=Selected':'') : ('919167152579'== $whatsapp_number ? 'Selected=Selected':'')}}>00</option>
-                               <option value="918291920452" {{old('whatsapp_number') ? (old('whatsapp_number') == '918291920452' ? 'Selected=Selected':'') : ('918291920452'== $whatsapp_number ? 'Selected=Selected':'')}}>02</option>
-                               <option value="918291920455" {{old('whatsapp_number') ? (old('whatsapp_number') == '918291920455' ? 'Selected=Selected':'') : ('918291920455'== $whatsapp_number ? 'Selected=Selected':'')}}>03</option>
-                               <option value="919152731483" {{old('whatsapp_number') ? (old('whatsapp_number') == '919152731483' ? 'Selected=Selected':'') : ('919152731483'== $whatsapp_number ? 'Selected=Selected':'')}}>04</option>
-                               <option value="919152731484" {{old('whatsapp_number') ? (old('whatsapp_number') == '919152731484' ? 'Selected=Selected':'') : ('919152731484'== $whatsapp_number ? 'Selected=Selected':'')}}>05</option>
-                               <option value="971562744570" {{old('whatsapp_number') ? (old('whatsapp_number') == '971562744570' ? 'Selected=Selected':'') : ('971562744570'== $whatsapp_number ? 'Selected=Selected':'')}}>06</option>
-                               <option value="918291352520" {{old('whatsapp_number') ? (old('whatsapp_number') == '918291352520' ? 'Selected=Selected':'') : ('918291352520'== $whatsapp_number ? 'Selected=Selected':'')}}>08</option>
-                               <option value="919004008983" {{old('whatsapp_number') ? (old('whatsapp_number') == '919004008983' ? 'Selected=Selected':'') : ('919004008983'== $whatsapp_number ? 'Selected=Selected':'')}}>09</option>
-                       </Select>
-                    @if ($errors->has('whatsapp_number'))
-                        <div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
-                    @endif
-                </div>
-            </div>
-
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col">
                 <div class="form-group">
                     <strong> Status :</strong>
                     <?php
@@ -435,18 +331,20 @@
                             $order_status = $defaultSelected["order_status"];
                         }
                     ?>
-			        <?php
-			        $orderStatus = new \App\ReadOnly\OrderStatus;
+                    <?php
+                    $orderStatus = new \App\ReadOnly\OrderStatus;
 
-			        echo Form::select('order_status',$orderStatus->all(), ( old('order_status') ? old('order_status') : $order_status ), ['placeholder' => 'Select a status','class' => 'form-control']);?>
+                    echo Form::select('order_status',$orderStatus->all(), ( old('order_status') ? old('order_status') : $order_status ), ['placeholder' => 'Select a status','class' => 'form-control']);?>
 
                     @if ($errors->has('order_status'))
                         <div class="alert alert-danger">{{$errors->first('order_status')}}</div>
                     @endif
                 </div>
-            </div>
 
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            </div>    
+        </div> 
+        <div class="row">
+            <div class="col">
                 <div class="form-group">
                     <strong>Estimated Delivery Date:</strong>
                     <?php
@@ -454,15 +352,14 @@
                             $estimated_delivery_date = $defaultSelected["estimated_delivery_date"];
                         }
                     ?>
-                    <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
+                    <input type="date" class="form-control datepicker-block" name="estimated_delivery_date" placeholder="Advance Date"
                            value="{{ old('estimated_delivery_date') ? old('estimated_delivery_date') : $estimated_delivery_date }}"/>
                     @if ($errors->has('estimated_delivery_date'))
                         <div class="alert alert-danger">{{$errors->first('estimated_delivery_date')}}</div>
                     @endif
                 </div>
             </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col">
                 <div class="form-group">
                     <strong>Received By:</strong>
                     <?php
@@ -475,10 +372,9 @@
                     @if ($errors->has('received_by'))
                         <div class="alert alert-danger">{{$errors->first('received_by')}}</div>
                     @endif
-                </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
+                </div> 
+            </div> 
+            <div class="col">
                 <div class="form-group">
                     <strong> Payment Mode :</strong>
                     <?php
@@ -486,18 +382,17 @@
                             $payment_mode = $defaultSelected["payment_mode"];
                         }
                     ?>
-			        <?php
-			        $paymentModes = new \App\ReadOnly\PaymentModes();
+                    <?php
+                    $paymentModes = new \App\ReadOnly\PaymentModes();
 
-			        echo Form::select('payment_mode',$paymentModes->all(), ( old('payment_mode') ? old('payment_mode') : $payment_mode ), ['placeholder' => 'Select a mode','class' => 'form-control']);?>
+                    echo Form::select('payment_mode',$paymentModes->all(), ( old('payment_mode') ? old('payment_mode') : $payment_mode ), ['placeholder' => 'Select a mode','class' => 'form-control']);?>
 
                     @if ($errors->has('payment_mode'))
                         <div class="alert alert-danger">{{$errors->first('payment_mode')}}</div>
                     @endif
                 </div>
             </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col"> 
                 <div class="form-group">
                     <strong>Note if any:</strong>
                     <?php
@@ -511,12 +406,12 @@
                         <div class="alert alert-danger">{{$errors->first('note_if_any')}}</div>
                     @endif
                 </div>
-            </div>
-
+            </div>  
+        </div>   
+        <div class="row"> 
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                 <button type="submit" class="btn btn-secondary">+</button>
             </div>
-
         </div>
     </form>
 
@@ -525,8 +420,12 @@
     </form>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript">
       $(document).ready(function() {
+        $('.datepicker-block').datetimepicker({
+          format: 'YYYY-MM-DD'
+        });
         $('#createProduct').on('click', function() {
           var token = "{{ csrf_token() }}";
           var url = "{{ route('products.store') }}";
