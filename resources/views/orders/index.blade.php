@@ -62,7 +62,6 @@
           <tr>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
-            <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_handler{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Handler</a></th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
             <th width="10%">Products</th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
@@ -95,19 +94,6 @@
                 </div>
               </td>
               <td>{{ Carbon\Carbon::parse($order->order_date)->format('d-m') }}</td>
-              <td class="expand-row table-hover-cell">
-                @if (array_key_exists($order->sales_person, $users))
-                  <span class="td-mini-container">
-                    {{ strlen($users[$order->sales_person]) > 10 ? substr($users[$order->sales_person], 0, 7) . '...' : $users[$order->sales_person] }}
-                  </span>
-
-                  <span class="td-full-container hidden">
-                    {{ $users[$order->sales_person] }}
-                  </span>
-                @else
-                  No Handler
-                @endif
-              </td>
               <td class="expand-row table-hover-cell">
                 @if ($order->customer)
                   <span class="td-mini-container">
@@ -173,6 +159,9 @@
 
               <td>
                 <div class="d-flex">
+                  <a href="{{route('purchase.grid')}}?order_id={{$order->id}}">
+                    <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
+                  </a>
                   <a class="btn btn-image" href="{{ route('order.show',$order->id) }}"><img src="/images/view.png" /></a>
                   {{-- @can('order-edit')
                   <a class="btn btn-image" href="{{ route('order.edit',$order['id']) }}"><img src="/images/edit.png" /></a>
