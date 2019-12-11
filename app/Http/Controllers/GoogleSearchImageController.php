@@ -308,8 +308,8 @@ class GoogleSearchImageController extends Controller
 
                 $product->status_id = 22;
                 if ($imagesSave) {
-                    StatusHelper::updateStatus($product, StatusHelper::$AI);
-                    $product->status_id = 3;
+                    StatusHelper::updateStatus($product, StatusHelper::$pendingVerificationGoogleTextSearch);
+                    $product->status_id = StatusHelper::$pendingVerificationGoogleTextSearch;
                 }
 
                 $product->save();
@@ -404,7 +404,7 @@ class GoogleSearchImageController extends Controller
                 $product->status_id = StatusHelper::$googleImageSearchFailed;
                 $product->save();
             } else {
-                StatusHelper::updateStatus($product, StatusHelper::$AI);
+                StatusHelper::updateStatus($product, StatusHelper::$pendingVerificationGoogleImageSearch);
             }
         }
         return response()->json(['success' => 'true'], 200);
@@ -493,7 +493,7 @@ class GoogleSearchImageController extends Controller
                             $newProduct->status_id = StatusHelper::$googleImageSearchFailed;
                             $newProduct->save();
                         } else {
-                            StatusHelper::updateStatus($newProduct, StatusHelper::$AI);
+                            StatusHelper::updateStatus($newProduct, StatusHelper::$pendingVerificationGoogleImageSearch);
                         }
                         $count++;
                     }else{
@@ -555,7 +555,7 @@ class GoogleSearchImageController extends Controller
                             $newProduct->status_id = StatusHelper::$googleImageSearchFailed;
                             $newProduct->save();
                         } else {
-                            StatusHelper::updateStatus($newProduct, StatusHelper::$AI);
+                            StatusHelper::updateStatus($newProduct, StatusHelper::$pendingVerificationGoogleImageSearch);
                         }
 
 
@@ -598,8 +598,14 @@ class GoogleSearchImageController extends Controller
     public function nultipeImageProduct(Request $request){
         $data = [];
         $term = $request->input('term');
-        $statusId[] = request("status_id", !empty($request->all()) ? false :  StatusHelper::$unableToScrapeImages);
-        $request->request->add(["status_id" => StatusHelper::$unableToScrapeImages]);
+        
+        if(request("status_id") != null){
+            $statusId = $request->status_id;    
+        }else{
+            if(empty($request->all()) || isset($request->page)){
+                $statusId = [StatusHelper::$unableToScrapeImages];
+            }
+        }
         
         $data[ 'term' ] = $term;
 
@@ -608,11 +614,8 @@ class GoogleSearchImageController extends Controller
         if ($statusId != null) {
             $productQuery = $productQuery->whereIn('status_id', $statusId);
             $data[ 'status_id' ] = $statusId;
-        }elseif(isset($request->status_id) && is_array($request->status_id) && count($request->status_id) > 0){
-            
-             $productQuery = $productQuery->whereIn('status_id', $request->status_id);
-             $data[ 'status_id' ] = $request->status_id;
         }
+        
         
         
         if ($request->brand[ 0 ] != null) {
