@@ -831,7 +831,7 @@ class GoogleSearchImageController extends Controller
                $product->status_id = StatusHelper::$googleTextSearchFailed;
                $product->save();
             } else {
-                StatusHelper::updateStatus($product, StatusHelper::$AI);
+                StatusHelper::updateStatus($product, StatusHelper::$pendingVerificationGoogleTextSearch);
                 break;
             }
         }
