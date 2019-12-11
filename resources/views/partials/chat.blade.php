@@ -253,12 +253,14 @@ function getChats(id){
     	data: { id : id ,   _token: "{{ csrf_token() }}" },
     })
     .done(function(data) {
-        $('#message-recieve').empty().html(data.data.message);
-        $('#message-id').val(data.data.id);
-		$('#new_message_count').text(data.data.count);
-		$('#user_name').text(data.data.name);
-		$("li.active").removeClass("active");
-		$("#user"+data.data.id).addClass("active");
+    	if(typeof data.data.message != "undefined" && data.length > 0 && data.data.length > 0) {
+	        $('#message-recieve').empty().html(data.data.message);
+	        $('#message-id').val(data.data.id);
+			$('#new_message_count').text(data.data.count);
+			$('#user_name').text(data.data.name);
+			$("li.active").removeClass("active");
+			$("#user"+data.data.id).addClass("active");
+    	}
         console.log("success");
     })
     .fail(function() {
