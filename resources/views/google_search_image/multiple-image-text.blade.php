@@ -69,7 +69,7 @@
                     <div class="form-group mr-3">
                         @php $suppliers = new \App\Supplier();
                         @endphp
-                        <select data-placeholder="Select color" class="form-control select-multiple2" name="supplier[]" multiple>
+                        <select data-placeholder="Select Supplier" class="form-control select-multiple2" name="supplier[]" multiple>
                             <optgroup label="Suppliers">
                                 @foreach ($suppliers->select('id','supplier')->where('supplier_status_id',1)->get() as $id => $suppliers)
                                     <option value="{{ $suppliers->supplier }}" {{ isset($supplier) && $supplier == $suppliers->supplier ? 'selected' : '' }}>{{ $suppliers->supplier }}</option>
@@ -245,7 +245,7 @@
                             }
                         });
                     });
-                    //location.reload();
+                    location.reload();
                 }
             }
     </script>
