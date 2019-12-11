@@ -24,7 +24,7 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="">
-                <h2 class="page-heading">Google Search Image ({{ $count_system }})</h2>
+                <h2 class="page-heading">Multiple Google Search Image ({{ $count_system }})</h2>
 
                 <!--Product Search Input -->
                 <form method="GET" class="form-inline align-items-start">
@@ -118,7 +118,7 @@
             <div class="row">
                 @foreach ($products as $product)
                     <div class="col-md-3 col-xs-6 text-left" style="border: 1px solid #cccccc;">
-                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt=""/>
+                        <a href="{{ route('products.show', $product->id) }}" target="_blank"><img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt=""/></a>
                         <p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>
                         <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
                         <p>Transit Status : {{ $product->purchase_status }}</p>
@@ -130,7 +130,7 @@
                         <p>Price (INR) : {{ $product->price_inr }}</p>
                         <p>Price Special (INR) : {{ $product->price_special }}</p>
                         <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">
-                        @if($product->status_id == 26)<a href="{{ route('products.show', $product->id) }}" target="_blank" class="btn btn-secondary">Verify</a>@endif
+                        @if($product->status_id == 31)<a href="{{ route('products.show', $product->id) }}" target="_blank" class="btn btn-secondary">Verify</a>@endif
                     </div>
                 @endforeach
             </div>
@@ -165,7 +165,7 @@
                 if (result) {
                     for (i = 0; i < ids.length && i < 1000; i++) {
                         $.ajax({
-                            url: "{{ route('google.product.queue') }}",
+                            url: "{{ route('google.search.product-save') }}",
                             type: 'POST',
                             beforeSend: function () {
                                 $("#loading-image").show();
@@ -187,7 +187,7 @@
                 if (result) {
                     for (i = 0; i < ids.length && i < 1000; i++) {
                         $.ajax({
-                            url: "{{ route('google.product.queue') }}",
+                            url: "{{ route('google.search.product-save') }}",
                             type: 'POST',
                             beforeSend: function () {
                                 $("#loading-image").show();

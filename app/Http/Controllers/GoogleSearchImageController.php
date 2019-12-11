@@ -582,8 +582,14 @@ class GoogleSearchImageController extends Controller
         if($type == 'approve'){
             $product->status_id = StatusHelper::$AI;
             $product->save();
-        }else{
+        }elseif($type == 'reject'){
             $product->status_id = StatusHelper::$googleImageSearchManuallyRejected;
+            $product->save();
+        }elseif($type == 'textapprove'){
+            $product->status_id = StatusHelper::$AI;
+            $product->save();
+        }else{
+            $product->status_id = StatusHelper::$googleTextSearchManuallyRejected;
             $product->save();
         }
         return response()->json(['success' => 'true'], 200);
@@ -724,15 +730,44 @@ class GoogleSearchImageController extends Controller
     public function multipleImageStore(Request $request){
         $id = $request->id;
         $product = Product::find($id);
+
+        if($product->brands != null){
+            $brand = $product->brands->name;
+            if($product->brands->googleServer != null){
+                $key = $product->brands->googleServer->key;
+            }else{
+                $key = null;
+            }
+
+        }else{
+                $key = null;
+                $brand = '';
+            }
+       
         $product->status_id = StatusHelper::$queuedForGoogleTextSearch;
         $product->save();
+
         $googleServer = env('GOOGLE_CUSTOM_SEARCH');
-        $keywords = [$product->name.' '.$product->sku.' '.$product->short_description,$product->name.' '.$product->sku,$product->name];
-        
+
+        //Replace Google Server Key
+        if($key != null){
+            $re = '/([?&]cx)=([^#&]*)/';
+            preg_match($re, $googleServer, $match);
+            $googleServer = str_replace($match[2],$key,$googleServer);
+        }
+
+        //Array Of Multiple Product Detail Search
+        $keywords = [implode(',', array_filter([$brand, $product->name,$product->color, $product->sku])), 
+                    implode(',', array_filter([$product->name,$product->color, $product->sku])),
+                    implode(',', array_filter([$product->name ,$product->sku])),
+                    $product->name,
+                    $product->sku];
+                    
+        //Looping Through Keywords
         foreach($keywords as $keyword){
-            $keyword = str_replace(" ","+",$keyword);
-            $link = $googleServer.'&q='.$keyword.'&searchType=image&imgSize=large';
-           
+            
+            $link = $googleServer.'&q='.urlencode($keyword);
+            
             $handle = curl_init();
 
             // Set the url
@@ -741,11 +776,25 @@ class GoogleSearchImageController extends Controller
             curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
             
             $output = curl_exec($handle);
-
+            
             curl_close($handle);
 
             $list = json_decode($output);
             
+            if($list == null){
+                continue;
+            }
+            
+            if($list->searchInformation){
+                if($list->searchInformation->totalResults == 0){
+                    continue;
+                }
+            }
+
+            
+            if(!isset($list->items)){
+                continue;
+            }
             $links = $list->items;
             $count = 0;
             foreach($links as $link){
@@ -761,14 +810,14 @@ class GoogleSearchImageController extends Controller
             }
             //If Page Is Not Found 
             if ($count == 0) {
-                $product->status_id = StatusHelper::$googleTextSearchFailed;
-                $product->save();
+               $product->status_id = StatusHelper::$googleTextSearchFailed;
+               $product->save();
             } else {
                 StatusHelper::updateStatus($product, StatusHelper::$AI);
                 break;
             }
         }
-        
+       return response()->json(['success' => 'true'], 200); 
     }
 
 }

@@ -427,11 +427,15 @@
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('google.search.image') }}">Google Search</a>
+                                            <a class="dropdown-item" href="{{ route('google.search.product') }}">Search Products by Text</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Find Images</a>
+                                            <a class="dropdown-item" href="{{ route('google.search.multiple') }}">Multiple products by Text</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google.search.image') }}">Search Products by Image</a>
+                                        </li>
+                                        
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
