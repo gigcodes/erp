@@ -25,6 +25,8 @@ class ScrapStatisticsController extends Controller
         $keyWord = $request->get("term","");
         $madeby  = $request->get("scraper_madeby",0);
 
+        $timeDropDown = self::get_times();           
+
         // Get active suppliers
         $activeSuppliers = Supplier::where('supplier_status_id', 1);
 
@@ -90,7 +92,7 @@ class ScrapStatisticsController extends Controller
 
         //echo '<pre>'; print_r($scrapeData); echo '</pre>';exit;
         // Return view
-        return view('scrap.stats', compact('activeSuppliers', 'scrapeData','users','allScrapperName'));
+        return view('scrap.stats', compact('activeSuppliers', 'scrapeData','users','allScrapperName','timeDropDown'));
     }
 
     /**
@@ -205,6 +207,24 @@ class ScrapStatisticsController extends Controller
             'user_name' => Auth::user()->name
         ]);
 
+        $needToSend = request()->get("need_to_send", false);
+        $includeAssignTo = request()->get("inlcude_made_by", false);
+
+        if($needToSend) {
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('31629987287', '971502609192', "SCRAPER-REMARK#".$name."\n".$remark);
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('919004780634', '971502609192', "SCRAPER-REMARK#".$name."\n".$remark);
+            
+            if($includeAssignTo) {
+                $scraper = \App\Supplier::where("scraper_name",$id)->first();
+                if($scraper) {
+                    $sendPer = $scraper->scraperMadeBy;
+                    if($sendPer) {
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($sendPer->phone, $sendPer->whatsapp_number, "SCRAPER-REMARK#".$name."\n".$remark);
+                    }
+                }
+            }
+        }
+
 
         return response()->json(['remark' => $remark ],200);
     }
@@ -298,4 +318,21 @@ class ScrapStatisticsController extends Controller
         return response()->json(["code" => 200 , "data" => $history]);
 
     }
+
+    private static function get_times( $default = '19:00', $interval = '+30 minutes' ) {
+
+        $output = [];
+
+        $current = strtotime( '00:00' );
+        $end = strtotime( '23:59' );
+
+        while( $current <= $end ) {
+            $time = date( 'H:i', $current );
+            $output[$time] = date( 'h.i A', $current );
+            $current = strtotime( $interval, $current );
+         }
+
+        return $output;
+    }
+
 }
