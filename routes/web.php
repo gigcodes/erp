@@ -858,6 +858,7 @@ Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->na
 Route::post('whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError');
 Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
+Route::get('message/delete', 'WhatsAppController@delete');
 
 //Hubstaff
 Route::get('hubstaff/members', 'HubstaffController@index');

@@ -2240,17 +2240,14 @@ class ProductController extends Controller
         }
 
 
-        $approveMessage = 1;
-
-        try {
-            $approveMessage = session()->get('is_approve_message');
-        } catch (\Exception $e) {
-        }
-
+        // get the status for approval
+        $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
+       
         $is_queue = 0;
-        if ($approveMessage == '1') {
+        if ($approveMessage == 1) {
             $is_queue = 1;
         }
+
         foreach ($customerIds as $k => $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');

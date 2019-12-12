@@ -42,4 +42,16 @@ class DevelopmentHelper
 
         return "";
     }
+
+    public static function needToApproveMessage()
+    {
+        $approveMessage = 0;
+        
+        $approvalmodel  = \App\Setting::where("name","is_approve_message_btn")->first();
+        if($approvalmodel) {
+            $approveMessage = $approvalmodel->val;
+        }
+
+        return $approveMessage;
+    }
 }
