@@ -60,7 +60,7 @@ $(document).on('click', '.load-communication-modal', function () {
                             if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
                                 media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info show-thumbnail-image"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                             } else {
-                                media = media + '<a class="show-thumbnail-image" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                                media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                             } 
                         } else {
                             media = media + '<a class="show-thumbnail-image" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
@@ -142,6 +142,11 @@ $(document).on('click', '.load-communication-modal', function () {
                      }
                 }
             }
+            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 delete-message" data-id="' + message.id + '">- Remove</a>';
+            if(message.is_queue == 1) {
+               button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>'; 
+            }
+
             if (message.inout == 'in') {
                 li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
             } else if (message.inout == 'out') {
@@ -291,6 +296,19 @@ $(document).on('click', '.create-product-lead', function (e) {
 
     createLead (this,{auto_approve: 1}); 
 });
+
+$(document).on('click','.delete-message',function(e) {
+    var $this = $(this);
+    $.ajax({
+        type: 'GET',
+        url: "/message/delete",
+        data: {id:$(this).data("id")}
+    }).done(response => {
+        $this.closest(".bubble").remove();
+    }).fail(function(response) {
+    
+    });
+})
 
 $('#addRemarkButton').on('click', function() {
     var id = $('#add-remark input[name="id"]').val();
@@ -659,20 +677,37 @@ $(document).on("click", '.show-product-info', function() {
 
 $(document).on("mouseover", '.show-thumbnail-image', function() {
     if ($('#preview-image-model').length == 0) {
-        var preview_image_model =   '<div id="preview-image-model" class="modal col-6" data-backdrop="false">'+
+        var $hasPdf = $(this).hasClass("has-pdf");
+
+        if($hasPdf) {
+            var pdfSrc = $(this).attr("href");
+            var preview_image_model =   '<div id="preview-image-model" class="modal col-6" data-backdrop="false">'+
+                                    '  <span class="close">×</span>'+
+                                    '  <div class="row">'+
+                                    '    <div class="col-12"><embed src="'+pdfSrc+'" height="500px;" id="img01"></embed></div>'+
+                                    '  </div>'+
+                                    '</div>';
+            $('body').append(preview_image_model);
+            $('#preview-image-model').modal('show');
+                                       
+        }else{
+            
+            var preview_image_model =   '<div id="preview-image-model" class="modal col-6" data-backdrop="false">'+
                                     '  <span class="close">×</span>'+
                                     '  <div class="row">'+
                                     '    <div class="col-12"><img class="modal-content" height="500px;" id="img01"></div>'+
                                     '  </div>'+
                                     '</div>';
-        $('body').append(preview_image_model);
-    }
 
-    $('#preview-image-model').find(".modal-content").attr("src",$(this).find("img").attr("src"));
-    $('#preview-image-model').modal('show');
+            $('body').append(preview_image_model);
+            $('#preview-image-model').find(".modal-content").attr("src",$(this).find("img").attr("src"));
+            $('#preview-image-model').modal('show');
+        }
+    }
 
 });
 
 $(document).on('mouseout', '.show-thumbnail-image', function(e) { 
     $('#preview-image-model').modal('hide');
+    $('#preview-image-model').remove();
 });

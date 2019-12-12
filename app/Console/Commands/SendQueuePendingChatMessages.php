@@ -39,12 +39,19 @@ class SendQueuePendingChatMessages extends Command
      */
     public function handle()
     {
-        $chatMessage = ChatMessage::where('is_queue', 1)->limit(10)->get();
-        foreach ($chatMessage as $value) {
-            $myRequest = new Request();
-            $myRequest->setMethod('POST');
-            $myRequest->request->add(['messageId' => $value->id]);
-            app('App\Http\Controllers\WhatsAppController')->approveMessage('customer', $myRequest);
+        // get the status for approval
+        $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
+
+        // if message is approve then only need to run the queue
+        if($approveMessage == 1) {
+            $chatMessage = ChatMessage::where('is_queue', 1)->limit(10)->get();
+            foreach ($chatMessage as $value) {
+                $myRequest = new Request();
+                $myRequest->setMethod('POST');
+                $myRequest->request->add(['messageId' => $value->id]);
+                app('App\Http\Controllers\WhatsAppController')->approveMessage('customer', $myRequest);
+            }
         }
+
     }
 }
