@@ -330,7 +330,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('multiple-search-image')->group(function () {
         Route::get('/', 'GoogleSearchImageController@nultipeImageProduct')->name('google.search.multiple');
-        Route::post('/save-images', 'GoogleSearchImageController@multipleImageStore')->name('google.search.product-save');
+        Route::post('/save-images', 'GoogleSearchImageController@multipleImageStore')->name('multiple.google.search.product-save');
+    });
+
+    Route::prefix('approve-search-image')->group(function () {
+        Route::get('/', 'GoogleSearchImageController@approveProduct')->name('google.approve.product');
+        Route::post('/save-images', 'GoogleSearchImageController@multipleImageStore')->name('multiple.google.search.product-save');
     });
 
 

@@ -8,4 +8,5 @@ return array(
     'image_per_folder'   => '10000',
     'excelimporter'      => 'excelimporter',
     'gd_supported_files' => ["jpg", "jpeg", "png", "webp", "gif"],
+    'google_text_search' => 'googletextsearch',
 );

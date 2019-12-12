@@ -34,9 +34,21 @@
     .card button:hover {
         opacity: 0.7;
     }
+    
+    
+    #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+    }
+   
 </style>
 @section('content')
     @include('partials.flash_messages')
+    <div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
     <div class="row" style="padding-top: 10px;">
         <?php if(!empty($product)) { ?>
         <div class="col-md-12">
@@ -149,7 +161,12 @@
             var regEx = /([?&]cx)=([^#&]*)/g;
             var googleServerUrl = googleServer.replace(regEx, '$1='+$(".server-select").val());
             $.ajax({
-                url: googleServerUrl+"&q=" + keyword + "&searchType=image&imgSize=large", success: function (result) {
+                url: googleServerUrl+"&q=" + keyword + "&searchType=image&imgSize=large",
+                beforeSend: function () {
+                                $("#loading-image").show();
+                },
+                success: function (result) {
+                    $("#loading-image").hide();
                     // console.log(result);
                     if (result.searchInformation.totalResults != undefined && parseInt(result.searchInformation.totalResults) > 0) {
                         var i = 1;

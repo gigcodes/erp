@@ -769,9 +769,6 @@ class GoogleSearchImageController extends Controller
                 $brand = '';
             }
        
-        $product->status_id = StatusHelper::$queuedForGoogleTextSearch;
-        $product->save();
-
         $googleServer = env('GOOGLE_CUSTOM_SEARCH');
 
         //Replace Google Server Key
@@ -791,7 +788,7 @@ class GoogleSearchImageController extends Controller
         //Looping Through Keywords
         foreach($keywords as $keyword){
             
-            $link = $googleServer.'&q='.urlencode($keyword);
+            $link = $googleServer.'&q='.urlencode($keyword).'&searchType=image&imgSize=large';
             
             $handle = curl_init();
 
@@ -815,23 +812,21 @@ class GoogleSearchImageController extends Controller
                     continue;
                 }
             }
-
             
             if(!isset($list->items)){
                 continue;
             }
             $links = $list->items;
+            
             $count = 0;
             foreach($links as $link){
-                $url = $link->link;
-                if (stristr($url, '.gucci.') || stristr($url, '.farfetch.')) {
-                            $scrapeQueue = new ScrapeQueues();
-                            $scrapeQueue->product_id = (int)$product->id;
-                            $scrapeQueue->url = $url;
-                            $scrapeQueue->save();
-                            $count++;
-                            break;
-                    }
+                $image = $link->link;
+                $jpg = \Image::make($image)->encode('jpg');
+                $filename = substr($image, strrpos($image, '/'));
+                $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
+                $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
+                $product->attachMedia($media, config('constants.google_text_search'));
+                $count++;
             }
             //If Page Is Not Found 
             if ($count == 0) {
@@ -843,6 +838,165 @@ class GoogleSearchImageController extends Controller
             }
         }
        return response()->json(['success' => 'true'], 200); 
+    }
+
+    public function approveProduct(Request $request){
+         $data = [];
+        $term = $request->input('term');
+        
+        if(request("status_id") != null){
+            $statusId = $request->status_id;    
+        }else{
+            if(empty($request->all()) || isset($request->page)){
+                $statusId = [StatusHelper::$pendingVerificationGoogleTextSearch];
+            }
+        }
+        
+        $data[ 'term' ] = $term;
+
+        $productQuery = (new Product())->newQuery()->latest();
+       
+        if(!isset($statusId)){
+            $statusId = null;
+        }
+        
+        if ($statusId != null) {
+            $productQuery = $productQuery->whereIn('status_id', $statusId);
+            $data[ 'status_id' ] = $statusId;
+        }
+        
+        
+        
+        if ($request->brand[ 0 ] != null) {
+            $productQuery = $productQuery->whereIn('brand', $request->brand);
+            $data[ 'brand' ] = $request->brand[ 0 ];
+        }
+
+        if ($request->supplier[ 0 ] != null) {
+            $productQuery = $productQuery->whereIn('supplier', $request->supplier);
+            $data[ 'supplier' ] = $request->supplier[ 0 ];
+        }
+
+        if ($request->color[ 0 ] != null) {
+            $productQuery = $productQuery->whereIn('color', $request->color);
+            $data[ 'color' ] = $request->color[ 0 ];
+        }
+
+        if (isset($request->category) && $request->category[ 0 ] != 1) {
+            $is_parent = Category::isParent($request->category[ 0 ]);
+            $category_children = [];
+
+            if ($is_parent) {
+                $childs = Category::find($request->category[ 0 ])->childs()->get();
+
+                foreach ($childs as $child) {
+                    $is_parent = Category::isParent($child->id);
+
+                    if ($is_parent) {
+                        $children = Category::find($child->id)->childs()->get();
+
+                        foreach ($children as $chili) {
+                            array_push($category_children, $chili->id);
+                        }
+                    } else {
+                        array_push($category_children, $child->id);
+                    }
+                }
+            } else {
+                array_push($category_children, $request->category[ 0 ]);
+            }
+
+            $productQuery = $productQuery->whereIn('category', $category_children);
+
+            $data[ 'category' ] = $request->category[ 0 ];
+        }
+
+        if (isset($request->price) && $request->price != null) {
+            $exploded = explode(',', $request->price);
+            $min = $exploded[ 0 ];
+            $max = $exploded[ 1 ];
+
+            if ($min != '0' || $max != '10000000') {
+                $productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+            }
+
+            $data[ 'price' ][ 0 ] = $min;
+            $data[ 'price' ][ 1 ] = $max;
+        }
+
+        if ($request->location[ 0 ] != null) {
+            $productQuery = $productQuery->whereIn('location', $request->location);
+            $data[ 'location' ] = $request->location[ 0 ];
+        }
+
+        if ($request->no_locations) {
+            $productQuery = $productQuery->whereNull('location');
+        }
+
+        if (trim($term) != '') {
+            $productQuery = $productQuery->where(function ($query) use ($term) {
+                $query->orWhere('sku', 'LIKE', "%$term%")
+                    ->orWhere('id', 'LIKE', "%$term%");
+
+                if ($term == -1) {
+                    $query->orWhere('isApproved', -1);
+                }
+
+                if (Brand::where('name', 'LIKE', "%$term%")->first()) {
+                    $brand_id = Brand::where('name', 'LIKE', "%$term%")->first()->id;
+                    $query->orWhere('brand', 'LIKE', "%$brand_id%");
+                }
+
+                if ($category = Category::where('title', 'LIKE', "%$term%")->first()) {
+                    $category_id = $category = Category::where('title', 'LIKE', "%$term%")->first()->id;
+                    $query->orWhere('category', $category_id);
+                }
+            });
+        }
+
+        
+        if ($request->no_locations === 'true') {
+            $productQuery = $productQuery->where('quick_product', 1);
+        }
+
+        $selected_categories = $request->category ? $request->category : 1;
+
+        $data[ 'category_selection' ] = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2'])
+            ->selected($selected_categories)
+            ->renderAsDropdown();
+
+        if ($request->get('shoe_size', false)) {
+            $productQuery = $productQuery->where('products.size', 'like', "%" . $request->get('shoe_size') . "%");
+        }
+
+        if (!empty($request->quick_sell_groups) && is_array($request->quick_sell_groups)) {
+            $productQuery = $productQuery->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (" . implode(",", $request->quick_sell_groups) . ") ))");
+        }
+
+        // Get all product IDs
+        $productIdsSystem = $productQuery->pluck('id')->toArray();
+        $countSystem = $productQuery->count();
+
+        if(isset($statusId)){
+            $data[ 'products' ] = $productQuery
+            ->groupBy('products.id')
+            ->paginate(Setting::get('pagination'));
+        }else{
+             $data[ 'products' ] = $productQuery->join("mediables", function ($query) {
+            $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
+            })
+            ->groupBy('products.id')
+            ->paginate(Setting::get('pagination'));
+        }
+        
+
+        $data[ 'locations' ] = (new \App\ProductLocation())->pluck('name');
+        $data[ 'quick_sell_groups' ] = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
+        $data[ 'all_products_system' ] = $productIdsSystem;
+        $data[ 'count_system' ] = $countSystem;
+        
+         return view('google_search_image.approve', $data);  
+
     }
 
 }
