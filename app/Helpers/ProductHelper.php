@@ -608,7 +608,7 @@ class ProductHelper extends Model
         }
 
         // Check for price range
-        if ((int)$product->price < 5000 || (int)$product->price > 400000) {
+        if ((int)$product->price < 62.5 || (int)$product->price > 5000) {
             return false;
         }
 
@@ -623,7 +623,7 @@ class ProductHelper extends Model
 
     public static function googleServerList()
     {
-       return GoogleServer::pluck('name', 'key')->toArray();
+        return GoogleServer::pluck('name', 'key')->toArray();
         /*
         [
             "003745236201931391893:igsnhgfj79x" => "Group A",
@@ -633,11 +633,12 @@ class ProductHelper extends Model
         */
     }
 
-    public static function getScraperIcon($name) {
+    public static function getScraperIcon($name)
+    {
 
         if (strpos($name, 'excel') !== false) {
             echo '<i class="fa fa-file-excel-o" aria-hidden="true"></i>';
-        }else {
+        } else {
             echo '<i class="fa fa-globe" aria-hidden="true"></i>';
         }
     }
