@@ -64,6 +64,15 @@
       z-index: -1;
     }
 
+    .table-head-row {
+        border: 0 !important;
+        margin-bottom: 3px !important;
+    }
+
+    .btn-image img{
+      width : 12px !important;
+    }
+
   </style>
 @endsection
 
@@ -136,45 +145,57 @@
             <tr>
                 <th width="25%">Update</th>
                 <th width="75%">Remarks</th>
-{{--                <td></td>--}}
             </tr>
             @foreach ($task->notes as $key=>$note)
                 <tr>
                     <td>
                         {{ $note->remark }}
-                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->remark }}" style="padding-top: 0px !important;"><img src="/images/add.png" style="width: 12px !important;" /></button>
-                    </td>
-
-                    <td>
-                        <div class="panel-group" style="margin-bottom: 0 !important;">
-                            <div class="panel panel-default">
-                                <div class="panel-heading" style="padding: 7px 8px !important;">
-                                    <h4 class="panel-title">
-                                        <a data-toggle="collapse" href="#collapse_{{$note->id}}">({{ count($note->subnotes) }})</a>
-                                    </h4>
-                                </div>
-                                <div id="collapse_{{$note->id}}" class="panel-collapse collapse">
-                                    <div class="panel-body" id="rec_{{$note->id}}" style="padding: 0 !important;">
-                                        <table class="table table-striped table-bordered" style="margin-bottom: 0 !important;">
-                                            @foreach ($note->subnotes as $subnote)
-                                                <tr>
-                                                    <td><strong>{{$subnote->created_at->format('d-m-Y H:i:s')}}</strong></td>
-                                                    <td>{{ $subnote->remark }}</td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $subnote->remark }}"><img src="/images/add.png" /></button>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </table>
-                                    </div>
-                                    <div class="panel-footer">
-                                        <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value="">
-                                    </div>
-                                </div>
-                            </div>
+                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->remark }}" data-id="{{ $note->id }}" style="padding-top: 0px !important;"><img src="/images/add.png" style="width: 12px !important;" /></button>
+                          <div style="display:none;" id="div{{ $note->id }}">
+                          <select class="form-control selectpicker user-list" data-live-search="true" style="display:none !important;" data-remark="{{ $note->remark }}" data-remark-id="{{ $note->id }}">
+                            @foreach($users as $user)
+                              <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                          </select>
                         </div>
                     </td>
-                </tr>
+                    
+                      @if(isset($note->singleSubnotes)) 
+                      <td style="padding : 0 0 !important;">
+                        <table class="table" style="margin-bottom : 0px !important;">  
+                          <tbody> 
+                            <tr style="background-color: transparent !important;"> 
+                              <th class="table-head-row expand-row table-hover-cell"  style="width:20%; padding-top:14px !important;"> <span class="td-mini-container">
+                        {{ strlen( $note->singleSubnotes->remark  ) > 20 ? substr( $note->singleSubnotes->remark  , 0, 20).'...' :  $note->singleSubnotes->remark  }}
+                        </span>
+                        <span class="td-full-container hidden">
+                        {{ $note->singleSubnotes->remark }} 
+                        </span></th>
+                               <th class="table-head-row" style="width:18%; padding-top:14px !important;"> {{ $note->singleSubnotes->created_at->format('d-m-Y H:i:s') }}   </th>  
+                               <th class="table-head-row" style="width:20%"> 
+                                 <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->singleSubnotes->remark }}" data-id="{{ $note->singleSubnotes->id }}"><img src="/images/add.png" /></button>
+                                
+                                 <div style="display:none;" id="div{{ $note->singleSubnotes->id }}">
+                                    <select class="form-control selectpicker user-list" data-live-search="true" style="display:none !important;" data-remark="{{ $note->singleSubnotes->remark }}" data-remark-id="{{ $note->singleSubnotes->id }}">
+                                      @foreach($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                      @endforeach
+                                    </select>
+                                  </div>
+                                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#chat-list-history{{ $note->id }}"><img src="/images/chat.png" /></button>
+                                 <button type="button" class="btn btn-image" onclick="archiveRemark({{ $note->id }})"><img src="/images/archive.png" /></button>
+                               </th> 
+                              <th class="table-head-row">   <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value=""> </th>
+                      </tr>  </tbody> </table>
+                      </td>
+                      @else <td>
+                              <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value="">
+                            </td>
+                   @endif
+                      
+                    
+                  </tr>
+                  @include('task-module.partials.modal-remark')
             @endforeach
             <tr>
                 <td>
@@ -468,6 +489,7 @@
 
 @include('task-module.partials.modal-reminder')
 
+
 @endsection
 
 @section('scripts')
@@ -478,6 +500,10 @@
   <script type="text/javascript">
     $(document).ready(function() {
         $('.load-communication-modal').trigger('click');
+    });
+
+    $(function() {
+      $('.selectpicker').selectpicker();
     });
 
   jQuery(document).ready(function( $ ) {
@@ -1321,49 +1347,26 @@
       });
 
       $(document).on('click', '.create-quick-task-button', function() {
-        var thiss = $(this);
         var remark = $(this).data('remark');
-        var assign_to = [
-          @foreach ($task->users as $key => $user)
-          {{ $user->id }},
-          @endforeach
-        ];
+        var id = $(this).data('id');
+        $('#div'+id).toggle();
+        });
 
-        var assign_to_contacts = [
-          @foreach ($task->contacts as $key => $contact)
-          {{ $contact->id }},
-          @endforeach
-        ];
+        // var thiss = $(this);
+        // var remark = $(this).data('remark');
+        // var assign_to = [
+        //   @foreach ($task->users as $key => $user)
+        //   {{ $user->id }},
+        //   @endforeach
+        // ];
 
-        console.log(assign_to);
+        // var assign_from = {{ Auth::id() }};
+        // alert(assign_from);
+        // var assign_to_contacts = $('#user-id').val();
+        // console.log(assign_to);
 
-        if (!$(this).is(':disabled')) {
-          $.ajax({
-            type: "POST",
-            url: "{{ route('task.store') }}",
-            data: {
-              _token: "{{ csrf_token() }}",
-              task_subject: 'Appointment Task',
-              task_details: remark,
-              assign_to: assign_to,
-        			assign_to_contacts: assign_to_contacts
-            },
-            beforeSend: function () {
-              $(thiss).text('Creating...');
-              $(thiss).attr('disabled', true);
-            }
-          }).done(function() {
-            $(thiss).html('<img src="/images/add.png" />');
-          }).fail(function(response) {
-            $(thiss).html('<img src="/images/add.png" />');
-            $(thiss).attr('disabled', false);
-
-            console.log(response);
-
-            alert('Could not create task!');
-          });
-        }
-      });
+       
+      
 
       $('#create-note-field').keypress(function(e) {
         var key = e.which;
@@ -1489,10 +1492,11 @@
                       note: note,
                   }
               }).done(function() {
-                  $(thiss).val('');
-                  var note_html = `<tr><td><strong>Just Now</strong></td><td>` + note + `</td><td><button type="button" class="btn btn-image create-quick-task-button" data-remark="` + note + `"><img src="/images/add.png" /></button></td></tr>`;
+                  location.reload();
+                  // $(thiss).val('');
+                  // var note_html = `<tr><td><strong>Just Now</strong></td><td>` + note + `</td><td><button type="button" class="btn btn-image create-quick-task-button" data-remark="` + note + `"><img src="/images/add.png" /></button></td></tr>`;
 
-                  $('#rec_'+id + ' table').prepend(note_html);
+                  // $('#rec_'+id + ' table').prepend(note_html);
               }).fail(function(response) {
                   console.log(response);
 
@@ -1601,5 +1605,64 @@
           console.log(response);
         });
       });
+
+      $('.user-list').on('change', function() {
+        var id = $(this).data('id');
+        var remark_id = $(this).data('remark-id');
+        $('#div'+remark_id).hide();
+        var remark = $(this).data('remark');
+        var ids = $(this).val();
+        sendTo = [];
+        sendTo.push(ids);
+        if (!$(this).is(':disabled')) {
+          $.ajax({
+            type: "POST",
+            url: "{{ route('task.store') }}",
+            data: {
+              _token: "{{ csrf_token() }}",
+              task_subject: 'Appointment Task',
+              task_details: remark,
+              assign_to: sendTo,
+        		},
+            beforeSend: function () {
+              $('#div'+remark_id).hide();
+          }
+          }).done(function() {
+              location.reload();  
+          }).fail(function(response) {
+              alert('Could not create task!');
+          });
+        }
+      });
+
+      function archiveRemark(id) {
+        
+        $.ajax({
+            type: "POST",
+            url: "/task-remark/"+id+"/delete",
+            
+            data: {
+              _token: "{{ csrf_token() }}",
+              id : id,
+        		},
+            beforeSend: function () {
+              
+          }
+          }).done(function() {
+              alert('Archive Remark');
+              location.reload();
+          }).fail(function(response) {
+              alert('Could not create task!');
+          });
+      }
+
+      //Expand Row
+         $(document).on('click', '.expand-row', function () {
+            var selection = window.getSelection();
+            if (selection.toString().length === 0) {
+                $(this).find('.td-mini-container').toggleClass('hidden');
+                $(this).find('.td-full-container').toggleClass('hidden');
+            }
+        });
   </script>
 @endsection

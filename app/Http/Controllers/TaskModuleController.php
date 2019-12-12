@@ -1062,8 +1062,20 @@ class TaskModuleController extends Controller {
 		$task = Task::find($id);
 
 		$task->delete();
-
+		
+		if ($request->ajax()) {
+			return response('success');
+		}
 		return redirect('/');
+	}
+
+	public function archiveTaskRemark($id)
+	{
+		$task = Remark::find($id);
+
+		$task->delete();
+		
+		return response('success');
 	}
 
 	public function deleteStatutoryTask(Request $request){
@@ -1325,6 +1337,8 @@ class TaskModuleController extends Controller {
 
 			return redirect()->back()->with('message', 'Participants Added To Group');
 		}
+
+		
 
 
 
