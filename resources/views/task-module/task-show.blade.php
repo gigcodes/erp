@@ -171,7 +171,7 @@
                         <span class="td-full-container hidden">
                         {{ $note->singleSubnotes->remark }} 
                         </span></th>
-                               <th class="table-head-row" style="width:18%; padding-top:24px !important;"> {{ $note->singleSubnotes->created_at->format('d-m-Y H:i:s') }}   </th>  
+                               <th class="table-head-row" style="width:18%; padding-top:14px !important;"> {{ $note->singleSubnotes->created_at->format('d-m-Y H:i:s') }}   </th>  
                                <th class="table-head-row" style="width:20%"> 
                                  <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->singleSubnotes->remark }}" data-id="{{ $note->singleSubnotes->id }}"><img src="/images/add.png" /></button>
                                 
