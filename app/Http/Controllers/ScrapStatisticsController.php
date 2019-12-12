@@ -24,6 +24,7 @@ class ScrapStatisticsController extends Controller
         $endDate = date('Y-m-d H:i:s');
         $keyWord = $request->get("term","");
         $madeby  = $request->get("scraper_madeby",0);
+        $scrapeType  = $request->get("scraper_type",0);
 
         $timeDropDown = self::get_times();           
 
@@ -38,6 +39,10 @@ class ScrapStatisticsController extends Controller
 
         if($madeby > 0)  {
             $activeSuppliers->where("scraper_madeby",$madeby);
+        }
+
+        if($scrapeType > 0) {
+            $activeSuppliers->where("scraper_type",$scrapeType);
         }
 
         $activeSuppliers = $activeSuppliers->orderby('scraper_priority','desc')->get();
