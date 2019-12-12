@@ -33,6 +33,9 @@
               <div class="form-group mr-3 mb-3 col-md-3">
                 <?php echo Form::select("scraper_madeby",['' => '-- Select Made By --'] + \App\User::all()->pluck("name","id")->toArray(),request("scraper_madeby"),["class"=>"form-control select2"]) ?>
               </div>
+              <div class="form-group mr-3 mb-3 col-md-3">
+                <?php echo Form::select("scraper_type",['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(),request("scraper_type"),["class"=>"form-control select2"]) ?>
+              </div>
               <div class="form-group mr-3 mb-3 col-md-2">
                 <select name="status" class="form-control form-group select2">
                     <option <?php echo $status == '' ? 'selected=selected' : '' ?> value="">-- Select Status --</option>
@@ -65,6 +68,7 @@
                             <th>Existing products</th>
                             <th>Total New URL</th>
                             <th>Made By</th>
+                            <th>Type</th>
                             <th>Parent Scrapper</th>
                             <th>Functions</th>
                         </tr>
@@ -138,6 +142,9 @@
                                         {{ ($supplier->scraperMadeBy) ? $supplier->scraperMadeBy->name : "N/A" }}
                                     </td>
                                     <td width="10%">
+                                        {{ \App\Helpers\DevelopmentHelper::scrapTypeById($supplier->scraper_type) }}
+                                    </td>
+                                    <td width="10%">
                                         {{ ($supplier->scraperParent) ? $supplier->scraperParent->scraper_name : "N/A" }}
                                     </td>
                                     <td width="10%">
@@ -153,16 +160,22 @@
                                           <button class="btn btn-sm btn-image submit-logic" data-vendorid="1"><img src="/images/filled-sent.png"></button>
                                         </div>
                                     </td>
-                                    <td colspan="4">
+                                    <td colspan="3">
                                         <label>Start Time:</label> 
                                         <div class="input-group">
                                           <?php echo Form::select("start_time",['' => "--Time--"] + $timeDropDown,$supplier->scraper_start_time,["class" => "form-control start_time select2","style" => "width:100%;"]); ?> 
                                         </div>
                                     </td>
-                                    <td colspan="4">
+                                    <td colspan="3">
                                         <label>Made By:</label> 
                                         <div class="form-group">
                                           <?php echo Form::select("scraper_madeby",["" => "N/A"] + $users,$supplier->scraper_madeby,["class" => "form-control scraper_madeby select2","style" => "width:100%;"]); ?>  
+                                        </div>
+                                    </td>
+                                    <td colspan="3">
+                                        <label>Type:</label> 
+                                        <div class="form-group">
+                                          <?php echo Form::select("scraper_type",['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(),$supplier->scraper_type,["class"=>"form-control scraper_type select2","style" => "width:100%;"]) ?> 
                                         </div>
                                     </td>
                                     <td colspan="3">
@@ -378,6 +391,26 @@
                     search: id,
                     field : "scraper_logic",
                     field_value : tr.find(".scraper_logic").val()
+                },
+            }).done(function (response) {
+                toastr['success']('Data updated Successfully', 'success');
+            }).fail(function (response) {
+
+            });
+        });
+
+        
+
+        $(document).on("change",".scraper_type",function() {
+            var tr = $(this).closest("tr");
+            var id = tr.data("id");
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/statistics/update-field',
+                data: {
+                    search: id,
+                    field : "scraper_type",
+                    field_value : tr.find(".scraper_type").val()
                 },
             }).done(function (response) {
                 toastr['success']('Data updated Successfully', 'success');
