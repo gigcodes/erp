@@ -239,7 +239,7 @@
                                         <p class="same-color">{{ strtoupper($product->name) }}</p>
                                         <br/>
                                         <p class="same-color" style="font-size: 18px;">
-                                            <span style="text-decoration: line-through">Rs. {{ number_format($product->price_inr) }}</span> Rs. {{ number_format($product->price_special) }}
+                                            <span style="text-decoration: line-through">EUR {{ number_format($product->price) }}</span> EUR {{ number_format($product->price_eur_special) }}
                                         </p>
                                         <br/>
                                         <p>
@@ -487,7 +487,7 @@
                                     <select id="quick-edit-category-{{ $product->id }}" class="form-control quick-edit-category" name="category" data-id="">
                                     </select>
                                     <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" name="category_id" value="{{ $product->category }}">
+                                    <input type="hi(en" name="category_id" value="{{ $product->category }}">
                                     <input type="hidden" name="sizes" value='{{ $product->size }}'>
 
                                     @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
@@ -569,8 +569,8 @@
                                     <span class="quick-price">{{ $product->price }}</span>
                                     <input type="number" name="price" class="form-control quick-edit-price-input hidden" placeholder="100" value="{{ $product->price }}">
 
-                                    <span class="quick-price-inr">{{ $product->price_inr }}</span>
-                                    <span class="quick-price-special">{{ $product->price_special }}</span>
+                                    <span class="quick-price-inr">{{ $product->price }}</span>
+                                    <span class="quick-price-special">{{ $product->price_eur_special }}</span>
                                 </td>
 
                                 {{-- <td>
@@ -674,10 +674,10 @@
                                 </td>
 
                                 <td>
-                                    <span>{{ $product->price }}</span>
-
-                                    <span>{{ $product->price_inr }}</span>
-                                    <span>{{ $product->price_special }}</span>
+                                    <span>EUR {{ $product->price }}</span>
+                                    <span>EUR {{ $product->price_eur_special }}</span>
+                                    <span>INR {{ $product->price_inr }}</span>
+                                    <span>INR {{ $product->price_special }}</span>
                                 </td>
 
                                 {{-- <td>
