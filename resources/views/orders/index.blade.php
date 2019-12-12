@@ -155,7 +155,10 @@
 
               </td>
               <td>
-                <?php echo $order->brand_name_list; ?>
+                <?php 
+                    $totalBrands = explode(",",$order->brand_name_list);
+                    echo (count($totalBrands) > 1) ? "Multi" : $order->brand_name_list; 
+                ?>
               </td>
               <td class="expand-row table-hover-cell">
                 <div class="form-group">
