@@ -335,7 +335,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('approve-search-image')->group(function () {
         Route::get('/', 'GoogleSearchImageController@approveProduct')->name('google.approve.product');
-        Route::post('/save-images', 'GoogleSearchImageController@multipleImageStore')->name('multiple.google.search.product-save');
+        Route::post('/approve-images-product', 'GoogleSearchImageController@approveTextGoogleImagesToProduct')->name('approve.google.search.images.product');
+        Route::post('/reject', 'GoogleSearchImageController@rejectProducts')->name('reject.google.search.text.product');
     });
 
 

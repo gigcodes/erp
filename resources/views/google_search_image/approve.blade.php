@@ -18,6 +18,14 @@
         .jcrop-active{
             max-width:100% !important;
         }
+
+        .col-half-offset{
+            margin-left:3.166666667%
+        }
+
+        .padding-x-md{
+             padding-top: 15px;
+        }
         
     </style>
 @endsection
@@ -29,7 +37,7 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="">
-                <h2 class="page-heading">Multiple Google Search Image ({{ $count_system }})</h2>
+                <h2 class="page-heading">Approve Images From Google Text ({{ $count_system }})</h2>
                 
                 <!--Product Search Input -->
                 <form method="GET" class="form-inline align-items-start">
@@ -143,7 +151,7 @@
         </thead>
         <tbody>
                 @foreach ($products as $product)
-                <tr>
+                <tr id="product{{ $product->id }}">
                 <td><p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>
                         <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
                         <p>Transit Status : {{ $product->purchase_status }}</p>
@@ -161,16 +169,19 @@
                         @endphp
                         @if(count($images) != 0)
                         @foreach($images as $image)
-                            <div class="col-md-2"><div><img height="100" width="100" src="{{ $image->getUrl() }}" onclick="openImage(this.src)"><br><input type="checkbox"></div></div>
+                            <div class="col-md-2 col-half-offset"><div class="text-center"><img height="100" width="100" src="{{ $image->getUrl() }}" onclick="openImage(this.src)"><br><input type="checkbox" class="checkbox{{ $product->id }}" value="{{ $image->id }}"></div></div>
                         @endforeach
-                        <br>
-                        <div>
-                                <button>Select All</button>
-                                <button>Approve</button>
-                                <button>Reject</button>
+                        
+                        </div>
+                        <div class="row padding-x-md">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-secondary" onclick="selectAll({{ $product->id }})" id="selected{{ $product->id }}">Select All</button>
+                                <button type="button" class="btn btn-secondary" onclick="approveProduct({{ $product->id }})">Approve</button>
+                                <button type="button" class="btn btn-secondary" onclick="rejectProduct({{ $product->id }})">Reject</button>
                             </div>
+                        </div>    
                         @endif
-                    </div>
+                    
                 </td>
                 </tr>
                     @endforeach
@@ -208,7 +219,72 @@
 
      function cropImageForProduct() {
          dimension = $('.jcrop-selection').attr("style");
-         alert(dimension);
+         //alert(dimension);
+     }
+
+     function selectAll(id) {
+
+       if($(".checkbox"+id).prop("checked") == true)
+            {
+                $(".checkbox"+id).prop("checked", false);
+                $("#selected"+id).text('Select All')
+            }
+            else if($(".checkbox"+id).prop("checked") == false)
+            {
+                $(".checkbox"+id).prop("checked", true);
+                $("#selected"+id).text('Unselect All')
+            } 
+     }
+
+     function approveProduct(id) {
+        
+        var selected = [];
+        $(".checkbox"+id).each(function() {
+             if($(this).prop("checked") == true){
+                selected.push($(this).val());    
+             }
+        });
+
+        if(selected.length == 0){
+            alert('Please Select Image For Product');
+        }else{
+            $.ajax({
+                url: "{{ route('approve.google.search.images.product') }}",
+                type: 'POST',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $("#product"+id).hide();
+                },
+                data: {
+                    id: id,
+                    selected , selected,
+                    _token: "{{ csrf_token() }}",
+                }
+            });    
+        }
+         
+     }
+
+     function rejectProduct(id){
+            $.ajax({
+                url: "{{ route('reject.google.search.text.product') }}",
+                type: 'POST',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $("#product"+id).hide();
+                },
+                data: {
+                    id: id,
+                    _token: "{{ csrf_token() }}",
+                }
+            });    
+
      }   
 
     

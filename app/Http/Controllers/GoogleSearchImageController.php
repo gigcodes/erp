@@ -11,6 +11,7 @@ use App\Brand;
 use Illuminate\Http\Request;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use DB;
 
 use seo2websites\GoogleVision\GoogleVisionHelper;
 
@@ -997,6 +998,41 @@ class GoogleSearchImageController extends Controller
         
          return view('google_search_image.approve', $data);  
 
+    }
+
+    public function approveTextGoogleImagesToProduct(Request $request){
+        $product_id = $request->id;
+        $images = $request->selected;
+        
+        //Changed Selected Images For Product
+        foreach ($images as $image) {
+
+            $media = DB::table('mediables')->where('tag',config('constants.google_text_search'))->where('mediable_type','App\Product')->where('media_id',$image)
+                ->limit(1)
+                ->update(array('tag' => config('constants.media_tags')[0]));
+        }
+
+        //Change Product Status
+        $product = Product::find($product_id);
+        $product->status_id = StatusHelper::$AI;
+        $product->save();
+
+        return response()->json(['success' => 'true'], 200); 
+
+    }
+
+    public function rejectProducts(Request $request)
+    {
+        $product = Product::find($request->id);
+        $product->status_id = StatusHelper::$googleTextSearchManuallyRejected;
+        $product->update();
+
+        $results = $product->media()->get();
+        $results->each(function($media) {
+        $media->delete();
+        });
+
+        return response()->json(['success' => 'true'], 200); 
     }
 
 }
