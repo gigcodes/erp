@@ -2535,6 +2535,8 @@ class WhatsAppController extends FindByNumberController
                             $extra_chat_message->attachMedia($media, 'gallery');
                         }
 
+                        File::delete($fileName);
+
                         $number++;
                     } catch (\Exception $e) {
                         \Log::error($e);
