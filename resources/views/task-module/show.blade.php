@@ -63,7 +63,7 @@
                         <option value="0">Other Task</option>
                         <option value="1">Statutory Task</option>
                         <option value="2">Calendar Task</option>
-                        <option value="3">Appointment Task</option>
+                        <option value="3">Discussion Task</option>
                     </select>
                 </div>
 
