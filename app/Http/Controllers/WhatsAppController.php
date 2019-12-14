@@ -2572,13 +2572,9 @@ class WhatsAppController extends FindByNumberController
             File::delete('uploads/temp_screenshot.png');
         }
 
-        $approveMessage = 1;
-
-        try {
-            $approveMessage = session()->get('is_approve_message');
-        } catch (\Exception $e) {
-        }
-
+        // get the status for approval
+        $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
+        
         if (
             ((int)$approveMessage == 1
                 || (Auth::id() == 49 && empty($chat_message->customer_id))
@@ -4456,6 +4452,21 @@ class WhatsAppController extends FindByNumberController
         $product->attachMedia($media, config('constants.media_tags'));
         
         return true;
+    }
+
+    public function delete(Request $request)
+    {
+        $messageId = $request->get("id",0);
+        
+        if($messageId) {
+            $chatMessage = \App\ChatMessage::where("id",$messageId)->first();
+            if($chatMessage) {
+                $chatMessage->delete();
+            }
+        }
+
+        return response()->json(["code" => 200]);
+
     }
 
 

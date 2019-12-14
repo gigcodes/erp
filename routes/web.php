@@ -245,6 +245,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
     Route::post('order/generate/awb/number', 'OrderController@generateAWB')->name('order.generate.awb');
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
+    Route::get('order/change-status', 'OrderController@statusChange');
     Route::resource('order', 'OrderController');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
@@ -857,6 +858,7 @@ Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->na
 Route::post('whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError');
 Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
+Route::get('message/delete', 'WhatsAppController@delete');
 
 //Hubstaff
 Route::get('hubstaff/members', 'HubstaffController@index');
