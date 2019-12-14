@@ -11,6 +11,10 @@
         .dis-none {
             display: none;
         }
+        #remark-list li {
+            width: 100%;
+            float:left;
+        }
     </style>
 @endsection
 
@@ -297,7 +301,7 @@
                 var html = '';
 
                 $.each(response, function (index, value) {
-                    html += ' <p> ' + value.remark + ' <br> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></p>';
+                    html += '<li><span class="float-left">' + value.remark + '</span><span class="float-right"><small>' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></span></li>';
                     html + "<hr>";
                 });
                 $("#makeRemarkModal").find('#remark-list').html(html);
@@ -321,12 +325,11 @@
             }).done(response => {
                 $('#add-remark').find('textarea[name="remark"]').val('');
 
-                var html = ' <p> ' + remark + ' <br> <small>By You updated on ' + moment().format('DD-M H:mm') + ' </small></p>';
+                var html = '<li><span class="float-left">' + remark + '</span><span class="float-right">You updated on ' + moment().format('DD-M H:mm') + ' </span></li>';
+                html + "<hr>";
 
                 $("#makeRemarkModal").find('#remark-list').append(html);
             }).fail(function (response) {
-                console.log(response);
-
                 alert('Could not fetch remarks');
             });
                
@@ -477,7 +480,6 @@
                 }
 
                 $(".history_append").html(table);
-                console.log($("#scrap-history"));
                 $("#scrap-history").modal("show");
                 
             }).fail(function (response) {
