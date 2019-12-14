@@ -2549,6 +2549,12 @@ class WhatsAppController extends FindByNumberController
                     if (!empty($media)) {
                         $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
                         if (!$isExists) {
+                            // check first barcode image exist or not
+                            $barcode = Media::where("fileName",$image)->orderBy("id","desc")->first();
+                            if($barcode) {
+                                $media = $barcode;
+                            }
+                            // check first barcode exist end
                             $chat_message->attachMedia($media, config('constants.media_tags'));
                         }
                     }
