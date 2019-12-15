@@ -2,6 +2,6 @@
     <tr>
         <td>{{ $logListMagento->product_id }}</td>
         <td>{{ $logListMagento->message }}</td>
-        <td>{{ $log->created_at->format('d-m-y') }}</td>
+        <td>{{ $logListMagento->created_at->format('d-m-y') }}</td>
     </tr>
 @endforeach
