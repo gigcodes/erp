@@ -119,41 +119,15 @@
     </div>
 
     @include('partials.flash_messages')
-
-    <button type="button" class="btn btn-secondary select-all-system-btn" data-count="0">Send All In System</button>
-    <button type="button" class="btn btn-secondary select-all-page-btn" data-count="0">Send All On Page</button>
-
-    <div class="productGrid" id="productGrid">
-        {!! $products->appends(Request::except('page'))->links() !!}
-        <form method="POST" action="{{route('google.search.crop')}}" id="theForm">
-            {{ csrf_field() }}
-            <div class="row">
-                @foreach ($products as $product)
-                    <div class="col-md-3 col-xs-6 text-left" style="border: 1px solid #cccccc;">
-                        <a href="{{ route('products.show', $product->id) }}" target="_blank"><img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt=""/></a>
-                        <p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>
-                        <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
-                        <p>Transit Status : {{ $product->purchase_status }}</p>
-                        <p>Location : {{ ($product->location) ? $product->location : "" }}</p>
-                        <p>Sku : {{ $product->sku }}</p>
-                        <p>Id : {{ $product->id }}</p>
-                        <p>Size : {{ $product->size}}</p>
-                        <p>Price ({{ $product->currency }}) : {{ $product->price }}</p>
-                        <p>Price (INR) : {{ $product->price_inr }}</p>
-                        <p>Price Special (INR) : {{ $product->price_special }}</p>
-                        <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">
-                        @if($product->status_id == 31)<a href="{{ route('products.show', $product->id) }}" target="_blank" class="btn btn-secondary">Verify</a>@endif
-                    </div>
-                @endforeach
-            </div>
-            <div class="row">
-                <div class="col text-center">
-                    <button type="button" class="btn btn-image my-3" id="sendImageMessage" onclick="sendImage()"><img src="/images/filled-sent.png"/></button>
-                </div>
-            </div>
-        </form>
-        {!! $products->appends(Request::except('page'))->links() !!}
-    </div>
+    
+    @if($status_id[0] == 31)
+     @include('google_search_image.partials.products.approve')
+    @else
+     @include('google_search_image.partials.products.image')
+    @endif
+   
+        
+  @include('google_search_image.partials.get-products-by-text')
 @endsection
 
 @section('scripts')
@@ -179,15 +153,14 @@
                         $.ajax({
                             url: "{{ route('multiple.google.search.product-save') }}",
                             type: 'POST',
-                            async: false,
                             beforeSend: function () {
                                 $("#loading-image").show();
                             },
                             success: function (response) {
-                                $("#loading-image").hide();
+                              //  $("#loading-image").hide();
                             },
                             error: function (params) {
-                                $("#loading-image").hide();
+                              //  $("#loading-image").hide();
                             },
                             data: {
                                 id: ids[i],
@@ -195,6 +168,9 @@
                             }
                         });
                     }
+                    setTimeout(function() {
+                      $("#loading-image").hide();
+                    }, 9000);
                 }
             });
 
@@ -207,10 +183,10 @@
                             type: 'POST',
                             async: false,
                             beforeSend: function () {
-                                $("#loading-image").show();
+                            //    $("#loading-image").show();
                             },
                             success: function (response) {
-                                $("#loading-image").hide();
+                            //    $("#loading-image").hide();
                             },
                             data: {
                                 id: ids[i],
@@ -218,6 +194,9 @@
                             }
                         });
                     }
+                    setTimeout(function() {
+                      $("#loading-image").hide();
+                    }, 20000);
                 }
             });
 
@@ -251,8 +230,141 @@
                             }
                         });
                     });
-                   // location.reload();
+                    location.reload();
                 }
             }
+
+             //Open Image With Crop
+    function openImage(url){
+        $("#image_crop").attr("src", url)
+        $('#cropModal').modal('show');
+            $('#image_crop').Jcrop();
+            
+        }
+
+        $("#cropModal").on('hide.bs.modal', function(){
+            $('#image_crop').data('Jcrop').destroy();
+        });
+
+     function cropImageForProduct() {
+         dimension = $('.jcrop-selection').attr("style");
+         //alert(dimension);
+     }
+
+     function selectAll(id) {
+
+       if($(".checkbox"+id).prop("checked") == true)
+            {
+                $(".checkbox"+id).prop("checked", false);
+                $("#selected"+id).text('Select All')
+            }
+            else if($(".checkbox"+id).prop("checked") == false)
+            {
+                $(".checkbox"+id).prop("checked", true);
+                $("#selected"+id).text('Unselect All')
+            } 
+     }
+
+     function approveProduct(id) {
+        
+        var selected = [];
+        $(".checkbox"+id).each(function() {
+             if($(this).prop("checked") == true){
+                selected.push($(this).val());    
+             }
+        });
+
+        if(selected.length == 0){
+            alert('Please Select Image For Product');
+        }else{
+            $.ajax({
+                url: "{{ route('approve.google.search.images.product') }}",
+                type: 'POST',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $("#product"+id).hide();
+                },
+                data: {
+                    id: id,
+                    selected , selected,
+                    _token: "{{ csrf_token() }}",
+                }
+            });    
+        }
+         
+     }
+
+     function rejectProduct(id){
+            $.ajax({
+                url: "{{ route('reject.google.search.text.product') }}",
+                type: 'POST',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $("#product"+id).hide();
+                },
+                data: {
+                    id: id,
+                    _token: "{{ csrf_token() }}",
+                }
+            });    
+
+     }   
+
+     function addDataToTextInput(id){
+        if(id == 0){
+            brand =  $('#brand').val();
+            $('#input-field-search').val($('#input-field-search').val() + brand);  
+        }else if(id == 1){
+            sku =  $('#sku').val();
+            $('#input-field-search').val($('#brand').val()+ ' '+sku); 
+        }else if(id == 2){
+            title =  $('#title').val();
+            $('#input-field-search').val($('#brand').val()+ ' '+$('#sku').val()+' '+ title); 
+        }
+      
+     }
+
+     function getProductsFromText(){
+        
+        keyword = $('#input-field-search').val();
+        brand = $('#brand').val();
+        title = $('#title').val();
+        sku = $('#sku').val();
+
+         $.ajax({
+                url: "{{ route('multiple.google.product-save') }}",
+                type: 'POST',
+                beforeSend: function () {
+                    $('#product-sku').modal('hide');
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    alert('Product saved with images');
+                },
+                error: function (response) {
+                    $("#loading-image").hide();
+                    alert('Product Image Not Found');
+                },
+                data: {
+                    keyword : keyword,
+                    brand : brand,
+                    title : title,
+                    sku : sku,
+                    _token: "{{ csrf_token() }}",
+                }
+            });    
+      
+
+
+     }
     </script>
 @endsection
+
+

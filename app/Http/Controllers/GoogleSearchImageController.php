@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use DB;
+use App\LogGoogleCse;
 
 use seo2websites\GoogleVision\GoogleVisionHelper;
 
@@ -208,9 +209,6 @@ class GoogleSearchImageController extends Controller
                 $height = $request->get('height', null);
                 $x = $request->get('x', null);
                 $y = $request->get('y', null);
-                //dd($imageWidth / 4); //256
-               // dd($x[0]); //upper 1st 255  //2nd 500 // last 773
-              //  dd($y[0]); // upper 1st 263 0 //second 0 // 0 
                 if ($height != null && $width != null && $x != null && $y != null) {
 
                     //Checking if width and height are same
@@ -239,28 +237,6 @@ class GoogleSearchImageController extends Controller
         } else {
             return redirect(route('google.search.image'))->with('message', 'Please Select Products');
         }
-
-        /*
-        $productIds = $request->get('product_ids');
-        $productImage = [];
-        if (is_array($productIds)) {
-            $productArr = Product::whereIn('id', $productIds)->get();
-            if ($productArr) {
-                GoogleVisionHelper::setDebug( true );
-                foreach ($productArr as $product) {
-                	$media = $product->media()->first();
-                	if($media) {
-                    	$productImage[$media->getUrl()] = GoogleVisionHelper::getImageDetails($media->getAbsolutePath());
-                    }
-                }
-	    		if(!empty($productImage)) {
-	    			return view( 'google_search_image.details', compact(['productImage']));
-	    		}
-            }
-        } else {
-            return redirect(route('google.search.image'))->with('message','Please Select Products');
-        }
-        */
 
         abort(403, 'Sorry , it looks like there is no result from the request.');
     }
@@ -750,6 +726,30 @@ class GoogleSearchImageController extends Controller
         $data[ 'quick_sell_groups' ] = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         $data[ 'all_products_system' ] = $productIdsSystem;
         $data[ 'count_system' ] = $countSystem;
+
+        //getting top url 
+        $logs = \App\LogGoogleCse::groupBy('image_url')->get();
+        $logArray = array();
+        foreach ($logs as $log) {
+            $url = $log->image_url;
+            $website = explode('/', $url);
+            $website = $website[2]; //assuming that the url starts with http:// or https://
+            if(!in_array($website,$logArray)){
+                array_push($logArray,$website);
+            }
+        }
+        $counter = 0;
+        foreach ($logArray as $log) {
+           $count =  \App\LogGoogleCse::where('image_url', 'like', '%' . $log . '%')->count();
+           $finalArray[] = array($log => $count);
+           if($counter == 20){
+            break;
+           }
+           $counter++;
+        }
+        $data['top_url'] = $finalArray;
+        
+        
         return view('google_search_image.multiple-image-text', $data);
     }
 
@@ -808,7 +808,7 @@ class GoogleSearchImageController extends Controller
                 continue;
             }
             
-            if($list->searchInformation){
+            if(isset($list->searchInformation)){
                 if($list->searchInformation->totalResults == 0){
                     continue;
                 }
@@ -819,14 +819,28 @@ class GoogleSearchImageController extends Controller
             }
             $links = $list->items;
             
+
+            //here save log 
+            
+
             $count = 0;
             foreach($links as $link){
                 $image = $link->link;
+
                 $jpg = \Image::make($image)->encode('jpg');
                 $filename = substr($image, strrpos($image, '/'));
                 $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
                 $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
                 $product->attachMedia($media, config('constants.google_text_search'));
+
+                $responseString = 'Link: '.$link->link .'\n Display Link: '.$link->displayLink.'\n Title : '.$link->title.'\n Image Details: '.$link->image->contextLink.' Height:'. $link->image->height.' Width : '. $link->image->width.'\n ThumbnailLink '.$link->image->thumbnailLink;
+
+                $log =  new LogGoogleCse();
+                $log->image_url = $image;
+                $log->keyword = $keyword;
+                $log->response = $responseString;
+                $log->save();
+
                 $count++;
             }
             //If Page Is Not Found 
@@ -1033,6 +1047,180 @@ class GoogleSearchImageController extends Controller
         });
 
         return response()->json(['success' => 'true'], 200); 
+    }
+
+    public function getProductFromImage(Request $request)
+    {
+       
+        if (!is_dir(public_path() . '/tmp_images')) {
+                            mkdir(public_path() . '/tmp_images', 0777, true);
+        }
+        $path = public_path() . '/tmp_images/crop_' . $request->file->getClientOriginalName();
+        $url = '/tmp_images/crop_' . $request->file->getClientOriginalName();
+        
+        request()->file->move($path, $request->file->getClientOriginalName());
+
+        //Product save
+        $product = new Product;
+        $product->sku = '';
+        $product->price = 0;
+        $product->quick_product = 1;
+        $product->price_inr = 0;
+        $product->price_special = 0;
+        $product->save();
+        
+        //Attach Media To Post
+        $media = MediaUploader::fromSource($path)
+                            ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                            ->upload();
+        $product->attachMedia($media, config('constants.media_tags'));                    
+        
+        if ($path) {
+       //$path = 'https://cdn-images.farfetch-contents.com/14/78/88/17/14788817_23873137_480.jpg';
+       $urls = GoogleVisionHelper::getImageDetails($path);
+            $count = 0;
+             if (isset($urls[ 'pages' ])) {
+                    foreach ($urls[ 'pages' ] as $url) {
+                        if (stristr($url, '.gucci.') || stristr($url, '.farfetch.')) {
+                            //Create New Product 
+
+                            // Create queue item
+                            $scrapeQueue = new ScrapeQueues();
+                            $scrapeQueue->product_id = $product->id;
+                            $scrapeQueue->url = $url;
+                            $scrapeQueue->save();
+                            $count++;
+                            break;
+                        }
+
+                    }
+                    if ($count == 0) {
+                        $product->status_id = StatusHelper::$googleImageSearchFailed;
+                        $product->save();
+                        return response('failed',200);
+                    } else {
+                        StatusHelper::updateStatus($product, StatusHelper::$pendingVerificationGoogleImageSearch);
+                        return response('success',200);
+                    }
+            }
+        }
+    }
+
+    public function getProductFromText(Request $request)
+    {
+        $keyword = $request->keyword;
+        $braand = $request->brand;
+        $brand = \App\Brand::where('name',$braand)->first();
+        if($brand == null && $brand == ''){
+            $brandId = '';
+        }else{
+            $brandId = $brand->id;
+        }
+        $sku = $request->sku;
+        if($sku == null && $sku == ''){
+           $sku = '';
+        }
+        $title = $request->title;
+        if($title == null && $title == ''){
+           $title = '';
+        }
+
+
+        //Product save
+        $product = new Product;
+        $product->name = $title;
+        $product->sku = $sku;
+        $product->brand = $brandId;
+        $product->price = 0;
+        $product->quick_product = 1;
+        $product->price_inr = 0;
+        $product->price_special = 0;
+        $product->save();
+        
+         if($product->brands != null){
+            $brand = $product->brands->name;
+            if($product->brands->googleServer != null){
+                $key = $product->brands->googleServer->key;
+            }else{
+                $key = null;
+            }
+
+        }else{
+                $key = null;
+                $brand = '';
+            }
+       
+        $googleServer = env('GOOGLE_CUSTOM_SEARCH');
+
+        //Replace Google Server Key
+        if($key != null){
+            $re = '/([?&]cx)=([^#&]*)/';
+            preg_match($re, $googleServer, $match);
+            $googleServer = str_replace($match[2],$key,$googleServer);
+        }
+
+        
+        $link = $googleServer.'&q='.urlencode($keyword).'&searchType=image&imgSize=large';
+          
+        $handle = curl_init();
+
+        // Set the url
+        curl_setopt($handle, CURLOPT_URL, $link);
+        // Set the result output to be a string.
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+        
+        $output = curl_exec($handle);
+        
+        curl_close($handle);
+
+        $list = json_decode($output);
+        
+        if($list == null){
+            return false;
+        }
+        
+        if(isset($list->searchInformation)){
+            if($list->searchInformation->totalResults == 0){
+               return false;
+            }
+        }
+        
+        if(!isset($list->items)){
+            return false;
+        }
+        $links = $list->items;
+        
+
+        //here save log 
+        $count = 0;
+        foreach($links as $link){
+            $image = $link->link;
+
+            $jpg = \Image::make($image)->encode('jpg');
+            $filename = substr($image, strrpos($image, '/'));
+            $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
+            $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
+            $product->attachMedia($media, config('constants.google_text_search'));
+
+            $responseString = 'Link: '.$link->link .'\n Display Link: '.$link->displayLink.'\n Title : '.$link->title.'\n Image Details: '.$link->image->contextLink.' Height:'. $link->image->height.' Width : '. $link->image->width.'\n ThumbnailLink '.$link->image->thumbnailLink;
+
+            $log =  new LogGoogleCse();
+            $log->image_url = $image;
+            $log->keyword = $keyword;
+            $log->response = $responseString;
+            $log->save();
+            $count++;
+        }
+        //If Page Is Not Found 
+        if ($count == 0) {
+           $product->status_id = StatusHelper::$googleTextSearchFailed;
+           $product->save();
+           return response('error',200); 
+        } else {
+            StatusHelper::updateStatus($product, StatusHelper::$pendingVerificationGoogleTextSearch);
+            return response('success',200); 
+        }
+
     }
 
 }

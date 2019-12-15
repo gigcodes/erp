@@ -167,10 +167,12 @@
                 },
                 success: function (result) {
                     $("#loading-image").hide();
-                    // console.log(result);
+                    
                     if (result.searchInformation.totalResults != undefined && parseInt(result.searchInformation.totalResults) > 0) {
                         var i = 1;
+                        
                         $(".image-result-show").html('');
+                        count = 0;
                         $.each(result.items, function (k, v) {
 
                             var template = '<div class="col-md-3"><div class="card" style="width: 18rem;">';
@@ -182,6 +184,23 @@
 
                             $(".image-result-show").append(template);
                             i++;
+
+                            $.ajax({
+                                url: "{{ route('log.google.cse') }}",
+                                type: 'POST',
+                                beforeSend: function () {
+                                },
+                                success: function (response) {
+                                },
+                                data: {
+                                    "url": v.link,
+                                    "keyword" : keyword,
+                                    "response" : result.items,
+                                    "count" : count,
+                                    _token: "{{ csrf_token() }}",
+                                }
+                            });
+                            count++
                         });
                     } else {
                         alert('No images found');
