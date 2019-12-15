@@ -54,8 +54,8 @@ $(document).on('click', '.load-communication-modal', function () {
                     // Set media
                     if (imgSrc != '') {
                         media = media + '<div class="col-12">';
+                        var imageType = (message.media[i].image).substr( (message.media[i].image).length - 4).toLowerCase();
                         if (message.media[i].product_id) {
-                            var imageType = (message.media[i].image).substr( (message.media[i].image).length - 4).toLowerCase();
 
                             if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
                                 media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info show-thumbnail-image"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
@@ -63,7 +63,11 @@ $(document).on('click', '.load-communication-modal', function () {
                                 media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                             } 
                         } else {
-                            media = media + '<a class="show-thumbnail-image" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                            if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
+                                media = media + '<a class="show-thumbnail-image" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                            }else{
+                                media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                            }
                         }
                             
 
@@ -118,9 +122,9 @@ $(document).on('click', '.load-communication-modal', function () {
                 } else {
                     if ( message.type == "customer") {
                         if (message.error_status == 1) {
-                            button +="<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
+                            button +="<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'>Resend</a>";
                          } else if (message.error_status == 2) {
-                           button += "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend</a>";
+                           button += "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'>Resend</a>";
                          }
                          
                          if (!message.approved) {
