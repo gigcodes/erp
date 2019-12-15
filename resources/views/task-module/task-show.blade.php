@@ -64,7 +64,32 @@
       z-index: -1;
     }
 
-  </style>
+    .table-head-row {
+        border: 0 !important;
+        margin-bottom: 3px !important;
+    }
+
+    .btn-image img{
+      width : 12px !important;
+    }
+    .td-style{
+      padding : 0 0 !important;
+    }
+    .table-style {
+      margin-bottom : 0px !important;
+    }
+    .tr-style{
+      background-color: transparent !important;
+    } 
+    .th-remark{
+      width:20%; padding-top:14px !important;
+    }
+
+    .th-created_at{
+      width:18%; padding-top:14px !important;
+    }
+
+</style>
 @endsection
 
 @section('content')
@@ -136,45 +161,78 @@
             <tr>
                 <th width="25%">Update</th>
                 <th width="75%">Remarks</th>
-{{--                <td></td>--}}
             </tr>
             @foreach ($task->notes as $key=>$note)
                 <tr>
                     <td>
                         {{ $note->remark }}
-                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->remark }}" style="padding-top: 0px !important;"><img src="/images/add.png" style="width: 12px !important;" /></button>
-                    </td>
-
-                    <td>
-                        <div class="panel-group" style="margin-bottom: 0 !important;">
-                            <div class="panel panel-default">
-                                <div class="panel-heading" style="padding: 7px 8px !important;">
-                                    <h4 class="panel-title">
-                                        <a data-toggle="collapse" href="#collapse_{{$note->id}}">({{ count($note->subnotes) }})</a>
-                                    </h4>
-                                </div>
-                                <div id="collapse_{{$note->id}}" class="panel-collapse collapse">
-                                    <div class="panel-body" id="rec_{{$note->id}}" style="padding: 0 !important;">
-                                        <table class="table table-striped table-bordered" style="margin-bottom: 0 !important;">
-                                            @foreach ($note->subnotes as $subnote)
-                                                <tr>
-                                                    <td><strong>{{$subnote->created_at->format('d-m-Y H:i:s')}}</strong></td>
-                                                    <td>{{ $subnote->remark }}</td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $subnote->remark }}"><img src="/images/add.png" /></button>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </table>
-                                    </div>
-                                    <div class="panel-footer">
-                                        <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value="">
-                                    </div>
-                                </div>
-                            </div>
+                        <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->remark }}" data-id="{{ $note->id }}" style="padding-top: 0px !important;"><img src="/images/add.png" style="width: 12px !important;" /></button>
+                          <div style="display:none;" id="div{{ $note->id }}">
+                          <select class="form-control selectpicker user-list" data-live-search="true" style="display:none !important;" data-remark="{{ $note->remark }}" data-remark-id="{{ $note->id }}">
+                            @foreach($users as $user)
+                              <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                          </select>
                         </div>
                     </td>
-                </tr>
+                    
+                      @if(isset($note->singleSubnotes)) 
+                      <input type="hidden"  id="remark-text{{ $note->id }}" value="{{ $note->singleSubnotes->remark }}">
+                      <input type="hidden"  id="remark-id{{ $note->id }}" value="{{ $note->singleSubnotes->id }}">
+                      
+                      <td class="td-style">
+
+                        <table class="table table-style">  
+                          
+                          <tbody> 
+
+                            <tr class="tr-style"> 
+
+                              <th class="table-head-row expand-row table-hover-cell th-remark" id="remark{{$note->id}}"> 
+                                
+                                <span class="td-mini-container">
+                                    {{ strlen( $note->singleSubnotes->remark  ) > 20 ? substr( $note->singleSubnotes->remark  , 0, 20).'...' :  $note->singleSubnotes->remark  }}
+                                </span>
+                                <span class="td-full-container hidden">
+                                {{ $note->singleSubnotes->remark }} 
+                                </span>
+                              
+                              </th>
+                               
+                               <th class="table-head-row th-add-user th-created_at" id="created{{$note->id}}"> {{ $note->singleSubnotes->created_at->format('d-m-Y H:i:s') }}   </th> <input type="hidden" id="current-remark-id"> 
+                              
+                               <th class="table-head-row" style="width:23%"> 
+                                 <button type="button" class="btn btn-image create-quick-task-note-button" onclick="createTaskNoteButton({{  $note->id }})"><img src="/images/add.png" /></button>
+                                
+                                 <div style="display:none;" id="divremark{{ $note->id }}">
+                                    <select class="form-control selectpicker" data-live-search="true" style="display:none !important;" onchange="sendUserTask({{ $note->id }})" id="user-selected{{ $note->id }}">
+                                      @foreach($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                      @endforeach
+                                    </select>
+                                  </div>
+                                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#chat-list-history{{ $note->id }}"><img src="/images/chat.png" /></button>
+                                 <button type="button" class="btn btn-image" onclick="archiveRemark({{ $note->singleSubnotes->id }} , {{ $note->id }})"><img src="/images/archive.png" /></button>
+                                
+                                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#archive-list-history{{ $note->id }}"><img src="/images/advance-link.png" /></button>
+
+
+                               </th> 
+                             
+                              <th class="table-head-row">   <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value=""> </th>
+                          
+                          </tr>
+                        </tbody> 
+                      </table>
+                    </td>
+                      @else 
+                           
+                   @endif
+                      
+                    
+                  </tr>
+                  @include('task-module.partials.modal-remark')
+                  @include('task-module.partials.modal-archieve')
             @endforeach
             <tr>
                 <td>
@@ -468,6 +526,7 @@
 
 @include('task-module.partials.modal-reminder')
 
+
 @endsection
 
 @section('scripts')
@@ -478,6 +537,10 @@
   <script type="text/javascript">
     $(document).ready(function() {
         $('.load-communication-modal').trigger('click');
+    });
+
+    $(function() {
+      $('.selectpicker').selectpicker();
     });
 
   jQuery(document).ready(function( $ ) {
@@ -1321,49 +1384,15 @@
       });
 
       $(document).on('click', '.create-quick-task-button', function() {
-        var thiss = $(this);
         var remark = $(this).data('remark');
-        var assign_to = [
-          @foreach ($task->users as $key => $user)
-          {{ $user->id }},
-          @endforeach
-        ];
+        var id = $(this).data('id');
+        $('#div'+id).toggle();
+        });
 
-        var assign_to_contacts = [
-          @foreach ($task->contacts as $key => $contact)
-          {{ $contact->id }},
-          @endforeach
-        ];
-
-        console.log(assign_to);
-
-        if (!$(this).is(':disabled')) {
-          $.ajax({
-            type: "POST",
-            url: "{{ route('task.store') }}",
-            data: {
-              _token: "{{ csrf_token() }}",
-              task_subject: 'Appointment Task',
-              task_details: remark,
-              assign_to: assign_to,
-        			assign_to_contacts: assign_to_contacts
-            },
-            beforeSend: function () {
-              $(thiss).text('Creating...');
-              $(thiss).attr('disabled', true);
-            }
-          }).done(function() {
-            $(thiss).html('<img src="/images/add.png" />');
-          }).fail(function(response) {
-            $(thiss).html('<img src="/images/add.png" />');
-            $(thiss).attr('disabled', false);
-
-            console.log(response);
-
-            alert('Could not create task!');
-          });
-        }
-      });
+      function createTaskNoteButton(id){
+        //Toggle User Table
+        $('#divremark'+id).toggle();
+      }
 
       $('#create-note-field').keypress(function(e) {
         var key = e.which;
@@ -1488,11 +1517,16 @@
                       _token: "{{ csrf_token() }}",
                       note: note,
                   }
-              }).done(function() {
-                  $(thiss).val('');
-                  var note_html = `<tr><td><strong>Just Now</strong></td><td>` + note + `</td><td><button type="button" class="btn btn-image create-quick-task-button" data-remark="` + note + `"><img src="/images/add.png" /></button></td></tr>`;
-
-                  $('#rec_'+id + ' table').prepend(note_html);
+              }).done(function(response) {
+                   $(thiss).val(''); 
+                   $('#remark'+id).text(note);
+                   $('#created'+id).text("{{ now()->format('d-m-Y H:i:s') }}");
+                   $('#add-user'+id).attr('data-remark',note);
+                   $('#add-user'+id).attr('data-id',response.success);
+                   $('#remark-text'+id).val(note);
+                   $('#remark-id'+id).val(response.success);
+                   $('#note-remark-details'+id).append("<div class='bubble alt'> <div class='txt'><p class='name alt'></p><p class='message'>"+note+"</p> </div></div>");
+              
               }).fail(function(response) {
                   console.log(response);
 
@@ -1601,5 +1635,90 @@
           console.log(response);
         });
       });
+
+      $('.user-list').on('change', function() {
+        var id = $(this).data('id');
+        var remark_id = $(this).data('remark-id');
+        $('#div'+remark_id).hide();
+        var remark = $(this).data('remark');
+        var ids = $(this).val();
+        sendTo = [];
+        sendTo.push(ids);
+        if (!$(this).is(':disabled')) {
+          $.ajax({
+            type: "POST",
+            url: "{{ route('task.store') }}",
+            data: {
+              _token: "{{ csrf_token() }}",
+              task_subject: 'Appointment Task',
+              task_details: remark,
+              assign_to: sendTo,
+        		},
+            beforeSend: function () {
+              $('#div'+remark_id).hide();
+          }
+          }).done(function() {
+              
+          }).fail(function(response) {
+              alert('Could not create task!');
+          });
+        }
+      });
+
+      function sendUserTask(id){
+        remark_id = $('#remark-id'+id).val();
+        remark = $('#remark-text'+id).val();
+        seleted_user = $('#user-selected'+id).val();
+        sendTo = [];
+        sendTo.push(seleted_user);
+        $.ajax({
+            type: "POST",
+            url: "{{ route('task.store') }}",
+            data: {
+              _token: "{{ csrf_token() }}",
+              task_subject: 'Appointment Task',
+              task_details: remark,
+              assign_to: sendTo,
+            },
+            beforeSend: function () {
+              $('#divremark'+id).hide();
+          }
+          }).done(function() {
+              
+          }).fail(function(response) {
+              alert('Could not create task!');
+          });
+        
+      }
+
+      function archiveRemark(id,noteId) {
+        
+        $.ajax({
+            type: "POST",
+            url: "/task-remark/"+id+"/delete",
+            
+            data: {
+              _token: "{{ csrf_token() }}",
+              id : id,
+        		},
+            beforeSend: function () {
+              
+          }
+          }).done(function(response) {
+              
+              $('#archive-remark-details'+noteId).append("<div class='bubble alt'> <div class='txt'><p class='name alt'></p><p class='message'>"+response.success+"</p> </div></div>");
+          }).fail(function(response) {
+              alert('Could not create task!');
+          });
+      }
+
+      //Expand Row
+         $(document).on('click', '.expand-row', function () {
+            var selection = window.getSelection();
+            if (selection.toString().length === 0) {
+                $(this).find('.td-mini-container').toggleClass('hidden');
+                $(this).find('.td-full-container').toggleClass('hidden');
+            }
+        });
   </script>
 @endsection

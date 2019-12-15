@@ -1066,7 +1066,7 @@
                   @endphp
                   <h5 class="mb-0">
                     <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#order{{ $key + 1 }}" aria-expanded="false" aria-controls="order{{ $key + 1 }}">
-                      <span class="{{ $order->is_priority == 1 ? 'text-danger' : '' }}">Order {{ $key + 1 }}</span>
+                      <span class="{{ $order->is_priority == 1 ? 'text-danger' : '' }}">{{ $order->order_id }}</span>
                       <a href="{{ route('order.show', $order->id) }}" class="btn-image" target="_blank"><img src="/images/view.png" /></a>
                       <span class="ml-3">
                         @if (isset($order->delivery_approval) && $order->delivery_approval->approved == 0)

@@ -88,7 +88,7 @@ class ChatMessagesController extends Controller
                 ) )");
                 break;
             case 'pdf':
-                $chatMessages = $chatMessages->whereRaw("(media_url is not null or id in (
+                $chatMessages = $chatMessages->whereRaw("(id in (
                     select 
                         mediable_id 
                     from 
@@ -177,6 +177,7 @@ class ChatMessagesController extends Controller
                 'customer_id' => $chatMessage->customer_id,
                 'approved' => $chatMessage->approved,
                 'error_status' => $chatMessage->error_status,
+                'is_queue' => $chatMessage->is_queue
             ];
         }
 
