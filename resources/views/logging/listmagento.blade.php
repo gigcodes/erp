@@ -40,6 +40,11 @@
                 <th width="60%">Message</th>
                 <th width="25%">Date/Time</th>
             </tr>
+            <tr>
+                <th><input type="text" id="product_id"></th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
             </thead>
 
             <tbody id="content_data">
@@ -55,4 +60,32 @@
 @endsection
 
 @section('scripts')
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#product_id').on('blur', function () {
+                $.ajax({
+                    url: '/logging/list-magento',
+                    dataType: "json",
+                    data: {
+                        product_id: $('#product_id').val()
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#log-table tbody").empty().html(data.tbody);
+                    if (data.links.length > 10) {
+                        $('ul.pagination').replaceWith(data.links);
+                    } else {
+                        $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                    }
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    $("#loading-image").hide();
+                    alert('No response from server');
+                });
+            });
+        });
+    </script>
 @endsection
