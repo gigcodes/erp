@@ -207,9 +207,6 @@ class GoogleSearchImageController extends Controller
                 $height = $request->get('height', null);
                 $x = $request->get('x', null);
                 $y = $request->get('y', null);
-                //dd($imageWidth / 4); //256
-               // dd($x[0]); //upper 1st 255  //2nd 500 // last 773
-              //  dd($y[0]); // upper 1st 263 0 //second 0 // 0 
                 if ($height != null && $width != null && $x != null && $y != null) {
 
                     //Checking if width and height are same

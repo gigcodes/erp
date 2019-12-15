@@ -181,6 +181,8 @@ class OrderController extends Controller {
 		$term = $request->input('term');
 		$order_status = $request->status ?? [''];
 		$date = $request->date ?? '';
+		$brandList = \App\Brand::all()->pluck("name","id")->toArray();
+		$brandIds = array_filter($request->get("brand_id",[]));
 
 		if($request->input('orderby') == '')
 				$orderby = 'DESC';
@@ -252,6 +254,17 @@ class OrderController extends Controller {
 			$orders = $orders->where('order_date', $date);
 		}
 
+		$statusFilterList =  clone($orders);
+		
+		$orders = $orders->leftJoin("order_products as op","op.order_id","orders.id")
+		->leftJoin("products as p","p.sku","op.sku")->leftJoin("brands as b","b.id","p.brand");
+		
+		if(!empty($brandIds)) {
+			$orders = $orders->whereIn("p.brand",$brandIds);
+		}
+		
+		$orders = $orders->groupBy("op.order_id");
+		$orders = $orders->select("orders.*",\DB::raw("group_concat(b.name) as brand_name_list"));
 
 
 		$users  = Helpers::getUserArray( User::all() );
@@ -263,6 +276,8 @@ class OrderController extends Controller {
 			$orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
 		}
 
+		$statusFilterList = $statusFilterList->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"order_status")->get()->toArray();
+		
 		$orders_array = $orders->paginate(500);
 //		$orders_array = $orders->paginate(Setting::get('pagination'));
 
@@ -316,7 +331,7 @@ class OrderController extends Controller {
 		// 	'path'	=> LengthAwarePaginator::resolveCurrentPath()
 		// ]);
 
-		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date' ) );
+		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
 	}
 
 	public function products(Request $request)
@@ -2125,5 +2140,22 @@ public function createProductOnMagento(Request $request, $id){
 	dd($product_url, $result);
 	return $result;
 }
+
+	public function statusChange(Request $request)
+	{
+		$id = $request->get("id");
+		$status = $request->get("status");
+
+		if(!empty($id) && !empty($status)) {
+			$order = \App\Order::where("id", $id)->first();
+			if($order) {
+				$order->order_status = $status;
+				$order->save();
+			}
+		}
+
+		return response()->json(["code" => 200]);
+
+	}
 
 }
