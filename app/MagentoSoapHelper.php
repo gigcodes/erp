@@ -6,6 +6,7 @@ use App\Helpers\StatusHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\ProductHelper;
+use App\Loggers\LogListMagento;
 
 class MagentoSoapHelper
 {
@@ -41,7 +42,7 @@ class MagentoSoapHelper
             $this->_sessionId = $this->_proxy->login(config('magentoapi.user'), config('magentoapi.password'));
         } catch (\SoapFault $fault) {
             // Log the error
-            Log::channel('listMagento')->emergency("Unable to connect to Magento via SOAP: " . $fault->getMessage());
+            LogListMagento::log(null, "Unable to connect to Magento via SOAP: " . $fault->getMessage(), 'emergency');
 
             // Set session ID to false
             $this->_sessionId = false;
@@ -75,14 +76,15 @@ class MagentoSoapHelper
 
         // No categories found?
         if (count($categories) == 0) {
-            Log::channel('listMagento')->emergency("No categories found for product ID " . $product->id);
+            // Log the error
+            LogListMagento::log($product->id, "No categories found for product ID " . $product->id, 'emergency');
             return false;
         }
 
         // Check for readiness to go to Magento
         if (!ProductHelper::checkReadinessForLive($product)) {
             // Write to log file
-            Log::channel('listMagento')->emergency("Failed readiness test for product ID " . $product->id);
+            LogListMagento::log($product->id, "Failed readiness test for product ID " . $product->id, 'emergency');
 
             // Update product status - sent to manual attribute
             $product->status_id = StatusHelper::$manualAttribute;
@@ -405,7 +407,7 @@ class MagentoSoapHelper
         return $result;
     }
 
-    public function catalogCategoryCreate($parentId = 0, $arrCategoryData=[])
+    public function catalogCategoryCreate($parentId = 0, $arrCategoryData = [])
     {
         // Check for product and session
         if (!$this->_sessionId) {

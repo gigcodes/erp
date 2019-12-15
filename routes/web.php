@@ -48,6 +48,10 @@ Route::prefix('product')->middleware('auth')->group(static function () {
     Route::resource('manual-crop', 'Products\ManualCroppingController');
 });
 
+Route::prefix('logging')->middleware('auth')->group(static function () {
+    Route::get('list-magento', 'Logging\LogListMagentoController@index');
+});
+
 Route::prefix('category-messages')->group(function () {
     Route::post('bulk-messages/keyword', 'BulkCustomerRepliesController@storeKeyword');
     Route::post('bulk-messages/send-message', 'BulkCustomerRepliesController@sendMessagesByKeyword');
@@ -321,7 +325,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/multiple-products', 'GoogleSearchImageController@getImageForMultipleProduct')->name('google.product.queue');
         Route::post('/image-crop-sequence', 'GoogleSearchImageController@cropImageSequence')->name('google.crop.sequence');
         Route::post('/update-product-status', 'GoogleSearchImageController@updateProductStatus')->name('google.product.status');
-        
+
     });
 
     Route::prefix('search-image')->group(function () {
