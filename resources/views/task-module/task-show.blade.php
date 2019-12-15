@@ -72,8 +72,24 @@
     .btn-image img{
       width : 12px !important;
     }
+    .td-style{
+      padding : 0 0 !important;
+    }
+    .table-style {
+      margin-bottom : 0px !important;
+    }
+    .tr-style{
+      background-color: transparent !important;
+    } 
+    .th-remark{
+      width:20%; padding-top:14px !important;
+    }
 
-  </style>
+    .th-created_at{
+      width:18%; padding-top:14px !important;
+    }
+
+</style>
 @endsection
 
 @section('content')
@@ -161,41 +177,62 @@
                     </td>
                     
                       @if(isset($note->singleSubnotes)) 
-                      <td style="padding : 0 0 !important;">
-                        <table class="table" style="margin-bottom : 0px !important;">  
+                      <input type="hidden"  id="remark-text{{ $note->id }}" value="{{ $note->singleSubnotes->remark }}">
+                      <input type="hidden"  id="remark-id{{ $note->id }}" value="{{ $note->singleSubnotes->id }}">
+                      
+                      <td class="td-style">
+
+                        <table class="table table-style">  
+                          
                           <tbody> 
-                            <tr style="background-color: transparent !important;"> 
-                              <th class="table-head-row expand-row table-hover-cell"  style="width:20%; padding-top:14px !important;"> <span class="td-mini-container">
-                        {{ strlen( $note->singleSubnotes->remark  ) > 20 ? substr( $note->singleSubnotes->remark  , 0, 20).'...' :  $note->singleSubnotes->remark  }}
-                        </span>
-                        <span class="td-full-container hidden">
-                        {{ $note->singleSubnotes->remark }} 
-                        </span></th>
-                               <th class="table-head-row" style="width:18%; padding-top:14px !important;"> {{ $note->singleSubnotes->created_at->format('d-m-Y H:i:s') }}   </th>  
-                               <th class="table-head-row" style="width:20%"> 
-                                 <button type="button" class="btn btn-image create-quick-task-button" data-remark="{{ $note->singleSubnotes->remark }}" data-id="{{ $note->singleSubnotes->id }}"><img src="/images/add.png" /></button>
+
+                            <tr class="tr-style"> 
+
+                              <th class="table-head-row expand-row table-hover-cell th-remark" id="remark{{$note->id}}"> 
                                 
-                                 <div style="display:none;" id="div{{ $note->singleSubnotes->id }}">
-                                    <select class="form-control selectpicker user-list" data-live-search="true" style="display:none !important;" data-remark="{{ $note->singleSubnotes->remark }}" data-remark-id="{{ $note->singleSubnotes->id }}">
+                                <span class="td-mini-container">
+                                    {{ strlen( $note->singleSubnotes->remark  ) > 20 ? substr( $note->singleSubnotes->remark  , 0, 20).'...' :  $note->singleSubnotes->remark  }}
+                                </span>
+                                <span class="td-full-container hidden">
+                                {{ $note->singleSubnotes->remark }} 
+                                </span>
+                              
+                              </th>
+                               
+                               <th class="table-head-row th-add-user th-created_at" id="created{{$note->id}}"> {{ $note->singleSubnotes->created_at->format('d-m-Y H:i:s') }}   </th> <input type="hidden" id="current-remark-id"> 
+                              
+                               <th class="table-head-row" style="width:23%"> 
+                                 <button type="button" class="btn btn-image create-quick-task-note-button" onclick="createTaskNoteButton({{  $note->id }})"><img src="/images/add.png" /></button>
+                                
+                                 <div style="display:none;" id="divremark{{ $note->id }}">
+                                    <select class="form-control selectpicker" data-live-search="true" style="display:none !important;" onchange="sendUserTask({{ $note->id }})" id="user-selected{{ $note->id }}">
                                       @foreach($users as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                       @endforeach
                                     </select>
                                   </div>
                                  <button type="button" class="btn btn-image" data-toggle="modal" data-target="#chat-list-history{{ $note->id }}"><img src="/images/chat.png" /></button>
-                                 <button type="button" class="btn btn-image" onclick="archiveRemark({{ $note->id }})"><img src="/images/archive.png" /></button>
+                                 <button type="button" class="btn btn-image" onclick="archiveRemark({{ $note->singleSubnotes->id }} , {{ $note->id }})"><img src="/images/archive.png" /></button>
+                                
+                                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#archive-list-history{{ $note->id }}"><img src="/images/advance-link.png" /></button>
+
+
                                </th> 
+                             
                               <th class="table-head-row">   <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value=""> </th>
-                      </tr>  </tbody> </table>
-                      </td>
-                      @else <td>
-                              <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value="">
-                            </td>
+                          
+                          </tr>
+                        </tbody> 
+                      </table>
+                    </td>
+                      @else 
+                           
                    @endif
                       
                     
                   </tr>
                   @include('task-module.partials.modal-remark')
+                  @include('task-module.partials.modal-archieve')
             @endforeach
             <tr>
                 <td>
@@ -1352,21 +1389,10 @@
         $('#div'+id).toggle();
         });
 
-        // var thiss = $(this);
-        // var remark = $(this).data('remark');
-        // var assign_to = [
-        //   @foreach ($task->users as $key => $user)
-        //   {{ $user->id }},
-        //   @endforeach
-        // ];
-
-        // var assign_from = {{ Auth::id() }};
-        // alert(assign_from);
-        // var assign_to_contacts = $('#user-id').val();
-        // console.log(assign_to);
-
-       
-      
+      function createTaskNoteButton(id){
+        //Toggle User Table
+        $('#divremark'+id).toggle();
+      }
 
       $('#create-note-field').keypress(function(e) {
         var key = e.which;
@@ -1491,12 +1517,16 @@
                       _token: "{{ csrf_token() }}",
                       note: note,
                   }
-              }).done(function() {
-                  location.reload();
-                  // $(thiss).val('');
-                  // var note_html = `<tr><td><strong>Just Now</strong></td><td>` + note + `</td><td><button type="button" class="btn btn-image create-quick-task-button" data-remark="` + note + `"><img src="/images/add.png" /></button></td></tr>`;
-
-                  // $('#rec_'+id + ' table').prepend(note_html);
+              }).done(function(response) {
+                   $(thiss).val(''); 
+                   $('#remark'+id).text(note);
+                   $('#created'+id).text("{{ now()->format('d-m-Y H:i:s') }}");
+                   $('#add-user'+id).attr('data-remark',note);
+                   $('#add-user'+id).attr('data-id',response.success);
+                   $('#remark-text'+id).val(note);
+                   $('#remark-id'+id).val(response.success);
+                   $('#note-remark-details'+id).append("<div class='bubble alt'> <div class='txt'><p class='name alt'></p><p class='message'>"+note+"</p> </div></div>");
+              
               }).fail(function(response) {
                   console.log(response);
 
@@ -1628,14 +1658,40 @@
               $('#div'+remark_id).hide();
           }
           }).done(function() {
-              location.reload();  
+              
           }).fail(function(response) {
               alert('Could not create task!');
           });
         }
       });
 
-      function archiveRemark(id) {
+      function sendUserTask(id){
+        remark_id = $('#remark-id'+id).val();
+        remark = $('#remark-text'+id).val();
+        seleted_user = $('#user-selected'+id).val();
+        sendTo = [];
+        sendTo.push(seleted_user);
+        $.ajax({
+            type: "POST",
+            url: "{{ route('task.store') }}",
+            data: {
+              _token: "{{ csrf_token() }}",
+              task_subject: 'Appointment Task',
+              task_details: remark,
+              assign_to: sendTo,
+            },
+            beforeSend: function () {
+              $('#divremark'+id).hide();
+          }
+          }).done(function() {
+              
+          }).fail(function(response) {
+              alert('Could not create task!');
+          });
+        
+      }
+
+      function archiveRemark(id,noteId) {
         
         $.ajax({
             type: "POST",
@@ -1648,9 +1704,9 @@
             beforeSend: function () {
               
           }
-          }).done(function() {
-              alert('Archive Remark');
-              location.reload();
+          }).done(function(response) {
+              
+              $('#archive-remark-details'+noteId).append("<div class='bubble alt'> <div class='txt'><p class='name alt'></p><p class='message'>"+response.success+"</p> </div></div>");
           }).fail(function(response) {
               alert('Could not create task!');
           });
