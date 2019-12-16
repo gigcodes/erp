@@ -236,7 +236,7 @@
                         </tbody>
                 </table>
                 */ ?>
-                @include('partials.modals.remarks')
+                @include('partials.modals.remarks',['type' => 'scrap'])
             </div>
         </div>
     </div>
@@ -308,7 +308,7 @@
             });
         });
 
-        $('#addRemarkButton').on('click', function () {
+        $('#scrapAddRemarkbutton').on('click', function () {
             var id = $('#add-remark input[name="id"]').val();
             var remark = $('#add-remark').find('textarea[name="remark"]').val();
 

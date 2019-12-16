@@ -23,7 +23,7 @@
           <div class="form-group">
             <label><input type="checkbox" value="inlcude_made_by">&nbsp;Want to include Made By ?</label>
           </div>
-          <button type="button" class="btn btn-secondary btn-block mt-2" id="addRemarkButton">Add</button>
+          <button type="button" class="btn btn-secondary btn-block mt-2" id="{{ (!empty($type) && $type = 'scrap') ? 'scrapAddRemarkbutton' : 'addRemarkButton' }}">Add</button>
         </form>
       </div>
 
