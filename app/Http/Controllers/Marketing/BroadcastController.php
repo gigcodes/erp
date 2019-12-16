@@ -205,7 +205,7 @@ class BroadcastController extends Controller
 
             if (request('manual') != null) {
                 $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($request) {
-                    $qu->orderBy('created_at','asc');
+                   $qu->where('active', request('manual'));
                 });
             }
 

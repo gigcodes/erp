@@ -1440,6 +1440,8 @@
         remark = $('#remark').val();
         name = $('#name').val();
         whats_number = $('#whats_number').val();
+          total = $('#total').val();
+        custom = $('#custom').val();
 
 
         $.ajax({
@@ -1454,7 +1456,8 @@
                 name: name,
                 whats_number : whats_number,
                 manualApproval : manualApproval,
-
+                custom : custom,
+                total : total,
             },
             beforeSend: function () {
                 if(manualApproval == 0){
@@ -1490,6 +1493,8 @@
         remark = $('#remark').val();
         name = $('#name').val();
         whats_number = $('#whats_number').val();
+          total = $('#total').val();
+        custom = $('#custom').val();
 
 
         $.ajax({
@@ -1504,6 +1509,8 @@
                 name: name,
                 whats_number : whats_number,
                 broadcastSend : broadcastSend,
+                custom : custom,
+                total : total,
 
             },
             beforeSend: function () {
@@ -1541,6 +1548,8 @@
         remark = $('#remark').val();
         name = $('#name').val();
         whats_number = $('#whats_number').val();
+          total = $('#total').val();
+        custom = $('#custom').val();
 
 
         $.ajax({
@@ -1555,6 +1564,8 @@
                 name: name,
                 whats_number : whats_number,
                 notDelivered : notDelivered,
+                custom : custom,
+                total : total,
 
             },
             beforeSend: function () {
@@ -1592,6 +1603,8 @@
         remark = $('#remark').val();
         name = $('#name').val();
         whats_number = $('#whats_number').val();
+        total = $('#total').val();
+        custom = $('#custom').val();
 
 
         $.ajax({
@@ -1606,6 +1619,8 @@
                 name: name,
                 whats_number : whats_number,
                 lastBroadcast : lastBroadcast,
+                custom : custom,
+                total : total,
 
             },
             beforeSend: function () {
