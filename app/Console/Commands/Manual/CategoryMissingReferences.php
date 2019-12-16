@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Category;
 use App\CronJobReport;
 use App\Loggers\LogScraper;
+use Carbon\Carbon;
 
 class CategoryMissingReferences extends Command
 {
@@ -43,7 +44,7 @@ class CategoryMissingReferences extends Command
     {
         $report = CronJobReport::create([
         'signature' => $this->signature,
-        'start_time'  => Carbon::now()
+        'start_time'  => \Carbon::now()
         ]);
 
         // Set empty
