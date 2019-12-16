@@ -29,9 +29,50 @@
 
         </div>
     </div>
-
+   
     @include('partials.flash_messages')
-
+    <form action="/scrap/scraped-urls" method="get">
+     <div class="mt-3 col-md-12">
+        <div class="row">
+            <div class="col-md-6">
+                
+                 <select class="form-control select-multiple2" data-placeholder="Select columns.." multiple id="columns" name="columns[]">
+                    <optgroup label="columns">
+                        <option value="sku">SKU</option>
+                        <option value="color">Color</option>
+                        <option value="website">Website</option>
+                        <option value="url">Url</option>
+                        <option value="brand">Brand</option>
+                        <option value="category">Category</option>
+                        <option value="title">Title</option>
+                        <option value="description">Description</option>
+                        <option value="properties">Properties</option>
+                        <option value="size_system">Size system</option>
+                        <option value="currency">Currency</option>
+                        <option value="price">Price</option>
+                        <option value="discounted_price">Discounted Price</option>
+                        <option value="is_sale">Is Sale</option>
+                        <option value="not_in_sale">Not in Sale</option>
+                        <option value="gender">Gender</option>
+                        <option value="made_in">Made in</option>
+                        <option value="composition">Composition</option>
+                        <option value="size">Size</option>
+                        <option value="lmeasurement">Lmeasurement</option>
+                        <option value="hmeasurement">Hmeasurement</option>
+                        <option value="dmeasurement">Dmeasurement</option>
+                        <option value="measurement_size_type">Measurement size type</option>
+                    </optgroup>
+                  </select>
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="search_filter" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+            </div>
+        </div>    
+     </div>
+    </form>
     <div class="mt-3 col-md-12">
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
