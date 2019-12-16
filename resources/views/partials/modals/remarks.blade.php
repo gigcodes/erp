@@ -1,5 +1,5 @@
 <div id="makeRemarkModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
+  <div class="modal-dialog <?php echo (!empty($type) && $type = 'scrap') ? 'modal-lg' : ''  ?>">
 
     <!-- Modal content-->
     <div class="modal-content">
@@ -9,9 +9,26 @@
       </div>
 
       <div class="modal-body">
-        <ul class="list-unstyled" id="remark-list">
 
-        </ul>
+        <?php if((!empty($type) && $type = 'scrap')) {  ?>
+          <table class="table fixed_header">
+              <thead class="thead-dark">
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Comment</th>
+                  <th scope="col">Created By</th>
+                  <th scope="col">Created At</th>
+                </tr>
+              </thead>
+              <tbody id="remark-list">
+                
+              </tbody>
+            </table>
+        <?php } else{ ?>
+        <div class="list-unstyled" id="remark-list">
+
+        </div>
+        <?php } ?>  
         <form id="add-remark">
           <input type="hidden" name="id" value="">
           <div class="form-group">
