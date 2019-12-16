@@ -44,7 +44,7 @@ class CategoryMissingReferences extends Command
     {
         $report = CronJobReport::create([
         'signature' => $this->signature,
-        'start_time'  => \Carbon::now()
+        'start_time'  => Carbon::now()
         ]);
 
         // Set empty
