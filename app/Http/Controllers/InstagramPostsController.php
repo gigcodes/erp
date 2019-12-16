@@ -6,7 +6,9 @@ namespace App\Http\Controllers;
 \InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 use App\Account;
+use App\HashTag;
 use App\InstagramPosts;
+use App\InstagramPostsComments;
 use Illuminate\Http\Request;
 use InstagramAPI\Instagram;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -21,7 +23,7 @@ class InstagramPostsController extends Controller
      */
     public function index()
     {
-        $accounts = Account::where('platform', 'instagram')->get();
+        //$accounts = Account::where('platform', 'instagram')->get();
         $posts = InstagramPosts::all();
 
         return view('instagram.posts.index', compact('accounts', 'posts'));
@@ -40,7 +42,7 @@ class InstagramPostsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      * Create a new entry with image + account_id
      */
@@ -51,10 +53,10 @@ class InstagramPostsController extends Controller
             'account_id' => 'required'
         ]);
 
-        $account  = Account::findOrFail($request->get('account_id'));
+        $account = Account::findOrFail($request->get('account_id'));
 
-        $instagram  = new Instagram();
-        
+        $instagram = new Instagram();
+
         try {
             $instagram->login($account->last_name, $account->password);
         } catch (\Exception $exception) {
@@ -77,11 +79,11 @@ class InstagramPostsController extends Controller
         $instagramPost->save();
 
         $media = MediaUploader::fromSource($image)
-                                ->useFilename(md5(time()))
-                                ->toDirectory('instagramposts/'.floor($instagramPost->id / config('constants.image_per_folder')))
-                                ->upload();
+            ->useFilename(md5(time()))
+            ->toDirectory('instagramposts/' . floor($instagramPost->id / config('constants.image_per_folder')))
+            ->upload();
 
-        $instagramPost->attachMedia($media,  'gallery');
+        $instagramPost->attachMedia($media, 'gallery');
         $instagramPost->save();
         $media = $instagramPost->getMedia('gallery')->first();
 
@@ -115,13 +117,12 @@ class InstagramPostsController extends Controller
         return redirect()->back()->with('message', 'Image posted successfully!');
 
 
-
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\InstagramPosts  $instagramPosts
+     * @param  \App\InstagramPosts $instagramPosts
      * @return \Illuminate\Http\Response
      */
     public function show(InstagramPosts $instagramPosts)
@@ -132,7 +133,7 @@ class InstagramPostsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\InstagramPosts  $instagramPosts
+     * @param  \App\InstagramPosts $instagramPosts
      * @return \Illuminate\Http\Response
      */
     public function edit(InstagramPosts $instagramPosts)
@@ -143,8 +144,8 @@ class InstagramPostsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\InstagramPosts  $instagramPosts
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\InstagramPosts $instagramPosts
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, InstagramPosts $instagramPosts)
@@ -155,11 +156,84 @@ class InstagramPostsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\InstagramPosts  $instagramPosts
+     * @param  \App\InstagramPosts $instagramPosts
      * @return \Illuminate\Http\Response
      */
     public function destroy(InstagramPosts $instagramPosts)
     {
         //
+    }
+
+    public function apiPost(Request $request)
+    {
+        // Get raw body
+        $payLoad = json_decode(request()->getContent(), true);
+
+        // NULL? No valid JSON
+        if ($payLoad == null) {
+            return response()->json([
+                'error' => 'Invalid json'
+            ], 400);
+        }
+
+        // Process input
+        if (is_array($payLoad) && count($payLoad) > 0) {
+            // Loop over posts
+            foreach ($payLoad as $postJson) {
+                // Set tag
+                $tag = $postJson[ 'Tags' ];
+                $tag = 'SoloLuxury';
+
+                // Get hashtag ID
+                $hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
+
+                // Retrieve instagram post or initiate new
+                $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson[ 'URL' ]]);
+                $instagramPost->hashtag_id = $hashtag->id;
+                $instagramPost->username = 'nobody';
+                $instagramPost->posted_at = '2000-01-01 00:00:00';
+                $instagramPost->media_type = !empty($postJson[ 'Image' ]) ? 'image' : 'other';
+                $instagramPost->media_url = !empty($postJson[ 'Image' ]) ? $postJson[ 'Image' ] : $postJson[ 'URL' ];
+                $instagramPost->source = 'instagram';
+                $instagramPost->save();
+
+                // Store media
+                if (!empty($postJson[ 'Image' ])) {
+                    if ($instagramPost->hasMedia('instagram-post')) {
+                        $media = MediaUploader::fromSource($postJson[ 'Image' ])
+                            ->toDisk('uploads')
+                            ->toDirectory('social-media/instagram-posts/' . floor($instagramPost->id / 1000))
+                            ->useFilename($instagramPost->id)
+                            ->beforeSave(function (\Plank\Mediable\Media $model, $source) {
+                                $model->setAttribute('extension', 'jpg');
+                            })
+                            ->upload();
+                        $instagramPost->attachMedia($media, 'instagram-post');
+                    }
+                }
+
+                // Comments
+                if (isset($postJson[ 'Comments' ]) && is_array($postJson[ 'Comments' ])) {
+                    // Loop over comments
+                    foreach ($postJson[ 'Comments' ] as $comment) {
+                        // Set hash
+                        $commentHash = md5($comment[ 'Owner' ] . $comment[ 'Comments' ][ 0 ] . $comment[ 'Time' ]);
+
+                        $instagramPostsComment = InstagramPostsComments::firstOrNew(['comment_id' => $commentHash]);
+                        $instagramPostsComment->instagram_post_id = $instagramPost->id;
+                        $instagramPostsComment->comment_id = $commentHash;
+                        $instagramPostsComment->username = $comment[ 'Owner' ];
+                        $instagramPostsComment->comment = $comment[ 'Comments' ][ 0 ];
+                        $instagramPostsComment->posted_at = date('Y-m-d H:i:s', strtotime($comment[ 'Time' ]));
+                        $instagramPostsComment->save();
+                    }
+                }
+            }
+        }
+
+        // Return
+        return response()->json([
+            'ok'
+        ], 200);
     }
 }

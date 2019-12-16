@@ -18,7 +18,6 @@ use Illuminate\Http\Request;
 //});
 
 
-
 Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
 
@@ -57,14 +56,17 @@ Route::get('products/enhance', 'Products\ProductEnhancementController@index');
 Route::post('products/enhance', 'Products\ProductEnhancementController@store');
 Route::post('users/updatePermission', 'PermissionController@updatePermission');
 Route::post('userLogs', 'UserLogController@store');
-Route::post('scrape/process-product-links','ScrapController@processProductLinks');
-Route::post('values-as-per-user','DocumentController@getDataByUserType')->name('getDataByUserType');
-Route::post('values-as-per-category','ResourceImgController@getSubCategoryByCategory')->name('imageResourceSubcategory');
-Route::post('get-customers','QuickSellController@getCustomers')->name('getCustomers');
+Route::post('scrape/process-product-links', 'ScrapController@processProductLinks');
+Route::post('values-as-per-user', 'DocumentController@getDataByUserType')->name('getDataByUserType');
+Route::post('values-as-per-category', 'ResourceImgController@getSubCategoryByCategory')->name('imageResourceSubcategory');
+Route::post('get-customers', 'QuickSellController@getCustomers')->name('getCustomers');
 
 Route::get('product-template', 'ProductTemplatesController@apiIndex');
 Route::post('product-template', 'ProductTemplatesController@apiSave');
 
-Route::get('{client}/{numberFrom}/get-im','InstantMessagingController@getMessage');
-Route::post('{client}/{numberFrom}/webhook','InstantMessagingController@processWebhook');
-Route::get('{client}/{numberFrom}/im-status-update','InstantMessagingController@updatePhoneStatus');
+Route::get('{client}/{numberFrom}/get-im', 'InstantMessagingController@getMessage');
+Route::post('{client}/{numberFrom}/webhook', 'InstantMessagingController@processWebhook');
+Route::get('{client}/{numberFrom}/im-status-update', 'InstantMessagingController@updatePhoneStatus');
+
+// INSTAGRAM
+Route::post('instagram/post', 'InstagramPostsController@apiPost');

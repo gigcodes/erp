@@ -5,32 +5,6 @@
         <div class="col-md-12">
             <h2 class="page-heading">Instagram Posts</h2>
         </div>
-        <div class="col-md-12">
-            <div class="row">
-                <form action="{{ action('InstagramPostsController@store') }}" method="post" enctype="multipart/form-data">
-                    @csrf
-                    <div class="col-md-3">
-                        <label for="account">Account</label>
-                        <select name="account_id" id="account_id" class="form-control">
-                            @foreach($accounts as $account)
-                                <option value="{{ $account->id }}">{{ $account->last_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="caption">Caption</label>
-                        <textarea name="caption" id="caption" rows="2" class="form-control" name="caption"></textarea>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="Image">Image</label>
-                        <input type="file" name="image" id="image" class="form-control">
-                    </div>
-                    <div class="col-md-1">
-                        <button class="btn-secondary btn">Post</button>
-                    </div>
-                </form>
-            </div>
-        </div>
         <div class="col-md-12 mt-4">
             <table class="table-striped table table-bordered">
                 <tr>
@@ -47,9 +21,13 @@
                         <td>{{ $post->username }}</td>
                         <td>{{ $post->caption }}</td>
                         <td>
-                            <img style="width: 100px;" src="{{ $post->getMedia('gallery')->first()->getUrl() }}" alt="">
+                            @if($post->hasMedia('instagram-post') )
+                                <img style="width: 100px;" src="{{ $post->getMedia('instagram-post')->first()->getUrl() }}" alt="">
+                            @else
+                                <a href="{{ $post->location }}" target="_blank">visit post</a>
+                            @endif
                         </td>
-                        <td>{{ $post->created_at->format('Y-m-d') }}</td>
+                        <td>{{ date('d-M-Y', strtotime($post->posted_at)) }}</td>
                     </tr>
                 @endforeach
             </table>
