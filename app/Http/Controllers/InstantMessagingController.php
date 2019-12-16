@@ -161,7 +161,7 @@ class InstantMessagingController extends Controller
         $whatsappConfig = $clientClass::where('number', $numberFrom)->first();
 
 
-        // Nothing found
+        // // Nothing found
         if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
             $message = ['error' => 'Invalid token'];
             return json_encode($message, 400);
@@ -169,6 +169,7 @@ class InstantMessagingController extends Controller
 
         //Adding Last Login
         $whatsappConfig->last_online = Carbon::now();
+        $whatsappConfig->is_connected = $request->status;
 
         //Updating Whats App Config details
         $whatsappConfig->update();

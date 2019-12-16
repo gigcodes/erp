@@ -233,6 +233,7 @@
                                     <th>D. Name</th>
                                     <th>Number</th>
                                     <th>Ttl Cust</th>
+                                    <th>Cust/day</th>
                                     <th>Msg/Day</th>
                                     <th>Pend</th>
                                     <th>Last Check</th>
@@ -306,10 +307,10 @@
                 <th>Customer Number</th>
                 <th>DND</th>
                 <!-- <th>Status</th> -->
-                <th>Manual Approval</th>
-                <th>Broadcast Sent</th>
-                <th>Not Delivered</th>
-                <th>Last Broadcast ID</th>
+                <th><button onclick="sortByManual()" id="manual-approval" value="0" class="btn btn-link">Manual Approval</button></th>
+                <th><button onclick="sortByBroadcastSend()" id="broadcast-send" value="0" class="btn btn-link">Broadcast Sent</button></th>
+                <th><button onclick="sortByNotDelivered()" id="not-delivered" value="0" class="btn btn-link">Not Delivered</button></th>
+                <th><button onclick="sortByLastBroadcastID()" id="last-broadcast" value="0" class="btn btn-link">Last Broadcast ID</button></th>
                 <th>Phone No. Assign WhatsApp</th>
                 <th>Remarks</th>
             </tr>
@@ -341,7 +342,7 @@
                 <th></th>
                 <th></th>
                 <th><input type="text" class="search form-control" id="broadcast"></th>
-                <th><select class="form-control search" id="number">
+                <th><select class="form-control search" id="whats_number">
                         <option value="">Select Option</option>
                         @foreach($numbers as $number)
                             <option value="{{ $number->number }}">{{ $number->number }}</option>
@@ -882,6 +883,7 @@
                     manual = $('#manual').val();
                     remark = $('#remark').val();
                     name = $('#name').val();
+                    whats_number = $('#whats_number').val();
 
 
                     $.ajax({
@@ -894,6 +896,7 @@
                             manual: manual,
                             remark: remark,
                             name: name,
+                            whats_number : whats_number,
 
                         },
                         beforeSend: function () {
@@ -1426,6 +1429,209 @@
             $('#date_current_show').toggle();
             $('#date_value_show').toggle();
         });
-        
+         
+    function sortByManual(){
+
+        manualApproval =  $('#manual-approval').val();
+        dnd =  $('#dnd').val();
+        number = $('#number').val();
+        broadcast = $('#broadcast').val();
+        manual = $('#manual').val();
+        remark = $('#remark').val();
+        name = $('#name').val();
+        whats_number = $('#whats_number').val();
+
+
+        $.ajax({
+            url: src,
+            dataType: "json",
+            data: {
+                dnd: dnd,
+                number: number,
+                broadcast: broadcast,
+                manual: manual,
+                remark: remark,
+                name: name,
+                whats_number : whats_number,
+                manualApproval : manualApproval,
+
+            },
+            beforeSend: function () {
+                if(manualApproval == 0){
+                    $('#manual-approval').val('1');
+                }else{
+                    $('#manual-approval').val('0');
+                }
+                $("#loading-image").show();
+            },
+
+        }).done(function (data) {
+            $("#loading-image").hide();
+            console.log(data);
+            $("#customers-table tbody").empty().html(data.tbody);
+            $("#customer_count").text(data.count);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+    }
+
+    function sortByBroadcastSend(){
+        broadcastSend =  $('#broadcast-send').val();
+        dnd =  $('#dnd').val();
+        number = $('#number').val();
+        broadcast = $('#broadcast').val();
+        manual = $('#manual').val();
+        remark = $('#remark').val();
+        name = $('#name').val();
+        whats_number = $('#whats_number').val();
+
+
+        $.ajax({
+            url: src,
+            dataType: "json",
+            data: {
+                dnd: dnd,
+                number: number,
+                broadcast: broadcast,
+                manual: manual,
+                remark: remark,
+                name: name,
+                whats_number : whats_number,
+                broadcastSend : broadcastSend,
+
+            },
+            beforeSend: function () {
+                if(broadcastSend == 0){
+                    $('#broadcast-send').val('1');
+                }else{
+                    $('#broadcast-send').val('0');
+                }
+                $("#loading-image").show();
+            },
+
+        }).done(function (data) {
+            $("#loading-image").hide();
+            console.log(data);
+            $("#customers-table tbody").empty().html(data.tbody);
+            $("#customer_count").text(data.count);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+
+    }
+
+    function sortByNotDelivered(){
+        notDelivered =  $('#not-delivered').val();
+         dnd =  $('#dnd').val();
+        number = $('#number').val();
+        broadcast = $('#broadcast').val();
+        manual = $('#manual').val();
+        remark = $('#remark').val();
+        name = $('#name').val();
+        whats_number = $('#whats_number').val();
+
+
+        $.ajax({
+            url: src,
+            dataType: "json",
+            data: {
+                dnd: dnd,
+                number: number,
+                broadcast: broadcast,
+                manual: manual,
+                remark: remark,
+                name: name,
+                whats_number : whats_number,
+                notDelivered : notDelivered,
+
+            },
+            beforeSend: function () {
+                if(notDelivered == 0){
+                    $('#not-delivered').val('1');
+                }else{
+                    $('#not-delivered').val('0');
+                }
+                $("#loading-image").show();
+            },
+
+        }).done(function (data) {
+            $("#loading-image").hide();
+            console.log(data);
+            $("#customers-table tbody").empty().html(data.tbody);
+            $("#customer_count").text(data.count);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+
+    }
+
+    function sortByLastBroadcastID(){
+        lastBroadcast =  $('#last-broadcast').val();
+           dnd =  $('#dnd').val();
+        number = $('#number').val();
+        broadcast = $('#broadcast').val();
+        manual = $('#manual').val();
+        remark = $('#remark').val();
+        name = $('#name').val();
+        whats_number = $('#whats_number').val();
+
+
+        $.ajax({
+            url: src,
+            dataType: "json",
+            data: {
+                dnd: dnd,
+                number: number,
+                broadcast: broadcast,
+                manual: manual,
+                remark: remark,
+                name: name,
+                whats_number : whats_number,
+                lastBroadcast : lastBroadcast,
+
+            },
+            beforeSend: function () {
+                if(lastBroadcast == 0){
+                    $('#last-broadcast').val('1');
+                }else{
+                    $('#last-broadcast').val('0');
+                }
+                $("#loading-image").show();
+            },
+
+        }).done(function (data) {
+            $("#loading-image").hide();
+            console.log(data);
+            $("#customers-table tbody").empty().html(data.tbody);
+            $("#customer_count").text(data.count);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+
+    }
     </script>
 @endsection
