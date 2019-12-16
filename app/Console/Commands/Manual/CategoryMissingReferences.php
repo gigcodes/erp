@@ -2,11 +2,13 @@
 
 namespace App\Console\Commands\Manual;
 
+use Dompdf\Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Category;
 use App\CronJobReport;
 use App\Loggers\LogScraper;
+use Carbon\Carbon;
 
 class CategoryMissingReferences extends Command
 {
@@ -42,8 +44,8 @@ class CategoryMissingReferences extends Command
     public function handle()
     {
         $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
+            'signature' => $this->signature,
+            'start_time' => Carbon::now()
         ]);
 
         // Set empty
@@ -54,12 +56,16 @@ class CategoryMissingReferences extends Command
         //$categories = LogScraper::whereNotNull('category')->where('url', 'LIKE', '%farfetch%')->get(['category']);
 
         // Loop over result
-        foreach ( $categories as $category ) {
+        foreach ($categories as $category) {
             // Get product to update
-            $arrCategories = unserialize($category->category);
+            try {
+                $arrCategories = unserialize($category->category);
+            } catch (Exception $e) {
+                $arrCategories = [];
+            }
 
             // Is it an array?
-            if ( is_array($arrCategories) ) {
+            if (is_array($arrCategories) && count($arrCategories) > 0) {
                 // Get last category
                 $lastCategory = array_pop($arrCategories);
 
@@ -82,7 +88,7 @@ class CategoryMissingReferences extends Command
         $arrUnknown = array_unique($arrUnknown);
 
         // Loop over arrUnknown
-        foreach ( $arrUnknown as $unknown ) {
+        foreach ($arrUnknown as $unknown) {
             echo $unknown . "\n";
         }
 
