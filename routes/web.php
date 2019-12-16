@@ -933,7 +933,6 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::resource('keyword', 'KeywordsController');
     Route::resource('profiles', 'InstagramProfileController');
     Route::get('posts', 'InstagramController@showPosts');
-    Route::resource('account-posts', 'InstagramPostsController');
     Route::resource('hashtagposts', 'HashtagPostsController');
     Route::resource('hashtagpostscomments', 'HashtagPostCommentController');
     Route::get('hashtag/grid/{id}', 'HashtagController@showGrid')->name('hashtag.grid');
@@ -957,6 +956,10 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
 // logScraperVsAiController
 Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/{id}', 'logScraperVsAiController@index');
+});
+
+Route::prefix('social-media')->middleware('auth')->group(function () {
+    Route::get('/instagram-posts', 'InstagramPostsController@index');
 });
 
 /*
