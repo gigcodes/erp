@@ -213,19 +213,22 @@ class InstagramPostsController extends Controller
                 }
 
                 // Comments
-                if (isset($postJson[ 'Comments' ]) && is_array($postJson[ 'Comments' ])) {
+                if (isset($postJson[ 'Comments' ]) && is_array($postJson[ 'Comments' ]) ) {
                     // Loop over comments
                     foreach ($postJson[ 'Comments' ] as $comment) {
-                        // Set hash
-                        $commentHash = md5($comment[ 'Owner' ] . $comment[ 'Comments' ][ 0 ] . $comment[ 'Time' ]);
+                        // Check if there really is a comment
+                        if (isset($comment[ 'Comments' ][ 0 ])) {
+                            // Set hash
+                            $commentHash = md5($comment[ 'Owner' ] . $comment[ 'Comments' ][ 0 ] . $comment[ 'Time' ]);
 
-                        $instagramPostsComment = InstagramPostsComments::firstOrNew(['comment_id' => $commentHash]);
-                        $instagramPostsComment->instagram_post_id = $instagramPost->id;
-                        $instagramPostsComment->comment_id = $commentHash;
-                        $instagramPostsComment->username = $comment[ 'Owner' ];
-                        $instagramPostsComment->comment = $comment[ 'Comments' ][ 0 ];
-                        $instagramPostsComment->posted_at = date('Y-m-d H:i:s', strtotime($comment[ 'Time' ]));
-                        $instagramPostsComment->save();
+                            $instagramPostsComment = InstagramPostsComments::firstOrNew(['comment_id' => $commentHash]);
+                            $instagramPostsComment->instagram_post_id = $instagramPost->id;
+                            $instagramPostsComment->comment_id = $commentHash;
+                            $instagramPostsComment->username = $comment[ 'Owner' ];
+                            $instagramPostsComment->comment = $comment[ 'Comments' ][ 0 ];
+                            $instagramPostsComment->posted_at = date('Y-m-d H:i:s', strtotime($comment[ 'Time' ]));
+                            $instagramPostsComment->save();
+                        }
                     }
                 }
             }
