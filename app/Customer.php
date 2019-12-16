@@ -204,7 +204,7 @@ class Customer extends Model
 
     public function customerMarketingPlatformRemark()
     {
-        return $this->hasMany(CustomerMarketingPlatform::class,'customer_id','id')->whereNotNull('remark');
+        return $this->hasMany(CustomerMarketingPlatform::class,'customer_id','id')->whereNotNull('remark')->orderBy('created_at','desc');
     }
     public function customerMarketingPlatformActive()
     {

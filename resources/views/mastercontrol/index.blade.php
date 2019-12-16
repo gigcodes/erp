@@ -5,6 +5,13 @@
 @section('styles')
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+  <style type="text/css">
+   .sub-table{
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+   }
+  </style>
+  
 @endsection
 
 @section('content')
@@ -61,6 +68,10 @@
                 <td></td>
               </tr>
               <tr>
+                <td colspan="7" class="sub-table"><p>Broadcasts</p>
+                </td>
+              </tr>
+              <tr>
                 <td>Tasks</td>
                 <td></td>
                 <td></td>
@@ -68,6 +79,10 @@
                 <td></td>
                 <td></td>
                 <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table"><p>Tasks</p>
+                </td>
               </tr>
               <tr>
                 <td>Statutory Tasks</td>
@@ -79,6 +94,10 @@
                 <td></td>
               </tr>
               <tr>
+                <td colspan="7" class="sub-table"><p>Statutory Tasks</p>
+                </td>
+              </tr>
+              <tr>
                 <td>Orders</td>
                 <td></td>
                 <td></td>
@@ -86,6 +105,10 @@
                 <td></td>
                 <td></td>
                 <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table"><p>Orders</p>
+                </td>
               </tr>
               <tr>
                 <td>Purchases</td>
@@ -97,6 +120,10 @@
                 <td></td>
               </tr>
               <tr>
+                <td colspan="7" class="sub-table"><p>Purchases</p>
+                </td>
+              </tr>
+              <tr>
                 <td>Scraping</td>
                 <td></td>
                 <td></td>
@@ -104,6 +131,10 @@
                 <td></td>
                 <td></td>
                 <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table"><p>Scraping</p>
+                </td>
               </tr>
               <tr>
                 <td>Reviews</td>
@@ -114,6 +145,10 @@
                 <td></td>
                 <td></td>
               </tr>
+              <tr>
+                <td colspan="7" class="sub-table"><p>Reviews</p>
+                </td>
+              </tr>
                <tr>
                 <td>Emails</td>
                 <td></td>
@@ -123,6 +158,10 @@
                 <td></td>
                 <td></td>
               </tr>
+              <tr>
+                <td colspan="7" class="sub-table"><p>Emails.</p>
+                </td>
+              </tr>
                <tr>
                 <td>Accounting</td>
                 <td></td>
@@ -131,6 +170,10 @@
                 <td></td>
                 <td></td>
                 <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table"><p>Accounting.</p>
+                </td>
               </tr>
            </tbody>
         </table>
@@ -152,61 +195,13 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script type="text/javascript">
+
+   
   $(document).ready(function() {
     $("body").tooltip({ selector: '[data-toggle=tooltip]' });
   });
 
-  var group_id = '';
-  @foreach ($message_groups as $date => $data)
-    @foreach ($data as $group_id => $group)
-      group_id = "{{ $date }}{{ $group_id }}";
-      console.log(group_id);
-      window['horizontalBroadcastBarChart' + group_id] = $('#horizontalBroadcastBarChart' + group_id);
-      var horizontalBarChart = new Chart(window['horizontalBroadcastBarChart' + group_id], {
-          type: 'horizontalBar',
-          data: {
-            labels: ['Total'],
-            datasets: [
-              {
-                label: "Sent",
-                backgroundColor: '#5EBA31',
-                data: [{{ $group['sent'] }}],
-              },
-              {
-                label: "Received",
-                backgroundColor: '#5738CA',
-                data: [{{ $group['received'] }}],
-              },
-              {
-                label: "Stopped",
-                backgroundColor: '#DC143C',
-                data: [{{ $group['stopped'] }}],
-              }
-            ],
-          },
-          options: {
-            beginAtZero: true,
-            elements: {
-              rectangle: {
-                borderWidth: 2,
-              }
-            },
-            responsive: true,
-            legend: {
-              position: 'right',
-            },
-            scales: {
-              xAxes: [{
-                ticks: {
-                  beginAtZero: true,
-                  max: {{ $group['total'] }}
-                }
-              }]
-            }
-          }
-      });
-    @endforeach
-  @endforeach
+ 
 
     $(document).on('click', '.quick-shortcut-button', function(e) {
       e.preventDefault();
@@ -271,254 +266,18 @@
 
     cb(start, end);
 
-    $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
-
-        jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
-        jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
-
-    });
-    var tabs = [];
-    var red_tabs = localStorage['red_tabs'];
-
-    if (red_tabs) {
-      tabs = JSON.parse(red_tabs);
-      tabs.forEach(function(index) {
-        $('a[href="' + index + '"]').addClass('text-danger');
-      });
-    }
-
-    $('#exTab2 li').on('dblclick', function() {
-      var href = $(this).find('a').attr('href');
-
-      if (red_tabs) {
-        tabs = JSON.parse(red_tabs);
-        console.log(red_tabs);
-
-        if (tabs.indexOf(href) < 0) {
-          tabs.push(href);
+    $(function() {
+    $(".sub-table").find("p").hide();
+    $("table").click(function(event) {
+        event.stopPropagation();
+        var $target = $(event.target);
+        if ( $target.closest("td").attr("colspan") > 1 ) {
+            $target.slideUp();
         } else {
-          tabs.splice(tabs.indexOf(href), 1);
-        }
-
-        localStorage['red_tabs'] = JSON.stringify(tabs);
-        red_tabs = localStorage['red_tabs'];
-
-      } else {
-        tabs.push(href);
-        localStorage['red_tabs'] = JSON.stringify(tabs);
-        red_tabs = localStorage['red_tabs'];
-      }
-
-      $(this).find('a').toggleClass('text-danger');
+            $target.closest("tr").next().find("p").slideToggle();
+        }                    
     });
-
-    $(document).on('change', '.plan-task', function() {
-      var time_slot = $(this).data('timeslot');
-      var id = $(this).val();
-      var thiss = $(this);
-      var target_id = $(this).data('targetid');
-
-      if (id != '') {
-        $.ajax({
-          type: "POST",
-          url: "{{ url('task') }}/" + id + '/plan',
-          data: {
-            _token: "{{ csrf_token() }}",
-            time_slot: time_slot
-          }
-        }).done(function(response) {
-          // var count = $('#' + target_id).find('td').attr('rowspan');
-          // console.log(count, '#' + target_id);
-          // $('#' + target_id).find('td').attr('rowspan', parseInt(count, 10)+ 1);
-          var row = `<tr>
-            <td class="p-2">` + time_slot + `</td>
-            <td class="p-2">
-              <div class="d-flex justify-content-between">
-                <span>
-                ` + response.task.task_subject + `
-                </span>
-                <span>
-                  <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="` + response.task.id + `" data-type="task"><img src="/images/incomplete.png" /></button>
-                </span>
-              </div>
-            </td>
-            <td class="p-2 task-time"></td>
-            <td class="p-2"><button type="button" class="btn btn-image make-remark p-0 m-0" data-toggle="modal" data-target="#makeRemarkModal" data-id="` + response.task.id + `"><img src="/images/remark.png" /></button></td>
-          </tr>`;
-
-          $(thiss).closest('tr').before(row);
-        }).fail(function(response) {
-          console.log(response);
-          alert('Could not plan a task');
-        });
-      }
     });
-
-    $(document).on('click', '.make-remark', function(e) {
-      e.preventDefault();
-
-      var id = $(this).data('id');
-      $('#add-remark input[name="id"]').val(id);
-
-      $.ajax({
-          type: 'GET',
-          headers: {
-              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-          },
-          url: '{{ route('task.gettaskremark') }}',
-          data: {
-            id:id,
-            module_type: "task"
-          },
-      }).done(response => {
-          var html='';
-
-          $.each(response, function( index, value ) {
-            html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
-            html+"<hr>";
-          });
-          $("#makeRemarkModal").find('#remark-list').html(html);
-      });
-    });
-
-    $('#addRemarkButton').on('click', function() {
-      var id = $('#add-remark input[name="id"]').val();
-      var remark = $('#add-remark').find('textarea[name="remark"]').val();
-
-      $.ajax({
-          type: 'POST',
-          headers: {
-              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-          },
-          url: '{{ route('task.addRemark') }}',
-          data: {
-            id:id,
-            remark:remark,
-            module_type: 'task'
-          },
-      }).done(response => {
-          $('#add-remark').find('textarea[name="remark"]').val('');
-
-          var html =' <p> '+ remark +' <br> <small>By You updated on '+ moment().format('DD-M H:mm') +' </small></p>';
-
-          $("#makeRemarkModal").find('#remark-list').append(html);
-      }).fail(function(response) {
-        console.log(response);
-
-        alert('Could not fetch remarks');
-      });
-    });
-
-    $(document).on('click', '.task-complete', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      var thiss = $(this);
-      var task_id = $(thiss).data('id');
-      var image = $(this).html();
-      var current_user = {{ Auth::id() }};
-      var type = $(this).data('type');
-
-      if (type == 'activity') {
-        var url = "/dailyActivity/complete/" + task_id;
-      } else {
-        var url = "/task/complete/" + task_id;
-      }
-
-      if (!$(thiss).is(':disabled')) {
-        $.ajax({
-          type: "GET",
-          url: url,
-          data: {
-            type: 'complete'
-          },
-          beforeSend: function () {
-            $(thiss).text('Completing...');
-          }
-        }).done(function(response) {
-          // $(thiss).parent()
-          $(thiss).closest('tr').find('.task-time').text(moment().format('DD-MM HH:mm'));
-          $(thiss).remove();
-        }).fail(function(response) {
-          $(thiss).html(image);
-
-          alert('Could not mark as completed!');
-
-          console.log(response);
-        });
-      }
-    });
-
-    $(document).on('click', '.show-tasks', function() {
-      var count = $(this).data('count');
-      // var rowspan = $(this)
-      $('.hiddentask' + count).toggleClass('hidden');
-    });
-
-    function storeDailyActivity(element, activity, time_slot, target_id) {
-      $.ajax({
-        type: 'POST',
-        url: "{{ route('dailyActivity.quick.store') }}",
-        data: {
-          _token: "{{ csrf_token() }}",
-          activity: activity,
-          time_slot: time_slot,
-          user_id: "{{ isset($selected_user) && $selected_user != '' ? $selected_user : Auth::id() }}",
-          for_date: "{{ date('Y-m-d') }}"
-        }
-      }).done(function(response) {
-        var count = $('#' + target_id).find('td').attr('rowspan');
-        var row = `<tr>
-          <td class="p-2"></td>
-          <td class="p-2">
-            <div class="d-flex justify-content-between">
-              <span>
-              ` + activity + `
-              </span>
-              <span>
-                <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="` + response.activity.id + `" data-type="activity"><img src="/images/incomplete.png" /></button>
-              </span>
-            </div>
-          </td>
-          <td class="p-2 task-time"></td>
-          <td class="p-2"><button type="button" class="btn btn-image make-remark p-0 m-0" data-toggle="modal" data-target="#makeRemarkModal" data-id="` + response.activity.id + `"><img src="/images/remark.png" /></button></td>
-        </tr>`;
-
-        $('#' + target_id).find('td').attr('rowspan', parseInt(count, 10)+ 1);
-
-        $(element).closest('tr').before(row);
-        $(element).val('');
-      }).fail(function(response) {
-        console.log(response);
-
-        alert('Could not create activity');
-      });
-    }
-
-    $('.quick-plan-input').on('keypress', function(e) {
-      console.log(e);
-      var key = e.which;
-      var thiss = $(this);
-      var time_slot = $(this).data('timeslot');
-      var target_id = $(this).data('targetid');
-      var activity = $(this).val();
-
-      if (key == 13) {
-        e.preventDefault();
-
-        storeDailyActivity(thiss, activity, time_slot, target_id);
-      }
-    });
-
-    $('.quick-plan-button').on('click', function(e) {
-      var thiss = $(this);
-      var time_slot = $(this).data('timeslot');
-      var target_id = $(this).data('targetid');
-      var activity = $(this).siblings('.quick-plan-input').val();
-
-      storeDailyActivity(thiss, activity, time_slot, target_id);
-
-      $(this).siblings('.quick-plan-input').val('');
-    });
+ 
   </script>
 @endsection
