@@ -199,7 +199,7 @@ class InstagramPostsController extends Controller
 
                 // Store media
                 if (!empty($postJson[ 'Image' ])) {
-                    if ($instagramPost->hasMedia('instagram-post')) {
+                    if (!$instagramPost->hasMedia('instagram-post')) {
                         $media = MediaUploader::fromSource($postJson[ 'Image' ])
                             ->toDisk('uploads')
                             ->toDirectory('social-media/instagram-posts/' . floor($instagramPost->id / 1000))
