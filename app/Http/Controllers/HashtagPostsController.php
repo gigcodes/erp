@@ -30,7 +30,7 @@ class HashtagPostsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -41,7 +41,7 @@ class HashtagPostsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\HashtagPosts  $hashtagPosts
+     * @param  \App\HashtagPosts $hashtagPosts
      * @return \Illuminate\Http\Response
      */
     public function show(HashtagPosts $hashtagPosts)
@@ -52,7 +52,7 @@ class HashtagPostsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\HashtagPosts  $hashtagPosts
+     * @param  \App\HashtagPosts $hashtagPosts
      * @return \Illuminate\Http\Response
      */
     public function edit(HashtagPosts $hashtagPosts)
@@ -63,8 +63,8 @@ class HashtagPostsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\HashtagPosts  $hashtagPosts
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\HashtagPosts $hashtagPosts
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, HashtagPosts $hashtagPosts)
@@ -75,7 +75,7 @@ class HashtagPostsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\HashtagPosts  $hashtagPosts
+     * @param  \App\HashtagPosts $hashtagPosts
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

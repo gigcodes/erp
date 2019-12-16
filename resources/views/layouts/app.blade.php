@@ -316,7 +316,7 @@
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
-                                
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Listing<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -471,7 +471,14 @@
                                         </li>
                                     </ul>
                                 </li>
-                                
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Magento<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('Logging\LogListMagentoController@index') }}">Log List Magento</a>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1274,7 +1281,7 @@
         @include('partials.modals.quick-development-task')
         @php
         $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
-        @endphp    
+        @endphp
         @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
         @include('partials.chat')
         @elseif($liveChatUsers != '' && $liveChatUsers != null)
@@ -1347,7 +1354,7 @@
         </div>
     </div>
     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-        
+
     <div class="chat-button-wrapper">
         <div class="col-md-9 page-chat-list-rt dis-none">
             <div class="help-list well well-lg">
@@ -1363,13 +1370,13 @@
 						</div>
 					</div>
 					<div class="card-body contacts_body">
-                        @php 
+                        @php
                             $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
                             $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                         @endphp
 						<ul class="contacts" id="customer-list-chat">
                         @foreach ($chatIds as $chatId)
-                            @php 
+                            @php
                                $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
                             @endphp
                             <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
@@ -1385,9 +1392,9 @@
                                 @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
 							</div>
 						</li>
-                            
-                        @endforeach    
-						
+
+                        @endforeach
+
 						</ul>
 					</div>
 					<div class="card-footer"></div>
@@ -1398,7 +1405,7 @@
 							<div class="d-flex bd-highlight">
 								<div class="img_cont">
 									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
-									
+
 								</div>
 								<div class="user_info" id="user_name">
 									{{-- <span>Chat with Khalid</span>
@@ -1420,7 +1427,7 @@
 							</div>
                         </div>
                         <div class="card-body msg_card_body" id="message-recieve">
-                            
+
                         </div>
                         <div class="card-footer">
 							<div class="input-group">
@@ -1438,7 +1445,7 @@
                     </div>
                     </div>
             </div>
-                
+
             </div>
         </div>
         <div class="col-md-3">
@@ -1461,13 +1468,13 @@
 						</div>
 					</div>
 					<div class="card-body contacts_body">
-                        @php 
+                        @php
                             $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
                             $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                         @endphp
 						<ul class="contacts" id="customer-list-chat">
                         @foreach ($chatIds as $chatId)
-                            @php 
+                            @php
                                $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
                             @endphp
                             <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
@@ -1483,9 +1490,9 @@
                                 @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
 							</div>
 						</li>
-                            
-                        @endforeach    
-						
+
+                        @endforeach
+
 						</ul>
 					</div>
 					<div class="card-footer"></div>
@@ -1496,7 +1503,7 @@
 							<div class="d-flex bd-highlight">
 								<div class="img_cont">
 									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
-									
+
 								</div>
 								<div class="user_info" id="user_name">
 									{{-- <span>Chat with Khalid</span>
@@ -1518,7 +1525,7 @@
 							</div>
                         </div>
                         <div class="card-body msg_card_body" id="message-recieve">
-                            
+
                         </div>
                         <div class="card-footer">
 							<div class="input-group">
@@ -1536,7 +1543,7 @@
                     </div>
                     </div>
             </div>
-                
+
             </div>
         </div>
         <div class="col-md-3">

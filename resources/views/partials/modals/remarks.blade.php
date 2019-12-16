@@ -9,10 +9,9 @@
       </div>
 
       <div class="modal-body">
-        <div id="remark-list">
+        <ul class="list-unstyled" id="remark-list">
 
-        </div>
-
+        </ul>
         <form id="add-remark">
           <input type="hidden" name="id" value="">
           <div class="form-group">
