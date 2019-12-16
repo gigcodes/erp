@@ -18,10 +18,10 @@
             <textarea rows="2" name="remark" class="form-control" placeholder="Start the Remark"></textarea>
           </div>
           <div class="form-group">
-            <label><input type="checkbox" value="need_to_send">&nbsp;Need to Send Message ?</label>
+            <label><input type="checkbox" class="need_to_send" value="1">&nbsp;Need to Send Message ?</label>
           </div>
           <div class="form-group">
-            <label><input type="checkbox" value="inlcude_made_by">&nbsp;Want to include Made By ?</label>
+            <label><input type="checkbox" class="inlcude_made_by" value="1">&nbsp;Want to include Made By ?</label>
           </div>
           <button type="button" class="btn btn-secondary btn-block mt-2" id="{{ (!empty($type) && $type = 'scrap') ? 'scrapAddRemarkbutton' : 'addRemarkButton' }}">Add</button>
         </form>

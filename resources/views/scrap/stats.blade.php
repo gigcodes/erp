@@ -320,7 +320,9 @@
                 url: '{{ route('scrap.addRemark') }}',
                 data: {
                     id: id,
-                    remark: remark
+                    remark: remark,
+                    need_to_send : $(".need_to_send").val(),
+                    inlcude_made_by : $(".inlcude_made_by").val()
                 },
             }).done(response => {
                 $('#add-remark').find('textarea[name="remark"]').val('');
