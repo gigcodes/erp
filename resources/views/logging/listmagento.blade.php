@@ -36,17 +36,24 @@
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
-                <th width="15%">Product ID</th>
-                <th width="60%">Message</th>
-                <th width="25%">Date/Time</th>
+                <th>Product ID</th>
+                <th>SKU</th>
+                <th>Brand</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Message</th>
+                <th>Date/Time</th>
             </tr>
             <tr>
                 <th><input type="text" id="product_id"></th>
+                <th><input type="text" id="sku"></th>
+                <th><input type="text" id="brand"></th>
+                <th><input type="text" id="category"></th>
+                <th>&nbsp;</th>
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
             </tr>
             </thead>
-
             <tbody id="content_data">
             @include('logging.partials.listmagento_data')
             </tbody>
@@ -62,12 +69,15 @@
 @section('scripts')
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#product_id').on('blur', function () {
+            $('#product_id,#sku,#brand,#category').on('blur', function () {
                 $.ajax({
                     url: '/logging/list-magento',
                     dataType: "json",
                     data: {
-                        product_id: $('#product_id').val()
+                        product_id: $('#product_id').val(),
+                        sku: $('#sku').val(),
+                        brand: $('#brand').val(),
+                        category: $('#category').val()
                     },
                     beforeSend: function () {
                         $("#loading-image").show();

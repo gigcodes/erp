@@ -12,11 +12,26 @@ class LogListMagentoController extends Controller
     public function index(Request $request)
     {
         // Get results
-        $logListMagentos = LogListMagento::orderBy('created_at', 'DESC');
+        $logListMagentos = LogListMagento::join('products', 'log_list_magentos.product_id', '=', 'products.id')
+            ->join('brands', 'products.brand', '=', 'brands.id')
+            ->join('categories', 'products.category', '=', 'categories.id')
+            ->orderBy('log_list_magentos.created_at', 'DESC');
 
-        // Filter
-        if ( !empty($request->product_id) ) {
+        // Filters
+        if (!empty($request->product_id)) {
             $logListMagentos->where('product_id', 'LIKE', '%' . $request->product_id . '%');
+        }
+
+        if (!empty($request->sku)) {
+            $logListMagentos->where('products.sku', 'LIKE', '%' . $request->sku . '%');
+        }
+
+        if (!empty($request->brand)) {
+            $logListMagentos->where('brands.name', 'LIKE', '%' . $request->brand . '%');
+        }
+
+        if (!empty($request->category)) {
+            $logListMagentos->where('categories.title', 'LIKE', '%' . $request->category . '%');
         }
 
         // Get paginated result
