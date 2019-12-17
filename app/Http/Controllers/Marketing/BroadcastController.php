@@ -143,7 +143,7 @@ class BroadcastController extends Controller
                 elseif(request('total') == 6){
                     $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($request) {
                         $qu->where('active', 1);
-                    })->where('broadcast_number',null);
+                    })->where('broadcast_number',null)->where('do_not_disturb',0);
                 }
 
                 if(request('total') == 7 && request('customrange') != null){
