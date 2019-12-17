@@ -226,7 +226,47 @@
                       </table>
                     </td>
                       @else 
-                           
+                      <input type="hidden"  id="remark-text{{ $note->id }}">
+                      <input type="hidden"  id="remark-id{{ $note->id }}">
+                      
+                      <td class="td-style">
+
+                        <table class="table table-style">  
+                          
+                          <tbody> 
+
+                            <tr class="tr-style"> 
+
+                              <th class="table-head-row expand-row table-hover-cell th-remark" id="remark{{$note->id}}"> 
+                              No Remark   
+                              </th>
+                               
+                               <th class="table-head-row th-add-user th-created_at" id="created{{$note->id}}">   </th> <input type="hidden" id="current-remark-id"> 
+                              
+                               <th class="table-head-row" style="width:23%"> 
+                                 <button type="button" class="btn btn-image create-quick-task-note-button" onclick="createTaskNoteButton({{  $note->id }})"><img src="/images/add.png" /></button>
+                                
+                                 <div style="display:none;" id="divremark{{ $note->id }}">
+                                    <select class="form-control selectpicker" data-live-search="true" style="display:none !important;" onchange="sendUserTask({{ $note->id }})" id="user-selected{{ $note->id }}">
+                                      @foreach($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                      @endforeach
+                                    </select>
+                                  </div>
+                                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#chat-list-history{{ $note->id }}"><img src="/images/chat.png" /></button>
+                                 <button type="button" class="btn btn-image" onclick="archiveRemarkRefresh()"><img src="/images/archive.png" /></button>
+                                
+                                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#archive-list-history{{ $note->id }}"><img src="/images/advance-link.png" /></button>
+
+
+                               </th> 
+                             
+                              <th class="table-head-row">   <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value=""> </th>
+                          
+                          </tr>
+                        </tbody> 
+                      </table>
+                    </td>     
                    @endif
                       
                     
@@ -1705,7 +1745,7 @@
               
           }
           }).done(function(response) {
-              
+              location.reload();
               $('#archive-remark-details'+noteId).append("<div class='bubble alt'> <div class='txt'><p class='name alt'></p><p class='message'>"+response.success+"</p> </div></div>");
           }).fail(function(response) {
               alert('Could not create task!');
@@ -1720,5 +1760,9 @@
                 $(this).find('.td-full-container').toggleClass('hidden');
             }
         });
+
+         function archiveRemarkRefresh() {
+           location.reload();
+         }
   </script>
 @endsection

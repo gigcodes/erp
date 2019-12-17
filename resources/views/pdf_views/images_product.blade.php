@@ -45,8 +45,7 @@
 /*# sourceMappingURL=bootstrap.min.css.map */
 </style>
 <body>
-@foreach($medias->chunk(2) as $subMedias)
-    @foreach($subMedias as $subMedia)
+<?php foreach($medias as $subMedia) { ?>
         <?php 
         if (!file_exists ($subMedia->getAbsolutePath())  || !in_array($subMedia->extension,config("constants.gd_supported_files"))) {
             continue;
@@ -84,6 +83,21 @@
             }
 
             if($product) {
+
+                // check if it is for customer then add entry with approvel on chat message 
+                if(!empty($chat_message) && $chat_message->customer_id > 0) {
+                    $extraMessage = [
+                        "customer_id" => $chat_message->customer_id,
+                        "is_queue" => 0,
+                        "user_id" => \Auth::id(),
+                        "status" => 2,
+                        "approved" => 1,
+                        "product_id" => $product->id
+                    ];
+                    $extraChat = \App\ChatMessage::create($extraMessage);
+                    $extraChat->attachMedia($subMedia, config('constants.media_tags'));
+                }
+
                 $textToSend = [];
                 $textToSend[] = $product->name . " ";
                 if ($product->brands) {
@@ -107,7 +121,6 @@
                 </div>    
             <?php } ?>
         </div>
-    @endforeach
-@endforeach
+<?php } ?>
 </body>
 </html>

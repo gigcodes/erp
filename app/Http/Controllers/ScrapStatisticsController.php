@@ -206,30 +206,31 @@ class ScrapStatisticsController extends Controller
         $name = $request->input( 'id' );
         $created_at = date('Y-m-d H:i:s');
         $update_at = date('Y-m-d H:i:s');
-        $remark_entry = ScrapRemark::create([
-            'scraper_name' => $name,
-            'remark'  => $remark,
-            'user_name' => Auth::user()->name
-        ]);
 
-        $needToSend = request()->get("need_to_send", false);
-        $includeAssignTo = request()->get("inlcude_made_by", false);
+        if(!empty($remark)) {
+            $remark_entry = ScrapRemark::create([
+                'scraper_name' => $name,
+                'remark'  => $remark,
+                'user_name' => Auth::user()->name
+            ]);
 
-        if($needToSend) {
-            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('31629987287', '971502609192', "SCRAPER-REMARK#".$name."\n".$remark);
-            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('919004780634', '971502609192', "SCRAPER-REMARK#".$name."\n".$remark);
+            $needToSend = request()->get("need_to_send", false);
+            $includeAssignTo = request()->get("inlcude_made_by", false);
             
-            if($includeAssignTo) {
-                $scraper = \App\Supplier::where("scraper_name",$id)->first();
-                if($scraper) {
-                    $sendPer = $scraper->scraperMadeBy;
-                    if($sendPer) {
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($sendPer->phone, $sendPer->whatsapp_number, "SCRAPER-REMARK#".$name."\n".$remark);
+            if($needToSend == 1) {
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('31629987287', '971502609192', "SCRAPER-REMARK#".$name."\n".$remark);
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('919004780634', '971502609192', "SCRAPER-REMARK#".$name."\n".$remark);
+                if($includeAssignTo == 1) {
+                    $scraper = \App\Supplier::where("scraper_name",$name)->first();
+                    if($scraper) {
+                        $sendPer = $scraper->scraperMadeBy;
+                        if($sendPer) {
+                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($sendPer->phone, $sendPer->whatsapp_number, "SCRAPER-REMARK#".$name."\n".$remark);
+                        }
                     }
                 }
             }
         }
-
 
         return response()->json(['remark' => $remark ],200);
     }
@@ -248,7 +249,7 @@ class ScrapStatisticsController extends Controller
             if($fieldName == "scraper_madeby") {
                 $oldValue  = ($suplier->scraperMadeBy) ? $suplier->scraperMadeBy->name : "";
             }
-
+            
             if($fieldName == "scraper_parent_id") {
                 $oldValue  = ($suplier->scraperParent) ? $suplier->scraperParent->scraper_name : "";
             }
@@ -268,12 +269,10 @@ class ScrapStatisticsController extends Controller
                 $newValue  = ($suplier->scraperParent) ? $suplier->scraperParent->scraper_name : "";
             }
 
-            ScrapHistory::create([
-              "operation" => "Update",
-              "model" =>  \App\Supplier::class, 
-              "model_id" => $suplier->id, 
-              "text" =>  "{$fieldName} updated old value was $oldValue and new value is $newValue",
-              "created_by" => \Auth::id()  
+            $remark_entry = ScrapRemark::create([
+                'scraper_name' => $suplier->scraper_name,
+                'remark'  => "{$fieldName} updated old value was $oldValue and new value is $newValue",
+                'user_name' => Auth::user()->name
             ]);
 
         }

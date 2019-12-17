@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Excel Importer  Info')
+@section('title', 'Scraped URL Info')
 
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
@@ -36,23 +36,23 @@
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
-                <th width="15%">Website</th>
+                <th width="30%">Website</th>
                 <th width="10%">Url</th>
                 <th width="10%">Sku</th>
-                <th width="30%">Brand</th>
+                <th width="40%">Brand</th>
                 <th width="10%">Title</th>
                 <th width="10%">Currency</th>
                 <th width="10%">Price</th>
-                <th width="10%">Created_at</th>
-                <th width="10%">Updated_at</th>
+                <th width="10%"><button class="btn btn-link" onclick="sortByDateCreated()" id="header-created" value="0">Created_at</button></th>
+                <th width="10%"><button class="btn btn-link" onclick="sortByDateUpdated()" id="header-updated" value="0">Updated_at</button></th>
 
             </tr>
             <tr>
-                <th width="15%">
+                <th width="30%">
                     @php 
                     $websites = \App\Loggers\LogScraper::select('id','website')->groupBy('website')->get();
                     @endphp
-                    <select class="form-control select-multiple2" name="website[]" data-placeholder="Select websites.." multiple id="website">
+                    <select class="form-control select-multiple2" data-placeholder="Select websites.." multiple id="website">
                                 <optgroup label="Websites">
                                   @foreach ($websites as $website)
                                     <option value="{{ $website->website }}">{{ $website->website }}</option>
@@ -62,7 +62,7 @@
                 </th>
                 <th width="10%"><input type="text" class="search form-control" id="url"></th>
                 <th width="10%"><input type="text" class="search form-control" id="sku"></th>
-                <th width="25%"> @php $brands = \App\Brand::getAll(); @endphp
+                <th width="40%"> @php $brands = \App\Brand::getAll(); @endphp
                               <select class="form-control select-multiple2" name="brand[]" id="brand" data-placeholder="Select brand.." multiple >
                                 <optgroup label="Brands">
                                   @foreach ($brands as $key => $name)
@@ -80,7 +80,7 @@
                             </span>
                         </div></th>
                 <th> <div class='input-group' id='updated-date'>
-                        <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="updated-date" />
+                        <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="updated_date" />
                             <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                             </span>
@@ -92,7 +92,7 @@
              @include('scrap.partials.scraped_url_data')
             </tbody>
 
-            {{ $logs->render() }}
+            {!! $logs->render() !!}
 
         </table>
     </div>
@@ -120,7 +120,7 @@
             title = $('#title').val();
             currency = $('#currency').val();
             price = $('#price').val();
-            
+            src = "/scrap/scraped-urls";
            $.ajax({
                 url: src,
                 dataType: "json",
@@ -160,7 +160,7 @@
             title = $('#title').val();
             currency = $('#currency').val();
             price = $('#price').val();
-            
+           src = "/scrap/scraped-urls"; 
            $.ajax({
                 url: src,
                 dataType: "json",
@@ -251,13 +251,15 @@
         });
 
         //Filter by date
+        count = 0;
         $('#created-date').datetimepicker(
             { format: 'YYYY/MM/DD' }).on('dp.change', 
             function (e) 
-            { var formatedValue = e.date.format(e.date._f);
-                
+            {
+            if(count > 0){    
+             var formatedValue = e.date.format(e.date._f);
                 created = $('#created_date').val();
-                updated = $('#updated-date').val();
+                updated = $('#updated_date').val();
                 website = $('#website').val();
                 url = $('#url').val();
                 sku = $('#sku').val();
@@ -300,17 +302,20 @@
                     alert('No response from server');
                 });  
 
+            } 
+            count++;       
             });
 
-
-           //Filter by date
+            
+            count = 0;
         $('#updated-date').datetimepicker(
             { format: 'YYYY/MM/DD' }).on('dp.change', 
             function (e) 
-            { var formatedValue = e.date.format(e.date._f);
-                
+            {
+            if(count > 0){    
+             var formatedValue = e.date.format(e.date._f);
                 created = $('#created_date').val();
-                updated = $('#updated-date').val();
+                updated = $('#updated_date').val();
                 website = $('#website').val();
                 url = $('#url').val();
                 sku = $('#sku').val();
@@ -340,7 +345,8 @@
                     },
 
                 }).done(function (data) {
-                    $("#log-table tbody").empty().html(data.tbody);
+                    $("#loading-image").hide();
+                $("#content_data").empty().html(data.tbody);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
                 } else {
@@ -352,7 +358,10 @@
                     alert('No response from server');
                 });  
 
-            }); 
+            } 
+            count++;       
+            });
+
 
         //Search    
         src = "/scrap/scraped-urls";
@@ -424,6 +433,107 @@
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
             });
+         }
+
+ 
+
+         function sortByDateCreated() {
+            orderCreated = $('#header-created').val();
+            website = $('#website').val();
+            url = $('#url').val();
+            sku = $('#sku').val();
+            title = $('#title').val();
+            currency = $('#currency').val();
+            price = $('#price').val();
+            brand = $('#brand').val();
+
+            src = "/scrap/scraped-urls";
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    website : website,
+                    url : url,
+                    sku : sku,
+                    title : title , 
+                    currency : currency , 
+                    price : price , 
+                    brand : brand,
+                    orderCreated : orderCreated,
+                },
+                beforeSend: function () {
+                    if(orderCreated == 0){
+                        $('#header-created').val('1');
+                    }else{
+                        $('#header-created').val('0');
+                    }
+                    $("#loading-image").show();
+                },
+
+            }).done(function (data) {
+                $("#loading-image").hide();
+            $("#content_data").empty().html(data.tbody);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+                
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });  
+
+         }
+
+         
+         function sortByDateUpdated() {
+            orderUpdated = $('#header-updated').val();
+            website = $('#website').val();
+            url = $('#url').val();
+            sku = $('#sku').val();
+            title = $('#title').val();
+            currency = $('#currency').val();
+            price = $('#price').val();
+            brand = $('#brand').val();
+
+            src = "/scrap/scraped-urls";
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    website : website,
+                    url : url,
+                    sku : sku,
+                    title : title , 
+                    currency : currency , 
+                    price : price , 
+                    brand : brand,
+                    orderUpdated : orderUpdated,
+                },
+                beforeSend: function () {
+                    if(orderUpdated == 0){
+                        $('#header-updated').val('1');
+                    }else{
+                        $('#header-updated').val('0');
+                    }
+                    $("#loading-image").show();
+                },
+
+            }).done(function (data) {
+                $("#loading-image").hide();
+            $("#content_data").empty().html(data.tbody);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+                
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });  
+
          }
     </script>
 @endsection
