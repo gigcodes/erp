@@ -225,9 +225,11 @@ class CategoryController extends Controller
 
     public function mapCategory()
     {
-        $categories = Category::where( 'id', '>', 1 )->where('parent_id', 0)->get();
+        $fillerCategories = Category::where( 'id', '>', 1 )->where('parent_id', 0)->whereIn('id', [143,144])->get();
 
-        return view( 'category.references', compact( 'categories' ) );
+        $categories = Category::where( 'id', '>', 1 )->where('parent_id', 0)->whereNotIn('id', [143,144])->get();
+
+        return view( 'category.references', compact( 'fillerCategories', 'categories' ) );
     }
 
     public function saveReferences( Request $request )

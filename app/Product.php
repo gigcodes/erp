@@ -570,7 +570,7 @@ class Product extends Model
     {
         if (!$this->hasMedia(\Config('constants.media_tags')) || is_array($arrImages)) {
             // images given
-            if (count($arrImages) > 0) {
+            if (is_array($arrImages) && count($arrImages) > 0) {
                 $scrapedProduct = true;
             } else {
                 //getting image details from scraped Products
