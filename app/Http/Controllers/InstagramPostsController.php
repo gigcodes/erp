@@ -9,6 +9,7 @@ use App\Account;
 use App\HashTag;
 use App\InstagramPosts;
 use App\InstagramPostsComments;
+use App\Setting;
 use Illuminate\Http\Request;
 use InstagramAPI\Instagram;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -24,9 +25,9 @@ class InstagramPostsController extends Controller
     public function index()
     {
         //$accounts = Account::where('platform', 'instagram')->get();
-        $posts = InstagramPosts::all();
+        $posts = InstagramPosts::orderBy('posted_at', 'DESC')->paginate(Setting::get('pagination'));
 
-        return view('instagram.posts.index', compact('accounts', 'posts'));
+        return view('social-media.instagram-posts.index', compact('accounts', 'posts'));
     }
 
     /**
@@ -181,8 +182,7 @@ class InstagramPostsController extends Controller
             // Loop over posts
             foreach ($payLoad as $postJson) {
                 // Set tag
-                $tag = $postJson[ 'Tags' ];
-                $tag = 'SoloLuxury';
+                $tag = $postJson[ 'Tag used to search' ];
 
                 // Get hashtag ID
                 $hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
@@ -190,8 +190,9 @@ class InstagramPostsController extends Controller
                 // Retrieve instagram post or initiate new
                 $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson[ 'URL' ]]);
                 $instagramPost->hashtag_id = $hashtag->id;
-                $instagramPost->username = 'nobody';
-                $instagramPost->posted_at = '2000-01-01 00:00:00';
+                $instagramPost->username = $postJson[ 'Owner' ];
+                $instagramPost->caption = $postJson[ 'Original Post' ];
+                $instagramPost->posted_at = date('Y-m-d H:i:s', strtotime($postJson[ 'Time of Post' ]));
                 $instagramPost->media_type = !empty($postJson[ 'Image' ]) ? 'image' : 'other';
                 $instagramPost->media_url = !empty($postJson[ 'Image' ]) ? $postJson[ 'Image' ] : $postJson[ 'URL' ];
                 $instagramPost->source = 'instagram';
@@ -213,7 +214,7 @@ class InstagramPostsController extends Controller
                 }
 
                 // Comments
-                if (isset($postJson[ 'Comments' ]) && is_array($postJson[ 'Comments' ]) ) {
+                if (isset($postJson[ 'Comments' ]) && is_array($postJson[ 'Comments' ])) {
                     // Loop over comments
                     foreach ($postJson[ 'Comments' ] as $comment) {
                         // Check if there really is a comment
