@@ -1,7 +1,7 @@
 
 
-    <button type="button" class="btn btn-secondary select-all-system-btn" data-count="0">Send All In System</button>
-    <button type="button" class="btn btn-secondary select-all-page-btn" data-count="0">Send All On Page</button>
+
+    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#product-sku">Get Product By Text</button>
 
     <div class="productGrid" id="productGrid">
         {!! $products->appends(Request::except('page'))->links() !!}

@@ -381,7 +381,7 @@ class GoogleSearchImageController extends Controller
                 $product->status_id = StatusHelper::$googleImageSearchFailed;
                 $product->save();
             } else {
-                StatusHelper::updateStatus($product, StatusHelper::$pendingVerificationGoogleImageSearch);
+                StatusHelper::updateStatus($product, StatusHelper::$queuedForGoogleImageSearch);
             }
         }
         return response()->json(['success' => 'true'], 200);
@@ -470,7 +470,7 @@ class GoogleSearchImageController extends Controller
                             $newProduct->status_id = StatusHelper::$googleImageSearchFailed;
                             $newProduct->save();
                         } else {
-                            StatusHelper::updateStatus($newProduct, StatusHelper::$pendingVerificationGoogleImageSearch);
+                            StatusHelper::updateStatus($newProduct, StatusHelper::$queuedForGoogleImageSearch);
                         }
                         $count++;
                     }else{
@@ -532,7 +532,7 @@ class GoogleSearchImageController extends Controller
                             $newProduct->status_id = StatusHelper::$googleImageSearchFailed;
                             $newProduct->save();
                         } else {
-                            StatusHelper::updateStatus($newProduct, StatusHelper::$pendingVerificationGoogleImageSearch);
+                            StatusHelper::updateStatus($newProduct, StatusHelper::$queuedForGoogleImageSearch);
                         }
 
 
@@ -1080,7 +1080,7 @@ class GoogleSearchImageController extends Controller
        $urls = GoogleVisionHelper::getImageDetails($path);
             $count = 0;
              if (isset($urls[ 'pages' ])) {
-                    foreach ($urls[ 'pages' ] as $url) {
+                foreach ($urls[ 'pages' ] as $url) {
                         if (stristr($url, '.gucci.') || stristr($url, '.farfetch.')) {
                             //Create New Product 
 
@@ -1099,9 +1099,13 @@ class GoogleSearchImageController extends Controller
                         $product->save();
                         return response('failed',200);
                     } else {
-                        StatusHelper::updateStatus($product, StatusHelper::$pendingVerificationGoogleImageSearch);
+                        StatusHelper::updateStatus($product, StatusHelper::$queuedForGoogleImageSearch);
                         return response('success',200);
                     }
+            }else{
+                $product->status_id = StatusHelper::$googleImageSearchFailed;
+                $product->save();
+                return response('failed',200);
             }
         }
     }

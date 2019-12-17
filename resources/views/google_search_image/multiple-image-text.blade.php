@@ -24,7 +24,7 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="">
-                <h2 class="page-heading">Multiple Google Search Image ({{ $count_system }})</h2>
+                <h2 class="page-heading">Multiple Google Text Search ({{ $count_system }})</h2>
                 
                 <!--Product Search Input -->
                 <form method="GET" class="form-inline align-items-start">
@@ -120,7 +120,7 @@
 
     @include('partials.flash_messages')
     
-    @if($status_id[0] == 31)
+    @if(isset($status_id) && $status_id[0] == 31)
      @include('google_search_image.partials.products.approve')
     @else
      @include('google_search_image.partials.products.image')
@@ -170,7 +170,7 @@
                     }
                     setTimeout(function() {
                       $("#loading-image").hide();
-                    }, 9000);
+                    }, 60000);
                 }
             });
 
@@ -196,7 +196,7 @@
                     }
                     setTimeout(function() {
                       $("#loading-image").hide();
-                    }, 20000);
+                    }, 200000);
                 }
             });
 
@@ -238,12 +238,12 @@
     function openImage(url){
         $("#image_crop").attr("src", url)
         $('#cropModal').modal('show');
-            $('#image_crop').Jcrop();
+          //  $('#image_crop').Jcrop();
             
         }
 
         $("#cropModal").on('hide.bs.modal', function(){
-            $('#image_crop').data('Jcrop').destroy();
+           // $('#image_crop').data('Jcrop').destroy();
         });
 
      function cropImageForProduct() {

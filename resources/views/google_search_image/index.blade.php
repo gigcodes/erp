@@ -174,7 +174,7 @@
                                 $("#loading-image").show();
                             },
                             success: function (response) {
-                                $("#loading-image").hide();
+                             //   $("#loading-image").hide();
                             },
                             data: {
                                 id: ids[i],
@@ -182,6 +182,9 @@
                             }
                         });
                     }
+                    setTimeout(function() {
+                      $("#loading-image").hide();
+                    }, 60000);
                 }
             });
 
@@ -196,7 +199,7 @@
                                 $("#loading-image").show();
                             },
                             success: function (response) {
-                                $("#loading-image").hide();
+                               // $("#loading-image").hide();
                             },
                             data: {
                                 id: ids[i],
@@ -204,6 +207,9 @@
                             }
                         });
                     }
+                    setTimeout(function() {
+                      $("#loading-image").hide();
+                    }, 200000);
                 }
             });
 
