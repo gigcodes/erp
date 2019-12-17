@@ -71,7 +71,7 @@ class BroadcastController extends Controller
                 }
 
                 if(request('total') == 2){
-                    $query->doesntHave('customerMarketingPlatformActive');
+                    $query->doesntHave('customerMarketingPlatformActive')->where('do_not_disturb',0);
                 }
                
                 if(request('total') == 3 && request('customrange') != null){
