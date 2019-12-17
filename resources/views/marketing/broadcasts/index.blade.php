@@ -229,7 +229,7 @@
                             <table class="table table-bordered table-striped" id="phone-table">
                                 <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>Username</th>
                                     <th>D. Name</th>
                                     <th>Number</th>
                                     <th>Ttl Cust</th>
