@@ -114,8 +114,11 @@ class CategoryController extends Controller
         $category = new Category();
         $category_instance = $category->find( $id );
         $categoryTree = [];
+        
+        if($category_instance == null){
+            return false;
+        }
 
-        $categoryTree[] = $category_instance->title;
         $parent_id = $category_instance->parent_id;
 
         while ( $parent_id != 0 ) {
