@@ -324,12 +324,24 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/multiple-products', 'GoogleSearchImageController@getImageForMultipleProduct')->name('google.product.queue');
         Route::post('/image-crop-sequence', 'GoogleSearchImageController@cropImageSequence')->name('google.crop.sequence');
         Route::post('/update-product-status', 'GoogleSearchImageController@updateProductStatus')->name('google.product.status');
-
+        Route::post('product-by-image','GoogleSearchImageController@getProductFromImage')->name('google.product.image');
     });
 
     Route::prefix('search-image')->group(function () {
         Route::get('/', 'GoogleSearchImageController@product')->name('google.search.product');
         Route::post('/', 'GoogleSearchImageController@product')->name('google.search.product-save');
+    });
+
+    Route::prefix('multiple-search-image')->group(function () {
+        Route::get('/', 'GoogleSearchImageController@nultipeImageProduct')->name('google.search.multiple');
+        Route::post('/save-images', 'GoogleSearchImageController@multipleImageStore')->name('multiple.google.search.product-save');
+        Route::post('/single-save-images', 'GoogleSearchImageController@getProductFromText')->name('multiple.google.product-save');
+    });
+
+    Route::prefix('approve-search-image')->group(function () {
+        Route::get('/', 'GoogleSearchImageController@approveProduct')->name('google.approve.product');
+        Route::post('/approve-images-product', 'GoogleSearchImageController@approveTextGoogleImagesToProduct')->name('approve.google.search.images.product');
+        Route::post('/reject', 'GoogleSearchImageController@rejectProducts')->name('reject.google.search.text.product');
     });
 
 
@@ -778,6 +790,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
     Route::resource('supplier', 'SupplierController');
     Route::resource('google-server', 'GoogleServerController');
+    Route::post('log-google-cse', 'GoogleServerController@logGoogleCse')->name('log.google.cse');
     Route::resource('email-addresses', 'EmailAddressesController');
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
     Route::post('supplier/saveImage' , 'SupplierController@saveImage')->name('supplier.image');;
