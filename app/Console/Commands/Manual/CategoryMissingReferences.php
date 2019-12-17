@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 use App\Category;
 use App\CronJobReport;
 use App\Loggers\LogScraper;
-use Carbon\Carbon;
 
 class CategoryMissingReferences extends Command
 {
@@ -43,11 +42,6 @@ class CategoryMissingReferences extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-            'signature' => $this->signature,
-            'start_time' => Carbon::now()
-        ]);
-
         // Set empty
         $arrUnknown = [];
 
@@ -58,11 +52,7 @@ class CategoryMissingReferences extends Command
         // Loop over result
         foreach ($categories as $category) {
             // Get product to update
-            try {
-                $arrCategories = unserialize($category->category);
-            } catch (Exception $e) {
-                $arrCategories = [];
-            }
+            $arrCategories = @unserialize($category->category);
 
             // Is it an array?
             if (is_array($arrCategories) && count($arrCategories) > 0) {
@@ -91,7 +81,5 @@ class CategoryMissingReferences extends Command
         foreach ($arrUnknown as $unknown) {
             echo $unknown . "\n";
         }
-
-        $report->update(['end_time' => Carbon:: now()]);
     }
 }
