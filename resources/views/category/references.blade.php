@@ -14,6 +14,9 @@
                         <th>Category Name</th>
                         <th>Unknown References</th>
                     </tr>
+                    <tr>
+                        <td colspan="2">Unknown references are shown in 'Unknown Category'. If you want a reference not to appear in here, enter it in 'Ignore Category Reference'. Please note that products with ignored or unknown categories will be linked to those categories.</td>
+                    </tr>
 
                     @foreach($fillerCategories as $category)
                         <tr>
