@@ -701,14 +701,19 @@ class DevelopmentController extends Controller
         }
 
         //$issue = Issue::create($data);
+        $responsibleUser = $request->get('responsible_user_id',0);
+        if(empty($responsibleUser)) {
+            $responsibleUser = Auth::id();
+        }
+
         $task = new DeveloperTask;
         $task->priority = $request->input('priority');
         $task->subject = $request->input('subject');
         $task->task = $request->input('issue');
-        $task->responsible_user_id = $request->get('responsible_user_id',0);
+        $task->responsible_user_id = $responsibleUser;
         $task->assigned_to = $request->get('responsible_user_id',0);
         $task->module_id = $module->id;
-        $task->user_id = $request->get('responsible_user_id',0);
+        $task->user_id = $responsibleUser;
         $task->assigned_by = Auth::id();
         $task->created_by = Auth::id();
         $task->status = 'Issue';
