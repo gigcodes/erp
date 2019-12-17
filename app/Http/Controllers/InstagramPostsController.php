@@ -16,10 +16,13 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class InstagramPostsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // Load posts
-        $posts = InstagramPosts::orderBy('posted_at', 'DESC')->paginate(Setting::get('pagination'));
+        $posts = $this->_getFilteredInstagramPosts($request);
+
+        // Paginate
+        $posts = $posts->paginate(Setting::get('pagination'));
 
         // Return view
         return view('social-media.instagram-posts.index', compact('posts'));
@@ -58,6 +61,11 @@ class InstagramPostsController extends Controller
         // Apply author filter
         if (!empty($request->author)) {
             $instagramPosts->where('username', 'LIKE', '%' . $request->author . '%');
+        }
+
+        // Apply author filter
+        if (!empty($request->post)) {
+            $instagramPosts->where('caption', 'LIKE', '%' . $request->post . '%');
         }
 
         // Return instagram posts
