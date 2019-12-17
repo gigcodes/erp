@@ -234,7 +234,7 @@
                                     <th>Number</th>
                                     <th>Ttl Cust</th>
                                     <th>Cust/day</th>
-                                    <th>Msg/Day</th>
+                                    <th>Today</th>
                                     <th>Pend</th>
                                     <th>Last Check</th>
                                     <th>L. Sent</th>
