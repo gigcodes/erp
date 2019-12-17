@@ -338,7 +338,11 @@
                                     <div class="panel-body">
                                         <div class="messageList" id="message_list_{{$issue->id}}">
                                             @foreach($issue->messages as $message)
-                                                <li>{{ date('d-m-Y H:i:s', strtotime($message->created_at)) }} : {{ $message->message }}</li>
+                                                <p>
+                                                    <strong>{{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}</strong>
+                                                </p>
+                                                {!! nl2br($message->message) !!}
+                                                <hr />
                                             @endforeach
                                         </div>
                                     </div>
