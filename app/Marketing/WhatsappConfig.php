@@ -23,7 +23,7 @@ class WhatsappConfig extends Model
 
     public function imQueueCurrentDateMessageSend()
     {
-    	return $this->hasMany(ImQueue::class,'number_from','number')->whereDate('created_at', Carbon::today());
+    	return $this->hasMany(ImQueue::class,'number_from','number')->whereDate('created_at', Carbon::today())->whereNull('sent_at');
     }
 
     public function  imQueueLastMessageSend()
