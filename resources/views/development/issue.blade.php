@@ -169,11 +169,11 @@
                                             <option value="{{$module->id}}">{{ $module->name }}</option>
                                         @endforeach
                                     </select>
-                                </div>    
-                                <div class="col-md-2">  
+                                </div>
+                                <div class="col-md-2">
                                     <input type="text" name="subject" placeholder="Subject..." id="subject" class="form-control d-inline" style="width: 150px !important;">
                                 </div>
-                                <div class="col-md-2">    
+                                <div class="col-md-2">
                                     <input type="text" name="issue" placeholder="Issue..." id="issue" class="form-control d-inline" style="width: 150px !important;">
                                 </div>
                                 <div class="col-md-2">
@@ -426,7 +426,11 @@
                                         <div class="panel-body">
                                             <div class="messageList" id="message_list_{{$issue->id}}">
                                                 @foreach($issue->messages as $message)
-                                                    <li>{{ date('d-m-Y H:i:s', strtotime($message->created_at)) }} : {{ $message->message }}</li>
+                                                    <p>
+                                                        <strong>{{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}</strong>
+                                                    </p>
+                                                    {!! nl2br($message->message) !!}
+                                                    <hr />
                                                 @endforeach
                                             </div>
                                         </div>
@@ -640,7 +644,7 @@
                         $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
                     }
                 }
-            });    
+            });
 
             $('.select2').select2({
                 tags: true
