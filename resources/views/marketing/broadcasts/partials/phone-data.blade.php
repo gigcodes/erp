@@ -7,7 +7,7 @@ $countRow = 0;
                                    @else
                                     <tr>    
                                    @endif     
-                                        <td>{{ $number->id }}</td>
+                                        <td>{{ $number->username }}</td>
                                         <td>{{ $number->device_name }}</td>
                                         <td>@if($number->is_customer_support == 1)<span style="color: red;">{{ $number->number }}</span>@else {{ $number->number }} @endif</td>
                                         <td>{{ $number->customer()->count() }}</td>
