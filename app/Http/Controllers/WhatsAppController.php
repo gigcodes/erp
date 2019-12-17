@@ -2502,9 +2502,10 @@ class WhatsAppController extends FindByNumberController
                 $mediasH = Media::whereIn('id', $imagesDecoded)->get();
 
                 $number = 0;
-                foreach ($mediasH->chunk(self::MEDIA_PDF_CHUNKS) as $key => $medias) {
+                $chunkedMedia = $mediasH->chunk(self::MEDIA_PDF_CHUNKS);
+                foreach ($chunkedMedia as $key => $medias) {
 
-                    $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
+                    $pdfView = (string)view('pdf_views.images' . $fn, compact('medias', 'folder','chat_message'));
                     $pdf = new Dompdf();
                     $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
                     $pdf->loadHtml($pdfView);
