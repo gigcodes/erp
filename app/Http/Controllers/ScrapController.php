@@ -606,7 +606,7 @@ class ScrapController extends Controller
 
     public function scrapedUrls(Request $request){
 
-         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated ||$request->currency == 0) {
+         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated) {
 
             $query = LogScraper::query();
 
@@ -648,8 +648,28 @@ class ScrapController extends Controller
                 $query->whereDate('updated_at', request('updated'));
             }
 
+            if(request('orderCreated') != null){
+                if(request('orderCreated') == 0){
+                    $query->orderby('created_at','asc');
+                }else{
+                    $query->orderby('created_at','desc');
+                }
+            }
+
+            if(request('orderUpdated') != null){
+                if(request('orderUpdated') == 0){
+                    $query->orderby('updated_at','asc');
+                }else{
+                    $query->orderby('updated_at','desc');
+                }
+            }
+
+            if(request('orderCreated') == null && request('orderUpdated') == null){
+                $query->orderby('updated_at','desc');
+            }
+
             $paginate = (Setting::get('pagination') * 10);
-            $logs = $query->orderby('updated_at','desc')->paginate($paginate);
+            $logs = $query->paginate($paginate)->appends(request()->except(['page']));
         }
         else {
 
@@ -661,9 +681,10 @@ class ScrapController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('scrap.partials.scraped_url_data', compact('logs'))->render(),
-                'links' => (string)$logs->render()
+                'links' => (string)$logs->render(),
+                'count' => $logs->total(),
             ], 200);
-            }
+        }
 
         return view('scrap.scraped_url',compact('logs'));
         }
