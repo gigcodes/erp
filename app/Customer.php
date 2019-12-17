@@ -224,7 +224,7 @@ class Customer extends Model
     }
 
     public function notDelieveredImQueueMessage(){
-       return $this->hasOne(ImQueue::class,'number_to','phone')->where('sent_at','2002-02-02 02:02:02');
+       return $this->hasOne(ImQueue::class,'number_to','phone')->where('sent_at','2002-02-02 02:02:02')->latest();
     }
 
     
