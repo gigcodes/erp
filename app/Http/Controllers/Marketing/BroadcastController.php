@@ -45,29 +45,28 @@ class BroadcastController extends Controller
                 if(request('total') == 1 && request('customrange') != null){
                     $range = explode(' - ', request('customrange'));
                     if($range[0] == end($range)){
-                        //dd($range[0]);
                         $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
                             $qu->whereDate('created_at', end($range))->where('active', 1);
-                        });
+                        })->where('do_not_disturb',0);
                     }else{
                         $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
                         $qu->whereBetween('created_at', [$range[0], end($range)])->where('active', 1);
-                        });
+                        })->where('do_not_disturb',0);
                     }
                 }
                 
                 elseif(request('total') == 1){
                     $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($request) {
                         $qu->where('active', 1);
-                    });
+                    })->where('do_not_disturb',0);
                 }
                 
                  if(request('total') == 2 && request('customrange') != null){
                     $range = explode(' - ', request('customrange'));
                     if($range[0] == end($range)){
-                         $query->doesntHave('customerMarketingPlatformActive')->whereDate('created_at',end($range));
+                         $query->doesntHave('customerMarketingPlatformActive')->whereDate('created_at',end($range))->where('do_not_disturb',0);
                     }else{
-                         $query->doesntHave('customerMarketingPlatformActive')->whereBetween('created_at', [$range[0], end($range)]);
+                         $query->doesntHave('customerMarketingPlatformActive')->whereBetween('created_at', [$range[0], end($range)])->where('do_not_disturb',0);
                     }
                 }
 
