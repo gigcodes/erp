@@ -747,7 +747,12 @@ class GoogleSearchImageController extends Controller
            }
            $counter++;
         }
-        $data['top_url'] = $finalArray;
+        if(isset($finalArray)){
+            $data['top_url'] = $finalArray;
+        }else{
+            $data['top_url'] = [];
+        }
+        
         
         
         return view('google_search_image.multiple-image-text', $data);
