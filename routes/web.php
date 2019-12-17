@@ -958,6 +958,7 @@ Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
 });
 
 Route::prefix('social-media')->middleware('auth')->group(function () {
+    Route::get('/instagram-posts/grid', 'InstagramPostsController@grid');
     Route::get('/instagram-posts', 'InstagramPostsController@index');
 });
 
