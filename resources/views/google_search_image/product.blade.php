@@ -34,9 +34,21 @@
     .card button:hover {
         opacity: 0.7;
     }
+    
+    
+    #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+    }
+   
 </style>
 @section('content')
     @include('partials.flash_messages')
+    <div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
     <div class="row" style="padding-top: 10px;">
         <?php if(!empty($product)) { ?>
         <div class="col-md-12">
@@ -149,11 +161,18 @@
             var regEx = /([?&]cx)=([^#&]*)/g;
             var googleServerUrl = googleServer.replace(regEx, '$1='+$(".server-select").val());
             $.ajax({
-                url: googleServerUrl+"&q=" + keyword + "&searchType=image&imgSize=large", success: function (result) {
-                    // console.log(result);
+                url: googleServerUrl+"&q=" + keyword + "&searchType=image&imgSize=large",
+                beforeSend: function () {
+                                $("#loading-image").show();
+                },
+                success: function (result) {
+                    $("#loading-image").hide();
+                    
                     if (result.searchInformation.totalResults != undefined && parseInt(result.searchInformation.totalResults) > 0) {
                         var i = 1;
+                        
                         $(".image-result-show").html('');
+                        count = 0;
                         $.each(result.items, function (k, v) {
 
                             var template = '<div class="col-md-3"><div class="card" style="width: 18rem;">';
@@ -165,6 +184,23 @@
 
                             $(".image-result-show").append(template);
                             i++;
+
+                            $.ajax({
+                                url: "{{ route('log.google.cse') }}",
+                                type: 'POST',
+                                beforeSend: function () {
+                                },
+                                success: function (response) {
+                                },
+                                data: {
+                                    "url": v.link,
+                                    "keyword" : keyword,
+                                    "response" : result.items,
+                                    "count" : count,
+                                    _token: "{{ csrf_token() }}",
+                                }
+                            });
+                            count++
                         });
                     } else {
                         alert('No images found');
