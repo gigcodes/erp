@@ -686,13 +686,15 @@ class TaskModuleController extends Controller {
 
 	public function addSubnote(Request $request, $id)
 	{
-		Remark::create([
+		$remark = Remark::create([
 			'taskid'	=> $id,
 			'remark'	=> $request->note,
 			'module_type'	=> 'task-note-subnote'
 		]);
 
-		return response('success', 200);
+		$id = $remark->id;
+
+		return response(['success' => $id], 200);
 	}
 
 	public function updateCategory(Request $request, $id)
@@ -1072,10 +1074,11 @@ class TaskModuleController extends Controller {
 	public function archiveTaskRemark($id)
 	{
 		$task = Remark::find($id);
-
-		$task->delete();
+		$remark  = $task->remark;
+		$task->delete_at = now();
+		$task->update();
 		
-		return response('success');
+		return response(['success' => $remark],200);
 	}
 
 	public function deleteStatutoryTask(Request $request){

@@ -45,24 +45,28 @@
 /*# sourceMappingURL=bootstrap.min.css.map */
 </style>
 <body>
-@foreach($medias->chunk(2) as $subMedias)
-    @foreach($subMedias as $subMedia)
+<?php foreach($medias as $subMedia) { ?>
         <?php 
         if (!file_exists ($subMedia->getAbsolutePath())  || !in_array($subMedia->extension,config("constants.gd_supported_files"))) {
             continue;
         } ?>
         <?php 
-            $img = Image::make($subMedia->getAbsolutePath());
-            $height = $img->height();
-            $width = $img->width();
-            $path = $subMedia->getAbsolutePath();
-            if ($height > 1000 || $width > 1000) {
-                $img->resize(1000, 1000); 
-                if(!is_dir(public_path() . '/tmp_images')) {
-                    mkdir(public_path() . '/tmp_images', 0777, true);
-                }                  
-                $path = public_path() . '/tmp_images/'.$subMedia->getBasenameAttribute();
-                $img->save($path);
+            try {
+                $img = Image::make($subMedia->getAbsolutePath());
+                $height = $img->height();
+                $width = $img->width();
+                $path = $subMedia->getAbsolutePath();
+                if ($height > 1000 || $width > 1000) {
+                    $img->resize(1000, 1000); 
+                    if(!is_dir(public_path() . '/tmp_images')) {
+                        mkdir(public_path() . '/tmp_images', 0777, true);
+                    }                  
+                    $path = public_path() . '/tmp_images/'.$subMedia->getBasenameAttribute();
+                    $img->save($path);
+                }
+            }catch (\Exception $e) {
+                \Log::info("Please fix this error : ".json_encode($subMedia));
+                continue;
             }
         ?>
         <?php if (!file_exists ($path) ) {
@@ -79,6 +83,21 @@
             }
 
             if($product) {
+
+                // check if it is for customer then add entry with approvel on chat message 
+                if(!empty($chat_message) && $chat_message->customer_id > 0) {
+                    $extraMessage = [
+                        "customer_id" => $chat_message->customer_id,
+                        "is_queue" => 0,
+                        "user_id" => \Auth::id(),
+                        "status" => 2,
+                        "approved" => 1,
+                        "product_id" => $product->id
+                    ];
+                    $extraChat = \App\ChatMessage::create($extraMessage);
+                    $extraChat->attachMedia($subMedia, config('constants.media_tags'));
+                }
+
                 $textToSend = [];
                 $textToSend[] = $product->name . " ";
                 if ($product->brands) {
@@ -102,7 +121,6 @@
                 </div>    
             <?php } ?>
         </div>
-    @endforeach
-@endforeach
+<?php } ?>
 </body>
 </html>

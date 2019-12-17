@@ -2285,6 +2285,12 @@ class ProductController extends Controller
 
         \App\Jobs\AttachImagesSend::dispatch($data);
 
+        $json = request()->get("json",false);
+
+        if($json) {
+            return response()->json(["code" => 200]);
+        }
+
         if ($request->get('return_url')) {
             return redirect($request->get('return_url'));
         }

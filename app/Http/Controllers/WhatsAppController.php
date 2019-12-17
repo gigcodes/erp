@@ -2502,9 +2502,10 @@ class WhatsAppController extends FindByNumberController
                 $mediasH = Media::whereIn('id', $imagesDecoded)->get();
 
                 $number = 0;
-                foreach ($mediasH->chunk(self::MEDIA_PDF_CHUNKS) as $key => $medias) {
+                $chunkedMedia = $mediasH->chunk(self::MEDIA_PDF_CHUNKS);
+                foreach ($chunkedMedia as $key => $medias) {
 
-                    $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
+                    $pdfView = (string)view('pdf_views.images' . $fn, compact('medias', 'folder','chat_message'));
                     $pdf = new Dompdf();
                     $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
                     $pdf->loadHtml($pdfView);
@@ -2535,6 +2536,8 @@ class WhatsAppController extends FindByNumberController
                             $extra_chat_message->attachMedia($media, 'gallery');
                         }
 
+                        File::delete($fileName);
+
                         $number++;
                     } catch (\Exception $e) {
                         \Log::error($e);
@@ -2547,6 +2550,12 @@ class WhatsAppController extends FindByNumberController
                     if (!empty($media)) {
                         $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
                         if (!$isExists) {
+                            // check first barcode image exist or not
+                            $barcode = Media::where("filename",$image)->orderBy("id","desc")->first();
+                            if($barcode) {
+                                $media = $barcode;
+                            }
+                            // check first barcode exist end
                             $chat_message->attachMedia($media, config('constants.media_tags'));
                         }
                     }
