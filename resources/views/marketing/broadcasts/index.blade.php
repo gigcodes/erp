@@ -307,10 +307,10 @@
                 <th>Customer Number</th>
                 <th>DND</th>
                 <!-- <th>Status</th> -->
-                <th><button onclick="sortByManual()" id="manual-approval" value="0" class="btn btn-link">Manual Approval</button></th>
-                <th><button onclick="sortByBroadcastSend()" id="broadcast-send" value="0" class="btn btn-link">Broadcast Sent</button></th>
-                <th><button onclick="sortByNotDelivered()" id="not-delivered" value="0" class="btn btn-link">Not Delivered</button></th>
-                <th><button onclick="sortByLastBroadcastID()" id="last-broadcast" value="0" class="btn btn-link">Last Broadcast ID</button></th>
+                <th>Manual Approval</th>
+                <th>Broadcast Sent</th>
+                <th>Not Delivered</th>
+                <th>Last Broadcast ID</th>
                 <th>Phone No. Assign WhatsApp</th>
                 <th>Remarks</th>
             </tr>
