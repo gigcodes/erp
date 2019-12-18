@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('favicon' , 'scrapperdubbizle.png')
+
+@section('title', 'Dubbizle - ERP Sololuxury')
+
 @section('large_content')
     <div class="row">
         <div class="col-md-12">

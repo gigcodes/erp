@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('favicon' , 'scrapactivity.png')
+
 @section('title', 'Scrap Activity - ERP Sololuxury')
 
 @section('content')

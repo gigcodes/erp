@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@section('favicon' , 'scrapproduct.png')
+
+@section('title', 'Scrap Product Info')
+
+
 @section('large_content')
     <div class="row">
         <div class="col-md-offset-5 col-md-2">

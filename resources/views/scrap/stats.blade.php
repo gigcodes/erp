@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('favicon' , 'supplierstats.png')
+
 @section('title', 'Supplier Scrapping  Info')
 
 @section('styles')
