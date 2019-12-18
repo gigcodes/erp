@@ -5,6 +5,10 @@
         .btn-secondary {
             margin-top : 2px;
         }
+        .category-mov-btn
+        {
+            min-height : 60px;
+        }
     </style>
     <div class="row">
         <div class="col-md-12">
@@ -37,6 +41,8 @@
                                                 <span class="btn btn-secondary">{{$option}}</span> 
                                             @endif
                                         @endforeach
+                                    @else
+                                         &nbsp;    
                                     @endif
                                 </div>
                                 <!-- <select data-cat-id="{{ $category->id }}" name="category[{{ $category->id }}][]" cols="30" rows="2" class="form-control" multiple>
@@ -72,6 +78,8 @@
                                                 <span class="btn btn-secondary">{{$option}}</span> 
                                             @endif
                                         @endforeach
+                                    @else
+                                         &nbsp;    
                                     @endif
                                 </div>    
 
@@ -106,6 +114,8 @@
                                                         <span class="btn btn-secondary">{{$option}}</span> 
                                                     @endif
                                                 @endforeach
+                                            @else
+                                                 &nbsp;    
                                             @endif
                                         </div>
                                         <!-- <select data-cat-id="{{ $category->id }}" name="category[{{ $subcategory->id }}][]" cols="30" rows="2" class="form-control" multiple>
@@ -139,6 +149,8 @@
                                                                 <span class="btn btn-secondary">{{$option}}</span> 
                                                             @endif
                                                         @endforeach
+                                                    @else
+                                                         &nbsp;    
                                                     @endif
                                                 </div>
                                                 <!-- <select data-cat-id="{{ $category->id }}" name="category[{{ $sscategory->id }}][]" cols="30" rows="2" class="form-control" multiple>
@@ -191,6 +203,7 @@
 
               //Get dropZone where element is dropped (checked)
               dropZone = $(event.target);
+              console.log(dropZone);
 
               //Move element from list, to dropZone (Change Parent, Checked)
               $(dropZone).append(draggedElement);
