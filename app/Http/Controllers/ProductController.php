@@ -1752,7 +1752,7 @@ class ProductController extends Controller
                     $child = $cat;
                 }
             }
-        } catch ( Exception $e ) {
+        } catch ( \ErrorException $e ) {
             //
         }
 
