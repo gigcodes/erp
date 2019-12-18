@@ -29,7 +29,7 @@
 
         </div>
     </div>
-   
+  
     @include('partials.flash_messages')
     <form action="/scrap/scraped-urls" method="get">
      <div class="mt-3 col-md-12">
@@ -38,34 +38,20 @@
                 
                  <select class="form-control select-multiple2" data-placeholder="Select columns.." multiple id="columns" name="columns[]">
                     <optgroup label="columns">
-                        <option value="sku">SKU</option>
-                        <option value="color">Color</option>
-                        <option value="website">Website</option>
-                        <option value="url">Url</option>
-                        <option value="brand">Brand</option>
-                        <option value="category">Category</option>
-                        <option value="title">Title</option>
-                        <option value="description">Description</option>
-                        <option value="properties">Properties</option>
-                        <option value="size_system">Size system</option>
-                        <option value="currency">Currency</option>
-                        <option value="price">Price</option>
-                        <option value="discounted_price">Discounted Price</option>
-                        <option value="is_sale">Is Sale</option>
-                        <option value="not_in_sale">Not in Sale</option>
-                        <option value="gender">Gender</option>
-                        <option value="made_in">Made in</option>
-                        <option value="composition">Composition</option>
-                        <option value="size">Size</option>
-                        <option value="lmeasurement">Lmeasurement</option>
-                        <option value="hmeasurement">Hmeasurement</option>
-                        <option value="dmeasurement">Dmeasurement</option>
-                        <option value="measurement_size_type">Measurement size type</option>
+                        <option value="color" @if($response != null) @if(in_array('color',$response['columns']))  selected  @endif @endif>Color</option>
+                        <option value="category"  @if($response != null) @if(in_array('category',$response['columns']))  selected  @endif @endif>Category</option>
+                        <option value="description"  @if($response != null) @if(in_array('description',$response['columns']))  selected  @endif @endif>Description</option>
+                        <option value="size_system"  @if($response != null) @if(in_array('size_system',$response['columns']))  selected  @endif @endif>Size system</option>
+                        <option value="is_sale"  @if($response != null) @if(in_array('is_sale',$response['columns']))  selected  @endif @endif>Is Sale</option>
+                        <option value="gender"  @if($response != null) @if(in_array('gender',$response['columns']))  selected  @endif @endif>Gender</option>
+                        <option value="composition"  @if($response != null) @if(in_array('composition',$response['columns']))  selected  @endif @endif>Composition</option>
+                        <option value="size"  @if($response != null) @if(in_array('size',$response['columns']))  selected  @endif @endif>Size</option>
+                        <option value="lmeasurement"  @if($response != null) @if(in_array('lmeasurement',$response['columns']))  selected  @endif @endif>Lmeasurement</option>
+                        <option value="hmeasurement"  @if($response != null) @if(in_array('hmeasurement',$response['columns']))  selected  @endif @endif>Hmeasurement</option>
+                        <option value="dmeasurement"  @if($response != null) @if(in_array('dmeasurement',$response['columns']))  selected  @endif @endif>Dmeasurement</option>
+                        <option value="measurement_size_type"  @if($response != null) @if(in_array('measurement_size_type',$response['columns']))  selected  @endif @endif>Measurement size type</option>
                     </optgroup>
                   </select>
-            </div>
-            <div class="col-md-4">
-                <input type="text" name="search_filter" class="form-control">
             </div>
             <div class="col-md-2">
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
@@ -86,7 +72,45 @@
                 <th width="10%">Price</th>
                 <th width="10%"><button class="btn btn-link" onclick="sortByDateCreated()" id="header-created" value="0">Created_at</button></th>
                 <th width="10%"><button class="btn btn-link" onclick="sortByDateUpdated()" id="header-updated" value="0">Updated_at</button></th>
-
+                @if($response != null)
+                @if(in_array('color',$response['columns']))
+                <th>Color</th>
+                @endif
+                @if(in_array('category',$response['columns']))
+                <th>Category</th>
+                @endif
+                @if(in_array('description',$response['columns']))
+                <th>Description</th>
+                @endif
+                @if(in_array('size_system',$response['columns']))
+                <th>Size system</th>
+                @endif
+                @if(in_array('is_sale',$response['columns']))
+                <th>Is Sale</th>
+                @endif
+                @if(in_array('gender',$response['columns']))
+                <th>Gender</th>
+                @endif
+                @if(in_array('composition',$response['columns']))
+                <th>Composition</th>
+                @endif
+                @if(in_array('size',$response['columns']))
+                <th>Size</th>
+                @endif
+                @if(in_array('lmeasurement',$response['columns']))
+                <th>Lmeasurement</th>
+                @endif
+                @if(in_array('hmeasurement',$response['columns']))
+                <th>Hmeasurement</th>
+                @endif
+                @if(in_array('dmeasurement',$response['columns']))
+                <th>Dmeasurement</th>
+                @endif
+                @if(in_array('measurement_size_type',$response['columns']))
+                <th>Measurement size type</th>
+                @endif
+                
+                @endif
             </tr>
             <tr>
                 <th width="30%">
@@ -126,6 +150,58 @@
                             <span class="glyphicon glyphicon-calendar"></span>
                             </span>
                         </div></th>
+                        
+                @if($response != null)
+                    
+                    @if(in_array('color',$response['columns']))
+                    <th></th>
+                     @endif
+                    
+                    @if(in_array('category',$response['columns']))
+                     <th></th>
+                    @endif
+
+                    @if(in_array('description',$response['columns']))
+                     <th></th>
+                    @endif
+
+                    @if(in_array('size_system',$response['columns']))
+                     <th></th>
+                    @endif
+
+                    @if(in_array('is_sale',$response['columns']))
+                     <th></th>
+                    @endif
+
+                    @if(in_array('gender',$response['columns']))
+                     <th></th>
+                    @endif
+                    
+                    @if(in_array('composition',$response['columns']))
+                    <th></th>
+                    @endif
+
+                    @if(in_array('size',$response['columns']))
+                    <th></th>
+                    @endif
+
+                    @if(in_array('lmeasurement',$response['columns']))
+                     <th></th>
+                    @endif
+
+                    @if(in_array('hmeasurement',$response['columns']))
+                     <th></th>
+                    @endif
+
+                    @if(in_array('dmeasurement',$response['columns']))
+                     <th></th>
+                    @endif
+
+                    @if(in_array('measurement_size_type',$response['columns']))
+                     <th></th>
+                    @endif
+
+                    @endif
             </tr>
             </thead>
 
@@ -161,6 +237,7 @@
             title = $('#title').val();
             currency = $('#currency').val();
             price = $('#price').val();
+            columns = $('#columns').val();
             src = "/scrap/scraped-urls";
            $.ajax({
                 url: src,
@@ -173,6 +250,7 @@
                     currency : currency,
                     price : price,
                     brand: brand,
+                    columns : columns,
                 },
                 beforeSend: function() {
                        $("#loading-image").show();
@@ -201,6 +279,7 @@
             title = $('#title').val();
             currency = $('#currency').val();
             price = $('#price').val();
+            columns = $('#columns').val();
            src = "/scrap/scraped-urls"; 
            $.ajax({
                 url: src,
@@ -213,6 +292,7 @@
                     currency : currency,
                     price : price,
                     brand: brand,
+                    columns : columns,
                 },
                 beforeSend: function() {
                        $("#loading-image").show();
@@ -308,6 +388,7 @@
                 currency = $('#currency').val();
                 price = $('#price').val();
                 brand = $('#brand').val();
+                columns = $('#columns').val();
 
                 src = "/scrap/scraped-urls";
                 $.ajax({
@@ -323,6 +404,7 @@
                         currency : currency , 
                         price : price , 
                         brand : brand,
+                        columns : columns,
 
                     },
                     beforeSend: function () {
@@ -364,6 +446,7 @@
                 currency = $('#currency').val();
                 price = $('#price').val();
                 brand = $('#brand').val();
+                columns = $('#columns').val();
 
                 src = "/scrap/scraped-urls";
                 $.ajax({
@@ -379,6 +462,7 @@
                         currency : currency , 
                         price : price , 
                         brand : brand,
+                        columns : columns,
 
                     },
                     beforeSend: function () {
@@ -413,6 +497,7 @@
             title = $('#title').val();
             currency = $('#currency').val();
             price = $('#price').val();
+            columns = $('#columns').val();
             
            $.ajax({
                 url: src,
@@ -424,6 +509,7 @@
                     title : title,
                     currency : currency,
                     price : price,
+                    columns : columns,
                     
                 },
                 beforeSend: function() {
@@ -487,6 +573,7 @@
             currency = $('#currency').val();
             price = $('#price').val();
             brand = $('#brand').val();
+            columns = $('#columns').val();
 
             src = "/scrap/scraped-urls";
             $.ajax({
@@ -501,6 +588,8 @@
                     price : price , 
                     brand : brand,
                     orderCreated : orderCreated,
+                    columns : columns,
+
                 },
                 beforeSend: function () {
                     if(orderCreated == 0){
@@ -537,6 +626,7 @@
             currency = $('#currency').val();
             price = $('#price').val();
             brand = $('#brand').val();
+            columns = $('#columns').val();
 
             src = "/scrap/scraped-urls";
             $.ajax({
@@ -551,6 +641,7 @@
                     price : price , 
                     brand : brand,
                     orderUpdated : orderUpdated,
+                    columns : columns,
                 },
                 beforeSend: function () {
                     if(orderUpdated == 0){

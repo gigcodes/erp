@@ -606,127 +606,11 @@ class ScrapController extends Controller
 
     public function scrapedUrls(Request $request){
 
-         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns || $request->search_filter) {
+         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns) {
 
             $query = LogScraper::query();
             
-            if (request('columns') != null && request('search_filter') != null) {
-                $queries = explode(" ",request('search_filter'));
-                
-                    foreach ($queries as $querys) {
-                        # code...
-                        
-                        foreach ($request->columns as $column) {
-                            
-                            //Sku Search
-                            if ($column == 'sku') {
-                              $query->orWhere('sku', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Color
-                            if ($column == 'color') {
-                              $query->orWhere('properties', 'LIKE', "%{$querys}%");
-                            }
-                            
-                            //Website
-                            if ($column == 'website') {
-                              $query->orWhere('website', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Brand
-                            if ($column == 'brand') {
-                              $query->orWhere('brand', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Category
-                            if ($column == 'category') {
-                              $query->orWhere('category', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Title
-                            if ($column == 'title') {
-                              $query->orWhere('title', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Description
-                            if ($column == 'description') {
-                              $query->orWhere('description', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Properties
-                            if ($column == 'properties') {
-                              $query->orWhere('properties', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Size System
-                            if ($column == 'size_system') {
-                              $query->orWhere('size_system', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Currency
-                            if ($column == 'currency') {
-                              $query->orWhere('currency', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Price
-                            if ($column == 'price') {
-                              $query->orWhere('price', 'LIKE', "%{$querys}%");
-                            }
-
-                            //IS Sale
-                            if ($column == 'is_sale') {
-                              $query->orWhere('is_sale', $querys);
-                            }
-
-                            //Not in Sale
-                            if ($column == 'not_in_sale') {
-                              $query->orWhere('not_in_sale', $querys);
-                            }
-
-                            //Gender
-                            if ($column == 'gender') {
-                              $query->orWhere('gender', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Made in
-                            if ($column == 'made_in') {
-                              $query->orWhere('properties', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Composition
-                            if ($column == 'composition') {
-                              $query->orWhere('properties', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Size
-                            if ($column == 'size') {
-                              $query->orWhere('properties', 'LIKE', "%{$querys}%");
-                            }
-
-                            //L measurement
-                            if ($column == 'lmeasurement') {
-                              $query->orWhere('properties', 'LIKE', "%{$querys}%");
-                            }
-
-                            //H measurement
-                            if ($column == 'hmeasurement') {
-                              $query->orWhere('properties', 'LIKE', "%{$querys}%");
-                            }
-
-                            //D mesurement
-                            if ($column == 'dmeasurement') {
-                              $query->orWhere('properties', 'LIKE', "%{$querys}%");
-                            }
-
-                            //Measurement SIze Type
-                            if ($column == 'measurement_size_type') {
-                              $query->orWhere('properties', 'LIKE', "%{$querys}%");
-                            }
-
-                        }
-                    }    
-            }
-
+            
             //global search website
             if (request('website') != null) {
                 $query->whereIn('website', $request->website);
@@ -787,10 +671,11 @@ class ScrapController extends Controller
 
             $paginate = (Setting::get('pagination') * 10);
             $logs = $query->paginate($paginate)->appends(request()->except(['page']));
+            $response = request()->except(['page']);
             
         }
         else {
-
+            $response = '';
              $paginate = (Setting::get('pagination') * 10);
             $logs = LogScraper::orderby('updated_at','desc')->paginate($paginate);
 
@@ -798,13 +683,13 @@ class ScrapController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('scrap.partials.scraped_url_data', compact('logs'))->render(),
+                'tbody' => view('scrap.partials.scraped_url_data', compact('logs','response'))->render(),
                 'links' => (string)$logs->render(),
                 'count' => $logs->total(),
             ], 200);
         }
 
-        return view('scrap.scraped_url',compact('logs'));
+        return view('scrap.scraped_url',compact('logs','response'));
         }
 
     public function getProductsToScrape()
