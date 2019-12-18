@@ -32,7 +32,8 @@ class Product extends Model
      * @var array
      */
     protected $fillable = [
-        'sku'
+        'sku',
+        'is_barcode_check'
     ];
     protected $dates = ['deleted_at'];
     protected $appends = [];
