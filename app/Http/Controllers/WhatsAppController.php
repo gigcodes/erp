@@ -1222,8 +1222,6 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 $message = ChatMessage::create($params);
-
-                $this->sendRealTime($message, 'supplier_' . $supplier->id, $client);
             }
 
             // Check for vendor
@@ -1250,9 +1248,6 @@ class WhatsAppController extends FindByNumberController
                         $message->save();
                     }
                 }
-
-                // Send realtime (???)
-                $this->sendRealTime($message, 'vendor_' . $vendor->id, $client);
             }
 
             if ($dubbizle) {
@@ -1471,7 +1466,7 @@ class WhatsAppController extends FindByNumberController
 
                 // Auto Replies
                 $auto_replies = AutoReply::all();
-
+var_dump($auto_replies); exit();
                 foreach ($auto_replies as $auto_reply) {
                     if ($customer && array_key_exists('message', $params) && $params[ 'message' ] != '') {
                         $keyword = $auto_reply->keyword;
