@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\Manual;
+namespace App\Console\Commands;
 
 use Dompdf\Exception;
 use Illuminate\Console\Command;
@@ -43,6 +43,7 @@ class CategoryMissingReferences extends Command
      */
     public function handle()
     {
+        // Create cron job report
         $report = CronJobReport::create([
             'signature' => $this->signature,
             'start_time' => Carbon::now()
@@ -52,22 +53,21 @@ class CategoryMissingReferences extends Command
         $arrUnknown = [];
 
         // Get all categories from log_scraper
-        $categories = LogScraper::whereNotNull('category')->get(['category']);
-        //$categories = LogScraper::whereNotNull('category')->where('url', 'LIKE', '%farfetch%')->get(['category']);
+        $logScrapers = LogScraper::whereNotNull('category')->whereNotIn('website', ['amrstore', 'antonia', 'baseblu', 'brunarosso', 'coltorti', 'doublef', 'giglio', 'griffo210', 'leam', 'les-market', 'lidiashopping', 'nugnes1920', 'savannahs', 'stilmoda', 'vinicio'])->get(['website', 'brand', 'category']);
+        //$logScrapers = LogScraper::whereNotNull('category')->where('url', 'LIKE', '%farfetch%')->get(['category']);
 
         // Loop over result
-        foreach ($categories as $category) {
+        foreach ($logScrapers as $logScraper) {
             // Get product to update
-            try {
-                $arrCategories = unserialize($category->category);
-            } catch (Exception $e) {
-                $arrCategories = [];
-            }
+            $arrCategories = @unserialize($logScraper->category);
 
             // Is it an array?
             if (is_array($arrCategories) && count($arrCategories) > 0) {
                 // Get last category
                 $lastCategory = array_pop($arrCategories);
+
+                // Remove brand from category name
+                $lastCategory = trim(str_ireplace($logScraper->brand, '', $lastCategory));
 
                 // Check if the category is in the references
                 $exists = Category::where('title', '=', $lastCategory)->first();
@@ -79,6 +79,7 @@ class CategoryMissingReferences extends Command
 
                 // Still null
                 if ($exists == null) {
+                    // $arrUnknown[] = $logScraper->website . ':' . $lastCategory;
                     $arrUnknown[] = $lastCategory;
                 }
             }
@@ -86,12 +87,18 @@ class CategoryMissingReferences extends Command
 
         // Make array unique
         $arrUnknown = array_unique($arrUnknown);
+        $arrUnknown = implode(',', $arrUnknown);
 
-        // Loop over arrUnknown
-        foreach ($arrUnknown as $unknown) {
-            echo $unknown . "\n";
+        // Update category 143
+        $unknownCategory = Category::find(143);
+
+        // Update
+        if ( $unknownCategory != null && strlen($arrUnknown) > 0 ) {
+            $unknownCategory->references = $unknownCategory->references . ',' . $arrUnknown;
+            $unknownCategory->save();
         }
 
+        // Update cron report
         $report->update(['end_time' => Carbon:: now()]);
     }
 }

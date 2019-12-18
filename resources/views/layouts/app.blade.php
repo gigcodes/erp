@@ -424,11 +424,15 @@
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('google.search.image') }}">Google Search</a>
+                                            <a class="dropdown-item" href="{{ route('google.search.product') }}">Search Products by Text</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Find Images</a>
+                                            <a class="dropdown-item" href="{{ route('google.search.multiple') }}">Multiple products by Text</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google.search.image') }}">Search Products by Image</a>
+                                        </li>
+                                        
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -725,16 +729,14 @@
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramPostsController@grid') }}">Instagram Posts (Grid)</a>
                                                 <a class="dropdown-item" href="{{ action('InstagramPostsController@index') }}">Instagram Posts</a>
-                                                <hr/>
                                             </li>
+
+                                            <hr/>
 
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramPostsController@index') }}">Manual Instagram Post</a>
                                             </li>
 
                                             <li class="nav-item dropdown">

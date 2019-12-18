@@ -3,6 +3,7 @@
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-jcrop/2.0.4/css/Jcrop.css">
     <style type="text/css">
         .dis-none {
             display: none;
@@ -14,6 +15,18 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+        .jcrop-active{
+            max-width:100% !important;
+        }
+
+        .col-half-offset{
+            margin-left:3.166666667%
+        }
+
+        .padding-x-md{
+             padding-top: 15px;
+        }
+        
     </style>
 @endsection
 
@@ -24,8 +37,8 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="">
-                <h2 class="page-heading">Google Search Image ({{ $count_system }})</h2>
-
+                <h2 class="page-heading">Approve Images From Google Text ({{ $count_system }})</h2>
+                
                 <!--Product Search Input -->
                 <form method="GET" class="form-inline align-items-start">
                     <div class="form-group mr-3">
@@ -66,6 +79,18 @@
                         </select>
                     </div>
 
+                    <div class="form-group mr-3">
+                        @php $suppliers = new \App\Supplier();
+                        @endphp
+                        <select data-placeholder="Select Supplier" class="form-control select-multiple2" name="supplier[]" multiple>
+                            <optgroup label="Suppliers">
+                                @foreach ($suppliers->select('id','supplier')->where('supplier_status_id',1)->get() as $id => $suppliers)
+                                    <option value="{{ $suppliers->supplier }}" {{ isset($supplier) && $supplier == $suppliers->supplier ? 'selected' : '' }}>{{ $suppliers->supplier }}</option>
+                                @endforeach
+                            </optgroup>
+                        </select>
+                    </div>
+
                     @if (Auth::user()->hasRole('Admin'))
                         @if(!empty($locations))
                             <div class="form-group mr-3">
@@ -84,7 +109,7 @@
                         </div>
                     @endif
                     <div class="form-group mr-3">
-                        <input type="checkbox" name="quick_product" id="quick_product" {{ $quick_product == 'true' ? 'checked' : '' }}  value="true">
+                        <input type="checkbox" name="quick_product" id="quick_product" {{ isset($quick_product) == 'true' ? 'checked' : '' }}  value="true">
                         <label for="quick_product">Quick Sell</label>
                     </div>
                     <div class="form-group mr-3">
@@ -110,17 +135,24 @@
 
     <button type="button" class="btn btn-secondary select-all-system-btn" data-count="0">Send All In System</button>
     <button type="button" class="btn btn-secondary select-all-page-btn" data-count="0">Send All On Page</button>
-     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#product-image">Get Product By Image</button>
 
     <div class="productGrid" id="productGrid">
         {!! $products->appends(Request::except('page'))->links() !!}
         <form method="POST" action="{{route('google.search.crop')}}" id="theForm">
             {{ csrf_field() }}
             <div class="row">
+                <table class="table table-bordered" style="width: 100% !important;">
+        <thead>
+        <tr>
+            <th width="25%">Product</th>
+            <th width="75%">Images</th>
+            
+        </tr>
+        </thead>
+        <tbody>
                 @foreach ($products as $product)
-                    <div class="col-md-3 col-xs-6 text-left" style="border: 1px solid #cccccc;">
-                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt=""/>
-                        <p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>
+                <tr id="product{{ $product->id }}">
+                <td><p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>
                         <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
                         <p>Transit Status : {{ $product->purchase_status }}</p>
                         <p>Location : {{ ($product->location) ? $product->location : "" }}</p>
@@ -129,12 +161,33 @@
                         <p>Size : {{ $product->size}}</p>
                         <p>Price ({{ $product->currency }}) : {{ $product->price }}</p>
                         <p>Price (INR) : {{ $product->price_inr }}</p>
-                        <p>Price Special (INR) : {{ $product->price_special }}</p>
-                        <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">
-                        @if($product->status_id == 26)<a href="{{ route('products.show', $product->id) }}" target="_blank" class="btn btn-secondary">Verify</a>@endif
-                    </div>
-                @endforeach
-            </div>
+                        <p>Price Special (INR) : {{ $product->price_special }}</p></td>
+                <td>
+                    <div class="row">
+                        @php
+                        $images = $product->getMedia(config('constants.google_text_search'))->all();
+                        @endphp
+                        @if(count($images) != 0)
+                        @foreach($images as $image)
+                            <div class="col-md-2 col-half-offset"><div class="text-center"><img height="100" width="100" src="{{ $image->getUrl() }}" onclick="openImage(this.src)"><br><input type="checkbox" class="checkbox{{ $product->id }}" value="{{ $image->id }}"></div></div>
+                        @endforeach
+                        
+                        </div>
+                        <div class="row padding-x-md">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-secondary" onclick="selectAll({{ $product->id }})" id="selected{{ $product->id }}">Select All</button>
+                                <button type="button" class="btn btn-secondary" onclick="approveProduct({{ $product->id }})">Approve</button>
+                                <button type="button" class="btn btn-secondary" onclick="rejectProduct({{ $product->id }})">Reject</button>
+                            </div>
+                        </div>    
+                        @endif
+                    
+                </td>
+                </tr>
+                    @endforeach
+        
+                </tbody>
+            </table>
             <div class="row">
                 <div class="col text-center">
                     <button type="button" class="btn btn-image my-3" id="sendImageMessage" onclick="sendImage()"><img src="/images/filled-sent.png"/></button>
@@ -143,142 +196,97 @@
         </form>
         {!! $products->appends(Request::except('page'))->links() !!}
     </div>
-
-  @include('google_search_image.partials.get-products-by-image')    
+    @include('google_search_image.partials.image-crop')
 @endsection
 
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-jcrop/2.0.4/js/Jcrop.min.js"></script>
     <script>
-        $(document).ready(function () {
-            var ids = <?php echo json_encode($all_products_system); ?>;
-
-            $(".select-multiple").multiselect();
-            $(".select-multiple2").select2();
-
+    
+    //Open Image With Crop
+    function openImage(url){
+        $("#image_crop").attr("src", url)
+        $('#cropModal').modal('show');
+            $('#image_crop').Jcrop();
             
+        }
 
-            $('.select-all-page-btn').on('click', function () {
-                var result = confirm("Do you want to send " + $("input[name='product_id']").length + " images to Google?");
-                var ids = [];
-                $.each($("input[name='product_id']"), function () {
-                    ids.push($(this).val());
-                });
-                if (result) {
-                    for (i = 0; i < ids.length && i < 1000; i++) {
-                        $.ajax({
-                            url: "{{ route('google.product.queue') }}",
-                            type: 'POST',
-                            beforeSend: function () {
-                                $("#loading-image").show();
-                            },
-                            success: function (response) {
-                             //   $("#loading-image").hide();
-                            },
-                            data: {
-                                id: ids[i],
-                                _token: "{{ csrf_token() }}",
-                            }
-                        });
-                    }
-                    setTimeout(function() {
-                      $("#loading-image").hide();
-                    }, 60000);
-                }
-            });
-
-            $('.select-all-system-btn').on('click', function () {
-                var result = confirm("Do you want to send " + ids.length + " images to Google?");
-                if (result) {
-                    for (i = 0; i < ids.length && i < 1000; i++) {
-                        $.ajax({
-                            url: "{{ route('google.product.queue') }}",
-                            type: 'POST',
-                            beforeSend: function () {
-                                $("#loading-image").show();
-                            },
-                            success: function (response) {
-                               // $("#loading-image").hide();
-                            },
-                            data: {
-                                id: ids[i],
-                                _token: "{{ csrf_token() }}",
-                            }
-                        });
-                    }
-                    setTimeout(function() {
-                      $("#loading-image").hide();
-                    }, 200000);
-                }
-            });
-
-            function sendAllSystem() {
-                //
-            }
+        $("#cropModal").on('hide.bs.modal', function(){
+            $('#image_crop').data('Jcrop').destroy();
         });
-        function sendImage() {
-                
-                var clicked = [];
-                $.each($("input[name='product_id']:checked"), function () {
-                    clicked.push($(this).val());
-                });
 
-                if (clicked.length == 0) {
-                    alert('Please Select Product');
-                } else if (clicked.length == 1) {
-                    document.getElementById('theForm').submit();
-                } else {
-                    $.each($("input[name='product_id']:checked"), function () {
-                        id = $(this).val();
-                        $.ajax({
-                            url: "{{ route('google.product.queue') }}",
-                            type: 'POST',
-                            beforeSend: function () {
-                                $("#loading-image").show();
-                            },
-                            success: function (response) {
-                                $("#loading-image").hide();
-                            },
-                            data: {
-                                id: id,
-                                _token: "{{ csrf_token() }}",
-                            }
-                        });
-                    });
-                    location.reload();
-                }
+     function cropImageForProduct() {
+         dimension = $('.jcrop-selection').attr("style");
+         //alert(dimension);
+     }
+
+     function selectAll(id) {
+
+       if($(".checkbox"+id).prop("checked") == true)
+            {
+                $(".checkbox"+id).prop("checked", false);
+                $("#selected"+id).text('Select All')
             }
+            else if($(".checkbox"+id).prop("checked") == false)
+            {
+                $(".checkbox"+id).prop("checked", true);
+                $("#selected"+id).text('Unselect All')
+            } 
+     }
 
-        function getProductsFromImage() {
-           
-            file = $('#imgupload').prop('files')[0];
-            var fd = new FormData();
-            fd.append("file", file);
-            fd.append("_token", "{{ csrf_token() }}" );
-            
+     function approveProduct(id) {
+        
+        var selected = [];
+        $(".checkbox"+id).each(function() {
+             if($(this).prop("checked") == true){
+                selected.push($(this).val());    
+             }
+        });
+
+        if(selected.length == 0){
+            alert('Please Select Image For Product');
+        }else{
             $.ajax({
-             url: "{{ route('google.product.image') }}",
-             type: 'POST',
-             dataType: 'json',
-             data: fd,
-             beforeSend: function () {
-                $('#product-image').modal('hide');
-                $("#loading-image").show();
-            },
-            success: function (data) {
-                $("#loading-image").hide();
-                alert('Product Queued For Scraping');
-            },
-            error: function (response) {
-                $("#loading-image").hide();
-                alert('Product Not Found');
-            },
-             cache: false,
-                contentType: false,
-                processData: false   
-            });
-            
-           }    
-    </script>
+                url: "{{ route('approve.google.search.images.product') }}",
+                type: 'POST',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $("#product"+id).hide();
+                },
+                data: {
+                    id: id,
+                    selected , selected,
+                    _token: "{{ csrf_token() }}",
+                }
+            });    
+        }
+         
+     }
+
+     function rejectProduct(id){
+            $.ajax({
+                url: "{{ route('reject.google.search.text.product') }}",
+                type: 'POST',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $("#product"+id).hide();
+                },
+                data: {
+                    id: id,
+                    _token: "{{ csrf_token() }}",
+                }
+            });    
+
+     }   
+
+    
+</script>
 @endsection

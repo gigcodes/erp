@@ -606,10 +606,11 @@ class ScrapController extends Controller
 
     public function scrapedUrls(Request $request){
 
-         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated) {
+         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns) {
 
             $query = LogScraper::query();
-
+            
+            
             //global search website
             if (request('website') != null) {
                 $query->whereIn('website', $request->website);
@@ -670,9 +671,11 @@ class ScrapController extends Controller
 
             $paginate = (Setting::get('pagination') * 10);
             $logs = $query->paginate($paginate)->appends(request()->except(['page']));
+            $response = request()->except(['page']);
+            
         }
         else {
-
+            $response = '';
              $paginate = (Setting::get('pagination') * 10);
             $logs = LogScraper::orderby('updated_at','desc')->paginate($paginate);
 
@@ -680,13 +683,13 @@ class ScrapController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('scrap.partials.scraped_url_data', compact('logs'))->render(),
+                'tbody' => view('scrap.partials.scraped_url_data', compact('logs','response'))->render(),
                 'links' => (string)$logs->render(),
                 'count' => $logs->total(),
             ], 200);
         }
 
-        return view('scrap.scraped_url',compact('logs'));
+        return view('scrap.scraped_url',compact('logs','response'));
         }
 
     public function getProductsToScrape()
