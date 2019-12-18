@@ -170,11 +170,6 @@
                             @endforeach
                         @endif
                     @endforeach
-                    <tr>
-                        <td colspan="2" class="text-center">
-                            <button class="btn btn-default">Save</button>
-                        </td>
-                    </tr>
                 </table>
             </form>
         </div>
@@ -245,26 +240,6 @@
               } );
           }
         });
-
-        /*$( ".sortable-tables" ).sortable({
-            items : $(".sortable-tables").find(".category-mov-btn").find("button"),
-            start: function(event, ui) {
-              console.log(ui.item);
-            },
-            update: function(e,ui){
-                //var allCategories =                
-                $.ajax({
-                    type: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                    },
-                    url: '/category/references',
-                    data: $("#update-reference-tb").serialize()
-                }).done(response => {
-                    
-                });
-            }
-        });*/
 
     </script>
 @endsection
