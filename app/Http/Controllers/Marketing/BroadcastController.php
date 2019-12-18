@@ -29,7 +29,10 @@ class BroadcastController extends Controller
     public function index(Request $request)
     {
 
-        if ($request->term || $request->total || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name || $request->customrange || $request->dnd) {
+
+
+
+        if ($request->term || $request->total || $request->date || $request->number || $request->broadcast || $request->manual || $request->remark || $request->name || $request->customrange || $request->dnd || $request->whats_number || $request->lastBroadcast || $request->notDelivered || $request->broadcastSend || $request->manualApproval) {
             $terms =  $request->terms;
             $total = $request->total;
             
@@ -42,34 +45,33 @@ class BroadcastController extends Controller
                 if(request('total') == 1 && request('customrange') != null){
                     $range = explode(' - ', request('customrange'));
                     if($range[0] == end($range)){
-                        //dd($range[0]);
                         $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
                             $qu->whereDate('created_at', end($range))->where('active', 1);
-                        });
+                        })->where('do_not_disturb',0);
                     }else{
                         $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
                         $qu->whereBetween('created_at', [$range[0], end($range)])->where('active', 1);
-                        });
+                        })->where('do_not_disturb',0);
                     }
                 }
                 
                 elseif(request('total') == 1){
                     $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($request) {
                         $qu->where('active', 1);
-                    });
+                    })->where('do_not_disturb',0);
                 }
                 
                  if(request('total') == 2 && request('customrange') != null){
                     $range = explode(' - ', request('customrange'));
                     if($range[0] == end($range)){
-                         $query->doesntHave('customerMarketingPlatformActive')->whereDate('created_at',end($range));
+                         $query->doesntHave('customerMarketingPlatformActive')->whereDate('created_at',end($range))->where('do_not_disturb',0);
                     }else{
-                         $query->doesntHave('customerMarketingPlatformActive')->whereBetween('created_at', [$range[0], end($range)]);
+                         $query->doesntHave('customerMarketingPlatformActive')->whereBetween('created_at', [$range[0], end($range)])->where('do_not_disturb',0);
                     }
                 }
 
                 if(request('total') == 2){
-                    $query->doesntHave('customerMarketingPlatformActive');
+                    $query->doesntHave('customerMarketingPlatformActive')->where('do_not_disturb',0);
                 }
                
                 if(request('total') == 3 && request('customrange') != null){
@@ -141,7 +143,7 @@ class BroadcastController extends Controller
                 elseif(request('total') == 6){
                     $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($request) {
                         $qu->where('active', 1);
-                    })->where('broadcast_number',null);
+                    })->where('broadcast_number',null)->where('do_not_disturb',0);
                 }
 
                 if(request('total') == 7 && request('customrange') != null){
@@ -178,6 +180,11 @@ class BroadcastController extends Controller
             if (request('number') != null) {
                 $query->where('phone', 'LIKE', '%' . request('number') . '%');
             }
+
+             //if number is not null
+            if (request('whats_number') != null) {
+                $query->where('broadcast_number', 'LIKE', '%' . request('whats_number') . '%');
+            }
             
             //if number is not null
             if (request('name') != null) {
@@ -197,7 +204,7 @@ class BroadcastController extends Controller
 
             if (request('manual') != null) {
                 $query->whereHas('customerMarketingPlatformActive', function ($qu) use ($request) {
-                    $qu->where('active', request('manual'));
+                   $qu->where('active', request('manual'));
                 });
             }
 
@@ -206,8 +213,11 @@ class BroadcastController extends Controller
                     $qu->where('remark', 'LIKE', '%' . request('remark') . '%');
                 });
             }
+
             
-            $customers = $query->select('id', 'name','phone','broadcast_number','do_not_disturb','is_blocked' ,'whatsapp_number')->orderby('id', 'desc')->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
+
+            
+            $customers = $query->select('id', 'name','phone','broadcast_number','do_not_disturb','is_blocked' ,'whatsapp_number')->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
            
         } else {
             //Order List

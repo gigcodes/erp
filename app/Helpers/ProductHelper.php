@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\AttributeReplacement;
 use App\Brand;
 use App\GoogleServer;
+use App\Loggers\LogListMagento;
 
 class ProductHelper extends Model
 {
@@ -600,15 +601,27 @@ class ProductHelper extends Model
     {
         // Check for mandatory fields
         if (empty($product->name)) {
+            // Log info
+            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO PRODUCT NAME)", 'emergency');
+
+            // Return false
             return false;
         }
 
         if (empty($product->short_description)) {
+            // Log info
+            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO SHORT DESCRIPTION)", 'emergency');
+
+            // Return false
             return false;
         }
 
         // Check for price range
         if ((int)$product->price < 62.5 || (int)$product->price > 5000) {
+            // Log info
+            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency');
+
+            // Return false
             return false;
         }
 
