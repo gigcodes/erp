@@ -174,6 +174,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
 
+        // Store unknown categories on a daily basis
+        $schedule->command('category:missing-references')->daily();
+
         //This command will set the count of the words used...
         $schedule->command('bulk-customer-message:get-most-used-keywords')->daily();
 

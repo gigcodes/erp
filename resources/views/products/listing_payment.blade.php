@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('favicon' , 'listingpayments.png')
+
+@section('title', 'Listing Payment')
+
 @section('content')
     <div class="row">
         <div class="col-md-12">

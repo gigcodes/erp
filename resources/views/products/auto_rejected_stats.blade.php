@@ -1,5 +1,11 @@
 @extends('layouts.app')
 
+
+@section('favicon' , 'autorejectstats.png')
+
+
+@section('title', 'Auto Reject Stats')
+
 @section('content')
     <div class="row">
         <div class="col-md-12">

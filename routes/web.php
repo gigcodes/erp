@@ -188,7 +188,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('delete-resource', 'ResourceImgController@deleteResource')->name('delete.resource');
     Route::get('images/resource/{id}', 'ResourceImgController@imagesResource')->name('images/resource');
 
-    Route::resource('categorymap', 'CategoryMapController');
     Route::resource('benchmark', 'BenchmarkController');
 
     // adding lead routes
@@ -326,12 +325,24 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/multiple-products', 'GoogleSearchImageController@getImageForMultipleProduct')->name('google.product.queue');
         Route::post('/image-crop-sequence', 'GoogleSearchImageController@cropImageSequence')->name('google.crop.sequence');
         Route::post('/update-product-status', 'GoogleSearchImageController@updateProductStatus')->name('google.product.status');
-
+        Route::post('product-by-image','GoogleSearchImageController@getProductFromImage')->name('google.product.image');
     });
 
     Route::prefix('search-image')->group(function () {
         Route::get('/', 'GoogleSearchImageController@product')->name('google.search.product');
         Route::post('/', 'GoogleSearchImageController@product')->name('google.search.product-save');
+    });
+
+    Route::prefix('multiple-search-image')->group(function () {
+        Route::get('/', 'GoogleSearchImageController@nultipeImageProduct')->name('google.search.multiple');
+        Route::post('/save-images', 'GoogleSearchImageController@multipleImageStore')->name('multiple.google.search.product-save');
+        Route::post('/single-save-images', 'GoogleSearchImageController@getProductFromText')->name('multiple.google.product-save');
+    });
+
+    Route::prefix('approve-search-image')->group(function () {
+        Route::get('/', 'GoogleSearchImageController@approveProduct')->name('google.approve.product');
+        Route::post('/approve-images-product', 'GoogleSearchImageController@approveTextGoogleImagesToProduct')->name('approve.google.search.images.product');
+        Route::post('/reject', 'GoogleSearchImageController@rejectProducts')->name('reject.google.search.text.product');
     });
 
 
@@ -780,6 +791,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
     Route::resource('supplier', 'SupplierController');
     Route::resource('google-server', 'GoogleServerController');
+    Route::post('log-google-cse', 'GoogleServerController@logGoogleCse')->name('log.google.cse');
     Route::resource('email-addresses', 'EmailAddressesController');
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
     Route::post('supplier/saveImage' , 'SupplierController@saveImage')->name('supplier.image');;
@@ -960,6 +972,7 @@ Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
 });
 
 Route::prefix('social-media')->middleware('auth')->group(function () {
+    Route::get('/instagram-posts/grid', 'InstagramPostsController@grid');
     Route::get('/instagram-posts', 'InstagramPostsController@index');
 });
 

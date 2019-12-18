@@ -8,21 +8,21 @@ use App\CronJobReport;
 use File;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
-class ImageBarcodeGenerator extends Command
+class UpdateImageBarcodeGenerator extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'barcode-generator-product:run {product_id?}';
+    protected $signature = 'barcode-generator-product:update {product_id?}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Add Barcode into product';
+    protected $description = 'Update Barcode into product';
 
     /**
      * Create a new command instance.
@@ -60,25 +60,32 @@ class ImageBarcodeGenerator extends Command
       ->select("products.*")
       ->limit(1)->get();*/
 
-      $whereString = "where is_barcode_check is null";
+      $whereString = "";
       if(!empty($productId) && $productId > 0) {
          $whereString = " where p.id = ".$productId. " ";
       }
 
-      $productQuery = \DB::select('select p.id, count(*) as total_image,(select count(*) from mediables as m2 where m2.mediable_id = p.id and m2.tag  = "barcode" group by m2.mediable_id ) as total_barcode from products as p 
-        left join mediables as md on md.mediable_id  = p.id and md.tag  = "gallery"
-        left join media as m on m.id  = md.media_id
-        '. $whereString .'
-        group by p.id having (total_image != total_barcode or total_barcode is null) limit 100');
+      $timeStamps       = date("Y-m-d H:i:s",strtotime("-15 minutes"));
+      $startTimeStamps  = date("Y-m-d H:i:s");
+
+
+      $productQuery = \DB::select('select * from products where updated_at >= "'.$timeStamps.'" and updated_at <= "'.$startTimeStamps.'"');
 
       if(!empty($productQuery)) {
           foreach($productQuery as $res) {
               $product = \App\Product::where("id",$res->id)->first();
-              
-              echo $product->id." Started \n";
-              
               if($product && $product->hasMedia(config('constants.media_tags'))) {
+
+                  // get old bracodes and delete it
+                  $barcodes = $product->getMedia(config('constants.media_barcode_tag'));
+                  if(!empty($barcodes)) {
+                    foreach($barcodes as $barcodeMedia) {
+                        $barcodes = $product->detachMedia($barcodeMedia, config('constants.media_barcode_tag'));  
+                    }
+                  }  
+
                   $medias = $product->getMedia(config('constants.media_tags'));
+
                   foreach($medias as $media) {
                     // set path 
                     $img = \IImage::make($media->getAbsolutePath());
@@ -99,7 +106,6 @@ class ImageBarcodeGenerator extends Command
                     });
                     
                     $filenameNew = $media->id.".".$media->extension;
-
                     $path = public_path()."/uploads/product-barcode/".get_folder_number($media->id)."/";
                     File::isDirectory($path) or File::makeDirectory($path, 0777, true, true);
 
@@ -113,10 +119,6 @@ class ImageBarcodeGenerator extends Command
                     File::delete(public_path($barcodeString));
                   }
               }
-              
-              $product->is_barcode_check = 1;
-              $product->save();
-              echo $product->id." Ended \n";
           }
       }
 

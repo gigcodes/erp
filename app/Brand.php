@@ -79,5 +79,9 @@ class Brand extends Model
     public function supplierbrandcount(){
         return $this->hasOne(SupplierBrandCount::class,'brand_id','id');
     }
+    
+    public function googleServer(){
+        return $this->hasOne(GoogleServer::class,'id','google_server_id');
+    }
 
 }

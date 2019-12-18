@@ -229,12 +229,12 @@
                             <table class="table table-bordered table-striped" id="phone-table">
                                 <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>Username</th>
                                     <th>D. Name</th>
                                     <th>Number</th>
                                     <th>Ttl Cust</th>
                                     <th>Cust/day</th>
-                                    <th>Msg/Day</th>
+                                    <th>Today</th>
                                     <th>Pend</th>
                                     <th>Last Check</th>
                                     <th>L. Sent</th>
@@ -307,10 +307,10 @@
                 <th>Customer Number</th>
                 <th>DND</th>
                 <!-- <th>Status</th> -->
-                <th><button onclick="sortByManual()" id="manual-approval" value="0" class="btn btn-link">Manual Approval</button></th>
-                <th><button onclick="sortByBroadcastSend()" id="broadcast-send" value="0" class="btn btn-link">Broadcast Sent</button></th>
-                <th><button onclick="sortByNotDelivered()" id="not-delivered" value="0" class="btn btn-link">Not Delivered</button></th>
-                <th><button onclick="sortByLastBroadcastID()" id="last-broadcast" value="0" class="btn btn-link">Last Broadcast ID</button></th>
+                <th>Manual Approval</th>
+                <th>Broadcast Sent</th>
+                <th>Not Delivered</th>
+                <th>Last Broadcast ID</th>
                 <th>Phone No. Assign WhatsApp</th>
                 <th>Remarks</th>
             </tr>

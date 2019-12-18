@@ -68,7 +68,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p>Broadcasts</p>
+                <td colspan="7" class="sub-table"><p></p>
                 </td>
               </tr>
               <tr>
@@ -81,7 +81,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p>Tasks</p>
+                <td colspan="7" class="sub-table"><p></p>
                 </td>
               </tr>
               <tr>
@@ -94,7 +94,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p>Statutory Tasks</p>
+                <td colspan="7" class="sub-table"><p></p>
                 </td>
               </tr>
               <tr>
@@ -107,7 +107,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p>Orders</p>
+                <td colspan="7" class="sub-table"><p></p>
                 </td>
               </tr>
               <tr>
@@ -120,7 +120,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p>Purchases</p>
+                <td colspan="7" class="sub-table"><p></p>
                 </td>
               </tr>
               <tr>
@@ -133,7 +133,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p>Scraping</p>
+                <td colspan="7" class="sub-table"><p></p>
                 </td>
               </tr>
               <tr>
@@ -146,7 +146,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p>Reviews</p>
+                <td colspan="7" class="sub-table"><p></p>
                 </td>
               </tr>
                <tr>
@@ -159,7 +159,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p>Emails.</p>
+                <td colspan="7" class="sub-table"><p></p>
                 </td>
               </tr>
                <tr>
@@ -172,7 +172,59 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p>Accounting.</p>
+                <td colspan="7" class="sub-table"><p></p>
+                </td>
+              </tr>
+               <tr>
+                <td>Suppliers</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table"><p></p>
+                </td>
+              </tr>
+               <tr>
+                <td>Vendors</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table"><p></p>
+                </td>
+              </tr>
+               <tr>
+                <td>Customer</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table"><p></p>
+                </td>
+              </tr>
+               <tr>
+                <td>Old issues</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table"><p></p>
                 </td>
               </tr>
            </tbody>
