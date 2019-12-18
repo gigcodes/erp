@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@section('favicon' , 'scraperdesign.png')
+
+@section('title', 'Designers List Info')
+
+
 @section('content')
     <div class="row">
         <div class="col-md-12">
