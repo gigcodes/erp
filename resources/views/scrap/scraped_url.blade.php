@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('favicon' , 'scraperurl.png')
+
 @section('title', 'Scraped URL Info')
 
 @section("styles")
