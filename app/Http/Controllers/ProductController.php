@@ -32,6 +32,7 @@ use Cache;
 use Auth;
 use Carbon\Carbon;
 use Chumper\Zipper\Zipper;
+use Dompdf\Exception;
 use FacebookAds\Object\ProductFeed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -1741,15 +1742,19 @@ class ProductController extends Controller
         $parent = '';
         $child = '';
 
-//        if ($cat != 'Select Category') {
-//            if ($category->isParent($category->id)) {
-//                $parent = $cat;
-//                $child = $cat;
-//            } else {
-//                $parent = $category->parent()->first()->title;
-//                $child = $cat;
-//            }
-//        }
+        try {
+            if ($cat != 'Select Category') {
+                if ($category->isParent($category->id)) {
+                    $parent = $cat;
+                    $child = $cat;
+                } else {
+                    $parent = $category->parent()->first()->title;
+                    $child = $cat;
+                }
+            }
+        } catch ( Exception $e ) {
+            //
+        }
 
         // Set new status
         $product->status_id = StatusHelper::$isBeingCropped;
