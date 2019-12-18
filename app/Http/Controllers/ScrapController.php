@@ -574,7 +574,7 @@ class ScrapController extends Controller
 
             //Getting Supplier by Scraper name
             try {
-                $scraper = Supplier::where('scraper_name', $request->website)->first();
+                $scraper = Scraper::where('scraper_name', $request->website)->first();
                 $totalLinks = count($links);
                 $pendingLinks = count($pendingUrl);
                 $existingLinks = ($totalLinks - $pendingLinks);

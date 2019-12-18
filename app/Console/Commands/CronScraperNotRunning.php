@@ -52,12 +52,14 @@ class CronScraperNotRunning extends Command
             SELECT
                 s.id,
                 s.supplier,
-                s.scraper_name,
+                sp.scraper_name,
                 MAX(ls.updated_at) AS last_update,
-                s.scraper_name,
-                s.inventory_lifetime 
+                sp.scraper_name,
+                sp.inventory_lifetime 
             FROM
                 suppliers s
+            JOIN
+                scrapers sp on sp.supplier_id = s.id    
             LEFT JOIN 
                 log_scraper ls 
             ON 
@@ -67,7 +69,7 @@ class CronScraperNotRunning extends Command
             GROUP BY 
                 s.id 
             HAVING
-                last_update < DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) OR 
+                last_update < DATE_SUB(NOW(), INTERVAL sp.inventory_lifetime DAY) OR 
                 last_update IS NULL
             ORDER BY 
                 s.supplier

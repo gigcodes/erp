@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use \Carbon\Carbon;
 use App\ScrapRemark;
 use App\ScrapHistory;
+use App\Scraper;
 use Auth;
 
 class ScrapStatisticsController extends Controller
@@ -23,37 +24,37 @@ class ScrapStatisticsController extends Controller
         // Set dates
         $endDate = date('Y-m-d H:i:s');
         $keyWord = $request->get("term","");
-        $madeby  = $request->get("scraper_madeby",0);
+        $madeby  = $request->get("scraper_made_by",0);
 
         $timeDropDown = self::get_times();           
 
         // Get active suppliers
-        $activeSuppliers = Supplier::where('supplier_status_id', 1);
+        $activeSuppliers = Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('supplier_status_id', 1);
 
         if(!empty($keyWord)) {
             $activeSuppliers->where(function($q) use($keyWord){
-                $q->where("supplier","like","%{$keyWord}%")->orWhere("scraper_name","like","%{$keyWord}%");
+                $q->where("s.supplier","like","%{$keyWord}%")->orWhere("scrapers.scraper_name","like","%{$keyWord}%");
             });
         }
 
         if($madeby > 0)  {
-            $activeSuppliers->where("scraper_madeby",$madeby);
+            $activeSuppliers->where("scrapers.scraper_made_by",$madeby);
         }
 
-        $activeSuppliers = $activeSuppliers->orderby('scraper_priority','desc')->get();
+        $activeSuppliers = $activeSuppliers->orderby('scrapers.scraper_priority','desc')->get();
 
         // Get scrape data
         $sql = '
             SELECT
                 s.id,
                 s.supplier,
-                s.inventory_lifetime,
-                s.scraper_new_urls,
-                s.scraper_existing_urls,
-                s.scraper_total_urls,
-                s.scraper_start_time,
-                s.scraper_logic,
-                s.scraper_madeby,
+                sc.inventory_lifetime,
+                sc.scraper_new_urls,
+                sc.scraper_existing_urls,
+                sc.scraper_total_urls,
+                sc.scraper_start_time,
+                sc.scraper_logic,
+                sc.scraper_made_by,
                 ls.website,
                 ls.ip_address,
                 COUNT(ls.id) AS total,
@@ -62,19 +63,21 @@ class ScrapStatisticsController extends Controller
                 SUM(IF(ls.validation_result LIKE "%[error]%",1,0)) AS errors,
                 SUM(IF(ls.validation_result LIKE "%[warning]%",1,0)) AS warnings,
                 MAX(ls.updated_at) AS last_scrape_date,
-                IF(MAX(ls.updated_at) < DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY),0,1) AS running
+                IF(MAX(ls.updated_at) < DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY),0,1) AS running
             FROM
                 suppliers s
+            JOIN
+                scrapers sc on sc.supplier_id = s.id    
             RIGHT JOIN
                 log_scraper ls 
             ON  
-                s.scraper_name=ls.website
+                sc.scraper_name=ls.website
             WHERE
                 ls.website != "internal_scraper"
             GROUP BY
                 ls.website
             ORDER BY
-                s.scraper_priority desc
+                sc.scraper_priority desc
         ';
         $scrapeData =  DB::select($sql);
 
@@ -236,37 +239,37 @@ class ScrapStatisticsController extends Controller
         $fieldValue = request()->get("field_value");
         $search     = request()->get("search");
 
-        $suplier = \App\Supplier::where("id", $search)->first();
+        $suplier = \App\Scraper::where("supplier_id", $search)->first();
         if($suplier) {
             $oldValue  = $suplier->{$fieldName}; 
 
-            if($fieldName == "scraper_madeby") {
+            if($fieldName == "scraper_made_by") {
                 $oldValue  = ($suplier->scraperMadeBy) ? $suplier->scraperMadeBy->name : "";
             }
 
-            if($fieldName == "scraper_parent_id") {
+            if($fieldName == "parent_supplier_id") {
                 $oldValue  = ($suplier->scraperParent) ? $suplier->scraperParent->scraper_name : "";
             }
 
             $suplier->{$fieldName} = $fieldValue;
             $suplier->save();
 
-            $suplier = \App\Supplier::where("id", $search)->first();
+            $suplier = \App\Scraper::where("supplier_id", $search)->first();
 
             $newValue = $fieldValue;
 
-            if($fieldName == "scraper_madeby") {
+            if($fieldName == "scraper_made_by") {
                 $newValue  = ($suplier->scraperMadeBy) ? $suplier->scraperMadeBy->name : "";
             }
 
-            if($fieldName == "scraper_parent_id") {
+            if($fieldName == "parent_supplier_id") {
                 $newValue  = ($suplier->scraperParent) ? $suplier->scraperParent->scraper_name : "";
             }
 
             ScrapHistory::create([
               "operation" => "Update",
               "model" =>  \App\Supplier::class, 
-              "model_id" => $suplier->id, 
+              "model_id" => $suplier->supplier_id, 
               "text" =>  "{$fieldName} updated old value was $oldValue and new value is $newValue",
               "created_by" => \Auth::id()  
             ]);
@@ -285,7 +288,7 @@ class ScrapStatisticsController extends Controller
         if(!empty($ids)) {
             foreach($ids as $k => $id) {
                 if(isset($id["id"])) {
-                    $scrap = \App\Supplier::where("id",$id["id"])->first();
+                    $scrap = \App\Scraper::where("supplier_id",$id["id"])->first();
                     if($scrap) {
                         $scrap->scraper_priority = $prio;
                         $scrap->save();
@@ -331,6 +334,8 @@ class ScrapStatisticsController extends Controller
             $output[$time] = date( 'h.i A', $current );
             $current = strtotime( $interval, $current );
          }
+
+        echo '<pre>'; print_r($output); echo '</pre>';exit; 
 
         return $output;
     }

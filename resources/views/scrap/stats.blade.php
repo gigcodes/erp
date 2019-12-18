@@ -31,7 +31,7 @@
                 <input name="term" type="text" class="form-control" id="product-search" value="{{ request()->get('term','') }}" placeholder="Enter Supplier name">
               </div>
               <div class="form-group mr-3 mb-3 col-md-3">
-                <?php echo Form::select("scraper_madeby",['' => '-- Select Made By --'] + \App\User::all()->pluck("name","id")->toArray(),request("scraper_madeby"),["class"=>"form-control select2"]) ?>
+                <?php echo Form::select("scraper_made_by",['' => '-- Select Made By --'] + \App\User::all()->pluck("name","id")->toArray(),request("scraper_made_by"),["class"=>"form-control select2"]) ?>
               </div>
               <div class="form-group mr-3 mb-3 col-md-2">
                 <select name="status" class="form-control form-group select2">
@@ -162,13 +162,13 @@
                                     <td colspan="4">
                                         <label>Made By:</label> 
                                         <div class="form-group">
-                                          <?php echo Form::select("scraper_madeby",["" => "N/A"] + $users,$supplier->scraper_madeby,["class" => "form-control scraper_madeby select2","style" => "width:100%;"]); ?>  
+                                          <?php echo Form::select("scraper_made_by",["" => "N/A"] + $users,$supplier->scraper_made_by,["class" => "form-control scraper_made_by select2","style" => "width:100%;"]); ?>  
                                         </div>
                                     </td>
                                     <td colspan="3">
                                         <label>Parent Scrapper:</label> 
                                         <div class="form-group">
-                                          <?php echo Form::select("scraper_parent_id",[0 => "N/A"] + $allScrapperName,$supplier->scraper_parent_id,["class" => "form-control scraper_parent_id select2","style" => "width:100%;"]); ?>  
+                                          <?php echo Form::select("parent_supplier_id",[0 => "N/A"] + $allScrapperName,$supplier->parent_supplier_id,["class" => "form-control parent_supplier_id select2","style" => "width:100%;"]); ?>  
                                         </div>
                                     </td>    
                                 </tr>
@@ -386,7 +386,7 @@
             });
         });
 
-        $(document).on("change",".scraper_madeby",function() {
+        $(document).on("change",".scraper_made_by",function() {
             var tr = $(this).closest("tr");
             var id = tr.data("id");
             $.ajax({
@@ -394,8 +394,8 @@
                 url: '/scrap/statistics/update-field',
                 data: {
                     search: id,
-                    field : "scraper_madeby",
-                    field_value : tr.find(".scraper_madeby").val()
+                    field : "scraper_made_by",
+                    field_value : tr.find(".scraper_made_by").val()
                 },
             }).done(function (response) {
                 toastr['success']('Data updated Successfully', 'success');
@@ -404,7 +404,7 @@
             });
         });
 
-        $(document).on("change",".scraper_parent_id",function() {
+        $(document).on("change",".parent_supplier_id",function() {
             var tr = $(this).closest("tr");
             var id = tr.data("id");
             $.ajax({
@@ -412,8 +412,8 @@
                 url: '/scrap/statistics/update-field',
                 data: {
                     search: id,
-                    field : "scraper_parent_id",
-                    field_value : tr.find(".scraper_parent_id").val()
+                    field : "parent_supplier_id",
+                    field_value : tr.find(".parent_supplier_id").val()
                 },
             }).done(function (response) {
                 toastr['success']('Data updated Successfully', 'success');
