@@ -283,7 +283,7 @@
        
         });
          });
-
+         src = "{{ route('logging.laravel.log') }}";
          function refreshPage() {
              blank = ''
              $.ajax({
