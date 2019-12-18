@@ -32,6 +32,7 @@ use Cache;
 use Auth;
 use Carbon\Carbon;
 use Chumper\Zipper\Zipper;
+use Dompdf\Exception;
 use FacebookAds\Object\ProductFeed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -1741,14 +1742,18 @@ class ProductController extends Controller
         $parent = '';
         $child = '';
 
-        if ($cat != 'Select Category') {
-            if ($category->isParent($category->id)) {
-                $parent = $cat;
-                $child = $cat;
-            } else {
-                $parent = $category->parent()->first()->title;
-                $child = $cat;
+        try {
+            if ($cat != 'Select Category') {
+                if ($category->isParent($category->id)) {
+                    $parent = $cat;
+                    $child = $cat;
+                } else {
+                    $parent = $category->parent()->first()->title;
+                    $child = $cat;
+                }
             }
+        } catch ( \ErrorException $e ) {
+            //
         }
 
         // Set new status
@@ -2242,7 +2247,7 @@ class ProductController extends Controller
 
         // get the status for approval
         $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
-       
+
         $is_queue = 0;
         if ($approveMessage == 1) {
             $is_queue = 1;

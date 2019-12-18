@@ -16,153 +16,60 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class InstagramPostsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     * get all the posts from Instagram saved in instagram_posts table
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //$accounts = Account::where('platform', 'instagram')->get();
-        $posts = InstagramPosts::orderBy('posted_at', 'DESC')->paginate(Setting::get('pagination'));
+        // Load posts
+        $posts = $this->_getFilteredInstagramPosts($request);
 
-        return view('social-media.instagram-posts.index', compact('accounts', 'posts'));
+        // Paginate
+        $posts = $posts->paginate(Setting::get('pagination'));
+
+        // Return view
+        return view('social-media.instagram-posts.index', compact('posts'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function grid(Request $request)
     {
-        //
-    }
+        // Load posts
+        $posts = $this->_getFilteredInstagramPosts($request);
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     * Create a new entry with image + account_id
-     */
-    public function store(Request $request)
-    {
-        $this->validate($request, [
-            'image' => 'required',
-            'account_id' => 'required'
-        ]);
+        // Paginate
+        $posts = $posts->paginate(Setting::get('pagination'));
 
-        $account = Account::findOrFail($request->get('account_id'));
-
-        $instagram = new Instagram();
-
-        try {
-            $instagram->login($account->last_name, $account->password);
-        } catch (\Exception $exception) {
-            dd($exception);
-            return redirect()->back()->with('message', 'Account could not log in!');
+        // For ajax
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('social-media.instagram-posts.json_grid', compact('posts'))->render(),
+                'links' => (string)$posts->appends($request->all())->render()
+            ], 200);
         }
 
-        $image = $request->file('image');
+        // Return view
+        return view('social-media.instagram-posts.grid', compact('posts', 'request'));
+    }
 
-        $instagramPost = new InstagramPosts();
-        $instagramPost->user_id = \Auth::user()->id;
-        $instagramPost->account_id = $account->id;
-        $instagramPost->caption = $request->get('caption') ?? 'N/A';
-        $instagramPost->source = 'manual_post';
-        $instagramPost->posted_at = date('Y-m-d');
-        $instagramPost->media_url = 'N/A';
-        $instagramPost->media_type = 'image';
-        $instagramPost->post_id = 0;
-        $instagramPost->username = $account->last_name;
-        $instagramPost->save();
+    private function _getFilteredInstagramPosts(Request $request) {
+        // Base query
+        $instagramPosts = InstagramPosts::orderBy('posted_at', 'DESC')
+            ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id');
 
-        $media = MediaUploader::fromSource($image)
-            ->useFilename(md5(time()))
-            ->toDirectory('instagramposts/' . floor($instagramPost->id / config('constants.image_per_folder')))
-            ->upload();
-
-        $instagramPost->attachMedia($media, 'gallery');
-        $instagramPost->save();
-        $media = $instagramPost->getMedia('gallery')->first();
-
-        $source = imagecreatefromjpeg($media->getAbsolutePath());
-        list($width, $height) = getimagesize($media->getAbsolutePath());
-
-        $newwidth = 800;
-        $newheight = 800;
-
-        $destination = imagecreatetruecolor($newwidth, $newheight);
-        imagecopyresampled($destination, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-
-        imagejpeg($destination, $media->getAbsolutePath(), 100);
-
-        $metaData = [];
-
-        if ($request->get('caption') != '') {
-            $metaData = [
-                'caption' => $request->get('caption')
-            ];
+        // Apply hashtag filter
+        if (!empty($request->hashtag)) {
+            $instagramPosts->where('hash_tags.hashtag', str_replace('#', '', $request->hashtag));
         }
 
-        try {
-            $instagram->timeline->uploadPhoto($media->getAbsolutePath(), $metaData);
-        } catch (\Exception $exception) {
-            $instagramPost->detachMediaTags('gallery');
-            $instagramPost->delete();
-            return redirect()->back()->with('message', 'Image could not be uploaded to Instagram.');
+        // Apply author filter
+        if (!empty($request->author)) {
+            $instagramPosts->where('username', 'LIKE', '%' . $request->author . '%');
         }
 
-        return redirect()->back()->with('message', 'Image posted successfully!');
+        // Apply author filter
+        if (!empty($request->post)) {
+            $instagramPosts->where('caption', 'LIKE', '%' . $request->post . '%');
+        }
 
-
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\InstagramPosts $instagramPosts
-     * @return \Illuminate\Http\Response
-     */
-    public function show(InstagramPosts $instagramPosts)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\InstagramPosts $instagramPosts
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(InstagramPosts $instagramPosts)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\InstagramPosts $instagramPosts
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, InstagramPosts $instagramPosts)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\InstagramPosts $instagramPosts
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(InstagramPosts $instagramPosts)
-    {
-        //
+        // Return instagram posts
+        return $instagramPosts;
     }
 
     public function apiPost(Request $request)

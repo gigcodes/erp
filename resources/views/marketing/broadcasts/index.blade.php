@@ -229,12 +229,12 @@
                             <table class="table table-bordered table-striped" id="phone-table">
                                 <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>Username</th>
                                     <th>D. Name</th>
                                     <th>Number</th>
                                     <th>Ttl Cust</th>
                                     <th>Cust/day</th>
-                                    <th>Msg/Day</th>
+                                    <th>Today</th>
                                     <th>Pend</th>
                                     <th>Last Check</th>
                                     <th>L. Sent</th>
