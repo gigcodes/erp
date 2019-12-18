@@ -236,32 +236,14 @@ class CategoryController extends Controller
     {
 
         $categories = $request->get( 'category' );
-        $info = $request->get( 'info' );
 
-        if(!empty($info)) {
-            foreach ( $info as $catId => $reference ) {
-                list($catId,$reference) = explode("#",$reference);
-                $catId = str_replace("cat_", "", $catId);
-                $category = Category::find( $catId );
-                $category->references = $reference;
-                $category->save();
-            }
-
-        }else{
-            foreach ( $categories as $catId => $reference ) {
-                $catId = str_replace("cat_", "", $catId);
-                $category = Category::find( $catId );
-                $category->references = implode( ',', $reference );
-                $category->save();
-            }
+        foreach ( $categories as $catId => $reference ) {
+            $category = Category::find( $catId );
+            $category->references = implode( ',', $reference );
+            $category->save();
         }
-
-
-
-        //if(request()->is("ajax")) {
-            return response()->json(["code" => 200]);
-        //}    
 
         return redirect()->back()->with( 'message', 'Category updated successfully!' );
     }
+
 }

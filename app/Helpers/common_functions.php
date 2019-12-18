@@ -39,8 +39,3 @@ function createProductTextImage($path,$uploadPath = "", $text = "", $color = "54
 
     return ($needAbs) ? public_path($path) : url('/') . "/" . $path;
 }
-
-function get_folder_number($id)
-{
-    return floor($id / config('constants.image_per_folder'));
-}
