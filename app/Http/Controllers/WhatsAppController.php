@@ -1278,6 +1278,7 @@ class WhatsAppController extends FindByNumberController
                 if ($arrNumber[ 'instance_id' ] == $instanceId) {
                     $to = $whatsAppNumber;
                     $isCustomerNumber = $arrNumber[ 'customer_number' ];
+                    $instanceNumber = $whatsAppNumber;
                 }
             }
 
@@ -1290,6 +1291,7 @@ class WhatsAppController extends FindByNumberController
                     foreach ($whatsappConfigs as $whatsappConfig) {
                         if ($whatsappConfig->username == $instanceId) {
                             $isCustomerNumber = $whatsappConfig->number;
+                            $instanceNumber = $whatsappConfig->number;
                         }
                     }
                 }
@@ -1466,7 +1468,7 @@ class WhatsAppController extends FindByNumberController
 
                 // Auto Replies
                 $auto_replies = AutoReply::all();
-var_dump($auto_replies); exit();
+
                 foreach ($auto_replies as $auto_reply) {
                     if ($customer && array_key_exists('message', $params) && $params[ 'message' ] != '') {
                         $keyword = $auto_reply->keyword;
@@ -1482,7 +1484,7 @@ var_dump($auto_replies); exit();
 
                             // Send message if all required data is set
                             if ($temp_params[ 'message' ] || $temp_params[ 'media_url' ]) {
-                                $sendResult = $this->sendWithThirdApi($customer->phone, null, $temp_params[ 'message' ], $temp_params[ 'media_url' ]);
+                                $sendResult = $this->sendWithThirdApi($customer->phone, isset($instanceNumber) ? $instanceNumber : null, $temp_params[ 'message' ], $temp_params[ 'media_url' ]);
                                 if ($sendResult) {
                                     $message->unique_id = $sendResult[ 'id' ] ?? '';
                                     $message->save();
