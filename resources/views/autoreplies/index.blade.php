@@ -71,6 +71,9 @@
             <li>
                 <a href="#auto-replies" data-toggle="tab">Auto Replies</a>
             </li>
+            <li>
+                <a href="#most-used-words" data-toggle="tab">Most Used Words</a>
+            </li>
         </ul>
     </div>
 
@@ -201,6 +204,30 @@
                             <td>
                                 <button type="button" class="btn btn-image edit-auto-reply-button"><img src="/images/edit.png"/></button>
                             </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            {!! $auto_replies->appends(Request::except('autoreply-page'))->links() !!}
+        </div>
+
+        <div class="tab-pane mt-3" id="most-used-words">
+            <div class="table-responsive mt-3">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th width="25%">Words</th>
+                        <th width="60%">Total</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    @foreach ($mostUsedWords as $key => $words)
+                        <tr>
+                            <td>{{ $words->word }}</td>
+                            <td>{{ $words->total }}</td>
                         </tr>
                     @endforeach
                     </tbody>
