@@ -9,6 +9,7 @@ use App\ScheduledMessage;
 use App\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\ChatMessageWord;
 
 class AutoReplyController extends Controller
 {
@@ -32,11 +33,14 @@ class AutoReplyController extends Controller
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);
 
+        $mostUsedWords = ChatMessageWord::all();
+
         return view('autoreplies.index', [
             'auto_replies' => $auto_replies,
             'simple_auto_replies' => $simple_auto_replies,
             'priority_customers_replies' => $priority_customers_replies,
-            'show_automated_messages' => $show_automated_messages
+            'show_automated_messages' => $show_automated_messages,
+            'mostUsedWords' => $mostUsedWords
         ]);
     }
 
