@@ -15,7 +15,7 @@ class Supplier extends Model
     ];
 
     protected $fillable = [
-        'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id', 'scraper_name', 'supplier_status_id','is_blocked','inventory_lifetime' , 'scraper_total_urls' , 'scraper_existing_urls' , 'scraper_new_urls', 'scraper_priority','scraper_parent_id'
+        'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id','supplier_status_id','is_blocked'
     ];
 
     protected static function boot()
@@ -95,6 +95,11 @@ class Supplier extends Model
     public function scraperParent()
     {
         return $this->hasOne('App\Supplier',"id","scraper_parent_id");
+    }
+
+    public function scraper()
+    {
+        return $this->hasOne('App\Scraper',"supplier_id","id");
     }
 
 }
