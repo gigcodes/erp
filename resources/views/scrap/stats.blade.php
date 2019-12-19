@@ -102,6 +102,7 @@
                             <th>Made By</th>
                             <th>Type</th>
                             <th>Parent Scrapper</th>
+                            <th>Next Step</th>
                             <th>Functions</th>
                         </tr>
                     </thead>
@@ -176,12 +177,15 @@
                             {{ ($supplier->scraperParent) ? $supplier->scraperParent->scraper_name : "N/A" }}
                         </td>
                         <td width="10%">
+                            {{ isset(\App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow]) ? \App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow] : "N/A" }}
+                        </td>
+                        <td width="10%">
                             <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
                             <button type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                         </td>
                     </tr>
                     <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
-                        <td colspan="4">
+                        <td colspan="3">
                             <label>Logic:</label> 
                             <div class="input-group">
                               <textarea class="form-control scraper_logic" name="scraper_logic"><?php echo $supplier->scraper_logic; ?></textarea>
@@ -210,6 +214,12 @@
                             <label>Parent Scrapper:</label> 
                             <div class="form-group">
                               <?php echo Form::select("parent_supplier_id",[0 => "N/A"] + $allScrapperName,$supplier->parent_supplier_id,["class" => "form-control parent_supplier_id select2","style" => "width:100%;"]); ?>  
+                            </div>
+                        </td>
+                        <td colspan="3">
+                            <label>Next Step:</label> 
+                            <div class="form-group">
+                              <?php echo Form::select("next_step_in_product_flow",[0 => "N/A"] +  \App\Helpers\StatusHelper::getStatus(),$supplier->next_step_in_product_flow,["class" => "form-control next_step_in_product_flow select2","style" => "width:100%;"]); ?>  
                             </div>
                         </td>    
                     </tr>
@@ -444,6 +454,26 @@
 
             });
         });
+
+        $(document).on("change",".next_step_in_product_flow",function() {
+            var tr = $(this).closest("tr");
+            var id = tr.data("eleid");
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/statistics/update-field',
+                data: {
+                    search: id,
+                    field : "next_step_in_product_flow",
+                    field_value : tr.find(".next_step_in_product_flow").val()
+                },
+            }).done(function (response) {
+                toastr['success']('Data updated Successfully', 'success');
+            }).fail(function (response) {
+
+            });
+        });
+
+        
 
         $(document).on("change",".parent_supplier_id",function() {
             var tr = $(this).closest("tr");
