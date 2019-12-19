@@ -29,7 +29,7 @@ class CreateScrapersTable extends Migration
             $table->text('scraper_logic', 65535)->nullable();
             $table->integer('scraper_made_by')->nullable();
             $table->integer('scraper_priority')->nullable();
-            $table->string('inventory_lifetime');
+            $table->string('inventory_lifetime')->nullable();
             $table->integer('next_step_in_product_flow')->nullable();
             $table->timestamps();
         });

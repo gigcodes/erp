@@ -327,7 +327,7 @@ class ScrapStatisticsController extends Controller
 
     }
 
-    private static function get_times( $default = '19:00', $interval = '+30 minutes' ) {
+    private static function get_times( $default = '19:00', $interval = '+60 minutes' ) {
 
         $output = [];
 
@@ -335,7 +335,7 @@ class ScrapStatisticsController extends Controller
         $end = strtotime( '23:59' );
 
         while( $current <= $end ) {
-            $time = date( 'H:i', $current );
+            $time = date( 'G', $current );
             $output[$time] = date( 'h.i A', $current );
             $current = strtotime( $interval, $current );
          }
