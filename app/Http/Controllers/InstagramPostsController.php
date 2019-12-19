@@ -13,6 +13,7 @@ use App\Setting;
 use Illuminate\Http\Request;
 use InstagramAPI\Instagram;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use File;
 
 class InstagramPostsController extends Controller
 {
@@ -75,7 +76,11 @@ class InstagramPostsController extends Controller
     public function apiPost(Request $request)
     {
         // Get raw body
-        $payLoad = json_decode(request()->getContent(), true);
+        $file = $request->file('file');
+        
+        $f = File::get($file);
+        
+        $payLoad = json_decode($f);
 
         // NULL? No valid JSON
         if ($payLoad == null) {
@@ -86,8 +91,11 @@ class InstagramPostsController extends Controller
 
         // Process input
         if (is_array($payLoad) && count($payLoad) > 0) {
+            $payLoad = json_decode(json_encode($payLoad), true);
+
             // Loop over posts
             foreach ($payLoad as $postJson) {
+                
                 // Set tag
                 $tag = $postJson[ 'Tag used to search' ];
 
@@ -104,7 +112,7 @@ class InstagramPostsController extends Controller
                 $instagramPost->media_url = !empty($postJson[ 'Image' ]) ? $postJson[ 'Image' ] : $postJson[ 'URL' ];
                 $instagramPost->source = 'instagram';
                 $instagramPost->save();
-
+                
                 // Store media
                 if (!empty($postJson[ 'Image' ])) {
                     if (!$instagramPost->hasMedia('instagram-post')) {
