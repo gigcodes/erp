@@ -4,6 +4,36 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <style type="text/css">
+        .dis-none {
+            display: none;
+        }
+        .fixed_header{
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        .fixed_header tbody{
+          display:block;
+          width: 100%;
+          overflow: auto;
+          height: 250px;
+        }
+
+        .fixed_header thead tr {
+           display: block;
+        }
+
+        .fixed_header thead {
+          background: black;
+          color:#fff;
+        }
+
+        .fixed_header th, .fixed_header td {
+          padding: 5px;
+          text-align: left;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -219,7 +249,8 @@
                     <thead>
                     <tr>
                         <th width="25%">Words</th>
-                        <th width="60%">Total</th>
+                        <th width="25%">Total</th>
+                        <th width="25%">Action</th>
                     </tr>
                     </thead>
 
@@ -228,6 +259,20 @@
                         <tr>
                             <td>{{ $words->word }}</td>
                             <td>{{ $words->total }}</td>
+                            <td><button data-id="{{ $words->id }}" class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button></td>
+                        </tr>
+                        <tr class="dis-none" id="phrases_{{ $words->id }}">
+                            <td colspan="3">
+                                <table class="fixed_header">
+                                    <tbody>
+                                        @foreach($words->pharases as $phrase)
+                                            <tr colspan="3">
+                                                <td>{{ $phrase->phrase }}</td>
+                                            </tr>
+                                         @endforeach
+                                    </tbody>
+                                </table>
+                            </td>
                         </tr>
                     @endforeach
                     </tbody>
@@ -318,6 +363,11 @@
                     alert('Could not update reply');
                 });
             }
+        });
+
+        $(document).on("click",".expand-row-btn",function() {
+            var dataId = $(this).data("id");
+            $("#phrases_"+dataId).toggleClass("dis-none");
         });
     </script>
 @endsection
