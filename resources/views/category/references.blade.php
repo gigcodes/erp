@@ -22,9 +22,10 @@
                     <tr>
                         <th>Category Name</th>
                         <th>Unknown References</th>
+                        <th>Status After Autocrop</th>
                     </tr>
                     <tr>
-                        <td colspan="2">Unknown references are shown in 'Unknown Category'. If you want a reference not to appear in here, enter it in 'Ignore Category Reference'. Please note that products with ignored or unknown categories will be linked to those categories.</td>
+                        <td colspan="3">Unknown references are shown in 'Unknown Category'. If you want a reference not to appear in here, enter it in 'Ignore Category Reference'. Please note that products with ignored or unknown categories will be linked to those categories.</td>
                     </tr>
 
                     @foreach($fillerCategories as $category)
@@ -33,7 +34,7 @@
                                 {{ $category->title }}
                             </td>
                             <td>
-                                <div data-cat-id="{{ $category->id }}" class="col-md-12 category-mov-btn">
+                                <div data-cat-id="{{ $category->id }}" class="col-md-8 category-mov-btn">
                                     @php $options = explode(',', $category->references) @endphp
                                     @if(count($options)>0)
                                         @foreach($options as $option)
@@ -56,11 +57,17 @@
                                     @endif
                                 </select> -->
                             </td>
+                            <td>
+                                <div data-cat-id="{{ $category->id }}" class=" category-next-btn">
+                                   <?php echo Form::select("status_after_autocrop",$allStatus,$category->status_after_autocrop,["class" => "select2 form-control status_after_autocrop","style"=>"width:200px;"]); ?>
+                                </div>
+                            </td>
                         </tr>
                     @endforeach
 
                     <tr>
                         <th>Category Name</th>
+                        <th>References</th>
                         <th>References</th>
                     </tr>
 
@@ -70,7 +77,7 @@
                                 {{ $category->title }}
                             </td>
                             <td>
-                                <div data-cat-id="{{ $category->id }}" class="col-md-12 category-mov-btn">
+                                <div data-cat-id="{{ $category->id }}" class="col-md-8 category-mov-btn">
                                     @php $options = explode(',', $category->references) @endphp
                                     @if(count($options)>0)
                                         @foreach($options as $option)
@@ -94,6 +101,11 @@
                                     @endif
                                 </select> -->
                             </td>
+                            <td>
+                                <div data-cat-id="{{ $category->id }}" class=" category-next-btn">
+                                   <?php echo Form::select("status_after_autocrop",$allStatus,$category->status_after_autocrop,["class" => "select2 form-control status_after_autocrop","style"=>"width:200px;"]); ?>
+                                </div>
+                            </td>
                         </tr>
                         <!-- get sub categories -->
                         @php
@@ -106,7 +118,7 @@
                                         {{ $category->title }} &gt; {{ $subcategory->title }}
                                     </td>
                                     <td>
-                                        <div data-cat-id="{{ $subcategory->id }}" class="col-md-12 category-mov-btn">
+                                        <div data-cat-id="{{ $subcategory->id }}" class="col-md-8 category-mov-btn">
                                             @php $options = explode(',', $subcategory->references) @endphp
                                             @if(count($options)>0)
                                                 @foreach($options as $option)
@@ -129,6 +141,11 @@
                                             @endif
                                         </select> -->
                                     </td>
+                                    <td>
+                                        <div data-cat-id="{{ $subcategory->id }}" class=" category-next-btn">
+                                           <?php echo Form::select("status_after_autocrop",$allStatus,$subcategory->status_after_autocrop,["class" => "select2 form-control status_after_autocrop","style"=>"width:200px;"]); ?>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <!-- get sub categories -->
                                 @php
@@ -141,7 +158,7 @@
                                                 {{ $category->title }} &gt; {{ $subcategory->title }} &gt; {{ $sscategory->title }}
                                             </td>
                                             <td>
-                                                <div data-cat-id="{{ $sscategory->id }}" class="col-md-12 category-mov-btn">
+                                                <div data-cat-id="{{ $sscategory->id }}" class="col-md-8 category-mov-btn">
                                                     @php $options = explode(',', $sscategory->references) @endphp
                                                     @if(count($options)>0)
                                                         @foreach($options as $option)
@@ -164,6 +181,11 @@
                                                     @endif
                                                 </select> -->
                                             </td>
+                                            <td>
+                                                <div data-cat-id="{{ $sscategory->id }}" class=" category-next-btn">
+                                                   <?php echo Form::select("status_after_autocrop",$allStatus,$subcategory->status_after_autocrop,["class" => "select2 form-control status_after_autocrop","style"=>"width:200px;"]); ?>
+                                                </div>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @endif
@@ -182,9 +204,9 @@
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <script>
-        /*$("select").select2({
+        $("select").select2({
             tags: true
-        });*/
+        });
 
         $(".sortable-tables").find(".category-mov-btn").find("span").draggable({
             //containment : ".category-mov-btn",
@@ -239,6 +261,19 @@
                     });
               } );
           }
+        });
+
+        $(document).on("change",".status_after_autocrop",function() {
+            $.ajax({
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '/category/update-field',
+                data: {_f : "status_after_autocrop" , _v : $(this).val(), id: $(this).closest(".category-next-btn").data("cat-id")},
+            }).done(response => {
+                toastr['success']('Category Updated successfully', 'success');
+            });
         });
 
     </script>

@@ -1806,6 +1806,15 @@ class ProductController extends Controller
             $product->cropped_at = Carbon::now()->toDateTimeString();
             $product->status_id = StatusHelper::$cropApproval;
             $product->save();
+
+            // get the status as per crop
+            if($product->category > 0) {
+                $category = \App\Category::find($product->category);
+                if(!empty($category) && $category->status_after_autocrop > 0) {
+                    \App\Helpers\StatusHelper::updateStatus($product,$category->status_after_autocrop);
+                }
+            }
+
         } else {
             $product->status_id = StatusHelper::$cropSkipped;
             $product->save();
