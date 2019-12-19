@@ -48,6 +48,11 @@ Route::prefix('product')->middleware('auth')->group(static function () {
     Route::resource('manual-crop', 'Products\ManualCroppingController');
 });
 
+Route::prefix('logging')->middleware('auth')->group(static function () {
+    Route::get('list-magento', 'Logging\LogListMagentoController@index');
+    Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
+});
+
 Route::prefix('category-messages')->group(function () {
     Route::post('bulk-messages/keyword', 'BulkCustomerRepliesController@storeKeyword');
     Route::post('bulk-messages/send-message', 'BulkCustomerRepliesController@sendMessagesByKeyword');
@@ -183,7 +188,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('delete-resource', 'ResourceImgController@deleteResource')->name('delete.resource');
     Route::get('images/resource/{id}', 'ResourceImgController@imagesResource')->name('images/resource');
 
-    Route::resource('categorymap', 'CategoryMapController');
     Route::resource('benchmark', 'BenchmarkController');
 
     // adding lead routes
@@ -245,6 +249,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
     Route::post('order/generate/awb/number', 'OrderController@generateAWB')->name('order.generate.awb');
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
+    Route::get('order/change-status', 'OrderController@statusChange');
     Route::resource('order', 'OrderController');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
@@ -320,12 +325,24 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/multiple-products', 'GoogleSearchImageController@getImageForMultipleProduct')->name('google.product.queue');
         Route::post('/image-crop-sequence', 'GoogleSearchImageController@cropImageSequence')->name('google.crop.sequence');
         Route::post('/update-product-status', 'GoogleSearchImageController@updateProductStatus')->name('google.product.status');
-        
+        Route::post('product-by-image','GoogleSearchImageController@getProductFromImage')->name('google.product.image');
     });
 
     Route::prefix('search-image')->group(function () {
         Route::get('/', 'GoogleSearchImageController@product')->name('google.search.product');
         Route::post('/', 'GoogleSearchImageController@product')->name('google.search.product-save');
+    });
+
+    Route::prefix('multiple-search-image')->group(function () {
+        Route::get('/', 'GoogleSearchImageController@nultipeImageProduct')->name('google.search.multiple');
+        Route::post('/save-images', 'GoogleSearchImageController@multipleImageStore')->name('multiple.google.search.product-save');
+        Route::post('/single-save-images', 'GoogleSearchImageController@getProductFromText')->name('multiple.google.product-save');
+    });
+
+    Route::prefix('approve-search-image')->group(function () {
+        Route::get('/', 'GoogleSearchImageController@approveProduct')->name('google.approve.product');
+        Route::post('/approve-images-product', 'GoogleSearchImageController@approveTextGoogleImagesToProduct')->name('approve.google.search.images.product');
+        Route::post('/reject', 'GoogleSearchImageController@rejectProducts')->name('reject.google.search.text.product');
     });
 
 
@@ -521,7 +538,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('tasks/gettaskremark', 'TaskModuleController@getTaskRemark')->name('task.gettaskremark');
     Route::post('task/{id}/makePrivate', 'TaskModuleController@makePrivate');
     Route::post('task/{id}/isWatched', 'TaskModuleController@isWatched');
-
+    Route::post('task-remark/{id}/delete', 'TaskModuleController@archiveTaskRemark')->name('task.archive.remark');
     Route::post('tasks/deleteTask', 'TaskModuleController@deleteTask');
     Route::post('tasks/{id}/delete', 'TaskModuleController@archiveTask')->name('task.archive');
 //	Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
@@ -774,6 +791,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
     Route::resource('supplier', 'SupplierController');
     Route::resource('google-server', 'GoogleServerController');
+    Route::post('log-google-cse', 'GoogleServerController@logGoogleCse')->name('log.google.cse');
     Route::resource('email-addresses', 'EmailAddressesController');
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
     Route::post('supplier/saveImage' , 'SupplierController@saveImage')->name('supplier.image');;
@@ -863,6 +881,7 @@ Route::post('whatsapp/forwardMessage/', 'WhatsAppController@forwardMessage')->na
 Route::post('whatsapp/{id}/fixMessageError', 'WhatsAppController@fixMessageError');
 Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
+Route::get('message/delete', 'WhatsAppController@delete');
 
 //Hubstaff
 Route::get('hubstaff/members', 'HubstaffController@index');
@@ -933,7 +952,6 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::resource('keyword', 'KeywordsController');
     Route::resource('profiles', 'InstagramProfileController');
     Route::get('posts', 'InstagramController@showPosts');
-    Route::resource('account-posts', 'InstagramPostsController');
     Route::resource('hashtagposts', 'HashtagPostsController');
     Route::resource('hashtagpostscomments', 'HashtagPostCommentController');
     Route::get('hashtag/grid/{id}', 'HashtagController@showGrid')->name('hashtag.grid');
@@ -957,6 +975,11 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
 // logScraperVsAiController
 Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/{id}', 'logScraperVsAiController@index');
+});
+
+Route::prefix('social-media')->middleware('auth')->group(function () {
+    Route::get('/instagram-posts/grid', 'InstagramPostsController@grid');
+    Route::get('/instagram-posts', 'InstagramPostsController@index');
 });
 
 /*

@@ -6,7 +6,7 @@ use App\DeveloperTask;
 
 class DevelopmentHelper
 {
-    public static function getDeveloperTasks($developerId, $status='In Progress',$task_type)
+    public static function getDeveloperTasks($developerId, $status = 'In Progress', $task_type)
     {
 
         // Get open tasks for developer
@@ -22,5 +22,36 @@ class DevelopmentHelper
 
         // Return developer tasks
         return $developerTasks;
+    }
+
+    public static function scrapTypes()
+    {
+        return [
+            "1" => "Typescript",
+            "2" => "NodeJS Request/Cheerio",
+            "3" => "NodeJS Puppeteer",
+            "4" => "NodeJS Puppeteer with URL list",
+        ];
+    }
+
+    public static function scrapTypeById($id)
+    {
+        if(!empty($id)) {
+            return isset(self::scrapTypes()[$id]) ? self::scrapTypes()[$id] : "";
+        }
+
+        return "";
+    }
+
+    public static function needToApproveMessage()
+    {
+        $approveMessage = 0;
+        
+        $approvalmodel  = \App\Setting::where("name","is_approve_message_btn")->first();
+        if($approvalmodel) {
+            $approveMessage = $approvalmodel->val;
+        }
+
+        return $approveMessage;
     }
 }

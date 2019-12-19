@@ -67,7 +67,7 @@ use App\Console\Commands\ZoomMeetingRecordings;
 use App\Console\Commands\ZoomMeetingDeleteRecordings;
 use App\Console\Commands\RecieveResourceImages;
 use App\Console\Commands\CheckWhatsAppActive;
-
+use App\Console\Commands\ParseLog;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
@@ -163,6 +163,7 @@ class Kernel extends ConsoleKernel
         IncrementFrequencyWhatsappConfig::class,
         UpdateCronSchedule::class,
         RunErpEvents::class,
+        ParseLog::class,
     ];
 
     /**
@@ -177,6 +178,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
+
+        // Store unknown categories on a daily basis
+        $schedule->command('category:missing-references')->daily();
 
         //This command will set the count of the words used...
         $schedule->command('bulk-customer-message:get-most-used-keywords')->daily();
@@ -294,6 +298,7 @@ class Kernel extends ConsoleKernel
         // Fetches Emails
         $schedule->command('fetch:emails')->everyFifteenMinutes();
         $schedule->command('check:emails-errors')->dailyAt('03:00')->timezone('Asia/Kolkata');
+        $schedule->command('parse:log')->dailyAt('03:00')->timezone('Asia/Kolkata');
         $schedule->command('document:email')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         $schedule->command('resource:image')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         $schedule->command('send:daily-planner-report')->dailyAt('08:00')->timezone('Asia/Kolkata');

@@ -478,7 +478,7 @@ class LiveChatController extends Controller
         			]);
 		}else{
 			return response()->json([
-            			'status' => 'errors'
+            			'data' => array('id' => '','count' => 0, 'message' => '' , 'name' => ''),
         			]);
 		}
 	}
@@ -499,7 +499,10 @@ class LiveChatController extends Controller
 								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is online</p></div></div></li>';
 			}
 		}
-
+		if(empty($customers)){
+			$customers[] = '<li><div class="d-flex bd-highlight"><div class="img_cont">
+								</div><div class="user_info"><span>No User Found</span><p></p></div></div></li>';
+		}
 		//Getting chat counts 
 		$count = CustomerLiveChat::where('seen',0)->count();
 		

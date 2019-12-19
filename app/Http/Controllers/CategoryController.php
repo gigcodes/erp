@@ -114,8 +114,11 @@ class CategoryController extends Controller
         $category = new Category();
         $category_instance = $category->find( $id );
         $categoryTree = [];
+        
+        if($category_instance == null){
+            return false;
+        }
 
-        $categoryTree[] = $category_instance->title;
         $parent_id = $category_instance->parent_id;
 
         while ( $parent_id != 0 ) {
@@ -222,23 +225,43 @@ class CategoryController extends Controller
 
     public function mapCategory()
     {
-        $categories = Category::where( 'id', '>', 1 )->where('parent_id', 0)->get();
+        $fillerCategories = Category::where( 'id', '>', 1 )->where('parent_id', 0)->whereIn('id', [143,144])->get();
 
-        return view( 'category.references', compact( 'categories' ) );
+        $categories = Category::where( 'id', '>', 1 )->where('parent_id', 0)->whereNotIn('id', [143,144])->get();
+
+        return view( 'category.references', compact( 'fillerCategories', 'categories' ) );
     }
 
     public function saveReferences( Request $request )
     {
 
         $categories = $request->get( 'category' );
+        $info = $request->get( 'info' );
 
-        foreach ( $categories as $catId => $reference ) {
-            $category = Category::find( $catId );
-            $category->references = implode( ',', $reference );
-            $category->save();
+        if(!empty($info)) {
+            foreach ( $info as $catId => $reference ) {
+                list($catId,$reference) = explode("#",$reference);
+                $catId = str_replace("cat_", "", $catId);
+                $category = Category::find( $catId );
+                $category->references = $reference;
+                $category->save();
+            }
+
+        }else{
+            foreach ( $categories as $catId => $reference ) {
+                $catId = str_replace("cat_", "", $catId);
+                $category = Category::find( $catId );
+                $category->references = implode( ',', $reference );
+                $category->save();
+            }
         }
+
+
+
+        //if(request()->is("ajax")) {
+            return response()->json(["code" => 200]);
+        //}    
 
         return redirect()->back()->with( 'message', 'Category updated successfully!' );
     }
-
 }

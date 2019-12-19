@@ -110,6 +110,7 @@
 
     <button type="button" class="btn btn-secondary select-all-system-btn" data-count="0">Send All In System</button>
     <button type="button" class="btn btn-secondary select-all-page-btn" data-count="0">Send All On Page</button>
+     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#product-image">Get Product By Image</button>
 
     <div class="productGrid" id="productGrid">
         {!! $products->appends(Request::except('page'))->links() !!}
@@ -142,6 +143,8 @@
         </form>
         {!! $products->appends(Request::except('page'))->links() !!}
     </div>
+
+  @include('google_search_image.partials.get-products-by-image')    
 @endsection
 
 @section('scripts')
@@ -171,7 +174,7 @@
                                 $("#loading-image").show();
                             },
                             success: function (response) {
-                                $("#loading-image").hide();
+                             //   $("#loading-image").hide();
                             },
                             data: {
                                 id: ids[i],
@@ -179,6 +182,9 @@
                             }
                         });
                     }
+                    setTimeout(function() {
+                      $("#loading-image").hide();
+                    }, 60000);
                 }
             });
 
@@ -193,7 +199,7 @@
                                 $("#loading-image").show();
                             },
                             success: function (response) {
-                                $("#loading-image").hide();
+                               // $("#loading-image").hide();
                             },
                             data: {
                                 id: ids[i],
@@ -201,6 +207,9 @@
                             }
                         });
                     }
+                    setTimeout(function() {
+                      $("#loading-image").hide();
+                    }, 200000);
                 }
             });
 
@@ -240,5 +249,36 @@
                     location.reload();
                 }
             }
+
+        function getProductsFromImage() {
+           
+            file = $('#imgupload').prop('files')[0];
+            var fd = new FormData();
+            fd.append("file", file);
+            fd.append("_token", "{{ csrf_token() }}" );
+            
+            $.ajax({
+             url: "{{ route('google.product.image') }}",
+             type: 'POST',
+             dataType: 'json',
+             data: fd,
+             beforeSend: function () {
+                $('#product-image').modal('hide');
+                $("#loading-image").show();
+            },
+            success: function (data) {
+                $("#loading-image").hide();
+                alert('Product Queued For Scraping');
+            },
+            error: function (response) {
+                $("#loading-image").hide();
+                alert('Product Not Found');
+            },
+             cache: false,
+                contentType: false,
+                processData: false   
+            });
+            
+           }    
     </script>
 @endsection

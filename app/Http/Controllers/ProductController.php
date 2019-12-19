@@ -32,6 +32,7 @@ use Cache;
 use Auth;
 use Carbon\Carbon;
 use Chumper\Zipper\Zipper;
+use Dompdf\Exception;
 use FacebookAds\Object\ProductFeed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -92,7 +93,6 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request)
     {
-        dd($request);
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
@@ -1317,6 +1317,7 @@ class ProductController extends Controller
         $roletype = $request->input('roletype') ?? 'Sale';
         $products = Product::where('stock', '>=', 1)
             ->select(['id', 'sku', 'size', 'price_special', 'brand', 'isApproved', 'stage', 'created_at'])
+            ->orderBy("created_at","DESC")
             ->paginate(Setting::get('pagination'));
 
         $doSelection = true;
@@ -1489,7 +1490,7 @@ class ProductController extends Controller
                 }
 
                 $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
-                if ($category_id) {                    
+                if ($category_id) {
                     $products = $products->orWhere('category', $category_id);
                 }
 
@@ -1523,7 +1524,7 @@ class ProductController extends Controller
         });
 
         if($request->get("unsupported",null) != "") {
-            
+
             $mediaIds = \DB::table("media")->where("aggregate_type","image")->join("mediables", function ($query) {
                 $query->on("mediables.media_id", "media.id")->where("mediables.mediable_type", 'like', "App%Product");
             })->whereNotIn("extension",config("constants.gd_supported_files"))->select("id")->pluck("id")->toArray();
@@ -1545,18 +1546,18 @@ class ProductController extends Controller
         }
 
         $products_count = $products->get()->count();
-        
+
         if($request->has("limit")) {
             $perPageLimit = ($request->get("limit") == "all") ? $products_count : $request->get("limit");
         }
-        
+
         $products = $products->paginate($perPageLimit);
         $all_product_ids = [];
         if ($request->ajax()) {
             $html = view('partials.image-load', [
                 'products' => $products,
                 'all_product_ids' => $all_product_ids,
-                'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [], 
+                'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
                 'model_type' => $model_type
             ])->render();
 
@@ -1741,14 +1742,18 @@ class ProductController extends Controller
         $parent = '';
         $child = '';
 
-        if ($cat != 'Select Category') {
-            if ($category->isParent($category->id)) {
-                $parent = $cat;
-                $child = $cat;
-            } else {
-                $parent = $category->parent()->first()->title;
-                $child = $cat;
+        try {
+            if ($cat != 'Select Category') {
+                if ($category->isParent($category->id)) {
+                    $parent = $cat;
+                    $child = $cat;
+                } else {
+                    $parent = $category->parent()->first()->title;
+                    $child = $cat;
+                }
             }
+        } catch ( \ErrorException $e ) {
+            //
         }
 
         // Set new status
@@ -2239,18 +2244,15 @@ class ProductController extends Controller
             }
         }
 
-        
-        $approveMessage = 1;
 
-        try {
-            $approveMessage = session()->get('is_approve_message');
-        } catch (\Exception $e) {
-        }
+        // get the status for approval
+        $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
 
         $is_queue = 0;
-        if ($approveMessage == '1') {
+        if ($approveMessage == 1) {
             $is_queue = 1;
         }
+
         foreach ($customerIds as $k => $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');
@@ -2287,6 +2289,12 @@ class ProductController extends Controller
         $data['status'] = $request->status;
 
         \App\Jobs\AttachImagesSend::dispatch($data);
+
+        $json = request()->get("json",false);
+
+        if($json) {
+            return response()->json(["code" => 200]);
+        }
 
         if ($request->get('return_url')) {
             return redirect($request->get('return_url'));

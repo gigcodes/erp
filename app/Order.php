@@ -20,6 +20,8 @@ class Order extends Model
         'client_name',
         'city',
         'contact_detail',
+        'shoe_size',
+        'clothing_size',
         'solophone',
         'advance_detail',
         'advance_date',

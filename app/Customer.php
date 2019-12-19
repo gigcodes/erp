@@ -204,7 +204,7 @@ class Customer extends Model
 
     public function customerMarketingPlatformRemark()
     {
-        return $this->hasMany(CustomerMarketingPlatform::class,'customer_id','id')->whereNotNull('remark');
+        return $this->hasMany(CustomerMarketingPlatform::class,'customer_id','id')->whereNotNull('remark')->orderBy('created_at','desc');
     }
     public function customerMarketingPlatformActive()
     {
@@ -224,7 +224,7 @@ class Customer extends Model
     }
 
     public function notDelieveredImQueueMessage(){
-       return $this->hasOne(ImQueue::class,'number_to','phone')->where('sent_at','2002-02-02 02:02:02');
+       return $this->hasOne(ImQueue::class,'number_to','phone')->where('sent_at','2002-02-02 02:02:02')->latest();
     }
 
     

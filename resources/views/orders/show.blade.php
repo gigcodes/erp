@@ -124,7 +124,7 @@
                         </div>
 
 
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <strong>Office Phone Number:</strong>
                             <Select name="whatsapp_number" class="form-control">
                                       <option value>None</option>
@@ -140,7 +140,7 @@
                             @if ($errors->has('whatsapp_number'))
                                 <div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
                             @endif
-                        </div>
+                        </div> -->
 
                         @php $status = ( new \App\ReadOnly\OrderStatus )->getNameById( $order_status ); @endphp
 
@@ -174,7 +174,16 @@
                                  <div class="alert alert-danger">{{$errors->first('estimated_delivery_date')}}</div>
                              @endif
                          </div>
-
+                          <div class="form-group">
+                             <strong>Shoe Size:</strong>
+                             <input type="text" class="form-control" name="shoe_size" placeholder="Shoe Size"
+                                    value="{{ old('shoe_size') ? old('shoe_size') : $shoe_size }}"/>
+                         </div>
+                         <div class="form-group">
+                             <strong>Clothing Size:</strong>
+                             <input type="text" class="form-control" name="clothing_size" placeholder="Clothing Size"
+                                    value="{{ old('clothing_size') ? old('clothing_size') : $clothing_size }}"/>
+                         </div>
 
                          <div class="form-group">
                              <strong>Note if any:</strong>
@@ -186,14 +195,14 @@
                          </div>
 
 
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <strong> Name of Order Handler :</strong>
         			        <?php
-        			        echo Form::select('sales_person',$sales_persons, ( old('sales_person') ? old('sales_person') : $sales_person ), ['placeholder' => 'Select a name','class' => 'form-control']);?>
+        			        //echo Form::select('sales_person',$sales_persons, ( old('sales_person') ? old('sales_person') : $sales_person ), ['placeholder' => 'Select a name','class' => 'form-control']);?>
                             @if ($errors->has('sales_person'))
                                 <div class="alert alert-danger">{{$errors->first('sales_person')}}</div>
                             @endif
-                        </div>
+                        </div> -->
 
                          <div class="form-group">
                              <strong>Created by:</strong>

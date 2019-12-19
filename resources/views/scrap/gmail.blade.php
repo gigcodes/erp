@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('favicon' , 'scrapergmail.png')
+
+@section('title', 'Gmail Scrapper Info')
+
 @section('content')
     <div class="row">
         <div class="col-md-12">
