@@ -8,6 +8,31 @@
         .dis-none {
             display: none;
         }
+        .fixed_header{
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        .fixed_header tbody{
+          display:block;
+          width: 100%;
+          overflow: auto;
+          height: 250px;
+        }
+
+        .fixed_header thead tr {
+           display: block;
+        }
+
+        .fixed_header thead {
+          background: black;
+          color:#fff;
+        }
+
+        .fixed_header th, .fixed_header td {
+          padding: 5px;
+          text-align: left;
+        }
     </style>
 @endsection
 
@@ -238,7 +263,7 @@
                         </tr>
                         <tr class="dis-none" id="phrases_{{ $words->id }}">
                             <td colspan="3">
-                                <table>
+                                <table class="fixed_header">
                                     <tbody>
                                         @foreach($words->pharases as $phrase)
                                             <tr colspan="3">
