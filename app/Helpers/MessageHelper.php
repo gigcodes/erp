@@ -56,7 +56,7 @@ class MessageHelper
             ];
 
             $records['phraces'][$word] = [
-                "phraces" => isset($phraces[$word]) ? $phraces[$word] : [],
+                "phraces" => isset($phraces[$word]) ? array_unique($phraces[$word]) : [],
             ];
 
         }
