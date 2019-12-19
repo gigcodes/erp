@@ -17,5 +17,6 @@ class VerifyCsrfToken extends Middleware
         'whatsapp/*',
         'livechat/*',
         'api/instagram/post',
+        'duty/v1/calculate',
     ];
 }

@@ -64,9 +64,14 @@ Route::post('get-customers', 'QuickSellController@getCustomers')->name('getCusto
 Route::get('product-template', 'ProductTemplatesController@apiIndex');
 Route::post('product-template', 'ProductTemplatesController@apiSave');
 
-Route::get('{client}/{numberFrom}/get-im', 'InstantMessagingController@getMessage');
-Route::post('{client}/{numberFrom}/webhook', 'InstantMessagingController@processWebhook');
-Route::get('{client}/{numberFrom}/im-status-update', 'InstantMessagingController@updatePhoneStatus');
+
+Route::get('{client}/{numberFrom}/get-im','InstantMessagingController@getMessage');
+Route::post('{client}/{numberFrom}/webhook','InstantMessagingController@processWebhook');
+Route::get('{client}/{numberFrom}/im-status-update','InstantMessagingController@updatePhoneStatus');
+Route::get('duty/v1/get-currencies', 'SimplyDutyCurrencyController@sendCurrencyJson');
+Route::get('duty/v1/get-countries', 'SimplyDutyCountryController@sendCountryJson');
+Route::post('duty/v1/calculate', 'SimplyDutyCalculationController@calculate');
 
 // INSTAGRAM
 Route::post('instagram/post', 'InstagramPostsController@apiPost');
+

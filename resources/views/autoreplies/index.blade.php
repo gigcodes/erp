@@ -4,6 +4,36 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <style type="text/css">
+        .dis-none {
+            display: none;
+        }
+        .fixed_header{
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        .fixed_header tbody{
+          display:block;
+          width: 100%;
+          overflow: auto;
+          height: 250px;
+        }
+
+        .fixed_header thead tr {
+           display: block;
+        }
+
+        .fixed_header thead {
+          background: black;
+          color:#fff;
+        }
+
+        .fixed_header th, .fixed_header td {
+          padding: 5px;
+          text-align: left;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -70,6 +100,9 @@
             </li>
             <li>
                 <a href="#auto-replies" data-toggle="tab">Auto Replies</a>
+            </li>
+            <li>
+                <a href="#most-used-words" data-toggle="tab">Most Used Words</a>
             </li>
         </ul>
     </div>
@@ -209,6 +242,51 @@
 
             {!! $auto_replies->appends(Request::except('autoreply-page'))->links() !!}
         </div>
+
+        <div class="tab-pane mt-3" id="most-used-words">
+            <div class="table-responsive mt-3">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th width="25%">Words</th>
+                        <th width="25%">Total</th>
+                        <th width="25%">Action</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    @foreach ($mostUsedWords as $key => $words)
+                        <tr>
+                            <td>{{ $words->word }}</td>
+                            <td>{{ $words->total }}</td>
+                            <td>
+                                <button data-id="{{ $words->id }}" class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
+                                <button data-id="{{ $words->id }}" class="btn btn-image delete-row-btn"><img src="/images/delete.png"></button>
+                            </td>
+                        </tr>
+                        <tr class="dis-none" id="phrases_{{ $words->id }}">
+                            <td colspan="3">
+                                <table class="fixed_header">
+                                    <tbody>
+                                        @foreach($words->pharases as $phrase)
+                                            <tr colspan="3">
+                                                <td>{{ $phrase->phrase }}</td>
+                                                <td>
+                                                    <button data-id="{{ $phrase->phrase }}" class="btn btn-image get-chat-details"><img src="/images/chat.png"></button>
+                                                </td>
+                                            </tr>
+                                         @endforeach
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            {!! $auto_replies->appends(Request::except('autoreply-page'))->links() !!}
+        </div>
     </div>
 
     @include('autoreplies.partials.autoreply-modals')
@@ -292,5 +370,32 @@
                 });
             }
         });
+
+        $(document).on("click",".expand-row-btn",function() {
+            var dataId = $(this).data("id");
+            $("#phrases_"+dataId).toggleClass("dis-none");
+        });
+
+        $(document).on("click",".delete-row-btn",function() {
+            var $this = $(this);
+            var dataId = $(this).data("id");
+            $.ajax({
+                type: 'POST',
+                url: "autoreply/delete-chat-word",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: dataId,
+                }
+            }).done(function () {
+                $this.closest("tr").remove();
+                $("#phrases_"+dataId).remove();
+            }).fail(function (response) {
+            });
+        });
+
+        $(document).on("click",".get-chat-details",function() {
+            
+        });
+
     </script>
 @endsection

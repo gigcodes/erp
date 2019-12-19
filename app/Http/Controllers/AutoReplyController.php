@@ -9,6 +9,7 @@ use App\ScheduledMessage;
 use App\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\ChatMessageWord;
 
 class AutoReplyController extends Controller
 {
@@ -32,11 +33,14 @@ class AutoReplyController extends Controller
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);
 
+        $mostUsedWords = ChatMessageWord::with('pharases')->get();
+  
         return view('autoreplies.index', [
             'auto_replies' => $auto_replies,
             'simple_auto_replies' => $simple_auto_replies,
             'priority_customers_replies' => $priority_customers_replies,
-            'show_automated_messages' => $show_automated_messages
+            'show_automated_messages' => $show_automated_messages,
+            'mostUsedWords' => $mostUsedWords
         ]);
     }
 
@@ -170,5 +174,20 @@ class AutoReplyController extends Controller
         AutoReply::find($id)->delete();
 
         return redirect()->route('autoreply.index')->withSuccess('You have successfully deleted auto reply!');
+    }
+
+    public function deleteChatWord(Request $request)
+    {
+        $id = $request->get("id");
+        
+        if($id > 0) {
+           \App\ChatMessagePhrase::where("word_id",$id)->delete();
+           \App\ChatMessageWord::where("id",$id)->delete();
+
+           return response()->json(["code" => 200]);
+        }
+
+        return response()->json(["code" => 500]);
+
     }
 }
