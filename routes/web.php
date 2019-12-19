@@ -167,7 +167,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
     Route::post('autoreply/delete-chat-word', 'AutoReplyController@deleteChatWord');
+    Route::get('autoreply/replied-chat/{id}', 'AutoReplyController@getRepliedChat');
     
+    Route::post('autoreply/save-by-question', 'AutoReplyController@saveByQuestion');
     Route::resource('autoreply', 'AutoReplyController');
 
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');

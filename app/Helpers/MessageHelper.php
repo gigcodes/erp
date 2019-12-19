@@ -26,7 +26,7 @@ class MessageHelper
         $chatMessages = ChatMessage::where("customer_id", ">", 0)
             ->where("message", "!=", "")
             ->whereNotNull("number")
-            ->select("message")->groupBy("message")->get()->pluck("message","id");
+            ->select("message","id")->groupBy("message")->get()->pluck("message","id");
 
         //rows here should be replaced by the SQL result
         $wordTotals = [];
@@ -56,7 +56,7 @@ class MessageHelper
             ];
 
             $records['phraces'][$word] = [
-                "phraces" => isset($phraces[$word]) ? array_unique($phraces[$word]) : [],
+                "phraces" => isset($phraces[$word]) ? $phraces[$word] : [],
             ];
 
         }

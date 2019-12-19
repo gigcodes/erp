@@ -56,7 +56,6 @@ class MostUsedWordsInChat extends Command
             $phrases = isset($mostUsedWords["phraces"][$words->word]) ? $mostUsedWords["phraces"][$words->word]["phraces"] : [];
             if (!empty($phrases)) {
                 foreach ($phrases as $phrase) {
-                    echo '<pre>'; print_r($phrase); echo '</pre>';exit;
                     $phrasesRecords[] = [
                         "word_id" => $words->id,
                         "phrase"  => $phrase["txt"],

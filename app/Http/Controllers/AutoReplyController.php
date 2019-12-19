@@ -190,4 +190,46 @@ class AutoReplyController extends Controller
         return response()->json(["code" => 500]);
 
     }
+
+    public function getRepliedChat(Request $request, $id)
+    {
+        $currentMessage = \App\ChatMessage::where("id", $id)->first();
+
+        if($currentMessage) {
+            $customerId = $currentMessage->customer_id;
+
+            $lastReplies = \App\ChatMessage::join("customers c","c.id","chat_messages.customer_id")->where("chat_messages.id",">",$id)
+            ->where("customer_id",$customerId)
+            ->where("number","!=", "c.phone")
+            ->orderBy("id","ASC")
+            ->limit(5)->get();
+
+            return response()->json(["code" => 200,"data" => $lastReplies,"question" => $currentMessage->message]);
+
+        }
+
+        return response()->json(["code" => 200,"data" => []]);
+
+
+    }
+
+    public function saveByQuestion(Request $request)
+    {
+        $question  = $request->get("q");
+        $answer = $request->get("a");
+
+        \App\AutoReply::updateOrCreate([
+            "type" => "auto-reply",
+            "keyword" => $question
+        ],[
+            "type" => "auto-reply",
+            "keyword" => $question,
+            "reply" => $answer
+        ]);
+
+        return response()->json(["code" => 200]);
+
+
+    }   
+
 }
