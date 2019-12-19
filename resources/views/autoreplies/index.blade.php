@@ -259,7 +259,10 @@
                         <tr>
                             <td>{{ $words->word }}</td>
                             <td>{{ $words->total }}</td>
-                            <td><button data-id="{{ $words->id }}" class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button></td>
+                            <td>
+                                <button data-id="{{ $words->id }}" class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
+                                <button data-id="{{ $words->id }}" class="btn btn-image delete-row-btn"><img src="/images/delete.png"></button>
+                            </td>
                         </tr>
                         <tr class="dis-none" id="phrases_{{ $words->id }}">
                             <td colspan="3">
@@ -369,5 +372,23 @@
             var dataId = $(this).data("id");
             $("#phrases_"+dataId).toggleClass("dis-none");
         });
+
+        $(document).on("click",".delete-row-btn",function() {
+            var $this = $(this);
+            var dataId = $(this).data("id");
+            $.ajax({
+                type: 'POST',
+                url: "autoreply/delete-chat-word",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: dataId,
+                }
+            }).done(function () {
+                $this.closest("tr").remove();
+                $("#phrases_"+dataId).remove();
+            }).fail(function (response) {
+            });
+        });
+
     </script>
 @endsection
