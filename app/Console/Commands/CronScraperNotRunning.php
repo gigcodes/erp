@@ -63,7 +63,7 @@ class CronScraperNotRunning extends Command
             LEFT JOIN 
                 log_scraper ls 
             ON 
-                ls.website=s.scraper_name
+                ls.website=sp.scraper_name
             WHERE
                 s.supplier_status_id=1 
             GROUP BY 
