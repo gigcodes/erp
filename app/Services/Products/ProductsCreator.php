@@ -25,7 +25,7 @@ class ProductsCreator
         Log::channel('productUpdates')->debug("[Start] createProduct is called");
 
         // Set supplier
-        $supplier = Supplier::leftJoin("scrapers as sc","sc.supplier_id","supplier.id")->where(function ($query) use ($image) { 
+        $supplier = Supplier::leftJoin("scrapers as sc","sc.supplier_id","suppliers.id")->where(function ($query) use ($image) { 
             $query->where('supplier', '=', $image->website)->orWhere('sc.scraper_name', '=', $image->website); 
         })->first();
 
@@ -156,7 +156,7 @@ class ProductsCreator
                 $product->save();
             }
 
-            if ($db_supplier = Supplier::leftJoin("scrapers as sc","sc.supplier_id","supplier.id")->where(function ($query) use ($supplier) { 
+            if ($db_supplier = Supplier::leftJoin("scrapers as sc","sc.supplier_id","suppliers.id")->where(function ($query) use ($supplier) { 
                 $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier); 
             })->first()) {
                 if ($product) {
@@ -261,7 +261,7 @@ class ProductsCreator
             return;
         }
 
-        if ($db_supplier = Supplier::leftJoin("scrapers as sc","sc.supplier_id","supplier.id")->where(function ($query) use ($supplier) { 
+        if ($db_supplier = Supplier::leftJoin("scrapers as sc","sc.supplier_id","suppliers.id")->where(function ($query) use ($supplier) { 
             $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier); 
         })->first()) {
             $product->suppliers()->syncWithoutDetaching([
