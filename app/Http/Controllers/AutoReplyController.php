@@ -175,4 +175,19 @@ class AutoReplyController extends Controller
 
         return redirect()->route('autoreply.index')->withSuccess('You have successfully deleted auto reply!');
     }
+
+    public function deleteChatWord(Request $request)
+    {
+        $id = $request->get("id");
+        
+        if($id > 0) {
+           \App\ChatMessagePhrase::where("word_id",$id)->delete();
+           \App\ChatMessageWord::where("id",$id)->delete();
+
+           return response()->json(["code" => 200]);
+        }
+
+        return response()->json(["code" => 500]);
+
+    }
 }
