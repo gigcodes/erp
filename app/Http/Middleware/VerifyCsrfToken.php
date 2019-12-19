@@ -16,5 +16,6 @@ class VerifyCsrfToken extends Middleware
 		'twilio/*',
         'whatsapp/*',
         'livechat/*',
+        'duty/v1/calculate',
     ];
 }
