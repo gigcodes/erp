@@ -271,6 +271,9 @@
                                         @foreach($words->pharases as $phrase)
                                             <tr colspan="3">
                                                 <td>{{ $phrase->phrase }}</td>
+                                                <td>
+                                                    <button data-id="{{ $phrase->phrase }}" class="btn btn-image get-chat-details"><img src="/images/chat.png"></button>
+                                                </td>
                                             </tr>
                                          @endforeach
                                     </tbody>
@@ -388,6 +391,10 @@
                 $("#phrases_"+dataId).remove();
             }).fail(function (response) {
             });
+        });
+
+        $(document).on("click",".get-chat-details",function() {
+            
         });
 
     </script>

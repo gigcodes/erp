@@ -26,16 +26,16 @@ class MessageHelper
         $chatMessages = ChatMessage::where("customer_id", ">", 0)
             ->where("message", "!=", "")
             ->whereNotNull("number")
-            ->select("message")->groupBy("message")->get()->pluck("message");
+            ->select("message")->groupBy("message")->get()->pluck("message","id");
 
         //rows here should be replaced by the SQL result
         $wordTotals = [];
         $phraces    = [];
-        foreach ($chatMessages as $row) {
+        foreach ($chatMessages as $id => $row) {
             $words = explode(" ", $row);
             foreach ($words as $word) {
                 if (!in_array($word, self::TXT_ARTICLES + self::TXT_PREPOSITIONS) && $word != "") {
-                    $phraces[$word][] = $row;
+                    $phraces[$word][] = ["txt"=>$row,"id" => $id];
                     if (isset($wordTotals[$word])) {
                         $wordTotals[$word]++;
                         continue;
