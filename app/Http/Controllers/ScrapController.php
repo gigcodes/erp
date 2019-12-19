@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\ScrapeQueues;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +32,10 @@ use Storage;
 use Carbon\Carbon;
 use App\Services\Products\ProductsCreator;
 use App\Setting;
+use App\Helpers\StatusHelper;
+use Validator;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+
 
 class ScrapController extends Controller
 {
@@ -467,15 +472,8 @@ class ScrapController extends Controller
             ], 400);
         }
 
-        // Return an error if the current product status is not set to scrape
-        if ($product->status_id != StatusHelper::$isBeingScraped) {
-            return response()->json([
-                'status' => 'Error processing your request (#2)'
-            ], 400);
-        }
-
         // Set product to unable to scrape - will be updated later if we have info
-        $product->status_id = StatusHelper::$unableToScrape;
+        $product->status_id = $product->status_id == StatusHelper::$isBeingScraped ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
         $product->save();
 
         // Validate request
@@ -497,11 +495,16 @@ class ScrapController extends Controller
         // If product is found, update it
         if ($product) {
             // Set basic data
+            $product->name = $request->get('title');
             $product->short_description = $request->get('description');
             $product->composition = $request->get('material_used');
             $product->color = $request->get('color');
             $product->description_link = $request->get('url');
             $product->made_in = $request->get('country');
+            if ((int)$product->price == 0) {
+                $product->price = $request->get('price');
+            }
+            $product->listing_remark = 'Original SKU: ' . $request->get('sku');
 
             // Set optional data
             if (!$product->lmeasurement) {
@@ -514,36 +517,14 @@ class ScrapController extends Controller
                 $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
             }
 
-            // Download images
-            $images = $this->downloadImagesForSites($request->get('images'), $website);
+            // Save
+            $product->save();
 
             // Check if we have images
-            if (is_array($images) && count($images) > 0) {
-                // Loop over images
-                foreach ($images as $image_name) {
-                    // Set path
-                    $path = public_path('uploads') . '/social-media/' . $image_name;
+            $product->attachImagesToProduct($request->get('images'));
 
-                    // Add media from source
-                    $media = MediaUploader::fromSource($path)->upload();
-
-                    // Attach media
-                    $product->attachMedia($media, config('constants.media_tags'));
-                }
-
-                // Set is without image to 0 (false)
-                $product->is_without_image = 0;
-                $product->status_id = StatusHelper::$AI;
-                $product->save();
-
-                // Call status update handler
-                StatusHelper::updateStatus($product, StatusHelper::$AI);
-            } else {
-                // Save product with status 'unable to scrape images'
-                $product->is_without_image = 1;
-                $product->status_id = StatusHelper::$unableToScrapeImages;
-                $product->save();
-            }
+            // Update scrape_queues by product ID
+            ScrapeQueues::where('done', 0)->where('product_id', $product->id)->update(['done' => 1]);
 
             // Return response
             return response()->json([
@@ -562,7 +543,7 @@ class ScrapController extends Controller
         $pendingUrl = array();
         $links = $request->links;
 
-        if ( is_string($links) ) {
+        if (is_string($links)) {
             $links = json_decode($links);
         }
 
@@ -590,49 +571,49 @@ class ScrapController extends Controller
                     $pendingUrl[] = $link;
                 }
             }
+
             //Getting Supplier by Scraper name
-                try {
-                    $scraper = Supplier::where('scraper_name',$request->website)->first();
-                    $totalLinks = count($links);
-                    $pendingLinks = count($pendingUrl);
-                    $existingLinks = ($totalLinks - $pendingLinks);
+            try {
+                $scraper = Scraper::where('scraper_name', $request->website)->first();
+                $totalLinks = count($links);
+                $pendingLinks = count($pendingUrl);
+                $existingLinks = ($totalLinks - $pendingLinks);
 
-                    if($scraper != '' && $scraper != null){
-                        $scraper->scraper_total_urls = $totalLinks;
-                        $scraper->scraper_existing_urls = $existingLinks;
-                        $scraper->scraper_new_urls = $pendingLinks;
-                        $scraper->update();
-                    }
-
-                    $scraperResult = new ScraperResult();
-                    $scraperResult->date = date("Y-m-d");
-                    $scraperResult->scraper_name = $request->website;
-                    $scraperResult->total_urls = $totalLinks;
-                    $scraperResult->existing_urls = $existingLinks;
-                    $scraperResult->new_urls = $pendingLinks;
-                    $scraperResult->save();
-
-                } catch (Exception $e) {
-
+                if ($scraper != '' && $scraper != null) {
+                    $scraper->scraper_total_urls = $totalLinks;
+                    $scraper->scraper_existing_urls = $existingLinks;
+                    $scraper->scraper_new_urls = $pendingLinks;
+                    $scraper->update();
                 }
+
+                $scraperResult = new ScraperResult();
+                $scraperResult->date = date("Y-m-d");
+                $scraperResult->scraper_name = $request->website;
+                $scraperResult->total_urls = $totalLinks;
+                $scraperResult->existing_urls = $existingLinks;
+                $scraperResult->new_urls = $pendingLinks;
+                $scraperResult->save();
+
+            } catch (Exception $e) {
+
+            }
 
         }
 
         return $pendingUrl;
     }
 
+
     public function scrapedUrls(Request $request){
 
-         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated ||$request->currency == 0) {
-            
+         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns) {
+
             $query = LogScraper::query();
-
-
-
-
+            
+            
             //global search website
             if (request('website') != null) {
-                $query->where('website', 'LIKE', "%{$request->website}%");
+                $query->whereIn('website', $request->website);
             }
 
             if (request('url') != null) {
@@ -667,22 +648,112 @@ class ScrapController extends Controller
             if (request('updated') != null) {
                 $query->whereDate('updated_at', request('updated'));
             }
-            
+
+            if(request('orderCreated') != null){
+                if(request('orderCreated') == 0){
+                    $query->orderby('created_at','asc');
+                }else{
+                    $query->orderby('created_at','desc');
+                }
+            }
+
+            if(request('orderUpdated') != null){
+                if(request('orderUpdated') == 0){
+                    $query->orderby('updated_at','asc');
+                }else{
+                    $query->orderby('updated_at','desc');
+                }
+            }
+
+            if(request('orderCreated') == null && request('orderUpdated') == null){
+                $query->orderby('updated_at','desc');
+            }
+
             $paginate = (Setting::get('pagination') * 10);
-            $logs = $query->orderby('updated_at','desc')->paginate($paginate);
-        }    
+            $logs = $query->paginate($paginate)->appends(request()->except(['page']));
+            $response = request()->except(['page']);
+            
+        }
         else {
+            $response = '';
              $paginate = (Setting::get('pagination') * 10);
             $logs = LogScraper::orderby('updated_at','desc')->paginate($paginate);
+
         }
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('scrap.partials.scraped_url_data', compact('logs'))->render(),
-                'links' => (string)$logs->render()
+                'tbody' => view('scrap.partials.scraped_url_data', compact('logs','response'))->render(),
+                'links' => (string)$logs->render(),
+                'count' => $logs->total(),
             ], 200);
+        }
+
+        return view('scrap.scraped_url',compact('logs','response'));
+        }
+
+    public function getProductsToScrape()
+    {
+        // Set empty value of productsToPush
+        $productsToPush = [];
+
+        // Get all products with status scrape from scrape_queues
+        $scrapeQueues = ScrapeQueues::where('done', 0)->orderBy('product_id', 'DESC')->take(50)->get();
+
+        // Check if we have products and loop over them
+        if ($scrapeQueues !== null) {
+            foreach ($scrapeQueues as $scrapedQueue) {
+                // Get product
+                $product = Product::find($scrapedQueue->product_id);
+
+                // Add to array
+                $productsToPush[] = [
+                    'id' => $scrapedQueue->product_id,
+                    'sku' => null,
+                    'original_sku' => null,
+                    'brand' => $product->brands ? $product->brands->name : '',
+                    'url' => $scrapedQueue->url,
+                    'supplier' => $product->supplier
+                ];
+
+                // Update status to is being scraped
+                $product->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
+                $product->save();
             }
-       
-        return view('scrap.scraped_url',compact('logs'));
+        }
+
+        // Only run if productsToPush is empty
+        if (!is_array($productsToPush) || count($productsToPush) == 0) {
+            // Get all products with status scrape
+            $products = Product::where('status_id', StatusHelper::$scrape)->where('stock', '>=', 1)->orderBy('products.id', 'DESC')->take(50)->get();
+
+            // Check if we have products and loop over them
+            if ($products !== null) {
+                foreach ($products as $product) {
+                    // Get original SKU
+                    $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->first();
+
+                    if ($scrapedProduct != null) {
+                        // Add to array
+                        $productsToPush[] = [
+                            'id' => $product->id,
+                            'sku' => $product->sku,
+                            'original_sku' => ProductHelper::getOriginalSkuByBrand(!empty($scrapedProduct->original_sku) ? $scrapedProduct->original_sku : $scrapedProduct->sku, $product->brands ? $product->brands->id : 0),
+                            'brand' => $product->brands ? $product->brands->name : '',
+                            'url' => null,
+                            'supplier' => $product->supplier
+                        ];
+
+                        // Update status to is being scraped
+                        $product->status_id = StatusHelper::$isBeingScraped;
+                        $product->save();
+                    }
+                }
+            }
+        }
+
+        // Return JSON response
+        return response()->json($productsToPush);
+
     }
 }

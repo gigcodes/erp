@@ -16,9 +16,14 @@ class WhatsappConfig extends Model
         return $this->hasMany(Customer::class, 'broadcast_number', 'number');
     }
 
+    public function customerAttachToday()
+    {
+        return $this->hasMany(Customer::class, 'broadcast_number', 'number')->whereDate('updated_at', Carbon::today());
+    }
+
     public function imQueueCurrentDateMessageSend()
     {
-    	return $this->hasMany(ImQueue::class,'number_from','number')->whereDate('created_at', Carbon::today());
+    	return $this->hasMany(ImQueue::class,'number_from','number')->whereDate('created_at', Carbon::today())->whereNotNull('sent_at');
     }
 
     public function  imQueueLastMessageSend()

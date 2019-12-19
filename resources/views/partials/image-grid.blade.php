@@ -167,6 +167,7 @@
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="30">Select 30</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="50">Select 50</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="100">Select 100</button>
+                <button type="button" class="btn btn-secondary select-all-same-page-btn" data-count="100">Select All Current Page</button>
             </div>
         </div>
     </div>
@@ -252,6 +253,20 @@
 
                 } else {
                     uldiv.html('<li class="select2-selection__choice">' + count + ' item selected</li>');
+                }
+            });
+
+            $(document).on("click",".select-all-same-page-btn",function(e){
+                e.preventDefault();
+                var $this = $(this);
+                if($this.hasClass("has-all-selected") === false) {
+                    $this.html("Deselect All From Current Page");
+                    $(".select-pr-list-chk").prop("checked", true).trigger('change');
+                    $this.addClass("has-all-selected");
+                }else{
+                    $this.html("Select All Current Page");
+                    $(".select-pr-list-chk").prop("checked", false).trigger('change');
+                    $this.removeClass("has-all-selected");
                 }
             });
 

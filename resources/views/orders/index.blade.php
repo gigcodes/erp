@@ -35,6 +35,10 @@
                   </div>
 
                   <div class="form-group ml-3">
+                    <?php echo Form::select("brand_id[]",["" => "-- Select Brands --"]+$brandList,request('brand_id',[]),["class" => "form-control select2"]); ?>
+                  </div>
+
+                  <div class="form-group ml-3">
                     <div class='input-group date' id='order-datetime'>
                       <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" />
 
@@ -55,16 +59,30 @@
     </div>
 
     @include('partials.flash_messages')
-
+    <?php if(!empty($statusFilterList)) { ?>
+      <div class="row col-md-12">
+          <?php foreach($statusFilterList as $listFilter) { ?>
+            <div class="card">
+                <div class="card-header">
+                  <?php echo $listFilter["order_status"]; ?>
+                </div>
+                <div class="card-body">
+                    <?php echo $listFilter["total"]; ?>
+                </div>
+            </div>
+        <?php } ?>
+      </div>
+    <?php } ?>  
+    </br> 
     <div class="table-responsive">
       <table class="table table-bordered">
         <thead>
           <tr>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
-            <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=order_handler{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Handler</a></th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
             <th width="10%">Products</th>
+            <th>Brands</th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
@@ -79,35 +97,17 @@
         <tbody>
           @foreach ($orders_array as $key => $order)
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
-              <td class="expand-row table-hover-cell">
+              <td class="table-hover-cell">
                 <div class="form-inline">
                   @if ($order->is_priority == 1)
                     <strong class="text-danger mr-1">!!!</strong>
                   @endif
-
                   <span class="td-mini-container">
-                    {{ strlen($order->order_id) > 10 ? substr($order->order_id, 0, 7) . '...' : $order->order_id }}
-                  </span>
-
-                  <span class="td-full-container hidden">
                     {{ $order->order_id }}
                   </span>
                 </div>
               </td>
               <td>{{ Carbon\Carbon::parse($order->order_date)->format('d-m') }}</td>
-              <td class="expand-row table-hover-cell">
-                @if (array_key_exists($order->sales_person, $users))
-                  <span class="td-mini-container">
-                    {{ strlen($users[$order->sales_person]) > 10 ? substr($users[$order->sales_person], 0, 7) . '...' : $users[$order->sales_person] }}
-                  </span>
-
-                  <span class="td-full-container hidden">
-                    {{ $users[$order->sales_person] }}
-                  </span>
-                @else
-                  No Handler
-                @endif
-              </td>
               <td class="expand-row table-hover-cell">
                 @if ($order->customer)
                   <span class="td-mini-container">
@@ -154,14 +154,16 @@
                 </div>
 
               </td>
+              <td>
+                <?php 
+                    $totalBrands = explode(",",$order->brand_name_list);
+                    echo (count($totalBrands) > 1) ? "Multi" : $order->brand_name_list; 
+                ?>
+              </td>
               <td class="expand-row table-hover-cell">
-                <span class="td-mini-container">
-                  {{ strlen($order->order_status) > 15 ? substr($order->order_status, 0, 13) . '...' : $order->order_status }}
-                </span>
-
-                <span class="td-full-container hidden">
-                  {{ $order->order_status }}
-                </span>
+                <div class="form-group">
+                  <?php echo Form::select("order_status",["" => "N/A"] + $order_status_list, $order->order_status,["class"=> "form-control order-status-select select2","data-id"=> $order->id]); ?>
+                </div>
               </td>
               <td>{{ $order->advance_detail }}</td>
               <td>{{ $order->balance_amount }}</td>
@@ -173,6 +175,9 @@
 
               <td>
                 <div class="d-flex">
+                  <a class="btn btn-image" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
+                    <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
+                  </a>
                   <a class="btn btn-image" href="{{ route('order.show',$order->id) }}"><img src="/images/view.png" /></a>
                   {{-- @can('order-edit')
                   <a class="btn btn-image" href="{{ route('order.edit',$order['id']) }}"><img src="/images/edit.png" /></a>
@@ -209,6 +214,23 @@
       $('#order-datetime').datetimepicker({
         format: 'YYYY-MM-DD'
       });
+
+      $(document).on("change",".order-status-select",function() {
+        $.ajax({
+          url: "/order/change-status",
+          type: "GET",
+          data : {
+            id : $(this).data("id"),
+            status : $(this).val()
+          }
+        }).done( function(response) {
+         
+        }).fail(function(errObj) {
+          alert("Could not change status");
+        });
+      });
+
+      $(".select2").select2({tags:true});
 
       $(".select-multiple").multiselect({
         // buttonWidth: '100%',

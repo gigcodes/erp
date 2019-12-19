@@ -63,7 +63,11 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
-        $chatMessages = $object->whatsappAll()->whereRaw($rawWhere)->where('status', '!=', 10)->skip(0)->take($limit);
+        $chatMessages = $object
+            ->whatsappAll()
+            ->whereRaw($rawWhere)
+            ->where('status', '!=', 10)
+            ->skip(0)->take($limit);
 
         $loadType = $request->get('load_type');
         switch ($loadType) {
@@ -84,7 +88,7 @@ class ChatMessagesController extends Controller
                 ) )");
                 break;
             case 'pdf':
-                $chatMessages = $chatMessages->whereRaw("(media_url is not null or id in (
+                $chatMessages = $chatMessages->whereRaw("(id in (
                     select 
                         mediable_id 
                     from 
@@ -173,6 +177,7 @@ class ChatMessagesController extends Controller
                 'customer_id' => $chatMessage->customer_id,
                 'approved' => $chatMessage->approved,
                 'error_status' => $chatMessage->error_status,
+                'is_queue' => $chatMessage->is_queue
             ];
         }
 

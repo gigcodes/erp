@@ -6,160 +6,145 @@ namespace App\Http\Controllers;
 \InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 use App\Account;
+use App\HashTag;
 use App\InstagramPosts;
+use App\InstagramPostsComments;
+use App\Setting;
 use Illuminate\Http\Request;
 use InstagramAPI\Instagram;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class InstagramPostsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     * get all the posts from Instagram saved in instagram_posts table
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $accounts = Account::where('platform', 'instagram')->get();
-        $posts = InstagramPosts::all();
+        // Load posts
+        $posts = $this->_getFilteredInstagramPosts($request);
 
-        return view('instagram.posts.index', compact('accounts', 'posts'));
+        // Paginate
+        $posts = $posts->paginate(Setting::get('pagination'));
+
+        // Return view
+        return view('social-media.instagram-posts.index', compact('posts'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function grid(Request $request)
     {
-        //
-    }
+        // Load posts
+        $posts = $this->_getFilteredInstagramPosts($request);
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     * Create a new entry with image + account_id
-     */
-    public function store(Request $request)
-    {
-        $this->validate($request, [
-            'image' => 'required',
-            'account_id' => 'required'
-        ]);
+        // Paginate
+        $posts = $posts->paginate(Setting::get('pagination'));
 
-        $account  = Account::findOrFail($request->get('account_id'));
-
-        $instagram  = new Instagram();
-        
-        try {
-            $instagram->login($account->last_name, $account->password);
-        } catch (\Exception $exception) {
-            dd($exception);
-            return redirect()->back()->with('message', 'Account could not log in!');
+        // For ajax
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('social-media.instagram-posts.json_grid', compact('posts'))->render(),
+                'links' => (string)$posts->appends($request->all())->render()
+            ], 200);
         }
 
-        $image = $request->file('image');
+        // Return view
+        return view('social-media.instagram-posts.grid', compact('posts', 'request'));
+    }
 
-        $instagramPost = new InstagramPosts();
-        $instagramPost->user_id = \Auth::user()->id;
-        $instagramPost->account_id = $account->id;
-        $instagramPost->caption = $request->get('caption') ?? 'N/A';
-        $instagramPost->source = 'manual_post';
-        $instagramPost->posted_at = date('Y-m-d');
-        $instagramPost->media_url = 'N/A';
-        $instagramPost->media_type = 'image';
-        $instagramPost->post_id = 0;
-        $instagramPost->username = $account->last_name;
-        $instagramPost->save();
+    private function _getFilteredInstagramPosts(Request $request) {
+        // Base query
+        $instagramPosts = InstagramPosts::orderBy('posted_at', 'DESC')
+            ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id');
 
-        $media = MediaUploader::fromSource($image)
-                                ->useFilename(md5(time()))
-                                ->toDirectory('instagramposts/'.floor($instagramPost->id / config('constants.image_per_folder')))
-                                ->upload();
-
-        $instagramPost->attachMedia($media,  'gallery');
-        $instagramPost->save();
-        $media = $instagramPost->getMedia('gallery')->first();
-
-        $source = imagecreatefromjpeg($media->getAbsolutePath());
-        list($width, $height) = getimagesize($media->getAbsolutePath());
-
-        $newwidth = 800;
-        $newheight = 800;
-
-        $destination = imagecreatetruecolor($newwidth, $newheight);
-        imagecopyresampled($destination, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-
-        imagejpeg($destination, $media->getAbsolutePath(), 100);
-
-        $metaData = [];
-
-        if ($request->get('caption') != '') {
-            $metaData = [
-                'caption' => $request->get('caption')
-            ];
+        // Apply hashtag filter
+        if (!empty($request->hashtag)) {
+            $instagramPosts->where('hash_tags.hashtag', str_replace('#', '', $request->hashtag));
         }
 
-        try {
-            $instagram->timeline->uploadPhoto($media->getAbsolutePath(), $metaData);
-        } catch (\Exception $exception) {
-            $instagramPost->detachMediaTags('gallery');
-            $instagramPost->delete();
-            return redirect()->back()->with('message', 'Image could not be uploaded to Instagram.');
+        // Apply author filter
+        if (!empty($request->author)) {
+            $instagramPosts->where('username', 'LIKE', '%' . $request->author . '%');
         }
 
-        return redirect()->back()->with('message', 'Image posted successfully!');
+        // Apply author filter
+        if (!empty($request->post)) {
+            $instagramPosts->where('caption', 'LIKE', '%' . $request->post . '%');
+        }
 
-
-
+        // Return instagram posts
+        return $instagramPosts;
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\InstagramPosts  $instagramPosts
-     * @return \Illuminate\Http\Response
-     */
-    public function show(InstagramPosts $instagramPosts)
+    public function apiPost(Request $request)
     {
-        //
-    }
+        // Get raw body
+        $payLoad = json_decode(request()->getContent(), true);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\InstagramPosts  $instagramPosts
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(InstagramPosts $instagramPosts)
-    {
-        //
-    }
+        // NULL? No valid JSON
+        if ($payLoad == null) {
+            return response()->json([
+                'error' => 'Invalid json'
+            ], 400);
+        }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\InstagramPosts  $instagramPosts
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, InstagramPosts $instagramPosts)
-    {
-        //
-    }
+        // Process input
+        if (is_array($payLoad) && count($payLoad) > 0) {
+            // Loop over posts
+            foreach ($payLoad as $postJson) {
+                // Set tag
+                $tag = $postJson[ 'Tag used to search' ];
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\InstagramPosts  $instagramPosts
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(InstagramPosts $instagramPosts)
-    {
-        //
+                // Get hashtag ID
+                $hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
+
+                // Retrieve instagram post or initiate new
+                $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson[ 'URL' ]]);
+                $instagramPost->hashtag_id = $hashtag->id;
+                $instagramPost->username = $postJson[ 'Owner' ];
+                $instagramPost->caption = $postJson[ 'Original Post' ];
+                $instagramPost->posted_at = date('Y-m-d H:i:s', strtotime($postJson[ 'Time of Post' ]));
+                $instagramPost->media_type = !empty($postJson[ 'Image' ]) ? 'image' : 'other';
+                $instagramPost->media_url = !empty($postJson[ 'Image' ]) ? $postJson[ 'Image' ] : $postJson[ 'URL' ];
+                $instagramPost->source = 'instagram';
+                $instagramPost->save();
+
+                // Store media
+                if (!empty($postJson[ 'Image' ])) {
+                    if (!$instagramPost->hasMedia('instagram-post')) {
+                        $media = MediaUploader::fromSource($postJson[ 'Image' ])
+                            ->toDisk('uploads')
+                            ->toDirectory('social-media/instagram-posts/' . floor($instagramPost->id / 1000))
+                            ->useFilename($instagramPost->id)
+                            ->beforeSave(function (\Plank\Mediable\Media $model, $source) {
+                                $model->setAttribute('extension', 'jpg');
+                            })
+                            ->upload();
+                        $instagramPost->attachMedia($media, 'instagram-post');
+                    }
+                }
+
+                // Comments
+                if (isset($postJson[ 'Comments' ]) && is_array($postJson[ 'Comments' ])) {
+                    // Loop over comments
+                    foreach ($postJson[ 'Comments' ] as $comment) {
+                        // Check if there really is a comment
+                        if (isset($comment[ 'Comments' ][ 0 ])) {
+                            // Set hash
+                            $commentHash = md5($comment[ 'Owner' ] . $comment[ 'Comments' ][ 0 ] . $comment[ 'Time' ]);
+
+                            $instagramPostsComment = InstagramPostsComments::firstOrNew(['comment_id' => $commentHash]);
+                            $instagramPostsComment->instagram_post_id = $instagramPost->id;
+                            $instagramPostsComment->comment_id = $commentHash;
+                            $instagramPostsComment->username = $comment[ 'Owner' ];
+                            $instagramPostsComment->comment = $comment[ 'Comments' ][ 0 ];
+                            $instagramPostsComment->posted_at = date('Y-m-d H:i:s', strtotime($comment[ 'Time' ]));
+                            $instagramPostsComment->save();
+                        }
+                    }
+                }
+            }
+        }
+
+        // Return
+        return response()->json([
+            'ok'
+        ], 200);
     }
 }

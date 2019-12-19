@@ -57,3 +57,4 @@ composer.lock
 public/uploads
 public/zoom/*
 !public/zoom/.gitkeep
+public/tmp_images/*

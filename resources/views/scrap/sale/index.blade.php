@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('favicon' , 'scraparsales.png')
+
+@section('title', 'Sale Item Info')
+s
 @section('content')
     <div class="row">
         <div class="col-md-12">

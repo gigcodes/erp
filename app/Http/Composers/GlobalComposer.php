@@ -22,7 +22,7 @@ class GlobalComposer
             if($per == true){
                 $view->with('currentUser', Auth::user());
             }else{
-                header("Location: \unauthorized");
+                echo 'unauthorized';
                 die();
             }
         }else{

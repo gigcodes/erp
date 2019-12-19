@@ -68,6 +68,7 @@
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="sku,brand,category,status,stage">
                                 <input hidden name="roletype" type="text" value="{{ $roletype }}">
+                                <input name="key" type="hidden" value="{{ request('key') }}">
                                 @if( isset($doSelection) )
                                     <input hidden name="doSelection" type="text" value="true">
                                     <input hidden name="model_id" type="text" value="{{ $model_id ?? '' }}">
@@ -196,6 +197,14 @@
         </div>
     </div>
 
+    @if (isset($model_type) && $model_type == "order")
+      <div class="row">
+        <div class="col text-center">
+          <a href="{{ route('order.create') }}?key={{ request('key') }}" class="btn btn-secondary">Go to Order Page</a>
+        </div>
+      </div>
+    @endif
+
     <div class="productGrid" id="productGrid">
 
     </div>
@@ -214,6 +223,14 @@
       <div class="row">
         <div class="col text-center">
           <a href="{{ route('customer.show', $customer_id) }}" class="btn btn-secondary">Go to Customer Page</a>
+        </div>
+      </div>
+    @endif
+
+    @if (isset($model_type) && $model_type == "order")
+      <div class="row">
+        <div class="col text-center">
+          <a href="{{ route('order.create') }}?key={{ request('key') }}" class="btn btn-secondary">Go to Order Page</a>
         </div>
       </div>
     @endif

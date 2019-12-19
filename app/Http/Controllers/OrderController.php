@@ -181,6 +181,8 @@ class OrderController extends Controller {
 		$term = $request->input('term');
 		$order_status = $request->status ?? [''];
 		$date = $request->date ?? '';
+		$brandList = \App\Brand::all()->pluck("name","id")->toArray();
+		$brandIds = array_filter($request->get("brand_id",[]));
 
 		if($request->input('orderby') == '')
 				$orderby = 'DESC';
@@ -252,6 +254,17 @@ class OrderController extends Controller {
 			$orders = $orders->where('order_date', $date);
 		}
 
+		$statusFilterList =  clone($orders);
+		
+		$orders = $orders->leftJoin("order_products as op","op.order_id","orders.id")
+		->leftJoin("products as p","p.sku","op.sku")->leftJoin("brands as b","b.id","p.brand");
+		
+		if(!empty($brandIds)) {
+			$orders = $orders->whereIn("p.brand",$brandIds);
+		}
+		
+		$orders = $orders->groupBy("op.order_id");
+		$orders = $orders->select("orders.*",\DB::raw("group_concat(b.name) as brand_name_list"));
 
 
 		$users  = Helpers::getUserArray( User::all() );
@@ -263,6 +276,8 @@ class OrderController extends Controller {
 			$orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
 		}
 
+		$statusFilterList = $statusFilterList->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"order_status")->get()->toArray();
+		
 		$orders_array = $orders->paginate(500);
 //		$orders_array = $orders->paginate(Setting::get('pagination'));
 
@@ -316,7 +331,7 @@ class OrderController extends Controller {
 		// 	'path'	=> LengthAwarePaginator::resolveCurrentPath()
 		// ]);
 
-		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date' ) );
+		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
 	}
 
 	public function products(Request $request)
@@ -546,6 +561,17 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function create() {
+
+		$defaultSelected = [];
+		$key = request()->get("key",false);
+
+		if(!empty($key)) {
+			$defaultData = session($key);
+			if(!empty($defaultData)) {
+				$defaultSelected = $defaultData;
+			}
+		}
+
 		$order = new Order();
 		$data  = [];
 		foreach ( $order->getFillable() as $item ) {
@@ -583,6 +609,8 @@ class OrderController extends Controller {
 		$data['customers'] = Customer::all();
 
 		$data['customer_suggestions'] = $customer_suggestions;
+		$data['defaultSelected'] = $defaultSelected;
+		$data['key'] = $key;
 
 
 		return view( 'orders.form', $data );
@@ -604,11 +632,22 @@ class OrderController extends Controller {
 		] );
 
 		$data = $request->all();
+		$key  = $request->get("key","");
 		$data['user_id'] = Auth::id();
 
-		if ( $request->input( 'order_type' ) == 'offline' ) {
+		/*if ( $request->input( 'order_type' ) == 'offline' ) {
 			$data['order_id'] = $this->generateNextOrderId();
+		}*/
+
+		$oPrefix = ($request->input( 'order_type' ) == 'offline') ? "OFF-".date("Ym") : "ONN-".date("Ym");
+		$statement = \DB::select("SHOW TABLE STATUS LIKE 'orders'");
+		$nextId = 0;
+		if(!empty($statement)) {
+			$nextId = $statement[0]->Auto_increment;
 		}
+
+		$data['order_id'] = $oPrefix."-".$nextId;
+
 
 		if ( empty( $request->input( 'order_date' ) ) ) {
 			$data['order_date'] = date( 'Y-m-d' );
@@ -656,6 +695,7 @@ class OrderController extends Controller {
 			}
 
 			$order->balance_amount = $balance_amount;
+			$order->order_id = $oPrefix."-".$order->id;
 			$order->save();
 			$customer->save();
 		}
@@ -798,7 +838,15 @@ class OrderController extends Controller {
 			return back()->with( 'message', 'Order created successfully' );
 		}
 
-		return $order;
+
+		if(!empty($key)) {
+			$defaultData = session($key);
+			if(!empty($defaultData) && !empty($defaultData["redirect_back"])) {
+				return redirect($defaultData["redirect_back"])->with( 'message', 'Order created successfully' );
+			}
+		}
+
+		//return $order;
 
 		return redirect()->route( 'order.index' )
 		                 ->with( 'message', 'Order created successfully' );
@@ -2092,5 +2140,22 @@ public function createProductOnMagento(Request $request, $id){
 	dd($product_url, $result);
 	return $result;
 }
+
+	public function statusChange(Request $request)
+	{
+		$id = $request->get("id");
+		$status = $request->get("status");
+
+		if(!empty($id) && !empty($status)) {
+			$order = \App\Order::where("id", $id)->first();
+			if($order) {
+				$order->order_status = $status;
+				$order->save();
+			}
+		}
+
+		return response()->json(["code" => 200]);
+
+	}
 
 }

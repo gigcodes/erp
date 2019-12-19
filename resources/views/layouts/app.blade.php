@@ -316,26 +316,7 @@
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('ProductController@productStats') }}">Product Statistics</a>
-                                            <a class="dropdown-item" href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto Reject Statistics</a>
-                                            <a class="dropdown-item" href="{{ action('ListingPaymentsController@index') }}">Product Listing Payments</a>
-                                            <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
-                                            <a class="dropdown-item" href="{{ action('ScrapController@scrapedUrls') }}">Scrap Urls</a>
-                                            <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap activity</a>
-                                            <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scrapped</a>
-                                            <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sale Items</a>
-                                            <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
-                                            <a class="dropdown-item" href="{{ action('GmailDataController@index') }}">Gmail Inbox</a>
-                                            <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
-                                            <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
-                                            <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
-                                        </li>
-                                    </ul>
-                                </li>
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Listing<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -382,14 +363,11 @@
                                                 @if(auth()->user()->checkPermission('productlister-list'))
                                                     <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Attribute edit page</a>
                                                 @endif
-                                                @if(auth()->user()->isAdmin())
-                                                    <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
-                                                    <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=2">Listings awaiting scraping</a>
-                                                    <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=13">Listings unable to scrape</a>
-                                                    <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
-                                                    <a class="dropdown-item" href="{{ action('AttributeReplacementController@index') }}">Attribute Replacement</a>
-
-                                                @endif
+                                                <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
+                                                <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=2">Listings awaiting scraping</a>
+                                                <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=13">Listings unable to scrape</a>
+                                                <a class="dropdown-item" href="{{ action('ProductController@showRejectedListedProducts') }}">Rejected Listings</a>
+                                                <a class="dropdown-item" href="{{ action('AttributeReplacementController@index') }}">Attribute Replacement</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -446,11 +424,15 @@
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('google.search.image') }}">Google Search</a>
+                                            <a class="dropdown-item" href="{{ route('google.search.product') }}">Search Products by Text</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('google.search.product') }}">Google Find Images</a>
+                                            <a class="dropdown-item" href="{{ route('google.search.multiple') }}">Multiple products by Text</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('google.search.image') }}">Search Products by Image</a>
+                                        </li>
+                                        
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -470,7 +452,42 @@
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
                                 </li>
-                                
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('ProductController@productStats') }}">Product Statistics</a>
+                                            <a class="dropdown-item" href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto Reject Statistics</a>
+                                            <a class="dropdown-item" href="{{ action('ListingPaymentsController@index') }}">Product Listing Payments</a>
+                                            <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
+                                            <a class="dropdown-item" href="{{ action('ScrapController@scrapedUrls') }}">Scrap Urls</a>
+                                            <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap activity</a>
+                                            <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scrapped</a>
+                                            <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sale Items</a>
+                                            <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
+                                            <a class="dropdown-item" href="{{ action('GmailDataController@index') }}">Gmail Inbox</a>
+                                            <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
+                                            <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
+                                            <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Magento<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('Logging\LogListMagentoController@index') }}">Log List Magento</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Logs<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -712,18 +729,21 @@
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
+                                                <a class="dropdown-item" href="{{ action('InstagramPostsController@grid') }}">Instagram Posts (Grid)</a>
+                                                <a class="dropdown-item" href="{{ action('InstagramPostsController@index') }}">Instagram Posts</a>
                                             </li>
 
+                                            <hr/>
+
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramPostsController@index') }}">Manual Instagram Post</a>
+                                                <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
                                             </li>
 
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
                                             </li>
 
-                                             <li class="nav-item dropdown">
+                                            <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ url('instagram/hashtag') }}">Hashtags</a>
                                             </li>
 
@@ -1170,10 +1190,10 @@
                             </ul>
                         </li>
                         <li class="nav-item dropdown" id="search_li">
-                                <input type="text" class="form-control nav-link" placeholder="Search" style="margin-top : 1%;" onkeyup="filterFunction()" id="search">
-                                <ul class="dropdown-menu multi-level" id="search_container">
-                               </ul>
-                            </li>
+                            <input type="text" class="form-control nav-link" placeholder="Search" style="margin-top : 1%;" onkeyup="filterFunction()" id="search">
+                            <ul class="dropdown-menu multi-level" id="search_container">
+                            </ul>
+                        </li>
                     @endif
 
                     <li class="nav-item dropdown">
@@ -1289,12 +1309,12 @@
         @include('partials.modals.quick-instruction')
         @include('partials.modals.quick-development-task')
         @php
-        $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
-        @endphp    
+            $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
+        @endphp
         @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-        @include('partials.chat')
+            @include('partials.chat')
         @elseif($liveChatUsers != '' && $liveChatUsers != null)
-        @include('partials.chat')
+            @include('partials.chat')
         @endif
     @endif
 
@@ -1363,202 +1383,204 @@
         </div>
     </div>
     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-        
-    <div class="chat-button-wrapper">
-        <div class="col-md-9 page-chat-list-rt dis-none">
-            <div class="help-list well well-lg">
-                <div class="row">
-                <div class="col-md-4 chat" style="margin-top : 0px !important;">
-                    <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
-					<div class="card-header">
-						<div class="input-group">
-							{{-- <input type="text" placeholder="Search..." name="" class="form-control search">
-							<div class="input-group-prepend">
-								<span class="input-group-text search_btn"><i class="fa fa-search"></i></span>
-							</div> --}}
-						</div>
-					</div>
-					<div class="card-body contacts_body">
-                        @php 
-                            $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
-                            $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
-                        @endphp
-						<ul class="contacts" id="customer-list-chat">
-                        @foreach ($chatIds as $chatId)
-                            @php 
-                               $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
-                            @endphp
-                            <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
-							<div class="d-flex bd-highlight">
-                                <div class="img_cont">
-									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
-									<span class="online_icon @if($chatId->status == 0) offline @endif "></span>
-								</div>
-								<div class="user_info">
-                                     <span>{{  $customer->name }}</span>
-									<p>{{  $customer->name }} is  @if($chatId->status == 0) offline @else online @endif </p>
+
+        <div class="chat-button-wrapper">
+            <div class="col-md-9 page-chat-list-rt dis-none">
+                <div class="help-list well well-lg">
+                    <div class="row">
+                        <div class="col-md-4 chat" style="margin-top : 0px !important;">
+                            <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
+                                <div class="card-header">
+                                    <div class="input-group">
+                                        {{-- <input type="text" placeholder="Search..." name="" class="form-control search">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text search_btn"><i class="fa fa-search"></i></span>
+                                        </div> --}}
+                                    </div>
                                 </div>
-                                @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
-							</div>
-						</li>
-                            
-                        @endforeach    
-						
-						</ul>
-					</div>
-					<div class="card-footer"></div>
-                </div></div>
-                <div class="col-md-8 chat">
-                    <div class="card_chat">
-                        <div class="card-header msg_head">
-							<div class="d-flex bd-highlight">
-								<div class="img_cont">
-									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
-									
-								</div>
-								<div class="user_info" id="user_name">
-									{{-- <span>Chat with Khalid</span>
-									<p>1767 Messages</p> --}}
-								</div>
-								<div class="video_cam">
-									<span><i class="fa fa-video"></i></span>
-									<span><i class="fa fa-phone"></i></span>
-								</div>
-							</div>
-							<span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
-							<div class="action_menu">
-								{{-- <ul>
-									<li><i class="fa fa-user-circle"></i> View profile</li>
-									<li><i class="fa fa-users"></i> Add to close friends</li>
-									<li><i class="fa fa-plus"></i> Add to group</li>
-									<li><i class="fa fa-ban"></i> Block</li>
-								</ul> --}}
-							</div>
-                        </div>
-                        <div class="card-body msg_card_body" id="message-recieve">
-                            
-                        </div>
-                        <div class="card-footer">
-							<div class="input-group">
-                                <div class="input-group-append">
-                                    <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
-                                    <input type="file" id="imgupload" style="display:none"/>
+                                <div class="card-body contacts_body">
+                                    @php
+                                        $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
+                                        $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
+                                    @endphp
+                                    <ul class="contacts" id="customer-list-chat">
+                                        @foreach ($chatIds as $chatId)
+                                            @php
+                                                $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
+                                            @endphp
+                                            <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
+                                                <div class="d-flex bd-highlight">
+                                                    <div class="img_cont">
+                                                        <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                                        <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
+                                                    </div>
+                                                    <div class="user_info">
+                                                        <span>{{  $customer->name }}</span>
+                                                        <p>{{  $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p>
+                                                    </div>
+                                                    @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
+                                                </div>
+                                            </li>
+
+                                        @endforeach
+
+                                    </ul>
                                 </div>
-                                <input type="hidden" id="message-id"/>
-								<textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
-								<div class="input-group-append">
-									<span class="input-group-text send_btn" onclick="sendFile()"><i class="fa fa-location-arrow"></i></span>
+                                <div class="card-footer"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-8 chat">
+                            <div class="card_chat">
+                                <div class="card-header msg_head">
+                                    <div class="d-flex bd-highlight">
+                                        <div class="img_cont">
+                                            <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+
+                                        </div>
+                                        <div class="user_info" id="user_name">
+                                            {{-- <span>Chat with Khalid</span>
+                                            <p>1767 Messages</p> --}}
+                                        </div>
+                                        <div class="video_cam">
+                                            <span><i class="fa fa-video"></i></span>
+                                            <span><i class="fa fa-phone"></i></span>
+                                        </div>
+                                    </div>
+                                    <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
+                                    <div class="action_menu">
+                                        {{-- <ul>
+                                            <li><i class="fa fa-user-circle"></i> View profile</li>
+                                            <li><i class="fa fa-users"></i> Add to close friends</li>
+                                            <li><i class="fa fa-plus"></i> Add to group</li>
+                                            <li><i class="fa fa-ban"></i> Block</li>
+                                        </ul> --}}
+                                    </div>
+                                </div>
+                                <div class="card-body msg_card_body" id="message-recieve">
+
+                                </div>
+                                <div class="card-footer">
+                                    <div class="input-group">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
+                                            <input type="file" id="imgupload" style="display:none"/>
+                                        </div>
+                                        <input type="hidden" id="message-id"/>
+                                        <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text send_btn" onclick="sendFile()"><i class="fa fa-location-arrow"></i></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-						</div>
+                        </div>
                     </div>
-                    </div>
+
+                </div>
             </div>
-                
+            <div class="col-md-3">
+                <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
             </div>
         </div>
-        <div class="col-md-3">
-            <button class="chat-button"><img src="/images/chat.png" class="img-responsive" /><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
-        </div>
-    </div>
     @elseif($liveChatUsers != '' && $liveChatUsers != null)
-    <div class="chat-button-wrapper">
-        <div class="col-md-9 page-chat-list-rt dis-none">
-            <div class="help-list well well-lg">
-                <div class="row">
-                <div class="col-md-4 chat" style="margin-top : 0px !important;">
-                    <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
-					<div class="card-header">
-						<div class="input-group">
-							{{-- <input type="text" placeholder="Search..." name="" class="form-control search">
-							<div class="input-group-prepend">
-								<span class="input-group-text search_btn"><i class="fa fa-search"></i></span>
-							</div> --}}
-						</div>
-					</div>
-					<div class="card-body contacts_body">
-                        @php 
-                            $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
-                            $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
-                        @endphp
-						<ul class="contacts" id="customer-list-chat">
-                        @foreach ($chatIds as $chatId)
-                            @php 
-                               $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
-                            @endphp
-                            <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
-							<div class="d-flex bd-highlight">
-                                <div class="img_cont">
-									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
-									<span class="online_icon @if($chatId->status == 0) offline @endif "></span>
-								</div>
-								<div class="user_info">
-                                     <span>{{  $customer->name }}</span>
-									<p>{{  $customer->name }} is  @if($chatId->status == 0) offline @else online @endif </p>
+        <div class="chat-button-wrapper">
+            <div class="col-md-9 page-chat-list-rt dis-none">
+                <div class="help-list well well-lg">
+                    <div class="row">
+                        <div class="col-md-4 chat" style="margin-top : 0px !important;">
+                            <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
+                                <div class="card-header">
+                                    <div class="input-group">
+                                        {{-- <input type="text" placeholder="Search..." name="" class="form-control search">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text search_btn"><i class="fa fa-search"></i></span>
+                                        </div> --}}
+                                    </div>
                                 </div>
-                                @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
-							</div>
-						</li>
-                            
-                        @endforeach    
-						
-						</ul>
-					</div>
-					<div class="card-footer"></div>
-                </div></div>
-                <div class="col-md-8 chat">
-                    <div class="card_chat">
-                        <div class="card-header msg_head">
-							<div class="d-flex bd-highlight">
-								<div class="img_cont">
-									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
-									
-								</div>
-								<div class="user_info" id="user_name">
-									{{-- <span>Chat with Khalid</span>
-									<p>1767 Messages</p> --}}
-								</div>
-								<div class="video_cam">
-									<span><i class="fa fa-video"></i></span>
-									<span><i class="fa fa-phone"></i></span>
-								</div>
-							</div>
-							<span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
-							<div class="action_menu">
-								{{-- <ul>
-									<li><i class="fa fa-user-circle"></i> View profile</li>
-									<li><i class="fa fa-users"></i> Add to close friends</li>
-									<li><i class="fa fa-plus"></i> Add to group</li>
-									<li><i class="fa fa-ban"></i> Block</li>
-								</ul> --}}
-							</div>
-                        </div>
-                        <div class="card-body msg_card_body" id="message-recieve">
-                            
-                        </div>
-                        <div class="card-footer">
-							<div class="input-group">
-                                <div class="input-group-append">
-                                    <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
-                                    <input type="file" id="imgupload" style="display:none"/>
+                                <div class="card-body contacts_body">
+                                    @php
+                                        $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
+                                        $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
+                                    @endphp
+                                    <ul class="contacts" id="customer-list-chat">
+                                        @foreach ($chatIds as $chatId)
+                                            @php
+                                                $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
+                                            @endphp
+                                            <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
+                                                <div class="d-flex bd-highlight">
+                                                    <div class="img_cont">
+                                                        <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                                        <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
+                                                    </div>
+                                                    <div class="user_info">
+                                                        <span>{{  $customer->name }}</span>
+                                                        <p>{{  $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p>
+                                                    </div>
+                                                    @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
+                                                </div>
+                                            </li>
+
+                                        @endforeach
+
+                                    </ul>
                                 </div>
-                                <input type="hidden" id="message-id"/>
-								<textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
-								<div class="input-group-append">
-									<span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
+                                <div class="card-footer"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-8 chat">
+                            <div class="card_chat">
+                                <div class="card-header msg_head">
+                                    <div class="d-flex bd-highlight">
+                                        <div class="img_cont">
+                                            <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+
+                                        </div>
+                                        <div class="user_info" id="user_name">
+                                            {{-- <span>Chat with Khalid</span>
+                                            <p>1767 Messages</p> --}}
+                                        </div>
+                                        <div class="video_cam">
+                                            <span><i class="fa fa-video"></i></span>
+                                            <span><i class="fa fa-phone"></i></span>
+                                        </div>
+                                    </div>
+                                    <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
+                                    <div class="action_menu">
+                                        {{-- <ul>
+                                            <li><i class="fa fa-user-circle"></i> View profile</li>
+                                            <li><i class="fa fa-users"></i> Add to close friends</li>
+                                            <li><i class="fa fa-plus"></i> Add to group</li>
+                                            <li><i class="fa fa-ban"></i> Block</li>
+                                        </ul> --}}
+                                    </div>
+                                </div>
+                                <div class="card-body msg_card_body" id="message-recieve">
+
+                                </div>
+                                <div class="card-footer">
+                                    <div class="input-group">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
+                                            <input type="file" id="imgupload" style="display:none"/>
+                                        </div>
+                                        <input type="hidden" id="message-id"/>
+                                        <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-						</div>
+                        </div>
                     </div>
-                    </div>
+
+                </div>
             </div>
-                
+            <div class="col-md-3">
+                <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
             </div>
         </div>
-        <div class="col-md-3">
-            <button class="chat-button"><img src="/images/chat.png" class="img-responsive" /><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
-        </div>
-    </div>
     @endif
 @endif
 
@@ -1615,7 +1637,7 @@
         $('.page-notes-list-rt').toggleClass('dis-none');
     });
 
-     // started for chat button
+    // started for chat button
     $('.chat-button').on('click', function () {
         $('.chat-button-wrapper').toggleClass('expanded');
         $('.page-chat-list-rt').toggleClass('dis-none');
@@ -1734,50 +1756,50 @@
     </script>
     <script>
         function filterFunction() {
-          var input, filter, ul, li, a, i;
-          //getting search values
-          input = document.getElementById("search");
-          //String to upper for search
-          filter = input.value.toUpperCase();
-          //Getting Values From DOM
-          a = document.querySelectorAll("#navbarSupportedContent a");
-          //Class to open bar
-          $( "#search_li" ).addClass('open');
-          //Close when search becomes zero
-          if(a.length == 0){
-             $( "#search_li" ).removeClass('open');
+            var input, filter, ul, li, a, i;
+            //getting search values
+            input = document.getElementById("search");
+            //String to upper for search
+            filter = input.value.toUpperCase();
+            //Getting Values From DOM
+            a = document.querySelectorAll("#navbarSupportedContent a");
+            //Class to open bar
+            $("#search_li").addClass('open');
+            //Close when search becomes zero
+            if (a.length == 0) {
+                $("#search_li").removeClass('open');
             }
-           //Limiting Search Count
-         count = 1;
-         //Empty Existing Values
-          $( "#search_container" ).empty();
+            //Limiting Search Count
+            count = 1;
+            //Empty Existing Values
+            $("#search_container").empty();
 
-         //Getting All Values
-         for (i = 0; i < a.length; i++) {
-            txtValue = a[i].textContent || a[i].innerText;
-            href = a[i].href;
-            //If value doesnt have link
-            if(href == "#" || href == '' || href.indexOf('#') > -1){
-                continue;
-            }
-            //Removing old search Result From DOM
-            if(a[i].getAttribute('class') != null && a[i].getAttribute('class') != ''){
-                if(a[i].getAttribute('class').indexOf('old_search') > -1){
+            //Getting All Values
+            for (i = 0; i < a.length; i++) {
+                txtValue = a[i].textContent || a[i].innerText;
+                href = a[i].href;
+                //If value doesnt have link
+                if (href == "#" || href == '' || href.indexOf('#') > -1) {
                     continue;
                 }
-            }
-            //break when count goes above 30
-            if(count > 30){
-                break;
-            }
-            //Pusing values to DOM Search Input
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                $( "#search_container" ).append( '<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href='+href+'>'+txtValue+'</a></li>' );
-                count++
-            } else {
+                //Removing old search Result From DOM
+                if (a[i].getAttribute('class') != null && a[i].getAttribute('class') != '') {
+                    if (a[i].getAttribute('class').indexOf('old_search') > -1) {
+                        continue;
+                    }
+                }
+                //break when count goes above 30
+                if (count > 30) {
+                    break;
+                }
+                //Pusing values to DOM Search Input
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
+                    count++
+                } else {
+                }
             }
         }
-    }
 
     </script>
 @endif

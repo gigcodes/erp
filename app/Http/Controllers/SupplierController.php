@@ -83,7 +83,7 @@ class SupplierController extends Controller
         }
 
         $suppliers = DB::select('
-									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, suppliers.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, suppliers.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name,
+									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -106,13 +106,14 @@ class SupplierController extends Controller
                   ON suppliers.id = emails.email_model_id)
 
                   AS suppliers
+                  left join scrapers as sc on sc.supplier_id = suppliers.id
                   left join users as u on u.id = suppliers.updated_by
                   WHERE (source LIKE "%' . $source . '%" AND (supplier LIKE "%' . $term . '%" OR 
                   suppliers.phone LIKE "%' . $term . '%" OR 
                   suppliers.email LIKE "%' . $term . '%" OR 
                   suppliers.address LIKE "%' . $term . '%" OR 
                   suppliers.social_handle LIKE "%' . $term . '%" OR
-                  suppliers.scraper_name LIKE "%' . $term . '%" OR
+                  sc.scraper_name LIKE "%' . $term . '%" OR
                   brands LIKE "%' . $term . '%" OR
                    suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
                   ORDER BY last_communicated_at DESC, status DESC
@@ -193,7 +194,15 @@ class SupplierController extends Controller
         $data[ 'default_phone' ] = $request->phone ?? '';
         $data[ 'default_email' ] = $request->email ?? '';
 
-        Supplier::create($data);
+        $supplier = Supplier::create($data);
+
+        if($supplier->id > 0) {
+          \App\Scraper::create([
+            "supplier_id" => $supplier->id,
+            "scraper_name" => $request->get("scraper_name",""),
+            "inventory_lifetime" => $request->get("inventory_lifetime",""),
+          ]);
+        }
 
         return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier!');
     }
@@ -267,6 +276,12 @@ class SupplierController extends Controller
         $data[ 'default_email' ] = $request->default_email != '' ? $request->default_email : $request->email;
         $data[ 'is_updated' ] = 1;
         Supplier::find($id)->update($data);
+
+        $scraper = \App\Scraper::updateOrCreate(
+            ['supplier_id' => $id],
+            ['inventory_lifetime' => $request->get("inventory_lifetime",""), 'scraper_name' => $request->get("scraper_name","")]
+        );
+
 
         return redirect()->back()->withSuccess('You have successfully updated a supplier!');
     }

@@ -151,6 +151,8 @@ class User extends Authenticatable
         if (in_array('Admin', $roles)) {
             return true;
         }
+
+        return true;
     }
 
     /**
@@ -177,12 +179,15 @@ class User extends Authenticatable
         $permission = Permission::where('route', $genUrl)->first();
 
         if (empty($permission)) {
-            return true;
+            echo 'unauthorized route doesnt not exist - ' . $genUrl;
+            die();
+            return false;
         }
         $role = $permission->getRoleIdsInArray();
 
         $user_role = $this->roles()
             ->pluck('id')->unique()->toArray();
+
         //dd($user_role);
         foreach ($user_role as $key => $value) {
             if (in_array($value, $role)) {
@@ -337,7 +342,7 @@ class User extends Authenticatable
     public static function getNameById($id)
     {
        $q  = self::where("id",$id)->first();
-       return ($q) ? $q->name : ""; 
+       return ($q) ? $q->name : "";
     }
 
 

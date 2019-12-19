@@ -452,6 +452,14 @@
                                     {{ ( $isFinal  ==  '1' ) ? 'Final Approved' : 'Final Approve'  }}
                                 </button>
                             </form>
+                            @if($status == 26)
+                            <button type="buttom" class="btn btn-secondary" onclick="approveProduct('{{ $id }}')">Image Search Approve</button>
+                            <button type="buttom" class="btn btn-danger" onclick="rejectProduct('{{ $id }}')">Image Search Reject</button>
+                           @endif
+                            @if($status == 31)
+                            <button type="buttom" class="btn btn-secondary" onclick="approveTextProduct('{{ $id }}')">Text Search Approve</button>
+                            <button type="buttom" class="btn btn-danger" onclick="rejectTextProduct('{{ $id }}')">Text Search Reject</button>
+                           @endif 
                         @endcan
                     </div>
                     {{-- <div class="form-group">
@@ -520,5 +528,89 @@
 
     {{--</form>--}}
 
+
+@endsection
+
+@section('scripts')
+
+<script>
+
+function approveProduct(id){
+    $.ajax({
+            url: "{{ route('google.product.status') }}",
+            type: 'POST',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                alert('Product Approved');
+            },
+            data: {
+                id: id,
+                type: "approve",
+                _token: "{{ csrf_token() }}",
+            }
+    });
+}
+
+function rejectProduct(id){
+    $.ajax({
+            url: "{{ route('google.product.status') }}",
+            type: 'POST',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                alert('Product Rejected');
+            },
+            data: {
+                id: id,
+                type: "reject",
+                _token: "{{ csrf_token() }}",
+            }
+    });
+}
+
+function approveTextProduct(id){
+    $.ajax({
+            url: "{{ route('google.product.status') }}",
+            type: 'POST',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                alert('Product Approved');
+            },
+            data: {
+                id: id,
+                type: "textapprove",
+                _token: "{{ csrf_token() }}",
+            }
+    });
+}
+
+function rejectTextProduct(id){
+    $.ajax({
+            url: "{{ route('google.product.status') }}",
+            type: 'POST',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                alert('Product Rejected');
+            },
+            data: {
+                id: id,
+                type: "textreject",
+                _token: "{{ csrf_token() }}",
+            }
+    });
+}
+
+</script>
 
 @endsection
