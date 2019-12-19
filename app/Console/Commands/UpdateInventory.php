@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Console\Command;
 use App\CronJobReport;
+use App\Product;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class UpdateInventory extends Command
 {
@@ -39,10 +40,9 @@ class UpdateInventory extends Command
     public function handle()
     {
         $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
-
+            'signature'  => $this->signature,
+            'start_time' => Carbon::now(),
+        ]);
 
         // Set empty array with SKU
         $arrInventory = [];
@@ -55,23 +55,21 @@ class UpdateInventory extends Command
             SELECT
                 sp.sku,
                 COUNT(sp.id) AS cnt
-            FROM
-                suppliers s
-            JOIN 
-                scraped_products sp 
-            ON 
-                sp.website=s.scraper_name
+            FROM suppliers s
+            JOIN scrapers sc on sc.supplier_id = s.id
+            JOIN scraped_products sp ON sp.website=sc.scraper_name
             WHERE
-                s.supplier_status_id=1 AND 
-                sp.last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) 
+                s.supplier_status_id=1 AND
+                sp.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
             GROUP BY
                 sp.sku
         ";
+
         $scrapedProducts = DB::select($sqlScrapedProductsInStock);
 
         // Loop over scraped products
         foreach ($scrapedProducts as $scrapedProduct) {
-            $arrInventory[ $scrapedProduct->sku ] = $scrapedProduct->cnt;
+            $arrInventory[$scrapedProduct->sku] = $scrapedProduct->cnt;
         }
 
         foreach ($arrInventory as $sku => $cnt) {
@@ -81,6 +79,6 @@ class UpdateInventory extends Command
         }
 
         // TODO: Update stock in Magento
-         $report->update(['end_time' => Carbon:: now()]);
+        $report->update(['end_time' => Carbon::now()]);
     }
 }

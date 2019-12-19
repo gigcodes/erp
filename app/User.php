@@ -151,6 +151,8 @@ class User extends Authenticatable
         if (in_array('Admin', $roles)) {
             return true;
         }
+
+        return true;
     }
 
     /**

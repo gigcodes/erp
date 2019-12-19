@@ -139,7 +139,10 @@
                         </td>
                         @php
                             $suppliersArray = [];
-                            $data = DB::select('SELECT sp.id,s.website,sp.url,s.supplier FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
+                            $data = DB::select('SELECT sp.id,s.website,sp.url,s.supplier FROM `scraped_products` sp 
+                            JOIN scrapers sc on sc.scraper_name=sp.website 
+                            JOIN suppliers s ON s.id=sc.supplier_id 
+                            WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY) and sp.sku = :sku', ['sku' =>$product['sku']]);
 
                             $cnt = count($data);
                         @endphp
