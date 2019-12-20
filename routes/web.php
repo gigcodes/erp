@@ -1319,3 +1319,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('update-media-directory', 'TmpController@updateImageDirectory');
     Route::resource('page-notes-categories', 'PageNotesCategoriesController');
 });
+
+
+Route::prefix('chat-bot')->middleware('auth')->group(function () {
+    Route::get('/connection', 'ChatBotController@connection');
+});
