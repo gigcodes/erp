@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Log List Magento')
+@section('title', 'SKU log')
 
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
@@ -26,7 +26,7 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Log List SKU</h2>
+            <h2 class="page-heading">SKU log</h2>
             <div class="pull-right">
                 <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png"/></button>
             </div>
