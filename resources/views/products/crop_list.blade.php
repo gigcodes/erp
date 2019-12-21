@@ -95,7 +95,7 @@
                 </div>
             </div>
         </div>
-        @if($rejectedCrops->total() > 0)
+        @if($rejectedCrops->total() == 0)
             <div class="col-md-12">
                 <h2 class="page-heading">Cropped Products</h2>
             </div>
