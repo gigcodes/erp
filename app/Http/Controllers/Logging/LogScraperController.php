@@ -54,11 +54,11 @@ class LogScraperController extends Controller
                     $qu->whereIn('supplier', request('supplier'));
                 });
         }
-
-
-
+        
         // Get paginated result
         $logScrappers = $logScrapper->paginate(25)->appends(request()->except(['page']));
+
+        $failed = $logScrapper->where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
         
         $selected_categories = $request->category ? $request->category : 1;
 
@@ -69,15 +69,16 @@ class LogScraperController extends Controller
         // For ajax
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('logging.partials.listsku_data', compact('logScrappers','category_selection'))->render(),
-                'links' => (string)$logScrappers->render()
+                'tbody' => view('logging.partials.listsku_data', compact('logScrappers','category_selection','failed'))->render(),
+                'links' => (string)$logScrappers->render(),
+                'totalFailed' => $failed,
             ], 200);
         }
 
         
 
         // Show results
-        return view('logging.product-sku', compact('logScrappers','category_selection'));
+        return view('logging.product-sku', compact('logScrappers','category_selection','failed'));
     
     }
 }

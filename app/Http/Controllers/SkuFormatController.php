@@ -25,7 +25,9 @@ class SkuFormatController extends Controller
         $categories = Category::orderBy('title','asc')->get();
         $brands = Brand::orderBy('name','asc')->get();
         $skus = SkuFormat::all();
-        return view('sku-format.index',compact('categories','brands','skus'));
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2','id' => 'category'])
+            ->renderAsDropdown();
+        return view('sku-format.index',compact('categories','brands','skus','category_selection'));
     }
 
     /**

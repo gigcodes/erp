@@ -26,7 +26,7 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">SKU log</h2>
+            <h2 class="page-heading">SKU log (<span id="count"> {{ $failed }} </span>)</h2>
             <div class="pull-right">
                 <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png"/></button>
             </div>
@@ -49,6 +49,7 @@
                 <th style="width: 20% !important;">Supplier</th>
                 <th>Validation</th>
                 <th>Date/Time</th>
+                <th>Action</th>
             </tr>
             <tr>
                 <th style="width: 2% !important;"><input type="text" id="product_id"></th>
@@ -76,6 +77,7 @@
                         </select></th>
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
+                <th>&nbsp;</th>
             </tr>
             </thead>
             <tbody id="content_data">
@@ -87,7 +89,7 @@
         </table>
     </div>
 
-
+@include('partials.modals.task-module')
 @endsection
 
 @section('scripts')
@@ -121,6 +123,7 @@
             }).done(function (data) {
                 $("#loading-image").hide();
                 console.log(data);
+                $("#count").text(data.totalFailed);
                 $("#log-table tbody").empty().html(data.tbody);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
@@ -150,6 +153,7 @@
             }).done(function (data) {
                 $("#loading-image").hide();
                 console.log(data);
+                $("#count").text(data.totalFailed);
                 $("#log-table tbody").empty().html(data.tbody);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
@@ -179,6 +183,7 @@
             }).done(function (data) {
                 $("#loading-image").hide();
                 console.log(data);
+                $("#count").text(data.totalFailed);
                 $("#log-table tbody").empty().html(data.tbody);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
@@ -189,6 +194,11 @@
                 $("#loading-image").hide();
                 alert('No response from server');
             });
+    }
+
+    function addTask(supplier , category) {
+        $('#taskModal').modal('show');
+        $('#task_subject').val(supplier +' '+category);
     }
 
 
