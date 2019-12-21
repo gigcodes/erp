@@ -40,32 +40,34 @@
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
-                <th>ID</th>
-                <th>SKU</th>
-                <th>SKU Format</th>
-                <th>Brand</th>
-                <th>Category</th>
-                <th>Supplier</th>
+                <th style="width: 2% !important;">ID</th>
+                <th style="width: 5% !important;">SKU</th>
+                <th style="width: 5% !important;">SKU Format</th>
+                <th style="width: 5% !important;">SKU Format Ex</th>
+                <th style="width: 20% !important;">Brand</th>
+                <th style="width: 20% !important;">Category</th>
+                <th style="width: 20% !important;">Supplier</th>
                 <th>Validation</th>
                 <th>Date/Time</th>
             </tr>
             <tr>
-                <th><input type="text" id="product_id"></th>
-                <th><input type="text" id="sku"></th>
-                <th>&nbsp;</th>
-                <th>@php $brands = \App\Brand::getAll();
+                <th style="width: 2% !important;"><input type="text" id="product_id"></th>
+                <th style="width: 5% !important;"><input type="text" id="sku"></th>
+                <th style="width: 5% !important;">&nbsp;</th>
+                <th style="width: 5% !important;">&nbsp;</th>
+                <th style="width: 20% !important;">@php $brands = \App\Brand::getAll();
                         @endphp
-                        <select data-placeholder="Select brands" class="form-control select-multiple2" name="brand[]" multiple>
+                        <select data-placeholder="Select brands" class="form-control select-multiple2" id="brand" multiple>
                             <optgroup label="Brands">
                                 @foreach ($brands as $id => $name)
-                                    <option value="{{ $id }}" {{ isset($brand) && $brand == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                    <option value="{{ $name }}" {{ isset($brand) && $brand == $id ? 'selected' : '' }}>{{ $name }}</option>
                                 @endforeach
                             </optgroup>
                         </select></th>
-                <th>{!! $category_selection !!}</th>
-                <th>@php $suppliers = new \App\Supplier();
+                <th style="width: 20% !important;">{!! $category_selection !!}</th>
+                <th style="width: 20% !important;">@php $suppliers = new \App\Supplier();
                         @endphp
-                        <select data-placeholder="Select Supplier" class="form-control select-multiple2" name="supplier[]" multiple>
+                        <select data-placeholder="Select Supplier" class="form-control select-multiple2" id="supplier" multiple>
                             <optgroup label="Suppliers">
                                 @foreach ($suppliers->select('id','supplier')->where('supplier_status_id',1)->get() as $id => $suppliers)
                                     <option value="{{ $suppliers->supplier }}" {{ isset($supplier) && $supplier == $suppliers->supplier ? 'selected' : '' }}>{{ $suppliers->supplier }}</option>
@@ -103,7 +105,7 @@
          });
     
     $(document).ready(function () {
-        $('#product_id,#sku,#brand,#category').on('blur', function () {
+        $('#product_id,#sku,#category').on('blur', function () {
             $.ajax({
                 url: '/logging/sku-logs',
                 dataType: "json",
@@ -130,6 +132,65 @@
                 alert('No response from server');
             });
         });
+
+         $('#brand,#category,#supplier').on('change', function () {
+            $.ajax({
+                url: '/logging/sku-logs',
+                dataType: "json",
+                data: {
+                    product_id: $('#product_id').val(),
+                    sku: $('#sku').val(),
+                    brand: $('#brand').val(),
+                    category: $('#category').val(),
+                    supplier : $('#supplier').val(),
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+            }).done(function (data) {
+                $("#loading-image").hide();
+                console.log(data);
+                $("#log-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                $("#loading-image").hide();
+                alert('No response from server');
+            });
+        });
+    
+
+
     });
+    function refreshPage(){
+        blank = '';
+        $.ajax({
+                url: '/logging/sku-logs',
+                dataType: "json",
+                data: {
+                    blank : blank
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+            }).done(function (data) {
+                $("#loading-image").hide();
+                console.log(data);
+                $("#log-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                $("#loading-image").hide();
+                alert('No response from server');
+            });
+    }
+
+
     </script>
 @endsection

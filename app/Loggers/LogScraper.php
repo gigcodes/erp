@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Request;
 use App\SkuFormat;
 use App\Brand;
 use App\Category;
+use App\Supplier;
 
 class LogScraper extends Model
 {
@@ -370,6 +371,15 @@ class LogScraper extends Model
        return $sku->sku_format; 
     }
 
+    public function skuFormatExample($sku, $brand)
+    {
+        $brand = Brand::where('name',$brand)->first();
+
+        $sku = SkuFormat::where('brand_id',$brand->id)->first();
+       
+       return $sku->sku_examples; 
+    }
+
     public function skuError($validation)
     {
         $validations = explode('[warning]', $validation);
@@ -382,5 +392,18 @@ class LogScraper extends Model
         }
         
         return '';
+    }
+
+    public function unserialize($string){
+        $string = unserialize($string);
+        if(is_array($string)){
+          return implode(' , ', $string);
+        }else{
+            return $string;
+        }
+    }
+
+    public function supplier(){
+        return $this->hasOne(Supplier::class,'scraper_name','website');
     }
 }

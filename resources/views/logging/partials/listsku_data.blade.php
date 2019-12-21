@@ -1,11 +1,12 @@
 @foreach ($logScrappers as $logScrapper)
     <tr>
-        <td>{{ $logScrapper->id }}</td>
-        <td>{{ $logScrapper->sku }}</td>
-        <td>{{ $logScrapper->skuFormat($logScrapper->sku,$logScrapper->brand) }}</td>
-        <td>{{ $logScrapper->brand }}</td>
-        <td>@if(isset($logScrapper->category)) {{ unserialize($logScrapper->category) }} @endif</td>
-        <td>{{ $logScrapper->website }}</td>
+        <td style="width: 2% !important;">{{ $logScrapper->id }}</td>
+        <td style="width: 5% !important;">{{ $logScrapper->sku }}</td>
+        <td style="width: 5% !important;">{{ $logScrapper->skuFormat($logScrapper->sku,$logScrapper->brand) }}</td>
+         <td style="width: 5% !important;">{{ $logScrapper->skuFormatExample($logScrapper->sku,$logScrapper->brand) }}</td>
+        <td style="width: 20% !important;"> {{ $logScrapper->brand }}</td>
+        <td style="width: 20% !important;">@if(isset($logScrapper->category)) {{ $logScrapper->unserialize($logScrapper->category) }} @endif</td>
+        <td style="width: 20% !important;">{{ $logScrapper->website }}</td>
         <td>{{ $logScrapper->skuError( $logScrapper->validation_result) }}</td>
         <td>{{ $logScrapper->created_at->format('d-M-Y H:i:s') }}</td>
     </tr>
