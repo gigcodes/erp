@@ -7,6 +7,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\ProductHelper;
 use App\Loggers\LogListMagento;
+use App\HsCodeGroupsCategoriesComposition;
+use App\SimplyDutyCategory;
 
 class MagentoSoapHelper
 {
@@ -156,6 +158,23 @@ class MagentoSoapHelper
             // Set SKU
             $sku = $product->sku . $product->color;
 
+             //Getting Hscode Attribute    
+            try {
+               
+                $hscodeList = HsCodeGroupsCategoriesComposition::where('category_id', $product->category)->where('composition',$product->composition)->first();
+                if($hscodeList == '' && $hscodeList == null){
+                    $hscode = '';
+                }else{
+                    $groupId = $hscodeList->hs_code_group_id;
+                    $group = HsCodeGroup::find($groupId);
+                    $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+                    $hscode = $hscodeDetails->code;
+                }
+                
+            } catch (Exception $e) {
+                $hscode = '';
+            }
+            
             // Create a new product reference for this size
             $reference = new ProductReference;
             $reference->product_id = $product->id;
@@ -192,6 +211,7 @@ class MagentoSoapHelper
                         ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
                         ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
                         ['key' => 'flashsales', 'value' => 0],
+                        ['key' => 'hscode', 'value' => $hscode],
                     ]
                 ]
             );
@@ -242,6 +262,7 @@ class MagentoSoapHelper
                     ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
                     ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
                     ['key' => 'flashsales', 'value' => 0],
+                    ['key' => 'hscode', 'value' => $hscode],
                 ]
             ]
         );
@@ -260,6 +281,23 @@ class MagentoSoapHelper
 
         // Set measurement
         $measurement = ProductHelper::getMeasurements($product);
+
+         //Getting Hscode Attribute    
+        try {
+           
+            $hscodeList = HsCodeGroupsCategoriesComposition::where('category_id', $product->category)->where('composition',$product->composition)->first();
+            if($hscodeList == '' && $hscodeList == null){
+                $hscode = '';
+            }else{
+                $groupId = $hscodeList->hs_code_group_id;
+                $group = HsCodeGroup::find($groupId);
+                $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+                $hscode = $hscodeDetails->code;
+            }
+            
+        } catch (Exception $e) {
+            $hscode = '';
+        }
 
         // Set product data
         $productData = array(
@@ -289,6 +327,8 @@ class MagentoSoapHelper
                     ['key' => 'brands', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
                     ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
                     ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0]
+                    ['key' => 'hscode', 'value' => $hscode]
+                       
                 ]
             ]
         );

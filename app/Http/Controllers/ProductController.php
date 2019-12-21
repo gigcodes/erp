@@ -2325,7 +2325,7 @@ class ProductController extends Controller
                 $categoryTree = CategoryController::getCategoryTree($product->category);
                if(is_array($categoryTree)){
                 
-                    $childCategory = implode(' ',$categoryTree);
+                    $childCategory = implode(' > ',$categoryTree);
                }
                
                $cat = Category::findOrFail($request->category[0]);

@@ -50,7 +50,7 @@
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
-                <th style="width: 2%"><input type="checkbox" class="form-control" id="ckbCheckAll">Select All</th>
+                <th style="width: 2%"><input type="checkbox" id="ckbCheckAll">  Select All</th>
                 
                 <th width="30%">Combinations</th>
             </tr>
@@ -59,7 +59,7 @@
             @foreach($compositions as $composition)
             <tr>
                 <td><input type="checkbox" class="form-control checkBoxClass" value="{{ $composition }} {{ $childCategory }} {{ $parentCategory }}" name="composition"></td>
-               <td>{{ $composition }} {{ $childCategory }} {{ $parentCategory }}</td>
+               <td>{{ $composition }} [ {{ $childCategory }} ] > {{ $parentCategory }}</td>
             </tr>
                 
             @endforeach
@@ -96,7 +96,7 @@
     });
 
     function submitGroup(){
-        $('#groupModal').modal('hide');
+        
         hscode = $('#hscode').val();
         name = $('#name').val();
         category = "{{ $parentCategory }}";
@@ -106,8 +106,9 @@
             });
         if(compositions.length == 0){
             alert('Please Select Combinations');
+        }else if(hscode == '' && hscode == null){
+            alert('Please Select Hscode First');
         }else{
-
             src = "{{ route('hscode.save.group') }}";
             $.ajax({
                 url: src,
@@ -119,6 +120,7 @@
                     category : category,
                 },
                 beforeSend: function () {
+                    $('#groupModal').modal('hide');
                     $("#loading-image").show();
                 },
 

@@ -13,7 +13,7 @@
         <div class="modal-body">
           <div class="form-group">
             <strong>HsCode:</strong>
-            <select class="form-control selectpicker" name="group" data-live-search="true" required id="hscode">
+            <select class="form-control selectpicker" name="group" data-live-search="true" id="hscode" required>
               <option value="">Select HsCode</option>
               @foreach ($hscodes as $hscode)
                 <option value="{{ $hscode->id }}">{{ $hscode->code }}</option>
@@ -24,7 +24,7 @@
 
           <div class="form-group">
             <strong>Name:</strong>
-            <input type="text" name="name" class="form-control" id="name">
+            <input type="text" name="name" class="form-control" id="name" required>
           </div>
         </div>
         <div class="modal-footer">
