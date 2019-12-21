@@ -32,7 +32,8 @@ class Product extends Model
      * @var array
      */
     protected $fillable = [
-        'sku'
+        'sku',
+        'is_barcode_check'
     ];
     protected $dates = ['deleted_at'];
     protected $appends = [];
@@ -164,10 +165,10 @@ class Product extends Model
                 }
 
                 // Check for valid supplier and store details linked to supplier
-                if ($dbSupplier = Supplier::where('scraper_name', $json->website)->first()) {
+                if ($dbSupplier = \App\Scraper::where('scraper_name', $json->website)->first()) {
                     if ($product) {
                         $product->suppliers()->syncWithoutDetaching([
-                            $dbSupplier->id => [
+                            $dbSupplier->supplier_id => [
                                 'title' => ProductHelper::getRedactedText($json->title, 'name'),
                                 'description' => ProductHelper::getRedactedText($json->description, 'short_description'),
                                 'supplier_link' => $json->url,
@@ -274,10 +275,10 @@ class Product extends Model
                 ProductStatus::updateStatus($product->id, 'CREATED_NEW_PRODUCT_BY_JSON', 1);
 
                 // Check for valid supplier and store details linked to supplier
-                if ($dbSupplier = Supplier::where('scraper_name', $json->website)->first()) {
+                if ($dbSupplier = \App\Scraper::where('scraper_name', $json->website)->first()) {
                     if ($product) {
                         $product->suppliers()->syncWithoutDetaching([
-                            $dbSupplier->id => [
+                            $dbSupplier->supplier_id => [
                                 'title' => ProductHelper::getRedactedText($json->title, 'name'),
                                 'description' => ProductHelper::getRedactedText($json->description, 'short_description'),
                                 'supplier_link' => $json->url,

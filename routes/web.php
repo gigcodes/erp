@@ -50,6 +50,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 
 Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index');
+    Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
 });
 
 Route::prefix('category-messages')->group(function () {
@@ -165,12 +166,15 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
+    Route::post('autoreply/delete-chat-word', 'AutoReplyController@deleteChatWord');
+    
     Route::resource('autoreply', 'AutoReplyController');
 
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
     Route::get('category/references', 'CategoryController@mapCategory');
     Route::post('category/references', 'CategoryController@saveReferences');
+    Route::post('category/update-field', 'CategoryController@updateField');
     Route::resource('category', 'CategoryController');
 
     Route::resource('resourceimg', 'ResourceImgController');
@@ -812,10 +816,16 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
-        Route::get('/', 'TemplatesController@index')->name('templates');;
+        Route::get('/', 'TemplatesController@index')->name('templates');
         Route::get('response', 'TemplatesController@response');
         Route::post('create', 'TemplatesController@create');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
+    });
+
+    Route::prefix('erp-events')->middleware('auth')->group(function () {
+       Route::get('/', 'ErpEventController@index')->name('erp-events');
+       Route::post('/store','ErpEventController@store')->name('erp-events.store');
+       Route::get('/dummy', 'ErpEventController@dummy')->name('erp-events.dummy');
     });
 
 });
@@ -1078,7 +1088,23 @@ Route::middleware('auth')->group(function () {
     Route::post('old/category/create', 'OldController@createCategory')->name('old.category.create');
     Route::post('old/update/status', 'OldController@updateOld')->name('old.update.status');
 
+    //Simple Duty
 
+    //Simple duty category
+    Route::get('duty/category', 'SimplyDutyCategoryController@index')->name('simplyduty.category.index');
+    Route::get('duty/category/update', 'SimplyDutyCategoryController@getCategoryFromApi')->name('simplyduty.category.update');
+
+    //Simple Duty Currency
+    Route::get('duty/currency', 'SimplyDutyCurrencyController@index')->name('simplyduty.currency.index');
+    Route::get('duty/currency/update', 'SimplyDutyCurrencyController@getCurrencyFromApi')->name('simplyduty.currency.update');
+
+    //Simple Duty Country
+    Route::get('duty/country', 'SimplyDutyCountryController@index')->name('simplyduty.country.index');
+    Route::get('duty/country/update', 'SimplyDutyCountryController@getCountryFromApi')->name('simplyduty.country.update');
+
+    //Simple Duty Calculation
+    Route::get('duty/calculation', 'SimplyDutyCalculationController@index')->name('simplyduty.calculation.index');
+    Route::post('duty/calculation', 'SimplyDutyCalculationController@calculation')->name('simplyduty.calculation');
 
     Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
 

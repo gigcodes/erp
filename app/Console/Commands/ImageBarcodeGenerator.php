@@ -60,7 +60,7 @@ class ImageBarcodeGenerator extends Command
       ->select("products.*")
       ->limit(1)->get();*/
 
-      $whereString = "";
+      $whereString = "where is_barcode_check is null";
       if(!empty($productId) && $productId > 0) {
          $whereString = " where p.id = ".$productId. " ";
       }
@@ -69,13 +69,14 @@ class ImageBarcodeGenerator extends Command
         left join mediables as md on md.mediable_id  = p.id and md.tag  = "gallery"
         left join media as m on m.id  = md.media_id
         '. $whereString .'
-        group by p.id having (total_image != total_barcode or total_barcode is null) limit 1');
-
-
+        group by p.id having (total_image != total_barcode or total_barcode is null) limit 100');
 
       if(!empty($productQuery)) {
           foreach($productQuery as $res) {
               $product = \App\Product::where("id",$res->id)->first();
+              
+              echo $product->id." Started \n";
+              
               if($product && $product->hasMedia(config('constants.media_tags'))) {
                   $medias = $product->getMedia(config('constants.media_tags'));
                   foreach($medias as $media) {
@@ -98,16 +99,24 @@ class ImageBarcodeGenerator extends Command
                     });
                     
                     $filenameNew = $media->id.".".$media->extension;
-                    $img->save(public_path("/uploads/product-barcode/").$filenameNew);
 
-                    $media = MediaUploader::fromSource(public_path("/uploads/product-barcode/").$filenameNew)
-                    ->toDirectory('uploads/product-barcode/')
+                    $path = public_path()."/uploads/product-barcode/".get_folder_number($media->id)."/";
+                    File::isDirectory($path) or File::makeDirectory($path, 0777, true, true);
+
+                    $img->save($path.$filenameNew);
+
+                    $media = MediaUploader::fromSource(public_path("/uploads/product-barcode/".get_folder_number($media->id)."/").$filenameNew)
+                    ->toDirectory('uploads/product-barcode/'.get_folder_number($media->id).'/')
                     ->setOnDuplicateBehavior("replace")
                     ->upload();
                     $product->attachMedia($media, config('constants.media_barcode_tag'));
                     File::delete(public_path($barcodeString));
                   }
               }
+              
+              $product->is_barcode_check = 1;
+              $product->save();
+              echo $product->id." Ended \n";
           }
       }
 

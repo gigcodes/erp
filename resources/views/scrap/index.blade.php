@@ -1,5 +1,11 @@
 @extends('layouts.app')
 
+@section('favicon' , 'scrapgoogle.png')
+
+@section('title', 'Scrap Google Image - ERP Sololuxury')
+
+
+
 @section('content')
     <div class="row">
         <div class="col-md-12">

@@ -232,7 +232,7 @@
                             </div>
 
                             <div class="form-group">
-                                <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" value="{{ $supplier->scraper_name }}">
+                                <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" value="{{ $supplier->scraper->scraper_name }}">
                             </div>
 
                             <div class="form-group">

@@ -67,7 +67,7 @@ use App\Console\Commands\ZoomMeetingRecordings;
 use App\Console\Commands\ZoomMeetingDeleteRecordings;
 use App\Console\Commands\RecieveResourceImages;
 use App\Console\Commands\CheckWhatsAppActive;
-
+use App\Console\Commands\ParseLog;
 use App\Http\Controllers\MagentoController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\NotificationQueueController;
@@ -80,8 +80,11 @@ use App\Benchmark;
 use App\Task;
 use Carbon\Carbon;
 use App\CronJobReport;
+use App\Console\Commands\UpdateCronSchedule;
+use App\Console\Commands\RunErpEvents;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+
 
 class Kernel extends ConsoleKernel
 {
@@ -158,6 +161,9 @@ class Kernel extends ConsoleKernel
         ScheduleList::class,
         CheckWhatsAppActive::class,
         IncrementFrequencyWhatsappConfig::class,
+        UpdateCronSchedule::class,
+        RunErpEvents::class,
+        ParseLog::class,
     ];
 
     /**
@@ -292,6 +298,7 @@ class Kernel extends ConsoleKernel
         // Fetches Emails
         $schedule->command('fetch:emails')->everyFifteenMinutes();
         $schedule->command('check:emails-errors')->dailyAt('03:00')->timezone('Asia/Kolkata');
+        $schedule->command('parse:log')->dailyAt('03:00')->timezone('Asia/Kolkata');
         $schedule->command('document:email')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         $schedule->command('resource:image')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         $schedule->command('send:daily-planner-report')->dailyAt('08:00')->timezone('Asia/Kolkata');
@@ -321,6 +328,10 @@ class Kernel extends ConsoleKernel
 
 
         $schedule->command('send:queue-pending-chat-messages')->cron('*/3 * * * *');
+
+        // need to run this both cron every minutes
+        $schedule->command('cronschedule:update')->everyMinute();
+        $schedule->command('erpevents:run')->everyMinute();
     }
 
     /**

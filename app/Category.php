@@ -15,7 +15,7 @@ class Category extends Model
 
     protected $parent = 'parent_id';
 
-    public $fillable = [ 'title', 'parent_id', 'magento_id', 'show_all_id' ];
+    public $fillable = [ 'title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id' ];
 
     /**
      * Get the index name for the model.

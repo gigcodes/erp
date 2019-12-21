@@ -702,7 +702,10 @@ class PurchaseController extends Controller
         $new_products = array_reverse($new_products);
 
         $suppliers_all = array();
-        $suppliersQuery = DB::select('SELECT sp.id FROM `scraped_products` sp JOIN suppliers s ON s.scraper_name=sp.website inner join order_products op on op.sku = sp.sku where last_inventory_at > DATE_SUB(NOW(), INTERVAL s.inventory_lifetime DAY)');
+        $suppliersQuery = DB::select('SELECT sp.id FROM `scraped_products` sp
+            join scrapers sc on sc.scraper_name =  sp.website
+            JOIN suppliers s ON s.id=sc.supplier_id 
+            inner join order_products op on op.sku = sp.sku where last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)');
         $cnt = count($suppliersQuery);
 
         if ($cnt > 0 && !empty($productIds)) {

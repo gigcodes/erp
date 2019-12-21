@@ -229,21 +229,59 @@ class CategoryController extends Controller
 
         $categories = Category::where( 'id', '>', 1 )->where('parent_id', 0)->whereNotIn('id', [143,144])->get();
 
-        return view( 'category.references', compact( 'fillerCategories', 'categories' ) );
+        $allStatus = ["" => "N/A"] + \App\Helpers\StatusHelper::getStatus();
+
+        return view( 'category.references', compact( 'fillerCategories', 'categories','allStatus') );
     }
 
     public function saveReferences( Request $request )
     {
 
         $categories = $request->get( 'category' );
+        $info = $request->get( 'info' );
 
-        foreach ( $categories as $catId => $reference ) {
-            $category = Category::find( $catId );
-            $category->references = implode( ',', $reference );
-            $category->save();
+        if(!empty($info)) {
+            foreach ( $info as $catId => $reference ) {
+                list($catId,$reference) = explode("#",$reference);
+                $catId = str_replace("cat_", "", $catId);
+                $category = Category::find( $catId );
+                $category->references = $reference;
+                $category->save();
+            }
+
+        }else{
+            foreach ( $categories as $catId => $reference ) {
+                $catId = str_replace("cat_", "", $catId);
+                $category = Category::find( $catId );
+                $category->references = implode( ',', $reference );
+                $category->save();
+            }
         }
+
+
+
+        //if(request()->is("ajax")) {
+            return response()->json(["code" => 200]);
+        //}    
 
         return redirect()->back()->with( 'message', 'Category updated successfully!' );
     }
 
+    public function updateField(Request $request) 
+    {
+        $id = $request->get("id");
+        $field = $request->get("_f");
+        $value = $request->get("_v");
+
+        $category = Category::where("id" , $id)->first();
+        if($category) {
+            $category->{$field} = $value;
+            $category->save();
+
+            return response()->json(["code" => 200]);
+        }
+
+        return response()->json(["code" => 500]);
+
+    }
 }

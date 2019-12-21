@@ -2,40 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use App\Brand;
+use App\Category;
+use App\Helpers\ProductHelper;
+use App\Helpers\StatusHelper;
+use App\Image;
+use App\Imports\ProductsImport;
+use App\Loggers\LogScraper;
+use App\Product;
+use App\ScrapActivity;
+use App\ScrapCounts;
+use App\ScrapedProducts;
+use App\ScrapEntries;
 use App\ScrapeQueues;
+use App\Scraper;
+use App\ScraperResult;
+use App\ScrapStatistics;
+use App\Services\Products\AttachSupplier;
+use App\Services\Products\GnbProductsCreator;
+use App\Services\Products\ProductsCreator;
+use App\Services\Scrap\GoogleImageScraper;
+use App\Services\Scrap\PinterestScraper;
+use App\Setting;
+use App\Supplier;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Brand;
-use App\Category;
-use App\Helpers\ProductHelper;
-use App\Image;
-use App\Imports\ProductsImport;
-use App\Product;
-use App\ScrapCounts;
-use App\ScrapedProducts;
-use App\ScrapEntries;
-use App\ScrapActivity;
-use App\ScrapStatistics;
-use App\ScraperResult;
-use App\Services\Products\AttachSupplier;
-use App\Services\Scrap\GoogleImageScraper;
-use App\Services\Scrap\PinterestScraper;
-use App\Services\Products\GnbProductsCreator;
-use App\Supplier;
-use App\Loggers\LogScraper;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
-use Storage;
-use Carbon\Carbon;
-use App\Services\Products\ProductsCreator;
-use App\Setting;
-use App\Helpers\StatusHelper;
-use Validator;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-
+use Storage;
+use Validator;
 
 class ScrapController extends Controller
 {
@@ -574,7 +574,7 @@ class ScrapController extends Controller
 
             //Getting Supplier by Scraper name
             try {
-                $scraper = Supplier::where('scraper_name', $request->website)->first();
+                $scraper = Scraper::where('scraper_name', $request->website)->first();
                 $totalLinks = count($links);
                 $pendingLinks = count($pendingUrl);
                 $existingLinks = ($totalLinks - $pendingLinks);
@@ -609,8 +609,8 @@ class ScrapController extends Controller
          if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns) {
 
             $query = LogScraper::query();
-            
-            
+
+
             //global search website
             if (request('website') != null) {
                 $query->whereIn('website', $request->website);
@@ -672,7 +672,7 @@ class ScrapController extends Controller
             $paginate = (Setting::get('pagination') * 10);
             $logs = $query->paginate($paginate)->appends(request()->except(['page']));
             $response = request()->except(['page']);
-            
+
         }
         else {
             $response = '';
