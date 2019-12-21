@@ -46,6 +46,8 @@ Route::resource('product-location', 'ProductLocationController');
 Route::prefix('product')->middleware('auth')->group(static function () {
     Route::get('manual-crop/assign-products', 'Products\ManualCroppingController@assignProductsToUser');
     Route::resource('manual-crop', 'Products\ManualCroppingController');
+    Route::get('hscode', 'ProductController@hsCodeIndex');
+    Route::get('hscode/save-group', 'ProductController@saveGroupHsCode')->name('hscode.save.group');
 });
 
 Route::prefix('logging')->middleware('auth')->group(static function () {

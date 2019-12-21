@@ -41,6 +41,9 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use App\SimplyDutyCategory;
+use App\HsCodeGroup;
+use App\HsCodeGroupsCategoriesComposition;
 
 class ProductController extends Controller
 {
@@ -2310,5 +2313,71 @@ class ProductController extends Controller
         }
 
         return redirect()->route('customer.post.show',$request->customer_id)->withSuccess('Message Send For Queue');
+    }
+
+    public function hsCodeIndex(Request $request){
+        if($request->category || $request->keyword){
+            $products = Product::select('composition','category')->where('composition', 'LIKE', '%' . request('keyword') . '%')->where('category',$request->category[0])->groupBy('composition')->get();
+          
+           foreach ($products as $product) {
+
+            if($product->category != null){
+                $categoryTree = CategoryController::getCategoryTree($product->category);
+               if(is_array($categoryTree)){
+                
+                    $childCategory = implode(' ',$categoryTree);
+               }
+               
+               $cat = Category::findOrFail($request->category[0]);
+               $parentCategory = $cat->title;
+              
+               if($product->composition != null){
+                    $composition = strip_tags($product->composition);
+                    $compositions[] = str_replace(['&nbsp;','/span>'],' ',$composition);
+               }
+              
+            }
+               
+        }
+         $keyword = $request->keyword;   
+        }else{
+            $keyword = '';
+            $compositions = [];
+            $childCategory = [];
+            $parentCategory = '';
+        }
+        $selected_categories = $request->category ? $request->category : 1;
+
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2'])
+            ->selected($selected_categories)
+            ->renderAsDropdown();
+        $hscodes = SimplyDutyCategory::all();    
+        $categories = Category::all();
+        return view('products.hscode', compact('keyword','compositions','childCategory','parentCategory','category_selection','hscodes','categories'));
+    }
+
+    public function saveGroupHsCode(Request $request)
+    {
+        $name = $request->name;
+        $hscode = $request->hscode;
+        $compositions = $request->compositions; 
+        $category = Category::select('id','title')->where('title',$request->category)->first();
+        $categoryId = $category->id;
+
+        $group = new HsCodeGroup();
+        $group->hs_code_id = $hscode;
+        $group->name = $name;
+        $group->save();
+        $id = $group->id;
+
+        foreach ($compositions as $composition) {
+            $comp = new HsCodeGroupsCategoriesComposition();
+            $comp->hs_code_group_id = $id;
+            $comp->category_id = $categoryId;
+            $comp->composition = $composition;
+            $comp->save();
+        }
+
+        return response()->json(['success' => 'success'], 200);
     }
 }
