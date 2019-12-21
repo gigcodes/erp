@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Request;
 use App\SkuFormat;
 use App\Brand;
+use App\Category;
 
 class LogScraper extends Model
 {
@@ -358,5 +359,28 @@ class LogScraper extends Model
 
         // If we end up here, there is no regex set for this brand TODO: Will be an error in the future
         return "[warning] No brand found (" . $brand . ")\n";
+    }
+
+    public function skuFormat($sku, $brand)
+    {
+        $brand = Brand::where('name',$brand)->first();
+
+        $sku = SkuFormat::where('brand_id',$brand->id)->first();
+       
+       return $sku->sku_format; 
+    }
+
+    public function skuError($validation)
+    {
+        $validations = explode('[warning]', $validation);
+        if(is_array($validations)){
+           foreach ($validations as $validation) {
+                if(strpos($validation, 'SKU') !== false){
+                    return $validation;
+                }
+            } 
+        }
+        
+        return '';
     }
 }
