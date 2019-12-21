@@ -224,7 +224,7 @@ class ScrapStatisticsController extends Controller
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('31629987287', '971502609192', "SCRAPER-REMARK#".$name."\n".$remark);
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('919004780634', '971502609192', "SCRAPER-REMARK#".$name."\n".$remark);
                 if($includeAssignTo == 1) {
-                    $scraper = \App\Supplier::where("scraper_name",$name)->first();
+                    $scraper = \App\Scraper::where("scraper_name",$name)->first();
                     if($scraper) {
                         $sendPer = $scraper->scraperMadeBy;
                         if($sendPer) {

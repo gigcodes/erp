@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\ChatMessagePhrase;
+use App\ChatMessageWord;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class MostUsedWordsInChat extends Command
 {
@@ -38,12 +39,35 @@ class MostUsedWordsInChat extends Command
      */
     public function handle()
     {
-        // start to get the most used words from chat messages 
+        // start to get the most used words from chat messages
         $mostUsedWords = \App\Helpers\MessageHelper::getMostUsedWords();
-        \App\ChatMessageWord::truncate();
+        ChatMessagePhrase::truncate();
+        ChatMessageWord::truncate();
 
-        if(!empty($mostUsedWords)) {
-              \App\ChatMessageWord::insert($mostUsedWords);          
+        if (!empty($mostUsedWords["words"])) {
+            ChatMessageWord::insert($mostUsedWords["words"]);
+        }
+
+        // start to phrases
+        $allwords = ChatMessageWord::all();
+
+        $phrasesRecords = [];
+        foreach ($allwords as $words) {
+            $phrases = isset($mostUsedWords["phraces"][$words->word]) ? $mostUsedWords["phraces"][$words->word]["phraces"] : [];
+            if (!empty($phrases)) {
+                foreach ($phrases as $phrase) {
+                    echo '<pre>'; print_r($phrase); echo '</pre>';exit;
+                    $phrasesRecords[] = [
+                        "word_id" => $words->id,
+                        "phrase"  => $phrase["txt"],
+                        "chat_id" => $phrase["id"],
+                    ];
+                }
+            }
+        }
+
+        if (!empty($phrasesRecords)) {
+            ChatMessagePhrase::insert($phrasesRecords);
         }
 
     }
