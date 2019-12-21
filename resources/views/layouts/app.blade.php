@@ -1075,6 +1075,9 @@
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('simplyduty.calculation') }}">SimplyDuty Calculation</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('ProductController@hsCodeIndex') }}">HsCode Generator</a>
+                                            </li>
                                         </ul>
                                     </li>
                                     <li class="nav-item">
