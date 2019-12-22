@@ -40,16 +40,11 @@ class GetMostUsedWordsInCustomerMessages extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
-
-        ChatMessage::where('is_processed_for_keyword', 0)->where('customer_id', '>', '0')->chunk(1000, function($messages) {
+        ChatMessage::where('is_processed_for_keyword', 0)->where('customer_id', '>', '0')->chunk(1000, function ($messages) {
             foreach ($messages as $message) {
                 $text = $message->message;
 
-                if (!$text) {
+                if (empty($text)) {
                     $message->is_processed_for_keyword = 1;
                     $message->save();
                 }
@@ -67,18 +62,16 @@ class GetMostUsedWordsInCustomerMessages extends Command
 
             }
         });
-
-        $report->update(['end_time' => Carbon:: now()]);
     }
 
     private function addOrUpdateCountOfKeyword($word): void
     {
-
         $keyword = BulkCustomerRepliesKeyword::where('value', $word)->first();
 
-        if ($keyword) {
+        if ($keyword !== null) {
             ++$keyword->count;
             $keyword->save();
+            echo "UPDATED: " . $word . " " . $keyword->count . "\n";
             return;
         }
 
@@ -88,5 +81,8 @@ class GetMostUsedWordsInCustomerMessages extends Command
         $keyword->is_manual = 0;
         $keyword->count = 1;
         $keyword->save();
+
+        // NEW
+        echo "NEW: " . $word . "\n";
     }
 }
