@@ -72,7 +72,7 @@
 @include('chatbot::partial.create_question')
 <script type="text/javascript">
 	$("#create-keyword-btn").on("click",function() {
-		$("#create-keyword").modal("show");
+		$("#create-question").modal("show");
 	});
 	$(".form-save-btn").on("click",function(e) {
 		e.preventDefault();
@@ -81,9 +81,15 @@
 			type: form.attr("method"),
             url: form.attr("action"),
             data: form.serialize(),
-            success: function () {
-               toastr['success']('Keyword updated successfully!');
-               location.reload();
+            dataType : "json",
+            success: function (response) {
+               //location.reload();
+               if(response.code == 200) {
+               	  toastr['success']('data updated successfully!');
+               	  window.location.replace(response.redirect);
+               }else{
+               	  toastr['error']('data is not correct or duplicate!');
+               } 
             },
             error: function () {
                toastr['error']('Could not change module!');

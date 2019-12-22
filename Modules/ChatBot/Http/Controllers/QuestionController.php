@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Validator;
 use \App\ChatbotQuestion;
 use \App\ChatbotQuestionExample;
 
+use App\Library\Watson\Model as WatsonManager;
+
 class QuestionController extends Controller
 {
     /**
@@ -33,7 +35,7 @@ class QuestionController extends Controller
 
     public function save(Request $request)
     {
-        $params            = $request->all();
+        $params          = $request->all();
         $params["value"] = str_replace(" ", "_", $params["value"]);
 
         $validator = Validator::make($params, [
@@ -44,9 +46,11 @@ class QuestionController extends Controller
             return response()->json(["code" => 500, "error" => []]);
         }
 
-        $chatbotKeywords = ChatbotQuestion::create($params);
+        $chatbotQuestion = ChatbotQuestion::create($params);
 
-        return response()->json(["code" => 200, "data" => $chatbotKeywords]);
+        WatsonManager::pushQuestion($chatbotQuestion->id);
+
+        return response()->json(["code" => 200, "data" => $chatbotQuestion,"redirect" => route("chatbot.question.edit",[$chatbotQuestion->id])]);
     }
 
     public function destroy(Request $request, $id)
@@ -58,6 +62,7 @@ class QuestionController extends Controller
             if ($chatbotQuestion) {
                 ChatbotQuestionExample::where("chatbot_question_id", $id)->delete();
                 $chatbotQuestion->delete();
+                WatsonManager::deleteQuestion($chatbotQuestion->id);
                 return redirect()->back();
             }
 
@@ -76,8 +81,8 @@ class QuestionController extends Controller
     public function update(Request $request, $id)
     {
 
-        $params                       = $request->all();
-        $params["value"]            = str_replace(" ", "_", $params["value"]);
+        $params                        = $request->all();
+        $params["value"]               = str_replace(" ", "_", $params["value"]);
         $params["chatbot_question_id"] = $id;
 
         $chatbotQuestion = ChatbotQuestion::where("id", $id)->first();
@@ -87,11 +92,13 @@ class QuestionController extends Controller
             $chatbotQuestion->fill($params);
             $chatbotQuestion->save();
 
-            if(!empty($params["question"])) {
+            if (!empty($params["question"])) {
                 $chatbotQuestionExample = new ChatbotQuestionExample;
                 $chatbotQuestionExample->fill($params);
                 $chatbotQuestionExample->save();
             }
+
+            WatsonManager::pushQuestion($chatbotQuestion->id);
 
         }
 
@@ -104,6 +111,7 @@ class QuestionController extends Controller
         $cbValue = ChatbotQuestionExample::where("chatbot_question_id", $id)->where("id", $valueId)->first();
         if ($cbValue) {
             $cbValue->delete();
+            WatsonManager::pushQuestion($id);
         }
         return redirect()->back();
     }

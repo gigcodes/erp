@@ -15,7 +15,7 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
     Route::get('/', 'ChatBotController@index');
     
     Route::prefix('keyword')->group(function () {
-        Route::get('/', 'KeywordController@index');
+        Route::get('/', 'KeywordController@index')->name("chatbot.keyword.list");
         Route::post('/', 'KeywordController@save')->name("chatbot.keyword.save");
         Route::prefix('{id}')->group(function () {
             Route::get('/edit', 'KeywordController@edit')->name("chatbot.keyword.edit");
@@ -28,7 +28,7 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
     });
 
     Route::prefix('question')->group(function () {
-        Route::get('/', 'QuestionController@index');
+        Route::get('/', 'QuestionController@index')->name("chatbot.question.list");
         Route::post('/', 'QuestionController@save')->name("chatbot.question.save");
         Route::prefix('{id}')->group(function () {
             Route::get('/edit', 'QuestionController@edit')->name("chatbot.question.edit");

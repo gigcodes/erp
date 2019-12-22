@@ -2,6 +2,7 @@
 
 namespace Modules\ChatBot\Http\Controllers;
 
+use App\Library\Watson\Model as WatsonManager;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -44,9 +45,10 @@ class KeywordController extends Controller
             return response()->json(["code" => 500, "error" => []]);
         }
 
-        $chatbotKeywords = ChatbotKeyword::create($params);
+        $chatbotKeyword = ChatbotKeyword::create($params);
+        WatsonManager::pushKeyword($chatbotKeyword->id);
 
-        return response()->json(["code" => 200, "data" => $chatbotKeywords]);
+        return response()->json(["code" => 200, "data" => $chatbotKeyword, "redirect" => route("chatbot.keyword.edit", [$chatbotKeyword->id])]);
     }
 
     public function destroy(Request $request, $id)
@@ -58,6 +60,7 @@ class KeywordController extends Controller
             if ($chatbotKeyword) {
                 ChatbotKeywordValue::where("chatbot_keyword_id", $id)->delete();
                 $chatbotKeyword->delete();
+                WatsonManager::deleteKeyword($chatbotKeyword->id);
                 return redirect()->back();
             }
 
@@ -91,6 +94,8 @@ class KeywordController extends Controller
             $chatbotKeywordValue->fill($params);
             $chatbotKeywordValue->save();
 
+            WatsonManager::pushKeyword($chatbotKeyword->id);
+
         }
 
         return redirect()->back();
@@ -102,6 +107,8 @@ class KeywordController extends Controller
         $cbValue = ChatbotKeywordValue::where("chatbot_keyword_id", $id)->where("id", $valueId)->first();
         if ($cbValue) {
             $cbValue->delete();
+            WatsonManager::pushKeyword($id);
+
         }
         return redirect()->back();
     }
