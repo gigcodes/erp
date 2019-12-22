@@ -33,9 +33,7 @@ class LogScraperController extends Controller
         $logScrapper = LogScraper::query();
 
         // Filters
-        if (!empty($request->product_id)) {
-            $logScrapper->where('id', $request->product_id);
-        }
+        
 
        if (!empty($request->sku)) {
             $logScrapper->where('sku', 'LIKE', '%' . $request->sku . '%');

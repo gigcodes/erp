@@ -40,7 +40,6 @@
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
-                <th style="width: 2% !important;">ID</th>
                 <th style="width: 5% !important;">SKU</th>
                 <th style="width: 5% !important;">SKU Format</th>
                 <th style="width: 5% !important;">SKU Format Ex</th>
@@ -52,7 +51,6 @@
                 <th>Action</th>
             </tr>
             <tr>
-                <th style="width: 2% !important;"><input type="text" id="product_id"></th>
                 <th style="width: 5% !important;"><input type="text" id="sku"></th>
                 <th style="width: 5% !important;">&nbsp;</th>
                 <th style="width: 5% !important;">&nbsp;</th>
@@ -107,12 +105,11 @@
          });
     
     $(document).ready(function () {
-        $('#product_id,#sku,#category').on('blur', function () {
+        $('#sku,#category').on('blur', function () {
             $.ajax({
                 url: '/logging/sku-logs',
                 dataType: "json",
                 data: {
-                    product_id: $('#product_id').val(),
                     sku: $('#sku').val(),
                     brand: $('#brand').val(),
                     category: $('#category').val()
@@ -141,7 +138,6 @@
                 url: '/logging/sku-logs',
                 dataType: "json",
                 data: {
-                    product_id: $('#product_id').val(),
                     sku: $('#sku').val(),
                     brand: $('#brand').val(),
                     category: $('#category').val(),
