@@ -42,21 +42,25 @@ class GetMostUsedWordsInCustomerMessages extends Command
     {
         ChatMessage::where('is_processed_for_keyword', 0)->where('customer_id', '>', '0')->chunk(1000, function ($messages) {
             foreach ($messages as $message) {
+                // Set text
                 $text = $message->message;
 
-                if (empty($text)) {
-                    $message->is_processed_for_keyword = 1;
-                    $message->save();
-                }
+                // Set to processed
+                $message->is_processed_for_keyword = 1;
+                $message->save();
 
+                // Explode the words
                 $words = explode(' ', $text);
 
                 foreach ($words as $word) {
+                    $word = preg_replace('/[^\w]/', '', $word);
+                    var_dump($word);
+
                     if (strlen(trim($word)) <= 3) {
                         continue;
                     }
 
-                    $this->addOrUpdateCountOfKeyword(trim($word));
+                    //$this->addOrUpdateCountOfKeyword(trim($word));
 
                 }
 
@@ -69,7 +73,7 @@ class GetMostUsedWordsInCustomerMessages extends Command
         $keyword = BulkCustomerRepliesKeyword::where('value', $word)->first();
 
         if ($keyword !== null) {
-            ++$keyword->count;
+            $keyword->count = (int) $keyword->count + 1;
             $keyword->save();
             echo "UPDATED: " . $word . " " . $keyword->count . "\n";
             return;
