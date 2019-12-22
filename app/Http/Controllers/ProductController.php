@@ -2332,19 +2332,35 @@ class ProductController extends Controller
                $parentCategory = $cat->title;
               
                if($product->composition != null){
-                    $composition = strip_tags($product->composition);
-                    $compositions[] = str_replace(['&nbsp;','/span>'],' ',$composition);
+                    if($request->group == 'on'){
+                        $composition = strip_tags($product->composition);
+                        $compositions[] = str_replace(['&nbsp;','/span>'],' ',$composition);
+                    }else{
+                       if($product->isGroupExist($product->category,$product->composition,$parentCategory,$childCategory)){
+                            $composition = strip_tags($product->composition);
+                            $compositions[] = str_replace(['&nbsp;','/span>'],' ',$composition);
+                        } 
+                    }
+                    
                }
               
             }
                
         }
-         $keyword = $request->keyword;   
+        if(!isset($compositions)){
+            $compositions = [];
+            $childCategory = [];
+            $parentCategory = '';
+        }
+         $keyword = $request->keyword;
+         $groupSelected = $request->group;   
+        
         }else{
             $keyword = '';
             $compositions = [];
             $childCategory = [];
             $parentCategory = '';
+            $groupSelected = '';
         }
         $selected_categories = $request->category ? $request->category : 1;
 
@@ -2353,7 +2369,9 @@ class ProductController extends Controller
             ->renderAsDropdown();
         $hscodes = SimplyDutyCategory::all();    
         $categories = Category::all();
-        return view('products.hscode', compact('keyword','compositions','childCategory','parentCategory','category_selection','hscodes','categories'));
+        $groups = HsCodeGroup::all();
+        
+        return view('products.hscode', compact('keyword','compositions','childCategory','parentCategory','category_selection','hscodes','categories','groups','groupSelected'));
     }
 
     public function saveGroupHsCode(Request $request)
@@ -2364,10 +2382,16 @@ class ProductController extends Controller
         $category = Category::select('id','title')->where('title',$request->category)->first();
         $categoryId = $category->id;
 
-        $group = new HsCodeGroup();
-        $group->hs_code_id = $hscode;
-        $group->name = $name;
-        $group->save();
+        if($request->existing_group != null){
+            $group = HsCodeGroup::find($request->existing_group);
+        }else{
+            $group = new HsCodeGroup();
+            $group->hs_code_id = $hscode;
+            $group->name = $name;
+            $group->composition = $request->composition;
+            $group->save();
+        }
+        
         $id = $group->id;
 
         foreach ($compositions as $composition) {

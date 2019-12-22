@@ -622,7 +622,33 @@ class Product extends Model
         }
     }
 
-    public function commonComposition($category,$composition)
+    // public function commonComposition($category,$composition)
+    // {
+
+    //     $hscodeList = HsCodeGroupsCategoriesComposition::where('category_id', $category)->where('composition',$composition)->first();
+
+    //     if($hscodeList != null && $hscodeList != '')
+    //     {
+    //         $groupId = $hscodeList->hs_code_group_id;
+    //         $group = HsCodeGroup::find($groupId);
+    //         $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+    //         if($hscodeDetails != null && $hscodeDetails != ''){
+    //             if($hscodeDetails->correct_composition != null){
+    //                 return $hscodeDetails->correct_composition;
+    //             }else{
+    //                 return $composition;
+    //             }
+                
+    //         }else{
+    //             return $composition;
+    //         }
+    //     }else{
+    //         return $composition;
+    //     }
+
+    // }
+
+     public function commonComposition($category,$composition)
     {
 
         $hscodeList = HsCodeGroupsCategoriesComposition::where('category_id', $category)->where('composition',$composition)->first();
@@ -631,16 +657,20 @@ class Product extends Model
         {
             $groupId = $hscodeList->hs_code_group_id;
             $group = HsCodeGroup::find($groupId);
-            $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
-            if($hscodeDetails != null && $hscodeDetails != ''){
-                if($hscodeDetails->correct_composition != null){
-                    return $hscodeDetails->correct_composition;
+            if($group != null && $group != '' && $group->composition != null){
+                return $group->composition;
+            }else{
+                $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+                if($hscodeDetails != null && $hscodeDetails != ''){
+                    if($hscodeDetails->correct_composition != null){
+                        return $hscodeDetails->correct_composition;
+                    }else{
+                        return $composition;
+                    }
+                
                 }else{
                     return $composition;
                 }
-                
-            }else{
-                return $composition;
             }
         }else{
             return $composition;
@@ -669,6 +699,22 @@ class Product extends Model
         }else{
             return false;
         }
+    }
+
+    public function isGroupExist($category,$composition,$parentCategory,$childCategory){
+        $composition = strip_tags($composition);
+        $composition = str_replace(['&nbsp;','/span>'],' ',$composition);
+
+        $hscodeList = HsCodeGroupsCategoriesComposition::where('category_id', $category)->where('composition', 'LIKE', '%'.$composition.'%')->first();
+
+        if($hscodeList != null && $hscodeList != '')
+        {
+            
+            return false;
+        }else{
+          
+            return true;
+        }      
     }
 
 }

@@ -1,4 +1,4 @@
-<div id="groupModal" class="modal fade" role="dialog">
+<div id="editGroupModal{{ $group->id }}" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
     <!-- Modal content-->
@@ -7,7 +7,7 @@
         @csrf
 
         <div class="modal-header">
-          <h4 class="modal-title">Send Message in Bulk</h4>
+          <h4 class="modal-title">Edit Group</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
