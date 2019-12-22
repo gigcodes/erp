@@ -272,7 +272,7 @@
                                             <tr colspan="3">
                                                 <td>{{ $phrase->phrase }}</td>
                                                 <td>
-                                                    <button data-id="{{ $phrase->phrase }}" class="btn btn-image get-chat-details"><img src="/images/chat.png"></button>
+                                                    <button data-id="{{ $phrase->chat_id }}" class="btn btn-image get-chat-details"><img src="/images/chat.png"></button>
                                                 </td>
                                             </tr>
                                          @endforeach
@@ -290,7 +290,7 @@
     </div>
 
     @include('autoreplies.partials.autoreply-modals')
-
+    @include('partials.chat-history')
 @endsection
 
 @section('scripts')
@@ -394,7 +394,46 @@
         });
 
         $(document).on("click",".get-chat-details",function() {
-            
+            var chatId = $(this).data("id");
+            $.ajax({
+                type: 'GET',
+                url: "autoreply/replied-chat/"+chatId,
+                dataType : "json"
+            }).done(function (response) {
+                var html = "";
+                $.each(response.data,function(k,v) {
+                    html += '<div class="bubble">';
+                    html += '<div class="txt">';
+                    html += '<p class="name"></p>';
+                    html += '<p class="message" data-message="'+v.message+'">'+v.message+'</p><br>';
+                    html += '<span class="timestamp">'+v.created_at+'</span><span>';
+                    html += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 set-autoreply" data-q="'+response.question+'" data-a="'+v.message+'">+ Auto Reply</a></span>';
+                    html += '</div>';
+                    html += '</div>';
+                });
+
+                $("#chat-list-history").find(".modal-body").find(".speech-wrapper").html(html);
+                $("#chat-list-history").find(".modal-title").html(response.question);
+                $("#chat-list-history").modal("show");
+                
+
+            }).fail(function (response) {
+            });
+        });
+
+        $(document).on("click",".set-autoreply",function() {
+            $.ajax({
+                type: 'POST',
+                url: "autoreply/save-by-question",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    q: $(this).data("q"),
+                    a: $(this).data("a")
+                }
+            }).done(function () {
+                toastr['success']('Auto Reply added successfully', 'success');
+            }).fail(function (response) {
+            });
         });
 
     </script>
