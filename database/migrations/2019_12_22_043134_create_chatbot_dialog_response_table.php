@@ -31,7 +31,7 @@ class CreateChatbotDialogResponseTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('chatbot_dialog_response');
+		Schema::drop('chatbot_dialog_responses');
 	}
 
 }

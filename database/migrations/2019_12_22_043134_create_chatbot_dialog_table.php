@@ -20,6 +20,7 @@ class CreateChatbotDialogTable extends Migration {
 			$table->string('title')->nullable();
 			$table->integer('parent_id')->default(0);
 			$table->string('match_condition');
+			$table->string('workspace_id')->nullable();
 			$table->timestamps();
 		});
 	}
@@ -32,7 +33,7 @@ class CreateChatbotDialogTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('chatbot_dialog');
+		Schema::drop('chatbot_dialogs');
 	}
 
 }
