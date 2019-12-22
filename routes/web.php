@@ -48,6 +48,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
     Route::resource('manual-crop', 'Products\ManualCroppingController');
     Route::get('hscode', 'ProductController@hsCodeIndex');
     Route::post('hscode/save-group', 'ProductController@saveGroupHsCode')->name('hscode.save.group');
+    Route::post('hscode/edit-group', 'ProductController@editGroup')->name('hscode.edit.group');
 });
 
 Route::prefix('logging')->middleware('auth')->group(static function () {

@@ -22,7 +22,7 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Hs Code Generator ({{ count($compositions) }})</h2>
+            <h2 class="page-heading">Hs Code Generator ({{ $pendingCategoryCount }}) ({{ count($compositions) }})</h2>
              <div class="pull-right">
 
                 <button type="button" class="btn btn-secondary" onclick="createGroup()">Group</button>
@@ -50,19 +50,20 @@
                                     <th>Hscode</th>
                                     <th>Composition</th>
                                     <th>Composition Count</th>
-                                    <!-- <th>Edit</th> -->
+                                    <th>Edit</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 @foreach($groups as $group)    
                                 <tr>
-                                    <td>{{ $group->name }}</td>
-                                    <td>{{ $group->hsCode->code }}</td>
-                                    <td>{{ $group->composition }}</td>
+                                    <td><span id="na{{ $group->id }}">{{ $group->name }}</span></td>
+                                    <td><span id="hs{{ $group->id }}">{{ $group->hsCode->code }}</span></td>
+                                    <td><span id="com{{ $group->id }}">{{ $group->composition }}<span></td>
                                     <td>{{ $group->groupComposition->count() }}</td>
-                                    <!-- <td><button onclick="editGroup({{ $group->id }})">Edit</button> -->
+                                    <td><button onclick="editGroup({{ $group->id }})" class="btn btn-secondary">Edit</button>
                                     </td>
                                 </tr>
+                                @include('products.partials.edit-Group')
                                 @endforeach
                                 </tbody>
                             </table>
@@ -145,7 +146,7 @@
     function submitGroup(){
         
         hscode = $('#hscode').val();
-        name = $('#name').val();
+        name = "{{ $childCategory }}";
         composition = $('#composition').val();
         category = "{{ $parentCategory }}";
         existing_group = $('#existing_group').val();
@@ -188,6 +189,38 @@
 
 
     function editGroup(id){
+        $('#editGroupModal'+id).modal('show');
+    }
+
+    function submitGroupChange(id){
+        src = "{{ route('hscode.edit.group') }}";
+        hscode = $('#hscode'+id).val();
+        name = $('#name'+id).val();
+        composition = $('#composition'+id).val();
+        $.ajax({
+                url: src,
+                type: "POST",
+                dataType: "json",
+                data: {
+                    id : id,
+                    hscode : hscode,
+                    name : name,
+                    composition : composition,
+                    "_token": "{{ csrf_token() }}",
+                },
+                beforeSend: function () {
+                    $('#editGroupModal'+id).modal('hide');
+                    $("#loading-image").show();
+                },
+
+            }).done(function (data) {
+                $("#loading-image").hide();
+                $('#na'+id).text(name);
+                $('#hs'+id).text(hscode);
+                $('#com'+id).text(composition);
+                
+                
+            });         
 
     }
 

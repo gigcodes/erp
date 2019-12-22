@@ -3,49 +3,33 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="{{ route('dubbizle.bulk.whatsapp') }}" method="POST">
-        @csrf
-
         <div class="modal-header">
           <h4 class="modal-title">Edit Group</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <strong>HsCode:</strong>
-            <select class="form-control selectpicker" name="group" data-live-search="true" id="hscode" required>
-              <option value="">Select HsCode</option>
-              @foreach ($hscodes as $hscode)
-                <option value="{{ $hscode->id }}">{{ $hscode->code }}</option>
-              @endforeach
-            </select>
-
-          </div>
-
-          <div class="form-group">
             <strong>Name:</strong>
-            <input type="text" name="name" class="form-control" id="name" required>
+            <input type="text" name="composition" class="form-control" id="name{{ $group->id }}" value="{{ $group->name }}">
           </div>
 
           <div class="form-group">
-            <strong>Compositon:</strong>
-            <input type="text" name="composition" class="form-control" id="composition" required>
+            <strong>Composition:</strong>
+            <input type="text" name="composition" class="form-control" id="composition{{ $group->id }}" value="{{ $group->composition }}">
           </div>
-          
-          <div class="form-group">
-            <strong>Existing Group:</strong>
-          <select class="form-control selectpicker" name="existing_group" data-live-search="true" id="existing_group" required>
-              <option value="">Select Group</option>
-              @foreach ($groups as $group)
-                <option value="{{ $group->id }}">{{ $group->name }}</option>
+
+          <strong>HsCode:</strong>
+            <select class="form-control selectpicker" name="group" data-live-search="true" id="hscode{{ $group->id }}" required>
+              <option>Select HsCode</option>
+              @foreach ($hscodes as $hscode)
+                <option value="{{ $hscode->id }}" @if($hscode->id == $group->hs_code_id) selected @endif>{{ $hscode->code }}</option>
               @endforeach
             </select>
-          </div>
 
-        </div>
+          </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-secondary" onclick="submitGroup()">Send</button>
+          <button type="button" class="btn btn-secondary" onclick="submitGroupChange({{ $group->id }})">Edit</button>
         </div>
       </form>
     </div>

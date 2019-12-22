@@ -2316,6 +2316,7 @@ class ProductController extends Controller
     }
 
     public function hsCodeIndex(Request $request){
+
         if($request->category || $request->keyword){
             $products = Product::select('composition','category')->where('composition', 'LIKE', '%' . request('keyword') . '%')->where('category',$request->category[0])->groupBy('composition')->get();
           
@@ -2327,10 +2328,10 @@ class ProductController extends Controller
                 
                     $childCategory = implode(' > ',$categoryTree);
                }
-               
+              
                $cat = Category::findOrFail($request->category[0]);
                $parentCategory = $cat->title;
-              
+               
                if($product->composition != null){
                     if($request->group == 'on'){
                         $composition = strip_tags($product->composition);
@@ -2339,6 +2340,7 @@ class ProductController extends Controller
                        if($product->isGroupExist($product->category,$product->composition,$parentCategory,$childCategory)){
                             $composition = strip_tags($product->composition);
                             $compositions[] = str_replace(['&nbsp;','/span>'],' ',$composition);
+
                         } 
                     }
                     
@@ -2370,8 +2372,11 @@ class ProductController extends Controller
         $hscodes = SimplyDutyCategory::all();    
         $categories = Category::all();
         $groups = HsCodeGroup::all();
+         $cate = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
+        $pendingCategory = Category::all()->except($cate);
+        $pendingCategoryCount = $pendingCategory->count();
         
-        return view('products.hscode', compact('keyword','compositions','childCategory','parentCategory','category_selection','hscodes','categories','groups','groupSelected'));
+        return view('products.hscode', compact('keyword','compositions','childCategory','parentCategory','category_selection','hscodes','categories','groups','groupSelected','pendingCategoryCount'));
     }
 
     public function saveGroupHsCode(Request $request)
@@ -2381,13 +2386,13 @@ class ProductController extends Controller
         $compositions = $request->compositions; 
         $category = Category::select('id','title')->where('title',$request->category)->first();
         $categoryId = $category->id;
-
+        
         if($request->existing_group != null){
             $group = HsCodeGroup::find($request->existing_group);
         }else{
             $group = new HsCodeGroup();
             $group->hs_code_id = $hscode;
-            $group->name = $name;
+            $group->name = $name.' '.$category->title;
             $group->composition = $request->composition;
             $group->save();
         }
@@ -2401,6 +2406,18 @@ class ProductController extends Controller
             $comp->composition = $composition;
             $comp->save();
         }
+
+        return response()->json(['success' => 'success'], 200);
+    }
+
+    public function editGroup(Request $request)
+    {
+
+        $group = HsCodeGroup::find($request->id);
+        $group->hs_code_id = $request->hscode;
+        $group->name = $request->name;
+        $group->composition = $request->composition;
+        $group->save();
 
         return response()->json(['success' => 'success'], 200);
     }

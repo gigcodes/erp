@@ -14,17 +14,12 @@
           <div class="form-group">
             <strong>HsCode:</strong>
             <select class="form-control selectpicker" name="group" data-live-search="true" id="hscode" required>
-              <option value="">Select HsCode</option>
+              <option>Select HsCode</option>
               @foreach ($hscodes as $hscode)
                 <option value="{{ $hscode->id }}">{{ $hscode->code }}</option>
               @endforeach
             </select>
 
-          </div>
-
-          <div class="form-group">
-            <strong>Name:</strong>
-            <input type="text" name="name" class="form-control" id="name" required>
           </div>
 
           <div class="form-group">
