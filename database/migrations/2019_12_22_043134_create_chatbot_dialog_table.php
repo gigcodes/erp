@@ -12,7 +12,7 @@ class CreateChatbotDialogTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('chatbot_dialog', function(Blueprint $table)
+		Schema::create('chatbot_dialogs', function(Blueprint $table)
 		{
 			$table->engine = 'MyISAM';
 			$table->integer('id', true);
