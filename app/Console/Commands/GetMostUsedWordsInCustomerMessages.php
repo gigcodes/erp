@@ -40,7 +40,8 @@ class GetMostUsedWordsInCustomerMessages extends Command
      */
     public function handle()
     {
-        ChatMessage::where('is_processed_for_keyword', 0)->where('customer_id', '>', '0')->chunk(1000, function ($messages) {
+        $messages = ChatMessage::where('is_processed_for_keyword', 0)->whereNotNull('number')->where('customer_id', '>', '0')->limit(1000)->get();
+        if ($messages != null) {
             foreach ($messages as $message) {
                 // Set text
                 $text = $message->message;
@@ -61,11 +62,9 @@ class GetMostUsedWordsInCustomerMessages extends Command
                     }
 
                     //$this->addOrUpdateCountOfKeyword(trim($word));
-
                 }
-
             }
-        });
+        }
     }
 
     private function addOrUpdateCountOfKeyword($word): void
@@ -73,7 +72,7 @@ class GetMostUsedWordsInCustomerMessages extends Command
         $keyword = BulkCustomerRepliesKeyword::where('value', $word)->first();
 
         if ($keyword !== null) {
-            $keyword->count = (int) $keyword->count + 1;
+            $keyword->count = (int)$keyword->count + 1;
             $keyword->save();
             echo "UPDATED: " . $word . " " . $keyword->count . "\n";
             return;
