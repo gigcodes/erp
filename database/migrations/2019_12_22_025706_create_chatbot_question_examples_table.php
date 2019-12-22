@@ -14,6 +14,7 @@ class CreateChatbotQuestionExamplesTable extends Migration {
 	{
 		Schema::create('chatbot_question_examples', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
 			$table->integer('id', true);
 			$table->string('question');
 			$table->integer('chatbot_question_id')->nullable();

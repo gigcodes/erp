@@ -14,6 +14,7 @@ class CreateChatbotSettingsTable extends Migration {
 	{
 		Schema::create('chatbot_settings', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
 			$table->integer('id', true);
 			$table->string('chat_name')->nullable();
 			$table->string('vendor');

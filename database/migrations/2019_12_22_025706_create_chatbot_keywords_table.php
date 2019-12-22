@@ -14,6 +14,7 @@ class CreateChatbotKeywordsTable extends Migration {
 	{
 		Schema::create('chatbot_keywords', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
 			$table->integer('id', true);
 			$table->string('keyword');
 			$table->string('workspace_id')->nullable();
