@@ -622,4 +622,53 @@ class Product extends Model
         }
     }
 
+    public function commonComposition($category,$composition)
+    {
+
+        $hscodeList = HsCodeGroupsCategoriesComposition::where('category_id', $category)->where('composition',$composition)->first();
+
+        if($hscodeList != null && $hscodeList != '')
+        {
+            $groupId = $hscodeList->hs_code_group_id;
+            $group = HsCodeGroup::find($groupId);
+            $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+            if($hscodeDetails != null && $hscodeDetails != ''){
+                if($hscodeDetails->correct_composition != null){
+                    return $hscodeDetails->correct_composition;
+                }else{
+                    return $composition;
+                }
+                
+            }else{
+                return $composition;
+            }
+        }else{
+            return $composition;
+        }
+
+    }
+
+    public function hsCode($category,$composition){
+        $hscodeList = HsCodeGroupsCategoriesComposition::where('category_id', $category)->where('composition',$composition)->first();
+
+        if($hscodeList != null && $hscodeList != '')
+        {
+            $groupId = $hscodeList->hs_code_group_id;
+            $group = HsCodeGroup::find($groupId);
+            $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+            if($hscodeDetails != null && $hscodeDetails != ''){
+                if($hscodeDetails->correct_composition != null){
+                    return $hscodeDetails->code;
+                }else{
+                    return false;
+                }
+                
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
 }
