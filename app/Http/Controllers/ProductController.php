@@ -2360,7 +2360,7 @@ class ProductController extends Controller
         }else{
             $keyword = '';
             $compositions = [];
-            $childCategory = [];
+            $childCategory = '';
             $parentCategory = '';
             $groupSelected = '';
         }
@@ -2372,7 +2372,7 @@ class ProductController extends Controller
         $hscodes = SimplyDutyCategory::all();    
         $categories = Category::all();
         $groups = HsCodeGroup::all();
-         $cate = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
+        $cate = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
         $pendingCategory = Category::all()->except($cate);
         $pendingCategoryCount = $pendingCategory->count();
         
@@ -2386,7 +2386,7 @@ class ProductController extends Controller
         $compositions = $request->compositions; 
         $category = Category::select('id','title')->where('title',$request->category)->first();
         $categoryId = $category->id;
-        
+
         if($request->existing_group != null){
             $group = HsCodeGroup::find($request->existing_group);
         }else{
