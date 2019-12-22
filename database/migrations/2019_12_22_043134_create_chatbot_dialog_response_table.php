@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateChatMessagePhrasesTable extends Migration {
+class CreateChatbotDialogResponseTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,13 +12,14 @@ class CreateChatMessagePhrasesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('chat_message_phrases', function(Blueprint $table)
+		Schema::create('chatbot_dialog_responses', function(Blueprint $table)
 		{
 			$table->engine = 'MyISAM';
 			$table->integer('id', true);
-			$table->text('phrase', 65535);
-			$table->integer('total')->default(0);
-			$table->integer('word_id')->nullable();
+			$table->string('response_type');
+			$table->text('value', 65535);
+			$table->integer('message_to_human_agent')->default(0);
+			$table->integer('chatbot_dialog_id');
 		});
 	}
 
@@ -30,7 +31,7 @@ class CreateChatMessagePhrasesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('chat_message_phrases');
+		Schema::drop('chatbot_dialog_responses');
 	}
 
 }
