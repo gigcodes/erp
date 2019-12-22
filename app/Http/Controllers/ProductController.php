@@ -2351,7 +2351,7 @@ class ProductController extends Controller
         }
         if(!isset($compositions)){
             $compositions = [];
-            $childCategory = [];
+            $childCategory = '';
             $parentCategory = '';
         }
          $keyword = $request->keyword;
