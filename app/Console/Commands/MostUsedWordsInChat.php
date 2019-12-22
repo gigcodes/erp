@@ -20,7 +20,7 @@ class MostUsedWordsInChat extends Command
      *
      * @var string
      */
-    protected $description = 'Send message to admin if scraper is not running.';
+    protected $description = '';
 
     /**
      * Create a new command instance.
@@ -48,12 +48,15 @@ class MostUsedWordsInChat extends Command
             ChatMessageWord::insert($mostUsedWords["words"]);
         }
 
+        // Dump
+        // var_dump($mostUsedWords);
+
         // start to phrases
         $allwords = ChatMessageWord::all();
 
         $phrasesRecords = [];
         foreach ($allwords as $words) {
-            $phrases = isset($mostUsedWords["phraces"][$words->word]) ? $mostUsedWords["phraces"][$words->word]["phraces"] : [];
+            $phrases = isset($mostUsedWords["phrases"][$words->word]) ? $mostUsedWords["phrases"][$words->word]["phrases"] : [];
             if (!empty($phrases)) {
                 foreach ($phrases as $phrase) {
                     /*$phrasesRecords[] = [
