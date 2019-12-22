@@ -40,4 +40,17 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         });
     });
 
+    Route::prefix('dialog')->group(function () {
+        Route::get('/', 'DialogController@index')->name("chatbot.dialog.list");
+        Route::post('/', 'DialogController@save')->name("chatbot.dialog.save");
+        Route::prefix('{id}')->group(function () {
+            Route::get('/edit', 'DialogController@edit')->name("chatbot.dialog.edit");
+            Route::post('/edit', 'DialogController@update')->name("chatbot.dialog.update");
+            Route::get('/delete', 'DialogController@destroy')->name("chatbot.dialog.delete");
+            Route::prefix('values/{valueId}')->group(function () {
+                Route::get('/delete', 'DialogController@destroyValue')->name("chatbot.dialog-response.delete");
+            });
+        });
+    });
+
 });

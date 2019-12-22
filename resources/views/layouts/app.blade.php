@@ -957,6 +957,9 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Question</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.dialog.list')}}">Dialog</a>
+                                        </li>
                                     </ul>
                                 </li>
                             </ul>

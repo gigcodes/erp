@@ -2,11 +2,12 @@
 
 namespace App\Library\Watson;
 
+use App\ChatbotDialog;
 use App\ChatbotKeyword;
+use App\ChatbotQuestion;
+use App\Library\Watson\Language\Workspaces\V1\DialogService;
 use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
 use App\Library\Watson\Language\Workspaces\V1\IntentService;
-use App\ChatbotQuestionExample;
-use App\ChatbotQuestion;
 
 class Model
 {
@@ -71,15 +72,15 @@ class Model
 
     public static function pushQuestion($id)
     {
-        $question     = ChatbotQuestion::where("id", $id)->first();
+        $question    = ChatbotQuestion::where("id", $id)->first();
         $workSpaceId = self::getWorkspaceId();
 
         if ($question) {
 
-            $storeParams                = [];
-            $storeParams["intent"]      = $question->value;
-            $values                     = $question->chatbotQuestionExamples()->get()->pluck("question", "question")->toArray();
-            $storeParams["examples"]      = [];
+            $storeParams             = [];
+            $storeParams["intent"]   = $question->value;
+            $values                  = $question->chatbotQuestionExamples()->get()->pluck("question", "question")->toArray();
+            $storeParams["examples"] = [];
             foreach ($values as $value) {
                 $storeParams["examples"][] = ["text" => $value];
             }
@@ -89,11 +90,10 @@ class Model
                 "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
             );
 
-
             if (!empty($question->workspace_id)) {
                 $result = $watson->update($question->workspace_id, $question->value, $storeParams);
             } else {
-                $result                = $watson->create($workSpaceId, $storeParams);
+                $result                 = $watson->create($workSpaceId, $storeParams);
                 $question->workspace_id = $workSpaceId;
                 $question->save();
             }
@@ -116,6 +116,64 @@ class Model
             );
 
             $response = $watson->delete($question->workspace_id, $question->value);
+        }
+
+        return true;
+
+    }
+
+    public static function pushDialog($id)
+    {
+        $dialog = ChatbotDialog::where("id", $id)->first();
+
+        $workSpaceId = self::getWorkspaceId();
+
+        if ($dialog) {
+
+            $storeParams                = [];
+            $storeParams["dialog_node"] = $dialog->name;
+            $storeParams["conditions"]  = $dialog->match_condition;
+            $storeParams["title"]       = $dialog->title;
+            $values                     = $dialog->response()->get();
+
+            $genericOutput = [];
+            foreach ($values as $value) {
+                $genericOutput["response_type"] = $value->response_type;
+                $genericOutput["values"][]      = ["text" => $value->value];
+            }
+
+            $watson = new DialogService(
+                "apiKey",
+                "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+            );
+
+            if (!empty($dialog->workspace_id)) {
+                $storeParams["output"]["generic"][] = $genericOutput;
+                $result = $watson->update($dialog->workspace_id, $dialog->name, $storeParams);
+            } else {
+                $result               = $watson->create($workSpaceId, $storeParams);
+                $dialog->workspace_id = $workSpaceId;
+                $dialog->save();
+            }
+        }
+
+        return true;
+
+    }
+
+    public static function deleteDialog($id)
+    {
+
+        $dialog = ChatbotDialog::where("id", $id)->first();
+
+        if (!empty($dialog) && !empty($dialog->workspace_id)) {
+
+            $watson = new DialogService(
+                "apiKey",
+                "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+            );
+
+            $response = $watson->delete($dialog->workspace_id, $dialog->name);
         }
 
         return true;
