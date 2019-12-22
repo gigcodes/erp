@@ -692,7 +692,8 @@ class DevelopmentController extends Controller
 
         $module = $request->get('module');
         if($request->response == 1){
-            $reference = md5($request->reference);
+
+            $reference = md5(strtolower($request->reference));
             //Check if reference exist
             $existReference = DeveloperTask::where('reference',$reference)->first();
             if($existReference != null || $existReference != ''){

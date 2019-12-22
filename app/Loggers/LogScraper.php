@@ -434,9 +434,9 @@ class LogScraper extends Model
         return $this->hasOne(Supplier::class,'scraper_name','website');
     }
 
-    public function taskType($supplier,$category){
-        $string = $supplier.$category;
-        $reference = md5($string);
+    public function taskType($supplier,$category,$brand){
+        $string = $supplier.$category.$brand;
+        $reference = md5(strtolower($string));
         $issue = DeveloperTask::where('reference',$reference)->first();
         if($issue != null && $issue != ''){
             if($issue->status == 'Done'){

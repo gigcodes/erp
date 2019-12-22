@@ -8,10 +8,10 @@
         <td style="width: 20% !important;">{{ $logScrapper->website }}</td>
         <td>{{ $logScrapper->skuError( $logScrapper->validation_result) }}</td>
         <td>{{ $logScrapper->created_at->format('d-M-Y H:i:s') }}</td>
-        <td>@if($logScrapper->taskType($logScrapper->website,$logScrapper->unserialize($logScrapper->category)) == false) 
-                <button onclick="addTask('{{ $logScrapper->website }}' , '{{ $logScrapper->unserialize($logScrapper->category) }}','{{ $logScrapper->sku }}')" class="btn btn-secondary">Add Issue</button>
+        <td>@if($logScrapper->taskType($logScrapper->website,$logScrapper->unserialize($logScrapper->category),$logScrapper->brand) == false) 
+                <button onclick="addTask('{{ $logScrapper->website }}' , '{{ $logScrapper->unserialize($logScrapper->category) }}','{{ $logScrapper->sku }}','{{ $logScrapper->brand }}')" class="btn btn-secondary">Add Issue</button>
             @else
-               {{ $logScrapper->taskType($logScrapper->website,$logScrapper->unserialize($logScrapper->category)) }}
+               {{ $logScrapper->taskType($logScrapper->website,$logScrapper->unserialize($logScrapper->category),$logScrapper->brand) }}
             @endif
             </td>
     </tr>

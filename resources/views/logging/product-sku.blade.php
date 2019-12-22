@@ -28,10 +28,10 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">SKU log (<span id="count">{{ $failed }}</span>)</h2>
             <div class="pull-right">
-                <!-- <button type="button" class="btn btn-secondary" onclick="sendMulti()" style="display: none;" id="nulti">Send Selected</button> -->
-                <button type="button" class="btn btn-secondary">Failed <span id="count">{{ $failed }}</span></button>
+                <button type="button" class="btn btn-secondary" onclick="sendMulti()" style="display: none;" id="nulti">Send Selected</button>
+                <button type="button" class="btn btn-secondary">Total Failed <span id="count">{{ $failed }}</span></button>
                 <button type="button" class="btn btn-secondary">Number of open task {{ $pendingIssues }}</button>
-                <button type="button" class="btn btn-secondary">Last Created task @if($lastCreatedIssue->created_at) {{ $lastCreatedIssue->created_at->format('d-m-Y H:i:s') }} @endif</button>
+                <button type="button" class="btn btn-secondary">Last Created task @if($lastCreatedIssue) {{ $lastCreatedIssue->created_at->format('d-m-Y H:i:s') }} @endif</button>
                 <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png"/></button>
             </div>
 
@@ -66,13 +66,21 @@
                                 @endforeach
                             </optgroup>
                         </select></th>
-                <th style="width: 20% !important;">{!! $category_selection !!}</th>
+                <th style="width: 20% !important;"><select data-placeholder="Select Category" class="form-control select-multiple2" id="category">
+                            <optgroup label="Category">
+                                    <option value="">Select Category</option>
+                                @foreach ($category_selection as $category)
+                                    <option value="{{ $category }}" >{{ $category }}</option>
+                                @endforeach
+                            </optgroup>
+                        </select></th>
+                
                 <th style="width: 20% !important;">@php $suppliers = new \App\Supplier();
                         @endphp
                         <select data-placeholder="Select Supplier" class="form-control select-multiple2" id="supplier" multiple>
                             <optgroup label="Suppliers">
-                                @foreach ($suppliers->select('id','supplier')->where('supplier_status_id',1)->get() as $id => $suppliers)
-                                    <option value="{{ $suppliers->supplier }}" {{ isset($supplier) && $supplier == $suppliers->supplier ? 'selected' : '' }}>{{ $suppliers->supplier }}</option>
+                                @foreach ($suppliers->select('id','supplier','scraper_name')->where('supplier_status_id',1)->get() as $id => $suppliers)
+                                    <option value="{{ $suppliers->scraper_name }}" {{ isset($supplier) && $supplier == $suppliers->scraper_name ? 'selected' : '' }}>{{ $suppliers->supplier }}</option>
                                 @endforeach
                             </optgroup>
                         </select></th>
@@ -151,7 +159,7 @@
                 },
             }).done(function (data) {
                 $("#loading-image").hide();
-                 // $("#nulti").show();
+                 $("#nulti").show();
                 console.log(data);
                 $("#count").text(data.totalFailed);
                 $("#log-table tbody").empty().html(data.tbody);
@@ -182,7 +190,7 @@
                 },
             }).done(function (data) {
                 $("#loading-image").hide();
-                // $("#nulti").show();
+                $("#nulti").show();
                 console.log(data);
                 $("#count").text(data.totalFailed);
                 $("#log-table tbody").empty().html(data.tbody);
@@ -197,10 +205,10 @@
             });
     }
 
-    function addTask(supplier , category , sku) {
+    function addTask(supplier , category , sku , brand) {
         $('#taskModal').modal('show');
         $('#task_subject').val(supplier +' '+category+' '+sku);
-        $('#references').val(supplier+''+category);
+        $('#references').val(supplier+''+category+''+brand);
     }
 
     $(".checkbox").change(function() {
@@ -221,7 +229,7 @@
                 },
             }).done(function (data) {
                 $("#loading-image").hide();
-                // $("#nulti").show();
+                $("#nulti").show();
                 console.log(data);
                 $("#count").text(data.totalFailed);
                 $("#log-table tbody").empty().html(data.tbody);
@@ -252,7 +260,7 @@
                 },
             }).done(function (data) {
                 $("#loading-image").hide();
-                // $("#nulti").show();
+                $("#nulti").show();
                 console.log(data);
                 $("#count").text(data.totalFailed);
                 $("#log-table tbody").empty().html(data.tbody);
@@ -269,12 +277,28 @@
     }
     });
 
-    // function sendMulti(){
+    function sendMulti(){
+        brand =  $('#brand').val();
+        category = $('#category').val();
+        supplier = $('#supplier').val();
+        if(brand == ''){
+            alert('Please Select Brand');
+        }
+        if(category == ''){
+            alert('Please Select Category');
+        }
+        if(supplier == ''){
+            alert('Please Select Supplier');
+        }
+        if(brand != '' && category != '' && supplier != ''){
+            $('#taskModal').modal('show');
+            $('#task_subject').val(supplier +' '+category+' multi');
+            $('#references').val(supplier+''+category+''+brand);
+        }
+        
+    }
 
-    //     $('#taskModal').modal('show');
-    //     $('#task_subject').val(supplier +' '+category+' '+'multi');
-    //     $('#references').val(supplier+''+category);
-    // }
+   
 
     </script>
 @endsection

@@ -47,12 +47,17 @@ class LogScraperController extends Controller
         }
 
         if (!empty($request->category)) {
-            $logScrapper->where('category', 'LIKE', '%' . $request->category . '%');
+                $cats = explode(',',$request->category);
+            foreach ($cats as $cat) {
+                $cat = preg_replace('/\s+/', '', $cat);
+               $logScrapper->where('category', 'LIKE', '%'.$cat.'%');
+               
+            }
         }
 
         if (!empty($request->supplier)) {
-            $logScrapper->whereHas('supplier', function ($qu) use ($request) {
-                    $qu->whereIn('supplier', request('supplier'));
+           $logScrapper->whereHas('supplier', function ($qu) use ($request) {
+                    $qu->whereIn('scraper_name', request('supplier'));
                 });
         }
 
@@ -75,14 +80,13 @@ class LogScraperController extends Controller
         $pendingIssues = DeveloperTask::whereNotNull('reference')->where('status','Issue')->count();
 
         $lastCreatedIssue = DeveloperTask::whereNotNull('reference')->orderBy('created_at','desc')->first();
-        
-        $selected_categories = $request->category ? $request->category : 1;
 
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2','id' => 'category'])
-            ->selected($selected_categories)
-            ->renderAsDropdown();
+        $logs = LogScraper::select('id','category','properties')->whereNotNull('category')->groupBy('category')->get();
+        foreach ($logs as $log) {
+            $category_selection[] = str_replace(',','>',$log->unserialize($log->category));
+        }
 
-         $requestParam = request()->except(['page']);   
+        $requestParam = request()->except(['page']);   
         // For ajax
         if ($request->ajax()) {
             return response()->json([
