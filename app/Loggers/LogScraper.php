@@ -364,43 +364,69 @@ class LogScraper extends Model
 
     public function skuFormat($sku, $brand)
     {
-        $brand = Brand::where('name',$brand)->first();
+        try {
 
-        $sku = SkuFormat::where('brand_id',$brand->id)->first();
+            $brand = Brand::where('name',$brand)->first();
+
+            $sku = SkuFormat::where('brand_id',$brand->id)->first();
        
-       return $sku->sku_format; 
+            return $sku->sku_format; 
+            
+        }catch (Exception $e) {
+            
+            return '';
+        }
+        
     }
 
     public function skuFormatExample($sku, $brand)
     {
-        $brand = Brand::where('name',$brand)->first();
+        try {
 
-        $sku = SkuFormat::where('brand_id',$brand->id)->first();
+            $brand = Brand::where('name',$brand)->first();
+
+            $sku = SkuFormat::where('brand_id',$brand->id)->first();
        
-       return $sku->sku_examples; 
+            return $sku->sku_examples;
+            
+        }catch (Exception $e) {
+            
+            return '';
+        }
     }
 
     public function skuError($validation)
     {
-        $validations = explode('[warning]', $validation);
-        if(is_array($validations)){
-           foreach ($validations as $validation) {
-                if(strpos($validation, 'SKU') !== false){
-                    return $validation;
-                }
-            } 
+        try {
+            $validations = explode('[warning]', $validation);
+            if(is_array($validations)){
+                foreach ($validations as $validation) {
+                    if(strpos($validation, 'SKU') !== false){
+                        return $validation;
+                    }
+                } 
+            }
+
+            return '';
+            
+        } catch (Exception $e) {
+            return '';
         }
-        
-        return '';
     }
 
     public function unserialize($string){
-        $string = unserialize($string);
-        if(is_array($string)){
-          return implode(' , ', $string);
-        }else{
+        try {
+            $string = unserialize($string);
+            if(is_array($string)){
+                return implode(' , ', $string);
+            }else{
+                return $string;
+            }
+            
+        } catch (Exception $e) {
             return $string;
         }
+        
     }
 
     public function supplier(){

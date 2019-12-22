@@ -73,7 +73,7 @@
                                 @endforeach
                             </optgroup>
                         </select></th>
-                <th>&nbsp;</th>
+                <th><input type="checkbox" id="validate" class="form-control checkbox"></th>
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
             </tr>
@@ -196,6 +196,70 @@
         $('#taskModal').modal('show');
         $('#task_subject').val(supplier +' '+category);
     }
+
+    $(".checkbox").change(function() {
+    if(this.checked) {
+        validate = 1;
+        $.ajax({
+                url: '/logging/sku-logs',
+                dataType: "json",
+                data: {
+                    sku: $('#sku').val(),
+                    brand: $('#brand').val(),
+                    category: $('#category').val(),
+                    supplier : $('#supplier').val(),
+                    validate : validate,
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+            }).done(function (data) {
+                $("#loading-image").hide();
+                console.log(data);
+                $("#count").text(data.totalFailed);
+                $("#log-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                $("#loading-image").hide();
+                alert('No response from server');
+            });
+        
+    }else{
+        validate = 2;
+        $.ajax({
+                url: '/logging/sku-logs',
+                dataType: "json",
+                data: {
+                    sku: $('#sku').val(),
+                    brand: $('#brand').val(),
+                    category: $('#category').val(),
+                    supplier : $('#supplier').val(),
+                    validate : validate,
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+            }).done(function (data) {
+                $("#loading-image").hide();
+                console.log(data);
+                $("#count").text(data.totalFailed);
+                $("#log-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                $("#loading-image").hide();
+                alert('No response from server');
+            });
+        
+    }
+    });
 
 
     </script>

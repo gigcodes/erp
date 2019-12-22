@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Category;
+use App\DeveloperTask;
 
 class LogScraperController extends Controller
 {
@@ -33,7 +34,9 @@ class LogScraperController extends Controller
         $logScrapper = LogScraper::query();
 
         // Filters
-        
+        if (!empty($request->product_id)) {
+            $logScrapper->where('id', $request->product_id);
+        }
 
        if (!empty($request->sku)) {
             $logScrapper->where('sku', 'LIKE', '%' . $request->sku . '%');
@@ -52,6 +55,14 @@ class LogScraperController extends Controller
                     $qu->whereIn('supplier', request('supplier'));
                 });
         }
+
+        if (!empty($request->validate)) {
+            if($request->validate == 2){
+                $logScrapper->where('validated', 0);
+            }else{
+               $logScrapper->where('validated', $request->validate); 
+            }
+        }
         
         // Get paginated result
         $logScrappers = $logScrapper->paginate(25)->appends(request()->except(['page']));
@@ -60,6 +71,9 @@ class LogScraperController extends Controller
         
         $selected_categories = $request->category ? $request->category : 1;
 
+        $existingIssues = DeveloperTask::whereNotNull('reference')->get();
+        
+
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2','id' => 'category'])
             ->selected($selected_categories)
             ->renderAsDropdown();
@@ -67,7 +81,7 @@ class LogScraperController extends Controller
         // For ajax
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('logging.partials.listsku_data', compact('logScrappers','category_selection','failed'))->render(),
+                'tbody' => view('logging.partials.listsku_data', compact('logScrappers','category_selection','failed','existingIssues'))->render(),
                 'links' => (string)$logScrappers->render(),
                 'totalFailed' => $failed,
             ], 200);
@@ -76,7 +90,7 @@ class LogScraperController extends Controller
         
 
         // Show results
-        return view('logging.product-sku', compact('logScrappers','category_selection','failed'));
+        return view('logging.product-sku', compact('logScrappers','category_selection','failed','existingIssues'));
     
     }
 }

@@ -691,7 +691,19 @@ class DevelopmentController extends Controller
         $data = $request->except('_token');
 
         $module = $request->get('module');
+        if($request->response == 1){
+            $reference = md5($request->issue);
+            //Check if reference exist
+            $existReference = DeveloperTask::where('reference',$reference)->first();
+            if($existReference != null || $existReference != ''){
+                return redirect()->back()->withErrors(['Issue Already Created!']);
+            }
+            
+        }else{
+            $reference = null;
+        }
 
+        
         $module = DeveloperModule::find($module);
         if (!$module) {
             $module = new DeveloperModule();
@@ -718,6 +730,7 @@ class DevelopmentController extends Controller
         $task->created_by = Auth::id();
         $task->status = 'Issue';
         $task->task_type_id = 3;
+        $task->reference = $reference;
 
         $task->save();
 
