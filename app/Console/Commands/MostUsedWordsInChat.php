@@ -49,7 +49,7 @@ class MostUsedWordsInChat extends Command
         }
 
         // Dump
-        var_dump($mostUsedWords);
+        // var_dump($mostUsedWords);
 
         // start to phrases
         $allwords = ChatMessageWord::all();

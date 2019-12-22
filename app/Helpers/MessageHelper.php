@@ -87,45 +87,44 @@ class MessageHelper
 
     public static function getMostUsedWords()
     {
-        return ChatMessage::where("customer_id", ">", 0)
+        $chatMessages = ChatMessage::where("customer_id", ">", 0)
             ->where("message", "!=", "")
             ->whereNotNull("number")
-            ->select("message", "id")->groupBy("message")->get()->pluck("message", "id")
-            ->chunk(1000, function ($chatMessages) {
-                //rows here should be replaced by the SQL result
-                $wordTotals = [];
-                $phrases = [];
-                foreach ($chatMessages as $id => $row) {
-                    $words = explode(" ", $row);
-                    foreach ($words as $word) {
-                        if (!in_array($word, self::TXT_ARTICLES + self::TXT_PREPOSITIONS) && $word != "") {
-                            $phrases[ $word ][] = ["txt" => $row, "id" => $id];
-                            if (isset($wordTotals[ $word ])) {
-                                $wordTotals[ $word ]++;
-                                continue;
-                            }
+            ->select("message", "id")->groupBy("message")->get()->pluck("message", "id");
 
-                            $wordTotals[ $word ] = 1;
-                        }
+        //rows here should be replaced by the SQL result
+        $wordTotals = [];
+        $phrases = [];
+        foreach ($chatMessages as $id => $row) {
+            $words = explode(" ", $row);
+            foreach ($words as $word) {
+                if (!in_array($word, self::TXT_ARTICLES + self::TXT_PREPOSITIONS) && $word != "") {
+                    $phrases[ $word ][] = ["txt" => $row, "id" => $id];
+                    if (isset($wordTotals[ $word ])) {
+                        $wordTotals[ $word ]++;
+                        continue;
                     }
+
+                    $wordTotals[ $word ] = 1;
                 }
+            }
+        }
 
-                arsort($wordTotals);
+        arsort($wordTotals);
 
-                $records = [];
-                foreach ($wordTotals as $word => $count) {
-                    $records[ 'words' ][ $word ] = [
-                        "word" => $word,
-                        "total" => $count
-                    ];
+        $records = [];
+        foreach ($wordTotals as $word => $count) {
+            $records[ 'words' ][ $word ] = [
+                "word" => $word,
+                "total" => $count
+            ];
 
-                    $records[ 'phrases' ][ $word ] = [
-                        "phrases" => isset($phrases[ $word ]) ? $phrases[ $word ] : [],
-                    ];
+            $records[ 'phrases' ][ $word ] = [
+                "phrases" => isset($phrases[ $word ]) ? $phrases[ $word ] : [],
+            ];
 
-                }
-                return $records;
-            });
+        }
+        return $records;
     }
 
 }
