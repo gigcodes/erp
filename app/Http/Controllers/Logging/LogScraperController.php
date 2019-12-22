@@ -63,25 +63,30 @@ class LogScraperController extends Controller
                $logScrapper->where('validated', $request->validate); 
             }
         }
+
+        $failed = $logScrapper->where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
+        
         
         // Get paginated result
         $logScrappers = $logScrapper->paginate(25)->appends(request()->except(['page']));
 
-        $failed = $logScrapper->where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
+        $existingIssues = DeveloperTask::whereNotNull('reference')->get();
+
+        $pendingIssues = DeveloperTask::whereNotNull('reference')->where('status','Issue')->count();
+
+        $lastCreatedIssue = DeveloperTask::whereNotNull('reference')->orderBy('created_at','desc')->first();
         
         $selected_categories = $request->category ? $request->category : 1;
-
-        $existingIssues = DeveloperTask::whereNotNull('reference')->get();
-        
 
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2','id' => 'category'])
             ->selected($selected_categories)
             ->renderAsDropdown();
 
+         $requestParam = request()->except(['page']);   
         // For ajax
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('logging.partials.listsku_data', compact('logScrappers','category_selection','failed','existingIssues'))->render(),
+                'tbody' => view('logging.partials.listsku_data', compact('logScrappers','category_selection','failed','existingIssues','pendingIssues','lastCreatedIssue','requestParam'))->render(),
                 'links' => (string)$logScrappers->render(),
                 'totalFailed' => $failed,
             ], 200);
@@ -90,7 +95,7 @@ class LogScraperController extends Controller
         
 
         // Show results
-        return view('logging.product-sku', compact('logScrappers','category_selection','failed','existingIssues'));
+        return view('logging.product-sku', compact('logScrappers','category_selection','failed','existingIssues','lastCreatedIssue','pendingIssues','requestParam'));
     
     }
 }

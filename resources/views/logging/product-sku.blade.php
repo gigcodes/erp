@@ -26,8 +26,12 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">SKU log (<span id="count"> {{ $failed }} </span>)</h2>
+            <h2 class="page-heading">SKU log (<span id="count">{{ $failed }}</span>)</h2>
             <div class="pull-right">
+                <!-- <button type="button" class="btn btn-secondary" onclick="sendMulti()" style="display: none;" id="nulti">Send Selected</button> -->
+                <button type="button" class="btn btn-secondary">Failed <span id="count">{{ $failed }}</span></button>
+                <button type="button" class="btn btn-secondary">Number of open task {{ $pendingIssues }}</button>
+                <button type="button" class="btn btn-secondary">Last Created task @if($lastCreatedIssue->created_at) {{ $lastCreatedIssue->created_at->format('d-m-Y H:i:s') }} @endif</button>
                 <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png"/></button>
             </div>
 
@@ -35,9 +39,8 @@
     </div>
 
     @include('partials.flash_messages')
-
-    <div class="mt-3 col-md-12">
-        <table class="table table-bordered table-striped" id="log-table">
+   <div class="mt-3 col-md-12">
+     <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
                 <th style="width: 5% !important;">SKU</th>
@@ -148,6 +151,7 @@
                 },
             }).done(function (data) {
                 $("#loading-image").hide();
+                 // $("#nulti").show();
                 console.log(data);
                 $("#count").text(data.totalFailed);
                 $("#log-table tbody").empty().html(data.tbody);
@@ -178,6 +182,7 @@
                 },
             }).done(function (data) {
                 $("#loading-image").hide();
+                // $("#nulti").show();
                 console.log(data);
                 $("#count").text(data.totalFailed);
                 $("#log-table tbody").empty().html(data.tbody);
@@ -192,9 +197,10 @@
             });
     }
 
-    function addTask(supplier , category) {
+    function addTask(supplier , category , sku) {
         $('#taskModal').modal('show');
-        $('#task_subject').val(supplier +' '+category);
+        $('#task_subject').val(supplier +' '+category+' '+sku);
+        $('#references').val(supplier+''+category);
     }
 
     $(".checkbox").change(function() {
@@ -215,6 +221,7 @@
                 },
             }).done(function (data) {
                 $("#loading-image").hide();
+                // $("#nulti").show();
                 console.log(data);
                 $("#count").text(data.totalFailed);
                 $("#log-table tbody").empty().html(data.tbody);
@@ -245,6 +252,7 @@
                 },
             }).done(function (data) {
                 $("#loading-image").hide();
+                // $("#nulti").show();
                 console.log(data);
                 $("#count").text(data.totalFailed);
                 $("#log-table tbody").empty().html(data.tbody);
@@ -261,6 +269,12 @@
     }
     });
 
+    // function sendMulti(){
+
+    //     $('#taskModal').modal('show');
+    //     $('#task_subject').val(supplier +' '+category+' '+'multi');
+    //     $('#references').val(supplier+''+category);
+    // }
 
     </script>
 @endsection

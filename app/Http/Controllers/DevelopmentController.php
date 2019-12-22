@@ -692,15 +692,13 @@ class DevelopmentController extends Controller
 
         $module = $request->get('module');
         if($request->response == 1){
-            $reference = md5($request->issue);
+            $reference = md5($request->reference);
             //Check if reference exist
             $existReference = DeveloperTask::where('reference',$reference)->first();
             if($existReference != null || $existReference != ''){
                 return redirect()->back()->withErrors(['Issue Already Created!']);
             }
             
-        }else{
-            $reference = null;
         }
 
         
@@ -750,7 +748,7 @@ class DevelopmentController extends Controller
         $requestData = new Request();
         $requestData->setMethod('POST');
         $requestData->request->add(['issue_id' => $task->id, 'message' => $request->input('issue'), 'status' => 1]);
-
+        
         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
         return redirect()->back()->with('success', 'You have successfully submitted an issue!');

@@ -8,6 +8,8 @@
         <input type="hidden" name="priority" value="1">
         <input type="hidden" name="module" value="52">
         <input type="hidden" name="response" value="1">
+        <input type="hidden" id="references" name="reference">
+        
 
         <div class="modal-header">
           <h4 class="modal-title">Store a Issue</h4>

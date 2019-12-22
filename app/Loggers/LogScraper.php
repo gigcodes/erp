@@ -10,6 +10,7 @@ use App\SkuFormat;
 use App\Brand;
 use App\Category;
 use App\Supplier;
+use App\DeveloperTask;
 
 class LogScraper extends Model
 {
@@ -431,5 +432,20 @@ class LogScraper extends Model
 
     public function supplier(){
         return $this->hasOne(Supplier::class,'scraper_name','website');
+    }
+
+    public function taskType($supplier,$category){
+        $string = $supplier.$category;
+        $reference = md5($string);
+        $issue = DeveloperTask::where('reference',$reference)->first();
+        if($issue != null && $issue != ''){
+            if($issue->status == 'Done'){
+                return 'Issue Resolved';
+            }else{
+                return 'Issue Raised';
+            }
+        }else{
+            return false;
+        }
     }
 }
