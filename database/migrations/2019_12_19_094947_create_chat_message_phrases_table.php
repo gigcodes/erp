@@ -14,6 +14,7 @@ class CreateChatMessagePhrasesTable extends Migration {
 	{
 		Schema::create('chat_message_phrases', function(Blueprint $table)
 		{
+			$table->engine = 'MyISAM';
 			$table->integer('id', true);
 			$table->text('phrase', 65535);
 			$table->integer('total')->default(0);
