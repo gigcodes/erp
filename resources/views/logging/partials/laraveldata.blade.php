@@ -10,7 +10,5 @@
                         </span>
                     </td>
                     <td>{{ \Carbon\Carbon::parse($log->log_created)->format('d-m-y H:i:s')  }}</td>
-                    <td>{{ $log->created_at->format('d-m-y H:i:s') }}</td>
-                    <td>{{ $log->updated_at->format('d-m-y H:i:s') }}</td>
                 </tr>
 @endforeach

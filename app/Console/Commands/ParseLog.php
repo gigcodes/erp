@@ -67,12 +67,15 @@ class ParseLog extends Command
             if($alreadyLogged != null && $alreadyLogged != ''){
                 continue;
             }
-
-            $log = new LaravelLog();
-            $log->log_created =  $dateTime;
-            $log->filename =  $filename;
-            $log->log = $value;
-            $log->save();
+            
+            if (strpos($value, 'local.ERROR') !== false) {
+                $log = new LaravelLog();
+                $log->log_created =  $dateTime;
+                $log->filename =  $filename;
+                $log->log = $value;
+                $log->save();
+            }
+            
 
         }
         
