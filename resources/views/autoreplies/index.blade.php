@@ -465,6 +465,8 @@
         function createGroup(){
              var id = [];
              name = $('#keywordname').val();
+             keyword_group = $('#keywordGroup').val();
+             
             $.each($("input[name='keyword']:checked"), function(){
                 id.push($(this).val());
             });
@@ -480,6 +482,7 @@
                 data: {
                     id: id,
                     name : name,
+                    keyword_group : keyword_group,
                 },
                 }).done(response => {
                     alert('Added Group');
@@ -493,6 +496,7 @@
         function createGroupPhrase() {
             var phraseId = [];
             name = $('#phrasename').val();
+            phrase_group = $('#phraseGroup').val();
             $.each($("input[name='phrase']:checked"), function(){
                 phraseId.push($(this).val());
                 keyword = $(this).attr("data-keyword")
@@ -511,6 +515,7 @@
                     phraseId: phraseId,
                     keyword : keyword,
                     name : name,
+                    phrase_group : phrase_group,
                 },
                 }).done(response => {
                     alert('Added Phrase Group');
@@ -518,6 +523,10 @@
                     alert('Could not add Phrase group!');
                 });
             }
+            
+            $(function() {
+                $('.selectpicker').selectpicker();
+            });
         }
     </script>
 @endsection

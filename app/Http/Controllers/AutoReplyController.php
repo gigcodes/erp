@@ -9,9 +9,11 @@ use App\ScheduledMessage;
 use App\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\ChatbotKeyword;
+use App\ChatbotKeywordValue;
+use App\ChatbotQuestion;
+use App\ChatbotQuestionExample;
 use App\ChatMessageWord;
-use App\ChatBotKeywordGroup;
-use App\ChatBotPhraseGroup;
 
 class AutoReplyController extends Controller
 {
@@ -34,8 +36,8 @@ class AutoReplyController extends Controller
         $simple_auto_replies = new LengthAwarePaginator($currentItems, count($simple_auto_replies), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);
-        $groupKeywords = ChatBotKeywordGroup::all();
-        $groupPhrases = ChatBotPhraseGroup::all();
+        $groupKeywords = ChatbotKeyword::all();
+        $groupPhrases = ChatbotQuestion::all();
         $mostUsedWords = ChatMessageWord::get()->take(3);
   
         return view('autoreplies.index', [
@@ -240,15 +242,33 @@ class AutoReplyController extends Controller
     public function saveGroup(Request $request){
         $keywords = $request->id;
         $name = $request->name;
+        $group = $request->keyword_group;
+        
+        //Check Existing Group
+        if($group != ''){
+            $group = ChatbotKeyword::find($group);
+            $groupId = $group->id; 
+        }else{
+            //Create Group 
+            $group = new ChatbotKeyword();
+            $group->keyword = $name;
+            $group->save();
+            $groupId = $group->id; 
+        }
+        
         //Getting keyword in array
         foreach ($keywords as $keyword) {
+            //Check If Group ALready Exist
+            $checkExistingGroup  = ChatbotKeywordValue::where('chatbot_keyword_id',$groupId)->where('value',$keyword)->first();
+            if($checkExistingGroup == null){
+                //Place Api Here For Keywords
+                $keywordSave = new ChatbotKeywordValue();
+                $keywordSave->chatbot_keyword_id = $groupId;
+                $keywordSave->value = $keyword;
+                $keywordSave->save();
 
-            //Place Api Here For Keywords
-          $keywordSave = new ChatBotKeywordGroup();
-          $keywordSave->keyword_id = $keyword;
-          $keywordSave->group_name = $name;
-          $keywordSave->save();
-
+            }
+            
         }
         return response()->json(["response" => 200]);
     }   
@@ -258,14 +278,33 @@ class AutoReplyController extends Controller
        $phrases = $request->phraseId;
        $keyword = $request->keyword;
        $name = $request->name;
+       $group = $request->phrase_group;
+
+       //Check Existing Group
+        if($group != ''){
+            $group = ChatbotQuestion::find($group);
+            $groupId = $group->id; 
+        }else{
+            //Create Group 
+            $group = new ChatbotQuestion();
+            $group->value = $name;
+            $group->save();
+            $groupId = $group->id; 
+        }
+
+
        //Getting Phrase in array
        foreach ($phrases as $phrase) {
-            //Place Api Here For phrase
-           $phraseSave = new ChatBotPhraseGroup();
-           $phraseSave->keyword_id = (int)$keyword;
-           $phraseSave->phrase_id = (int)$phrase;
-           $phraseSave->group_name = $name;
-           $phraseSave->save();
+          //Check If Group ALready Exist
+            $checkExistingGroup  = ChatbotQuestionExample::where('chatbot_question_id',$groupId)->where('question',$phrase)->first();
+            if($checkExistingGroup == null){
+                //Place Api Here For Keywords
+                $phraseSave = new ChatbotQuestionExample();
+                $phraseSave->chatbot_question_id = $groupId;
+                $phraseSave->question = $phrase;
+                $phraseSave->save();
+
+            }
         }
         return response()->json(["response" => 200]);
     }

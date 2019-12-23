@@ -14,9 +14,10 @@
                     </div>
                     <div class="form-group">
                         <strong>Existing Group:</strong>
-                        <select class="form-control" id="keywordGroup">
+                        <select class="form-control selectpicker" id="keywordGroup" data-live-search="true">
+                        <option value="">Select Keyword Group</option>    
                         @foreach($groupKeywords as $groupKeyword)
-                        <option value="{{ $groupKeyword->id }}">{{ $groupKeyword->group_name }}</option>
+                        <option value="{{ $groupKeyword->id }}">{{ $groupKeyword->keyword }}</option>
                        @endforeach
                        </select>
                     </div>
@@ -49,8 +50,9 @@
                     <div class="form-group">
                         <strong>Existing Group:</strong>
                          <select class="form-control" id="phraseGroup">
+                        <option value="">Select Phrase Group</option>
                         @foreach($groupPhrases as $groupPhrase)
-                            <option value="{{ $groupPhrase->id }}">{{ $groupPhrase->group_name }}</option>
+                            <option value="{{ $groupPhrase->id }}">{{ $groupPhrase->value }}</option>
                        @endforeach
                        </select>
                     </div>
