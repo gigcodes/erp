@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
+    <link href="{{ asset('css/jquery.hoverZoom.min.css') }}" rel="stylesheet">
+    
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <style>
         .quick-edit-color {
@@ -229,8 +231,8 @@
                                     </div>
                                     <div class="col-md-4">
                                         @if ($product->hasMedia(config('constants.media_tags')))
-                                            <div style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}'); background-size: 300px">
-                                                <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                                            <div onmouseover="bigImg('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}'); background-size: 300px">
+                                                <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}" onmouseout="normalImg()">
                                             </div>
                                         @endif
                                     </div>
@@ -332,6 +334,7 @@
                                                         <option value="Wrong Grid Showing For Category">Wrong Grid Showing For Category</option>
                                                         <option value="Incorrect Category">Incorrect Category</option>
                                                         <option value="Only One Image Available">Only One Image Available</option>
+                                                        <option value="Image incorrect">Image incorrect</option>
                                                     </select>
                                                 </td>
                                             </tr>
@@ -741,6 +744,7 @@
         </div>
     </div>
     @include('partials.modals.remarks')
+    @include('partials.modals.image-expand')
 
 @endsection
 
@@ -763,6 +767,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+    <script src="{{ asset('js/jquery.hoverZoom.min.js') }}"></script>
+   
     <script type="text/javascript">
         var categoryJson = <?php echo json_encode($category_array); ?>;
 
@@ -780,6 +786,9 @@
             })
         });
 
+        $(document).ready(function(){
+                $('.thumb').hoverZoom({speedView:600, speedRemove:400, showCaption:true, speedCaption:600, debug:true, hoverIntent: true, loadingIndicatorPos: 'center', useBgImg : true});
+        });        
 
         $(document).on('change', '.category_level_2', function () {
             var this_ = $(this);
@@ -1745,6 +1754,16 @@
             }
         });
 
+        
+
+        function bigImg(img) {
+            $('#large-image').attr("src", img);
+            $('#imageExpand').modal('show');
+        }
+
+        function normalImg(){
+           $('#imageExpand').modal('hide');
+        }
 
     </script>
 @endsection
