@@ -10,6 +10,8 @@ use App\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\ChatMessageWord;
+use App\ChatBotKeywordGroup;
+use App\ChatBotPhraseGroup;
 
 class AutoReplyController extends Controller
 {
@@ -32,7 +34,8 @@ class AutoReplyController extends Controller
         $simple_auto_replies = new LengthAwarePaginator($currentItems, count($simple_auto_replies), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);
-
+        $groupKeywords = ChatBotKeywordGroup::all();
+        $groupPhrases = ChatBotPhraseGroup::all();
         $mostUsedWords = ChatMessageWord::with('pharases')->get();
   
         return view('autoreplies.index', [
@@ -40,7 +43,9 @@ class AutoReplyController extends Controller
             'simple_auto_replies' => $simple_auto_replies,
             'priority_customers_replies' => $priority_customers_replies,
             'show_automated_messages' => $show_automated_messages,
-            'mostUsedWords' => $mostUsedWords
+            'mostUsedWords' => $mostUsedWords,
+            'groupPhrases' => $groupPhrases,
+            'groupKeywords' => $groupKeywords,
         ]);
     }
 
@@ -230,6 +235,39 @@ class AutoReplyController extends Controller
         return response()->json(["code" => 200]);
 
 
+    }
+
+    public function saveGroup(Request $request){
+        $keywords = $request->id;
+        $name = $request->name;
+        //Getting keyword in array
+        foreach ($keywords as $keyword) {
+
+            //Place Api Here For Keywords
+          $keywordSave = new ChatBotKeywordGroup();
+          $keywordSave->keyword_id = $keyword;
+          $keywordSave->group_name = $name;
+          $keywordSave->save();
+
+        }
+        return response()->json(["response" => 200]);
     }   
+
+    public function saveGroupPhrases(Request $request)
+    {
+       $phrases = $request->phraseId;
+       $keyword = $request->keyword;
+       $name = $request->name;
+       //Getting Phrase in array
+       foreach ($phrases as $phrase) {
+            //Place Api Here For phrase
+           $phraseSave = new ChatBotPhraseGroup();
+           $phraseSave->keyword_id = (int)$keyword;
+           $phraseSave->phrase_id = (int)$phrase;
+           $phraseSave->group_name = $name;
+           $phraseSave->save();
+        }
+        return response()->json(["response" => 200]);
+    }
 
 }
