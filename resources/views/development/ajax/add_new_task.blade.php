@@ -16,7 +16,7 @@
                             <strong>User:</strong>
                             <select class="form-control" name="user_id" required>
                                 @foreach ($users as $key => $obj)
-                                    <option value="{{ $obj->id }}" {{ old('user_id') == $obj->id ? 'selected' : '' }}>{{ $obj->name }}</option>
+                                    <option value="{{ $key }}" {{ old('user_id') == $key ? 'selected' : '' }}>{{ $obj }}</option>
                                 @endforeach
                             </select>
 
