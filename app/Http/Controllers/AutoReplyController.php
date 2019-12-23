@@ -33,7 +33,7 @@ class AutoReplyController extends Controller
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);
 
-        $mostUsedWords = ChatMessageWord::with('pharases')->limit(100)->get();
+        $mostUsedWords = ChatMessageWord::with('pharases')->limit(10)->get();
   
         return view('autoreplies.index', [
             'auto_replies' => $auto_replies,

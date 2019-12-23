@@ -39,9 +39,6 @@
                 <th width="10%">Filename</th>
                 <th width="30%">Log</th>
                 <th width="10%">LogCreated</th>
-               <th width="10%">Created_at</th>
-                <th width="10%">Updated_at</th>
-
             </tr>
             <tr>
                 
@@ -54,7 +51,7 @@
                             </span>
                         </div>
                 </th>
-                <th> <div class='input-group' id='created-date'>
+                <!-- <th> <div class='input-group' id='created-date'>
                         <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="created_date" />
                             <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
@@ -67,7 +64,7 @@
                             <span class="glyphicon glyphicon-calendar"></span>
                             </span>
                         </div>
-                    </th>
+                    </th> -->
             </tr>
             </thead>
 
