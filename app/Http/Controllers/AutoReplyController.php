@@ -33,7 +33,7 @@ class AutoReplyController extends Controller
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);
 
-        $mostUsedWords = ChatMessageWord::with('pharases')->get();
+        $mostUsedWords = ChatMessageWord::with('pharases')->limit(100)->get();
   
         return view('autoreplies.index', [
             'auto_replies' => $auto_replies,
@@ -198,10 +198,10 @@ class AutoReplyController extends Controller
         if($currentMessage) {
             $customerId = $currentMessage->customer_id;
 
-            $lastReplies = \App\ChatMessage::join("customers c","c.id","chat_messages.customer_id")->where("chat_messages.id",">",$id)
+            $lastReplies = \App\ChatMessage::join("customers","customers.id","chat_messages.customer_id")->where("chat_messages.id",">",$id)
             ->where("customer_id",$customerId)
-            ->where("number","!=", "c.phone")
-            ->orderBy("id","ASC")
+            ->whereNull("number")
+            ->orderBy("chat_messages.id","ASC")
             ->limit(5)->get();
 
             return response()->json(["code" => 200,"data" => $lastReplies,"question" => $currentMessage->message]);

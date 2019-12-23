@@ -54,24 +54,21 @@ class MostUsedWordsInChat extends Command
         $phrasesRecords = [];
         foreach ($allwords as $words) {
             $phrases = isset($mostUsedWords["phraces"][$words->word]) ? $mostUsedWords["phraces"][$words->word]["phraces"] : [];
-            if (!empty($phrases)) {
-                foreach ($phrases as $phrase) {
-                    /*$phrasesRecords[] = [
-                        "word_id" => $words->id,
-                        "phrase"  => $phrase["txt"],
-                        "chat_id" => $phrase["id"],
-                    ];*/
-            		ChatMessagePhrase::insert([
-                        "word_id" => $words->id,
-                        "phrase"  => $phrase["txt"],
-                        "chat_id" => $phrase["id"],
-                    ]);
+            $phrasesChunks = array_chunk($phrases,100);
+            if(!empty($phrasesChunks)) {
+                foreach ($phrasesChunks as $key => $phrases) {
+                    $phrasesRecords = [];
+                    foreach ($phrases as $phrase) {
+                        $phrasesRecords[] = [
+                            "word_id" => $words->id,
+                            "phrase"  => $phrase["txt"],
+                            "total"   => 0,
+                            "chat_id" => $phrase["id"],
+                        ];
+                    }
+                    ChatMessagePhrase::insert($phrasesRecords);
                 }
             }
         }
-
-        if (!empty($phrasesRecords)) {
-        }
-
     }
 }
