@@ -67,6 +67,7 @@ use App\DocumentSendHistory;
 use App\QuickSellGroup;
 use App\ProductQuicksellGroup;
 use App\Helpers\InstantMessagingHelper;
+use App\Library\Watson\Model as WatsonManager;
 
 
 class WhatsAppController extends FindByNumberController
@@ -1465,6 +1466,26 @@ class WhatsAppController extends FindByNumberController
                         ]);
                     }
                 }
+
+                // start to check with watson api directly 
+                if(!empty($params['message'])) {
+                    if ($customer && $params[ 'message' ] != '') {
+                        $chatbotReply = WatsonManager::sendMessage($customer,$params['message']);
+                        if(!empty($chatbotReply) 
+                            && !empty($chatbotReply->text) 
+                            && !empty($chatbotReply->response_type) 
+                            && $chatbotReply->response_type == "text"
+                        ) {
+                            $temp_params = $params;
+                            $temp_params['message']   = $chatbotReply->text;
+                            $temp_params['media_url'] = null;
+                            $temp_params['status']    = 8;
+                            // Create new message
+                            $message = ChatMessage::create($temp_params);
+                        }
+                    }
+                }
+
 
                 // Auto Replies
                 $auto_replies = AutoReply::where('is_active', 1)->get();

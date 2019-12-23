@@ -5,15 +5,28 @@ namespace App\Library\Watson;
 use App\ChatbotDialog;
 use App\ChatbotKeyword;
 use App\ChatbotQuestion;
+use App\Customer;
+use App\Library\Watson\Language\Assistant\V2\AssistantService;
 use App\Library\Watson\Language\Workspaces\V1\DialogService;
 use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
 use App\Library\Watson\Language\Workspaces\V1\IntentService;
 
 class Model
 {
+
+    const EXCLUDED_REPLY = [
+        "Can you reword your statement? I'm not understanding.",
+        "I didn't understand. You can try rephrasing."
+    ];
+
     public static function getWorkspaceId()
     {
         return "19cf3225-f007-4332-8013-74443d36a3f7";
+    }
+
+    public static function getAssistantId()
+    {
+        return "28754e1c-6281-42e6-82af-eec6e87618a6";
     }
 
     public static function pushKeyword($id)
@@ -149,7 +162,7 @@ class Model
 
             if (!empty($dialog->workspace_id)) {
                 $storeParams["output"]["generic"][] = $genericOutput;
-                $result = $watson->update($dialog->workspace_id, $dialog->name, $storeParams);
+                $result                             = $watson->update($dialog->workspace_id, $dialog->name, $storeParams);
             } else {
                 $result               = $watson->create($workSpaceId, $storeParams);
                 $dialog->workspace_id = $workSpaceId;
@@ -177,6 +190,81 @@ class Model
         }
 
         return true;
+
+    }
+
+    public static function sendMessage(Customer $customer, $inputText)
+    {
+        $assistantID = self::getAssistantId();
+        $assistant   = new AssistantService(
+            "apiKey",
+            "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+        );
+
+        if (empty($customer->chat_session_id)) {
+
+            $customer = self::createSession($customer, $assistant);
+            if (!$customer) {
+                return false;
+            }
+        }
+
+        if (!empty($customer->chat_session_id)) {
+            // now sending message to the watson
+            $result = self::sendMessageCustomer($customer, $assistant, $inputText);
+
+            if (!empty($result->code) && $result->code == 404 && $result->error == "Invalid Session") {
+                $customer = self::createSession($customer, $assistant);
+                if ($customer) {
+                    $result = self::sendMessageCustomer($customer, $assistant, $inputText);
+                }
+            }
+
+            if (isset($result->output) && isset($result->output->generic)) {
+
+                $textMessage = reset($result->output->generic);
+
+                if (isset($textMessage->text)) {
+                    if (!in_array($textMessage->text, self::EXCLUDED_REPLY)) {
+                        return $textMessage;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+    }
+
+    public static function createSession(Customer $customer, AssistantService $assistant)
+    {
+        $assistantID = self::getAssistantId();
+
+        $session = $assistant->createSession($assistantID);
+        $result  = json_decode($session->getContent());
+
+        if (isset($result->session_id)) {
+            $customer->chat_session_id = $result->session_id;
+            $customer->save();
+
+            return $customer;
+        }
+
+        return false;
+
+    }
+
+    public static function sendMessageCustomer(Customer $customer, AssistantService $assistant, $inputText)
+    {
+        $assistantID = self::getAssistantId();
+
+        $result = $assistant->sendMessage($assistantID, $customer->chat_session_id, [
+            "input" => [
+                "text" => $inputText,
+            ],
+        ]);
+
+        return json_decode($result->getContent());
 
     }
 
