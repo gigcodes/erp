@@ -2366,7 +2366,7 @@ class ProductController extends Controller
         }
         $selected_categories = $request->category ? $request->category : 1;
 
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2'])
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2','id' => 'category_value'])
             ->selected($selected_categories)
             ->renderAsDropdown();
         $hscodes = SimplyDutyCategory::all();    
@@ -2384,7 +2384,8 @@ class ProductController extends Controller
         $name = $request->name;
         $hscode = $request->hscode;
         $compositions = $request->compositions; 
-        $category = Category::select('id','title')->where('title',$request->category)->first();
+        
+        $category = Category::select('id','title')->where('id',$request->category)->first();
         $categoryId = $category->id;
 
         if($request->existing_group != null){
@@ -2392,7 +2393,7 @@ class ProductController extends Controller
         }else{
             $group = new HsCodeGroup();
             $group->hs_code_id = $hscode;
-            $group->name = $name.' '.$category->title;
+            $group->name = $name.' > '.$category->title;
             $group->composition = $request->composition;
             $group->save();
         }

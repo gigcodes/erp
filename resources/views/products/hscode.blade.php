@@ -56,9 +56,9 @@
                                 <tbody>
                                 @foreach($groups as $group)    
                                 <tr>
-                                    <td><span id="na{{ $group->id }}">{{ $group->name }}</span></td>
+                                    <td><span id="na{{ $group->id }}">{!! $group->name !!}</span></td>
                                     <td><span id="hs{{ $group->id }}">{{ $group->hsCode->code }}</span></td>
-                                    <td><span id="com{{ $group->id }}">{{ $group->composition }}<span></td>
+                                    <td><span id="com{{ $group->id }}">{!! $group->composition !!}<span></td>
                                     <td>{{ $group->groupComposition->count() }}</td>
                                     <td><button onclick="editGroup({{ $group->id }})" class="btn btn-secondary">Edit</button>
                                     </td>
@@ -107,7 +107,7 @@
             @foreach($compositions as $composition)
             <tr>
                 <td><input type="checkbox" class="form-control checkBoxClass" value="{{ $composition }} {{ $childCategory }} {{ $parentCategory }}" name="composition"></td>
-               <td>{{ $composition }} [ {{ $childCategory }} ] > {{ $parentCategory }}</td>
+               <td>{{ $composition }} [ {{ $childCategory }}  > {{ $parentCategory }} ]</td>
             </tr>
                 
             @endforeach
@@ -148,7 +148,7 @@
         hscode = $('#hscode').val();
         name = "{{ $childCategory }}";
         composition = $('#composition').val();
-        category = "{{ $parentCategory }}";
+        category = $('#category_value').val();
         existing_group = $('#existing_group').val();
         var compositions = [];
             $.each($("input[name='composition']:checked"), function(){
