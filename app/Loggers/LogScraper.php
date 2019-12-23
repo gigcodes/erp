@@ -415,9 +415,9 @@ class LogScraper extends Model
         }
     }
 
-    public function unserialize($string){
+    public function dataUnserialize($string){
         try {
-            $string = unserialize($string);
+            $string = @unserialize($string);
             if(is_array($string)){
                 return implode(' , ', $string);
             }else{

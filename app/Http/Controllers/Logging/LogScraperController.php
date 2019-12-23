@@ -83,7 +83,7 @@ class LogScraperController extends Controller
 
         $logs = LogScraper::select('id','category','properties')->whereNotNull('category')->groupBy('category')->get();
         foreach ($logs as $log) {
-            $category_selection[] = str_replace(',','>',$log->unserialize($log->category));
+            $category_selection[] = str_replace(',','>',$log->dataUnserialize($log->category));
         }
 
         $requestParam = request()->except(['page']);   
