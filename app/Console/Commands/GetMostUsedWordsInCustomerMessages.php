@@ -40,45 +40,41 @@ class GetMostUsedWordsInCustomerMessages extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
-
-        ChatMessage::where('is_processed_for_keyword', 0)->where('customer_id', '>', '0')->chunk(1000, function($messages) {
+        $messages = ChatMessage::where('is_processed_for_keyword', 0)->whereNotNull('number')->where('customer_id', '>', '0')->limit(1000)->get();
+        if ($messages != null) {
             foreach ($messages as $message) {
+                // Set text
                 $text = $message->message;
 
-                if (!$text) {
-                    $message->is_processed_for_keyword = 1;
-                    $message->save();
-                }
+                // Set to processed
+                $message->is_processed_for_keyword = 1;
+                $message->save();
 
+                // Explode the words
                 $words = explode(' ', $text);
 
                 foreach ($words as $word) {
+                    $word = preg_replace('/[^\w]/', '', $word);
+                    var_dump($word);
+
                     if (strlen(trim($word)) <= 3) {
                         continue;
                     }
 
-                    $this->addOrUpdateCountOfKeyword(trim($word));
-
+                    //$this->addOrUpdateCountOfKeyword(trim($word));
                 }
-
             }
-        });
-
-        $report->update(['end_time' => Carbon:: now()]);
+        }
     }
 
     private function addOrUpdateCountOfKeyword($word): void
     {
-
         $keyword = BulkCustomerRepliesKeyword::where('value', $word)->first();
 
-        if ($keyword) {
-            ++$keyword->count;
+        if ($keyword !== null) {
+            $keyword->count = (int)$keyword->count + 1;
             $keyword->save();
+            echo "UPDATED: " . $word . " " . $keyword->count . "\n";
             return;
         }
 
@@ -88,5 +84,8 @@ class GetMostUsedWordsInCustomerMessages extends Command
         $keyword->is_manual = 0;
         $keyword->count = 1;
         $keyword->save();
+
+        // NEW
+        echo "NEW: " . $word . "\n";
     }
 }
