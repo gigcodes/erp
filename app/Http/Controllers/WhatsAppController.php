@@ -1479,7 +1479,7 @@ class WhatsAppController extends FindByNumberController
                             $temp_params = $params;
                             $temp_params['message']   = $chatbotReply->text;
                             $temp_params['media_url'] = null;
-                            $temp_params['status']    = 8;
+                            $temp_params['status']    = 11;
                             // Create new message
                             $message = ChatMessage::create($temp_params);
                         }
