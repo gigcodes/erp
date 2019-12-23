@@ -50,7 +50,7 @@
                         <strong>Existing Group:</strong>
                         @foreach($groupPhrases as $groupPhrase)
                        <select class="form-control" id="phraseGroup">
-                           <option value="{{ $groupPhrases->id }}">{{ $groupPhrases->group_name }}</option>
+                           <option value="{{ $groupPhrase->id }}">{{ $groupPhrase->group_name }}</option>
                        </select>
                        @endforeach
                     </div>
