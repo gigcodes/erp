@@ -36,7 +36,7 @@ class AutoReplyController extends Controller
         ]);
         $groupKeywords = ChatBotKeywordGroup::all();
         $groupPhrases = ChatBotPhraseGroup::all();
-        $mostUsedWords = ChatMessageWord::with('pharases')->take(10);
+        $mostUsedWords = ChatMessageWord::with('pharases')->get()->take(10);
   
         return view('autoreplies.index', [
             'auto_replies' => $auto_replies,
