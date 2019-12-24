@@ -21,7 +21,7 @@ class AlterProductsAddColumnPriceEurDiscounted extends Migration
 
         Schema::table('products', function(Blueprint $table)
         {
-            $table->double('price_special')->default(0);
+            $table->double('price_special')->default(0)->change();
 
         });
 
