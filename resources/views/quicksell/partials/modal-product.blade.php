@@ -92,8 +92,8 @@
 
           <input type="number" class="form-control" name="price_special" value="">
 
-          @if ($errors->has('price_special'))
-              <div class="alert alert-danger">{{$errors->first('price_special')}}</div>
+          @if ($errors->has('price_inr_special'))
+              <div class="alert alert-danger">{{$errors->first('price_inr_special')}}</div>
           @endif
         </div>
 
@@ -157,7 +157,7 @@
 
            <div class="form-group">
                         <strong>Existing Group:</strong>
-                        
+
                         @php
                             $groups = \App\QuickSellGroup::orderBy('group','asc')->get();
                         @endphp
@@ -197,8 +197,8 @@
 
             <input type="number" class="form-control" name="price_special" value="" id="price_special_field">
 
-            @if ($errors->has('price_special'))
-                <div class="alert alert-danger">{{$errors->first('price_special')}}</div>
+            @if ($errors->has('price_inr_special'))
+                <div class="alert alert-danger">{{$errors->first('price_inr_special')}}</div>
             @endif
           </div>
 

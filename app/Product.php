@@ -127,10 +127,12 @@ class Product extends Model
                 $product->lmeasurement = isset($json->properties[ 'lmeasurement' ]) && $json->properties[ 'lmeasurement' ] > 0 ? $json->properties[ 'lmeasurement' ] : null;
                 $product->hmeasurement = isset($json->properties[ 'hmeasurement' ]) && $json->properties[ 'hmeasurement' ] > 0 ? $json->properties[ 'hmeasurement' ] : null;
                 $product->dmeasurement = isset($json->properties[ 'dmeasurement' ]) && $json->properties[ 'dmeasurement' ] > 0 ? $json->properties[ 'dmeasurement' ] : null;
-                $product->price = $formattedPrices[ 'price' ];
+                $product->price = $formattedPrices[ 'price_eur' ];
                 $product->price_inr = $formattedPrices[ 'price_inr' ];
-                $product->price_special = $formattedPrices[ 'price_special' ];
+                $product->price_inr_special = $formattedPrices[ 'price_inr_special' ];
+                $product->price_inr_discounted = $formattedPrices[ 'price_inr_discounted' ];
                 $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
+                $product->price_eur_discounted = $formattedPrices[ 'price_eur_discounted' ];
                 $product->is_scraped = $isExcel == 1 ? 0 : 1;
                 $product->save();
 
@@ -173,8 +175,9 @@ class Product extends Model
                                 'description' => ProductHelper::getRedactedText($json->description, 'short_description'),
                                 'supplier_link' => $json->url,
                                 'stock' => $json->stock,
-                                'price' => $formattedPrices[ 'price' ],
-                                'price_discounted' => $formattedPrices[ 'price_discounted' ],
+                                'price' => $formattedPrices[ 'price_eur' ],
+                                'price_special' => $formattedPrices[ 'price_eur_special' ],
+                                'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
                                 'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
                                 'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
@@ -258,10 +261,12 @@ class Product extends Model
                 $product->dmeasurement = isset($json->properties[ 'dmeasurement' ]) && $json->properties[ 'dmeasurement' ] > 0 ? $json->properties[ 'dmeasurement' ] : null;
                 $product->measurement_size_type = $json->properties[ 'measurement_size_type' ];
                 $product->made_in = $json->properties[ 'made_in' ] ?? null;
-                $product->price = $formattedPrices[ 'price' ];
-                $product->price_inr = $formattedPrices[ 'price_inr' ];
-                $product->price_special = $formattedPrices[ 'price_special' ];
+                $product->price = $formattedPrices[ 'price_eur' ];
                 $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
+                $product->price_eur_discounted = $formattedPrices[ 'price_eur_discounted' ];
+                $product->price_inr = $formattedPrices[ 'price_inr' ];
+                $product->price_inr_special = $formattedPrices[ 'price_inr_special' ];
+                $product->price_inr_discounted = $formattedPrices[ 'price_inr_discounted' ];
 
                 // Try to save the product
                 try {
@@ -283,8 +288,9 @@ class Product extends Model
                                 'description' => ProductHelper::getRedactedText($json->description, 'short_description'),
                                 'supplier_link' => $json->url,
                                 'stock' => $json->stock,
-                                'price' => $formattedPrices[ 'price' ],
-                                'price_discounted' => $formattedPrices[ 'price_discounted' ],
+                                'price' => $formattedPrices[ 'price_eur' ],
+                                'price_special' => $formattedPrices[ 'price_eur_special' ],
+                                'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
                                 'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
                                 'composition' => ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition'),
@@ -311,27 +317,27 @@ class Product extends Model
         if (strpos($json->price, ',') !== false) {
             if (strpos($json->price, '.') !== false) {
                 if (strpos($json->price, ',') < strpos($json->price, '.')) {
-                    $finalPrice = str_replace(',', '', $json->price);
+                    $priceEur = str_replace(',', '', $json->price);
                 } else {
-                    $finalPrice = str_replace(',', '|', $json->price);
-                    $finalPrice = str_replace('.', ',', $finalPrice);
-                    $finalPrice = str_replace('|', '.', $finalPrice);
-                    $finalPrice = str_replace(',', '', $finalPrice);
+                    $priceEur = str_replace(',', '|', $json->price);
+                    $priceEur = str_replace('.', ',', $priceEur);
+                    $priceEur = str_replace('|', '.', $priceEur);
+                    $priceEur = str_replace(',', '', $priceEur);
                 }
             } else {
-                $finalPrice = str_replace(',', '.', $json->price);
+                $priceEur = str_replace(',', '.', $json->price);
             }
         } else {
-            $finalPrice = $json->price;
+            $priceEur = $json->price;
         }
 
         // Get numbers and trim final price
-        $finalPrice = trim(preg_replace('/[^0-9\.]/i', '', $finalPrice));
+        $priceEur = trim(preg_replace('/[^0-9\.]/i', '', $priceEur));
 
         //
-        if (strpos($finalPrice, '.') !== false) {
+        if (strpos($priceEur, '.') !== false) {
             // Explode price
-            $exploded = explode('.', $finalPrice);
+            $exploded = explode('.', $priceEur);
 
             // Check if there are numbers after the dot
             if (strlen($exploded[ 1 ]) > 2) {
@@ -342,75 +348,49 @@ class Product extends Model
                 }
 
                 // Convert price to the lowest minor unit
-                $finalPrice = implode('', $sliced);
+                $priceEur = implode('', $sliced);
             }
         }
 
         // Set price to rounded finalPrice
-        $price = round($finalPrice);
+        $priceEur = round($priceEur);
 
         // Check if the euro to rupee rate is set
         if (!empty($brand->euro_to_inr)) {
-            $priceInr = $brand->euro_to_inr * $price;
+            $priceInr = $brand->euro_to_inr * $priceEur;
         } else {
-            $priceInr = Setting::get('euro_to_inr') * $price;
+            $priceInr = Setting::get('euro_to_inr') * $priceEur;
         }
 
         // Build price in INR and special price
         $priceInr = round($priceInr, -3);
-        $priceSpecial = $priceInr - ($priceInr * $brand->deduction_percentage) / 100;
-        $priceSpecial = round($priceSpecial, -3);
 
         //Build Special Price In EUR
-        if (!empty($finalPrice)) {
-            $priceEurSpecial = $finalPrice - ($finalPrice * $brand->deduction_percentage) / 100;
+        if (!empty($priceEur) && !empty($priceInr)) {
+            $priceEurSpecial = $priceEur - ($priceEur * $brand->deduction_percentage) / 100;
+            $priceInrSpecial = $priceInr - ($priceInr * $brand->deduction_percentage) / 100;
         } else {
             $priceEurSpecial = '';
+            $priceInrSpecial = '';
         }
 
-
-        // Make discounted price in the correct format
-        if (strpos($json->discounted_price, ',') !== false) {
-            if (strpos($json->discounted_price, '.') !== false) {
-                if (strpos($json->discounted_price, ',') < strpos($json->discounted_price, '.')) {
-                    $finalDiscountedPrice = str_replace(',', '', $json->discounted_price);
-                } else {
-                    $finalDiscountedPrice = str_replace(',', '|', $json->discounted_price);
-                    $finalDiscountedPrice = str_replace('.', ',', $finalDiscountedPrice);
-                    $finalDiscountedPrice = str_replace('|', '.', $finalDiscountedPrice);
-                    $finalDiscountedPrice = str_replace(',', '', $finalDiscountedPrice);
-                }
-            } else {
-                $finalDiscountedPrice = str_replace(',', '.', $json->discounted_price);
-            }
+        // Product on sale?
+        if ($json->is_sale == 1 && $brand->sales_discount > 0 && !empty($priceEurSpecial)) {
+            $priceEurDiscounted = $priceEurSpecial - ($priceEurSpecial * $brand->sales_discount) / 100;
+            $priceInrDiscounted = $priceInrSpecial - ($priceInrSpecial * $brand->sales_discount) / 100;
         } else {
-            $finalDiscountedPrice = $json->discounted_price;
+            $priceEurDiscounted = 0;
+            $priceInrDiscounted = 0;
         }
 
-        // Convert the price to the lowest minor unit
-        $finalDiscountedPrice = trim(preg_replace('/[^0-9\.]/i', '', $finalDiscountedPrice));
-
-        if (strpos($finalDiscountedPrice, '.') !== false) {
-            $exploded = explode('.', $finalDiscountedPrice);
-
-            if (strlen($exploded[ 1 ]) > 2) {
-                if (count($exploded) > 2) {
-                    $sliced = array_slice($exploded, 0, 2);
-                } else {
-                    $sliced = $exploded;
-                }
-
-                $finalDiscountedPrice = implode('', $sliced);
-            }
-        }
-
-        // Return array with prices.
+        // Return prices
         return [
-            'price' => $price,
-            'price_discounted' => round($finalDiscountedPrice),
-            'price_inr' => $priceInr,
-            'price_special' => $priceSpecial,
+            'price_eur' => $priceEur,
             'price_eur_special' => $priceEurSpecial,
+            'price_eur_discounted' => $priceEurDiscounted,
+            'price_inr' => $priceInr,
+            'price_inr_special' => $priceInrSpecial,
+            'price_inr_discounted' => $priceInrDiscounted
         ];
     }
 
@@ -587,7 +567,7 @@ class Product extends Model
                     $arrImages = $scrapedProduct->images;
                 }
 
-                foreach ( $arrImages as $image) {
+                foreach ($arrImages as $image) {
                     //check if image has http or https link
                     if (strpos($image, 'http') === false) {
                         continue;
