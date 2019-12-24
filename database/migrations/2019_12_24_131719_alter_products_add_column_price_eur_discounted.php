@@ -19,7 +19,7 @@ class AlterProductsAddColumnPriceEurDiscounted extends Migration
 //        });
 
         Schema::table('products', function (Blueprint $table) {
-            $table->float('price_special', 8, 2)->default(0)->change();
+            $table->float('price_special', 8, 2)->default(0.00)->change();
 
         });
 
