@@ -15,8 +15,9 @@ class UpdateBrandsAddSalesColumns extends Migration
     {
         Schema::table('brands', function(Blueprint $table)
         {
-            $table->integer('sales_discount')->after('deduction_percentage')->default(0);
             $table->integer('b2b_sales_discount')->after('deduction_percentage')->default(0);
+            $table->integer('sales_discount')->after('deduction_percentage')->default(0);
+            $table->integer('flash_sales_percentage')->after('deduction_percentage')->default(0);
         });
     }
 
@@ -31,6 +32,7 @@ class UpdateBrandsAddSalesColumns extends Migration
         Schema::table('brands', function (Blueprint $table) {
             $table->dropColumn('sales_discount');
             $table->dropColumn('b2b_sales_discount');
+            $table->dropColumn('flash_sales_percentage');
         });
     }
 }
