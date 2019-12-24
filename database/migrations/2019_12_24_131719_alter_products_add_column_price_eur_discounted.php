@@ -20,7 +20,10 @@ class AlterProductsAddColumnPriceEurDiscounted extends Migration
 
         Schema::table('products', function (Blueprint $table) {
             $table->float('price_special', 8, 2)->default(0)->change();
+        });
 
+        Schema::table('products', function (Blueprint $table) {
+            $table->renameColumn('price_special', 'price_inr_special');
         });
     }
 
@@ -34,6 +37,10 @@ class AlterProductsAddColumnPriceEurDiscounted extends Migration
         Schema::table('products', function (Blueprint $table) {
             $table->dropColumn('price_eur_discounted');
             $table->dropColumn('price_inr_discounted');
+        });
+
+        Schema::table('products', function (Blueprint $table) {
+            $table->renameColumn('price_inr_special', 'price_special');
         });
     }
 }
