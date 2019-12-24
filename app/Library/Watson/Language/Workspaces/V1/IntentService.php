@@ -42,7 +42,7 @@ class IntentService extends Service
     public function getList($workspaceId, $params = [], $version = '2019-02-28')
     {
         return $this->client->request(
-            'POST',
+            'GET',
             $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/intents',
             ['query' => ['version' => $version] + $params]
         );
@@ -51,7 +51,7 @@ class IntentService extends Service
     public function get($workspaceId, $intents, $version = '2019-02-28')
     {
         return $this->client->request(
-            'POST',
+            'GET',
             $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/intents/' . $intents,
             ['query' => ['version' => $version]]
         );
