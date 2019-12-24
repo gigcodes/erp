@@ -52,7 +52,8 @@ class InstagramPostsController extends Controller
     private function _getFilteredInstagramPosts(Request $request) {
         // Base query
         $instagramPosts = InstagramPosts::orderBy('posted_at', 'DESC')
-            ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id');
+            ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id')
+            ->select(['instagram_posts.*','hash_tags.hashtag']);
 
         // Apply hashtag filter
         if (!empty($request->hashtag)) {
@@ -77,9 +78,9 @@ class InstagramPostsController extends Controller
     {
         // Get raw body
         $file = $request->file('file');
-        
+
         $f = File::get($file);
-        
+
         $payLoad = json_decode($f);
 
         // NULL? No valid JSON
@@ -95,7 +96,6 @@ class InstagramPostsController extends Controller
 
             // Loop over posts
             foreach ($payLoad as $postJson) {
-                
                 // Set tag
                 $tag = $postJson[ 'Tag used to search' ];
 
@@ -112,7 +112,7 @@ class InstagramPostsController extends Controller
                 $instagramPost->media_url = !empty($postJson[ 'Image' ]) ? $postJson[ 'Image' ] : $postJson[ 'URL' ];
                 $instagramPost->source = 'instagram';
                 $instagramPost->save();
-                
+
                 // Store media
                 if (!empty($postJson[ 'Image' ])) {
                     if (!$instagramPost->hasMedia('instagram-post')) {
