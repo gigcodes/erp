@@ -23,6 +23,7 @@ class QuestionController extends Controller
         $chatQuestions = ChatbotQuestion::leftJoin("chatbot_question_examples as cqe", "cqe.chatbot_question_id", "chatbot_questions.id")
             ->select("chatbot_questions.*", \DB::raw("group_concat(cqe.question) as `questions`"))
             ->groupBy("chatbot_questions.id")
+            ->orderBy("chatbot_questions.id","desc")
             ->paginate(10);
 
         return view('chatbot::question.index', compact('chatQuestions'));

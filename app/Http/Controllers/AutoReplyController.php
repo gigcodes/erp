@@ -11,9 +11,11 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\ChatbotKeyword;
 use App\ChatbotKeywordValue;
+use App\ChatMessagePhrase;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionExample;
 use App\ChatMessageWord;
+use App\Library\Watson\Model as WatsonManager;
 
 class AutoReplyController extends Controller
 {
@@ -251,31 +253,35 @@ class AutoReplyController extends Controller
         }else{
             //Create Group 
             $group = new ChatbotKeyword();
-            $group->keyword = $name;
+            $group->keyword = str_replace(" ", "_", preg_replace('/\s+/', ' ', $name));
             $group->save();
             $groupId = $group->id; 
         }
-        
-        //Getting keyword in array
-        foreach ($keywords as $keyword) {
-            //Check If Group ALready Exist
-            $checkExistingGroup  = ChatbotKeywordValue::where('chatbot_keyword_id',$groupId)->where('value',$keyword)->first();
-            if($checkExistingGroup == null){
-                //Place Api Here For Keywords
-                $keywordSave = new ChatbotKeywordValue();
-                $keywordSave->chatbot_keyword_id = $groupId;
-                $keywordSave->value = $keyword;
-                $keywordSave->save();
 
+        if(!empty($keywords) && is_array($keywords)) {
+            $words = ChatMessageWord::whereIn("id",$keywords)->get();
+            if(!$words->isEmpty()) {
+                foreach($words as $word) {
+                    //Check If Group ALready Exist
+                    $checkExistingGroup  = ChatbotKeywordValue::where('chatbot_keyword_id',$groupId)->where('value',$word->word)->first();
+                    if($checkExistingGroup == null){
+                        $keywordSave = new ChatbotKeywordValue();
+                        $keywordSave->chatbot_keyword_id = $groupId;
+                        $keywordSave->value = preg_replace("/\s+/", " ", $word->word);
+                        $keywordSave->save();
+                    }
+                }
             }
-            
         }
+        // call api to store data
+        WatsonManager::pushKeyword($groupId);
+
         return response()->json(["response" => 200]);
     }   
 
     public function saveGroupPhrases(Request $request)
     {
-       $phrases = $request->phraseId;
+       $phrasesReq = $request->phraseId;
        $keyword = $request->keyword;
        $name = $request->name;
        $group = $request->phrase_group;
@@ -287,26 +293,34 @@ class AutoReplyController extends Controller
         }else{
             //Create Group 
             $group = new ChatbotQuestion();
-            $group->value = $name;
+            $group->value = str_replace(" ", "_", preg_replace('/\s+/', ' ', $name));
             $group->save();
             $groupId = $group->id; 
         }
 
 
        //Getting Phrase in array
-       foreach ($phrases as $phrase) {
-          //Check If Group ALready Exist
-            $checkExistingGroup  = ChatbotQuestionExample::where('chatbot_question_id',$groupId)->where('question',$phrase)->first();
-            if($checkExistingGroup == null){
-                //Place Api Here For Keywords
-                $phraseSave = new ChatbotQuestionExample();
-                $phraseSave->chatbot_question_id = $groupId;
-                $phraseSave->question = $phrase;
-                $phraseSave->save();
+       if(!empty($phrasesReq) && is_array($phrasesReq)) {
+          $phrase = ChatMessagePhrase::whereIn("id",$phrasesReq)->get();
+          if(!$phrase->isEmpty()) {
+             foreach($phrase as $rec) {
+                $checkExistingGroup  = ChatbotQuestionExample::where('chatbot_question_id',$groupId)->where('question',$rec->phrase)->first();
+                if($checkExistingGroup == null){
+                    //Place Api Here For Keywords
+                    $phraseSave = new ChatbotQuestionExample();
+                    $phraseSave->chatbot_question_id = $groupId;
+                    $phraseSave->question = preg_replace("/\s+/", " ", $rec->phrase);
+                    $phraseSave->save();
 
-            }
+                }
+             }
         }
-        return response()->json(["response" => 200]);
+       }
+
+        // call api to store data
+        WatsonManager::pushQuestion($groupId);
+       
+       return response()->json(["response" => 200]);
     }
 
 }
