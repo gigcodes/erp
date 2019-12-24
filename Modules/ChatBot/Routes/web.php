@@ -31,6 +31,8 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
     Route::prefix('question')->group(function () {
         Route::get('/', 'QuestionController@index')->name("chatbot.question.list");
         Route::post('/', 'QuestionController@save')->name("chatbot.question.save");
+        Route::post('/submit', 'QuestionController@saveAjax')->name("chatbot.question.saveAjax");
+        Route::get('/search', 'QuestionController@search')->name("chatbot.question.search");
         Route::prefix('{id}')->group(function () {
             Route::get('/edit', 'QuestionController@edit')->name("chatbot.question.edit");
             Route::post('/edit', 'QuestionController@update')->name("chatbot.question.update");
