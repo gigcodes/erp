@@ -13,6 +13,7 @@
 
 Route::prefix('chatbot')->middleware('auth')->group(function () {
     Route::get('/', 'ChatBotController@index');
+    Route::post('/edit-message', 'ChatBotController@editMessage')->name("chatbot.edit.message");
     
     Route::prefix('keyword')->group(function () {
         Route::get('/', 'KeywordController@index')->name("chatbot.keyword.list");

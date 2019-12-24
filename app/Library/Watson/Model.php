@@ -16,7 +16,8 @@ class Model
 
     const EXCLUDED_REPLY = [
         "Can you reword your statement? I'm not understanding.",
-        "I didn't understand. You can try rephrasing."
+        "I didn't understand. You can try rephrasing.",
+        "I didn't get your meaning."
     ];
 
     public static function getWorkspaceId()
@@ -226,7 +227,7 @@ class Model
 
                 if (isset($textMessage->text)) {
                     if (!in_array($textMessage->text, self::EXCLUDED_REPLY)) {
-                        return $textMessage;
+                        return ["reply_text" => $textMessage, "response" => json_encode($result)];
                     }
                 }
             }

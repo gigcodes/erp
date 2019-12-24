@@ -1471,17 +1471,23 @@ class WhatsAppController extends FindByNumberController
                 if(!empty($params['message'])) {
                     if ($customer && $params[ 'message' ] != '') {
                         $chatbotReply = WatsonManager::sendMessage($customer,$params['message']);
-                        if(!empty($chatbotReply) 
-                            && !empty($chatbotReply->text) 
-                            && !empty($chatbotReply->response_type) 
-                            && $chatbotReply->response_type == "text"
+                        if(!empty($chatbotReply["reply_text"]) 
+                            && !empty($chatbotReply["reply_text"]->text) 
+                            && !empty($chatbotReply["reply_text"]->response_type) 
+                            && $chatbotReply["reply_text"]->response_type == "text"
                         ) {
                             $temp_params = $params;
-                            $temp_params['message']   = $chatbotReply->text;
-                            $temp_params['media_url'] = null;
-                            $temp_params['status']    = 11;
+                            $temp_params['message']    = $chatbotReply["reply_text"]->text;
+                            $temp_params['media_url']  = null;
+                            $temp_params['status']     = 11;
+                            $temp_params['number']     = "";
+                            $temp_params['is_chatbot'] = 1;
                             // Create new message
                             $message = ChatMessage::create($temp_params);
+                            \App\ChatbotReply::create([
+                                "chat_id" => $message->id,
+                                "reply"   => $chatbotReply["response"],
+                            ]);
                         }
                     }
                 }
