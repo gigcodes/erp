@@ -15,18 +15,9 @@
                                      {{ $post['username'] }}
                                        
                                     </a></td>
-                                <td><a href="https://instagram.com/p/{{$post['code']}}">Visit Post</a></td>
+                                <td><a href="{{$post['location']}}">Visit Post</a></td>
                                 <td>
-                                    @foreach($post->media_url as $url)
-                                         @if (isset($url['media_type']) &&  $url['media_type'] === 1)
-
-                                            <a href="{{$url['url']}}"><img src="{{ $url['url'] }}" style="width: 100px;"></a>
-                                             @break
-                                         @else
-                                            <a href="{{ $url }}"><img src="{{ $url }}" style="width: 100px;"></a>
-                                            @break
-                                        @endif 
-                                    @endforeach
+                                   
                                    
                                 </td>
                                 <td style="word-wrap: break-word;text-align: justify;">
@@ -70,21 +61,30 @@
                             </td>
                                 <td style="width: 600px;">
                                     <div class="row">
-                                        <div class="col-md-3">
-                                            <select class="form-control" name="account_id" id="account_id_{{$post['post_id']}}">
+                                        <div class="col-md-4">
+                                            @if ($post->comments)
+                                            <select class="form-control selectpicker" data-live-search="true" onchange="addUserToTextArea(this,{{$post['id']}})">
+                                                <option>Select User</option>
+                                               @foreach($post->comments as $keyy=>$comment)
+                                                    <option value="{{ $comment->username }}">{{ $comment->username }}</option>
+                                                @endforeach
+                                            </select>
+                                            @endif
+                                            <select class="form-control selectpicker" name="account_id" id="account_id_{{$post['id']}}" data-live-search="true">
+                                                <option>Select User</option>
                                                 @foreach($accs as $cc)
                                                     <option value="{{ $cc->id }}">{{ $cc->last_name }}</option>
                                                 @endforeach
                                             </select>
-                                            <select class="form-control" name="narrative_{{$post['post_id']}}" id="narrative_{{$post['post_id']}}">
+                                            <select class="form-control" name="narrative_{{$post['id']}}" id="narrative_{{$post['id']}}">
                                                 <option value="common">Common</option>
                                                 <option value="promotion">Promotion</option>
                                                 <option value="victim">Victim</option>
                                                 <option value="troll">Troll</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-9">
-                                            <textarea type="text" rows="4" class="comment-it form-control" data-author="{{$post['username']}}" data-code="{{$post['code']}}" data-mediaId="{{$post['post_id']}}" placeholder="Type comment..."></textarea>
+                                        <div class="col-md-8">
+                                            <textarea type="text" rows="4" class="comment-it form-control" data-id="{{$post['id']}}"  placeholder="Type comment..." id="textbox_{{$post['id']}}"></textarea>
                                         </div>
                                     </div>
                                 </td>

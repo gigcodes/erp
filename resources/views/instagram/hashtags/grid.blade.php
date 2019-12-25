@@ -225,11 +225,12 @@
         $('.comment-it').keyup(function(event) {
             if (event.keyCode == 13) {
                 let message = $(this).val();
-                let mediaId = $(this).attr('data-mediaId');
-                let author = $(this).attr('data-author');
-                let code = $(this).attr('data-code');
-                let accountId = $('#account_id_'+mediaId).val();
-                let narrative = $('#narrative_'+mediaId).val();
+                let id = $(this).attr('data-id');
+                let accountId = $('#account_id_'+id).val();
+                let narrative = $('#narrative_'+id).val();
+                let selectedusers = $('#selected_user_'+id).val();
+
+
                 let self = this;
 
                 $(this).attr('disabled', true);
@@ -239,10 +240,8 @@
                     type: 'POST',
                     data: {
                         message: message,
-                        post_id: mediaId,
                         account_id: accountId,
-                        code: code,
-                        author: author,
+                        id : id,
                         narrative: narrative,
                         hashtag: "{{$hashtag->hashtag}}",
                         _token: '{{ csrf_token() }}'
@@ -253,6 +252,7 @@
                         $("#loading-image").hide();
                         alert('Comment added successfully!');
                         $(self).removeAttr('disabled');
+                        $(self).val('');
                     }
                 });
             }
@@ -349,5 +349,13 @@
         });
     });
 
+
+    function addUserToTextArea(value,id){
+        username = '@'+$(value).val();
+        
+        $("#textbox_"+id).val(function() {
+        return this.value +' '+username;
+        });
+    }
     </script>
 @endsection
