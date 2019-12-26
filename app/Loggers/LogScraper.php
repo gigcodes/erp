@@ -11,6 +11,7 @@ use App\Brand;
 use App\Category;
 use App\Supplier;
 use App\DeveloperTask;
+use App\Scraper;
 
 class LogScraper extends Model
 {
@@ -430,8 +431,8 @@ class LogScraper extends Model
         
     }
 
-    public function supplier(){
-        return $this->hasOne(Supplier::class,'scraper_name','website');
+    public function scraper(){
+        return $this->hasOne(Scraper::class,'scraper_name','website');
     }
 
     public function taskType($supplier,$category,$brand){

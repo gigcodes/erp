@@ -79,8 +79,12 @@
                         @endphp
                         <select data-placeholder="Select Supplier" class="form-control select-multiple2" id="supplier" multiple>
                             <optgroup label="Suppliers">
-                                @foreach ($suppliers->select('id','supplier','scraper_name')->where('supplier_status_id',1)->get() as $id => $suppliers)
-                                    <option value="{{ $suppliers->scraper_name }}" {{ isset($supplier) && $supplier == $suppliers->scraper_name ? 'selected' : '' }}>{{ $suppliers->supplier }}</option>
+                                @foreach ($suppliers->select('id','supplier')->where('supplier_status_id',1)->get() as $id => $suppliers)
+                                    @if($suppliers->scraper)
+                                    <option value="{{ $suppliers->scraper->scraper_name }}" {{ isset($supplier) && $supplier == $suppliers->scraper->scraper_name ? 'selected' : '' }}>{{ $suppliers->supplier }}</option>
+                                    @endif
+                                }
+                                }
                                 @endforeach
                             </optgroup>
                         </select></th>
