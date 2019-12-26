@@ -255,14 +255,14 @@ class OrderController extends Controller {
 		}
 
 		$statusFilterList =  clone($orders);
-		
+
 		$orders = $orders->leftJoin("order_products as op","op.order_id","orders.id")
 		->leftJoin("products as p","p.sku","op.sku")->leftJoin("brands as b","b.id","p.brand");
-		
+
 		if(!empty($brandIds)) {
 			$orders = $orders->whereIn("p.brand",$brandIds);
 		}
-		
+
 		$orders = $orders->groupBy("op.order_id");
 		$orders = $orders->select("orders.*",\DB::raw("group_concat(b.name) as brand_name_list"));
 
@@ -277,7 +277,7 @@ class OrderController extends Controller {
 		}
 
 		$statusFilterList = $statusFilterList->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"order_status")->get()->toArray();
-		
+
 		$orders_array = $orders->paginate(500);
 //		$orders_array = $orders->paginate(Setting::get('pagination'));
 
@@ -1890,7 +1890,7 @@ class OrderController extends Controller {
 			OrderProduct::create( [
 				'order_id'      => $model_id,
 				'sku'           => $product->sku,
-				'product_price' => $product->price_special_offer != '' ? $product->price_special_offer : $product->price_special,
+				'product_price' => $product->price_special_offer != '' ? $product->price_special_offer : $product->price_inr_special,
 				'color' => $product->color,
 				'size' => $size,
 			] );
@@ -2025,53 +2025,6 @@ public function createProductOnMagento(Request $request, $id){
 
 	$proxy = new \SoapClient(config('magentoapi.url'), $options);
 	$sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
-
-	// $sku = $product->sku . $product->color;
-	// $categories = CategoryController::getCategoryTreeMagentoIds($product->category);
-	//
-	// $brand= $product->brands()->get();
-	// array_push($categories,$brand[0]->magento_id);
-	//
-	// $associated_skus = [];
-	// $sizes_array = explode( ',', $product->size );
-	//
-	// foreach ( $sizes_array as $size ) {
-	//
-	// 	$productData = array(
-	// 		'categories'            => $categories,
-	// 		'name'                  => $product->name,
-	// 		'description'           => '<p></p>',
-	// 		'short_description'     => $product->short_description,
-	// 		'website_ids'           => array(1),
-	// 		// Id or code of website
-	// 		'status'                => 2,
-	// 		// 1 = Enabled, 2 = Disabled
-	// 		'visibility'            => 1,
-	// 		// 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-	// 		'tax_class_id'          => 2,
-	// 		// Default VAT
-	// 		'weight'                => 0,
-	// 		'stock_data' => array(
-	// 			'use_config_manage_stock' => 1,
-	// 			'manage_stock' => 1,
-	// 		),
-	// 		'price'                 => $product->price_inr,
-	// 		// Same price than configurable product, no price change
-	// 		'special_price'         => $product->price_special,
-	// 		'additional_attributes' => array(
-	// 			'single_data' => array(
-	// 				array( 'key' => 'composition', 'value' => $product->composition, ),
-	// 				array( 'key' => 'color', 'value' => $product->color, ),
-	// 				array( 'key' => 'sizes', 'value' => $size, ),
-	// 				array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
-	// 				array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
-	// 			),
-	// 		),
-	// 	);
-	// 	// Creation of product simple
-	// 	$result            = $proxy->catalogProductCreate( $sessionId, 'simple', 14, $sku . '-' . $size, $productData );
-	// 	$associated_skus[] = $sku . '-' . $size;
-	// }
 
 	/**
 	 * Configurable product

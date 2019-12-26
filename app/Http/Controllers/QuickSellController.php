@@ -29,7 +29,7 @@ class QuickSellController extends Controller
 
       $products = Product::where('quick_product',1)->where('is_pending',0)->latest()->paginate(Setting::get('pagination'));
       $allSize  = Product::where('quick_product',1)->where('is_pending',0)->groupBy("size")->select("size")->pluck("size")->toArray();
-      
+
       $brands_all = Brand::all();
       $categories_all = Category::all();
       $brands = [];
@@ -141,9 +141,9 @@ class QuickSellController extends Controller
   				$product->price_inr = Setting::get('euro_to_inr') * $product->price;
 
   			$product->price_inr = round($product->price_inr, -3);
-  			$product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
+  			$product->price_inr_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
-  			$product->price_special = round($product->price_special, -3);
+  			$product->price_inr_special = round($product->price_inr_special, -3);
   		}
 
   		$product->save();
@@ -213,11 +213,11 @@ class QuickSellController extends Controller
 
       if(!empty($product->brand) && !empty($product->price)) {
   			$product->price_inr     = app('App\Http\Controllers\ProductSelectionController')->euroToInr($product->price, $product->brand);
-  			$product->price_special = app('App\Http\Controllers\ProductSelectionController')->calculateSpecialDiscount($product->price_inr, $product->brand);
+  			$product->price_inr_special = app('App\Http\Controllers\ProductSelectionController')->calculateSpecialDiscount($product->price_inr, $product->brand);
   		} else {
-  			$product->price_special = $request->price_special;
+  			$product->price_inr_special = $request->price_special;
   		}
-      
+
       if($request->is_pending !== null) {
         $product->is_pending = $request->is_pending;
       }
@@ -234,13 +234,13 @@ class QuickSellController extends Controller
       }elseif($request->group_new != null){
           ProductQuicksellGroup::where('product_id',$product->id)->delete();
            $group = QuickSellGroup::orderBy('id', 'desc')->first();
-           
+
            $group_create =  new QuickSellGroup();
            $incrementId = ($group->group+1);
            $group_create->group = $incrementId;
            $group_create->name = $request->group_new;
            $group_create->save();
-           
+
            $edit = new ProductQuicksellGroup();
            $edit->quicksell_group_id =  $group_create->group;
            $edit->product_id = $product->id;
@@ -289,7 +289,7 @@ class QuickSellController extends Controller
       }
 
       if($request->group_new == null && $request->group_old == null){
-        $input =  '<input type="checkbox" name="blank" class="group-checkbox checkbox" data-id='.$product->id.'>';  
+        $input =  '<input type="checkbox" name="blank" class="group-checkbox checkbox" data-id='.$product->id.'>';
         $data = [$supplier,$price,$brand,$title,$input,$size];
       }
       if($request->group_new != null){
@@ -374,7 +374,7 @@ class QuickSellController extends Controller
      */
     public function pending(Request $request)
     {
-        
+
       if($request->selected_products || $request->term  || $request->category || $request->brand || $request->color || $request->supplier ||
             $request->location || $request->size || $request->price ){
 
@@ -413,7 +413,7 @@ class QuickSellController extends Controller
                     $qu->whereIn('quicksell_group_id',$request->group);
                     });
             }
-            
+
             if (request('price') != null) {
                 $price = (explode(",",$request->price));
                 $from = $price[0];
@@ -432,7 +432,7 @@ class QuickSellController extends Controller
         }else{
             $products = Product::where('is_pending',1)->latest()->paginate(Setting::get('pagination'));
         }
-        
+
         $brands_all = Brand::all();
         $categories_all = Category::all();
         $brands = [];
@@ -497,30 +497,30 @@ class QuickSellController extends Controller
     public function activate(Request $request){
       //dd($request);
         $ids = explode(',',$request->checkbox_value);
-        
+
         if($request->id == null){
            foreach ($ids as $id) {
           $product = Product::findorfail($id);
           $product->is_pending = 0;
           $product->update();
         }
-         
-        
+
+
         }else{
-          
+
           $product = Product::findorfail($request->id);
           $product->is_pending = 0;
           $product->update();
-        
+
 
         }
-        
+
         return redirect()->route('quicksell.pending')->with('success', 'You have activated Quick Product');
     }
 
     public function search(Request $request)
     {
-        
+
         if($request->selected_products || $request->term  || $request->category || $request->brand || $request->color || $request->supplier ||
             $request->location || $request->size || $request->price ){
 
@@ -560,7 +560,7 @@ class QuickSellController extends Controller
                     $qu->whereIn('quicksell_group_id',$request->group);
                     });
             }
-            
+
             if (request('price') != null) {
                 $price = (explode(",",$request->price));
                 $from = $price[0];
@@ -575,7 +575,7 @@ class QuickSellController extends Controller
             }
 
             $products = $query->where('quick_product',1)->where('is_pending',0)->paginate($per_page);
-           
+
         }else{
             $products = Product::where('is_pending',0)->latest()->paginate(Setting::get('pagination'));
         }

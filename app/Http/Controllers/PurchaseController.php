@@ -1178,7 +1178,7 @@ class PurchaseController extends Controller
             $new_order = new OrderProduct;
             $new_order->order_id = $order_product->order_id;
             $new_order->sku = $new_product->sku;
-            $new_order->product_price = $new_product->price_special;
+            $new_order->product_price = $new_product->price_inr_special;
             $new_order->size = $order_product->size;
             $new_order->color = $order_product->color;
             $new_order->purchase_status = 'Pending Purchase';
@@ -1232,9 +1232,9 @@ class PurchaseController extends Controller
             }
 
             $product->price_inr = round($product->price_inr, -3);
-            $product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
+            $product->price_inr_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
-            $product->price_special = round($product->price_special, -3);
+            $product->price_inr_special = round($product->price_inr_special, -3);
         }
 
         $product->save();
@@ -1256,7 +1256,7 @@ class PurchaseController extends Controller
             $new_order = new OrderProduct;
             $new_order->order_id = $order_product->order_id;
             $new_order->sku = $product->sku;
-            $new_order->product_price = $product->price_special;
+            $new_order->product_price = $product->price_inr_special;
             $new_order->size = $order_product->size;
             $new_order->color = $order_product->color;
             $new_order->purchase_status = 'Pending Purchase';

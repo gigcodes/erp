@@ -598,7 +598,7 @@ class LeadsController extends Controller
 
             $product = Product::find($product_id);
             $brand_name = $product->brands->name ?? '';
-            $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_special;
+            $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_inr_special;
 
             if ($request->has('dimension')) {
 
@@ -1029,7 +1029,7 @@ class LeadsController extends Controller
                 } elseif ($old == 0) {
                     $count++;
                 }
-            }    
+            }
         }
 
         if ($count > 0) {
@@ -1046,7 +1046,7 @@ class LeadsController extends Controller
             $media = Media::find($id);
             $erpLeads->attachMedia($media, config('constants.media_tags'));
         }
-        
+
         return response()->json(["code"=> 1 , "data" => []]);
     }
 
@@ -1081,7 +1081,7 @@ class LeadsController extends Controller
             $endTime   = $request->get("product_end_date","");
 
             $product =  new \App\Product;
-            
+
             $fireQ = false;
             if(!empty($startTime)) {
                 $fireQ = true;
@@ -1105,9 +1105,9 @@ class LeadsController extends Controller
             $max_group_id = MessageQueue::max('group_id') + 1;
 
             $sendingData = [
-              "message"  => $request->get('message', ''), 
+              "message"  => $request->get('message', ''),
             ];
-            
+
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $media = MediaUploader::fromSource($image)->upload();
@@ -1164,7 +1164,7 @@ class LeadsController extends Controller
         $customer = Customer::find($request->get('customer_id'));
         $mediaArr =  $product ? $product->getMedia(config('constants.media_tags')) : [];
         $media = [];
-        
+
         foreach ($mediaArr as $value) {
             $media[] = ['url' => $value->getUrl(), 'id' => $value->id];
         }

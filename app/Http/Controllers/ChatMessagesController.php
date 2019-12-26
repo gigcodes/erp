@@ -130,11 +130,11 @@ class ChatMessagesController extends Controller
 
                         $productImage = \App\Product::with('Media')
                             ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $imageKey AND mediables.mediable_type LIKE '%$mediableType%')")
-                            ->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+                            ->select(['id', 'price_inr_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
                         if ($productImage) {
                             $tempImage[ 'product_id' ] = $productImage->id;
-                            $tempImage[ 'special_price' ] = $productImage->price_special;
+                            $tempImage[ 'special_price' ] = $productImage->price_inr_special;
                             $tempImage[ 'supplier_initials' ] = $this->getSupplierIntials($productImage->supplier);
                             $tempImage[ 'size' ] = $this->getSize($productImage);
                         }
