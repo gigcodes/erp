@@ -35,7 +35,7 @@ class ProductSelectionController extends Controller
 		$products = Product::where('stock', '>=', 1)->latest()
 											->withMedia(config('constants.media_tags'))
 											->with('suppliers')
-											->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
+											->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
 											->paginate(Setting::get('pagination'));
 
 		$roletype = 'Selection';
@@ -63,7 +63,7 @@ class ProductSelectionController extends Controller
                 if ($term == -1) {
 	                $query = $query->orWhere('isApproved', -1);
 	            }
-	            
+
 	            $brand = \App\Brand::where('name', 'LIKE', "%".$term."%")->first();
 	            if ($brand ) {
 	                $query = $query->orWhere('brand', '=', $brand->id);
@@ -120,7 +120,7 @@ class ProductSelectionController extends Controller
         	 $products = $products->whereNotNull('size')->where(function ($query) use ($request) {
 	            $query->where('size', $request->get('size'))->orWhere('size', 'LIKE', "%".$request->get('size').",")->orWhere('size', 'LIKE', "%,".$request->get('size').",%");
 	        });
-        }      
+        }
 
 		$products =	$products->paginate(Setting::get('pagination'));
 
@@ -183,9 +183,9 @@ class ProductSelectionController extends Controller
 
 		if(!empty($productselection->brand) && !empty($productselection->price)) {
 			$productselection->price_inr     = $this->euroToInr($productselection->price, $productselection->brand);
-			$productselection->price_special = $this->calculateSpecialDiscount($productselection->price_inr, $productselection->brand);
+			$productselection->price_inr_special = $this->calculateSpecialDiscount($productselection->price_inr, $productselection->brand);
 		} else {
-			$productselection->price_special = $request->price_special;
+			$productselection->price_inr_special = $request->price_inr_special;
 		}
 
 
@@ -247,9 +247,9 @@ class ProductSelectionController extends Controller
 
 		if(!empty($productselection->brand) && !empty($productselection->price)) {
 			$productselection->price_inr     = $this->euroToInr($productselection->price, $productselection->brand);
-			$productselection->price_special = $this->calculateSpecialDiscount($productselection->price_inr, $productselection->brand);
+			$productselection->price_inr_special = $this->calculateSpecialDiscount($productselection->price_inr, $productselection->brand);
 		} else {
-			$productselection->price_special = $request->price_special;
+			$productselection->price_inr_special = $request->price_inr_special;
 		}
 
 		if ($request->oldImage > 0) {

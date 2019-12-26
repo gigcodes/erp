@@ -820,7 +820,7 @@ class SupplierController extends Controller
 
         // Only create Product
         if ($request->type == 1) {
-          
+
             // Create Group ID with Product
             $images = explode(",",$request->checkbox1[0]);
 
@@ -847,7 +847,7 @@ class SupplierController extends Controller
                     }else{
                         $product->category = $request->category;
                     }
-                    
+
                     if($request->supplier == null){
                       $product->supplier = 'QUICKSELL';
                     }else{
@@ -860,9 +860,9 @@ class SupplierController extends Controller
                         $product->price = $request->buying_price;
                     }
                     if($request->special_price == null){
-                        $product->price_special = 0;
+                        $product->price_inr_special = 0;
                     }else{
-                         $product->price_special = $request->special_price;
+                         $product->price_inr_special = $request->special_price;
                     }
                         $product->stock = 1;
                         $product->quick_product = 1;
@@ -870,7 +870,7 @@ class SupplierController extends Controller
                         $product->save();
                         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
                         $image = $match[0][0];
-                    
+
                         $jpg = \Image::make($image)->encode('jpg');
                         $filename = substr($image, strrpos($image, '/'));
                         $filename = str_replace("/","",$filename);
@@ -945,7 +945,7 @@ class SupplierController extends Controller
                     }else{
                         $product->category = $request->category;
                     }
-                    
+
                     if($request->supplier == null){
                       $product->supplier = 'QUICKSELL';
                     }else{
@@ -958,11 +958,11 @@ class SupplierController extends Controller
                         $product->price = $request->buying_price;
                     }
                     if($request->special_price == null){
-                        $product->price_special = 0;
+                        $product->price_inr_special = 0;
                     }else{
-                         $product->price_special = $request->special_price;
+                         $product->price_inr_special = $request->special_price;
                     }
-                    
+
                     $product->stock = 1;
                     $product->quick_product = 1;
                     $product->is_pending = 1;
@@ -970,7 +970,7 @@ class SupplierController extends Controller
                     preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
                     $image = $match[0][0];
                     $jpg = \Image::make($image)->encode('jpg');
-                    
+
                     $filename = substr($image, strrpos($image, '/'));
                     $filename = str_replace("/","",$filename);
                     $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();

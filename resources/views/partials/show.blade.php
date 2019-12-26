@@ -151,7 +151,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="3">Price Special (in INR): <strong>{{ $price_special }}</strong></td>
+                    <td colspan="3">Price Special (in INR): <strong>{{ $price_inr_special }}</strong></td>
                     <td colspan="2">
                         Category:
                         <strong>
@@ -316,7 +316,7 @@
 
 {{--                <div class="col-xs-12 col-sm-12 col-md-12">--}}
 {{--                    <div class="form-group">--}}
-{{--                        <strong> Price Special (in INR):</strong> {{ $price_special }}--}}
+{{--                        <strong> Price Special (in INR):</strong> {{ $price_inr_special }}--}}
 {{--                    </div>--}}
 {{--                </div>--}}
 
@@ -459,7 +459,7 @@
                             @if($status == 31)
                             <button type="buttom" class="btn btn-secondary" onclick="approveTextProduct('{{ $id }}')">Text Search Approve</button>
                             <button type="buttom" class="btn btn-danger" onclick="rejectTextProduct('{{ $id }}')">Text Search Reject</button>
-                           @endif 
+                           @endif
                         @endcan
                     </div>
                     {{-- <div class="form-group">

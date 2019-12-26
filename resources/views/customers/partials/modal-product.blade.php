@@ -67,10 +67,10 @@
 
         <div class="form-group">
             <strong>Price:</strong>
-            <input type="number" class="form-control" name="price_special" placeholder="Price"
-                   value="{{ old('price_special') }}" step=".01"  id="product-price-special"/>
-            @if ($errors->has('price_special'))
-                <div class="alert alert-danger">{{$errors->first('price_special')}}</div>
+            <input type="number" class="form-control" name="price_inr_special" placeholder="Price"
+                   value="{{ old('price_inr_special') }}" step=".01"  id="product-price-special"/>
+            @if ($errors->has('price_inr_special'))
+                <div class="alert alert-danger">{{$errors->first('price_inr_special')}}</div>
             @endif
         </div>
 
