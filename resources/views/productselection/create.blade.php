@@ -65,10 +65,10 @@
               <div class="form-group">
                 <strong>Special Price (INR):</strong>
 
-                <input type="number" class="form-control" name="price_special" value="{{ old('price_special') }}">
+                <input type="number" class="form-control" name="price_inr_special" value="{{ old('price_inr_special') }}">
 
-                @if ($errors->has('price_special'))
-                    <div class="alert alert-danger">{{$errors->first('price_special')}}</div>
+                @if ($errors->has('price_inr_special'))
+                    <div class="alert alert-danger">{{$errors->first('price_inr_special')}}</div>
                 @endif
               </div>
             </div>

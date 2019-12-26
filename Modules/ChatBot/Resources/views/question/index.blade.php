@@ -67,6 +67,9 @@
 			  </tfoot>
 			</table>
 	    </div>
+	    <div class="col-lg-12 margin-tb">
+	    	<?php echo $chatQuestions->links(); ?>
+	    </div>	
 	</div>
 </div>
 @include('chatbot::partial.create_question')
