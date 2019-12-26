@@ -432,7 +432,7 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('google.search.image') }}">Search Products by Image</a>
                                         </li>
-                                        
+
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1241,7 +1241,7 @@
 
     @if (Auth::check())
 
-        @if(auth()->user()->isAdmin())
+        @if(1 == 2 && auth()->user()->isAdmin())
             <div class="float-container developer-float hidden-xs hidden-sm">
                 @php
                     $lukas_pending_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', '!=', 'Done')->count();

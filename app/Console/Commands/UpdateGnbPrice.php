@@ -126,9 +126,9 @@ class UpdateGnbPrice extends Command
               $old_product->price_inr = Setting::get('euro_to_inr') * $old_product->price;
 
             $old_product->price_inr = round($old_product->price_inr, -3);
-            $old_product->price_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
+            $old_product->price_inr_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
 
-            $old_product->price_special = round($old_product->price_special, -3);
+            $old_product->price_inr_special = round($old_product->price_inr_special, -3);
 
             $old_product->save();
           } else {

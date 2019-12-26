@@ -28,7 +28,7 @@ class ProductSearcherController extends Controller
 
 		$products = Product::where('stock', '>=', 1)->latest()
 											->withMedia(config('constants.media_tags'))
-											->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
+											->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
 											->paginate(Setting::get('pagination'));
 
 		$roletype = 'Searcher';

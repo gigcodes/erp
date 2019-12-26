@@ -921,7 +921,7 @@ class ProductController extends Controller
 //		$data['price'] = $product->inr;
         $data[ 'euro_to_inr' ] = $product->euro_to_inr;
         $data[ 'price_inr' ] = $product->price_inr;
-        $data[ 'price_special' ] = $product->price_special;
+        $data[ 'price_inr_special' ] = $product->price_inr_special;
 
         $data[ 'isApproved' ] = $product->isApproved;
         $data[ 'rejected_note' ] = $product->rejected_note;
@@ -1102,7 +1102,7 @@ class ProductController extends Controller
 
         if (!empty($product->brand)) {
             $product->price_inr = $this->euroToInr($product->price, $product->brand);
-            $product->price_special = $this->calculateSpecialDiscount($product->price_inr, $product->brand);
+            $product->price_inr_special = $this->calculateSpecialDiscount($product->price_inr_special, $product->brand);
         }
 
         $product->save();
@@ -1114,7 +1114,7 @@ class ProductController extends Controller
 
         return response()->json([
             'price_inr' => $product->price_inr,
-            'price_special' => $product->price_special
+            'price_inr_special' => $product->price_inr_special
         ]);
     }
 
@@ -1319,7 +1319,7 @@ class ProductController extends Controller
 
         $roletype = $request->input('roletype') ?? 'Sale';
         $products = Product::where('stock', '>=', 1)
-            ->select(['id', 'sku', 'size', 'price_special', 'brand', 'isApproved', 'stage', 'created_at'])
+            ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'isApproved', 'stage', 'created_at'])
             ->orderBy("created_at","DESC")
             ->paginate(Setting::get('pagination'));
 
@@ -1427,11 +1427,11 @@ class ProductController extends Controller
         }
 
         if ($request->price_min != null) {
-            $products = $products->where('price_special', '>=', $request->price_min);
+            $products = $products->where('price_inr_special', '>=', $request->price_min);
         }
 
         if ($request->price_max != null) {
-            $products = $products->where('price_special', '<=', $request->price_max);
+            $products = $products->where('price_inr_special', '<=', $request->price_max);
         }
 
         if ($request->supplier[ 0 ] != null) {
@@ -1542,7 +1542,7 @@ class ProductController extends Controller
         }
 
         // select fields..
-        $products = $products->select(['products.id','name','short_description','color','sku', 'products.size', 'price_special', 'supplier', 'purchase_status', 'products.created_at']);
+        $products = $products->select(['products.id','name','short_description','color','sku', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
 
         if ($request->get('is_on_sale') == 'on') {
             $products = $products->where('is_on_sale', 1);
@@ -1667,9 +1667,9 @@ class ProductController extends Controller
 
             $deduction_percentage = $brand && $brand->deduction_percentage ? $brand->deduction_percentage : 1;
             $product->price_inr = round($product->price_inr, -3);
-            $product->price_special = $product->price_inr - ($product->price_inr * $deduction_percentage) / 100;
+            $product->price_inr_special = $product->price_inr - ($product->price_inr * $deduction_percentage) / 100;
 
-            $product->price_special = round($product->price_special, -3);
+            $product->price_inr_special = round($product->price_inr_special, -3);
         }
 
         $product->save();
@@ -1691,7 +1691,7 @@ class ProductController extends Controller
 
             $order_product->order_id = $request->order_id;
             $order_product->sku = $request->sku;
-            $order_product->product_price = $request->price_special;
+            $order_product->product_price = $request->price_inr_special;
             $order_product->size = $request->size;
             $order_product->color = $request->color;
             $order_product->qty = $request->quantity;
@@ -1961,7 +1961,7 @@ class ProductController extends Controller
         if ($request->get('price')[ 0 ] !== null) {
             $price = $request->get('price');
             $price = explode(',', $price);
-            $products = $products->whereBetween('price_special', [$price[ 0 ], $price[ 1 ]]);
+            $products = $products->whereBetween('price_inr_special', [$price[ 0 ], $price[ 1 ]]);
         }
 
         $category_array = Category::renderAsArray();

@@ -85,7 +85,7 @@ class ImageController extends Controller
   			$max = $exploded[1];
 
   			if ($min != '0' || $max != '10000000') {
-					$images = $images->whereBetween('price_special', [$min, $max]);
+					$images = $images->whereBetween('price_inr_special', [$min, $max]);
   			}
 
   			$price[0] = $min;
@@ -165,7 +165,7 @@ class ImageController extends Controller
   			$max = $exploded[1];
 
   			if ($min != '0' || $max != '10000000') {
-					$images = $images->whereBetween('price_special', [$min, $max]);
+					$images = $images->whereBetween('price_inr_special', [$min, $max]);
   			}
 
   			$price[0] = $min;
@@ -259,7 +259,7 @@ class ImageController extends Controller
   			$max = $exploded[1];
 
   			if ($min != '0' || $max != '10000000') {
-					$images = $images->whereBetween('price_special', [$min, $max]);
+					$images = $images->whereBetween('price_inr_special', [$min, $max]);
   			}
 
   			$price[0] = $min;

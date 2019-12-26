@@ -26,7 +26,7 @@
                         </p>
                         <hr style="width: 100%;"/>
                         <p style="padding: 20px; font-size: 0.9em;">
-                            <a style="font-weight: bold; color: #000;" title="{{ $post->username }}" target="_blank" href="https://instagram.com/{{ $post->username }}/">{{ $post->username }}</a> {{ $post->caption }}<br />
+                            <a style="font-weight: bold; color: #000;" title="{{ $post->username }}" target="_blank" href="https://instagram.com/{{ $post->username }}/">{{ $post->username }}</a> {{ $post->caption }}<br/>
                             <span style="color: #999;">{{ date('d-M-Y', strtotime($post->posted_at)) }}</span>
                         </p>
                         @php
@@ -35,7 +35,7 @@
                         @if ($instagramPostsComments != null)
                             @foreach($instagramPostsComments as $comment)
                                 <p style="padding: 0 20px 0 20px; font-size: 0.9em;">
-                                    <a style="font-weight: bold; color: #000;" title="{{ $comment->username }}" target="_blank" href="https://instagram.com/{{ $comment->username }}/">{{ $comment->username }}</a> {{ $comment->comment }}<br />
+                                    <a style="font-weight: bold; color: #000;" title="{{ $comment->username }}" target="_blank" href="https://instagram.com/{{ $comment->username }}/">{{ $comment->username }}</a> {{ $comment->comment }}<br/>
                                     <span style="color: #999;">{{ date('d-M-Y', strtotime($post->posted_at)) }}</span>
                                 </p>
                             @endforeach

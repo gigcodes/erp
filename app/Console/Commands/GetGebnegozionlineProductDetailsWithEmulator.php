@@ -186,9 +186,9 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
             $product->price_inr = Setting::get('euro_to_inr') * $product->price;
 
           $product->price_inr = round($product->price_inr, -3);
-          $product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
+          $product->price_inr_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
-          $product->price_special = round($product->price_special, -3);
+          $product->price_inr_special = round($product->price_inr_special, -3);
 
           $product->save();
         }

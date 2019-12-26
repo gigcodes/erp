@@ -25,8 +25,8 @@ class ProductsCreator
         Log::channel('productUpdates')->debug("[Start] createProduct is called");
 
         // Set supplier
-        $supplier = Supplier::leftJoin("scrapers as sc","sc.supplier_id","suppliers.id")->where(function ($query) use ($image) { 
-            $query->where('supplier', '=', $image->website)->orWhere('sc.scraper_name', '=', $image->website); 
+        $supplier = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($image) {
+            $query->where('supplier', '=', $image->website)->orWhere('sc.scraper_name', '=', $image->website);
         })->first();
 
         // Do we have a supplier?
@@ -143,10 +143,12 @@ class ProductsCreator
             $product->lmeasurement = $formattedDetails[ 'lmeasurement' ] > 0 ? $formattedDetails[ 'lmeasurement' ] : null;
             $product->hmeasurement = $formattedDetails[ 'hmeasurement' ] > 0 ? $formattedDetails[ 'hmeasurement' ] : null;
             $product->dmeasurement = $formattedDetails[ 'dmeasurement' ] > 0 ? $formattedDetails[ 'dmeasurement' ] : null;
-            $product->price = $formattedPrices[ 'price' ];
-            $product->price_inr = $formattedPrices[ 'price_inr' ];
-            $product->price_special = $formattedPrices[ 'price_special' ];
+            $product->price = $formattedPrices[ 'price_eur' ];
             $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
+            $product->price_eur_discounted = $formattedPrices[ 'price_eur_discounted' ];
+            $product->price_inr = $formattedPrices[ 'price_inr' ];
+            $product->price_inr_special = $formattedPrices[ 'price_inr_special' ];
+            $product->price_inr_discounted = $formattedPrices[ 'price_inr_discounted' ];
             $product->is_scraped = $isExcel == 1 ? $product->is_scraped : 1;
             $product->save();
             $product->attachImagesToProduct();
@@ -156,8 +158,8 @@ class ProductsCreator
                 $product->save();
             }
 
-            if ($db_supplier = Supplier::leftJoin("scrapers as sc","sc.supplier_id","suppliers.id")->where(function ($query) use ($supplier) { 
-                $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier); 
+            if ($db_supplier = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
+                $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
             })->first()) {
                 if ($product) {
                     $product->suppliers()->syncWithoutDetaching([
@@ -166,8 +168,9 @@ class ProductsCreator
                             'description' => $image->description,
                             'supplier_link' => $image->url,
                             'stock' => 1,
-                            'price' => $formattedPrices[ 'price' ],
-                            'price_discounted' => $formattedPrices[ 'price_discounted' ],
+                            'price' => $formattedPrices[ 'price_eur' ],
+                            'price_special' => $formattedPrices[ 'price_eur_special' ],
+                            'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
                             'size' => $formattedDetails[ 'size' ],
                             'color' => $formattedDetails[ 'color' ],
                             'composition' => $formattedDetails[ 'composition' ],
@@ -246,10 +249,12 @@ class ProductsCreator
         $product->made_in = $formattedDetails[ 'made_in' ];
         $product->category = $formattedDetails[ 'category' ];
 
-        $product->price = $formattedPrices[ 'price' ];
-        $product->price_inr = $formattedPrices[ 'price_inr' ];
-        $product->price_special = $formattedPrices[ 'price_special' ];
+        $product->price = $formattedPrices[ 'price_eur' ];
         $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
+        $product->price_eur_discounted = $formattedPrices[ 'price_eur_discounted' ];
+        $product->price_inr = $formattedPrices[ 'price_inr' ];
+        $product->price_inr_special = $formattedPrices[ 'price_inr_special' ];
+        $product->price_inr_discounted = $formattedPrices[ 'price_inr_discounted' ];
 
         try {
             $product->save();
@@ -261,8 +266,8 @@ class ProductsCreator
             return;
         }
 
-        if ($db_supplier = Supplier::leftJoin("scrapers as sc","sc.supplier_id","suppliers.id")->where(function ($query) use ($supplier) { 
-            $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier); 
+        if ($db_supplier = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
+            $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
         })->first()) {
             $product->suppliers()->syncWithoutDetaching([
                 $db_supplier->id => [
@@ -270,8 +275,9 @@ class ProductsCreator
                     'description' => $image->description,
                     'supplier_link' => $image->url,
                     'stock' => 1,
-                    'price' => $formattedPrices[ 'price' ],
-                    'price_discounted' => $formattedPrices[ 'price_discounted' ],
+                    'price' => $formattedPrices[ 'price_eur' ],
+                    'price_special' => $formattedPrices[ 'price_eur_special' ],
+                    'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
                     'size' => $formattedDetails[ 'size' ],
                     'color' => $formattedDetails[ 'color' ],
                     'composition' => $formattedDetails[ 'composition' ],
@@ -288,30 +294,39 @@ class ProductsCreator
 
         // Check for EUR to INR
         if (!empty($brand->euro_to_inr)) {
-            $price_inr = (float)$brand->euro_to_inr * (float)trim($image->price);
+            $priceInr = (float)$brand->euro_to_inr * (float)trim($image->price);
         } else {
-            $price_inr = (float)Setting::get('euro_to_inr') * (float)trim($image->price);
+            $priceInr = (float)Setting::get('euro_to_inr') * (float)trim($image->price);
         }
 
-        // Set INR price and special price
-        $price_inr = round($price_inr, -3);
-        $price_special = $price_inr - ($price_inr * $brand->deduction_percentage) / 100;
-        $price_special = round($price_special, -3);
-        
-        if (!empty($image->price)) {
+        // Set INR price
+        $priceInr = round($priceInr, -3);
+
+        if (!empty($image->price) && !empty($priceInr)) {
             $priceEurSpecial = $image->price - ($image->price * $brand->deduction_percentage) / 100;
-        }else{
-            $priceEurSpecial = '';   
+            $priceInrSpecial = $priceInr - ($priceInr * $brand->deduction_percentage) / 100;
+        } else {
+            $priceEurSpecial = '';
+            $priceInrSpecial = '';
+        }
+
+        // Product on sale?
+        if ($image->is_sale == 1 && $brand->sales_discount > 0 && !empty($priceEurSpecial)) {
+            $priceEurDiscounted = $priceEurSpecial - ($priceEurSpecial * $brand->sales_discount) / 100;
+            $priceInrDiscounted = $priceInrSpecial - ($priceInrSpecial * $brand->sales_discount) / 100;
+        } else {
+            $priceEurDiscounted = 0;
+            $priceInrDiscounted = 0;
         }
 
         // Return prices
         return [
-            'price' => $image->price,
-            'price_discounted' => $image->discounted_price,
-            'price_inr' => $price_inr,
-            'price_special' => $price_special,
+            'price_eur' => $image->price,
             'price_eur_special' => $priceEurSpecial,
-            
+            'price_eur_discounted' => $priceEurDiscounted,
+            'price_inr' => $priceInr,
+            'price_inr_special' => $priceInrSpecial,
+            'price_inr_discounted' => $priceInrDiscounted
         ];
     }
 

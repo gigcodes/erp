@@ -161,11 +161,12 @@ class UpdateMagentoProductStatus extends Command
           						'use_config_manage_stock' => 1,
           						'manage_stock' => 1,
           					),
-          					'price'                 => $product->price_inr,
+          					'price'                 => $product->price_eur_special,
           					// Same price than configurable product, no price change
-          					'special_price'         => $product->price_special,
+          					'special_price'         => $product->price_eur_discounted,
           					'additional_attributes' => array(
           						'single_data' => array(
+          							array( 'key' => 'msrp', 'value' => $product->price, ),
           							array( 'key' => 'composition', 'value' => $product->composition, ),
           							array( 'key' => 'color', 'value' => $product->color, ),
           							array( 'key' => 'sizes', 'value' => $size, ),
