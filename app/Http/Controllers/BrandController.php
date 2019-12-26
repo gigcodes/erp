@@ -98,9 +98,9 @@ class BrandController extends Controller
                 }
 
                 $product->price_inr = round($product->price_inr, -3);
-                $product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
+                $product->price_inr_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
-                $product->price_special = round($product->price_special, -3);
+                $product->price_inr_special = round($product->price_inr_special, -3);
 
                 $product->save();
             }
@@ -177,8 +177,8 @@ class BrandController extends Controller
         $sku = $product->sku . $product->color;
 //		$result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
         $data = [
-            'price' => $product->price_inr,
-            'special_price' => $product->price_special
+            'price' => $product->price_eur_special,
+            'special_price' => $product->price_eur_discounted
         ];
 
         $result = $proxy->catalogProductUpdate($sessionId, $sku, $data);

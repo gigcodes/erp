@@ -210,8 +210,8 @@
                         <strong>Price:</strong>
                         <input type="number" class="form-control" name="price_special" placeholder="Price"
                                value="{ $product->price_special }}" step=".01" id="product-price-special"/>
-                        @if ($errors->has('price_special'))
-                            <div class="alert alert-danger">{{$errors->first('price_special')}}</div>
+                        @if ($errors->has('price_inr_special'))
+                            <div class="alert alert-danger">{{$errors->first('price_inr_special')}}</div>
                         @endif
                     </div>
 
@@ -301,7 +301,7 @@
             form_data.append('color', color);
             form_data.append('brand', brand);
             form_data.append('price', price);
-            form_data.append('price_special', price_special);
+            form_data.append('price_inr_special', price_inr_special);
             form_data.append('size', size);
             form_data.append('quantity', quantity);
             form_data.append('is_image_url', '1');

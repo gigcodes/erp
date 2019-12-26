@@ -2214,7 +2214,7 @@
           form_data.append('color', color);
           form_data.append('brand', brand);
           form_data.append('price', price);
-          form_data.append('price_special', price_special);
+          form_data.append('price_inr_special', price_inr_special);
           form_data.append('size', size);
           form_data.append('quantity', quantity);
 

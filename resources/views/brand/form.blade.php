@@ -53,6 +53,45 @@
 
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
+                    <strong>Sales Discount %</strong>
+                    <input type="number" class="form-control" name="sales_discount" placeholder="sales discount" value="{{old('sales_discount') ? old('sales_discount') : $sales_discount}}"/>
+                    <small class="form-text text-muted">
+                        If the product is discounted at the supplier, regardless of the percentage, this discount will be applied to the special price (original price - brand discount)
+                    </small>
+                    @if ($errors->has('sales_discount'))
+                        <div class="alert alert-danger">{{$errors->first('sales_discount')}}</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
+                    <strong>Apply B2B discount above</strong>
+                    <input type="number" class="form-control" name="apply_b2b_discount_above" placeholder="e.g. 40" value="{{old('apply_b2b_discount_above') ? old('apply_b2b_discount_above') : $apply_b2b_discount_above}}"/>
+                    <small class="form-text text-muted">
+                        Above this percentage of discount at the supplier, the below discount will be applied
+                    </small>
+                    @if ($errors->has('apply_b2b_discount_above'))
+                        <div class="alert alert-danger">{{$errors->first('apply_b2b_discount_above')}}</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
+                    <strong>B2B Sales Discount %</strong>
+                    <input type="number" class="form-control" name="b2b_sales_discount" placeholder="B2B sales discount" value="{{old('b2b_sales_discount') ? old('b2b_sales_discount') : $b2b_sales_discount}}"/>
+                    <small class="form-text text-muted">
+                        If a B2B discount is higher than the above percentage, the sales_discount will be applied to the special price (original price - brand discount)
+                    </small>
+                    @if ($errors->has('b2b_sales_discount'))
+                        <div class="alert alert-danger">{{$errors->first('b2b_sales_discount')}}</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
                     <strong>Magento Id</strong>
                     <input type="text" class="form-control" name="magento_id" placeholder="Magento ID" value="{{old('magento_id') ? old('magento_id') : $magento_id}}"/>
                     @if ($errors->has('magento_id'))
