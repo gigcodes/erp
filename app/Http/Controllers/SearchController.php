@@ -66,7 +66,7 @@ class SearchController extends Controller
         }
 
         $products = (new Product())->newQuery()->latest();
-        
+
         Cache::forget('filter-brand-' . Auth::id());
         if ($request->brand[ 0 ] != null) {
             $products = $products->whereIn('brand', $request->brand);
@@ -116,13 +116,13 @@ class SearchController extends Controller
 
         Cache::forget('filter-price-min-' . Auth::id());
         if ($request->price_min != null) {
-            $products = $products->where('price_special', '>=', $request->price_min);
+            $products = $products->where('price_inr_special', '>=', $request->price_min);
             Cache::put('filter-price-min-' . Auth::id(), $request->price_min, 120);
         }
 
         Cache::forget('filter-price-max-' . Auth::id());
         if ($request->price_max != null) {
-            $products = $products->where('price_special', '<=', $request->price_max);
+            $products = $products->where('price_inr_special', '<=', $request->price_max);
             Cache::put('filter-price-max-' . Auth::id(), $request->price_max, 120);
         }
 
@@ -130,7 +130,7 @@ class SearchController extends Controller
         if ($request->supplier[ 0 ] != null) {
             $suppliers_list = implode(',', $request->supplier);
 
-            $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");            
+            $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
             $data[ 'supplier' ] = $request->supplier;
             Cache::put('filter-supplier-' . Auth::id(), $data[ 'supplier' ], 120);
         }
@@ -194,7 +194,7 @@ class SearchController extends Controller
                 }
 
                 $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
-                if ($category_id) {                    
+                if ($category_id) {
                     $query = $query->orWhere('category', $category_id);
                 }
 
@@ -238,7 +238,7 @@ class SearchController extends Controller
         }
 
         // select fields..
-        $products = $products->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'purchase_status', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
+        $products = $products->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'purchase_status', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
 
         $data[ 'is_on_sale' ] = 0;
         if ($request->get('is_on_sale') == 'on') {
@@ -253,7 +253,7 @@ class SearchController extends Controller
         if($request->has("limit")) {
             $perPageLimit = ($request->get("limit") == "all") ? $products_count : $request->get("limit");
         }
-        
+
         $data[ 'products' ] = $products->paginate($perPageLimit);
 
         if ($request->model_type == 'broadcast-images') {

@@ -23,7 +23,7 @@ class ProductSupervisorController extends Controller
 		$products = Product::where('stock', '>=', 1)->latest()
 //		                   ->where('stage','>=', $stage->get('Attribute') )
 		                   ->whereNull('dnf')
-                       ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
+                       ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
 		                   ->paginate(Setting::get('pagination'));
 
 		$roletype = 'Supervisor';

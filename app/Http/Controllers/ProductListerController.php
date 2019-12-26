@@ -33,7 +33,7 @@ class ProductListerController extends Controller
             ->where( 'stock', '>=', 1 )
             ->where( 'stage', '>=', $stage->get( 'ImageCropper' ) )
             ->whereNull( 'dnf' )
-            ->select( [ 'id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at' ] )
+            ->select( [ 'id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at' ] )
             ->paginate( Setting::get( 'pagination' ) );
 
         $roletype = 'Lister';

@@ -654,7 +654,7 @@
                       @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
                           @if($number != "0")
                               <option {{ ($number == $customer->whatsapp_number && $customer->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
-                          @endif    
+                          @endif
                       @endforeach
                   </select>
                 </div>
@@ -674,7 +674,7 @@
                 <div class="form-group">
                   <label>Broadcast Number</label>
                   <input type="text"  class="form-control input-sm" value="{{ $customer->broadcast_number }}" disabled>
-                
+
                 </div>
               </div>
                <div class="col-3">
@@ -962,7 +962,7 @@
 
                           <input type="text" class="form-control" name="" placeholder="Created by" value="{{ $lead->userid != 0 ? App\Helpers::getUserNameById($lead->userid) : '' }}" readonly/>
                         </div>
-                        
+
                         <div class="form-group">
                           <strong>Comments:</strong>
                           <textarea  class="form-control" name="comments" placeholder="comments">{{$lead->comments}} </textarea>
@@ -1484,7 +1484,7 @@
                                 @endif
                               </td> --}}
                               {{-- <td>
-                                
+
                                  @if(auth()->user()->checkPermission('voucher'))
                                   @if ($order->delivery_approval->voucher)
                                     <button type="button" class="btn btn-xs btn-secondary edit-voucher" data-toggle="modal" data-target="#editVoucherModal" data-id="{{ $order->delivery_approval->voucher->id }}" data-amount="{{ $order->delivery_approval->voucher->amount }}" data-travel="{{ $order->delivery_approval->voucher->travel_type }}">Edit Voucher</button>
@@ -1708,10 +1708,10 @@
                     @foreach($reply_categories as $category)
                       <option value="{{ $category->approval_leads }}" data-id="{{ $category->id }}">{{ $category->name }}</option>
                     @endforeach
-                  </select>  
+                  </select>
                 </div>
                 <div style="float: right;">
-                  <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>  
+                  <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
                 </div>
               </div>
               <div>
@@ -1721,7 +1721,7 @@
                   </select>
                   </div>
                   <div style="float: right;">
-                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>  
+                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
                   </div>
               </div>
             </div>
@@ -1888,7 +1888,7 @@
         <div class="col-xs-6">
           <div class="form-inline">
              <div class="form-group">
-                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" alt=""></a> 
+                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" alt=""></a>
                 <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/archive.png" alt=""></a>
                 <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/icon-pdf.svg" alt=""></a>
               </div>
@@ -2525,7 +2525,7 @@
                                 </select>
                             </div>
                             <div class="row">
-                                <div class="form-group show-product-image">                                    
+                                <div class="form-group show-product-image">
                                 </div>
                             </div>
                             <input type="hidden"  name="oldImage[0]" value="-1">
@@ -2603,7 +2603,7 @@
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
                                     <strong>Received By:</strong>
-                                    <input type="text" class="form-control" name="received_by" placeholder="Received By" /> 
+                                    <input type="text" class="form-control" name="received_by" placeholder="Received By" />
                                 </div>
                             </div>
 
@@ -2611,7 +2611,7 @@
                                 <div class="form-group">
                                     <strong> Payment Mode :</strong>
                                     <?php
-                                        $paymentModes = new \App\ReadOnly\PaymentModes(); 
+                                        $paymentModes = new \App\ReadOnly\PaymentModes();
                                         echo Form::select('payment_mode',$paymentModes->all(), null, ['placeholder' => 'Select a mode','class' => 'form-control']);
                                     ?>
                                 </div>
@@ -2620,7 +2620,7 @@
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
                                     <strong>Note if any:</strong>
-                                    <input type="text" class="form-control" name="note_if_any" placeholder="Note if any" /> 
+                                    <input type="text" class="form-control" name="note_if_any" placeholder="Note if any" />
                                 </div>
                             </div>
                         </div>
@@ -2668,7 +2668,7 @@
       jQuery(document).ready(function() {
         $('.multi_select2').select2({width: '100%'});
         //$('.brand_segment_select').select2({width: '100%'});
-         
+
         $(".multi_brand_select").change(function() {
             var brand_segment = [];
             $(this).find(':selected').each(function() {
@@ -2679,7 +2679,7 @@
             $(this).closest('form').find(".brand_segment_select").val(brand_segment).trigger('change');
         });
       })
-      
+
 
       $(document).on('click', '.quick_category_add', function (e) {
             e.preventDefault();
@@ -2708,7 +2708,7 @@
                     value: response.data.id,
                     text: response.data.name
                 }));
-                
+
             })
 
             return false;
@@ -2744,7 +2744,7 @@
                   alert("Please Select Quick Comment!!");
                   return false;
               }
-              
+
               var quickCommentId = quickComment.children("option:selected").data('id');
               if (! confirm("Are sure you want to delete comment?")) {
                 return false;
@@ -2912,7 +2912,7 @@
     });
   });
 
-  
+
   $(document).on('click', '.create-magento-product', function(e) {
     e.preventDefault();
 
@@ -3036,7 +3036,7 @@
                         loadThread(response);
                     }
                 });
-            });            
+            });
 
         });
 
@@ -3081,7 +3081,7 @@
           e.preventDefault();
           var thiss = $(this);
           var url = "{{ route('leads.erpLeads.store') }}";
-          
+
           if ($(this).find('.multi_brand').val() == "") {
             alert('Please Select Brand');
             return false;
@@ -3200,7 +3200,7 @@
           form_data.append('color', color);
           form_data.append('brand', brand);
           form_data.append('price', price);
-          form_data.append('price_special', price_special);
+          form_data.append('price_inr_special', price_inr_special);
           form_data.append('size', size);
           form_data.append('quantity', quantity);
 
@@ -3331,18 +3331,18 @@
              }
 
 
-          $(document).on('mouseover', '.talktext .thumbnail-wrapper', function(e) { 
+          $(document).on('mouseover', '.talktext .thumbnail-wrapper', function(e) {
               $('#preview-image-model').find(".modal-content").attr("src",$(this).find("img").attr("src"));
               if($(".container").find(".chat-window").length == 0) {
                 $('#preview-image-model').modal('show');
               }
           });
 
-          $(document).on('mouseout', '.talktext .thumbnail-wrapper', function(e) { 
+          $(document).on('mouseout', '.talktext .thumbnail-wrapper', function(e) {
              $('#preview-image-model').modal('hide');
           });
 
-        
+
 
          $(document).on('click', '.send-communication', function(e) {
            e.preventDefault();
@@ -4637,9 +4637,9 @@
             }).fail(function (response) {
                 console.log(response);
             });
-        }); 
+        });
 
-        
+
         $(document).on('submit', '.js-erp-lead-frm', function (e) {
           e.preventDefault();
             var url = $(this).attr('action');

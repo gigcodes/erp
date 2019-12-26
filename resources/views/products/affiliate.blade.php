@@ -160,7 +160,7 @@
             <p class="same-color">{{ $product->name }}</p>
             <br>
             <p class="same-color" style="font-size: 18px;">
-              <span style="text-decoration: line-through">Rs. {{ number_format($product->price_inr) }}</span> Rs. {{ number_format($product->price_special) }}
+              <span style="text-decoration: line-through">Rs. {{ number_format($product->price_inr) }}</span> Rs. {{ number_format($product->price_inr_special) }}
             </p>
             <br>
             <p>

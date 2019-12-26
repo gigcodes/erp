@@ -34,7 +34,7 @@ class ProductInventoryController extends Controller
 											->where('stock', '>=', 1)
 //		                   ->where('stage','>=',$stage->get('Approver') )
 		                   ->whereNull('dnf')
-											 ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
+											 ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
 
                         $products_count = $products->count();
 		                   $products = $products->paginate(Setting::get('pagination'));
@@ -208,10 +208,10 @@ class ProductInventoryController extends Controller
 
 			if ($min != '0' || $max != '10000000') {
 				if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1) {
-					$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+					$productQuery = $productQuery->whereBetween('price_inr_special', [$min, $max]);
 				} else {
 					$productQuery = ( new Product() )->newQuery()
-					                                 ->latest()->whereBetween('price_special', [$min, $max]);
+					                                 ->latest()->whereBetween('price_inr_special', [$min, $max]);
 				}
 			}
 
@@ -300,7 +300,7 @@ class ProductInventoryController extends Controller
 
 
 //		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
-		
+
 		if ($request->get('shoe_size', false)) {
             $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
         }
@@ -410,14 +410,14 @@ class ProductInventoryController extends Controller
 			$max = $exploded[1];
 
 			if ($min != '0' || $max != '10000000') {
-				$productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+				$productQuery = $productQuery->whereBetween('price_inr_special', [$min, $max]);
 			}
 
 			$data['price'][0] = $min;
 			$data['price'][1] = $max;
 		}
 
-		
+
 		if (trim($term) != '') {
 			$productQuery = $productQuery->where(function ($query) use ($term){
  	    		$query->orWhere( 'sku', 'LIKE', "%$term%" )
@@ -453,7 +453,7 @@ class ProductInventoryController extends Controller
 
 
 //		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
-		
+
 		if ($request->get('shoe_size', false)) {
             $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
         }
@@ -676,7 +676,7 @@ class ProductInventoryController extends Controller
 		$params =  request()->all();
 
 		// validate incoming request
-        
+
         $validator = Validator::make($params, [
            'product_id' => 'required',
            'location_name' => 'required',
@@ -686,7 +686,7 @@ class ProductInventoryController extends Controller
            'courier_details' => 'required',
            'date_time' => 'required'
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json(["code" => 0, "errors" => $validator->messages()]);
         }
@@ -700,7 +700,7 @@ class ProductInventoryController extends Controller
 			if($orderId > 0) {
 				$order = \App\Order::where("id",$params["order_id"])->first();
 				if($order) {
-				  	
+
 				  	$instruction->customer_id = $order->customer_id;
 				  	$order->order_status = "Delivered";
 				  	$order->save();
@@ -724,9 +724,9 @@ class ProductInventoryController extends Controller
 			}
 			// if customer object found then send message
 			if(!empty($user)) {
-					
+
 				$extraString = "";
-				
+
 				// check if any date time set
 				if(!empty($params["date_time"])) {
 					$extraString = " on ".$params["date_time"];
@@ -735,12 +735,12 @@ class ProductInventoryController extends Controller
 				// set for pending amount
 				if(!empty($params["pending_amount"])) {
 					$extraString .= " and ".$params["pending_amount"]." to be collected";
-				}		
+				}
 				// send message
 				$messageData = implode("\n",[
 			  		"{$product->name} to be delivered to {$customer} {$extraString}",
 			  		$params["courier_name"],
-			  		$params["courier_details"]	
+			  		$params["courier_details"]
 			  	]);
 
 			    $params['approved'] = 1;
@@ -767,13 +767,13 @@ class ProductInventoryController extends Controller
 
 				$user = \App\User::where("id",$params["assign_to"])->first();
 				if($user) {
-					// send location message 
+					// send location message
 					$pendingAmount = (!empty($params["pending_amount"])) ? " and Pending amount : ".$params["pending_amount"] : "";
 					$messageData = implode("\n",[
 				  		"Pls. Despatch {$product->name} to ".$params["location_name"].$pendingAmount,
 				  		$params['instruction_message'],
 				  		$params["courier_name"],
-				  		$params["courier_details"]	
+				  		$params["courier_details"]
 				  	]);
 
 				    $params['approved'] = 1;
@@ -803,12 +803,12 @@ class ProductInventoryController extends Controller
 
 
 		$productHistory = new \App\ProductLocationHistory();
-		$productHistory->fill($params);	
+		$productHistory->fill($params);
 		$productHistory->created_by = \Auth::user()->id;
 		$productHistory->save();
 
 
-		return response()->json(["code" => 1, "message" => "Done"]);	
+		return response()->json(["code" => 1, "message" => "Done"]);
 
 
 	}
@@ -845,7 +845,7 @@ class ProductInventoryController extends Controller
            'eta' => 'required',
            //'date_time' => 'required'
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json(["code" => 0, "errors" => $validator->messages()]);
         }
@@ -854,7 +854,7 @@ class ProductInventoryController extends Controller
         $productDispatch->fill($request->all());
         $productDispatch->save();
 
-        $uploaded_images = [];	
+        $uploaded_images = [];
 
         if ($request->hasFile('file')) {
             try{
@@ -867,7 +867,7 @@ class ProductInventoryController extends Controller
                // return response($exception->getMessage(), $exception->getCode());
             }
         }
-        
+
         if ($request->get('product_id') > 0 ) {
         	$product = \App\Product::where("id",$request->get('product_id'))->first();
 	  		$product->purchase_status =  'Delivered';
@@ -884,7 +884,7 @@ class ProductInventoryController extends Controller
 					$messageData = implode("\n",[
 				  		"We have Despatched your {$product->name} by {$productDispatch->delivery_person}",
 				  		"AWB : {$request->awb}",
-				  		"Mode Of Shipment  : {$request->modeof_shipment}"	
+				  		"Mode Of Shipment  : {$request->modeof_shipment}"
 				  	]);
 
 				    $params['approved'] = 1;
@@ -893,7 +893,7 @@ class ProductInventoryController extends Controller
 				    $params['customer_id'] = $customer->id;
 					$chat_message = \App\ChatMessage::create($params);
 
-					// if product has image then send message with image otherwise send with photo			
+					// if product has image then send message with image otherwise send with photo
 				    if ($productDispatch->hasMedia(config('constants.media_tags'))) {
 		                foreach ($productDispatch->getMedia(config('constants.media_tags')) as $image) {
 		                	$url = createProductTextImage($image->getAbsolutePath(),"product-dispatch",$messageData,$color = "000000", $fontSize = "15" , $needAbs = false);
@@ -905,12 +905,12 @@ class ProductInventoryController extends Controller
 		            }else{
 		            	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone,$customer->whatsapp_number,$messageData);
 		            }
-				    
+
 				}
 			}
 		}
 
-		
+
 
         return response()->json(["code" => 1, "message" => "Done"]);
 
