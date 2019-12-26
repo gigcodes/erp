@@ -1539,7 +1539,7 @@ class ProductController extends Controller
         }
 
         // select fields..
-        $products = $products->select(['products.id','name','short_description','color','sku', 'products.size', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
+        $products = $products->select(['products.id','name','short_description','color','sku', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
 
         if ($request->get('is_on_sale') == 'on') {
             $products = $products->where('is_on_sale', 1);
