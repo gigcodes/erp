@@ -374,11 +374,8 @@ class DevelopmentController extends Controller
 
     public function issueTaskIndex(Request $request, $type)
     {
-        if ($type == 'issue') {
-            $issues = DeveloperTask::with(["developerModule", "assignedUser", "responsibleUser", "submitter"])->where('task_type_id', '3');
-        } else {
-            $issues = DeveloperTask::with(["developerModule", "assignedUser", "responsibleUser", "submitter"])->where('task_type_id', '1');
-        }
+        // Load issues
+        $issues = DeveloperTask::where('task_type_id', $type == 'issue' ? '3' : '1');
 
         if ((int)$request->get('submitted_by') > 0) {
             $issues = $issues->where('created_by', $request->get('submitted_by'));
@@ -403,7 +400,6 @@ class DevelopmentController extends Controller
             $issues = $issues->where('status', $request->get('task_status'));
         }
 
-
         if ($request->get('subject') != '') {
             $issues = $issues->where(function ($query) use ($request) {
                 $subject = $request->get('subject');
@@ -411,6 +407,7 @@ class DevelopmentController extends Controller
             });
         }
 
+        // Set variables with modules and users
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
 
