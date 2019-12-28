@@ -64,20 +64,25 @@ class VisitorLogs extends Command
                 $logs = json_decode($response);
                 if(count($logs) != 0){
                     foreach ($logs as $log) {
-                        $logSave = new VisitorLog();
-                        $logSave->ip = $log->ip;
-                        $logSave->browser = $log->browser;
-                        $logSave->location = $log->city.' '.$log->region.' '.$log->country.' '.$log->country_code;
-                        foreach ($log->visit_path as $path) {
-                           $pathArray[] = $path->page;
+                        
+                        $logExist = VisitorLog::where('ip',$log->ip)->whereDate('last_visit', '<=', $log->last_visit)->first(); 
+                        if($logExist != null){
+                           $logSave = new VisitorLog();
+                            $logSave->ip = $log->ip;
+                            $logSave->browser = $log->browser;
+                            $logSave->location = $log->city.' '.$log->region.' '.$log->country.' '.$log->country_code;
+                            foreach ($log->visit_path as $path) {
+                               $pathArray[] = $path->page;
+                            }
+                            $logSave->page = json_encode($pathArray);
+                            $logSave->visits = $log->visits;
+                            $logSave->last_visit =$log->last_visit;
+                            $logSave->page_current = $log->page_current;
+                            $logSave->chats = $log->chats;
+                            $logSave->customer_name = $log->name;
+                            $logSave->save(); 
                         }
-                        $logSave->page = json_encode($pathArray);
-                        $logSave->visits = $log->visits;
-                        $logSave->last_visit =$log->last_visit;
-                        $logSave->page_current = $log->page_current;
-                        $logSave->chats = $log->chats;
-                        $logSave->customer_name = $log->name;
-                        $logSave->save();
+                        
                     }
                 }
             }
