@@ -11,6 +11,7 @@ use App\Brand;
 use App\Category;
 use App\Supplier;
 use App\DeveloperTask;
+use App\Scraper;
 
 class LogScraper extends Model
 {
@@ -370,8 +371,12 @@ class LogScraper extends Model
             $brand = Brand::where('name',$brand)->first();
 
             $sku = SkuFormat::where('brand_id',$brand->id)->first();
-       
-            return $sku->sku_format; 
+            if($sku != null){
+                return $sku->sku_format; 
+            }else{
+                return ''; 
+            }
+            
             
         }catch (Exception $e) {
             
@@ -387,9 +392,11 @@ class LogScraper extends Model
             $brand = Brand::where('name',$brand)->first();
 
             $sku = SkuFormat::where('brand_id',$brand->id)->first();
-       
-            return $sku->sku_examples;
-            
+            if($sku != null){
+                return $sku->sku_examples; 
+            }else{
+                return ''; 
+            }
         }catch (Exception $e) {
             
             return '';
@@ -434,6 +441,10 @@ class LogScraper extends Model
         return $this->hasOne(Supplier::class,'scraper_name','website');
     }
 
+    public function scraper(){
+        return $this->hasOne(Scraper::class,'scraper_name','website');
+    }
+
     public function taskType($supplier,$category,$brand){
         $string = $supplier.$category.$brand;
         $reference = md5(strtolower($string));
@@ -447,5 +458,21 @@ class LogScraper extends Model
         }else{
             return false;
         }
+    }
+
+    public function brandLink($sku,$brand){
+        
+         $brand = Brand::select('id','sku_search_url')->where('name',$brand)->first();
+         
+         if($brand != null){
+            
+            if($brand->sku_search_url != null){
+                return $link = str_replace('[SEARCH]',$sku,$brand->sku_search_url);
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+         }
     }
 }
