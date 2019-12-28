@@ -168,7 +168,7 @@ class Kernel extends ConsoleKernel
         ParseLog::class,
         SkuErrorCount::class,
         VisitorLogs::class,
-
+    ];
 
     /**
      * Define the application's command schedule.
