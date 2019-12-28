@@ -46,21 +46,21 @@
 </style>
 <body>
 <?php foreach($medias as $subMedia) { ?>
-        <?php 
+        <?php
         if (!file_exists ($subMedia->getAbsolutePath())  || !in_array($subMedia->extension,config("constants.gd_supported_files"))) {
             continue;
         } ?>
-        <?php 
+        <?php
             try {
                 $img = Image::make($subMedia->getAbsolutePath());
                 $height = $img->height();
                 $width = $img->width();
                 $path = $subMedia->getAbsolutePath();
                 if ($height > 1000 || $width > 1000) {
-                    $img->resize(1000, 1000); 
+                    $img->resize(1000, 1000);
                     if(!is_dir(public_path() . '/tmp_images')) {
                         mkdir(public_path() . '/tmp_images', 0777, true);
-                    }                  
+                    }
                     $path = public_path() . '/tmp_images/'.$subMedia->getBasenameAttribute();
                     $img->save($path);
                 }
@@ -84,7 +84,7 @@
 
             if($product) {
 
-                // check if it is for customer then add entry with approvel on chat message 
+                // check if it is for customer then add entry with approvel on chat message
                 if(!empty($chat_message) && $chat_message->customer_id > 0) {
                     $extraMessage = [
                         "customer_id" => $chat_message->customer_id,
@@ -106,7 +106,7 @@
                 if ($product->lmeasurement && $product->hmeasurement && $product->dmeasurement) {
                     $textToSend[] = "Dimension: " . \App\Helpers\ProductHelper::getMeasurements($product) . "";
                 }
-                $textToSend[] = "Price: Rs. " . $product->price_special; ?>
+                $textToSend[] = "Price: Rs. " . $product->price_inr_special; ?>
                 <div class="row">
                     <div class="col-md-12">
                             <div class="top-up">
@@ -117,8 +117,8 @@
                             </div>
                             <img style="padding-top: 120px;" class="img-responsive img-fluid" src="<?php echo $path; ?>" />
                         </div>
-                    </div>    
-                </div>    
+                    </div>
+                </div>
             <?php } ?>
         </div>
 <?php } ?>

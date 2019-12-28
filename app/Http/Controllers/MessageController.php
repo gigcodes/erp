@@ -17,6 +17,9 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Image;
 use Storage;
 use File;
+use \App\ChatbotDialog;
+use \App\ChatbotDialogResponse;
+use App\Library\Watson\Model as WatsonManager;
 
 class MessageController extends Controller
 {
@@ -279,6 +282,21 @@ class MessageController extends Controller
         $message->save();
       } elseif ($request->type == 'whatsapp') {
         $message = ChatMessage::find($id);
+
+        if($message->is_chatbot == 1) {
+          $oldMessage           = $message->message;
+          // find the old message into dilog and update the new one
+          $dialogResponse = ChatbotDialogResponse::where("value", $oldMessage)->get();
+          if(!$dialogResponse->isEmpty()) {
+            foreach($dialogResponse as $response) {
+                $response->value = $request->get('body');
+                $response->save();
+                WatsonManager::pushDialog($response->chatbot_dialog_id);
+            }
+          }
+        }
+
+
         $message->message = $request->get('body');
         $message->save();
       }

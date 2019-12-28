@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Library\Watson\Language\Assistants\V2\AssistantsService;
 use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
 use App\Library\Watson\Language\Workspaces\V1\IntentService;
+use App\Library\Watson\Model as WatsonManager;
 
 
 
@@ -15,7 +16,15 @@ class ChatBotController extends Controller
 
     public function connection(Request $request) 
     {
-    	$chatSesssion = "60421530-8204-4dad-a342-662b95ab74e7";//$request->session()->get("chat_session");
+        $customer       = \App\Customer::find(2001);
+        $watsonManager  = WatsonManager::sendMessage($customer,"weather");
+
+        echo '<pre>'; print_r($watsonManager); echo '</pre>';exit;
+
+        die;
+    	   
+
+        $chatSesssion = "60421530-8204-4dad-a342-662b95ab74e7";//$request->session()->get("chat_session");
         
 
         $watson = new IntentService(

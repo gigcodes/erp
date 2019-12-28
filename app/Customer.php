@@ -16,7 +16,8 @@ class Customer extends Model
         'name',
         'phone',
         'city',
-        'whatsapp_number'
+        'whatsapp_number',
+        'chat_session_id'
     ];
 
     protected $casts = [
