@@ -56,7 +56,7 @@
                             <?php foreach($result[ "pages" ] as $pages) { ?>
                             <div class="col-md-4" style="float:left">
                                 <div class="panel panel-primary">
-                                    <div class="panel-footer" <?php if (stristr($pages, '.gucci.')) echo " style='background-color: lightgreen;";?>>
+                                    <div class="panel-footer" <?php if (stristr($pages, '.gucci.')) echo " style='background-color: lightgreen;'";?>>
                                         <?php echo isset($result[ 'pages_media' ][ $i ]) ? '<img src="' . $result[ 'pages_media' ][ $i ] . '" style="width: 100%; height: auto;">' : ''; ?>
                                         @php
                                             if ( isset($result[ 'pages_media' ][ $i ]) ) {
@@ -116,7 +116,7 @@
                         <div class="col-md-4" style="float:left;">
                             <div class="panel panel-primary">
                                 <div class="panel-body"><img src="<?php echo $images; ?>" class="img-responsive" style="width:250px; height:250px;" alt="Image"></div>
-                                <div class="panel-footer" <?php if (stristr($images, '.gucci.')) echo " style='background-color: lightgreen;";?>>
+                                <div class="panel-footer" <?php if (stristr($images, '.gucci.')) echo " style='background-color: lightgreen;'";?>>
                                     <button data-href="<?php echo $images; ?>" class="btn btn-secondary btn-img-details">
                                         Get Details
                                     </button>
