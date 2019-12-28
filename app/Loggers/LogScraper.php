@@ -441,10 +441,6 @@ class LogScraper extends Model
         return $this->hasOne(Scraper::class,'scraper_name','website');
     }
 
-    public function scraper(){
-        return $this->hasOne(Scraper::class,'scraper_name','website');
-    }
-
     public function taskType($supplier,$category,$brand){
         $string = $supplier.$category.$brand;
         $reference = md5(strtolower($string));
