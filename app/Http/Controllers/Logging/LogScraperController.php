@@ -35,6 +35,8 @@ class LogScraperController extends Controller
             $join->on('log_scraper.website', '=', 'scrapers.scraper_name');
         });
 
+        
+
         // Filters
         if (!empty($request->product_id)) {
             $logScrapper->where('id', $request->product_id);
@@ -75,7 +77,7 @@ class LogScraperController extends Controller
         //last_update < DATE_SUB(NOW(), INTERVAL sp.inventory_lifetime DAY)
         
         // Get paginated result
-        $logScrapper->whereRaw('log_scraper.updated_at < DATE_SUB(NOW(), INTERVAL scrapers.inventory_lifetime DAY)');
+        $logScrapper->whereRaw('log_scraper.updated_at > DATE_SUB(NOW(), INTERVAL scrapers.inventory_lifetime DAY)');
 
         $logScrappers = $logScrapper->paginate(25)->appends(request()->except(['page']));
 
