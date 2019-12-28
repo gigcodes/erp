@@ -31,7 +31,9 @@ class LogScraperController extends Controller
     public function logSKU(Request $request)
     {
        
-        $logScrapper = LogScraper::query();
+        $logScrapper = LogScraper::leftJoin('scrapers', function($join) {
+            $join->on('log_scraper.website', '=', 'scrapers.scraper_name');
+        });
 
         // Filters
         if (!empty($request->product_id)) {
@@ -70,9 +72,11 @@ class LogScraperController extends Controller
         }
 
         $failed = $logScrapper->where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
-        
+        //last_update < DATE_SUB(NOW(), INTERVAL sp.inventory_lifetime DAY)
         
         // Get paginated result
+        $logScrapper->whereRaw('log_scraper.updated_at < DATE_SUB(NOW(), INTERVAL scrapers.inventory_lifetime DAY)');
+
         $logScrappers = $logScrapper->paginate(25)->appends(request()->except(['page']));
 
         $existingIssues = DeveloperTask::whereNotNull('reference')->get();
