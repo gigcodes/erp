@@ -56,9 +56,9 @@ class LogScraperController extends Controller
         }
 
         if (!empty($request->supplier)) {
-          $logScrapper->whereHas('scraper', function ($qu) use ($request) {
+            $logScrapper->whereHas('scraper', function ($qu) use ($request) {
                    $qu->whereIn('scraper_name', request('supplier'));
-                });
+
         }
 
         if (!empty($request->validate)) {

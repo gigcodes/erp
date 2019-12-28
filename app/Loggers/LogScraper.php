@@ -437,8 +437,8 @@ class LogScraper extends Model
         
     }
 
-    public function supplier(){
-        return $this->hasOne(Supplier::class,'scraper_name','website');
+    public function scraper(){
+        return $this->hasOne(Scraper::class,'scraper_name','website');
     }
 
     public function scraper(){
