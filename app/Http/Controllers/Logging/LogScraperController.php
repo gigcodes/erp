@@ -31,7 +31,7 @@ class LogScraperController extends Controller
     public function logSKU(Request $request)
     {
        
-        $logScrapper = LogScraper::leftJoin('scrapers', function($join) {
+        $logScrapper = LogScraper::select('log_scraper.*','scrapers.inventory_lifetime')->leftJoin('scrapers', function($join) {
             $join->on('log_scraper.website', '=', 'scrapers.scraper_name');
         });
 
