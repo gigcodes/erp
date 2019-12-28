@@ -213,7 +213,7 @@ class ProductController extends Controller
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
+        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(5);
 
         return view('products.final_listing', [
             'products' => $newProducts,
@@ -2310,5 +2310,40 @@ class ProductController extends Controller
         }
 
         return redirect()->route('customer.post.show',$request->customer_id)->withSuccess('Message Send For Queue');
+    }
+
+    public function cropImage(Request $request)
+    {
+        $id = $request->id;
+        $img = $request->img;
+        $style = $request->style;
+        $style = explode(' ',$style);
+        $name = str_replace(['scale(',')'],'',$style[4]);
+        $newHeight = (($name * 3.333333) * 1000);
+        list($width, $height) = getimagesize($img);
+        $thumb = imagecreatetruecolor($newHeight, $newHeight);
+        $source = imagecreatefromjpeg($img);
+
+        // Resize
+        imagecopyresized($thumb, $source, 0, 0, 0, 0, $newHeight, $newHeight, $width, $height);
+        
+        $thumbWidth  = imagesx($thumb);
+        $thumbHeight = imagesy($thumb);
+
+        
+        $canvasImage = imagecreatetruecolor(1000, 1000); // Creates a black image
+
+        // Fill it with white (optional)
+        $gray = imagecolorallocate($canvasImage, 227, 227, 227);
+        imagefill($canvasImage, 0, 0, $gray);
+
+        imagecopy($canvasImage, $thumb, (1000-$thumbWidth)/2, (1000-$thumbHeight)/2, 0, 0, $thumbWidth, $thumbHeight);
+        $url = env('APP_URL');
+        $path = str_replace($url,'',$img);
+        
+        imagejpeg($canvasImage, public_path().'/'.$path);
+        $product = Product::find($id);
+        
+        return response()->json(['success' => 'success', 200]);
     }
 }
