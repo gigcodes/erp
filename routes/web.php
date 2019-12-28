@@ -54,6 +54,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index');
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
+    Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
 });
 
 Route::prefix('category-messages')->group(function () {
@@ -171,7 +172,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
     Route::post('autoreply/delete-chat-word', 'AutoReplyController@deleteChatWord');
     Route::get('autoreply/replied-chat/{id}', 'AutoReplyController@getRepliedChat');
-    
+    Route::post('autoreply/save-group', 'AutoReplyController@saveGroup')->name('autoreply.save.group');
+    Route::post('autoreply/save-group/phrases', 'AutoReplyController@saveGroupPhrases')->name('autoreply.save.group.phrases');
     Route::post('autoreply/save-by-question', 'AutoReplyController@saveByQuestion');
     Route::resource('autoreply', 'AutoReplyController');
 

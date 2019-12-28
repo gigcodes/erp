@@ -22,6 +22,7 @@ class KeywordController extends Controller
         $chatKeywords = ChatbotKeyword::leftJoin("chatbot_keyword_values as ckv", "ckv.chatbot_keyword_id", "chatbot_keywords.id")
             ->select("chatbot_keywords.*", \DB::raw("group_concat(ckv.value) as `values`"))
             ->groupBy("chatbot_keywords.id")
+            ->orderBy("chatbot_keywords.id","desc")
             ->paginate(10);
 
         return view('chatbot::keyword.index', compact('chatKeywords'));
@@ -35,7 +36,7 @@ class KeywordController extends Controller
     public function save(Request $request)
     {
         $params            = $request->all();
-        $params["keyword"] = str_replace(" ", "_", $params["keyword"]);
+        $params["keyword"] = str_replace(" ", "_", preg_replace('/\s+/', ' ', $params["keyword"]));
 
         $validator = Validator::make($params, [
             'keyword' => 'required|unique:chatbot_keywords|max:255',

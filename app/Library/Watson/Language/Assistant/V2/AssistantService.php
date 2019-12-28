@@ -1,11 +1,12 @@
 <?php
-namespace App\Library\Watson\Language\Assistants\V2;
+namespace App\Library\Watson\Language\Assistant\V2;
 
 use App\Library\Watson\Response;
 use App\Library\Watson\Service;
 
-class AssistantsService extends Service
+class AssistantService extends Service
 {
+    CONST ASSISTANT_ID = "28754e1c-6281-42e6-82af-eec6e87618a6";
     /**
      * Base url for the service
      *
