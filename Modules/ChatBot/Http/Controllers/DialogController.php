@@ -24,6 +24,7 @@ class DialogController extends Controller
         $chatDialog = ChatbotDialog::leftJoin("chatbot_dialog_responses as cdr", "cdr.chatbot_dialog_id", "chatbot_dialogs.id")
             ->select("chatbot_dialogs.*", \DB::raw("group_concat(cdr.value) as `responses`"))
             ->groupBy("chatbot_dialogs.id")
+            ->orderBy("chatbot_dialogs.id","desc")
             ->paginate(10);
 
         $question = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value","value")->toArray();

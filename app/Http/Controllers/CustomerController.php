@@ -214,7 +214,7 @@ class CustomerController extends Controller
                                         ->groupBy('clothing_size')
                                         ->pluck('counts', 'clothing_size');
 
-        $groups = QuickSellGroup::select('id','name','group')->orderby('name','asc')->get();                                
+        $groups = QuickSellGroup::select('id','name','group')->orderby('name','asc')->get();
 
         return view('customers.index', [
             'customers' => $results[ 0 ],
@@ -1870,7 +1870,7 @@ class CustomerController extends Controller
 
         $price = explode(',', $request->get('price'));
 
-        $products = $products->whereBetween('price_special', [$price[ 0 ], $price[ 1 ]]);
+        $products = $products->whereBetween('price_inr_special', [$price[ 0 ], $price[ 1 ]]);
 
         $products = $products->where('is_scraped', 1)->where('category', '!=', 1)->latest()->take($request->number)->get();
 
@@ -2043,10 +2043,10 @@ class CustomerController extends Controller
 
             if ($min != '0' || $max != '400000') {
                 if ($request->brand[ 0 ] != null || $request->color[ 0 ] != null || ($request->category[ 0 ] != null && $request->category[ 0 ] != 1)) {
-                    $productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+                    $productQuery = $productQuery->whereBetween('price_inr_special', [$min, $max]);
                 } else {
                     $productQuery = (new Product())->newQuery()
-                        ->latest()->whereBetween('price_special', [$min, $max]);
+                        ->latest()->whereBetween('price_inr_special', [$min, $max]);
                 }
             }
         }
@@ -2180,7 +2180,7 @@ class CustomerController extends Controller
                 ->latest()->whereIn('id', $request->ids);
         }
 
-        $data[ 'products' ] = $productQuery->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])->get();
+        $data[ 'products' ] = $productQuery->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])->get();
 
         $params = [
             'user_id' => Auth::id(),
@@ -2387,7 +2387,7 @@ class CustomerController extends Controller
                     $customer->broadcast_number = $whatsappNo;
                 }else{
                     $customer->whatsapp_number = $whatsappNo;
-                }    
+                }
 
                 if ($customer->save()) {
                     if($type == "whatsapp_number") {
@@ -2500,7 +2500,7 @@ class CustomerController extends Controller
     {
         //$userID = request()->get("user_id",0);
         $customerID = request()->get("id",0);
-        
+
         //$user = \App\User::where("id", $userID)->first();
         $customer = \App\Customer::where("id", $id)->first();
 
@@ -2516,5 +2516,5 @@ class CustomerController extends Controller
         }
     }
 
-    
+
 }

@@ -81,9 +81,9 @@
                 </form> --}}
             </div>
             <div class="pull-right">
-                <div class="form-inline">
-                    <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#autoReplyCreateModal">Create</a>
-                </div>
+               <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#autoReplyCreateModal">Create</a>
+                <button type="button" class="btn btn-secondary ml-3" onclick="addGroup()">Keyword Group</a>
+                <button type="button" class="btn btn-secondary ml-3" onclick="addGroupPhrase()">Phrase Group</a>
             </div>
         </div>
     </div>
@@ -257,7 +257,7 @@
                     <tbody>
                     @foreach ($mostUsedWords as $key => $words)
                         <tr>
-                            <td>{{ $words->word }}</td>
+                            <td><input type="checkbox" name="keyword" value="{{ $words->id }}">  {{ $words->word }}</td>
                             <td>{{ $words->total }}</td>
                             <td>
                                 <button data-id="{{ $words->id }}" class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
@@ -270,7 +270,7 @@
                                     <tbody>
                                         @foreach($words->pharases as $phrase)
                                             <tr colspan="3">
-                                                <td>{{ $phrase->phrase }}</td>
+                                                <td><input type="checkbox" name="phrase" value="{{ $phrase->id }}" data-keyword="{{ $words->id }}">  {{ $phrase->phrase }}</td>
                                                 <td>
                                                     <button data-id="{{ $phrase->chat_id }}" class="btn btn-image get-chat-details"><img src="/images/chat.png"></button>
                                                 </td>
@@ -291,6 +291,7 @@
 
     @include('autoreplies.partials.autoreply-modals')
     @include('partials.chat-history')
+    @include('autoreplies.partials.group')
 @endsection
 
 @section('scripts')
@@ -436,5 +437,96 @@
             });
         });
 
+
+        function addGroup(){
+            var id = [];
+            $.each($("input[name='keyword']:checked"), function(){
+                id.push($(this).val());
+            });
+            if(id.length == 0){
+                alert('Please Select Keyword');
+            }else{
+                $('#groupCreateModal').modal('show');
+            }
+        }
+
+        function addGroupPhrase(){
+             var phraseId = [];
+            $.each($("input[name='phrase']:checked"), function(){
+                phraseId.push($(this).val());
+            });
+           if(phraseId.length == 0){
+                alert('Please Select Phrase From Keywords');
+            }else{
+                $('#groupPhraseCreateModal').modal('show');
+            }
+        }
+
+        function createGroup(){
+             var id = [];
+             name = $('#keywordname').val();
+             keyword_group = $('#keywordGroup').val();
+             
+            $.each($("input[name='keyword']:checked"), function(){
+                id.push($(this).val());
+            });
+            if(id.length == 0){
+                alert('Please Select Keyword');
+            }else{
+                $.ajax({
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route('autoreply.save.group') }}',
+                data: {
+                    id: id,
+                    name : name,
+                    keyword_group : keyword_group,
+                },
+                }).done(response => {
+                    alert('Added Group');
+                }).fail(function (response) {
+                    alert('Could not add group!');
+                });
+            }
+        }
+
+
+        function createGroupPhrase() {
+            var phraseId = [];
+            name = $('#phrasename').val();
+            phrase_group = $('#phraseGroup').val();
+            $.each($("input[name='phrase']:checked"), function(){
+                phraseId.push($(this).val());
+                keyword = $(this).attr("data-keyword")
+            });
+            
+            if(phraseId.length == 0){
+                alert('Please Select Phrase From Keywords');
+            }else{
+                $.ajax({
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route('autoreply.save.group.phrases') }}',
+                data: {
+                    phraseId: phraseId,
+                    keyword : keyword,
+                    name : name,
+                    phrase_group : phrase_group,
+                },
+                }).done(response => {
+                    alert('Added Phrase Group');
+                }).fail(function (response) {
+                    alert('Could not add Phrase group!');
+                });
+            }
+            
+            $(function() {
+                $('.selectpicker').selectpicker();
+            });
+        }
     </script>
 @endsection

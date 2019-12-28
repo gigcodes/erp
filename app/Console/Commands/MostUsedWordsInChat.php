@@ -76,9 +76,5 @@ class MostUsedWordsInChat extends Command
                 }
             }
         }
-
-        if (!empty($phrasesRecords)) {
-        }
-
     }
 }

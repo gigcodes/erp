@@ -53,7 +53,7 @@ class ProductCropperController extends Controller
             ->where('stage', '>=', $stage->get('Supervisor'))
             ->whereNull('dnf')
             ->withMedia(config('constants.media_tags'))
-            ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
+            ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
             ->paginate(Setting::get('pagination'));
 
         $roletype = 'ImageCropper';
@@ -649,7 +649,7 @@ class ProductCropperController extends Controller
 
         if (!empty($request->location)) {
             $products = $products->whereIn('location', $request->location);
-        } 
+        }
 
         $products = $products->orderBy('updated_at', 'DESC')->paginate(24);
 

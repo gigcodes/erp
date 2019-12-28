@@ -40,7 +40,7 @@ class ProductAttributeController extends Controller
 		$products = Product::latest()
 		                   ->where('stage','>=',$stage->get('Searcher'))
 						   		 		 ->whereNull('dnf')
-											 ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
+											 ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
 		                   ->paginate(Setting::get('pagination'));
 		$roletype = 'Attribute';
 
@@ -90,7 +90,7 @@ class ProductAttributeController extends Controller
 		$data['color'] = $productattribute->color;
 		$data['price'] = $productattribute->price;
 		$data['price_inr'] = $productattribute->price_inr;
-		$data['price_special'] = $productattribute->price_special;
+		$data['price_inr_special'] = $productattribute->price_inr_special;
 		$data['price_special_offer'] = $productattribute->price_special_offer;
 		$data['euro_to_inr'] = $productattribute->euro_to_inr;
 		$data['suppliers'] = Supplier::all();
@@ -173,7 +173,7 @@ class ProductAttributeController extends Controller
 
 		if(!empty($productattribute->brand)) {
 			$productattribute->price_inr     = $this->euroToInr( $productattribute->price, $productattribute->brand );
-			$productattribute->price_special = $this->calculateSpecialDiscount( $productattribute->price_inr, $productattribute->brand );
+			$productattribute->price_inr_special = $this->calculateSpecialDiscount( $productattribute->price_inr, $productattribute->brand );
 		}
 
 		if ($productattribute->stage < $stage->get('Attribute')) {
@@ -386,11 +386,12 @@ class ProductAttributeController extends Controller
 								'qty'					=> $product->stock,
 								'is_in_stock'	=> $product->stock >= 1 ? 1 : 0,
 							),
-							'price'                 => $product->price_inr,
+							'price'                 => $product->price_eur_special,
 							// Same price than configurable product, no price change
-							'special_price'         => $product->price_special,
+							'special_price'         => $product->price_eur_discounted,
 							'additional_attributes' => array(
 								'single_data' => array(
+									array( 'key' => 'msrp', 'value' => $product->price, ),
 									array( 'key' => 'composition', 'value' => $product->composition, ),
 									array( 'key' => 'color', 'value' => $product->color, ),
 									array( 'key' => 'sizes', 'value' => $size, ),
@@ -446,11 +447,12 @@ class ProductAttributeController extends Controller
 								'qty'					=> $product->stock,
 								'is_in_stock'	=> $product->stock >= 1 ? 1 : 0,
 							),
-							'price'                 => $product->price_inr,
+							'price'                 => $product->price_eur_special,
 							// Same price than configurable product, no price change
-							'special_price'         => $product->price_special,
+							'special_price'         => $product->price_eur_discounted,
 							'additional_attributes' => array(
 								'single_data' => array(
+									array( 'key' => 'msrp', 'value' => $product->price, ),
 									array( 'key' => 'composition', 'value' => $product->composition, ),
 									array( 'key' => 'color', 'value' => $product->color, ),
 									array( 'key' => 'sizes', 'value' => $size, ),
@@ -495,14 +497,15 @@ class ProductAttributeController extends Controller
 					'qty'					=> $product->stock,
 					'is_in_stock'	=> $product->stock >= 1 ? 1 : 0,
 				),
-				'price'                   => $product->price_inr,
+				'price'                   => $product->price_eur_special,
 				// Same price than configurable product, no price change
-				'special_price'           => $product->price_special,
+				'special_price'           => $product->price_eur_discounted,
 				'associated_skus'         => $associated_skus,
 				// Simple products to associate
 				// 'configurable_attributes' => array( 155 ),
 				'additional_attributes'   => array(
 					'single_data' => array(
+						array( 'key' => 'msrp', 'value' => $product->price, ),
 						array( 'key' => 'composition', 'value' => $product->composition, ),
 						array( 'key' => 'color', 'value' => $product->color, ),
 						array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
@@ -587,11 +590,12 @@ class ProductAttributeController extends Controller
 					'qty'					=> $product->stock,
 					'is_in_stock'	=> $product->stock > 1 ? 1 : 0,
 				),
-				'price'                 => $product->price_inr,
+				'price'                 => $product->price_eur_special,
 				// Same price than configurable product, no price change
-				'special_price'         => $product->price_special,
+				'special_price'         => $product->price_eur_discounted,
 				'additional_attributes' => array(
 					'single_data' => array(
+						array( 'key' => 'msrp', 'value' => $product->price, ),
 						array( 'key' => 'composition', 'value' => $product->composition, ),
 						array( 'key' => 'color', 'value' => $product->color, ),
 						array( 'key' => 'measurement', 'value' => $measurement, ),

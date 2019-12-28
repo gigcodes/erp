@@ -13,6 +13,7 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use DB;
 use App\LogGoogleCse;
+use App\Services\Search\TinEye;
 
 use seo2websites\GoogleVision\GoogleVisionHelper;
 
@@ -82,7 +83,7 @@ class GoogleSearchImageController extends Controller
             $max = $exploded[ 1 ];
 
             if ($min != '0' || $max != '10000000') {
-                $productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+                $productQuery = $productQuery->whereBetween('price_inr_special', [$min, $max]);
             }
 
             $data[ 'price' ][ 0 ] = $min;
@@ -222,17 +223,30 @@ class GoogleSearchImageController extends Controller
                         $path = public_path() . '/tmp_images/crop_' . $media->getBasenameAttribute();
                         $url = '/tmp_images/crop_' . $media->getBasenameAttribute();
                         $img->save($path);
-
                     }
                 }
             }
-
         }
 
         if ($path) {
+            // Set empty array for product image
             $productImage = [];
-            $productImage[ $url ] = GoogleVisionHelper::getImageDetails($path);
+
+            // Try TinEye
+            $tinEye = new TinEye();
+            $results = $tinEye->searchByImage($path, true);
+
+            // Does TinEye have results? Otherwise try Google Vision
+            if ($results[ 'pages' ] > 0) {
+                $productImage[ $url ] = $results;
+            } else {
+                $productImage[ $url ] = GoogleVisionHelper::getImageDetails($path);
+            }
+
+            // Get product
             $product = Product::where('id', $product_id)->first();
+
+            // Return view
             return view('google_search_image.details', compact(['productImage', 'product_id', 'product']));
         } else {
             return redirect(route('google.search.image'))->with('message', 'Please Select Products');
@@ -387,7 +401,8 @@ class GoogleSearchImageController extends Controller
         return response()->json(['success' => 'true'], 200);
     }
 
-    public function cropImageSequence(Request $request){
+    public function cropImageSequence(Request $request)
+    {
         $id = $request->id;
         $sequence = $request->sequence;
 
@@ -399,35 +414,35 @@ class GoogleSearchImageController extends Controller
 
         if ($media) {
             $url = $media->getUrl();
-            
+
             $img = \Image::make($media->getAbsolutePath());
             $imageWidth = $img->width();
             $imageHeight = $img->height();
-            if($sequence == 8){
+            if ($sequence == 8) {
                 $newWidth = (int)($imageWidth / 4);
                 $newHeight = (int)($imageHeight / 2);
-            
+
                 $count = 0;
                 $axisCount = 0;
-                for($i=0;$i<$sequence;$i++){
-                
+                for ($i = 0; $i < $sequence; $i++) {
+
                     $img = \Image::make($media->getAbsolutePath());
-                    if($count < 4){
+                    if ($count < 4) {
                         $x = $newWidth * $i;
                         $y = 0;
-                        $img->crop($newWidth, $newHeight,$x,$y);
+                        $img->crop($newWidth, $newHeight, $x, $y);
 
                         if (!is_dir(public_path() . '/tmp_images')) {
                             mkdir(public_path() . '/tmp_images', 0777, true);
                         }
-                        $path = public_path() . '/tmp_images/crop_'.$i.$media->getBasenameAttribute();
-                        $url = '/tmp_images/crop_' .$i. $media->getBasenameAttribute();
+                        $path = public_path() . '/tmp_images/crop_' . $i . $media->getBasenameAttribute();
+                        $url = '/tmp_images/crop_' . $i . $media->getBasenameAttribute();
                         $img->save($path);
 
                         //Product save
                         $newProduct = new Product;
                         $newProduct->name = $product->name;
-                        $newProduct->sku = '-'.$product->sku;
+                        $newProduct->sku = '-' . $product->sku;
                         $newProduct->size = $product->size;
                         $newProduct->brand = $product->brand;
                         $newProduct->color = $product->color;
@@ -435,21 +450,21 @@ class GoogleSearchImageController extends Controller
                         $newProduct->price = $product->price;
                         $newProduct->quick_product = 1;
                         $newProduct->price_inr = $product->price_inr;
-                        $newProduct->price_special = $product->price_special;
+                        $newProduct->price_inr_special = $product->price_inr_special;
                         $newProduct->save();
                         //Attach Media To Post
                         $newMedia = MediaUploader::fromSource($path)
-                                            ->toDirectory('product/'.floor($newProduct->id / config('constants.image_per_folder')))
-                                            ->upload();
-                        $newProduct->attachMedia($newMedia,config('constants.media_tags'));
+                            ->toDirectory('product/' . floor($newProduct->id / config('constants.image_per_folder')))
+                            ->upload();
+                        $newProduct->attachMedia($newMedia, config('constants.media_tags'));
 
                         //Updating New Product Status
                         $newProduct->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
                         $newProduct->save();
 
-                        //Process Image For Google Search 
+                        //Process Image For Google Search
                         $newUrls = GoogleVisionHelper::getImageDetails($newMedia->getUrl());
-                        
+
                         $mediaUrlCount = 0;
                         if (isset($urls[ 'pages' ])) {
                             foreach ($urls[ 'pages' ] as $url) {
@@ -465,7 +480,7 @@ class GoogleSearchImageController extends Controller
 
                             }
                         }
-                        //If Page Is Not Found 
+                        //If Page Is Not Found
                         if ($mediaUrlCount == 0) {
                             $newProduct->status_id = StatusHelper::$googleImageSearchFailed;
                             $newProduct->save();
@@ -473,22 +488,22 @@ class GoogleSearchImageController extends Controller
                             StatusHelper::updateStatus($newProduct, StatusHelper::$queuedForGoogleImageSearch);
                         }
                         $count++;
-                    }else{
+                    } else {
                         $x = $newWidth * $axisCount;
                         $y = $newHeight;
-                        $img->crop($newWidth, $newHeight,$x,$y);
+                        $img->crop($newWidth, $newHeight, $x, $y);
 
                         if (!is_dir(public_path() . '/tmp_images')) {
                             mkdir(public_path() . '/tmp_images', 0777, true);
                         }
-                        $path = public_path() . '/tmp_images/crop_'.$i.$media->getBasenameAttribute();
-                        $url = '/tmp_images/crop_' .$i. $media->getBasenameAttribute();
+                        $path = public_path() . '/tmp_images/crop_' . $i . $media->getBasenameAttribute();
+                        $url = '/tmp_images/crop_' . $i . $media->getBasenameAttribute();
                         $img->save($path);
 
                         //Product save
                         $newProduct = new Product;
                         $newProduct->name = $product->name;
-                        $newProduct->sku = '-'.$product->sku;
+                        $newProduct->sku = '-' . $product->sku;
                         $newProduct->size = $product->size;
                         $newProduct->brand = $product->brand;
                         $newProduct->color = $product->color;
@@ -496,22 +511,22 @@ class GoogleSearchImageController extends Controller
                         $newProduct->price = $product->price;
                         $newProduct->quick_product = 1;
                         $newProduct->price_inr = $product->price_inr;
-                        $newProduct->price_special = $product->price_special;
+                        $newProduct->price_inr_special = $product->price_inr_special;
                         $newProduct->save();
 
                         //Attach Media To Post
                         $newMedia = MediaUploader::fromSource($path)
-                                            ->toDirectory('product/'.floor($newProduct->id / config('constants.image_per_folder')))
-                                            ->upload();
-                        $newProduct->attachMedia($newMedia,config('constants.media_tags'));
+                            ->toDirectory('product/' . floor($newProduct->id / config('constants.image_per_folder')))
+                            ->upload();
+                        $newProduct->attachMedia($newMedia, config('constants.media_tags'));
 
                         //Updating New Product Status
                         $newProduct->status_id = StatusHelper::$isBeingScrapedWithGoogleImageSearch;
                         $newProduct->save();
 
-                        //Process Image For Google Search 
+                        //Process Image For Google Search
                         $newUrls = GoogleVisionHelper::getImageDetails($newMedia->getUrl());
-                        
+
                         $mediaUrlCount = 0;
                         if (isset($urls[ 'pages' ])) {
                             foreach ($urls[ 'pages' ] as $url) {
@@ -527,7 +542,7 @@ class GoogleSearchImageController extends Controller
 
                             }
                         }
-                        //If Page Is Not Found 
+                        //If Page Is Not Found
                         if ($mediaUrlCount == 0) {
                             $newProduct->status_id = StatusHelper::$googleImageSearchFailed;
                             $newProduct->save();
@@ -537,68 +552,69 @@ class GoogleSearchImageController extends Controller
 
 
                         $axisCount++;
-                    }    
-                    
+                    }
+
                 }
                 //Delete Old Product
                 $product->deleted_at = now();
                 $product->save();
 
             }
-            
+
         }
-         return response()->json(['success' => 'true'], 200);
+        return response()->json(['success' => 'true'], 200);
     }
 
-    public function updateProductStatus(Request $request){
+    public function updateProductStatus(Request $request)
+    {
         $id = $request->id;
         $type = $request->type;
 
         $product = Product::find($id);
 
-        if($type == 'approve'){
+        if ($type == 'approve') {
             $product->status_id = StatusHelper::$AI;
             $product->save();
-        }elseif($type == 'reject'){
+        } elseif ($type == 'reject') {
             $product->status_id = StatusHelper::$googleImageSearchManuallyRejected;
             $product->save();
-        }elseif($type == 'textapprove'){
+        } elseif ($type == 'textapprove') {
             $product->status_id = StatusHelper::$AI;
             $product->save();
-        }else{
+        } else {
             $product->status_id = StatusHelper::$googleTextSearchManuallyRejected;
             $product->save();
         }
         return response()->json(['success' => 'true'], 200);
     }
 
-    public function nultipeImageProduct(Request $request){
+    public function nultipeImageProduct(Request $request)
+    {
         $data = [];
         $term = $request->input('term');
-        
-        if(request("status_id") != null){
-            $statusId = $request->status_id;    
-        }else{
-            if(empty($request->all()) || isset($request->page)){
+
+        if (request("status_id") != null) {
+            $statusId = $request->status_id;
+        } else {
+            if (empty($request->all()) || isset($request->page)) {
                 $statusId = [StatusHelper::$unableToScrapeImages];
             }
         }
-        
+
         $data[ 'term' ] = $term;
 
         $productQuery = (new Product())->newQuery()->latest();
-       
-        if(!isset($statusId)){
+
+        if (!isset($statusId)) {
             $statusId = null;
         }
-        
+
         if ($statusId != null) {
             $productQuery = $productQuery->whereIn('status_id', $statusId);
             $data[ 'status_id' ] = $statusId;
         }
-        
-        
-        
+
+
         if ($request->brand[ 0 ] != null) {
             $productQuery = $productQuery->whereIn('brand', $request->brand);
             $data[ 'brand' ] = $request->brand[ 0 ];
@@ -649,7 +665,7 @@ class GoogleSearchImageController extends Controller
             $max = $exploded[ 1 ];
 
             if ($min != '0' || $max != '10000000') {
-                $productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+                $productQuery = $productQuery->whereBetween('price_inr_special', [$min, $max]);
             }
 
             $data[ 'price' ][ 0 ] = $min;
@@ -686,7 +702,7 @@ class GoogleSearchImageController extends Controller
             });
         }
 
-        
+
         if ($request->no_locations === 'true') {
             $productQuery = $productQuery->where('quick_product', 1);
         }
@@ -709,127 +725,129 @@ class GoogleSearchImageController extends Controller
         $productIdsSystem = $productQuery->pluck('id')->toArray();
         $countSystem = $productQuery->count();
 
-        if(isset($statusId)){
+        if (isset($statusId)) {
             $data[ 'products' ] = $productQuery
-            ->groupBy('products.id')
-            ->paginate(Setting::get('pagination'));
-        }else{
-             $data[ 'products' ] = $productQuery->join("mediables", function ($query) {
-            $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
+                ->groupBy('products.id')
+                ->paginate(Setting::get('pagination'));
+        } else {
+            $data[ 'products' ] = $productQuery->join("mediables", function ($query) {
+                $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
             })
-            ->groupBy('products.id')
-            ->paginate(Setting::get('pagination'));
+                ->groupBy('products.id')
+                ->paginate(Setting::get('pagination'));
         }
-        
+
 
         $data[ 'locations' ] = (new \App\ProductLocation())->pluck('name');
         $data[ 'quick_sell_groups' ] = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         $data[ 'all_products_system' ] = $productIdsSystem;
         $data[ 'count_system' ] = $countSystem;
 
-        //getting top url 
+        //getting top url
         $logs = \App\LogGoogleCse::groupBy('image_url')->get();
         $logArray = array();
         foreach ($logs as $log) {
             $url = $log->image_url;
             $website = explode('/', $url);
-            $website = $website[2]; //assuming that the url starts with http:// or https://
-            if(!in_array($website,$logArray)){
-                array_push($logArray,$website);
+            $website = $website[ 2 ]; //assuming that the url starts with http:// or https://
+            if (!in_array($website, $logArray)) {
+                array_push($logArray, $website);
             }
         }
         $counter = 0;
         foreach ($logArray as $log) {
-           $count =  \App\LogGoogleCse::where('image_url', 'like', '%' . $log . '%')->count();
-           $finalArray[] = array($log => $count);
-           if($counter == 20){
-            break;
-           }
-           $counter++;
+            $count = \App\LogGoogleCse::where('image_url', 'like', '%' . $log . '%')->count();
+            $finalArray[] = array($log => $count);
+            if ($counter == 20) {
+                break;
+            }
+            $counter++;
         }
-        if(isset($finalArray)){
-            $data['top_url'] = $finalArray;
-        }else{
-            $data['top_url'] = [];
+        if (isset($finalArray)) {
+            $data[ 'top_url' ] = $finalArray;
+        } else {
+            $data[ 'top_url' ] = [];
         }
-        
-        
-        
+
+
         return view('google_search_image.multiple-image-text', $data);
     }
 
-    public function multipleImageStore(Request $request){
+    public function multipleImageStore(Request $request)
+    {
         $id = $request->id;
         $product = Product::find($id);
 
-        if($product->brands != null){
+        if ($product->brands != null) {
             $brand = $product->brands->name;
-            if($product->brands->googleServer != null){
+            if ($product->brands->googleServer != null) {
                 $key = $product->brands->googleServer->key;
-            }else{
+            } else {
                 $key = null;
             }
 
-        }else{
-                $key = null;
-                $brand = '';
-            }
-       
+        } else {
+            $key = null;
+            $brand = '';
+        }
+
         $googleServer = env('GOOGLE_CUSTOM_SEARCH');
 
         //Replace Google Server Key
-        if($key != null){
+        if ($key != null) {
             $re = '/([?&]cx)=([^#&]*)/';
             preg_match($re, $googleServer, $match);
-            $googleServer = str_replace($match[2],$key,$googleServer);
+            $googleServer = str_replace($match[ 2 ], $key, $googleServer);
         }
 
         //Array Of Multiple Product Detail Search
-        $keywords = [implode(',', array_filter([$brand, $product->name,$product->color, $product->sku])), 
-                    implode(',', array_filter([$product->name,$product->color, $product->sku])),
-                    implode(',', array_filter([$product->name ,$product->sku])),
-                    $product->name,
-                    $product->sku];
-                    
+        $keywords = [
+            implode(',', array_filter([$brand, $product->name, $product->color, $product->sku])),
+            implode(',', array_filter([$product->name, $product->color, $product->sku])),
+            implode(',', array_filter([$product->name, $product->sku])),
+            $product->name,
+            $product->sku
+        ];
+
         //Looping Through Keywords
-        foreach($keywords as $keyword){
-            
-            $link = $googleServer.'&q='.urlencode($keyword).'&searchType=image&imgSize=large';
-            
+        foreach ($keywords as $keyword) {
+
+            $link = $googleServer . '&q=' . urlencode($keyword) . '&searchType=image&imgSize=large';
+
             $handle = curl_init();
 
             // Set the url
             curl_setopt($handle, CURLOPT_URL, $link);
             // Set the result output to be a string.
             curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-            
+
             $output = curl_exec($handle);
-            
+
             curl_close($handle);
 
             $list = json_decode($output);
-            
-            if($list == null){
+
+            if ($list == null) {
                 continue;
             }
-            
-            if(isset($list->searchInformation)){
-                if($list->searchInformation->totalResults == 0){
+
+            if (isset($list->searchInformation)) {
+                if ($list->searchInformation->totalResults == 0) {
                     continue;
                 }
             }
-            
-            if(!isset($list->items)){
+
+            if (!isset($list->items)) {
                 continue;
             }
             $links = $list->items;
-            
 
-            //here save log 
-            
+
+            //here save log
+
 
             $count = 0;
-            foreach($links as $link){
+            foreach ($links as $link) {
                 $image = $link->link;
 
                 $jpg = \Image::make($image)->encode('jpg');
@@ -838,9 +856,9 @@ class GoogleSearchImageController extends Controller
                 $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
                 $product->attachMedia($media, config('constants.google_text_search'));
 
-                $responseString = 'Link: '.$link->link .'\n Display Link: '.$link->displayLink.'\n Title : '.$link->title.'\n Image Details: '.$link->image->contextLink.' Height:'. $link->image->height.' Width : '. $link->image->width.'\n ThumbnailLink '.$link->image->thumbnailLink;
+                $responseString = 'Link: ' . $link->link . '\n Display Link: ' . $link->displayLink . '\n Title : ' . $link->title . '\n Image Details: ' . $link->image->contextLink . ' Height:' . $link->image->height . ' Width : ' . $link->image->width . '\n ThumbnailLink ' . $link->image->thumbnailLink;
 
-                $log =  new LogGoogleCse();
+                $log = new LogGoogleCse();
                 $log->image_url = $image;
                 $log->keyword = $keyword;
                 $log->response = $responseString;
@@ -848,45 +866,45 @@ class GoogleSearchImageController extends Controller
 
                 $count++;
             }
-            //If Page Is Not Found 
+            //If Page Is Not Found
             if ($count == 0) {
-               $product->status_id = StatusHelper::$googleTextSearchFailed;
-               $product->save();
+                $product->status_id = StatusHelper::$googleTextSearchFailed;
+                $product->save();
             } else {
                 StatusHelper::updateStatus($product, StatusHelper::$pendingVerificationGoogleTextSearch);
                 break;
             }
         }
-       return response()->json(['success' => 'true'], 200); 
+        return response()->json(['success' => 'true'], 200);
     }
 
-    public function approveProduct(Request $request){
-         $data = [];
+    public function approveProduct(Request $request)
+    {
+        $data = [];
         $term = $request->input('term');
-        
-        if(request("status_id") != null){
-            $statusId = $request->status_id;    
-        }else{
-            if(empty($request->all()) || isset($request->page)){
+
+        if (request("status_id") != null) {
+            $statusId = $request->status_id;
+        } else {
+            if (empty($request->all()) || isset($request->page)) {
                 $statusId = [StatusHelper::$pendingVerificationGoogleTextSearch];
             }
         }
-        
+
         $data[ 'term' ] = $term;
 
         $productQuery = (new Product())->newQuery()->latest();
-       
-        if(!isset($statusId)){
+
+        if (!isset($statusId)) {
             $statusId = null;
         }
-        
+
         if ($statusId != null) {
             $productQuery = $productQuery->whereIn('status_id', $statusId);
             $data[ 'status_id' ] = $statusId;
         }
-        
-        
-        
+
+
         if ($request->brand[ 0 ] != null) {
             $productQuery = $productQuery->whereIn('brand', $request->brand);
             $data[ 'brand' ] = $request->brand[ 0 ];
@@ -937,7 +955,7 @@ class GoogleSearchImageController extends Controller
             $max = $exploded[ 1 ];
 
             if ($min != '0' || $max != '10000000') {
-                $productQuery = $productQuery->whereBetween('price_special', [$min, $max]);
+                $productQuery = $productQuery->whereBetween('price_inr_special', [$min, $max]);
             }
 
             $data[ 'price' ][ 0 ] = $min;
@@ -974,7 +992,7 @@ class GoogleSearchImageController extends Controller
             });
         }
 
-        
+
         if ($request->no_locations === 'true') {
             $productQuery = $productQuery->where('quick_product', 1);
         }
@@ -997,38 +1015,39 @@ class GoogleSearchImageController extends Controller
         $productIdsSystem = $productQuery->pluck('id')->toArray();
         $countSystem = $productQuery->count();
 
-        if(isset($statusId)){
+        if (isset($statusId)) {
             $data[ 'products' ] = $productQuery
-            ->groupBy('products.id')
-            ->paginate(Setting::get('pagination'));
-        }else{
-             $data[ 'products' ] = $productQuery->join("mediables", function ($query) {
-            $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
+                ->groupBy('products.id')
+                ->paginate(Setting::get('pagination'));
+        } else {
+            $data[ 'products' ] = $productQuery->join("mediables", function ($query) {
+                $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
             })
-            ->groupBy('products.id')
-            ->paginate(Setting::get('pagination'));
+                ->groupBy('products.id')
+                ->paginate(Setting::get('pagination'));
         }
-        
+
 
         $data[ 'locations' ] = (new \App\ProductLocation())->pluck('name');
         $data[ 'quick_sell_groups' ] = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         $data[ 'all_products_system' ] = $productIdsSystem;
         $data[ 'count_system' ] = $countSystem;
-        
-         return view('google_search_image.approve', $data);  
+
+        return view('google_search_image.approve', $data);
 
     }
 
-    public function approveTextGoogleImagesToProduct(Request $request){
+    public function approveTextGoogleImagesToProduct(Request $request)
+    {
         $product_id = $request->id;
         $images = $request->selected;
-        
+
         //Changed Selected Images For Product
         foreach ($images as $image) {
 
-            $media = DB::table('mediables')->where('tag',config('constants.google_text_search'))->where('mediable_type','App\Product')->where('media_id',$image)
+            $media = DB::table('mediables')->where('tag', config('constants.google_text_search'))->where('mediable_type', 'App\Product')->where('media_id', $image)
                 ->limit(1)
-                ->update(array('tag' => config('constants.media_tags')[0]));
+                ->update(array('tag' => config('constants.media_tags')[ 0 ]));
         }
 
         //Change Product Status
@@ -1036,7 +1055,7 @@ class GoogleSearchImageController extends Controller
         $product->status_id = StatusHelper::$AI;
         $product->save();
 
-        return response()->json(['success' => 'true'], 200); 
+        return response()->json(['success' => 'true'], 200);
 
     }
 
@@ -1047,22 +1066,22 @@ class GoogleSearchImageController extends Controller
         $product->update();
 
         $results = $product->media()->get();
-        $results->each(function($media) {
-        $media->delete();
+        $results->each(function ($media) {
+            $media->delete();
         });
 
-        return response()->json(['success' => 'true'], 200); 
+        return response()->json(['success' => 'true'], 200);
     }
 
     public function getProductFromImage(Request $request)
     {
-       
+
         if (!is_dir(public_path() . '/tmp_images')) {
-                            mkdir(public_path() . '/tmp_images', 0777, true);
+            mkdir(public_path() . '/tmp_images', 0777, true);
         }
         $path = public_path() . '/tmp_images/crop_' . $request->file->getClientOriginalName();
         $url = '/tmp_images/crop_' . $request->file->getClientOriginalName();
-        
+
         request()->file->move($path, $request->file->getClientOriginalName());
 
         //Product save
@@ -1071,46 +1090,46 @@ class GoogleSearchImageController extends Controller
         $product->price = 0;
         $product->quick_product = 1;
         $product->price_inr = 0;
-        $product->price_special = 0;
+        $product->price_inr_special = 0;
         $product->save();
-        
+
         //Attach Media To Post
         $media = MediaUploader::fromSource($path)
-                            ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
-                            ->upload();
-        $product->attachMedia($media, config('constants.media_tags'));                    
-        
+            ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+            ->upload();
+        $product->attachMedia($media, config('constants.media_tags'));
+
         if ($path) {
-       //$path = 'https://cdn-images.farfetch-contents.com/14/78/88/17/14788817_23873137_480.jpg';
-       $urls = GoogleVisionHelper::getImageDetails($path);
+            //$path = 'https://cdn-images.farfetch-contents.com/14/78/88/17/14788817_23873137_480.jpg';
+            $urls = GoogleVisionHelper::getImageDetails($path);
             $count = 0;
-             if (isset($urls[ 'pages' ])) {
+            if (isset($urls[ 'pages' ])) {
                 foreach ($urls[ 'pages' ] as $url) {
-                        if (stristr($url, '.gucci.') || stristr($url, '.farfetch.')) {
-                            //Create New Product 
+                    if (stristr($url, '.gucci.') || stristr($url, '.farfetch.')) {
+                        //Create New Product
 
-                            // Create queue item
-                            $scrapeQueue = new ScrapeQueues();
-                            $scrapeQueue->product_id = $product->id;
-                            $scrapeQueue->url = $url;
-                            $scrapeQueue->save();
-                            $count++;
-                            break;
-                        }
+                        // Create queue item
+                        $scrapeQueue = new ScrapeQueues();
+                        $scrapeQueue->product_id = $product->id;
+                        $scrapeQueue->url = $url;
+                        $scrapeQueue->save();
+                        $count++;
+                        break;
+                    }
 
-                    }
-                    if ($count == 0) {
-                        $product->status_id = StatusHelper::$googleImageSearchFailed;
-                        $product->save();
-                        return response('failed',200);
-                    } else {
-                        StatusHelper::updateStatus($product, StatusHelper::$queuedForGoogleImageSearch);
-                        return response('success',200);
-                    }
-            }else{
+                }
+                if ($count == 0) {
+                    $product->status_id = StatusHelper::$googleImageSearchFailed;
+                    $product->save();
+                    return response('failed', 200);
+                } else {
+                    StatusHelper::updateStatus($product, StatusHelper::$queuedForGoogleImageSearch);
+                    return response('success', 200);
+                }
+            } else {
                 $product->status_id = StatusHelper::$googleImageSearchFailed;
                 $product->save();
-                return response('failed',200);
+                return response('failed', 200);
             }
         }
     }
@@ -1119,19 +1138,19 @@ class GoogleSearchImageController extends Controller
     {
         $keyword = $request->keyword;
         $braand = $request->brand;
-        $brand = \App\Brand::where('name',$braand)->first();
-        if($brand == null && $brand == ''){
+        $brand = \App\Brand::where('name', $braand)->first();
+        if ($brand == null && $brand == '') {
             $brandId = '';
-        }else{
+        } else {
             $brandId = $brand->id;
         }
         $sku = $request->sku;
-        if($sku == null && $sku == ''){
-           $sku = '';
+        if ($sku == null && $sku == '') {
+            $sku = '';
         }
         $title = $request->title;
-        if($title == null && $title == ''){
-           $title = '';
+        if ($title == null && $title == '') {
+            $title = '';
         }
 
 
@@ -1143,66 +1162,66 @@ class GoogleSearchImageController extends Controller
         $product->price = 0;
         $product->quick_product = 1;
         $product->price_inr = 0;
-        $product->price_special = 0;
+        $product->price_inr_special = 0;
         $product->save();
-        
-         if($product->brands != null){
+
+        if ($product->brands != null) {
             $brand = $product->brands->name;
-            if($product->brands->googleServer != null){
+            if ($product->brands->googleServer != null) {
                 $key = $product->brands->googleServer->key;
-            }else{
+            } else {
                 $key = null;
             }
 
-        }else{
-                $key = null;
-                $brand = '';
-            }
-       
+        } else {
+            $key = null;
+            $brand = '';
+        }
+
         $googleServer = env('GOOGLE_CUSTOM_SEARCH');
 
         //Replace Google Server Key
-        if($key != null){
+        if ($key != null) {
             $re = '/([?&]cx)=([^#&]*)/';
             preg_match($re, $googleServer, $match);
-            $googleServer = str_replace($match[2],$key,$googleServer);
+            $googleServer = str_replace($match[ 2 ], $key, $googleServer);
         }
 
-        
-        $link = $googleServer.'&q='.urlencode($keyword).'&searchType=image&imgSize=large';
-          
+
+        $link = $googleServer . '&q=' . urlencode($keyword) . '&searchType=image&imgSize=large';
+
         $handle = curl_init();
 
         // Set the url
         curl_setopt($handle, CURLOPT_URL, $link);
         // Set the result output to be a string.
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-        
+
         $output = curl_exec($handle);
-        
+
         curl_close($handle);
 
         $list = json_decode($output);
-        
-        if($list == null){
+
+        if ($list == null) {
             return false;
         }
-        
-        if(isset($list->searchInformation)){
-            if($list->searchInformation->totalResults == 0){
-               return false;
+
+        if (isset($list->searchInformation)) {
+            if ($list->searchInformation->totalResults == 0) {
+                return false;
             }
         }
-        
-        if(!isset($list->items)){
+
+        if (!isset($list->items)) {
             return false;
         }
         $links = $list->items;
-        
 
-        //here save log 
+
+        //here save log
         $count = 0;
-        foreach($links as $link){
+        foreach ($links as $link) {
             $image = $link->link;
 
             $jpg = \Image::make($image)->encode('jpg');
@@ -1211,23 +1230,23 @@ class GoogleSearchImageController extends Controller
             $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
             $product->attachMedia($media, config('constants.google_text_search'));
 
-            $responseString = 'Link: '.$link->link .'\n Display Link: '.$link->displayLink.'\n Title : '.$link->title.'\n Image Details: '.$link->image->contextLink.' Height:'. $link->image->height.' Width : '. $link->image->width.'\n ThumbnailLink '.$link->image->thumbnailLink;
+            $responseString = 'Link: ' . $link->link . '\n Display Link: ' . $link->displayLink . '\n Title : ' . $link->title . '\n Image Details: ' . $link->image->contextLink . ' Height:' . $link->image->height . ' Width : ' . $link->image->width . '\n ThumbnailLink ' . $link->image->thumbnailLink;
 
-            $log =  new LogGoogleCse();
+            $log = new LogGoogleCse();
             $log->image_url = $image;
             $log->keyword = $keyword;
             $log->response = $responseString;
             $log->save();
             $count++;
         }
-        //If Page Is Not Found 
+        //If Page Is Not Found
         if ($count == 0) {
-           $product->status_id = StatusHelper::$googleTextSearchFailed;
-           $product->save();
-           return response('error',200); 
+            $product->status_id = StatusHelper::$googleTextSearchFailed;
+            $product->save();
+            return response('error', 200);
         } else {
             StatusHelper::updateStatus($product, StatusHelper::$pendingVerificationGoogleTextSearch);
-            return response('success',200); 
+            return response('success', 200);
         }
 
     }
