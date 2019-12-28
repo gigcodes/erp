@@ -48,23 +48,41 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="well">
-                            <h1> Best Matching Images in Site </h1>
+                            <h1>Best Matching Images in Site</h1>
                         </div>
                         <?php if(!empty($result[ "pages" ])){ ?>
-                        <?php foreach($result[ "pages" ] as $pages) { ?>
-                        <div class="col-md-4" style="float:left">
-                            <div class="panel panel-primary">
-                                <div class="panel-footer" <?php if (stristr($pages, '.gucci.')) echo " style='background-color: lightgreen;";?>>
-                                    <a href="<?php echo $pages; ?>" target="__blank">
-                                        <button title="<?php echo $pages; ?>" class="btn btn-secondary">Go To <?php echo substr($pages, 0, 30) ?>...</button>
+                        <?php $i = 0; ?>
+                        <div class="row">
+                            <?php foreach($result[ "pages" ] as $pages) { ?>
+                            <div class="col-md-4" style="float:left">
+                                <div class="panel panel-primary">
+                                    <div class="panel-footer" <?php if (stristr($pages, '.gucci.')) echo " style='background-color: lightgreen;";?>>
+                                        <?php echo isset($result[ 'pages_media' ][ $i ]) ? '<img src="' . $result[ 'pages_media' ][ $i ] . '" style="width: 100%; height: auto;">' : ''; ?>
+                                        @php
+                                            if ( isset($result[ 'pages_media' ][ $i ]) ) {
+                                                $sku = \App\Helpers\ProductHelper::getSkuFromImage($result[ 'pages_media' ][ $i ]);
+                                                if ( !empty($sku) ) {
+                                        @endphp
+                                        <input type="text" value="{!! $sku !!}" style="margin: 5px;"/> <a href="https://google.com/search?q=%22{!! $sku !!}%22" target="_blank">Search Online</a><br/>
+                                        @php
+                                            }
+                                        }
+                                        @endphp
+                                        <a href="<?php echo $pages; ?>" target="__blank">
+                                            <button title="<?php echo $pages; ?>" class="btn btn-secondary">Go To <?php echo substr($pages, 0, 30) ?>...</button>
+                                            <br/>
+                                        </a>
                                         <br/>
-                                    </a>
-                                    <br/>
-                                    <button data-id="{{ $product_id }}" data-url="{{ $pages }}" class="btn btn-secondary btn-scrape">Scrape this product</button>
+                                        <button data-id="{{ $product_id }}" data-url="{{ $pages }}" class="btn btn-secondary btn-scrape">Scrape this product</button>
+                                    </div>
                                 </div>
                             </div>
+                            <?php $i++; ?>
+                            @if (( $i % 3 ) == 0 && $i != count($result['pages']) )
+                            </row>
+                            @endif
+                            <?php } ?>
                         </div>
-                        <?php } ?>
                         <?php } ?>
                     </div>
                     <div class="col-md-12">
