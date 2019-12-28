@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('css/rcrop.min.css') }}">
 @endsection
 @section('content')
-    
+
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Google Search Image Crop</h2>
@@ -37,13 +37,12 @@
   <script>
     function sendImageMessage(){
          crop = $('#crop-type').val();
-         alert(crop);
          if(crop == 0){
             document.getElementById('formSubmit').submit();
          }
          else{
-            id = $('#product-id').val(); 
-            sequence = crop; 
+            id = $('#product-id').val();
+            sequence = crop;
             $.ajax({
                     url: "{{ route('google.crop.sequence') }}",
                     type: 'POST',

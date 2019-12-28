@@ -54,6 +54,7 @@ use App\Console\Commands\SendHourlyReports;
 use App\Console\Commands\RunMessageQueue;
 use App\Console\Commands\MonitorCronJobs;
 use App\Console\Commands\SendVoucherReminder;
+use App\Console\Commands\VisitorLogs;
 
 use App\Console\Commands\MovePlannedTasks;
 use App\Console\Commands\ResetDailyPlanner;
@@ -166,7 +167,8 @@ class Kernel extends ConsoleKernel
         RunErpEvents::class,
         ParseLog::class,
         SkuErrorCount::class,
-    ];
+        VisitorLogs::class,
+
 
     /**
      * Define the application's command schedule.
@@ -180,6 +182,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
+        $schedule->command('visitor:logs')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
 
         // Store unknown categories on a daily basis
         $schedule->command('category:missing-references')->daily();
