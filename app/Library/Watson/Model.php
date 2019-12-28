@@ -269,4 +269,42 @@ class Model
 
     }
 
+    public static function newPushDialog($id)
+    {
+        $dialog = ChatbotDialog::where("id", $id)->first();
+
+        if ($dialog) {
+
+            $storeParams                = [];
+            $storeParams["dialog_node"] = $dialog->name;
+            $storeParams["conditions"]  = $dialog->match_condition;
+            $storeParams["title"]       = $dialog->title;
+            
+            // need to start from api and send the values directly
+
+            /*$values                     = $dialog->response()->get();
+
+            $genericOutput = [];
+            foreach ($values as $value) {
+                $genericOutput["response_type"] = $value->response_type;
+                $genericOutput["values"][]      = ["text" => $value->value];
+            }
+
+            $watson = new DialogService(
+                "apiKey",
+                "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+            );
+
+            if (!empty($dialog->workspace_id)) {
+                $storeParams["output"]["generic"][] = $genericOutput;
+                $result                             = $watson->update($dialog->workspace_id, $dialog->name, $storeParams);
+            } else {
+                $result               = $watson->create($workSpaceId, $storeParams);
+                $dialog->workspace_id = $workSpaceId;
+                $dialog->save();
+            }*/
+        }
+
+    }
+
 }

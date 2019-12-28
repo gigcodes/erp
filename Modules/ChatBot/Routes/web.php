@@ -54,6 +54,20 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
                 Route::get('/delete', 'DialogController@destroyValue')->name("chatbot.dialog-response.delete");
             });
         });
+
+        // store dialog via save response
+        Route::post("dialog-save","DialogController@saveAjax")->name("chatbot.dialog.saveajax");
+
+    });
+
+    Route::prefix('rest/dialog')->group(function () {
+        Route::get('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
+        Route::post('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
+        Route::get('/status', 'DialogController@restStatus')->name("chatbot.rest.dialog.status");
+        Route::prefix('{id}')->group(function () {
+            Route::get('/', 'DialogController@restDetails')->name("chatbot.rest.dialog.detail");
+            Route::get('/delete', 'DialogController@restDelete')->name("chatbot.rest.dialog.delete");
+        });
     });
 
 });
