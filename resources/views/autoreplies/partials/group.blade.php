@@ -14,11 +14,12 @@
                     </div>
                     <div class="form-group">
                         <strong>Existing Group:</strong>
+                        <select class="form-control selectpicker" id="keywordGroup" data-live-search="true">
+                        <option value="">Select Keyword Group</option>    
                         @foreach($groupKeywords as $groupKeyword)
-                       <select class="form-control" id="keywordGroup">
-                           <option value="{{ $groupKeyword->id }}">{{ $groupKeyword->group_name }}</option>
-                       </select>
+                        <option value="{{ $groupKeyword->id }}">{{ $groupKeyword->keyword }}</option>
                        @endforeach
+                       </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -48,11 +49,12 @@
                     </div>
                     <div class="form-group">
                         <strong>Existing Group:</strong>
+                         <select class="form-control" id="phraseGroup">
+                        <option value="">Select Phrase Group</option>
                         @foreach($groupPhrases as $groupPhrase)
-                       <select class="form-control" id="phraseGroup">
-                           <option value="{{ $groupPhrases->id }}">{{ $groupPhrases->group_name }}</option>
-                       </select>
+                            <option value="{{ $groupPhrase->id }}">{{ $groupPhrase->value }}</option>
                        @endforeach
+                       </select>
                     </div>
                 </div>
                 <div class="modal-footer">

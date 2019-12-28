@@ -655,4 +655,14 @@ class ProductHelper extends Model
             echo '<i class="fa fa-globe" aria-hidden="true"></i>';
         }
     }
+
+    public static function getSkuFromImage($url)
+    {
+        // GUCCI.COM
+        if (stristr($url, '.gucci.com')) {
+            $tmp = explode('/', $url);
+            $tmp = end($tmp);
+            return str_replace('_', ' ', substr($tmp, 0, 17));
+        }
+    }
 }
