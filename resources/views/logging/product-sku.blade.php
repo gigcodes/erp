@@ -50,7 +50,8 @@
                 <th style="width: 20% !important;">Category</th>
                 <th style="width: 20% !important;">Supplier</th>
                 <th>Validation</th>
-                <th>Date/Time</th>
+                <th>Created At</th>
+                <th>Updated At</th>
                 <th>Action</th>
             </tr>
             <tr>
