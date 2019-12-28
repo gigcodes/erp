@@ -56,6 +56,7 @@
                         <p>Price (INR) : {{ $product->price_inr }}</p>
                         <p>Price Special (INR) : {{ $product->price_special }}</p>
                         <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">
+                        <input type="hidden" id="img{{ $product->id }}" value="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">
                         @if($product->status_id == 31)<a href="{{ route('products.show', $product->id) }}" target="_blank" class="btn btn-secondary">Verify</a>@endif
                     </div>
                 @endforeach

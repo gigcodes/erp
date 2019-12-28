@@ -3,6 +3,7 @@
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+     <link rel="stylesheet" type="text/css" href="{{ asset('css/rcrop.min.css') }}">
     <style type="text/css">
         .dis-none {
             display: none;
@@ -14,6 +15,14 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+        .rcrop-handler-wrapper{
+            position: absolute;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
     </style>
 @endsection
 
@@ -119,7 +128,7 @@
             <div class="row">
                 @foreach ($products as $product)
                     <div class="col-md-3 col-xs-6 text-left" style="border: 1px solid #cccccc;">
-                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt=""/>
+                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first()->id }}"/>
                         <p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>
                         <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
                         <p>Transit Status : {{ $product->purchase_status }}</p>
@@ -145,11 +154,13 @@
     </div>
 
     @include('google_search_image.partials.get-products-by-image')
+    @include('google_search_image.partials.products.crop')
 @endsection
 
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="{{ asset('js/rcrop.min.js') }}"></script>
     <script>
         $(document).ready(function () {
             var ids = <?php echo json_encode($all_products_system); ?>;
@@ -227,7 +238,13 @@
             if (clicked.length == 0) {
                 alert('Please Select Product');
             } else if (clicked.length == 1) {
-                document.getElementById('theForm').submit();
+                url = $("#img"+clicked).attr('src');
+                media_id = $("#img"+clicked).attr('data-media');
+                $("#image_crop").attr("src", url);
+                $('#product-id').val(clicked);
+                $('#media_id').val(media_id);
+                $('#image_crop').rcrop({full : true});
+                $('#cropModal').modal('show');
             } else {
                 $.each($("input[name='product_id']:checked"), function () {
                     id = $(this).val();
@@ -280,5 +297,33 @@
             });
 
         }
+
+        function sendImageMessage(){
+         crop = $('#crop-type').val();
+         if(crop == 0){
+            document.getElementById('formSubmit').submit();
+         }
+         else{
+            id = $('#product-id').val();
+            sequence = crop;
+            $.ajax({
+                    url: "{{ route('google.crop.sequence') }}",
+                    type: 'POST',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    success: function (response) {
+                        $("#loading-image").hide();
+                        history.back();
+                    },
+                    data: {
+                        id: id,
+                        sequence : sequence,
+                        _token: "{{ csrf_token() }}",
+                    }
+                });
+         }
+    }
+    
     </script>
 @endsection
