@@ -51,6 +51,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index');
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
+    Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
 });
 
 Route::prefix('category-messages')->group(function () {
