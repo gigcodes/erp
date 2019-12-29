@@ -9,7 +9,7 @@ $weeks   = range(0, 6);
 return array(
     'uploads_dir'        => '/uploads/',
     'archive__dir'       => '/uploads/archives/',
-    'media_tags'         => ['gallery'],
+    'media_tags'         => ['untagged'],
     'media_barcode_tag'  => ['barcode'],
     'media_barcode_path' => "/uploads/product-barcode/",
     'paginate'           => '10',
