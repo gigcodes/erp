@@ -342,7 +342,7 @@ class MagentoSoapHelper
     private function _pushImages(Product $product, $magentoProductId = 0)
     {
         // Get images which belong to product
-        $images = $product->getMedia(config('constants.media_tags'));
+        $images = $product->getMedia(config('constants.media_gallery_tag'));
 
         // Set i to 0
         $i = 0;
@@ -389,7 +389,6 @@ class MagentoSoapHelper
     {
         // Check for product and session
         if ((int)$magentoId == 0 || !$this->_sessionId) {
-            exit("A");
             return false;
         }
 
