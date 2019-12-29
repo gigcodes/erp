@@ -152,6 +152,8 @@
         }else{
             $('#taskModal').modal('show');
             $('#task_subject').val('Image ID '+id);
+            $('#module').val('41');
+            $('#response').val(0);
         }   
         
     }

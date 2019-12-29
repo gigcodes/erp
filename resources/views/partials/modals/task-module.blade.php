@@ -6,8 +6,8 @@
       <form action="{{ route('development.issue.create') }}" method="POST" id="quickTaskForm">
         @csrf
         <input type="hidden" name="priority" value="1">
-        <input type="hidden" name="module" value="52">
-        <input type="hidden" name="response" value="1">
+        <input type="hidden" name="module" value="52" id="module">
+        <input type="hidden" name="response" value="1" id="response">
         <input type="hidden" id="references" name="reference">
         
 
