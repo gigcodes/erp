@@ -16,9 +16,7 @@ Auth::routes();
 Route::get('/test/test', 'LiveChatController@sendImage');
 Route::get('create-media-image', 'CustomerController@testImage');
 
-Route::get('crop-references', 'CroppedImageReferenceController@index');
-Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
-Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
+
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
 
@@ -66,6 +64,11 @@ Route::prefix('category-messages')->group(function () {
 });
 
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
+    //Crop Reference
+    Route::get('crop-references', 'CroppedImageReferenceController@index');
+    Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
+    Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
+
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
