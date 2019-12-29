@@ -225,6 +225,17 @@
 		updateBoxEvent(li.data("id"));
 	});
 
+	$(document).on("change",".search-alias",function() {
+		var selectedValue = $(this).val();
+		var res = selectedValue.match(/@/g);
+		if(res != "" && res != null) {
+			$(this).closest(".form-row").find(".extra_condtions").removeClass("dis-none");
+		}else{
+			$(this).closest(".form-row").find(".extra_condtions").addClass("dis-none");
+		}
+
+	});
+
 	$(document).on("click",".bx--overflow-menu-options > li",function() {
 		var buttonRole = $(this).find("button").attr("role");
 

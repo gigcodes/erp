@@ -57,7 +57,19 @@
 	      </select>
 	      <small id="emailHelp_{{:identifier}}" class="form-text text-muted">IF ASSISTANT RECOGNIZES</small>
 	  	</div>
+	  	<div class="form-group col-md-3">
+	      <select class="form-control" name="response_condition[{{:identifier}}][condition_sign]">
+			 <option value="">Any</option>
+			 <option value=":">Is</option>
+			 <option value="!=">Is Not</option>
+			 <option value=">">Greater than</option>
+			 <option value="<">Less than</option>
+	      </select>
+	  	</div>
 	  	<div class="form-group col-md-6">
+	     	<input class="form-control" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:identifier}}][condition_value]" type="text">
+	  	</div>
+	  	<div class="form-group col-md-9">
 	      <input class="form-control" id="value_{{:identifier}}" placeholder="Enter a response" name="response_condition[{{:identifier}}][value]" type="text">
 	  	</div>
 	  	<div class="form-group col-md-3">
@@ -176,8 +188,20 @@
 						      <small id="emailHelp_{{>key}}" class="form-text text-muted">IF ASSISTANT RECOGNIZES</small>
 						  	</div>
 					  	{{/if}}
-					  	<div class="form-group col-md-6">
-					      <input class="form-control" id="value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
+					  	<div class="form-group col-md-3 extra_condtions {{if prop.condition_sign == ''}} dis-none {{/if}}">
+					      <select class="form-control" name="response_condition[{{:prop.id}}][condition_sign]">
+							 <option value="">Any</option>
+							 <option {{if prop.condition_sign == ':'}} selected {{/if}} value=":">Is</option>
+							 <option {{if prop.condition_sign == '!='}} selected {{/if}} value="!=">Is Not</option>
+							 <option {{if prop.condition_sign == '>'}} selected {{/if}} value=">">Greater than</option>
+							 <option {{if prop.condition_sign == '<'}} selected {{/if}} value="<">Less than</option>
+					      </select>
+					  	</div>
+					  	<div class="form-group col-md-6 extra_condtions {{if prop.condition_value == ''}} dis-none {{/if}}">
+					     	<input class="form-control" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
+					  	</div>
+					  	<div class="form-group col-md-9">
+					      	<input class="form-control" id="value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
 					  	</div>
 					  	<div class="form-group col-md-3">
 					  		<button type="button" data-id="{{:prop.id}}" class="btn btn-image btn-delete-mul-response"><img src="/images/delete.png"></button>

@@ -21,7 +21,7 @@ class DialogController extends Controller
     public function index()
     {
 
-        $testDialog = WatsonManager::newPushDialog(123); 
+        $testDialog = WatsonManager::newPushDialog(123);
 
         /*$chatDialog = ChatbotDialog::leftJoin("chatbot_dialog_responses as cdr", "cdr.chatbot_dialog_id", "chatbot_dialogs.id")
         ->select("chatbot_dialogs.*", \DB::raw("count(cdr.chatbot_dialog_id) as `total_response`"))
@@ -163,12 +163,12 @@ class DialogController extends Controller
 
         $matchCondition = implode(" ", $request->get("conditions"));
 
-        $id = $request->get("id", 0);
+        $id               = $request->get("id", 0);
         $multipleResponse = $request->get("response_condition");
-        $notToDelete = [];
+        $notToDelete      = [];
 
-        if(!empty($multipleResponse)) {
-            foreach($multipleResponse as $k => $idStore){
+        if (!empty($multipleResponse)) {
+            foreach ($multipleResponse as $k => $idStore) {
                 $notToDelete[] = $k;
             }
         }
@@ -180,12 +180,12 @@ class DialogController extends Controller
             // delete old values and send new again start
             $responseCondition = $chatbotDialog->parentResponse()->where("response_type", "response_condition")->get();
             if (!$responseCondition->isEmpty()) {
-                foreach($responseCondition as $responseC) {
-                      $responseC->response()->delete();
-                      if(!in_array($responseC->id, $notToDelete)) {
+                foreach ($responseCondition as $responseC) {
+                    $responseC->response()->delete();
+                    if (!in_array($responseC->id, $notToDelete)) {
                         WatsonManager::deleteDialog($responseC->id);
-                        $responseC->delete();  
-                      }
+                        $responseC->delete();
+                    }
                 }
             }
             $chatbotDialog->response()->delete();
@@ -199,34 +199,52 @@ class DialogController extends Controller
         $chatbotDialog->match_condition = $matchCondition;
         $chatbotDialog->save();
 
-
         if (!empty($multipleResponse) && is_array($multipleResponse) && $responseType == "response_condition") {
 
             $chatbotDialog->metadata = '{"_customization": {"mcr": true}}';
             $chatbotDialog->save();
 
             foreach ($multipleResponse as $k => $mResponse) {
-                
+
                 $chatbotDialogE = ChatbotDialog::where("id", $k)->first();
-                if(!$chatbotDialogE) {
-                    $chatbotDialogE = new ChatbotDialog;
-                    $chatbotDialogE->name            = "response_".time();
+                if (!$chatbotDialogE) {
+                    $chatbotDialogE       = new ChatbotDialog;
+                    $chatbotDialogE->name = "response_" . time()."_".rand();
                 }
+
+                $condition = $mResponse["condition"];
+                if (!empty($mResponse["condition"]) && !empty($mResponse["condition_value"])) {
+                    switch ($mResponse["condition_sign"]) {
+                        case ':':
+                            $condition .= ":(". $mResponse["condition_value"] .")";
+                            break;
+                        case '!=':
+                            $condition .= '!="'.$mResponse["condition_value"].'"';
+                            break;
+                        case '>':
+                            $condition .= ">". $mResponse["condition_value"];
+                            break;
+                        case '<':
+                            $condition .= "<". $mResponse["condition_value"];
+                            break;
+                    }
+                }
+
                 $chatbotDialogE->response_type   = "response_condition";
                 $chatbotDialogE->title           = $params["title"];
                 $chatbotDialogE->parent_id       = $chatbotDialog->id;
-                $chatbotDialogE->match_condition = $mResponse["condition"];
+                $chatbotDialogE->match_condition = $condition;
                 $chatbotDialogE->save();
 
                 $chatbotDialogResponse                         = new ChatbotDialogResponse;
                 $chatbotDialogResponse->response_type          = "text";
-                $chatbotDialogResponse->value                  = $mResponse["value"];
+                $chatbotDialogResponse->value                  = !empty($mResponse["value"]) ? $mResponse["value"] : "";
                 $chatbotDialogResponse->chatbot_dialog_id      = $chatbotDialogE->id;
                 $chatbotDialogResponse->message_to_human_agent = 1;
                 $chatbotDialogResponse->save();
             }
         } else {
-            $response = reset($multipleResponse);
+            $response                                      = reset($multipleResponse);
             $chatbotDialogResponse                         = new ChatbotDialogResponse;
             $chatbotDialogResponse->response_type          = "text";
             $chatbotDialogResponse->value                  = isset($response["value"]) ? $response["value"] : "";
@@ -280,19 +298,45 @@ class DialogController extends Controller
                 $parentResponse = $dialog->parentResponse;
                 if (!$parentResponse->isEmpty()) {
                     foreach ($parentResponse as $pResponse) {
+                        
+                        $findMatch = false;
+                        $explodeMatchCnd = [];
+                        if(strpos($pResponse->match_condition,":") !== false) {
+                           $findMatch = ":"; 
+                        }elseif(strpos($pResponse->match_condition,"!=") !== false) {
+                           $findMatch = "!="; 
+                        }elseif(strpos($pResponse->match_condition,"<") !== false) {
+                           $findMatch = "<"; 
+                        }elseif(strpos($pResponse->match_condition,">") !== false) {
+                           $findMatch = ">"; 
+                        }
+
+                        if($findMatch) {
+                            $hasString   = explode(":", str_replace(['"',"(",")"], '', $pResponse->match_condition));
+                            $explodeMatchCnd = [
+                               !empty($hasString[0]) ? $hasString[0] : "",
+                               ":",
+                               !empty($hasString[1]) ? $hasString[1] : "", 
+                            ];
+                        }
+                        //$explodeMatchCnd   = explode(" ", str_replace('"', '', $pResponse->match_condition));
                         $assistantReport[] = [
-                            "id"        => $pResponse->id,
-                            "condition" => $pResponse->match_condition,
-                            "response"  => ($pResponse->singleResponse) ? $pResponse->singleResponse->value : "",
+                            "id"              => $pResponse->id,
+                            "condition"       => isset($explodeMatchCnd[0]) ? $explodeMatchCnd[0] : "",
+                            "condition_sign"  => isset($explodeMatchCnd[1]) ? $explodeMatchCnd[1] : "",
+                            "condition_value" => isset($explodeMatchCnd[2]) ? $explodeMatchCnd[2] : "",
+                            "response"        => ($pResponse->singleResponse) ? $pResponse->singleResponse->value : "",
                         ];
                     }
                 }
 
             } else {
                 $assistantReport[] = [
-                    "id"        => $dialog->id,
-                    "condition" => "",
-                    "response"  => ($dialog->singleResponse) ? $dialog->singleResponse->value : "",
+                    "id"              => $dialog->id,
+                    "condition"       => "",
+                    "condition_sign"  => "",
+                    "condition_value" => "",
+                    "response"        => ($dialog->singleResponse) ? $dialog->singleResponse->value : "",
                 ];
             }
 
@@ -381,7 +425,7 @@ class DialogController extends Controller
             // delete old values and send new again start
             $responseCondition = $chatbotDialog->parentResponse()->where("response_type", "response_condition")->get();
             if (!$responseCondition->isEmpty()) {
-                foreach($responseCondition as $res) {
+                foreach ($responseCondition as $res) {
                     WatsonManager::deleteDialog($res->id);
                     $res->response()->delete();
                 }
