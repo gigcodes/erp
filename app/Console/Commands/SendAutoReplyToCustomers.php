@@ -147,13 +147,13 @@ class SendAutoReplyToCustomers extends Command
             $chatMessage->save();
 
             foreach ($products as $product) {
-                $image = $product->getMedia('gallery')->first();
+                $image = $product->getMedia(config('constants.media_tags'))->first();
 
                 if (!$image) {
                     continue;
                 }
 
-                $chatMessage->attachMedia($image, 'gallery');
+                $chatMessage->attachMedia($image, config('constants.media_tags'));
 
             }
 

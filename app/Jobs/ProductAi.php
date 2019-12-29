@@ -55,7 +55,7 @@ class ProductAi implements ShouldQueue
         }
 
         // Get array product images
-        $arrMedia = $product->getMedia('gallery');
+        $arrMedia = $product->getMedia(config('constants.media_tags'));
 
         // Set empty array for image URLs
         $arrImages = [];
