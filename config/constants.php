@@ -11,6 +11,7 @@ return array(
     'archive__dir' => '/uploads/archives/',
     'media_tags' => ['untagged'],
     'media_original_tag' => ['original'],
+    'media_gallery_tag' => 'gallery',
     'media_barcode_tag' => ['barcode'],
     'media_barcode_path' => "/uploads/product-barcode/",
     'paginate' => '10',
