@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\CroppedImageReference;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Category;
 
 class CroppedImageReferenceController extends Controller
 {
@@ -84,5 +85,72 @@ class CroppedImageReferenceController extends Controller
     public function destroy(CroppedImageReference $croppedImageReference)
     {
         //
+    }
+
+    public function grid(Request $request)
+    {
+        
+        $query = CroppedImageReference::query();
+            if($request->category || $request->brand || $request->supplier || $request->crop){
+                
+
+                if(is_array(request('category'))){
+                    if (request('category') != null && request('category')[0] != 1){ 
+                        $query->whereHas('product', function ($qu) use ($request) {
+                                $qu->whereIn('category', request('category'));
+                            });
+                    }
+                }else{
+                    if (request('category') != null && request('category') != 1){ 
+                            $query->whereHas('product', function ($qu) use ($request) {
+                                $qu->where('category', request('category'));
+                            });
+                    }
+                }
+                
+                if (request('brand') != null){ 
+                 $query->whereHas('product', function ($qu) use ($request) {
+                                $qu->whereIn('brand', request('brand'));
+                            });
+                }
+
+                if (request('supplier') != null){ 
+                 $query->whereHas('product', function ($qu) use ($request) {
+                                $qu->whereIn('supplier', request('supplier'));
+                            });
+                }
+
+                if (request('crop') != null){
+                    if(request('crop') == 2){
+                      $query->whereNotNull('new_media_id'); 
+                    }elseif(request('crop') == 3){
+                      $query->whereNull('new_media_id');  
+                    }
+                } 
+            $products = $query->orderBy('id', 'desc')->paginate(50); 
+
+        }else{
+            
+
+           $products = $query->orderBy('id', 'desc')->paginate(50); 
+        }
+        
+        $selected_categories = $request->category ? $request->category : 1;
+
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2','id' => 'category'])
+            ->selected($selected_categories)
+            ->renderAsDropdown();
+
+        $total = $query->count();    
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('image_references.partials.griddata', compact('products','category_selection','total'))->render(),
+                'links' => (string)$products->render(),
+                'total' => $total,
+            ], 200);
+            }
+
+        return view('image_references.grid', compact('products','category_selection','total'));
     }
 }
