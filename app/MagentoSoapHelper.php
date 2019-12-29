@@ -108,7 +108,7 @@ class MagentoSoapHelper
 
         // Create meta description
         $meta = [];
-        $meta[ 'description' ] = 'Shop ' . $product->brands->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $product->product_category->title . ' Largest collection of luxury products in the world from Solo luxury at special prices';
+        $meta[ 'description' ] = 'Shop ' . (isset($product->brands->name) ? $product->brands->name : '') . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $product->product_category->title . ' Largest collection of luxury products in the world from Solo luxury at special prices';
 
         // If sizes are given we create a configurable product and several single child products
         if (!empty($product->size) && $product->size == 'OS') {
