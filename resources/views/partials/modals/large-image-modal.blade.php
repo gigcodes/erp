@@ -6,7 +6,7 @@
             <button type="button" class="close" data-dismiss="modal">&times;</button>
            
                 <div class="modal-body">
-                    <img id="image_crop" width="100%">
+                    <img id="image_crop" width="100%" onmouseout="normalImg()">
                 </div>
 
                 <div class="modal-footer">

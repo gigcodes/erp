@@ -17,33 +17,9 @@ class CroppedImageReference extends Model
         return $this->hasOne(Media::class, 'id', 'new_media_id');
     }
 
-    public function productCategory($media){
-    	$media = DB::table('mediables')->where('mediable_type','App\Product')->where('media_id',$media)->first();
-    	
-    	$product = Product::select('category')->where('id',$media->mediable_id)->first();
-    	return $product->product_category->title;
-    }
-
-    public function productSupplier($media){
-    	$media = DB::table('mediables')->where('mediable_type','App\Product')->where('media_id',$media)->first();
-    	
-    	$product = Product::select('supplier')->where('id',$media->mediable_id)->first();
-    	return $product->supplier;
-    }
-
-    public function productBrand($media){
-    	$media = DB::table('mediables')->where('mediable_type','App\Product')->where('media_id',$media)->first();
-    	
-    	$product = Product::select('brand')->where('id',$media->mediable_id)->first();
-    	
-    	return $product->brands->name;
-    }
-
-    public function productStatus($media){
-    	$media = DB::table('mediables')->where('mediable_type','App\Product')->where('media_id',$media)->first();
-    	
-    	$product = Product::select('status_id')->where('id',$media->mediable_id)->first();
-    	return $product->status_id;
+    public function product()
+    {
+    	return $this->hasOne(Product::class,'id','product_id');
     }
 
     public function getProductIssueStatus($id){

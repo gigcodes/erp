@@ -4,11 +4,61 @@
 @section('content')
  <div class="row">
         <div class="col-md-12">
-            <h1 class="text-center">Crop Refernce Grid ({{ count($products) }})</h1>
+            <h1 class="text-center">Crop Reference Grid (<span id="total">{{ $total }}</span>)</h1>
             <div class="pull-right">
                  <button onclick="addTask()" class="btn btn-secondary">Add Issue</button>
                  
             </div>
+                <br>
+            <!--Product Search Input -->
+                <form method="GET" action="crop-references-grid" class="form-inline align-items-start">
+                   
+                   <div class="form-group mr-3 mb-3">
+                        {!! $category_selection !!}
+                    </div>
+
+                    <div class="form-group mr-3">
+                        @php $brands = \App\Brand::getAll();
+                        @endphp
+                        <select data-placeholder="Select brands" class="form-control select-multiple2" name="brand[]" multiple id="brand">
+                            <optgroup label="Brands">
+                                @foreach ($brands as $id => $name)
+                                    <option value="{{ $id }}" {{ isset($brand) && $brand == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group mr-3">
+                        @php $suppliers = new \App\Supplier();
+                        @endphp
+                        <select data-placeholder="Select Supplier" class="form-control select-multiple2" name="supplier[]" multiple id="supplier">
+                            <optgroup label="Suppliers">
+                                @foreach ($suppliers->select('id','supplier')->where('supplier_status_id',1)->get() as $id => $suppliers)
+                                    <option>{{ $suppliers->supplier }}</option>
+                                @endforeach
+                            </optgroup>
+                        </select>
+                    </div>
+
+                     <div class="form-group mr-3">
+                        <select data-placeholder="Select Crop" class="form-control select-multiple2" name="crop" id="crop">
+                            <optgroup label="Crop">
+                                <option value="1">All</option>
+                                <option value="2">Cropped</option>
+                                <option value="3">Uncropped</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+
+                   
+
+                   
+                    
+                    <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+                    <button type="submit" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
+                </form>
         </div>
          
        
@@ -16,7 +66,8 @@
         {!! $products->links() !!}
         <div class="col-md-12">
             <div class="table-responsive">
-                <table class="table-striped table-bordered table">
+                <table class="table-striped table-bordered table" id="log-table">
+                    <thead>
                     <tr>
                         <th>ID <input type="checkbox" name="" id="globalCheckbox"></th>
                         <th>Category</th>
@@ -29,23 +80,10 @@
                         <th>Status</th>
                         <th>Issue</th>
                     </tr>
-                    @foreach($products as $product)
-                        <tr>
-
-                            <td><input type="checkbox" name="issue" value="{{ $product->id }}" class="checkBox">
-                                {{ $product->id }}</td>
-                            <td>@if($product->newMedia) {{ $product->productCategory($product->newMedia->id) }} @endif</td> 
-                            <td>@if($product->newMedia) {{ $product->productSupplier($product->newMedia->id) }} @endif</td> 
-                            <td>@if($product->newMedia) {{ $product->productBrand($product->newMedia->id) }} @endif</td>    
-                            <td> <img src="{{ $product->media ? $product->media->getUrl() : '' }}" alt="" height="150" width="150" onmouseover="bigImg('{{ $product->media ? $product->media->getUrl() : '' }}')"></td>
-                            <td> <img src="{{ $product->newMedia ? $product->newMedia->getUrl() : '' }}" alt="" height="150" width="150" onmouseover="bigImg('{{ $product->newMedia ? $product->newMedia->getUrl() : '' }}')"></td>
-                            <td>{{ (int)str_replace('0:00:','',$product->speed) }} sec</td>
-                            <td>{{ $product->updated_at->format('d-m-Y : H:i:s') }}</td>
-                            <td>@if($product->newMedia) {{ $product->productStatus($product->newMedia->id) }} @endif</td>
-                            <td>{{ $product->getProductIssueStatus($product->id) }}</td>
-                           
-                        </tr>
-                    @endforeach
+                     </thead>
+                    <tbody id="content_data">
+                    @include('image_references.partials.griddata')
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -58,11 +96,22 @@
 @endsection
 
 @section('scripts')
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+
 <script type="text/javascript">
-        
+      $(document).ready(function () {
+             $(".select-multiple").multiselect();
+             $(".select-multiple2").select2();
+        });     
+
     function bigImg(img){
         $('#image_crop').attr('src',img);
         $('#largeImageModal').modal('show');
+    }
+
+    function normalImg(){
+        $('#largeImageModal').modal('hide');
     }
 
     function addTask() {
@@ -79,6 +128,33 @@
         
     }
 
+    function refreshPage() {
+         blank = ''
+         $.ajax({
+            url: '/crop-references-grid',
+            dataType: "json",
+            data: {
+                blank : blank
+            },
+            beforeSend: function() {
+                   $("#loading-image").show();
+            },
+            
+        }).done(function (data) {
+             $("#loading-image").hide();
+            console.log(data);
+            $("#log-table tbody").empty().html(data.tbody);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+            
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+    }    
+
     $('#globalCheckbox').click(function(){
             if($(this).prop("checked")) {
                 $(".checkBox").prop("checked", true);
@@ -87,6 +163,41 @@
             }                
         });
 
+
+
 </script>
+
+ <script type="text/javascript">
+        $(document).ready(function () {
+            $('#brand,#category,#crop,#supplier').on('change', function () {
+                $.ajax({
+                    url: '/crop-references-grid',
+                    dataType: "json",
+                    data: {
+                        brand: $('#brand').val(),
+                        category: $('#category').val(),
+                        crop : $('#crop').val(),
+                        supplier : $('#supplier').val(),
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#total").text(data.total);
+                    $("#log-table tbody").empty().html(data.tbody);
+                    if (data.links.length > 10) {
+                        $('ul.pagination').replaceWith(data.links);
+                    } else {
+                        $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                    }
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    $("#loading-image").hide();
+                    alert('No response from server');
+                });
+            });
+        });
+    </script>
 
 @endsection
