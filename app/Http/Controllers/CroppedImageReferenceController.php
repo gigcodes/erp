@@ -85,4 +85,11 @@ class CroppedImageReferenceController extends Controller
     {
         //
     }
+
+    public function grid()
+    {
+        $products = CroppedImageReference::with(['media', 'newMedia'])->orderBy('id', 'desc')->paginate(50);
+
+        return view('image_references.grid', compact('products'));
+    }
 }

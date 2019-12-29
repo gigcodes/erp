@@ -17,6 +17,7 @@ Route::get('/test/test', 'LiveChatController@sendImage');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 Route::get('crop-references', 'CroppedImageReferenceController@index');
+Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
 Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
