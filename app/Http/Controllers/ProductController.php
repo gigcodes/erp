@@ -1790,9 +1790,9 @@ class ProductController extends Controller
             $image = $request->file('file');
             $media = MediaUploader::fromSource($image)
                                     ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
-                                    ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                    ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')).'/' . $product->id)
                                     ->upload();
-            $product->attachMedia($media, config('constants.media_tags'));
+            $product->attachMedia($media, config('constants.media_gallery_tag'));
             $product->crop_count = $product->crop_count + 1;
             $product->save();
 
