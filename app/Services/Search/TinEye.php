@@ -27,27 +27,27 @@ class TinEye
         }
 
         // Send URL to API
-        try {
-            if (substr($url, 0, 4) != 'http' && file_exists($url)) {
-                $results = $this->_tinEyeApi->searchData(fopen($url, 'r'), 'filename.jpg');
-            } elseif (substr($url, 0, 4) != 'http') {
-                $results = $this->_tinEyeApi->searchUrl($url);
-            } else {
-                $results = [];
-            }
-        } catch (\Exception $e) {
-            // Set empty results
-            $results = [];
-        }
-
-        if ( count($results)>0) {
-            // Store result
-            LogTineye::log($url, json_encode($results));
-        }
+//        try {
+//            if (substr($url, 0, 4) != 'http' && file_exists($url)) {
+//                $results = $this->_tinEyeApi->searchData(fopen($url, 'r'), 'filename.jpg');
+//            } elseif (substr($url, 0, 4) != 'http') {
+//                $results = $this->_tinEyeApi->searchUrl($url);
+//            } else {
+//                $results = [];
+//            }
+//        } catch (\Exception $e) {
+//            // Set empty results
+//            $results = [];
+//        }
+//
+//        if ( count($results)>0) {
+//            // Store result
+//            LogTineye::log($url, json_encode($results));
+//        }
 
 //        For testing
-//        $results = LogTineye::find(4);
-//        $results = json_decode($results->response);
+        $results = LogTineye::find(26);
+        $results = json_decode($results->response);
 
         // TODO: Check for result count
         if (!$returnAsGoogle) {

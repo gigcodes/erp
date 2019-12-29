@@ -13,6 +13,7 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use DB;
 use App\LogGoogleCse;
+use App\Helpers\ProductHelper;
 use App\Services\Search\TinEye;
 
 use seo2websites\GoogleVision\GoogleVisionHelper;
@@ -237,8 +238,18 @@ class GoogleSearchImageController extends Controller
             $results = $tinEye->searchByImage($path, true);
 
             // Does TinEye have results? Otherwise try Google Vision
-            if ($results[ 'pages' ] > 0) {
+            if (isset($results[ 'pages' ]) && count($results[ 'pages' ]) > 0) {
                 $productImage[ $url ] = $results;
+
+                // Get SKU from brands
+                if (isset($productImage[ $url ][ 'pages_media' ]) && count($productImage[ $url ][ 'pages_media' ]) > 0) {
+//                    foreach ($productImage[ $url ][ 'pages_media' ] as $result) {
+//                        $sku = ProductHelper::getSkuFromImage($result);
+//                        if (!empty($sku)) {
+//                            exit($sku);
+//                        }
+//                    }
+                }
             } else {
                 $productImage[ $url ] = GoogleVisionHelper::getImageDetails($path);
             }
