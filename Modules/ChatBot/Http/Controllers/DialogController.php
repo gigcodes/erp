@@ -21,6 +21,8 @@ class DialogController extends Controller
     public function index()
     {
 
+        $testDialog = WatsonManager::newPushDialog(123); 
+
         /*$chatDialog = ChatbotDialog::leftJoin("chatbot_dialog_responses as cdr", "cdr.chatbot_dialog_id", "chatbot_dialogs.id")
         ->select("chatbot_dialogs.*", \DB::raw("count(cdr.chatbot_dialog_id) as `total_response`"))
         ->where("chatbot_dialogs.response_type","standard")
@@ -162,6 +164,14 @@ class DialogController extends Controller
         $matchCondition = implode(" ", $request->get("conditions"));
 
         $id = $request->get("id", 0);
+        $multipleResponse = $request->get("response_condition");
+        $notToDelete = [];
+
+        if(!empty($multipleResponse)) {
+            foreach($multipleResponse as $k => $idStore){
+                $notToDelete[] = $k;
+            }
+        }
 
         $chatbotDialog = ChatbotDialog::find($id);
         if (empty($chatbotDialog)) {
@@ -172,7 +182,10 @@ class DialogController extends Controller
             if (!$responseCondition->isEmpty()) {
                 foreach($responseCondition as $responseC) {
                       $responseC->response()->delete();
-                      $responseC->delete();  
+                      if(!in_array($responseC->id, $notToDelete)) {
+                        WatsonManager::deleteDialog($responseC->id);
+                        $responseC->delete();  
+                      }
                 }
             }
             $chatbotDialog->response()->delete();
@@ -186,17 +199,20 @@ class DialogController extends Controller
         $chatbotDialog->match_condition = $matchCondition;
         $chatbotDialog->save();
 
-        $multipleResponse = $request->get("response_condition");
 
         if (!empty($multipleResponse) && is_array($multipleResponse) && $responseType == "response_condition") {
 
             $chatbotDialog->metadata = '{"_customization": {"mcr": true}}';
             $chatbotDialog->save();
 
-            foreach ($multipleResponse as $mResponse) {
-                $chatbotDialogE                  = new ChatbotDialog;
+            foreach ($multipleResponse as $k => $mResponse) {
+                
+                $chatbotDialogE = ChatbotDialog::where("id", $k)->first();
+                if(!$chatbotDialogE) {
+                    $chatbotDialogE = new ChatbotDialog;
+                    $chatbotDialogE->name            = "response_".time();
+                }
                 $chatbotDialogE->response_type   = "response_condition";
-                $chatbotDialogE->name            = $params["name"];
                 $chatbotDialogE->title           = $params["title"];
                 $chatbotDialogE->parent_id       = $chatbotDialog->id;
                 $chatbotDialogE->match_condition = $mResponse["condition"];
@@ -210,14 +226,17 @@ class DialogController extends Controller
                 $chatbotDialogResponse->save();
             }
         } else {
+            $response = reset($multipleResponse);
             $chatbotDialogResponse                         = new ChatbotDialogResponse;
             $chatbotDialogResponse->response_type          = "text";
-            $chatbotDialogResponse->value                  = isset($multipleResponse[0]["value"]) ? $multipleResponse[0]["value"] : "";
+            $chatbotDialogResponse->value                  = isset($response["value"]) ? $response["value"] : "";
             $chatbotDialogResponse->chatbot_dialog_id      = $chatbotDialog->id;
             $chatbotDialogResponse->message_to_human_agent = 1;
             $chatbotDialogResponse->save();
 
         }
+
+        WatsonManager::newPushDialog($chatbotDialog->id);
 
         return response()->json(["code" => 200, "redirect" => route("chatbot.dialog.list")]);
 
@@ -262,6 +281,7 @@ class DialogController extends Controller
                 if (!$parentResponse->isEmpty()) {
                     foreach ($parentResponse as $pResponse) {
                         $assistantReport[] = [
+                            "id"        => $pResponse->id,
                             "condition" => $pResponse->match_condition,
                             "response"  => ($pResponse->singleResponse) ? $pResponse->singleResponse->value : "",
                         ];
@@ -270,6 +290,7 @@ class DialogController extends Controller
 
             } else {
                 $assistantReport[] = [
+                    "id"        => $dialog->id,
                     "condition" => "",
                     "response"  => ($dialog->singleResponse) ? $dialog->singleResponse->value : "",
                 ];
@@ -360,9 +381,13 @@ class DialogController extends Controller
             // delete old values and send new again start
             $responseCondition = $chatbotDialog->parentResponse()->where("response_type", "response_condition")->get();
             if (!$responseCondition->isEmpty()) {
-                $responseCondition->response()->delete();
+                foreach($responseCondition as $res) {
+                    WatsonManager::deleteDialog($res->id);
+                    $res->response()->delete();
+                }
                 $chatbotDialog->parentResponse()->where("response_type", "response_condition")->delete();
             }
+            WatsonManager::deleteDialog($chatbotDialog->id);
             $chatbotDialog->response()->delete();
             $chatbotDialog->delete();
             // delete old values and send new again end
@@ -371,14 +396,4 @@ class DialogController extends Controller
 
         return response()->json(["code" => 500]);
     }
-
-    /*public function updateSortOrder()
-{
-$dialog = ChatbotDialog::where("previous_sibling",0)->first();
-if($dialog) {
-$dialog->sort_order = 0;
-$dialog->save();
-}
-}*/
-
 }

@@ -185,7 +185,7 @@
 	$(document).on("change",".multiple-conditioned-response",function() {
 		var hasChecked = $(this).prop('checked');
 		if(hasChecked == true) {
-			var identifier = new Date().getTime();
+			var identifier = "new_"+new Date().getTime();
 			var tmpl = $.templates("#multiple-response-condition");
 			$(".assistant-response-based").html(tmpl.render({ "identifier" : identifier, "allSuggestedOptions" : allSuggestedOptions }));
 			$(".assistant-response-based").find(".search-alias").select2({});
@@ -193,6 +193,16 @@
 			var tmpl = $.templates("#single-response-condition");
 			$(".assistant-response-based").html(tmpl.render({}));
 		}
+	});
+
+	$(document).on("click",".btn-add-mul-response",function() {
+		var identifier = "new_"+new Date().getTime();
+		var tmpl = $.templates("#multiple-response-condition");
+		$(".assistant-response-based").append(tmpl.render({ "identifier" : identifier, "allSuggestedOptions" : allSuggestedOptions }))
+	});
+
+	$(document).on("click",".btn-delete-mul-response",function() {
+		$(this).closest(".form-row").remove();
 	});
 
 	$(document).on("click",".bx--overflow-menu",function() {

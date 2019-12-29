@@ -17,7 +17,7 @@ class Model
     const EXCLUDED_REPLY = [
         "Can you reword your statement? I'm not understanding.",
         "I didn't understand. You can try rephrasing.",
-        "I didn't get your meaning."
+        "I didn't get your meaning.",
     ];
 
     public static function getWorkspaceId()
@@ -271,38 +271,87 @@ class Model
 
     public static function newPushDialog($id)
     {
-        $dialog = ChatbotDialog::where("id", $id)->first();
+        $dialog      = ChatbotDialog::where("id", $id)->first();
+        $workSpaceId = self::getWorkspaceId();
 
         if ($dialog) {
 
-            $storeParams                = [];
-            $storeParams["dialog_node"] = $dialog->name;
-            $storeParams["conditions"]  = $dialog->match_condition;
-            $storeParams["title"]       = $dialog->title;
-            
-            // need to start from api and send the values directly
+            $storeParams                     = [];
+            $storeParams["dialog_node"]      = $dialog->name;
+            $storeParams["conditions"]       = $dialog->match_condition;
+            $storeParams["title"]            = $dialog->title;
+            $storeParams["previous_sibling"] = $dialog->getPreviousSiblingName();
+            $storeParams["type"]             = $dialog->response_type;
+            $storeParams["parent"]           = $dialog->getParentName();
 
-            /*$values                     = $dialog->response()->get();
-
-            $genericOutput = [];
-            foreach ($values as $value) {
-                $genericOutput["response_type"] = $value->response_type;
-                $genericOutput["values"][]      = ["text" => $value->value];
+            $multipleResponse = false;
+            if (!empty($dialog->metadata)) {
+                $multipleResponse = true;
             }
 
+            $genericOutput = [];
+            if (!$multipleResponse) {
+                foreach ($dialog->response as $value) {
+                    $genericOutput["response_type"] = $value->response_type;
+                    $genericOutput["values"][]      = ["text" => $value->value];
+                }
+            }
+
+            // update into watson api
             $watson = new DialogService(
                 "apiKey",
                 "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
             );
 
-            if (!empty($dialog->workspace_id)) {
+            if(!empty($genericOutput)) {
                 $storeParams["output"]["generic"][] = $genericOutput;
+            }
+            if (!empty($dialog->workspace_id)) {
                 $result                             = $watson->update($dialog->workspace_id, $dialog->name, $storeParams);
             } else {
                 $result               = $watson->create($workSpaceId, $storeParams);
                 $dialog->workspace_id = $workSpaceId;
                 $dialog->save();
-            }*/
+            }
+
+            // once stored into the api now we will check for the multiple response condition
+            if ($multipleResponse) {
+                $multipleDialog = $dialog->multipleCondition()->where("response_type", "response_condition")->get();
+                if (!$multipleDialog->isEmpty()) {
+                    foreach ($multipleDialog as $mulDialog) {
+
+                        $storeParams                     = [];
+                        $storeParams["dialog_node"]      = $mulDialog->name;
+                        $storeParams["conditions"]       = $mulDialog->match_condition;
+                        $storeParams["title"]            = $mulDialog->title;
+                        $storeParams["previous_sibling"] = $mulDialog->getPreviousSiblingName();
+                        $storeParams["type"]             = $mulDialog->response_type;
+                        $storeParams["parent"]           = $mulDialog->getParentName();
+
+                        $genericOutput = [];
+                        foreach ($mulDialog->response as $value) {
+                            $genericOutput["response_type"] = $value->response_type;
+                            $genericOutput["values"][]      = ["text" => $value->value];
+                        }
+
+                        $watson = new DialogService(
+                            "apiKey",
+                            "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+                        );
+
+                        if (!empty($mulDialog->workspace_id)) {
+                            $storeParams["output"]["generic"][] = $genericOutput;
+                            $result                             = $watson->update($mulDialog->workspace_id, $mulDialog->name, $storeParams);
+                        } else {
+                            $storeParams["output"]["generic"][] = $genericOutput;
+                            $result               = $watson->create($workSpaceId, $storeParams);
+                            $mulDialog->workspace_id = $workSpaceId;
+                            $mulDialog->save();
+                        }
+                    }
+                }
+            }
+
         }
 
     }

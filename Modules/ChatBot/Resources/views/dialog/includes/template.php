@@ -57,8 +57,12 @@
 	      </select>
 	      <small id="emailHelp_{{:identifier}}" class="form-text text-muted">IF ASSISTANT RECOGNIZES</small>
 	  	</div>
-	  	<div class="form-group col-md-9">
+	  	<div class="form-group col-md-6">
 	      <input class="form-control" id="value_{{:identifier}}" placeholder="Enter a response" name="response_condition[{{:identifier}}][value]" type="text">
+	  	</div>
+	  	<div class="form-group col-md-3">
+	  		<button type="button" data-id="{{:identifier}}" class="btn btn-image btn-delete-mul-response"><img src="/images/delete.png"></button>
+	  		<button type="button" class="btn btn-image btn-add-mul-response"><img src="/images/add.png"></button>
 	  	</div>
 	</div>
 </script>
@@ -164,8 +168,8 @@
 					<div class="form-row">
 						{{if prop.condition != ''}}
 							<div class="form-group col-md-3">
-						      <select class="form-control search-alias" name="response_condition[{{>key}}][condition]">
-								{{props ~allSuggestedOptions ~selectedValue=prop.condition}}
+						      <select class="form-control search-alias" name="response_condition[{{:prop.id}}][condition]">
+								{{props ~allSuggestedOptions ~selectedValue=prop.condition }}
 						      		<option {{if ~selectedValue == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
 						      	{{/props}}
 						      </select>
@@ -173,8 +177,12 @@
 						  	</div>
 					  	{{/if}}
 					  	<div class="form-group col-md-6">
-					      <input class="form-control" id="value_{{>key}}" placeholder="Enter a response" name="response_condition[{{>key}}][value]" value="{{:prop.response}}" type="text">
+					      <input class="form-control" id="value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
 					  	</div>
+					  	<div class="form-group col-md-3">
+					  		<button type="button" data-id="{{:prop.id}}" class="btn btn-image btn-delete-mul-response"><img src="/images/delete.png"></button>
+					  		<button type="button" class="btn btn-image btn-add-mul-response"><img src="/images/add.png"></button>
+					  	</div>	
 					</div>
 				{{/props}}
 			{{else}}
