@@ -36,7 +36,8 @@
                 @endforeach
               </select>
           </div>
-
+          
+          @if(isset($existingIssues))
           <div class="form-group">
               <strong>Existing Issue:</strong>
               <select class="selectpicker form-control" data-live-search="true" data-size="15"  name="responsible_user_id" title="Choose Issue">
@@ -45,6 +46,7 @@
                 @endforeach
               </select>
           </div>
+          @endif
 
 
 
