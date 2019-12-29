@@ -10,8 +10,8 @@
                             <td> <img src="{{ $product->newMedia ? $product->newMedia->getUrl() : '' }}" alt="" height="150" width="150" onmouseover="bigImg('{{ $product->newMedia ? $product->newMedia->getUrl() : '' }}')"></td>
                             <td>{{ (int)str_replace('0:00:','',$product->speed) }} sec</td>
                             <td>{{ $product->updated_at->format('d-m-Y : H:i:s') }}</td>
-                            <td>@if($product->product) {{ $product->product->status_id }}  @endif</td>
-                            <td>{{ $product->getProductIssueStatus($product->id) }}</td>
+                            <td>@if($product->product) {{ $product->product->status_id }} @endif</td>
+                            <td>{!! $product->getProductIssueStatus($product->id) !!}</td>
                            
                         </tr>
                     @endforeach

@@ -95,20 +95,19 @@ class CroppedImageReferenceController extends Controller
                 
 
                 if(is_array(request('category'))){
-                    if (request('category') != null && request('category') != 1){ 
+                    if (request('category') != null && request('category')[0] != 1){ 
                         $query->whereHas('product', function ($qu) use ($request) {
                                 $qu->whereIn('category', request('category'));
                             });
                     }
                 }else{
-                    if (request('category') != null){ 
+                    if (request('category') != null && request('category') != 1){ 
                             $query->whereHas('product', function ($qu) use ($request) {
                                 $qu->where('category', request('category'));
                             });
                     }
                 }
                 
-
                 if (request('brand') != null){ 
                  $query->whereHas('product', function ($qu) use ($request) {
                                 $qu->whereIn('brand', request('brand'));

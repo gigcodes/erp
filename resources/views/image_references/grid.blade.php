@@ -1,7 +1,19 @@
 @extends('layouts.app')
 
-
+@section('styles')
+<style type="text/css">
+        #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+        }
+    </style>
+@endsection
 @section('content')
+<div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
  <div class="row">
         <div class="col-md-12">
             <h1 class="text-center">Crop Reference Grid (<span id="total">{{ $total }}</span>)</h1>
@@ -57,7 +69,7 @@
                    
                     
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
-                    <button type="submit" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
+                    <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
                 </form>
         </div>
          
@@ -90,6 +102,22 @@
 
         
     </div>
+
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
  @include('partials.modals.task-module')
  @include('partials.modals.large-image-modal')
    
@@ -143,6 +171,7 @@
         }).done(function (data) {
              $("#loading-image").hide();
             console.log(data);
+            $("#total").text(data.total);
             $("#log-table tbody").empty().html(data.tbody);
             if (data.links.length > 10) {
                 $('ul.pagination').replaceWith(data.links);

@@ -26,9 +26,10 @@ class CroppedImageReference extends Model
     	$task = DeveloperTask::where('task','LIKE','%'.$id.'%')->first();
     	if($task != null){
     		if($task->status == 'done'){
-    			return 'Issue Resolved';
+    			return '<p>Issue Resolved</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$task->id.'" title="Load messages"><img src="/images/chat.png" alt=""></button>';
     		}else{
-    			return 'Issue Pending';
+
+    			return '<p>Issue Pending</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$task->id.'" title="Load messages"><img src="/images/chat.png" alt=""></button>';
     		}
     	}else{
     		return 'No Issue Yet';
