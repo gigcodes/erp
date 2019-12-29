@@ -67,6 +67,7 @@ use App\DocumentSendHistory;
 use App\QuickSellGroup;
 use App\ProductQuicksellGroup;
 use App\Helpers\InstantMessagingHelper;
+use App\Library\Watson\Model as WatsonManager;
 
 
 class WhatsAppController extends FindByNumberController
@@ -1466,6 +1467,32 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
 
+                // start to check with watson api directly
+                if(!empty($params['message'])) {
+                    if ($customer && $params[ 'message' ] != '') {
+                        $chatbotReply = WatsonManager::sendMessage($customer,$params['message']);
+                        if(!empty($chatbotReply["reply_text"])
+                            && !empty($chatbotReply["reply_text"]->text)
+                            && !empty($chatbotReply["reply_text"]->response_type)
+                            && $chatbotReply["reply_text"]->response_type == "text"
+                        ) {
+                            $temp_params = $params;
+                            $temp_params['message']    = $chatbotReply["reply_text"]->text;
+                            $temp_params['media_url']  = null;
+                            $temp_params['status']     = 11;
+                            $temp_params['number']     = "";
+                            $temp_params['is_chatbot'] = 1;
+                            // Create new message
+                            $message = ChatMessage::create($temp_params);
+                            \App\ChatbotReply::create([
+                                "chat_id" => $message->id,
+                                "reply"   => $chatbotReply["response"],
+                            ]);
+                        }
+                    }
+                }
+
+
                 // Auto Replies
                 $auto_replies = AutoReply::where('is_active', 1)->get();
 
@@ -1691,13 +1718,13 @@ class WhatsAppController extends FindByNumberController
                         // ->whereHas('Media', function($q) use($image) {
                         //    $q->where('media.id', $image->getKey());
                         // })
-                        ->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+                        ->select(['id', 'price_inr_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
                     // dd($product_image);
 
                     if ($product_image) {
                         $temp_image[ 'product_id' ] = $product_image->id;
-                        $temp_image[ 'special_price' ] = $product_image->price_special;
+                        $temp_image[ 'special_price' ] = $product_image->price_inr_special;
 
                         $string = $product_image->supplier;
                         $expr = '/(?<=\s|^)[a-z]/i';
@@ -1738,112 +1765,6 @@ class WhatsAppController extends FindByNumberController
         ]);
 
         return response()->json($result);
-        // $cid = $request->get('customerId');
-        // $sql = "SELECT
-        //     all_messages.*
-        // FROM
-        //     (
-        //     SELECT
-        //         messages.`id`,
-        //         null AS `number`
-        //         `customer_id`,
-        //         `userid` AS `user_id`,
-        //         `status`,
-        //         `body` AS `message`,
-        //         null AS `approved`,
-        //         null AS `sent`,
-        //         `created_at`
-        //         'messages' AS `table_name`,
-        //         (
-        //         SELECT
-        //             GROUP_CONCAT(
-        //                 DISTINCT mediables.media_id SEPARATOR ','
-        //             )
-        //         FROM
-        //             mediables
-        //         WHERE
-        //             mediables.mediable_id = messages.id
-        //     ) AS media_ids,
-        //     messages.`created_at`
-        // FROM
-        //     `messages`
-        // WHERE
-        //     $cid = `messages`.`customer_id`
-        // UNION
-        // SELECT
-        //     chat_messages.`id`,
-        //     `number`,
-        //     `customer_id`,
-        //     `user_id`,
-        //     `status`,
-        //     `message`,
-        //     `approved`,
-        //     `sent`,
-        //     `created_at`,
-        //     'chat_messages' AS `table_name`,
-        //     (
-        //     SELECT
-        //         GROUP_CONCAT(
-        //             DISTINCT mediables.media_id SEPARATOR ','
-        //         )
-        //     FROM
-        //         mediables
-        //     WHERE
-        //         mediables.mediable_id = chat_messages.id
-        // ) AS media_ids,
-        // chat_messages.`created_at`
-        // FROM
-        //     `chat_messages`
-        // WHERE
-        //     $cid = `chat_messages`.`customer_id`
-        // ) `all_messages`
-        // ORDER BY
-        //     all_messages.`created_at`";
-
-
-        //     $chat_messages = DB::table('chat_messages')->where('customer_id', $request->customerId);
-        //
-        //     $chat_messages = $chat_messages->join(DB::raw('(SELECT media_id, mediable_type, mediable_id FROM `mediables` WHERE mediable_type = "App\ChatMessage") as mediables LEFT JOIN (SELECT media_id FROM `mediables`) as product_mediables ON mediables.media_id = product_mediables.media_id'), 'chat_messages.id', '=', 'mediables.mediable_id', 'LEFT');
-        //
-        //     $messages = DB::table('messages')->where('customer_id', $request->customerId);
-        //
-        //     $messages = $messages->join(DB::raw('(SELECT media_id, mediable_type, mediable_id FROM `mediables` WHERE mediable_type = "App\Message") as mediables'), 'messages.id', '=', 'mediables.mediable_id', 'LEFT');
-        //
-        //
-        //     $product_image = Product::with('Media')->whereHas('Media', function($q) {
-        //        $q->where('media.id', '57075');
-        //     })->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->get();
-        //
-        //     dD($product_image->toSql());
-        //
-        //     foreach ($chat_messages->get() as $chat_message) {
-        //       dump($chat_message->product_mediables);
-        //     }
-        //     dd('stap');
-        //
-        //
-        //
-        //
-        //
-        // $data = DB::select(DB::raw($sql));
-        // $messages = [];
-        //
-        // foreach ($data as $datum) {
-        //   dd($datum);
-        //     $images = Media::whereIn('id', explode(',', $datum->media_ids))->get(['disk', 'filename', 'extension'])->toArray();
-        //     $images = array_map(function($item) {
-        //         return URL::to('/') . '/' . $item['disk'] . '/' . $item['filename'] . '.' . $item['extension'];
-        //     }, $images);
-        //     $message = [
-        //         'id' => $datum->id,
-        //         'message' => $datum->message,
-        //         'images' => $images
-        //     ];
-        //     $messages[] = $message;
-        // }
-        //
-        // return $messages;
-
     }
 
 
@@ -2536,7 +2457,7 @@ class WhatsAppController extends FindByNumberController
                             $media = MediaUploader::fromSource($fileName)
                                 ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
-                            $chat_message->attachMedia($media, 'gallery');
+                            $chat_message->attachMedia($media, config('constants.media_tags'));
                         } else {
                             $extradata = $data;
                             $extradata[ 'is_queue' ] = 0;
@@ -2544,7 +2465,7 @@ class WhatsAppController extends FindByNumberController
                             $media = MediaUploader::fromSource($fileName)
                                 ->toDirectory('chatmessage/' . floor($extra_chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
-                            $extra_chat_message->attachMedia($media, 'gallery');
+                            $extra_chat_message->attachMedia($media, config('constants.media_tags'));
                         }
 
                         File::delete($fileName);
@@ -2871,11 +2792,11 @@ class WhatsAppController extends FindByNumberController
                         // ->whereHas('Media', function($q) use($image) {
                         //    $q->where('media.id', $image->getKey());
                         // })
-                        ->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+                        ->select(['id', 'price_inr_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
                     if ($product_image) {
                         $temp_image[ 'product_id' ] = $product_image->id;
-                        $temp_image[ 'special_price' ] = $product_image->price_special;
+                        $temp_image[ 'special_price' ] = $product_image->price_inr_special;
 
                         $string = $product_image->supplier;
                         $expr = '/(?<=\s|^)[a-z]/i';
@@ -3065,13 +2986,13 @@ class WhatsAppController extends FindByNumberController
                         // ->whereHas('Media', function($q) use($image) {
                         //    $q->where('media.id', $image->getKey());
                         // })
-                        ->select(['id', 'price_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+                        ->select(['id', 'price_inr_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
                     // dd($product_image);
 
                     if ($product_image) {
                         $temp_image[ 'product_id' ] = $product_image->id;
-                        $temp_image[ 'special_price' ] = $product_image->price_special;
+                        $temp_image[ 'special_price' ] = $product_image->price_inr_special;
 
                         $string = $product_image->supplier;
                         $expr = '/(?<=\s|^)[a-z]/i';
@@ -4456,7 +4377,7 @@ class WhatsAppController extends FindByNumberController
         $product->category = '';
         $product->supplier = $supplier->supplier;
         $product->price = 0;
-        $product->price_special = 0;
+        $product->price_inr_special = 0;
         $product->stock = 1;
         $product->quick_product = 1;
         $product->is_pending = 0;

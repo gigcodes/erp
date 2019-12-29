@@ -141,7 +141,7 @@
         <div class="row">
           <div class="col-md-1">
             @if ($product->hasMedia(config('constants.media_tags')))
-              @foreach($product->getMedia('gallery') as $media)
+              @foreach($product->getMedia(config('constants.media_tags')) as $media)
                 <a href="{{ $media->getUrl() }}">
                   <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ $media->getUrl() }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                 </a>
@@ -160,7 +160,7 @@
             <p class="same-color">{{ $product->name }}</p>
             <br>
             <p class="same-color" style="font-size: 18px;">
-              <span style="text-decoration: line-through">Rs. {{ number_format($product->price_inr) }}</span> Rs. {{ number_format($product->price_special) }}
+              <span style="text-decoration: line-through">Rs. {{ number_format($product->price_inr) }}</span> Rs. {{ number_format($product->price_inr_special) }}
             </p>
             <br>
             <p>

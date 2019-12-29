@@ -27,7 +27,7 @@ class ScrapStatisticsController extends Controller
         $madeby  = $request->get("scraper_made_by",0);
         $scrapeType  = $request->get("scraper_type",0);
 
-        $timeDropDown = self::get_times();           
+        $timeDropDown = self::get_times();
 
         // Get active suppliers
         $activeSuppliers = Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('supplier_status_id', 1);
@@ -78,7 +78,8 @@ class ScrapStatisticsController extends Controller
             ON  
                 sc.scraper_name=ls.website
             WHERE
-                ls.website != "internal_scraper"
+                ls.website != "internal_scraper" AND 
+                ls.updated_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
             GROUP BY
                 ls.website
             ORDER BY
@@ -91,8 +92,8 @@ class ScrapStatisticsController extends Controller
         if(!empty($scrapeData)) {
             foreach($scrapeData as $data) {
                 if(isset($data->id) && $data->id > 0) {
-                   $allScrapperName[$data->id] = $data->website;     
-                }                 
+                   $allScrapperName[$data->id] = $data->website;
+                }
             }
         }
 
@@ -219,7 +220,7 @@ class ScrapStatisticsController extends Controller
 
             $needToSend = request()->get("need_to_send", false);
             $includeAssignTo = request()->get("inlcude_made_by", false);
-            
+
             if($needToSend == 1) {
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('31629987287', '971502609192', "SCRAPER-REMARK#".$name."\n".$remark);
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('919004780634', '971502609192', "SCRAPER-REMARK#".$name."\n".$remark);
@@ -247,7 +248,7 @@ class ScrapStatisticsController extends Controller
 
         $suplier = \App\Scraper::where("supplier_id", $search)->first();
         if($suplier) {
-            $oldValue  = $suplier->{$fieldName}; 
+            $oldValue  = $suplier->{$fieldName};
 
             if($fieldName == "scraper_made_by") {
                 $oldValue  = ($suplier->scraperMadeBy) ? $suplier->scraperMadeBy->name : "";

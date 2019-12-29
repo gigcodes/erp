@@ -53,7 +53,7 @@ class ProductCropperController extends Controller
             ->where('stage', '>=', $stage->get('Supervisor'))
             ->whereNull('dnf')
             ->withMedia(config('constants.media_tags'))
-            ->select(['id', 'sku', 'size', 'price_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
+            ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
             ->paginate(Setting::get('pagination'));
 
         $roletype = 'ImageCropper';
@@ -390,7 +390,7 @@ class ProductCropperController extends Controller
             $media = MediaUploader::fromSource($image)
                                     ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                     ->upload();
-            $product->attachMedia($media, 'gallery');
+            $product->attachMedia($media, config('constants.media_tags'));
         }
 
         $amend = CropAmends::findOrFail($request->get('amend_id'));
@@ -644,7 +644,7 @@ class ProductCropperController extends Controller
 
         if (!empty($request->location)) {
             $products = $products->whereIn('location', $request->location);
-        } 
+        }
 
         $products = $products->orderBy('updated_at', 'DESC')->paginate(24);
 
@@ -667,7 +667,7 @@ class ProductCropperController extends Controller
         $category = $product->category;
         $img = Category::getCroppingGridImageByCategoryId($category);
 
-        $medias = $product->getMedia('gallery');
+        $medias = $product->getMedia(config('constants.media_tags'));
         $originalMediaCount = 0;
 
         foreach ($medias as $media) {
@@ -689,7 +689,7 @@ class ProductCropperController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        $medias = $product->getMedia('gallery');
+        $medias = $product->getMedia(config('constants.media_tags'));
         $zip_file = md5(time()) . '.zip';
         $zip = new \ZipArchive();
         $zip->open($zip_file, \ZipArchive::CREATE);
