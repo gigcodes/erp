@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('styles')
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
 @endsection
@@ -53,10 +54,11 @@
 @include('sku-format.edit')
 @endsection
 
-
-@section('scripts')
+    @section('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <div id="skuCreateModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
 
@@ -219,5 +221,10 @@
         }
 
     
+     $(document).ready(function() {
+       $(".select-multiple").multiselect();
+       $(".select-multiple2").select2();
+         });
+
     </script>
 @endsection
