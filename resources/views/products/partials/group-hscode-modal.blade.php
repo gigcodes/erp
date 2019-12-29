@@ -7,11 +7,11 @@
         @csrf
 
         <div class="modal-header">
-          <h4 class="modal-title">Send Message in Bulk</h4>
+          <h4 class="modal-title">Get Hs Code</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-          <div class="form-group">
+          <!-- <div class="form-group">
             <strong>HsCode:</strong>
             <select class="form-control selectpicker" name="group" data-live-search="true" id="hscode" required>
               <option>Select HsCode</option>
@@ -20,7 +20,7 @@
               @endforeach
             </select>
 
-          </div>
+          </div> -->
 
           <div class="form-group">
             <strong>Compositon:</strong>

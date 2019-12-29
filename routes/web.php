@@ -1101,6 +1101,11 @@ Route::middleware('auth')->group(function () {
     Route::get('duty/category', 'SimplyDutyCategoryController@index')->name('simplyduty.category.index');
     Route::get('duty/category/update', 'SimplyDutyCategoryController@getCategoryFromApi')->name('simplyduty.category.update');
 
+    Route::get('duty/hscode', 'HsCodeController@index')->name('simplyduty.hscode.index');
+    
+    Route::post('duty/setting', 'HsCodeController@saveKey')->name('simplyduty.hscode.key');
+        
+
     //Simple Duty Currency
     Route::get('duty/currency', 'SimplyDutyCurrencyController@index')->name('simplyduty.currency.index');
     Route::get('duty/currency/update', 'SimplyDutyCurrencyController@getCurrencyFromApi')->name('simplyduty.currency.update');

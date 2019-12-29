@@ -23,6 +23,15 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Hs Code Generator ({{ $pendingCategoryCount }}) ({{ count($compositions) }})</h2>
+            <div class="pull-left">
+                <form class="form-inline" action="{{ route('simplyduty.hscode.key') }}" method="POST">
+                    @csrf
+                 <div class="form-group mr-3">
+                              <input name="key" type="text" class="form-control"  placeholder="Hscode Key" value="@if(isset($setting) && $setting != '') {{ $setting->key  }}  @endif">
+                            </div>           
+                    <button type="submit" class="btn btn-info"><i class="fa fa-filter"></i> Submit</button>
+                </form>
+            </div>
              <div class="pull-right">
 
                 <button type="button" class="btn btn-secondary" onclick="createGroup()">Group</button>
@@ -57,7 +66,7 @@
                                 @foreach($groups as $group)    
                                 <tr>
                                     <td><span id="na{{ $group->id }}">{!! $group->name !!}</span></td>
-                                    <td><span id="hs{{ $group->id }}">{{ $group->hsCode->code }}</span></td>
+                                    <td><span id="hs{{ $group->id }}">@if($group->hsCode) {{ $group->hsCode->code }} @endif</span></td>
                                     <td><span id="com{{ $group->id }}">{!! $group->composition !!}<span></td>
                                     <td>{{ $group->groupComposition->count() }}</td>
                                     <td><button onclick="editGroup({{ $group->id }})" class="btn btn-secondary">Edit</button>
@@ -144,8 +153,6 @@
     });
 
     function submitGroup(){
-        
-        hscode = $('#hscode').val();
         name = "{{ $childCategory }}";
         composition = $('#composition').val();
         category = $('#category_value').val();
@@ -156,8 +163,6 @@
             });
         if(compositions.length == 0){
             alert('Please Select Combinations');
-        }else if(hscode == '' && hscode == null){
-            alert('Please Select Hscode First');
         }else{
             src = "{{ route('hscode.save.group') }}";
             $.ajax({
@@ -165,7 +170,6 @@
                 type: "POST",
                 dataType: "json",
                 data: {
-                    hscode : hscode,
                     name : name,
                     compositions : compositions,
                     composition : composition, 
@@ -194,7 +198,6 @@
 
     function submitGroupChange(id){
         src = "{{ route('hscode.edit.group') }}";
-        hscode = $('#hscode'+id).val();
         name = $('#name'+id).val();
         composition = $('#composition'+id).val();
         $.ajax({
@@ -203,7 +206,6 @@
                 dataType: "json",
                 data: {
                     id : id,
-                    hscode : hscode,
                     name : name,
                     composition : composition,
                     "_token": "{{ csrf_token() }}",

@@ -10,7 +10,7 @@ class HsCodeGroup extends Model
 {
     public function hsCode()
     {
-    	return $this->hasOne(SimplyDutyCategory::class,'code','hs_code_id');
+    	return $this->hasOne(HsCode::class,'id','hs_code_id');
     }
 
     public function groupComposition()

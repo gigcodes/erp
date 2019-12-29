@@ -44,6 +44,8 @@ use Illuminate\Support\Facades\Queue;
 use App\SimplyDutyCategory;
 use App\HsCodeGroup;
 use App\HsCodeGroupsCategoriesComposition;
+use App\HsCode;
+use App\HsCodeSetting;
 
 class ProductController extends Controller
 {
@@ -2375,38 +2377,80 @@ class ProductController extends Controller
         $cate = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
         $pendingCategory = Category::all()->except($cate);
         $pendingCategoryCount = $pendingCategory->count();
+        $setting = HsCodeSetting::first();
         
-        return view('products.hscode', compact('keyword','compositions','childCategory','parentCategory','category_selection','hscodes','categories','groups','groupSelected','pendingCategoryCount'));
+        return view('products.hscode', compact('keyword','compositions','childCategory','parentCategory','category_selection','hscodes','categories','groups','groupSelected','pendingCategoryCount','setting'));
     }
 
     public function saveGroupHsCode(Request $request)
     {
         $name = $request->name;
-        $hscode = $request->hscode;
         $compositions = $request->compositions; 
-        
+        $key = HsCodeSetting::first();
+        $api = $key->key;
+
         $category = Category::select('id','title')->where('id',$request->category)->first();
         $categoryId = $category->id;
 
-        if($request->existing_group != null){
-            $group = HsCodeGroup::find($request->existing_group);
+
+        $hscodeSearchString = str_replace(['&gt;','>'],'', $name.' '.$category->title.' '.$request->composition);
+
+        $hscodeSearchString = urlencode($hscodeSearchString);
+
+        $searchString = 'https://www.api.simplyduty.com/api/classification/get-hscode?APIKey='.$api.'&fullDescription='.$hscodeSearchString.'&originCountry=AE&destinationCountry=IN&getduty=false';
+        
+        $ch = curl_init();
+
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $searchString);
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch); 
+
+        $categories = json_decode($output);
+        
+        if(!isset($categories->HSCode)){
+
+            return response()->json(['error' => 'something wrong with api'], 400);
+
         }else{
-            $group = new HsCodeGroup();
-            $group->hs_code_id = $hscode;
-            $group->name = $name.' > '.$category->title;
-            $group->composition = $request->composition;
-            $group->save();
+
+
+            if($categories->HSCode != null){
+
+                $hscode = new HsCode();
+                $hscode->code = $categories->HSCode;
+                $hscode->description = urldecode($hscodeSearchString);
+                $hscode->save();
+
+                if($request->existing_group != null){
+                    $group = HsCodeGroup::find($request->existing_group);
+                }else{
+                    $group = new HsCodeGroup();
+                    $group->hs_code_id = $hscode->id;
+                    $group->name = $name.' > '.$category->title;
+                    $group->composition = $request->composition;
+                    $group->save();
+                }
+                
+                $id = $group->id;
+
+                foreach ($compositions as $composition) {
+                    $comp = new HsCodeGroupsCategoriesComposition();
+                    $comp->hs_code_group_id = $id;
+                    $comp->category_id = $categoryId;
+                    $comp->composition = $composition;
+                    $comp->save();
+                }
+            }
         }
         
-        $id = $group->id;
-
-        foreach ($compositions as $composition) {
-            $comp = new HsCodeGroupsCategoriesComposition();
-            $comp->hs_code_group_id = $id;
-            $comp->category_id = $categoryId;
-            $comp->composition = $composition;
-            $comp->save();
-        }
 
         return response()->json(['success' => 'success'], 200);
     }
