@@ -6,7 +6,7 @@
       <form action="{{ route('task.store') }}" method="POST" id="quickTaskForm">
         @csrf
         <input type="hidden" name="is_statutory" value="0">
-
+        <input type="hidden" name="reference" value="1">
         <div class="modal-header">
           <h4 class="modal-title">Store a Task</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
