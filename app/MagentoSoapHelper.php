@@ -106,6 +106,12 @@ class MagentoSoapHelper
         $reference->color = $product->color;
         $reference->save();
 
+        // Check for brand name
+        if ( !isset($product->brands->name) ) {
+            // Return false
+            return false;
+        }
+
         // Create meta description
         $meta = [];
         $meta[ 'description' ] = 'Shop ' . $product->brands->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $product->product_category->title . ' Largest collection of luxury products in the world from Solo luxury at special prices';
