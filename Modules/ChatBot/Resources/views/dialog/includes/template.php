@@ -116,7 +116,18 @@
 	<form action="<?php echo route('chatbot.dialog.saveajax'); ?>" method="post" id="dialog-save-response-form">
 		<input type="hidden" name="id" value="{{:data.id}}"/>
 		<input type="hidden" id="parent_id_form" name="parent_id" value="{{:data.parent_id}}"/>
-		<?php echo csrf_field(); ?>				  
+		<?php echo csrf_field(); ?>
+
+		{{if data.create_type == "intents_create"}}
+			<hr>
+				<h4>Intent Section</h4>
+			<hr>
+
+			<hr>
+				<h4>Keyword Section</h4>
+			<hr>
+			
+		{{/if}}
 		<div class="form-row">
 		    <div class="form-group col-md-9">
 		      <input class="form-control" name="title" id="keyword_search" placeholder="Enter your keyword" name="keyword" type="text" value="{{:data.name}}">					    

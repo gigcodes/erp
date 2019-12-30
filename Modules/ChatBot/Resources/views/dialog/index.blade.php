@@ -16,6 +16,7 @@
         <div class="pull-right">
             <div class="form-inline">
                 <button type="button" class="btn btn-secondary ml-3" id="create-dialog-btn-rest">Create</button>
+                <button type="button" class="btn btn-secondary ml-3" id="create-dialog-btn-open">Create</button>
         	</div>
         </div>
     </div>
@@ -111,6 +112,19 @@
 
 	updateBoxEvent(0);
 
+	$(document).on("click","#create-dialog-btn-open",function() {
+		$("#leaf-editor-model").modal("show");
+		var myTmpl = $.templates("#add-dialog-form");
+		var json = {
+			"create_type" : "intents_create"
+		};
+       var html   = myTmpl.render({"data" : json});
+       
+       $("#leaf-editor-model").find(".modal-body").html(html);
+       $("[data-toggle='toggle']").bootstrapToggle('destroy')                 
+	   $("[data-toggle='toggle']").bootstrapToggle();
+	});
+
 	$(document).on("click","#create-dialog-btn-rest",function(e){
 		e.preventDefault();
 		var previous_node = 0;
@@ -161,6 +175,8 @@
             }
         });
 	});
+
+
 
 
 
