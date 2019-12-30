@@ -163,7 +163,7 @@ class InstagramPostsController extends Controller
       if($token != 'sdcsds'){
         return response()->json(['message' => 'Invalid Token'], 400);
       }
-      $account = Account::where('platform','instagram')->where('is_active',1)->where('manual_comment',1)->where('comment_pending',1)->first();
+      $account = Account::where('platform','instagram')->where('comment_pending',1)->first();
 
      return response()->json(['username' => $account->last_name , 'password' => $account->password], 200);
     }

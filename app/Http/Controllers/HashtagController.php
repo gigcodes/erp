@@ -232,7 +232,7 @@ class HashtagController extends Controller
 
         $hashtagList = HashTag::all();
         
-        $accs = Account::where('platform', 'instagram')->where('is_active',1)->where('manual_comment', 1)->get();
+        $accs = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
 
         $stats = CommentsStats::selectRaw('COUNT(*) as total, narrative')->where('target', $hashtag->hashtag)->groupBy(['narrative'])->get();
 
