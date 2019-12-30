@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Request;
 use App\SkuFormat;
 use App\Brand;
+use App\Category;
+use App\Supplier;
+use App\DeveloperTask;
+use App\Scraper;
 
 class LogScraper extends Model
 {
@@ -358,5 +362,113 @@ class LogScraper extends Model
 
         // If we end up here, there is no regex set for this brand TODO: Will be an error in the future
         return "[warning] No brand found (" . $brand . ")\n";
+    }
+
+    public function skuFormat($sku, $brand)
+    {
+        try {
+
+            $brand = Brand::where('name',$brand)->first();
+
+            $sku = SkuFormat::where('brand_id',$brand->id)->first();
+            if($sku != null){
+                return $sku->sku_format; 
+            }else{
+                return ''; 
+            }
+            
+            
+        }catch (Exception $e) {
+            
+            return '';
+        }
+        
+    }
+
+    public function skuFormatExample($sku, $brand)
+    {
+        try {
+
+            $brand = Brand::where('name',$brand)->first();
+
+            $sku = SkuFormat::where('brand_id',$brand->id)->first();
+            if($sku != null){
+                return $sku->sku_examples; 
+            }else{
+                return ''; 
+            }
+        }catch (Exception $e) {
+            
+            return '';
+        }
+    }
+
+    public function skuError($validation)
+    {
+        try {
+            $validations = explode('[warning]', $validation);
+            if(is_array($validations)){
+                foreach ($validations as $validation) {
+                    if(strpos($validation, 'SKU') !== false){
+                        return $validation;
+                    }
+                } 
+            }
+
+            return '';
+            
+        } catch (Exception $e) {
+            return '';
+        }
+    }
+
+    public function dataUnserialize($string){
+        try {
+            $string = @unserialize($string);
+            if(is_array($string)){
+                return implode(' , ', $string);
+            }else{
+                return $string;
+            }
+            
+        } catch (Exception $e) {
+            return $string;
+        }
+        
+    }
+
+    public function scraper(){
+        return $this->hasOne(Scraper::class,'scraper_name','website');
+    }
+
+    public function taskType($supplier,$category,$brand){
+        $string = $supplier.$category.$brand;
+        $reference = md5(strtolower($string));
+        $issue = DeveloperTask::where('reference',$reference)->first();
+        if($issue != null && $issue != ''){
+            if($issue->status == 'Done'){
+                return 'Issue Resolved';
+            }else{
+                return 'Issue Raised';
+            }
+        }else{
+            return false;
+        }
+    }
+
+    public function brandLink($sku,$brand){
+        
+         $brand = Brand::select('id','sku_search_url')->where('name',$brand)->first();
+         
+         if($brand != null){
+            
+            if($brand->sku_search_url != null){
+                return $link = str_replace('[SEARCH]',$sku,$brand->sku_search_url);
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+         }
     }
 }

@@ -17,7 +17,7 @@
                 @csrf
                 <div class="col-md-12">
                     <div id="sortable">
-                        @foreach($product->getMedia('gallery') as $media)
+                        @foreach($product->getMedia(config('constants.media_tags')) as $media)
                             @if(stripos(strtolower($media->filename), 'cropped') !== false)
                                 <div class="card" style="display: inline-block; background: #dddddd">
                                     <img class="order-selector" src="{{ $media->getUrl() }}" alt="" style="width:250px;" data-mediaId="{{$media->id}}">
