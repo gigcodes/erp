@@ -213,7 +213,7 @@ class ProductController extends Controller
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(5);
+        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
 
         return view('products.final_listing', [
             'products' => $newProducts,
@@ -2322,9 +2322,15 @@ class ProductController extends Controller
         $style = explode(' ',$style);
         $name = str_replace(['scale(',')'],'',$style[4]);
         $newHeight = (($name * 3.333333) * 1000);
+
         list($width, $height) = getimagesize($img);
         $thumb = imagecreatetruecolor($newHeight, $newHeight);
-        $source = imagecreatefromjpeg($img);
+        try {
+            $source = imagecreatefromjpeg($img);
+        } catch (\Exception $e) {
+            $source = imagecreatefrompng($img);
+        }
+        
 
         // Resize
         imagecopyresized($thumb, $source, 0, 0, 0, 0, $newHeight, $newHeight, $width, $height);

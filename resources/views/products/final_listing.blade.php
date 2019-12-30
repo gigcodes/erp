@@ -239,7 +239,7 @@
                                                 <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}" >
                                             </div>
                                             <button onclick="cropImage('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}','{{ $product->id }}')" class="btn btn-secondary">Crop Image</button>
-                                            <button onclick="crop('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}','{{ $product->id }}')" class="btn btn-secondary">Crop</button>
+                                            <button onclick="crop('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}','{{ $product->id }}','{{ $gridImage }}')" class="btn btn-secondary">Crop</button>
                                             
                                         @endif
                                     </div>
@@ -1777,11 +1777,16 @@
             var example = $('#image'+id).cropme();
             example.cropme('bind', {
                 url: img,
+                zoom: {
+                enable: true,
+                mouseWheel: true,
+                slider: true
+                },
             });
            
         }
 
-        function crop(img,id){
+        function crop(img,id,gridImage){
             style = $('.cropme-container img').attr("style");
             $.ajax({
                 url: '/products/listing/final-crop-image',
@@ -1796,6 +1801,10 @@
                 },
             })
             .done(function() {
+                newurl = img+'?version='+id;
+                html = '<div onmouseover="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+newurl+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'"></div><button onclick="cropImage(\''+url+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+newurl+'\','+id+')" class="btn btn-secondary">Crop</button>';
+        
+                $('#col-large-image'+id).empty().append(html);
                 alert('Image Cropped and Saved Successfully');
             })
             .fail(function() {
