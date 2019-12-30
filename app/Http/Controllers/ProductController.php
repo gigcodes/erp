@@ -1516,18 +1516,18 @@ class ProductController extends Controller
 
         // assing product to varaible so can use as per condition for join table media
         if ($request->quick_product !== 'true') {
-            $products = $products->whereRaw("(stock > 0 OR (supplier LIKE '%In-Stock%'))");
+            $products = $products->whereRaw("(stock > 0 OR (supplier ='In-Stock'))");
         }
 
         // if source is attach_media for search then check product has image exist or not
         $products = $products->join("mediables", function ($query) {
-            $query->on("mediables.mediable_id", "products.id")->where("mediable_type", 'like', "App%Product");
+            $query->on("mediables.mediable_id", "products.id")->where("mediable_type", \App\Product::class);
         });
 
         if($request->get("unsupported",null) != "") {
 
             $mediaIds = \DB::table("media")->where("aggregate_type","image")->join("mediables", function ($query) {
-                $query->on("mediables.media_id", "media.id")->where("mediables.mediable_type", 'like', "App%Product");
+                $query->on("mediables.media_id", "media.id")->where("mediables.mediable_type", \App\Product::class);
             })->whereNotIn("extension",config("constants.gd_supported_files"))->select("id")->pluck("id")->toArray();
 
             $products = $products->whereIn("mediables.media_id",$mediaIds);
@@ -1546,13 +1546,13 @@ class ProductController extends Controller
             $products = $products->where('is_on_sale', 1);
         }
 
-        $products_count = $products->get()->count();
 
         if($request->has("limit")) {
-            $perPageLimit = ($request->get("limit") == "all") ? $products_count : $request->get("limit");
+            $perPageLimit = ($request->get("limit") == "all") ? $products->get()->count() : $request->get("limit");
         }
 
         $products = $products->paginate($perPageLimit);
+        $products_count = $products->total();
         $all_product_ids = [];
         if ($request->ajax()) {
             $html = view('partials.image-load', [
