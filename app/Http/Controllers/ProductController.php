@@ -2419,7 +2419,7 @@ class ProductController extends Controller
         
         if(!isset($categories->HSCode)){
 
-            return response()->json(['error' => 'something wrong with api'], 400);
+            return response()->json(['Something is wrong with the API. Please check the balance.']);
 
         }else{
 
@@ -2454,7 +2454,7 @@ class ProductController extends Controller
         }
         
 
-        return response()->json(['success' => 'success'], 200);
+        return response()->json(['Hscode Generated successfully'], 200);
     }
 
     public function editGroup(Request $request)

@@ -91,7 +91,7 @@
                  {!! $category_selection !!}
             </div>
             <div class="col-md-4">
-                <input type="text" name="keyword" class="form-control" value="{{ $keyword }}">
+                <input type="text" name="keyword" class="form-control" value="@if(isset($keyword)){{ $keyword }}@endif" placeholder="Place Composition To Search here">
             </div>
             <div class="col-md-2">
                 <input type="checkbox" name="group" @if($groupSelected == 'on') checked @endif>Include Group
@@ -181,11 +181,15 @@
                     $('#groupModal').modal('hide');
                     $("#loading-image").show();
                 },
+                success: function(data) {
+                    $('#groupModal').modal('hide');
+                    alert(data);
+                    location.reload();
+                },
+                error: function(xhr) { // if error occured
+                    alert("Error occured.please try again");
+                },
 
-            }).done(function (data) {
-                $("#loading-image").hide();
-                alert('SucessFully Created Group');
-                location.reload();
             }); 
 
         }
