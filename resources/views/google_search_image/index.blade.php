@@ -15,12 +15,12 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
-        .rcrop-handler-wrapper{
+        .clayfy-box{
             position: absolute;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
         
     </style>
@@ -127,8 +127,9 @@
             {{ csrf_field() }}
             <div class="row">
                 @foreach ($products as $product)
+
                     <div class="col-md-3 col-xs-6 text-left" style="border: 1px solid #cccccc;">
-                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first()->id }}"/>
+                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>
                         <p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>
                         <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
                         <p>Transit Status : {{ $product->purchase_status }}</p>
