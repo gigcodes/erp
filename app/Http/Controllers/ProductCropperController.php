@@ -390,7 +390,7 @@ class ProductCropperController extends Controller
             $media = MediaUploader::fromSource($image)
                                     ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                     ->upload();
-            $product->attachMedia($media, 'gallery');
+            $product->attachMedia($media, config('constants.media_tags'));
         }
 
         $amend = CropAmends::findOrFail($request->get('amend_id'));
@@ -672,7 +672,7 @@ class ProductCropperController extends Controller
         $category = $product->category;
         $img = Category::getCroppingGridImageByCategoryId($category);
 
-        $medias = $product->getMedia('gallery');
+        $medias = $product->getMedia(config('constants.media_tags'));
         $originalMediaCount = 0;
 
         foreach ($medias as $media) {
@@ -694,7 +694,7 @@ class ProductCropperController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        $medias = $product->getMedia('gallery');
+        $medias = $product->getMedia(config('constants.media_tags'));
         $zip_file = md5(time()) . '.zip';
         $zip = new \ZipArchive();
         $zip->open($zip_file, \ZipArchive::CREATE);

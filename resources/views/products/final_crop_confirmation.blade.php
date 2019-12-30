@@ -142,7 +142,7 @@
                                     <div class="col-md-1">
                                         @php $product = \App\Product::find($product->id) @endphp
                                         @if ($product->hasMedia(config('constants.media_tags')))
-                                            @foreach($product->getMedia('gallery') as $media)
+                                            @foreach($product->getMedia(config('constants.media_tags')) as $media)
                                                 @if(stripos($media->filename, 'crop') !== false)
                                                     <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ $media->getUrl() }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                                                 @endif

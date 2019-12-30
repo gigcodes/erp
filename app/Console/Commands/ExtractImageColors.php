@@ -64,13 +64,13 @@ class ExtractImageColors extends Command
 //                    continue;
 //                }
 
-                $imageUrl = $product->getMedia('gallery')->first();
+                $imageUrl = $product->getMedia(config('constants.media_tags'))->first();
 
                 if (!$imageUrl) {
                     continue;
                 }
 
-                $image = $product->getMedia('gallery')->first();
+                $image = $product->getMedia(config('constants.media_tags'))->first();
 
                 $imageUrl = $image->getUrl();
 

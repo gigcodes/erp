@@ -203,7 +203,7 @@
                                         @endphp
                                         <?php $gridImage = ''; ?>
                                         @if ($product->hasMedia(config('constants.media_tags')))
-                                            @foreach($product->getMedia('gallery') as $media)
+                                            @foreach($product->getMedia(config('constants.media_tags')) as $media)
                                                 @if(stripos($media->filename, 'crop') !== false)
                                                     <?php
                                                     $width = 0;

@@ -222,7 +222,7 @@
                                     <a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
                                     <div>
                                         @if ($special_product->hasMedia(config('constants.media_tags')))
-                                            @foreach($special_product->getMedia('gallery') as $media)
+                                            @foreach($special_product->getMedia(config('constants.media_tags')) as $media)
                                                 <a href="{{ $media->getUrl() }}" target="_new">
                                                     <img style="width: 50px;" src="{{ $media->getUrl() }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                                                 </a>

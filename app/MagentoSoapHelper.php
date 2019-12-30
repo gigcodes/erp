@@ -106,6 +106,12 @@ class MagentoSoapHelper
         $reference->color = $product->color;
         $reference->save();
 
+        // Check for brand name
+        if ( !isset($product->brands->name) ) {
+            // Return false
+            return false;
+        }
+
         // Create meta description
         $meta = [];
         $meta[ 'description' ] = 'Shop ' . $product->brands->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $product->product_category->title . ' Largest collection of luxury products in the world from Solo luxury at special prices';
@@ -342,7 +348,7 @@ class MagentoSoapHelper
     private function _pushImages(Product $product, $magentoProductId = 0)
     {
         // Get images which belong to product
-        $images = $product->getMedia(config('constants.media_tags'));
+        $images = $product->getMedia(config('constants.media_gallery_tag'));
 
         // Set i to 0
         $i = 0;
@@ -389,7 +395,6 @@ class MagentoSoapHelper
     {
         // Check for product and session
         if ((int)$magentoId == 0 || !$this->_sessionId) {
-            exit("A");
             return false;
         }
 

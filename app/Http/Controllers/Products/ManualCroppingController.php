@@ -90,7 +90,7 @@ class ManualCroppingController extends Controller
 
         $originalMediaCount = 0;
 
-        $medias = $product->getMedia('gallery');
+        $medias = $product->getMedia(config('constants.media_tags'));
         foreach ($medias as $media) {
             if (stripos(strtoupper($media->filename), 'CROPPED') === false) {
                 $originalMediaCount++;
@@ -137,7 +137,7 @@ class ManualCroppingController extends Controller
                                         ->useFilename(uniqid('cropped_', true))
                                         ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
                                         ->upload();
-                $product->attachMedia($media, 'gallery');
+                $product->attachMedia($media, config('constants.media_tags'));
             }
         }
 

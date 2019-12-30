@@ -1790,9 +1790,9 @@ class ProductController extends Controller
             $image = $request->file('file');
             $media = MediaUploader::fromSource($image)
                                     ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
-                                    ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+                                    ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')).'/' . $product->id)
                                     ->upload();
-            $product->attachMedia($media, 'gallery');
+            $product->attachMedia($media, config('constants.media_gallery_tag'));
             $product->crop_count = $product->crop_count + 1;
             $product->save();
 
@@ -1801,6 +1801,8 @@ class ProductController extends Controller
             $imageReference->new_media_id = $media->id;
             $imageReference->original_media_name = $request->get('filename');
             $imageReference->new_media_name = $media->filename . '.' . $media->extension;
+            $imageReference->speed = $request->get('time');
+            $imageReference->product_id = $product->id;
             $imageReference->save();
 
             $product->cropped_at = Carbon::now()->toDateTimeString();
