@@ -29,13 +29,17 @@
                                 <div class="alert alert-danger">{{$errors->first('sku_format')}}</div>
                             @endif
                         </div>
+
                         <div class="form-group users">
-                            <select class="form-control" name="category_id" id="category{{ $sku->id }}">
+                            <select data-placeholder="Select Category" class="form-control select-multiple2" name="category_id" id="category{{ $sku->id }}">
+                                <optgroup label="Select Category">
                                 @foreach($categories as $category)
                                     <option class="form-control" value="{{ $category->id }}" @if($category->id == $sku->category_id) selected @endif>{{ $category->title }}</option>
                                 @endforeach
+                                </optgroup>
                             </select>
                         </div>
+
                         <div class="form-group users">
                             <select class="form-control" name="brand_id" id="brand{{ $sku->id }}">
                                 @foreach($brands as $brand)

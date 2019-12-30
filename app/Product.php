@@ -549,7 +549,7 @@ class Product extends Model
 
     public function attachImagesToProduct($arrImages = null)
     {
-        if (!$this->hasMedia(\Config('constants.media_tags')) || is_array($arrImages)) {
+        if (!$this->hasMedia(\Config('constants.media_original_tag')) || is_array($arrImages)) {
             // images given
             if (is_array($arrImages) && count($arrImages) > 0) {
                 $scrapedProduct = true;
@@ -585,8 +585,8 @@ class Product extends Model
                         $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
 
                         //save image to media
-                        $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->upload();
-                        $this->attachMedia($media, config('constants.media_tags'));
+                        $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->onDuplicateReplace()->upload();
+                        $this->attachMedia($media, config('constants.media_original_tag'));
                         $countImageUpdated++;
                     }
                 }

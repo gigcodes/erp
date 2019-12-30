@@ -688,6 +688,17 @@ class DevelopmentController extends Controller
         $data = $request->except('_token');
 
         $module = $request->get('module');
+        if($request->response == 1){
+
+            $reference = md5(strtolower($request->reference));
+            //Check if reference exist
+            $existReference = DeveloperTask::where('reference',$reference)->first();
+            if($existReference != null || $existReference != ''){
+                return redirect()->back()->withErrors(['Issue Already Created!']);
+            }
+
+        }
+
 
         $module = DeveloperModule::find($module);
         if (!$module) {
