@@ -154,13 +154,15 @@ class LogScraperController extends Controller
             }
         }
 
-        $failed = $logScrapper->where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
+        
        
         $logScrapper->groupBy('website')->groupBy('brand');
 
+        $logScrapper->where('validation_result', 'LIKE', '%SKU failed regex test%');
+
         $logScrappers = $logScrapper->paginate(25)->appends(request()->except(['page']));
 
-        
+        $failed = $logScrappers->total();
 
         $existingIssues = DeveloperTask::whereNotNull('reference')->get();
 

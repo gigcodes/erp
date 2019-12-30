@@ -26,10 +26,9 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">SKU log (<span id="count">{{ $failed }}</span>)</h2>
+            <h2 class="page-heading">SKU warnings/errors (<span id="count">{{ $failed }}</span>)</h2>
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" onclick="sendMulti()" style="display: none;" id="nulti">Send Selected</button>
-                <button type="button" class="btn btn-secondary">Total Failed <span id="count">{{ $failed }}</span></button>
                 <button type="button" class="btn btn-secondary">Number of open task {{ $pendingIssues }}</button>
                 <button type="button" class="btn btn-secondary">Last Created task @if($lastCreatedIssue) {{ $lastCreatedIssue->created_at->format('d-m-Y H:i:s') }} @endif</button>
                 <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png"/></button>
@@ -92,7 +91,20 @@
 
         </table>
     </div>
-
+<div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @include('partials.modals.task-module')
 @endsection
 
@@ -202,7 +214,7 @@
 
     function addTask(supplier , category , sku , brand) {
         $('#taskModal').modal('show');
-        $('#task_subject').val(supplier +' '+category+' '+sku);
+        $('#task_subject').val('Supplier :'+supplier +' Category '+category+' Brand : '+brand);
         $('#references').val(supplier+''+category+''+brand);
     }
 

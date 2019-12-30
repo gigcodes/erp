@@ -421,6 +421,7 @@
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>SKU<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ action('Logging\LogScraperController@logSKU') }}">SKU log</a>
+                                                <a class="dropdown-item" href="{{ action('Logging\LogScraperController@logSKUErrors') }}">SKU warnings/errors</a>
                                                 <a class="dropdown-item" href="{{ route('sku-format.index') }}">SKU Format</a>
                                                 <a class="dropdown-item" href="{{ route('sku.color-codes') }}">SKU Color Codes</a>
                                             </ul>

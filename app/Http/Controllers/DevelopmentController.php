@@ -699,6 +699,10 @@ class DevelopmentController extends Controller
 
         }
 
+        if(!isset($reference)){
+            $reference = null;
+        }
+
 
         $module = DeveloperModule::find($module);
         if (!$module) {
@@ -724,6 +728,7 @@ class DevelopmentController extends Controller
         $task->user_id = $responsibleUser;
         $task->assigned_by = Auth::id();
         $task->created_by = Auth::id();
+        $task->reference = $reference;
         $task->status = 'Issue';
         $task->task_type_id = 3;
 
