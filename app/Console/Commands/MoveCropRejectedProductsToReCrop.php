@@ -61,7 +61,7 @@ class MoveCropRejectedProductsToReCrop extends Command
             $product->crop_approved_by = 109;
             $product->save();
             continue;
-//            $medias = $product->getMedia('gallery');
+//            $medias = $product->getMedia(config('constants.media_tags'));
 //
 //
 //            foreach ($medias as $media) {

@@ -80,25 +80,25 @@
             </form>
         </div>
       </div>
-    
+
     <div class="row no-gutters mt-3">
         <div class="col-md-12" id="plannerColumn">
             <div class="">
                 <table class="table table-bordered table-striped sort-priority-scrapper">
                     <thead>
                         <tr>
-                            <th>No</th>
+                            <th>#</th>
                             <th>Supplier</th>
                             <th>Server</th>
-                            <th>Start Time</th>
+                            <th>Run Time</th>
                             <th>Last Scraped</th>
-                            <th>Stock Erp</th>
-                            <th>Total Urls</th>
+                            <th>Stock</th>
+                            <th>URL Count</th>
                             <th>Errors</th>
                             <th>Warnings</th>
-                            <th>Total URL scrapper</th>
-                            <th>Existing products</th>
-                            <th>Total New URL</th>
+                            <th>URL Count Scraper</th>
+                            <th>Existing URLs</th>
+                            <th>New URLs</th>
                             <th>Made By</th>
                             <th>Type</th>
                             <th>Parent Scrapper</th>
@@ -126,7 +126,7 @@
 
                             // Show correct background color
                             $hasError =  false;
-                            $hasWarning = false;    
+                            $hasWarning = false;
                             if ( (!empty($data) && $data->running == 0) || $data == null ) {
                                 $hasError =  true;
                                 echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'">';
@@ -156,17 +156,17 @@
                             <?php } ?>
                         </td>
                         <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td>
-                        <td width="10%">
-                            {{ $supplier->scraper_start_time }}
+                        <td width="10%" style="text-right">
+                            {{ $supplier->scraper_start_time }}h
                         </td>
-                        <td width="10%">{{ !empty($data) ? date('d-m-y H:i', strtotime($data->last_scrape_date)) : '' }}</td>
+                        <td width="10%">{!! !empty($data) ? str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($data->last_scrape_date))) : '' !!}</td>
                         <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                         <td width="3%">{{ !empty($data) ? $data->total : '' }}</td>
                         <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
-                        <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
-                        <td width="3%">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
-                        <td width="3%">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
                         <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td>
+                        <td width="3%">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
+                        <td width="3%">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
+                        <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
                         <td width="10%">
                             {{ ($supplier->scraperMadeBy) ? $supplier->scraperMadeBy->name : "N/A" }}
                         </td>
@@ -186,42 +186,42 @@
                     </tr>
                     <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
                         <td colspan="3">
-                            <label>Logic:</label> 
+                            <label>Logic:</label>
                             <div class="input-group">
                               <textarea class="form-control scraper_logic" name="scraper_logic"><?php echo $supplier->scraper_logic; ?></textarea>
                               <button class="btn btn-sm btn-image submit-logic" data-vendorid="1"><img src="/images/filled-sent.png"></button>
                             </div>
                         </td>
                         <td colspan="3">
-                            <label>Start Time:</label> 
+                            <label>Start Time:</label>
                             <div class="input-group">
-                              <?php echo Form::select("start_time",['' => "--Time--"] + $timeDropDown,$supplier->scraper_start_time,["class" => "form-control start_time select2","style" => "width:100%;"]); ?> 
+                              <?php echo Form::select("start_time",['' => "--Time--"] + $timeDropDown,$supplier->scraper_start_time,["class" => "form-control start_time select2","style" => "width:100%;"]); ?>
                             </div>
                         </td>
                         <td colspan="3">
-                            <label>Made By:</label> 
+                            <label>Made By:</label>
                             <div class="form-group">
-                              <?php echo Form::select("scraper_made_by",["" => "N/A"] + $users,$supplier->scraper_made_by,["class" => "form-control scraper_made_by select2","style" => "width:100%;"]); ?>  
+                              <?php echo Form::select("scraper_made_by",["" => "N/A"] + $users,$supplier->scraper_made_by,["class" => "form-control scraper_made_by select2","style" => "width:100%;"]); ?>
                             </div>
                         </td>
                         <td colspan="3">
-                            <label>Type:</label> 
+                            <label>Type:</label>
                             <div class="form-group">
-                              <?php echo Form::select("scraper_type",['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(),$supplier->scraper_type,["class"=>"form-control scraper_type select2","style" => "width:100%;"]) ?> 
+                              <?php echo Form::select("scraper_type",['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(),$supplier->scraper_type,["class"=>"form-control scraper_type select2","style" => "width:100%;"]) ?>
                             </div>
                         </td>
                         <td colspan="3">
-                            <label>Parent Scrapper:</label> 
+                            <label>Parent Scrapper:</label>
                             <div class="form-group">
-                              <?php echo Form::select("parent_supplier_id",[0 => "N/A"] + $allScrapperName,$supplier->parent_supplier_id,["class" => "form-control parent_supplier_id select2","style" => "width:100%;"]); ?>  
+                              <?php echo Form::select("parent_supplier_id",[0 => "N/A"] + $allScrapperName,$supplier->parent_supplier_id,["class" => "form-control parent_supplier_id select2","style" => "width:100%;"]); ?>
                             </div>
                         </td>
                         <td colspan="3">
-                            <label>Next Step:</label> 
+                            <label>Next Step:</label>
                             <div class="form-group">
-                              <?php echo Form::select("next_step_in_product_flow",[0 => "N/A"] +  \App\Helpers\StatusHelper::getStatus(),$supplier->next_step_in_product_flow,["class" => "form-control next_step_in_product_flow select2","style" => "width:100%;"]); ?>  
+                              <?php echo Form::select("next_step_in_product_flow",[0 => "N/A"] +  \App\Helpers\StatusHelper::getStatus(),$supplier->next_step_in_product_flow,["class" => "form-control next_step_in_product_flow select2","style" => "width:100%;"]); ?>
                             </div>
-                        </td>    
+                        </td>
                     </tr>
                     @endforeach
                 </table>
@@ -263,7 +263,7 @@
                                     <td class="p-2 text-right">{{ !empty($count) ? $count->total_urls : '' }}</td>
                                     <td class="p-2 text-right">{{ !empty($count) ? $count->existing_urls : '' }}</td>
                                     <td class="p-2 text-right">{{ !empty($count) ? $count->new_urls : '' }}</td>
-                                    
+
                                     <td>
                                         <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img src="/images/remark.png"/></button>
                                     </td>
@@ -309,7 +309,7 @@
                 $.each(response, function (index, value) {
                     /*html += '<li><span class="float-left">' + value.remark + '</span><span class="float-right"><small>' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></span></li>';
                     html + "<hr>";*/
-                    html += '<tr><th scope="row">'+no+'</th><td>'+value.remark+'</td><td>'+value.user_name+'</td><td>'+ moment(value.created_at).format('DD-M H:mm') +'</td></tr>'; 
+                    html += '<tr><th scope="row">'+no+'</th><td>'+value.remark+'</td><td>'+value.user_name+'</td><td>'+ moment(value.created_at).format('DD-M H:mm') +'</td></tr>';
                     no++;
                 });
                 $("#makeRemarkModal").find('#remark-list').html(html);
@@ -339,12 +339,12 @@
                 html + "<hr>";
 */
                 var no = $("#remark-list").find("tr").length + 1;
-                html = '<tr><th scope="row">'+no+'</th><td>'+remark+'</td><td>You</td><td>'+ moment().format('DD-M H:mm') +'</td></tr>'; 
+                html = '<tr><th scope="row">'+no+'</th><td>'+remark+'</td><td>You</td><td>'+ moment().format('DD-M H:mm') +'</td></tr>';
                 $("#makeRemarkModal").find('#remark-list').append(html);
             }).fail(function (response) {
                 alert('Could not fetch remarks');
             });
-               
+
         });
 
         $( ".sort-priority-scrapper" ).sortable({
@@ -353,7 +353,7 @@
                 //console.log(ui.item);
             },
             update: function(e,ui){
-             
+
              var itemMoving = ui.item;
              var itemEle = itemMoving.data("id");
              var needToMove = $(".hidden_row_"+itemEle);
@@ -417,7 +417,7 @@
             });
         });
 
-        
+
 
         $(document).on("change",".scraper_type",function() {
             var tr = $(this).closest("tr");
@@ -473,7 +473,7 @@
             });
         });
 
-        
+
 
         $(document).on("change",".parent_supplier_id",function() {
             var tr = $(this).closest("tr");
@@ -492,7 +492,7 @@
 
             });
         });
-       
+
         $(".select2").select2();
 
     </script>

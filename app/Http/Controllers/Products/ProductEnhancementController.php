@@ -98,7 +98,7 @@ class ProductEnhancementController extends Controller
                                         ->upload();
 
                 // Attach media to product
-                $product->attachMedia($media, 'gallery');
+                $product->attachMedia($media, config('constants.media_tags'));
             }
         }
 
