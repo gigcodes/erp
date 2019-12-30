@@ -6,8 +6,8 @@
       <form action="{{ route('development.issue.create') }}" method="POST" id="quickTaskForm">
         @csrf
         <input type="hidden" name="priority" value="1">
-        <input type="hidden" name="module" value="52">
-        <input type="hidden" name="response" value="1">
+        <input type="hidden" name="module" value="52" id="module">
+        <input type="hidden" name="response" value="1" id="response">
         <input type="hidden" id="references" name="reference">
         
 
@@ -36,7 +36,8 @@
                 @endforeach
               </select>
           </div>
-
+          
+          @if(isset($existingIssues))
           <div class="form-group">
               <strong>Existing Issue:</strong>
               <select class="selectpicker form-control" data-live-search="true" data-size="15"  name="responsible_user_id" title="Choose Issue">
@@ -45,6 +46,7 @@
                 @endforeach
               </select>
           </div>
+          @endif
 
 
 

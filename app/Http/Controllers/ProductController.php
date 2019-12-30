@@ -1803,6 +1803,8 @@ class ProductController extends Controller
             $imageReference->new_media_id = $media->id;
             $imageReference->original_media_name = $request->get('filename');
             $imageReference->new_media_name = $media->filename . '.' . $media->extension;
+            $imageReference->speed = $request->get('time');
+            $imageReference->product_id = $product->id;
             $imageReference->save();
 
             $product->cropped_at = Carbon::now()->toDateTimeString();
