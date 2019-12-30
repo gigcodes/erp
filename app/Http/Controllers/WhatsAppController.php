@@ -67,6 +67,7 @@ use App\DocumentSendHistory;
 use App\QuickSellGroup;
 use App\ProductQuicksellGroup;
 use App\Helpers\InstantMessagingHelper;
+use App\Library\Watson\Model as WatsonManager;
 
 
 class WhatsAppController extends FindByNumberController
@@ -1466,6 +1467,32 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
 
+                // start to check with watson api directly
+                if(!empty($params['message'])) {
+                    if ($customer && $params[ 'message' ] != '') {
+                        $chatbotReply = WatsonManager::sendMessage($customer,$params['message']);
+                        if(!empty($chatbotReply["reply_text"])
+                            && !empty($chatbotReply["reply_text"]->text)
+                            && !empty($chatbotReply["reply_text"]->response_type)
+                            && $chatbotReply["reply_text"]->response_type == "text"
+                        ) {
+                            $temp_params = $params;
+                            $temp_params['message']    = $chatbotReply["reply_text"]->text;
+                            $temp_params['media_url']  = null;
+                            $temp_params['status']     = 11;
+                            $temp_params['number']     = "";
+                            $temp_params['is_chatbot'] = 1;
+                            // Create new message
+                            $message = ChatMessage::create($temp_params);
+                            \App\ChatbotReply::create([
+                                "chat_id" => $message->id,
+                                "reply"   => $chatbotReply["response"],
+                            ]);
+                        }
+                    }
+                }
+
+
                 // Auto Replies
                 $auto_replies = AutoReply::where('is_active', 1)->get();
 
@@ -2430,7 +2457,7 @@ class WhatsAppController extends FindByNumberController
                             $media = MediaUploader::fromSource($fileName)
                                 ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
-                            $chat_message->attachMedia($media, 'gallery');
+                            $chat_message->attachMedia($media, config('constants.media_tags'));
                         } else {
                             $extradata = $data;
                             $extradata[ 'is_queue' ] = 0;
@@ -2438,7 +2465,7 @@ class WhatsAppController extends FindByNumberController
                             $media = MediaUploader::fromSource($fileName)
                                 ->toDirectory('chatmessage/' . floor($extra_chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
-                            $extra_chat_message->attachMedia($media, 'gallery');
+                            $extra_chat_message->attachMedia($media, config('constants.media_tags'));
                         }
 
                         File::delete($fileName);

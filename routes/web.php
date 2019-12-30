@@ -16,8 +16,7 @@ Auth::routes();
 Route::get('/test/test', 'LiveChatController@sendImage');
 Route::get('create-media-image', 'CustomerController@testImage');
 
-Route::get('crop-references', 'CroppedImageReferenceController@index');
-Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
+
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
 
@@ -51,6 +50,9 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index');
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
+    Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.laravel.log');
+    Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
+
 });
 
 Route::prefix('category-messages')->group(function () {
@@ -62,6 +64,11 @@ Route::prefix('category-messages')->group(function () {
 });
 
 Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
+    //Crop Reference
+    Route::get('crop-references', 'CroppedImageReferenceController@index');
+    Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
+    Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
+
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
@@ -168,7 +175,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
     Route::post('autoreply/delete-chat-word', 'AutoReplyController@deleteChatWord');
     Route::get('autoreply/replied-chat/{id}', 'AutoReplyController@getRepliedChat');
-    
+    Route::post('autoreply/save-group', 'AutoReplyController@saveGroup')->name('autoreply.save.group');
+    Route::post('autoreply/save-group/phrases', 'AutoReplyController@saveGroupPhrases')->name('autoreply.save.group.phrases');
     Route::post('autoreply/save-by-question', 'AutoReplyController@saveByQuestion');
     Route::resource('autoreply', 'AutoReplyController');
 
