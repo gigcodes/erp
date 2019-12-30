@@ -73,7 +73,7 @@ class AiRun extends Command
             echo "Start Vision for product " . $product->id . "\n";
 
             // Get array product images
-            $arrMedia = $product->getMedia( 'gallery' );
+            $arrMedia = $product->getMedia( config('constants.media_tags') );
 
             // Set empty array for image URLs
             $arrImages = [];

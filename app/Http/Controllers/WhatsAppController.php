@@ -1467,13 +1467,13 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
 
-                // start to check with watson api directly 
+                // start to check with watson api directly
                 if(!empty($params['message'])) {
                     if ($customer && $params[ 'message' ] != '') {
                         $chatbotReply = WatsonManager::sendMessage($customer,$params['message']);
-                        if(!empty($chatbotReply["reply_text"]) 
-                            && !empty($chatbotReply["reply_text"]->text) 
-                            && !empty($chatbotReply["reply_text"]->response_type) 
+                        if(!empty($chatbotReply["reply_text"])
+                            && !empty($chatbotReply["reply_text"]->text)
+                            && !empty($chatbotReply["reply_text"]->response_type)
                             && $chatbotReply["reply_text"]->response_type == "text"
                         ) {
                             $temp_params = $params;
@@ -2457,7 +2457,7 @@ class WhatsAppController extends FindByNumberController
                             $media = MediaUploader::fromSource($fileName)
                                 ->toDirectory('chatmessage/' . floor($chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
-                            $chat_message->attachMedia($media, 'gallery');
+                            $chat_message->attachMedia($media, config('constants.media_tags'));
                         } else {
                             $extradata = $data;
                             $extradata[ 'is_queue' ] = 0;
@@ -2465,7 +2465,7 @@ class WhatsAppController extends FindByNumberController
                             $media = MediaUploader::fromSource($fileName)
                                 ->toDirectory('chatmessage/' . floor($extra_chat_message->id / config('constants.image_per_folder')))
                                 ->upload();
-                            $extra_chat_message->attachMedia($media, 'gallery');
+                            $extra_chat_message->attachMedia($media, config('constants.media_tags'));
                         }
 
                         File::delete($fileName);

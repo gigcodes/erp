@@ -58,6 +58,7 @@ use App\Console\Commands\VisitorLogs;
 
 use App\Console\Commands\MovePlannedTasks;
 use App\Console\Commands\ResetDailyPlanner;
+use App\Console\Commands\SkuErrorCount;
 
 //use App\Console\Commands\SaveProductsImages;
 
@@ -165,6 +166,7 @@ class Kernel extends ConsoleKernel
         UpdateCronSchedule::class,
         RunErpEvents::class,
         ParseLog::class,
+        SkuErrorCount::class,
         VisitorLogs::class,
     ];
 
@@ -282,6 +284,8 @@ class Kernel extends ConsoleKernel
 //        $schedule->command('post:scheduled-media')
 //            ->everyMinute();
 
+        //Getting SKU ERROR LOG
+        $schedule->command('sku-error:log')->hourly();
         // $schedule->command('check:user-logins')->everyFiveMinutes();
         $schedule->command('send:image-interest')->cron('0 07 * * 1,4'); // runs at 7AM Monday and Thursday
 
