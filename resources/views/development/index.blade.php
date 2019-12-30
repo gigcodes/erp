@@ -332,7 +332,7 @@
                                         });
                                     </script>
                                     <div>
-                                        @foreach($task->getMedia('gallery') as $media)
+                                        @foreach($task->getMedia(config('constants.media_tags')) as $media)
                                             <a href="{{ $media->getUrl() }}" target="_new">
                                                 <img style="width: 25px;" src="{{ asset('images/download.png') }}" alt="Download">
                                             </a>
@@ -414,7 +414,7 @@
                                 <td>
                                     {{ $task->task }}
                                     <div>
-                                        @foreach($task->getMedia('gallery') as $media)
+                                        @foreach($task->getMedia(config('constants.media_tags')) as $media)
                                             <a href="{{ $media->getUrl() }}" target="_new">
                                                 <img style="width: 25px;" src="{{ asset('images/download.png') }}" alt="Download">
                                             </a>
@@ -485,7 +485,7 @@
                                 <td>
                                     {{ $task->task }}
                                     <div>
-                                        @foreach($task->getMedia('gallery') as $media)
+                                        @foreach($task->getMedia(config('constants.media_tags')) as $media)
                                             <a href="{{ $media->getUrl() }}" target="_new">
                                                 <img style="width: 25px;" src="{{ asset('images/download.png') }}" alt="Download">
                                             </a>
@@ -588,7 +588,7 @@
                                     @endif
                                 </div>
                             </div>
-                        </div>    
+                        </div>
                         <div class="col-md-12">
                             <div class="col-md-2">
                                 <strong>Remarks:</strong>
@@ -596,10 +596,10 @@
                             <div class="col-md-8">
                                 @if(auth()->user()->isAdmin())
                                      <div class="form-group">
-                                        <textarea cols="45" class="form-control" name="global_remarkes"></textarea>    
+                                        <textarea cols="45" class="form-control" name="global_remarkes"></textarea>
                                     </div>
                                 @endif
-                            </div>    
+                            </div>
                         </div>
                     </div>
                     <div class="row">
@@ -614,7 +614,7 @@
                                     <th width="2%">Action</th>
                                 </tr>
                                 <tbody class="show_task_priority">
-                                    
+
                                 </tbody>
                             </table>
                         </div>
@@ -642,14 +642,14 @@
         $(document).ready(function () {
             $('.select2').select2();
         });
-        
+
 
         function getPriorityTaskList(id) {
             var selected_issue = [0];
 
             $('input[name ="selected_issue[]"]').each(function(){
                 if ($(this).prop("checked") == true) {
-                    selected_issue.push($(this).val());                    
+                    selected_issue.push($(this).val());
                 }
             });
 

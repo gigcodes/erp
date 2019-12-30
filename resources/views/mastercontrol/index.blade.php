@@ -227,6 +227,19 @@
                 <td colspan="7" class="sub-table"><p></p>
                 </td>
               </tr>
+               <tr>
+                <td>Excel Scrapping</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table"><p></p>
+                </td>
+              </tr>
            </tbody>
         </table>
     </div>
