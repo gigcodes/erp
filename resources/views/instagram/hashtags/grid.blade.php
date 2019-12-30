@@ -222,40 +222,45 @@
             $('#name').val(hashtag);
         });
 
-        $('.comment-it').keyup(function(event) {
-            if (event.keyCode == 13) {
-                let message = $(this).val();
+        $('.comment-it').click(function() {
+            
                 let id = $(this).attr('data-id');
+                let message = $('#textbox_'+id).val();
+                let textbox = $('#textbox_'+id);
                 let accountId = $('#account_id_'+id).val();
                 let narrative = $('#narrative_'+id).val();
                 let selectedusers = $('#selected_user_'+id).val();
+                if(accountId == 'Select User'){
+                    alert('Please Select User to Comment');
+                }else{
+                    let self = textbox;
+                    $(self).attr('disabled', true);
+                    
+                    $.ajax({
+                        url: '{{action('HashtagController@commentOnHashtag')}}',
+                        type: 'POST',
+                        data: {
+                            message: message,
+                            account_id: accountId,
+                            id : id,
+                            narrative: narrative,
+                            hashtag: "{{$hashtag->hashtag}}",
+                            _token: '{{ csrf_token() }}'
+                        },beforeSend: function() {
+                           $("#loading-image").show();
+                        },
+                        success: function() {
+                            $("#loading-image").hide();
+                            alert('Comment added successfully!');
+                            $(self).removeAttr('disabled');
+                            $(self).val('');
+                        }
+                    });
 
+                }
 
-                let self = this;
-
-                $(this).attr('disabled', true);
-
-                $.ajax({
-                    url: '{{action('HashtagController@commentOnHashtag')}}',
-                    type: 'POST',
-                    data: {
-                        message: message,
-                        account_id: accountId,
-                        id : id,
-                        narrative: narrative,
-                        hashtag: "{{$hashtag->hashtag}}",
-                        _token: '{{ csrf_token() }}'
-                    },beforeSend: function() {
-                       $("#loading-image").show();
-                    },
-                    success: function() {
-                        $("#loading-image").hide();
-                        alert('Comment added successfully!');
-                        $(self).removeAttr('disabled');
-                        $(self).val('');
-                    }
-                });
-            }
+                
+            
         });
 
  
