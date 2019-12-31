@@ -33,12 +33,32 @@ class Product extends Model
      */
     protected $fillable = [
         'sku',
-        'is_barcode_check'
+        'is_barcode_check',
+        'has_mediables'
     ];
     protected $dates = ['deleted_at'];
     protected $appends = [];
     protected $communication = '';
     protected $image_url = '';
+
+    public static function boot()
+    {
+       parent::boot();
+
+       static::saved(function($model)
+       {
+         if ($model->hasMedia(config('constants.attach_image_tag')))  {
+            \DB::table("products")->where("id",$model->id)->update(["has_mediables" => 1]);  
+         }
+       });
+
+       static::created(function($model)
+       {
+         if ($model->hasMedia(config('constants.attach_image_tag')))  {
+            \DB::table("products")->where("id",$model->id)->update(["has_mediables" => 1]);  
+         }
+       });        
+    }
 
     /**
      * Create new or update existing (scraped) product by JSON

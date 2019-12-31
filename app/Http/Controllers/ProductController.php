@@ -1384,7 +1384,8 @@ class ProductController extends Controller
         }
 
         $products = (new Product())->newQuery()->latest();
-
+        $products->where("has_mediables", 1);
+        
         if ($request->brand[ 0 ] != null) {
             $products = $products->whereIn('brand', $request->brand);
         }
@@ -1519,9 +1520,9 @@ class ProductController extends Controller
         }
 
         // if source is attach_media for search then check product has image exist or not
-        $products = $products->join("mediables", function ($query) {
+        /*$products = $products->join("mediables", function ($query) {
             $query->on("mediables.mediable_id", "products.id")->where("mediable_type", 'like', "App%Product");
-        });
+        });*/
 
         if($request->get("unsupported",null) != "") {
 
