@@ -12,7 +12,7 @@ class UpdateChatbotDialogsAddFields extends Migration
      */
     public function up()
     {
-        Schema::table('chatbot_dilaogs', function ($table) {
+        Schema::table('chatbot_dialogs', function ($table) {
             $table->string('metadata')->nullable()->after('match_condition');
             $table->string('previous_sibling')->nullable()->after('metadata');
             $table->string('response_type')->nullable()->after('id');
@@ -26,7 +26,7 @@ class UpdateChatbotDialogsAddFields extends Migration
      */
     public function down()
     {
-        Schema::table('chatbot_dilaogs', function ($table) {
+        Schema::table('chatbot_dialogs', function ($table) {
             $table->dropColumn('metadata');
             $table->dropColumn('previous_sibling');
             $table->dropColumn('response_type');
