@@ -3,7 +3,9 @@
 @section('title', 'Auto Replies - ERP Sololuxury')
 
 @section('styles')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-datetimepicker.min.css">
+    <link href="/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/dialog-node-editor.css">
     <style type="text/css">
         .dis-none {
             display: none;
@@ -292,11 +294,36 @@
     @include('autoreplies.partials.autoreply-modals')
     @include('partials.chat-history')
     @include('autoreplies.partials.group')
+    <div class="modal fade" id="leaf-editor-model" role="dialog">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Editor</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary save-dialog-btn">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <?php include_once(app_path()."/../Modules/ChatBot/Resources/views/dialog/includes/template.php"); ?>
 @endsection
 
 @section('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="/js/bootstrap-toggle.min.js"></script>
+    <script type="text/javascript" src="/js/jsrender.min.js"></script>
+    <script type="text/javascript" src="/js/dialog-build.js"></script>
     <script type="text/javascript">
+        window.buildDialog = {};
+        window.pageLocation = "autoreply";
         $('#sending-datetime, #edit-sending-datetime').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });
@@ -423,7 +450,39 @@
         });
 
         $(document).on("click",".set-autoreply",function() {
-            $.ajax({
+
+            $("#leaf-editor-model").modal("show");
+            
+            var myTmpl = $.templates("#add-dialog-form");
+            var assistantReport = [];
+                assistantReport.push({"response" : $(this).data("a") , "condition_sign" : "" , "condition_value" : "" , "condition" : "","id" : 0});
+            var json = {
+                "create_type": "intents_create",
+                "intent"  : {
+                    "question" : $(this).data("q"),
+                },
+                "assistant_report" : assistantReport,
+                "response" :  $(this).data("a"),
+                "allSuggestedOptions" : JSON.parse('<?php echo json_encode($allSuggestedOptions) ?>')
+            };
+            var html = myTmpl.render({
+                "data": json
+            });
+
+            window.buildDialog = json;
+            
+            $("#leaf-editor-model").find(".modal-body").html(html);
+            $("[data-toggle='toggle']").bootstrapToggle('destroy')
+            $("[data-toggle='toggle']").bootstrapToggle();
+            $(".search-alias").select2({width : "100%"});
+            
+            var eleLeaf = $("#leaf-editor-model");
+            searchForIntent(eleLeaf);
+            searchForDialog(eleLeaf);
+            previousDialog(eleLeaf);
+            parentDialog(eleLeaf);
+
+            /*$.ajax({
                 type: 'POST',
                 url: "autoreply/save-by-question",
                 data: {
@@ -434,7 +493,7 @@
             }).done(function () {
                 toastr['success']('Auto Reply added successfully', 'success');
             }).fail(function (response) {
-            });
+            });*/
         });
 
 
