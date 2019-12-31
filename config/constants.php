@@ -10,6 +10,7 @@ return array(
     'uploads_dir' => '/uploads/',
     'archive__dir' => '/uploads/archives/',
     'media_tags' => ['untagged'],
+    'attach_image_tag' => ['original','gallery'],
     'media_original_tag' => ['original'],
     'media_gallery_tag' => 'gallery',
     'media_barcode_tag' => ['barcode'],
