@@ -59,6 +59,8 @@ use App\Console\Commands\VisitorLogs;
 use App\Console\Commands\MovePlannedTasks;
 use App\Console\Commands\ResetDailyPlanner;
 use App\Console\Commands\SkuErrorCount;
+use App\Console\Commands\ImageBarcodeGenerator;
+use App\Console\Commands\UpdateImageBarcodeGenerator;
 
 //use App\Console\Commands\SaveProductsImages;
 
@@ -168,6 +170,8 @@ class Kernel extends ConsoleKernel
         ParseLog::class,
         SkuErrorCount::class,
         VisitorLogs::class,
+        ImageBarcodeGenerator::class,
+        UpdateImageBarcodeGenerator::class
     ];
 
     /**
@@ -339,6 +343,8 @@ class Kernel extends ConsoleKernel
         // need to run this both cron every minutes
         $schedule->command('cronschedule:update')->everyMinute();
         $schedule->command('erpevents:run')->everyMinute();
+        $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
+        $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
     }
 
     /**

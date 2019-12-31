@@ -130,15 +130,31 @@ class QuestionController extends Controller
             WatsonManager::pushQuestion($groupId);
         } else if (!empty($name)) {
 
-            $chQuestion = ChatbotQuestion::create([
-                "value" => str_replace(" ", "_", preg_replace('/\s+/', ' ', $name))
-            ]);
+            $chQuestion = null;
+            
+            if(is_numeric($name)) {
+                $chQuestion = ChatbotQuestion::where("id", $name)->first();
+            }
+
+            if(!$chQuestion) {
+                $chQuestion = ChatbotQuestion::create([
+                    "value" => str_replace(" ", "_", preg_replace('/\s+/', ' ', $name))
+                ]);
+            }
 
             $groupId = $chQuestion->id;
 
-            ChatbotQuestionExample::create(
-                ["chatbot_question_id" => $chQuestion->id, "question" => preg_replace("/\s+/", " ", $question)]
-            );
+            if(is_string($question)) {
+                ChatbotQuestionExample::create(
+                    ["chatbot_question_id" => $chQuestion->id, "question" => preg_replace("/\s+/", " ", $question)]
+                );
+            }elseif (is_array($question)) {
+                foreach ($question as $key => $qRaw) {
+                    ChatbotQuestionExample::create(
+                        ["chatbot_question_id" => $chQuestion->id, "question" => preg_replace("/\s+/", " ", $qRaw)]
+                    );
+                }
+            }
         }
 
         if ($groupId > 0) {
