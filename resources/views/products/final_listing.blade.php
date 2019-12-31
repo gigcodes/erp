@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
-    <link href="{{ asset('css/jquery.hoverZoom.min.css') }}" rel="stylesheet">
     
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.css">
@@ -71,6 +70,8 @@
         }
         .cropme-container {
             bottom: -43px;
+            margin-left: 35px !important;
+            top: 22px !important;
         }
     </style>
 @endsection
@@ -235,8 +236,8 @@
                                     </div>
                                     <div class="col-md-4" id="col-large-image{{ $product->id }}">
                                         @if ($product->hasMedia(config('constants.media_tags')))
-                                            <div onmouseover="bigImg('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}'); background-size: 300px" id="image{{ $product->id }}">
-                                                <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}" >
+                                            <div onclick="bigImg('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}'); background-size: 300px" id="image{{ $product->id }}">
+                                                <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}" id="image-tag{{ $product->id }}">
                                             </div>
                                             <button onclick="cropImage('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}','{{ $product->id }}')" class="btn btn-secondary">Crop Image</button>
                                             <button onclick="crop('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}','{{ $product->id }}','{{ $gridImage }}')" class="btn btn-secondary">Crop</button>
@@ -774,7 +775,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
-    <script src="{{ asset('js/jquery.hoverZoom.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.js"></script>
    
     <script type="text/javascript">
@@ -1766,24 +1766,32 @@
 
         function bigImg(img) {
             $('#large-image').attr("src", img);
-          //  $('#imageExpand').modal('show');
+            $('#imageExpand').modal('show');
         }
 
         function normalImg(){
-           // $('#imageExpand').modal('hide');
+            $('#imageExpand').modal('hide');
         }
 
         function cropImage(img,id){
-            var example = $('#image'+id).cropme();
+            $('#image-tag'+id).hide();
+            $('#image'+id).removeAttr("style");
+            $('#image'+id).prop("onclick", null).off("click");
+            $('#image'+id).height('336');
+           
+           var example = $('#image'+id).cropme();
             example.cropme('bind', {
                 url: img,
-                zoom: {
-                enable: true,
-                mouseWheel: true,
-                slider: true
-                },
             });
-           
+           example.cropme('reload', {
+              zoom: {
+              min: 0.01,
+              max: 1,
+              enable: true,
+              mouseWheel: true,
+              slider: true,
+            }
+            });
         }
 
         function crop(img,id,gridImage){
@@ -1801,8 +1809,10 @@
                 },
             })
             .done(function() {
-                newurl = img+'?version='+id;
-                html = '<div onmouseover="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+newurl+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'"></div><button onclick="cropImage(\''+url+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+newurl+'\','+id+')" class="btn btn-secondary">Crop</button>';
+                var d = new Date();
+                var n  = d.toLocaleTimeString();
+                newurl = img+'?version='+n;
+                html = '<div onclick="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+newurl+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'" id="image-tag'+id+'"></div><button onclick="cropImage(\''+url+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+newurl+'\','+id+')" class="btn btn-secondary">Crop</button>';
         
                 $('#col-large-image'+id).empty().append(html);
                 alert('Image Cropped and Saved Successfully');
@@ -1814,7 +1824,7 @@
         }
 
         function replaceThumbnail(id,url,gridImage){
-            html = '<div onmouseover="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+url+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'"></div><button onclick="cropImage(\''+url+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+url+'\','+id+')" class="btn btn-secondary">Crop</button>';
+            html = '<div onclick="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+url+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'" id="image-tag'+id+'"></div><button onclick="cropImage(\''+url+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+url+'\','+id+')" class="btn btn-secondary">Crop</button>';
         
         $('#col-large-image'+id).empty().append(html);
            
