@@ -24,13 +24,13 @@
 </div>
 <div class="row">
   @foreach ($products as $kr => $product)
-    @if ($product->hasMedia(config('constants.media_tags')))
+    @if ($product->hasMedia(config('constants.attach_image_tag')))
       @php
-        $image = $product->getMedia(config('constants.media_tags'))->first();
+        $image = $product->getMedia(config('constants.attach_image_tag'))->first();
         $image_keys = [];
         $selected_all = true;
 
-        foreach ($product->getMedia(config('constants.media_tags')) as $img) {
+        foreach ($product->getMedia(config('constants.attach_image_tag')) as $img) {
           $image_keys[] = $img->getKey();
 
           if (!in_array($img->getKey(), $selected_products)) {
