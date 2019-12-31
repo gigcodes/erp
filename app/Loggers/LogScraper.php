@@ -447,9 +447,9 @@ class LogScraper extends Model
         $issue = DeveloperTask::where('reference',$reference)->first();
         if($issue != null && $issue != ''){
             if($issue->status == 'Done'){
-                return 'Issue Resolved';
+                return '<p>Issue Resolved</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$issue->id.'" title="Load messages"><img src="/images/chat.png" alt=""></button>';
             }else{
-                return 'Issue Raised';
+                return '<p>Issue Pending</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$issue->id.'" title="Load messages"><img src="/images/chat.png" alt=""></button>';
             }
         }else{
             return false;
@@ -470,5 +470,12 @@ class LogScraper extends Model
         }else{
             return false;
          }
+    }
+
+    public function getFailedCount($supplier,$brand){
+        
+        $count = LogScraper::where('brand',$brand)->where('website',$supplier)->where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
+        return $count;
+        
     }
 }
