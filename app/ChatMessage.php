@@ -7,8 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class ChatMessage extends Model
 {
+    // this is guessing status since it is not declared anywhere so
     CONST MESSAGE_STATUS = [
-        "11" =>  "Watson Reply"
+        "11" =>  "Watson Reply",
+        "5"  =>  "Read",
+        "0"  =>  "Unread"
+    ];
+
+    // auto reply including chatbot as well
+    CONST AUTO_REPLY_CHAT  = [
+        7,8,9,10,11
     ];
 
     use Mediable;
@@ -164,5 +172,14 @@ class ChatMessage extends Model
 
         // Return true or false
         return $count > 0 ? true : false;
+    }
+
+    public static function updatedUnreadMessage($customerId, $status = 0)
+    {
+        // if reply is not auto reply or the suggested reply from chat then only update status
+        if(!empty($status) && !in_array($status, self::AUTO_REPLY_CHAT)) {
+            self::where('customer_id', $customerId)->where("status", 0)->update(['status' => 5]);
+        }
+
     }
 }
