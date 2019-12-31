@@ -794,10 +794,6 @@
             })
         });
 
-        $(document).ready(function(){
-                $('.thumb').hoverZoom({speedView:600, speedRemove:400, showCaption:true, speedCaption:600, debug:true, hoverIntent: true, loadingIndicatorPos: 'center', useBgImg : true});
-        });        
-
         $(document).on('change', '.category_level_2', function () {
             var this_ = $(this);
             var category_id = $(this).val();
@@ -1812,7 +1808,7 @@
                 var d = new Date();
                 var n  = d.toLocaleTimeString();
                 newurl = img+'?version='+n;
-                html = '<div onclick="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+newurl+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'" id="image-tag'+id+'"></div><button onclick="cropImage(\''+url+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+newurl+'\','+id+')" class="btn btn-secondary">Crop</button>';
+                html = '<div onclick="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+newurl+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'" id="image-tag'+id+'"></div><button onclick="cropImage(\''+img+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+img+'\','+id+',\''+gridImage+'\')" class="btn btn-secondary">Crop</button>';
         
                 $('#col-large-image'+id).empty().append(html);
                 alert('Image Cropped and Saved Successfully');
@@ -1824,7 +1820,7 @@
         }
 
         function replaceThumbnail(id,url,gridImage){
-            html = '<div onclick="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+url+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'" id="image-tag'+id+'"></div><button onclick="cropImage(\''+url+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+url+'\','+id+')" class="btn btn-secondary">Crop</button>';
+            html = '<div onclick="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+url+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'" id="image-tag'+id+'"></div><button onclick="cropImage(\''+url+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+url+'\','+id+',\''+gridImage+'\')" class="btn btn-secondary">Crop</button>';
         
         $('#col-large-image'+id).empty().append(html);
            
