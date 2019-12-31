@@ -50,4 +50,12 @@ class ChatbotDialog extends Model
         return $this->hasMany("App\ChatbotDialog", "parent_id", "id");
     }
 
+    public static function allSuggestedOptions()
+    {
+        $question = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+        $keywords = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck("keyword", "keyword")->toArray();
+
+        return $question + $keywords;
+    }
+
 }

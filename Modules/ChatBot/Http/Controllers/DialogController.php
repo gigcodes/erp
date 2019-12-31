@@ -42,11 +42,7 @@ class DialogController extends Controller
         }
         }
         }*/
-
-        $question = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
-        $keywords = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck("keyword", "keyword")->toArray();
-
-        $allSuggestedOptions = $keywords + $question;
+        $allSuggestedOptions = ChatbotDialog::allSuggestedOptions();
 
         /*$watson = new DialogService(
         "apiKey",
@@ -157,9 +153,12 @@ class DialogController extends Controller
 
     public function saveAjax(Request $request)
     {
-        $params         = $request->all();
-        $params["name"] = str_replace(" ", "_", $params["title"]);
-        $responseType   = $request->get("response_type", false);
+        $params          = $request->all();
+        $params["name"]  = str_replace(" ", "_", $params["title"]);
+        $responseType    = $request->get("response_type", false);
+        $previousSibling = $request->get("previous_sibling",false);
+        $parentId = $request->get("parent_id",0);
+        
 
         $matchCondition = implode(" ", $request->get("conditions"));
 
@@ -175,6 +174,11 @@ class DialogController extends Controller
 
         $chatbotDialog = ChatbotDialog::find($id);
         if (empty($chatbotDialog)) {
+
+            if(empty($previousSibling)) {
+                response()->json(["code" => 500, "message" => "Please selected previous sibling dialog"]);
+            }
+
             $chatbotDialog = new ChatbotDialog;
         } else {
             // delete old values and send new again start
@@ -197,6 +201,9 @@ class DialogController extends Controller
         $chatbotDialog->name            = $params["name"];
         $chatbotDialog->title           = $params["title"];
         $chatbotDialog->match_condition = $matchCondition;
+        if($parentId > 0) {
+            $chatbotDialog->parent_id = $parentId;
+        }
         $chatbotDialog->save();
 
         if (!empty($multipleResponse) && is_array($multipleResponse) && $responseType == "response_condition") {
@@ -254,7 +261,22 @@ class DialogController extends Controller
 
         }
 
-        WatsonManager::newPushDialog($chatbotDialog->id);
+        if(!empty($previousSibling)) {
+            // find the previous sibling and updatewith new
+            $current = ChatbotDialog::where("previous_sibling",$previousSibling)->first();
+            if($current) {
+                $current->previous_sibling = $chatbotDialog->id;
+                $current->save();
+                WatsonManager::newPushDialog($current->id);
+            }
+            $chatbotDialog->previous_sibling = $previousSibling;
+            $chatbotDialog->save();
+            WatsonManager::newPushDialog($chatbotDialog->id);
+
+        }else {
+            WatsonManager::newPushDialog($chatbotDialog->id);
+        }
+
 
         return response()->json(["code" => 200, "redirect" => route("chatbot.dialog.list")]);
 
@@ -269,6 +291,11 @@ class DialogController extends Controller
         $details["allSuggestedOptions"] = $keywords + $question;
 
         if (!empty($dialog)) {
+
+            $details["dialog"][] = [
+                "id" => $dialog->id,
+                "name" => $dialog->name
+            ];
 
             $details["id"]                 = $dialog->id;
             $details["parent_id"]          = $dialog->parent_id;
@@ -439,5 +466,27 @@ class DialogController extends Controller
         }
 
         return response()->json(["code" => 500]);
+    }
+
+    public function search(Request $request)
+    {
+        $keyword   = request("term","");
+        $parentId  = request("parent_id", 0);
+
+        $allDialog = ChatbotDialog::where("name","like","%".$keyword."%");
+        if($parentId > 0) {
+            $allDialog->where("parent_id",$parentId);
+        }
+        $allDialog = $allDialog->limit(10)->get();
+
+        $allDialogList = [];
+        if(!$allDialog->isEmpty()) {
+            foreach($allDialog as $all) {
+                $allDialogList[] = ["id" => $all->id , "text" => $all->name]; 
+            }
+        }
+
+        return response()->json(["incomplete_results" => false, "items"=> $allDialogList, "total_count" => count($allDialogList)]);
+
     }
 }

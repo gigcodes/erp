@@ -112,132 +112,275 @@
 	</div>
 </script>
 
+<script id="edit-dialog-form-section" type="text/x-jsrender">
+	<div class="form-row">
+	    <input type="hidden" name="id" value="{{:data.id}}"/>
+		<input type="hidden" id="parent_id_form" name="parent_id" value="{{:data.parent_id}}"/>		
+	</div>
+	<hr>
+		<h4>If assistant recognizes</h4>
+	<hr>
+	<div class="form-row">
+	    <div class="form-group col-md-3">
+	      <select class="form-control search-alias" name="conditions[]">
+			{{props data.allSuggestedOptions ~first_condition = data.first_condition}}
+	      		<option {{if ~first_condition == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
+	      	{{/props}}
+	      </select>
+	    </div>
+	  	<div class="form-group col-md-3">
+		  	<a href="javascript:;" class="btn btn-secondary btn-sm add-more-condition-btn">
+	          <span class="glyphicon glyphicon-plus"></span> 
+	        </a>	
+	  	</div>
+	</div>
+	<div class="show-more-conditions">
+		{{props data.extra_condition ~allSuggestedOptions=data.allSuggestedOptions}}
+			<div class="form-row">
+				<div class="form-group col-md-3">
+			      <select name="conditions[]" class="form-control">
+			      	<option {{if prop[0] == "&&"}} selected {{/if}} value="&&">AND</option>
+			      	<option {{if prop[0] == "||"}} selected {{/if}} value="||">OR</option>
+			      </select>
+			  	</div>
+			  	<div class="form-group col-md-3">
+			      <select class="form-control search-alias" name="conditions[]">
+					{{props ~allSuggestedOptions ~selectedValue=prop[1]}}
+			      		<option {{if ~selectedValue == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
+			      	{{/props}}
+			      </select>
+			  	</div>
+			  	<div class="form-group col-md-3">
+				  	<a href="javascript:;" class="btn btn-secondary btn-sm add-more-condition-btn">
+			          <span class="glyphicon glyphicon-plus"></span> 
+			        </a>
+			        <a href="javascript:;" class="btn btn-secondary btn-sm remove-more-condition-btn">
+			          <span class="glyphicon glyphicon-minus"></span> 
+			        </a>	
+			  	</div>
+			</div>
+		{{/props}}
+	</div>	
+	<hr>
+		<h4>Assistant responds</h4>
+	<hr>
+	<div class="form-row">
+		<div class="col-md-9">
+	  		<input type="checkbox" name="response_type" value="response_condition" {{if data.response_condition}} checked {{/if}} class="multiple-conditioned-response" data-toggle="toggle">
+	  		<small class="form-text text-muted">Multiple conditioned responses</small>
+	  	</div>
+	</div>
+	<div class="assistant-response-based">
+		{{if data.assistant_report && data.assistant_report.length}}
+			{{props data.assistant_report ~allSuggestedOptions = data.allSuggestedOptions}}
+				<div class="form-row">
+					{{if prop.condition != ''}}
+						<div class="form-group col-md-3">
+					      <select class="form-control search-alias" name="response_condition[{{:prop.id}}][condition]">
+							{{props ~allSuggestedOptions ~selectedValue=prop.condition }}
+					      		<option {{if ~selectedValue == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
+					      	{{/props}}
+					      </select>
+					      <small id="emailHelp_{{>key}}" class="form-text text-muted">IF ASSISTANT RECOGNIZES</small>
+					  	</div>
+				  	{{/if}}
+				  	<div class="form-group col-md-3 extra_condtions {{if prop.condition_sign == ''}} dis-none {{/if}}">
+				      <select class="form-control" name="response_condition[{{:prop.id}}][condition_sign]">
+						 <option value="">Any</option>
+						 <option {{if prop.condition_sign == ':'}} selected {{/if}} value=":">Is</option>
+						 <option {{if prop.condition_sign == '!='}} selected {{/if}} value="!=">Is Not</option>
+						 <option {{if prop.condition_sign == '>'}} selected {{/if}} value=">">Greater than</option>
+						 <option {{if prop.condition_sign == '<'}} selected {{/if}} value="<">Less than</option>
+				      </select>
+				  	</div>
+				  	<div class="form-group col-md-6 extra_condtions {{if prop.condition_value == ''}} dis-none {{/if}}">
+				     	<input class="form-control" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
+				  	</div>
+				  	<div class="form-group col-md-9">
+				      	<input class="form-control" id="value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
+				  	</div>
+				  	<div class="form-group col-md-3">
+				  		<button type="button" data-id="{{:prop.id}}" class="btn btn-image btn-delete-mul-response"><img src="/images/delete.png"></button>
+				  		<button type="button" class="btn btn-image btn-add-mul-response"><img src="/images/add.png"></button>
+				  	</div>	
+				</div>
+			{{/props}}
+		{{else}}
+			<div class="form-row">
+				<div class="form-group col-md-9">
+			      <input class="form-control" placeholder="Enter a response" name="response_condition[0][value]" type="text">
+			    </div>
+			</div>
+		{{/if}}
+	</div>
+	{{if data.create_type == "intents_create"}}
+		<hr>
+			<h4>Dialog Location</h4>
+		<hr>
+		<div class="form-row">
+		    <div class="form-group col-md-9">
+		      <select class="form-control parent-dialog-node" id="parent_dialog" placeholder="Enter your Parent dialog" name="parent_id"> </select>					    
+		  	</div>
+		</div>
+		<div class="form-row">
+		    <div class="form-group col-md-9">
+		      <select class="form-control previous-dialog-node" id="previous_sibling" placeholder="Enter your Previous node" name="previous_sibling"> </select>					    
+		  	</div>
+		</div>
+	{{/if}}
+</script>
+<script id="search-alias-template" type="text/x-jsrender">
+	{{props allSuggestedOptions}}
+  		<option value="{{:prop}}">{{:prop}}</option>
+  	{{/props}}
+</script>	
+
 <script id="add-dialog-form" type="text/x-jsrender">
 	<form action="<?php echo route('chatbot.dialog.saveajax'); ?>" method="post" id="dialog-save-response-form">
-		<input type="hidden" name="id" value="{{:data.id}}"/>
-		<input type="hidden" id="parent_id_form" name="parent_id" value="{{:data.parent_id}}"/>
 		<?php echo csrf_field(); ?>
 
 		{{if data.create_type == "intents_create"}}
 			<hr>
-				<h4>Intent Section : <small>Some Pharases name</small></h4>
+				<h4>Intent Section : <small>{{if data.intent.question}} {{:data.intent.question}} {{/if}}</small></h4>
 			<hr>
+			<div class="form-row">
+		    	<div class="form-group col-md-9">
+			      	<input class="form-control question-insert" name="intent[question]" value="{{if data.intent.question}} {{:data.intent.question}} {{/if}}" placeholder="Insert your question"></select>
+			    </div>
+			</div>
 			<div class="form-row">
 		    	<div class="form-group col-md-9">
 			      	<select class="form-control search-intent" name="intent[name]" placeholder="Select Intent"></select>
 			    </div>
 			</div>
-			<hr>
-				<h4>Keyword Section : <small>Some Keyword name</small></h4>
-			<hr>
-			<div class="row">
-				<div class="col">
-			      <input type="text" name="keyword[name]" class="form-control" placeholder="Enter Keyword Name">
-			    </div>
-			</div>
 		{{/if}}
 		<hr>
-			<h4>Dialog Section : <small>Some Keyword name</small></h4>
+			<h4>Dialog Section : </h4>
 		<hr>
 		<div class="form-row">
 		    <div class="form-group col-md-9">
-		      <input class="form-control" name="title" id="keyword_search" placeholder="Enter your keyword" name="keyword" type="text" value="{{:data.name}}">					    
+		      <select class="form-control search-dialog" name="title" id="keyword_search" placeholder="Enter your keyword" name="keyword" value="{{:data.name}}">
+		      	{{props data.dialog}}
+		      		<option value="{{:prop.name}}" selected>{{:prop.name}}</option>
+		      	{{/props}}
+		      </select>					    
 		      <small class="form-text text-muted">Node name will be shown to customers for disambiguation so use something descriptive</small>
 		  	</div>
-		  	<div class="col-md-3">
-		  		<input type="checkbox" name="response_type" value="response_condition" {{if data.response_condition}} checked {{/if}} class="multiple-conditioned-response" data-toggle="toggle">
-		  		<small class="form-text text-muted">Multiple conditioned responses</small>
-		  	</div>		
 		</div>
-		<hr>
-			<h4>If assistant recognizes</h4>
-		<hr>
-		<div class="form-row">
-		    <div class="form-group col-md-3">
-		      <select class="form-control search-alias" name="conditions[]">
-				{{props data.allSuggestedOptions ~first_condition = data.first_condition}}
-		      		<option {{if ~first_condition == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
-		      	{{/props}}
-		      </select>
-		    </div>
-		  	<div class="form-group col-md-3">
-			  	<a href="javascript:;" class="btn btn-secondary btn-sm add-more-condition-btn">
-		          <span class="glyphicon glyphicon-plus"></span> 
-		        </a>	
-		  	</div>
-		</div>
-		<div class="show-more-conditions">
-			{{props data.extra_condition ~allSuggestedOptions=data.allSuggestedOptions}}
-				<div class="form-row">
-					<div class="form-group col-md-3">
-				      <select name="conditions[]" class="form-control">
-				      	<option {{if prop[0] == "&&"}} selected {{/if}} value="&&">AND</option>
-				      	<option {{if prop[0] == "||"}} selected {{/if}} value="||">OR</option>
-				      </select>
-				  	</div>
-				  	<div class="form-group col-md-3">
-				      <select class="form-control search-alias" name="conditions[]">
-						{{props ~allSuggestedOptions ~selectedValue=prop[1]}}
-				      		<option {{if ~selectedValue == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
-				      	{{/props}}
-				      </select>
-				  	</div>
-				  	<div class="form-group col-md-3">
-					  	<a href="javascript:;" class="btn btn-secondary btn-sm add-more-condition-btn">
-				          <span class="glyphicon glyphicon-plus"></span> 
-				        </a>
-				        <a href="javascript:;" class="btn btn-secondary btn-sm remove-more-condition-btn">
-				          <span class="glyphicon glyphicon-minus"></span> 
-				        </a>	
-				  	</div>
-				</div>
-			{{/props}}
-		</div>	
-		<hr>
-			<h4>Assistant responds</h4>
-		<hr>
-		<div class="assistant-response-based">
-			{{if data.assistant_report && data.assistant_report.length}}
-				{{props data.assistant_report ~allSuggestedOptions = data.allSuggestedOptions}}
+		<div class="dialog-editor-section">
+			<input type="hidden" name="id" value="{{:data.id}}"/>
+			<input type="hidden" id="parent_id_form" name="parent_id" value="{{:data.parent_id}}"/>
+			<hr>
+				<h4>If assistant recognizes</h4>
+			<hr>
+			<div class="form-row">
+			    <div class="form-group col-md-3">
+			      <select class="form-control search-alias" name="conditions[]">
+					{{props data.allSuggestedOptions ~first_condition = data.first_condition}}
+			      		<option {{if ~first_condition == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
+			      	{{/props}}
+			      </select>
+			    </div>
+			  	<div class="form-group col-md-3">
+				  	<a href="javascript:;" class="btn btn-secondary btn-sm add-more-condition-btn">
+			          <span class="glyphicon glyphicon-plus"></span> 
+			        </a>	
+			  	</div>
+			</div>
+			<div class="show-more-conditions">
+				{{props data.extra_condition ~allSuggestedOptions=data.allSuggestedOptions}}
 					<div class="form-row">
-						{{if prop.condition != ''}}
-							<div class="form-group col-md-3">
-						      <select class="form-control search-alias" name="response_condition[{{:prop.id}}][condition]">
-								{{props ~allSuggestedOptions ~selectedValue=prop.condition }}
-						      		<option {{if ~selectedValue == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
-						      	{{/props}}
-						      </select>
-						      <small id="emailHelp_{{>key}}" class="form-text text-muted">IF ASSISTANT RECOGNIZES</small>
-						  	</div>
-					  	{{/if}}
-					  	<div class="form-group col-md-3 extra_condtions {{if prop.condition_sign == ''}} dis-none {{/if}}">
-					      <select class="form-control" name="response_condition[{{:prop.id}}][condition_sign]">
-							 <option value="">Any</option>
-							 <option {{if prop.condition_sign == ':'}} selected {{/if}} value=":">Is</option>
-							 <option {{if prop.condition_sign == '!='}} selected {{/if}} value="!=">Is Not</option>
-							 <option {{if prop.condition_sign == '>'}} selected {{/if}} value=">">Greater than</option>
-							 <option {{if prop.condition_sign == '<'}} selected {{/if}} value="<">Less than</option>
+						<div class="form-group col-md-3">
+					      <select name="conditions[]" class="form-control">
+					      	<option {{if prop[0] == "&&"}} selected {{/if}} value="&&">AND</option>
+					      	<option {{if prop[0] == "||"}} selected {{/if}} value="||">OR</option>
 					      </select>
 					  	</div>
-					  	<div class="form-group col-md-6 extra_condtions {{if prop.condition_value == ''}} dis-none {{/if}}">
-					     	<input class="form-control" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
-					  	</div>
-					  	<div class="form-group col-md-9">
-					      	<input class="form-control" id="value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
+					  	<div class="form-group col-md-3">
+					      <select class="form-control search-alias" name="conditions[]">
+							{{props ~allSuggestedOptions ~selectedValue=prop[1]}}
+					      		<option {{if ~selectedValue == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
+					      	{{/props}}
+					      </select>
 					  	</div>
 					  	<div class="form-group col-md-3">
-					  		<button type="button" data-id="{{:prop.id}}" class="btn btn-image btn-delete-mul-response"><img src="/images/delete.png"></button>
-					  		<button type="button" class="btn btn-image btn-add-mul-response"><img src="/images/add.png"></button>
-					  	</div>	
+						  	<a href="javascript:;" class="btn btn-secondary btn-sm add-more-condition-btn">
+					          <span class="glyphicon glyphicon-plus"></span> 
+					        </a>
+					        <a href="javascript:;" class="btn btn-secondary btn-sm remove-more-condition-btn">
+					          <span class="glyphicon glyphicon-minus"></span> 
+					        </a>	
+					  	</div>
 					</div>
 				{{/props}}
-			{{else}}
+			</div>	
+			<hr>
+				<h4>Assistant responds</h4>
+			<hr>
+			<div class="form-row">
+				<div class="col-md-9">
+			  		<input type="checkbox" name="response_type" value="response_condition" {{if data.response_condition}} checked {{/if}} class="multiple-conditioned-response" data-toggle="toggle">
+			  		<small class="form-text text-muted">Multiple conditioned responses</small>
+			  	</div>
+			</div>	
+			<div class="assistant-response-based">
+				{{if data.assistant_report && data.assistant_report.length}}
+					{{props data.assistant_report ~allSuggestedOptions = data.allSuggestedOptions}}
+						<div class="form-row">
+							{{if prop.condition != ''}}
+								<div class="form-group col-md-3">
+							      <select class="form-control search-alias" name="response_condition[{{:prop.id}}][condition]">
+									{{props ~allSuggestedOptions ~selectedValue=prop.condition }}
+							      		<option {{if ~selectedValue == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
+							      	{{/props}}
+							      </select>
+							      <small id="emailHelp_{{>key}}" class="form-text text-muted">IF ASSISTANT RECOGNIZES</small>
+							  	</div>
+						  	{{/if}}
+						  	<div class="form-group col-md-3 extra_condtions {{if prop.condition_sign == ''}} dis-none {{/if}}">
+						      <select class="form-control" name="response_condition[{{:prop.id}}][condition_sign]">
+								 <option value="">Any</option>
+								 <option {{if prop.condition_sign == ':'}} selected {{/if}} value=":">Is</option>
+								 <option {{if prop.condition_sign == '!='}} selected {{/if}} value="!=">Is Not</option>
+								 <option {{if prop.condition_sign == '>'}} selected {{/if}} value=">">Greater than</option>
+								 <option {{if prop.condition_sign == '<'}} selected {{/if}} value="<">Less than</option>
+						      </select>
+						  	</div>
+						  	<div class="form-group col-md-6 extra_condtions {{if prop.condition_value == ''}} dis-none {{/if}}">
+						     	<input class="form-control" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
+						  	</div>
+						  	<div class="form-group col-md-9">
+						      	<input class="form-control" id="value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
+						  	</div>
+						  	<div class="form-group col-md-3">
+						  		<button type="button" data-id="{{:prop.id}}" class="btn btn-image btn-delete-mul-response"><img src="/images/delete.png"></button>
+						  		<button type="button" class="btn btn-image btn-add-mul-response"><img src="/images/add.png"></button>
+						  	</div>	
+						</div>
+					{{/props}}
+				{{else}}
+					<div class="form-row">
+						<div class="form-group col-md-9">
+					      <input class="form-control" placeholder="Enter a response" name="response_condition[0][value]" type="text">
+					    </div>
+					</div>
+				{{/if}}
+			</div>
+			{{if data.create_type == "intents_create"}}
+				<hr>
+					<h4>Dialog Location</h4>
+				<hr>
 				<div class="form-row">
-					<div class="form-group col-md-9">
-				      <input class="form-control" placeholder="Enter a response" name="response_condition[0][value]" type="text">
-				    </div>
+				    <div class="form-group col-md-9">
+				      <select class="form-control parent-dialog-node" id="parent_dialog" placeholder="Enter your Parent dialog" name="parent_id"> </select>					    
+				  	</div>
+				</div>
+				<div class="form-row">
+				    <div class="form-group col-md-9">
+				      <select class="form-control previous-dialog-node" id="previous_sibling" placeholder="Enter your Previous node" name="previous_sibling"> </select>					    
+				  	</div>
 				</div>
 			{{/if}}
-		</div>	
+		</div>		
 	</form>
 </script>
