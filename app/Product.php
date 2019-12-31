@@ -47,16 +47,20 @@ class Product extends Model
 
        static::saved(function($model)
        {
+         $flag = 0;
          if ($model->hasMedia(config('constants.attach_image_tag')))  {
-            \DB::table("products")->where("id",$model->id)->update(["has_mediables" => 1]);  
+            $flag = 1;
          }
+         \DB::table("products")->where("id",$model->id)->update(["has_mediables" => $flag]);  
        });
 
        static::created(function($model)
        {
+         $flag = 0;
          if ($model->hasMedia(config('constants.attach_image_tag')))  {
-            \DB::table("products")->where("id",$model->id)->update(["has_mediables" => 1]);  
+            $flag = 1;
          }
+         \DB::table("products")->where("id",$model->id)->update(["has_mediables" => $flag]); 
        });        
     }
 
