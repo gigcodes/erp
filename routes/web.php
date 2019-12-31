@@ -13,7 +13,7 @@
 
 Auth::routes();
 
-Route::get('/test/test', 'LiveChatController@sendImage');
+Route::get('/test/test', 'TextController@index');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 
