@@ -1525,15 +1525,19 @@ class ProductController extends Controller
         });*/
 
         if($request->get("unsupported",null) != "") {
+            
+            $products = $products->join("mediables", function ($query) {
+                $query->on("mediables.mediable_id", "products.id")->where("mediable_type", 'like', "App%Product");
+            });
 
             $mediaIds = \DB::table("media")->where("aggregate_type","image")->join("mediables", function ($query) {
                 $query->on("mediables.media_id", "media.id")->where("mediables.mediable_type", 'like', "App%Product");
             })->whereNotIn("extension",config("constants.gd_supported_files"))->select("id")->pluck("id")->toArray();
 
             $products = $products->whereIn("mediables.media_id",$mediaIds);
+            $products = $products->groupBy('products.id');
         }
 
-        $products = $products->groupBy('products.id');
 
         if (!empty($request->quick_sell_groups) && is_array($request->quick_sell_groups)) {
             $products = $products->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (".implode(",", $request->quick_sell_groups).") ))");
