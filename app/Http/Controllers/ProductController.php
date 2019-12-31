@@ -1350,6 +1350,7 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
+        //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
         $term = $request->input('term');
         $perPageLimit = $request->get("per_page");
@@ -1384,7 +1385,8 @@ class ProductController extends Controller
         }
 
         $products = (new Product())->newQuery()->latest();
-
+        $products->where("has_mediables", 1);
+        
         if ($request->brand[ 0 ] != null) {
             $products = $products->whereIn('brand', $request->brand);
         }
@@ -1515,24 +1517,24 @@ class ProductController extends Controller
 
         // assing product to varaible so can use as per condition for join table media
         if ($request->quick_product !== 'true') {
-            $products = $products->whereRaw("(stock > 0 OR (supplier LIKE '%In-Stock%'))");
+            $products = $products->whereRaw("(stock > 0 OR (supplier ='In-Stock'))");
         }
 
         // if source is attach_media for search then check product has image exist or not
-        $products = $products->join("mediables", function ($query) {
-            $query->on("mediables.mediable_id", "products.id")->where("mediable_type", 'like', "App%Product");
-        });
-
         if($request->get("unsupported",null) != "") {
+            
+            $products = $products->join("mediables", function ($query) {
+                $query->on("mediables.mediable_id", "products.id")->where("mediable_type", \App\Product::class);
+            });
 
             $mediaIds = \DB::table("media")->where("aggregate_type","image")->join("mediables", function ($query) {
-                $query->on("mediables.media_id", "media.id")->where("mediables.mediable_type", 'like', "App%Product");
+                $query->on("mediables.media_id", "media.id")->where("mediables.mediable_type", \App\Product::class);
             })->whereNotIn("extension",config("constants.gd_supported_files"))->select("id")->pluck("id")->toArray();
 
             $products = $products->whereIn("mediables.media_id",$mediaIds);
+            $products = $products->groupBy('products.id');
         }
 
-        $products = $products->groupBy('products.id');
 
         if (!empty($request->quick_sell_groups) && is_array($request->quick_sell_groups)) {
             $products = $products->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (".implode(",", $request->quick_sell_groups).") ))");
@@ -1545,13 +1547,13 @@ class ProductController extends Controller
             $products = $products->where('is_on_sale', 1);
         }
 
-        $products_count = $products->get()->count();
 
         if($request->has("limit")) {
-            $perPageLimit = ($request->get("limit") == "all") ? $products_count : $request->get("limit");
+            $perPageLimit = ($request->get("limit") == "all") ? $products->get()->count() : $request->get("limit");
         }
 
         $products = $products->paginate($perPageLimit);
+        $products_count = $products->total();
         $all_product_ids = [];
         if ($request->ajax()) {
             $html = view('partials.image-load', [
@@ -1576,6 +1578,7 @@ class ProductController extends Controller
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
+        //\Log::info(print_r(\DB::getQueryLog(),true));
 
         return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category',  'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
     }
