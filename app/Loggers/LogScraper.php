@@ -307,6 +307,7 @@ class LogScraper extends Model
 
     public static function validateRegexSku($sku, $brand)
     {
+        $skuNew = ProductHelper::getSku($sku);
         // Do we have a brand?
         if ($brand != null) {
             // Find brand ID from brand
@@ -321,12 +322,12 @@ class LogScraper extends Model
                 if (!empty($skuFormat->sku_format)) {
                     try {
                         // Run brand regex on sku
-                        preg_match('/' . $skuFormat->sku_format . '/', $sku, $matches, PREG_UNMATCHED_AS_NULL);
+                        preg_match('/' . $skuFormat->sku_format . '/', $skuNew, $matches, PREG_UNMATCHED_AS_NULL);
 
                         // Do we have a match
                         if (isset($matches) && isset($matches[ 0 ]) && $matches != null) {
                             // Is the match equal to the SKU
-                            if ($matches[ 0 ] == $sku) {
+                            if ($matches[ 0 ] == $skuNew) {
                                 // Return if we have a match
                                 return;
                             }
@@ -340,12 +341,12 @@ class LogScraper extends Model
                 if (!empty($skuFormat->sku_format_without_color)) {
                     try {
                         // Run brand regex on sku
-                        preg_match('/' . $skuFormat->sku_format_without_color . '/', $sku, $matchesWithoutColor, PREG_UNMATCHED_AS_NULL);
+                        preg_match('/' . $skuFormat->sku_format_without_color . '/', $skuNew, $matchesWithoutColor, PREG_UNMATCHED_AS_NULL);
 
                         // Do we have a match
                         if (isset($matchesWithoutColor) && isset($matchesWithoutColor[ 0 ]) && $matchesWithoutColor != null) {
                             // Is the match equal to the SKU
-                            if ($matchesWithoutColor[ 0 ] == $sku) {
+                            if ($matchesWithoutColor[ 0 ] == $skuNew) {
                                 // Return if we have a match
                                 return;
                             }
