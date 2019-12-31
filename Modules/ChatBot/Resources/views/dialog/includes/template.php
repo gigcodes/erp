@@ -120,14 +120,25 @@
 
 		{{if data.create_type == "intents_create"}}
 			<hr>
-				<h4>Intent Section</h4>
+				<h4>Intent Section : <small>Some Pharases name</small></h4>
 			<hr>
-
+			<div class="form-row">
+		    	<div class="form-group col-md-9">
+			      	<select class="form-control search-intent" name="intent[name]" placeholder="Select Intent"></select>
+			    </div>
+			</div>
 			<hr>
-				<h4>Keyword Section</h4>
+				<h4>Keyword Section : <small>Some Keyword name</small></h4>
 			<hr>
-			
+			<div class="row">
+				<div class="col">
+			      <input type="text" name="keyword[name]" class="form-control" placeholder="Enter Keyword Name">
+			    </div>
+			</div>
 		{{/if}}
+		<hr>
+			<h4>Dialog Section : <small>Some Keyword name</small></h4>
+		<hr>
 		<div class="form-row">
 		    <div class="form-group col-md-9">
 		      <input class="form-control" name="title" id="keyword_search" placeholder="Enter your keyword" name="keyword" type="text" value="{{:data.name}}">					    

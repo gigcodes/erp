@@ -40,7 +40,7 @@
 	 </div>
 </div>
 
-<div class="modal fade" id="leaf-editor-model" tabindex="-1" role="dialog">
+<div class="modal fade" id="leaf-editor-model" role="dialog">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -65,8 +65,73 @@
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript">
 
+	// this is all method used for all place 
+
 	var dialogBoxData = "";
 	var allSuggestedOptions = "";
+
+	var searchForIntent =  function(ele) {
+		var intentBox = ele.find(".search-intent");
+		if(intentBox.length > 0) {
+			intentBox.select2({
+				placeholder:"Enter intent name or create new one",
+				width:"100%", 
+				tags : true,
+		        allowClear: true,
+		        ajax: {
+		            url: '/chatbot/question/search',
+		            dataType: 'json',
+		            processResults: function (data) {
+		              return {
+		                results: data.items
+		              };
+		            }
+		        }
+			});
+		}
+	};
+
+	var searchForKeyword =  function(ele) {
+		var keywordBox = ele.find(".search-keyword");
+		if(keywordBox.length > 0) {
+			keywordBox.select2({
+				placeholder:"Enter keyword name or create new one",
+				width:"100%", 
+				tags : true,
+		        allowClear: true,
+		        ajax: {
+		            url: '/chatbot/keyword/search',
+		            dataType: 'json',
+		            processResults: function (data) {
+		              return {
+		                results: data.items
+		              };
+		            }
+		        }
+			});
+		}
+	};
+
+	var searchForDialog =  function(ele) {
+		var dialogBox = ele.find(".search-dialog");
+		if(dialogBox.length > 0) {
+			dialogBox.select2({
+				placeholder:"Enter dialog name or create new one",
+				width:"100%", 
+				tags : true,
+		        allowClear: true,
+		        ajax: {
+		            url: '/chatbot/dialog/search',
+		            dataType: 'json',
+		            processResults: function (data) {
+		              return {
+		                results: data.items
+		              };
+		            }
+		        }
+			});
+		}
+	};
 	
 
 
@@ -118,11 +183,12 @@
 		var json = {
 			"create_type" : "intents_create"
 		};
-       var html   = myTmpl.render({"data" : json});
+        var html   = myTmpl.render({"data" : json});
        
        $("#leaf-editor-model").find(".modal-body").html(html);
        $("[data-toggle='toggle']").bootstrapToggle('destroy')                 
 	   $("[data-toggle='toggle']").bootstrapToggle();
+	   searchForIntent($("#leaf-editor-model"));
 	});
 
 	$(document).on("click","#create-dialog-btn-rest",function(e){
