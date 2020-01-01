@@ -42,8 +42,15 @@
     <div class="row margin-tb">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Auto Replies</h2>
+            <div class="pull-left">
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" value="{{ request('keyword') }}" name="keyword" id="search-by-word" aria-describedby="search-by-word" placeholder="Enter Keyword">
+                    </div>
+                </form>
+            </div>
             <div class="pull-right">
-               <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#autoReplyCreateModal">Create</a>
+                <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#autoReplyCreateModal">Create</a>
                 <button type="button" class="btn btn-secondary ml-3" onclick="addGroup()">Keyword Group</a>
                 <button type="button" class="btn btn-secondary ml-3" onclick="addGroupPhrase()">Phrase Group</a>
             </div>
@@ -74,6 +81,9 @@
             </tbody>
         </table>
     </div>
+    <div class="col-md-12 margin-tb">
+        {{ $mostUsedWords->appends(request()->except('page'))->links() }}
+    </div>    
     @include('partials.chat-history')
     @include('autoreplies.partials.group')
     <div class="modal fade" id="leaf-editor-model" role="dialog" style="z-index: 3000;">
@@ -127,7 +137,7 @@
                 $('body').addClass('modal-open');
             }
         });
-        
+
         $(document).on("click",".expand-row-btn",function() {
             var dataId = $(this).data("id");
             $.ajax({

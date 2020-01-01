@@ -8,7 +8,6 @@
             </form>
         </div>
         <div class="pull-right">
-            <button type="button" class="btn btn-secondary ml-3" onclick="addGroup()">Keyword Group</a>
             <button type="button" class="btn btn-secondary ml-3" onclick="addGroupPhrase()">Phrase Group</a>
         </div>
     </div>

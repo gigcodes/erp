@@ -183,7 +183,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('autoreply/save-by-question', 'AutoReplyController@saveByQuestion');
     Route::get('autoreply/get-phrases', 'AutoReplyController@getPhrases');
     Route::resource('autoreply', 'AutoReplyController');
-    Route::get('most-used-words', 'AutoReplyController@mostUsedWords');
+    Route::get('most-used-words', 'AutoReplyController@mostUsedWords')->name("chatbot.mostUsedWords");
 
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');

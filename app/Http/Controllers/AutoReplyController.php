@@ -322,7 +322,16 @@ class AutoReplyController extends Controller
     {
         $groupKeywords = \App\ChatbotKeyword::all();
         $groupPhrases = \App\ChatbotQuestion::all();
-        $mostUsedWords = \App\ChatMessageWord::get()->take(3);
+
+        $keyword = request("keyword" , "");
+
+        $mostUsedWords = new \App\ChatMessageWord;
+
+        if(!empty($keyword)) {
+            $mostUsedWords = $mostUsedWords->where("word","like","%$keyword%");
+        }
+
+        $mostUsedWords = $mostUsedWords->paginate(10);
 
         $allSuggestedOptions = \App\ChatbotDialog::allSuggestedOptions();
         
@@ -343,7 +352,7 @@ class AutoReplyController extends Controller
         $phrases = \App\ChatMessagePhrase::where("word_id",$id)->where("phrase","!=","")->groupBy("phrase");
 
         if(!empty($keyword)) {
-            $phrases->where("phrase","like","%$keyword%");
+            $phrases = $phrases->where("phrase","like","%$keyword%");
         }
 
         $phrases = $phrases->paginate(10);
