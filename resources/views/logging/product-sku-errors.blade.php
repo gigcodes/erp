@@ -45,7 +45,7 @@
                 <th style="width: 20% !important;">Brand</th>
                 <th style="width: 20% !important;">Category</th>
                 <th style="width: 20% !important;">Supplier</th>
-                <th>Count</th>
+                <th><button onclick="changeOrder()" value="0" id="order_count" class="btn btn-link">Count</button></th>
                 <th>Action</th>
             </tr>
             <tr>
@@ -303,6 +303,42 @@
             $('#references').val(supplier+''+category+''+brand);
         }
         
+    }
+
+    function changeOrder(){
+        order = $('#order_count').val();
+         $.ajax({
+                url: '/logging/sku-logs-errors',
+                dataType: "json",
+                data: {
+                    sku: $('#sku').val(),
+                    brand: $('#brand').val(),
+                    category: $('#category').val(),
+                    supplier : $('#supplier').val(),
+                    order : order,
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+            }).done(function (data) {
+                $("#loading-image").hide();
+                $("#nulti").show();
+                if(order == 1){
+                    $('#order_count').val('0');
+                }else{
+                   $('#order_count').val(1); 
+                }
+                $("#count").text(data.totalFailed);
+                $("#log-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                $("#loading-image").hide();
+                alert('No response from server');
+            });
     }
 
    
