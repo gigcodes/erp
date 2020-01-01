@@ -270,7 +270,8 @@
                             <td colspan="3">
                                 <table class="fixed_header">
                                     <tbody>
-                                        @foreach($words->pharases as $phrase)
+                                        <?php $wordPhrases = $words->pharases()->paginate(10); ?>
+                                        @foreach($wordPhrases as $phrase)
                                             <tr colspan="3">
                                                 <td><input type="checkbox" name="phrase" value="{{ $phrase->id }}" data-keyword="{{ $words->id }}">  {{ $phrase->phrase }}</td>
                                                 <td>
@@ -278,6 +279,7 @@
                                                 </td>
                                             </tr>
                                          @endforeach
+                                         <?php echo $wordPhrases->links(); ?>
                                     </tbody>
                                 </table>
                             </td>

@@ -39,21 +39,12 @@ class AutoReplyController extends Controller
         $simple_auto_replies = new LengthAwarePaginator($currentItems, count($simple_auto_replies), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);
-        $groupKeywords = ChatbotKeyword::all();
-        $groupPhrases = ChatbotQuestion::all();
-        $mostUsedWords = ChatMessageWord::get()->take(3);
-
-        $allSuggestedOptions = ChatbotDialog::allSuggestedOptions();
-  
+        
         return view('autoreplies.index', [
             'auto_replies' => $auto_replies,
             'simple_auto_replies' => $simple_auto_replies,
             'priority_customers_replies' => $priority_customers_replies,
-            'show_automated_messages' => $show_automated_messages,
-            'mostUsedWords' => $mostUsedWords,
-            'groupPhrases' => $groupPhrases,
-            'groupKeywords' => $groupKeywords,
-            'allSuggestedOptions' => $allSuggestedOptions
+            'show_automated_messages' => $show_automated_messages
         ]);
     }
 
@@ -325,6 +316,22 @@ class AutoReplyController extends Controller
         WatsonManager::pushQuestion($groupId);
        
        return response()->json(["response" => 200]);
+    }
+
+    public function mostUsedWords(Request $request)
+    {
+        $groupKeywords = \App\ChatbotKeyword::all();
+        $groupPhrases = \App\ChatbotQuestion::all();
+        $mostUsedWords = \App\ChatMessageWord::get()->take(3);
+
+        $allSuggestedOptions = \App\ChatbotDialog::allSuggestedOptions();
+        
+        return view("autoreplies.most-used-words",[
+            'mostUsedWords' => $mostUsedWords,
+            'groupPhrases' => $groupPhrases,
+            'groupKeywords' => $groupKeywords,
+            'allSuggestedOptions' => $allSuggestedOptions
+        ]);
     }
 
 }
