@@ -39,8 +39,7 @@
 @endsection
 
 @section('content')
-
-    <div class="row">
+    <div class="row margin-tb">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Auto Replies</h2>
             <div class="pull-right">
@@ -52,7 +51,7 @@
     </div>
 
     @include('partials.flash_messages')
-    <div class="col-md-12">
+    <div class="col-md-12 margin-tb" style="margin-top:10px;">
         <table class="table table-bordered">
             <thead>
             <tr>
@@ -62,44 +61,22 @@
             </tr>
             </thead>
             <tbody>
-            @foreach ($mostUsedWords as $key => $words)
-                <tr>
-                    <td><input type="checkbox" name="keyword" value="{{ $words->id }}">  {{ $words->word }}</td>
-                    <td>{{ $words->total }}</td>
-                    <td>
-                        <button data-id="{{ $words->id }}" class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
-                        <button data-id="{{ $words->id }}" class="btn btn-image delete-row-btn"><img src="/images/delete.png"></button>
-                    </td>
-                </tr>
-                <tr id="phrases_{{ $words->id }}">
-                    <td colspan="4">
-                        <table class="fixed_header">
-                            <?php $wordPhrases = $words->pharases()->paginate(10); ?>
-                            @foreach($wordPhrases as $phrase)
-                                <tr>
-                                    <td colspan="4"><input type="checkbox" name="phrase" value="{{ $phrase->id }}" data-keyword="{{ $words->id }}">  {{ $phrase->phrase }}</td>
-                                    <td colspan="4">
-                                        <button data-id="{{ $phrase->chat_id }}" class="btn btn-image get-chat-details"><img src="/images/chat.png"></button>
-                                    </td>
-                                </tr>
-                             @endforeach
-                             <tr>
-                                <td colspan="4">
-                                    <?php echo $wordPhrases->links(); ?>
-                                </td>
-                             </tr>
-                        </table>
-                    </td>
-                </tr>
-            @endforeach
+                @foreach ($mostUsedWords as $key => $words)
+                    <tr>
+                        <td><input type="checkbox" name="keyword" value="{{ $words->id }}">  {{ $words->word }}</td>
+                        <td>{{ $words->total }}</td>
+                        <td>
+                            <button data-id="{{ $words->id }}" class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
+                            <button data-id="{{ $words->id }}" class="btn btn-image delete-row-btn"><img src="/images/delete.png"></button>
+                        </td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
-    </div>    
-
-    @include('autoreplies.partials.autoreply-modals')
+    </div>
     @include('partials.chat-history')
     @include('autoreplies.partials.group')
-    <div class="modal fade" id="leaf-editor-model" role="dialog">
+    <div class="modal fade" id="leaf-editor-model" role="dialog" style="z-index: 3000;">
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -118,6 +95,21 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" id="phrase-editor-model" role="dialog" style="z-index: 1041;">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="allPhrases">All Phrases</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            
+          </div>
+        </div>
+      </div>
+    </div>
     <?php include_once(app_path()."/../Modules/ChatBot/Resources/views/dialog/includes/template.php"); ?>
 @endsection
 
@@ -130,10 +122,62 @@
         window.buildDialog = {};
         window.pageLocation = "autoreply";
 
-
+        $('.modal').on("hidden.bs.modal", function (e) { 
+            if ($('.modal:visible').length) { 
+                $('body').addClass('modal-open');
+            }
+        });
+        
         $(document).on("click",".expand-row-btn",function() {
             var dataId = $(this).data("id");
-            $("#phrases_"+dataId).toggleClass("dis-none");
+            $.ajax({
+                type: 'GET',
+                url: "/autoreply/get-phrases",
+                data: {
+                    id: dataId
+                }
+            }).done(function (response) {
+                if(response.code == 200) {
+                    $("#phrase-editor-model").find(".modal-body").html(response.html);
+                    $("#phrase-editor-model").modal("show");
+                }
+            }).fail(function (response) {
+            });
+        });
+
+        $("#phrase-editor-model").on("click",".page-link",function(e) {
+            e.preventDefault();
+            var $this =  $(this);
+            if(typeof $this.attr("href") != "undefined") {
+                $.ajax({
+                    type: 'GET',
+                    url: $this.attr("href")
+                }).done(function (response) {
+                    if(response.code == 200) {
+                        $("#phrase-editor-model").find(".modal-body").html(response.html);
+                        //$("#phrase-editor-model").modal("show");
+                    }
+                }).fail(function (response) {
+                });
+            }
+        });
+
+        $(document).on("focusout","#search-by-phrases",function() {
+            var dataId = $(this).data("id");
+            $.ajax({
+                type: 'GET',
+                url: "/autoreply/get-phrases",
+                data: {
+                    id: dataId,
+                    keyword : $(this).val()
+                }
+            }).done(function (response) {
+                if(response.code == 200) {
+                    $("#phrase-editor-model").find(".modal-body").html(response.html);
+                    //$("#phrase-editor-model").modal("show");
+                }
+            }).fail(function (response) {
+            });
         });
 
         $(document).on("click",".delete-row-btn",function() {

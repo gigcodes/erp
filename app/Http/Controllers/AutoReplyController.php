@@ -334,4 +334,24 @@ class AutoReplyController extends Controller
         ]);
     }
 
+    public function getPhrases(Request $request) 
+    {
+
+        $id = $request->get("id",0);
+        $keyword =  $request->get("keyword",""); 
+
+        $phrases = \App\ChatMessagePhrase::where("word_id",$id)->where("phrase","!=","")->groupBy("phrase");
+
+        if(!empty($keyword)) {
+            $phrases->where("phrase","like","%$keyword%");
+        }
+
+        $phrases = $phrases->paginate(10);
+
+        $string = (string)view("autoreplies.partials.phrases",compact('phrases',"id",'keyword'));
+
+        return response()->json(["code" => 200, "html" => $string]);
+
+    }
+
 }
