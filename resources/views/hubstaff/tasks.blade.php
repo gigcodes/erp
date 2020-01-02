@@ -1,61 +1,59 @@
 @extends('layouts.app')
 
 @section('link-css')
-  <style type="text/css">
-    .form-group{
-      padding: 10px;
-    }
-  </style>
+<style type="text/css">
+  .form-group {
+    padding: 10px;
+  }
+</style>
 @endsection
 
 @section('content')
 
 @if(Session::has('message'))
-  <div class="alert alert-success alert-block" >
-    <button type="button" class="close" data-dismiss="alert">×</button> 
-        <strong>{{ Session::get('message') }}</strong>
-  </div>
+<div class="alert alert-success alert-block">
+  <button type="button" class="close" data-dismiss="alert">×</button>
+  <strong>{{ Session::get('message') }}</strong>
+</div>
 @endif
 
-    <h2 class="text-center">Tasks List from Hubstaff </h2>
+@if(!empty($auth))
+<div class="text-center">
+  <p>You are not authorized on hubstaff</p>
+  <a class="btn btn-primary" href="{{ $auth }}">Authorize</a>
+</div>
+@endif
 
-    <div class="container">
-        @if(!empty($tasks) && !$tasks['error'])
-            <div class="row">
-              <table class="table table-bordered">
-                <thead>
-                  <tr>
-                    <th>User ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                @foreach($members as $member)
-                  <tbody>
-                    <tr>
-                      <td>{{ $member->id }}</td>
-                      <td>{{ ucwords($member->name) }}</td>
-                      <td>{{ $member->email }}</td>
-                      <td>
-                        @if($member->status == "active")
-                          <span class="badge badge-success">Active</span>
-                        @else
-                          <span class="badge badge-danger">In active</span>
-                        @endif
-                      </td>
-                    </tr>
-                  </tbody>
-                @endforeach
-              </table>
-                <br>
-                <hr>
-            </div>
-        @else
-            <div style="text-align: center;color: red;font-size: 14px;">
-                {{$tasks['error_description']}}
-            </div>
-      @endif
+<h2 class="text-center">Tasks List from Hubstaff </h2>
 
-    </div>
+<div class="container">
+  @if(!empty($tasks))
+  <div class="row">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Task Id</th>
+          <th>Summary</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      @foreach($task as $tasks)
+      <tbody>
+        <tr>
+          <td>{{ $task->id }}</td>
+          <td>{{ ucwords($task->summary) }}</td>
+          <td>{{ $task->status }}</td>
+        </tr>
+      </tbody>
+      @endforeach
+    </table>
+    <br>
+    <hr>
+  </div>
+  @else
+  <div style="text-align: center;color: red;font-size: 14px;">
+  </div>
+  @endif
+
+</div>
 @endsection

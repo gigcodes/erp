@@ -901,6 +901,7 @@ Route::get('hubstaff/projects', 'HubstaffController@getProjects');
 Route::get('hubstaff/tasks', 'HubstaffController@getTasks');
 Route::get('hubstaff/redirect', 'HubstaffController@redirect');
 Route::get('hubstaff/members/json', 'HubstaffController@getMembers');
+Route::get('hubstaff/debug', 'HubstaffController@debug');
 
 
 /*

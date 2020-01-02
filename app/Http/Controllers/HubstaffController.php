@@ -17,6 +17,30 @@ define("SESSION_REFRESH_TOKEN", "refresh_token");
 
 class HubstaffController extends Controller
 {
+
+    private function getLoginUrl()
+    {
+        $url = 'https://account.hubstaff.com/.well-known/openid-configuration';
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $decoded_json = json_decode($response);
+
+        $params = array(
+            'client_id' => getenv('HUBSTAFF_CLIENT_ID'),
+            'response_type' => 'code',
+            'nonce' => sha1(time()),
+            'redirect_uri' => getenv('APP_URL') . '/hubstaff/redirect',
+            'scope' => 'hubstaff:read hubstaff:write',
+            'state' => STATE_MEMBERS
+        );
+
+        return $decoded_json->authorization_endpoint . '?' . http_build_query($params);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -28,35 +52,17 @@ class HubstaffController extends Controller
         $members = HubstaffMember::all();
 
         if (!$value) {
-            $url = 'https://account.hubstaff.com/.well-known/openid-configuration';
-
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-            $response = curl_exec($ch);
-            curl_close($ch);
-
-            $decoded_json = json_decode($response);
-
-            $params = array(
-                'client_id' => getenv('HUBSTAFF_CLIENT_ID'),
-                'response_type' => 'code',
-                'nonce' => sha1(time()),
-                'redirect_uri' => getenv('APP_URL') . '/hubstaff/redirect',
-                'scope' => 'hubstaff:read hubstaff:write',
-                'state' => STATE_MEMBERS
-            );
-
             return view(
                 'hubstaff.members',
                 [
                     'auth' => [
                         'should_show_login' => true,
-                        'link' => $decoded_json->authorization_endpoint . '?' . http_build_query($params)
+                        'link' => $this->getLoginUrl()
                     ],
                     'members' => $members
                 ]
             );
-        }else{
+        } else {
             return view(
                 'hubstaff.members',
                 [
@@ -72,8 +78,10 @@ class HubstaffController extends Controller
 
         $access_token = session(SESSION_ACCESS_TOKEN);
 
+        $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/members';
+
         $response = $httpClient->get(
-            'https://api.hubstaff.com/v2/organizations/197350/members',
+            $url,
             [
                 RequestOptions::HEADERS => [
                     'Authorization' => 'Bearer ' . $access_token
@@ -103,37 +111,78 @@ class HubstaffController extends Controller
     public function getProjects()
     {
 
-        $url        = 'https://api.hubstaff.com/v2/organizations/197350/projects?status=active';
-        $projects   = $this->get_data($url);
-        $data   = array();
-        if (!empty($projects->projects)) {
-            $data['error'] = false;
-            $data[]         = $projects->projects;
-        } else {
-            $data['error'] = true;
-            $data['error_description'] = $projects->error_description;
+        $access_token = session(SESSION_ACCESS_TOKEN);
+
+        if (!$access_token) {
+            return view(
+                'hubstaff.projects',
+                [
+                    'auth' =>  $this->getLoginUrl(),
+                ]
+            );
         }
-        return view('hubstaff.projects', [
-            'projects' => $data,
-        ]);
+
+        $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/projects';
+        $httpClient = new Client();
+        $response = $httpClient->get(
+            $url,
+            [
+                RequestOptions::HEADERS => [
+                    'Authorization' => 'Bearer ' . $access_token
+                ]
+            ]
+        );
+
+        $projects = [];
+        if ($response->getStatusCode() == 200) {
+            $responseJson = json_decode($response->getBody()->getContents());
+            $projects = $responseJson->projects;
+        }
+
+        return view(
+            'hubstaff.projects',
+            [
+                'projects' => $projects,
+            ]
+        );
     }
 
     public function getTasks()
     {
+        $access_token = session(SESSION_ACCESS_TOKEN);
 
-        $url        = 'https://api.hubstaff.com/v2/organizations/197350/tasks';
-        $tasks      = $this->get_data($url);
-        $data   = array();
-        if (!empty($tasks->projects)) {
-            $data['error'] = false;
-            $data[]         = $tasks->projects;
-        } else {
-            $data['error'] = true;
-            $data['error_description'] = $tasks->error_description;
+        if (!$access_token) {
+            return view(
+                'hubstaff.projects',
+                [
+                    'auth' =>  $this->getLoginUrl(),
+                ]
+            );
         }
-        return view('hubstaff.tasks', [
-            'tasks' => $data,
-        ]);
+
+        $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/tasks';
+        $httpClient = new Client();
+        $response = $httpClient->get(
+            $url,
+            [
+                RequestOptions::HEADERS => [
+                    'Authorization' => 'Bearer ' . $access_token
+                ]
+            ]
+        );
+
+        $tasks = [];
+        if ($response->getStatusCode() == 200) {
+            $responseJson = json_decode($response->getBody()->getContents());
+            $projects = $responseJson->tasks;
+        }
+
+        return view(
+            'hubstaff.tasks',
+            [
+                'tasks' => $tasks,
+            ]
+        );
     }
 
 
@@ -233,5 +282,10 @@ class HubstaffController extends Controller
                 return redirect('hubstaff/members');
             }
         }
+    }
+
+    public function debug()
+    {
+        echo "debug";
     }
 }
