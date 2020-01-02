@@ -679,7 +679,7 @@ class DevelopmentController extends Controller
 
     public function issueStore(Request $request)
     {
-
+        
         $this->validate($request, [
             'priority' => 'required|integer',
             'issue' => 'required|min:3'

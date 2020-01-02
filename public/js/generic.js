@@ -151,6 +151,10 @@ $(document).on('click', '.load-communication-modal', function () {
                button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>'; 
             }
 
+            if (message.inout == 'out') {
+                button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 create-dialog">+ Dialog</a>'; 
+            }    
+
             if (message.inout == 'in') {
                 li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
             } else if (message.inout == 'out') {

@@ -457,17 +457,10 @@ class LogScraper extends Model
         }
     }
 
-    public function brandLink($sku,$brand){
+    public function brandLink($link,$sku){
         
-         $brand = Brand::select('id','sku_search_url')->where('name',$brand)->first();
-         
-         if($brand != null){
-            
-            if($brand->sku_search_url != null){
-                return $link = str_replace('[SEARCH]',$sku,$brand->sku_search_url);
-            }else{
-                return false;
-            }
+         if($link != null){
+            return $link = str_replace('[SEARCH]',$sku,$link);
         }else{
             return false;
          }
@@ -483,10 +476,24 @@ class LogScraper extends Model
     public function getSKUExample($brand){
         $brand = Brand::select('id')->where('name',$brand)->first();
         if($brand != null && $brand != ''){
-            $format = SkuFormat::where('brand_id',$brand->id)->first();
+            $format = SkuFormat::select('sku_examples')->where('brand_id',$brand->id)->first();
             if($format != null && $format != ''){
                 $formats = explode(',',$format->sku_examples);
                 return $formats[0];
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
+    public function getSKUExampleFormat($brand){
+        $brand = Brand::select('id')->where('name',$brand)->first();
+        if($brand != null && $brand != ''){
+            $format = SkuFormat::select('sku_format')->where('brand_id',$brand->id)->first();
+            if($format != null && $format != ''){
+                return $format->sku_format;
             }else{
                 return false;
             }
@@ -503,5 +510,37 @@ class LogScraper extends Model
             return false;
         }
         
+    }
+
+    public function getSKUExampleLinkFromLogScraper($supplier,$brand){
+        $skuLog = LogScraper::where('brand',$brand)->where('website',$supplier)->where('validation_result', 'LIKE', '%SKU failed regex test%')->first();
+        if($skuLog != null && $skuLog != ''){
+            return $skuLog->url;
+        }else{
+            return false;
+        }
+        
+    }
+
+    public function brands(){
+        return $this->hasOne(Brand::class,'name','brand');
+    }
+
+    public function skuStringCompareWithExample($example,$sku)
+    {
+        if($example != null && $sku != null){
+            $sample = explode(',',$example);
+            $string = str_replace(' ', '-', $sample[0]); // Replaces all spaces with hyphens.
+            $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string);
+            
+            if(strlen($string) < strlen($sku)){
+                return 'SKU string count is bigger the example';
+            }else{
+                return 'String Count Is Proper';
+            }
+
+        }else{
+            return "SKU Example Not Present";
+        }
     }
 }
