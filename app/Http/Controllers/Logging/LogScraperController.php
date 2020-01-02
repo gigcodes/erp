@@ -112,11 +112,10 @@ class LogScraperController extends Controller
     public function logSKUErrors(Request $request)
     {
        
+
         $logScrapper = LogScraper::select('log_scraper.*','scrapers.inventory_lifetime')->leftJoin('scrapers', function($join) {
             $join->on('log_scraper.website', '=', 'scrapers.scraper_name');
         });
-
-        
 
         // Filters
         if (!empty($request->product_id)) {
@@ -154,11 +153,18 @@ class LogScraperController extends Controller
             }
         }
 
-        
-       
-        $logScrapper->groupBy('website')->groupBy('brand');
-
         $logScrapper->where('validation_result', 'LIKE', '%SKU failed regex test%');
+
+
+        if(!empty($request->order) || $request->order == 0){
+            if($request->order == 1){
+                $logScrapper->select('*', \DB::raw('count("log_scraper.website") as total'))->orderBy('total','asc');
+            }else{
+                $logScrapper->select('*', \DB::raw('count("log_scraper.website") as total'))->orderBy('total','DESC');
+            }
+        }
+
+        $logScrapper->groupBy('website')->groupBy('brand');
 
         $logScrappers = $logScrapper->paginate(25)->appends(request()->except(['page']));
 
