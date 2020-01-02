@@ -79,6 +79,7 @@ use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
 use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\SendQueuePendingChatMessages;
+use App\Console\Commands\SyncCustomersFromMagento;
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -171,7 +172,8 @@ class Kernel extends ConsoleKernel
         SkuErrorCount::class,
         VisitorLogs::class,
         ImageBarcodeGenerator::class,
-        UpdateImageBarcodeGenerator::class
+        UpdateImageBarcodeGenerator::class,
+        SyncCustomersFromMagento::class
     ];
 
     /**
@@ -345,6 +347,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('erpevents:run')->everyMinute();
         $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
         $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
+
+        //Sync customer from magento to ERP
+        $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
     }
 
     /**
