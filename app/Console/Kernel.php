@@ -86,6 +86,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\RunErpEvents;
+use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -171,7 +172,8 @@ class Kernel extends ConsoleKernel
         SkuErrorCount::class,
         VisitorLogs::class,
         ImageBarcodeGenerator::class,
-        UpdateImageBarcodeGenerator::class
+        UpdateImageBarcodeGenerator::class,
+        NumberOfImageCroppedCheck::class
     ];
 
     /**
@@ -267,6 +269,8 @@ class Kernel extends ConsoleKernel
         })->hourly();
 
         $schedule->command('product:replace-text')->everyFiveMinutes();
+
+        $schedule->command('numberofimages:cropped')->hourly()->withoutOverlapping();
 
 //        $schedule->command('instagram:grow-accounts')->dailyAt('13:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
