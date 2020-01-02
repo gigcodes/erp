@@ -479,4 +479,29 @@ class LogScraper extends Model
         return $count;
         
     }
+
+    public function getSKUExample($brand){
+        $brand = Brand::select('id')->where('name',$brand)->first();
+        if($brand != null && $brand != ''){
+            $format = SkuFormat::where('brand_id',$brand->id)->first();
+            if($format != null && $format != ''){
+                $formats = explode(',',$format->sku_examples);
+                return $formats[0];
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
+    public function getSKUExampleFromLogScraper($supplier,$brand){
+        $skuLog = LogScraper::where('brand',$brand)->where('website',$supplier)->where('validation_result', 'LIKE', '%SKU failed regex test%')->first();
+        if($skuLog != null && $skuLog != ''){
+            return $skuLog->sku;
+        }else{
+            return false;
+        }
+        
+    }
 }
