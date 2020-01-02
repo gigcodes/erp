@@ -15,6 +15,7 @@ use App\ChatMessagePhrase;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionExample;
 use App\ChatMessageWord;
+use App\ChatbotDialog;
 use App\Library\Watson\Model as WatsonManager;
 
 class AutoReplyController extends Controller
@@ -41,6 +42,8 @@ class AutoReplyController extends Controller
         $groupKeywords = ChatbotKeyword::all();
         $groupPhrases = ChatbotQuestion::all();
         $mostUsedWords = ChatMessageWord::get()->take(3);
+
+        $allSuggestedOptions = ChatbotDialog::allSuggestedOptions();
   
         return view('autoreplies.index', [
             'auto_replies' => $auto_replies,
@@ -50,6 +53,7 @@ class AutoReplyController extends Controller
             'mostUsedWords' => $mostUsedWords,
             'groupPhrases' => $groupPhrases,
             'groupKeywords' => $groupKeywords,
+            'allSuggestedOptions' => $allSuggestedOptions
         ]);
     }
 

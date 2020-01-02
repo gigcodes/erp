@@ -18,6 +18,7 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
     Route::prefix('keyword')->group(function () {
         Route::get('/', 'KeywordController@index')->name("chatbot.keyword.list");
         Route::post('/', 'KeywordController@save')->name("chatbot.keyword.save");
+        Route::post('/submit', 'KeywordController@saveAjax')->name("chatbot.keyword.saveAjax");
         Route::prefix('{id}')->group(function () {
             Route::get('/edit', 'KeywordController@edit')->name("chatbot.keyword.edit");
             Route::post('/edit', 'KeywordController@update')->name("chatbot.keyword.update");
@@ -46,6 +47,7 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
     Route::prefix('dialog')->group(function () {
         Route::get('/', 'DialogController@index')->name("chatbot.dialog.list");
         Route::post('/', 'DialogController@save')->name("chatbot.dialog.save");
+        Route::get('/search', 'DialogController@search')->name("chatbot.dialog.search");
         Route::prefix('{id}')->group(function () {
             Route::get('/edit', 'DialogController@edit')->name("chatbot.dialog.edit");
             Route::post('/edit', 'DialogController@update')->name("chatbot.dialog.update");
@@ -53,6 +55,20 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
             Route::prefix('values/{valueId}')->group(function () {
                 Route::get('/delete', 'DialogController@destroyValue')->name("chatbot.dialog-response.delete");
             });
+        });
+
+        // store dialog via save response
+        Route::post("dialog-save","DialogController@saveAjax")->name("chatbot.dialog.saveajax");
+
+    });
+
+    Route::prefix('rest/dialog')->group(function () {
+        Route::get('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
+        Route::post('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
+        Route::get('/status', 'DialogController@restStatus')->name("chatbot.rest.dialog.status");
+        Route::prefix('{id}')->group(function () {
+            Route::get('/', 'DialogController@restDetails')->name("chatbot.rest.dialog.detail");
+            Route::get('/delete', 'DialogController@restDelete')->name("chatbot.rest.dialog.delete");
         });
     });
 
