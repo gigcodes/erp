@@ -144,7 +144,7 @@ class CroppedImageReferenceController extends Controller
             ->renderAsDropdown();
 
         $total = $query->count(); 
-        $pendingProduct = Product::where('status_id',StatusHelper::$AI)->count();   
+        $pendingProduct = Product::where('status_id',StatusHelper::$autoCrop)->count();   
         
          if (request('customer_range') != null){
                    $dateArray =  explode('-',request('customer_range'));
