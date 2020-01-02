@@ -207,6 +207,37 @@
             });
         });
 
+        var callingMoreChat = function(chatId, pageId) {
+            $.ajax({
+                type: 'GET',
+                url: "autoreply/replied-chat/"+chatId,
+                data : {
+                    page : pageId
+                },
+                dataType : "json"
+            }).done(function (response) {
+                var html = "";
+                $.each(response.data,function(k,v) {
+                    html += '<div class="bubble">';
+                    html += '<div class="txt">';
+                    html += '<p class="name"></p>';
+                    html += '<p class="message" data-message="'+v.message+'">'+v.message+'</p><br>';
+                    html += '<span class="timestamp">'+v.created_at+'</span><span>';
+                    html += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 set-autoreply" data-q="'+response.question+'" data-a="'+v.message+'">+ Auto Reply</a></span>';
+                    html += '</div>';
+                    html += '</div>';
+                });
+
+                if(html != "") {
+                    html += '<div class="row"><a onclick="callingMoreChat('+chatId+','+response.page+')" href="javascript:;" class="load-more-chat">Load More</a></div>';
+                }
+                $(".load-more-chat").parent().remove();
+                $("#chat-list-history").find(".modal-body").find(".speech-wrapper").append(html);
+
+            }).fail(function (response) {
+            });
+        }
+
         $(document).on("click",".get-chat-details",function() {
             var chatId = $(this).data("id");
             $.ajax({
@@ -225,6 +256,10 @@
                     html += '</div>';
                     html += '</div>';
                 });
+
+                if(html != "") {
+                    html += '<div class="row"><a href="javascript:;" onclick="callingMoreChat('+chatId+','+response.page+')" class="load-more-chat">Load More</a></div>';
+                }
 
                 $("#chat-list-history").find(".modal-body").find(".speech-wrapper").html(html);
                 $("#chat-list-history").find(".modal-title").html(response.question);
