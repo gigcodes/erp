@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Article;
 use App\HubstaffMember;
+use App\User;
 use Illuminate\Http\Request;
 use Hubstaff\Hubstaff;
 use GuzzleHttp\Client;
@@ -50,6 +51,7 @@ class HubstaffController extends Controller
     {
         $value = session(SESSION_ACCESS_TOKEN);
         $members = HubstaffMember::all();
+        $users = User::all('id', 'name');
 
         if (!$value) {
             return view(
@@ -59,14 +61,16 @@ class HubstaffController extends Controller
                         'should_show_login' => true,
                         'link' => $this->getLoginUrl()
                     ],
-                    'members' => $members
+                    'members' => $members,
+                    'users' => $users
                 ]
             );
         } else {
             return view(
                 'hubstaff.members',
                 [
-                    'members' => $members
+                    'members' => $members,
+                    'users' => $users
                 ]
             );
         }
@@ -282,6 +286,34 @@ class HubstaffController extends Controller
                 return redirect('hubstaff/members');
             }
         }
+    }
+
+    public function linkUser(Request $request)
+    {
+        $bodyContent = $request->getContent();
+        $jsonDecodedBody = json_decode($bodyContent);
+
+        $userId = $jsonDecodedBody->user_id;
+        $hubstaffUserId = $jsonDecodedBody->hubstaff_user_id;
+
+        if (!$userId || !$hubstaffUserId) {
+            return response()->json(
+                [
+                    'error' => 'Missing parameters',
+                ],
+                400
+            );
+        }
+
+        HubstaffMember::where('hubstaff_user_id', $hubstaffUserId)
+            ->update([
+                'user_id' => $userId
+            ]);
+
+
+        return response()->json([
+            'message' => 'link success'
+        ]);
     }
 
     public function debug()

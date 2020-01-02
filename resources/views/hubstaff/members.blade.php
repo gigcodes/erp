@@ -39,16 +39,23 @@
       <thead>
         <tr>
           <th>HubStaff Id</th>
-          <th>User Id</th>
-          <th>Action</th>
+          <th>User</th>
+
         </tr>
       </thead>
       @foreach($members as $member)
       <tbody>
         <tr>
           <td>{{ $member->hubstaff_user_id }}</td>
-          <td>{{ $member->user_id }}</td>
-          <td></td>
+          <td>
+            <select onchange="saveUser(this)">
+              <option value="unassigned">Unassigned</option>
+              @foreach($users as $user)
+              <option value="{{$user->id}}|{{ $member->hubstaff_user_id }}" <?= ($member->user_id == $user->id) ? 'selected' : '' ?>>{{$user->name}}</option>
+              @endforeach
+            </select>
+          </td>
+
         </tr>
       </tbody>
       @endforeach
@@ -63,3 +70,32 @@
   @endif
 </div>
 @endsection
+
+<script type="text/javascript">
+  function saveUser(a) {
+    var selectedValue = (a.value || a.options[a.selectedIndex].value); //crossbrowser solution =)
+    console.log('selectedValue', selectedValue);
+    if (selectedValue != 'unassigned') {
+      var splitValues = selectedValue.split('|');
+      var userId = splitValues[0];
+      var hubstaffUserId = splitValues[1];
+
+      var xhr = new XMLHttpRequest();
+      var url = "linkuser";
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          var json = JSON.parse(xhr.responseText);
+          console.log(json.email + ", " + json.password);
+        }
+      };
+      var data = JSON.stringify({
+        "user_id": userId,
+        "hubstaff_user_id": hubstaffUserId
+      });
+      xhr.send(data);
+    }
+
+  }
+</script>
