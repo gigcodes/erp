@@ -307,6 +307,7 @@ class LogScraper extends Model
 
     public static function validateRegexSku($sku, $brand)
     {
+        $skuNew = ProductHelper::getSku($sku);
         // Do we have a brand?
         if ($brand != null) {
             // Find brand ID from brand
@@ -321,12 +322,12 @@ class LogScraper extends Model
                 if (!empty($skuFormat->sku_format)) {
                     try {
                         // Run brand regex on sku
-                        preg_match('/' . $skuFormat->sku_format . '/', $sku, $matches, PREG_UNMATCHED_AS_NULL);
+                        preg_match('/' . $skuFormat->sku_format . '/', $skuNew, $matches, PREG_UNMATCHED_AS_NULL);
 
                         // Do we have a match
                         if (isset($matches) && isset($matches[ 0 ]) && $matches != null) {
                             // Is the match equal to the SKU
-                            if ($matches[ 0 ] == $sku) {
+                            if ($matches[ 0 ] == $skuNew) {
                                 // Return if we have a match
                                 return;
                             }
@@ -340,12 +341,12 @@ class LogScraper extends Model
                 if (!empty($skuFormat->sku_format_without_color)) {
                     try {
                         // Run brand regex on sku
-                        preg_match('/' . $skuFormat->sku_format_without_color . '/', $sku, $matchesWithoutColor, PREG_UNMATCHED_AS_NULL);
+                        preg_match('/' . $skuFormat->sku_format_without_color . '/', $skuNew, $matchesWithoutColor, PREG_UNMATCHED_AS_NULL);
 
                         // Do we have a match
                         if (isset($matchesWithoutColor) && isset($matchesWithoutColor[ 0 ]) && $matchesWithoutColor != null) {
                             // Is the match equal to the SKU
-                            if ($matchesWithoutColor[ 0 ] == $sku) {
+                            if ($matchesWithoutColor[ 0 ] == $skuNew) {
                                 // Return if we have a match
                                 return;
                             }
@@ -476,6 +477,31 @@ class LogScraper extends Model
         
         $count = LogScraper::where('brand',$brand)->where('website',$supplier)->where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
         return $count;
+        
+    }
+
+    public function getSKUExample($brand){
+        $brand = Brand::select('id')->where('name',$brand)->first();
+        if($brand != null && $brand != ''){
+            $format = SkuFormat::where('brand_id',$brand->id)->first();
+            if($format != null && $format != ''){
+                $formats = explode(',',$format->sku_examples);
+                return $formats[0];
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
+    public function getSKUExampleFromLogScraper($supplier,$brand){
+        $skuLog = LogScraper::where('brand',$brand)->where('website',$supplier)->where('validation_result', 'LIKE', '%SKU failed regex test%')->first();
+        if($skuLog != null && $skuLog != ''){
+            return $skuLog->sku;
+        }else{
+            return false;
+        }
         
     }
 }

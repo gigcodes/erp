@@ -162,7 +162,7 @@
                     <input type="hidden" name="quick_product" value="true">
                     <button type="submit" class="btn btn-xs btn-secondary">Quick Sell</button>
                 </form>
-                <button type="button" class="btn btn-secondary select-all-product-btn" data-count="0">Select All</button>
+                <button type="button" class="btn btn-secondary select-all-product-btn" data-count="<?php echo (isset($products_count)) ? $products_count : 0; ?>">Select All</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="20">Select 20</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="30">Select 30</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="50">Select 50</button>
