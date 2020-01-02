@@ -1779,8 +1779,8 @@ class ProductController extends Controller
     public function saveImage(Request $request)
     {
         // Find the product or fail
-        $product = Product::findOrFail($request->get('product_id'));
-
+        $product = Product::findOrFail(228034);
+        
         // Check if this product is being cropped
         if ($product->status_id != StatusHelper::$isBeingCropped) {
             return response()->json([
@@ -1791,6 +1791,7 @@ class ProductController extends Controller
         // Check if we have a file
         if ($request->hasFile('file')) {
             $image = $request->file('file');
+
             $media = MediaUploader::fromSource($image)
                                     ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
                                     ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')).'/' . $product->id)
@@ -1798,6 +1799,8 @@ class ProductController extends Controller
             $product->attachMedia($media, config('constants.media_gallery_tag'));
             $product->crop_count = $product->crop_count + 1;
             $product->save();
+            
+
 
             $imageReference = new CroppedImageReference();
             $imageReference->original_media_id = $request->get('media_id');
@@ -1808,10 +1811,19 @@ class ProductController extends Controller
             $imageReference->product_id = $product->id;
             $imageReference->save();
 
-            $product->cropped_at = Carbon::now()->toDateTimeString();
-            $product->status_id = StatusHelper::$cropApproval;
-            $product->save();
+            
 
+            list($width, $height, $type, $attr) = getimagesize($image);
+            if($width != 1000 && $height != 1000){
+                $product->cropped_at = Carbon::now()->toDateTimeString();
+                $product->status_id = StatusHelper::$cropRejected;
+                $product->save();
+            }else{
+                $product->cropped_at = Carbon::now()->toDateTimeString();
+                $product->status_id = StatusHelper::$cropApproval;
+                $product->save();
+            }
+            
             // get the status as per crop
             if($product->category > 0) {
                 $category = \App\Category::find($product->category);
