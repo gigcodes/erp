@@ -206,9 +206,9 @@ class AutoReplyController extends Controller
             ->where("customer_id",$customerId)
             ->whereNull("number")
             ->orderBy("chat_messages.id","ASC")
-            ->limit(5)->get();
+            ->paginate(5);
 
-            return response()->json(["code" => 200,"data" => $lastReplies,"question" => $currentMessage->message]);
+            return response()->json(["code" => 200,"data" => $lastReplies->items(),"question" => $currentMessage->message , "page" => $lastReplies->currentPage() + 1]);
 
         }
 
@@ -330,6 +330,8 @@ class AutoReplyController extends Controller
         if(!empty($keyword)) {
             $mostUsedWords = $mostUsedWords->where("word","like","%$keyword%");
         }
+
+        $mostUsedWords = $mostUsedWords->orderBy("total","asc");
 
         $mostUsedWords = $mostUsedWords->paginate(10);
 
