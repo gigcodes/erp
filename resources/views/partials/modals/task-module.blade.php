@@ -37,16 +37,7 @@
               </select>
           </div>
           
-          @if(isset($existingIssues))
-          <div class="form-group">
-              <strong>Existing Issue:</strong>
-              <select class="selectpicker form-control" data-live-search="true" data-size="15"  name="responsible_user_id" title="Choose Issue">
-                @foreach ($existingIssues as $existingIssue)
-                  <option value="{{ $existingIssue->id }}">{{ $existingIssue->task }}</option>
-                @endforeach
-              </select>
-          </div>
-          @endif
+          
 
 
 

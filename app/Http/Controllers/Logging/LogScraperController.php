@@ -113,10 +113,15 @@ class LogScraperController extends Controller
     {
        
 
-        $logScrapper = LogScraper::select('log_scraper.*','scrapers.inventory_lifetime')->leftJoin('scrapers', function($join) {
+        $logScrapper = LogScraper::select('log_scraper.*','brands.sku_search_url','sku_formats.sku_examples','sku_formats.sku_format','scrapers.inventory_lifetime')->leftJoin('scrapers', function($join) {
             $join->on('log_scraper.website', '=', 'scrapers.scraper_name');
+        })->leftJoin('brands', function($join){
+            $join->on('log_scraper.brand','=','brands.name');
+        })->leftJoin('sku_formats',function($join){
+            $join->on('brands.id','sku_formats.brand_id');
         });
 
+        
         // Filters
         if (!empty($request->product_id)) {
             $logScrapper->where('id', $request->product_id);
@@ -163,7 +168,7 @@ class LogScraperController extends Controller
                 $logScrapper->select('*', \DB::raw('count("log_scraper.website") as total'))->orderBy('total','DESC');
             }
         }
-
+        
         $logScrapper->groupBy('website')->groupBy('brand');
 
         $logScrappers = $logScrapper->paginate(25)->appends(request()->except(['page']));
@@ -172,7 +177,9 @@ class LogScraperController extends Controller
 
         $existingIssues = DeveloperTask::whereNotNull('reference')->get();
 
-        $pendingIssues = DeveloperTask::whereNotNull('reference')->where('status','Issue')->count();
+        $pendingIssues = DeveloperTask::whereNotNull('reference')->where('status','Issue')->groupBy('responsible_user_id')->groupBy('status')->get();
+
+        $pendingIssuesCount = DeveloperTask::whereNotNull('reference')->where('status','Issue')->count();
 
         $lastCreatedIssue = DeveloperTask::whereNotNull('reference')->orderBy('created_at','desc')->first();
 
@@ -185,7 +192,7 @@ class LogScraperController extends Controller
         // For ajax
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('logging.partials.listsku_errors_data', compact('logScrappers','category_selection','failed','existingIssues','pendingIssues','lastCreatedIssue','requestParam'))->render(),
+                'tbody' => view('logging.partials.listsku_errors_data', compact('logScrappers','category_selection','failed','existingIssues','pendingIssues','lastCreatedIssue','requestParam','pendingIssuesCount'))->render(),
                 'links' => (string)$logScrappers->render(),
                 'totalFailed' => $failed,
             ], 200);
@@ -194,7 +201,7 @@ class LogScraperController extends Controller
         
 
         // Show results
-        return view('logging.product-sku-errors', compact('logScrappers','category_selection','failed','existingIssues','lastCreatedIssue','pendingIssues','requestParam'));
+        return view('logging.product-sku-errors', compact('logScrappers','category_selection','failed','existingIssues','lastCreatedIssue','pendingIssues','requestParam','pendingIssuesCount'));
     
     }
 }

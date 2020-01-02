@@ -52,7 +52,7 @@ class MoveColdLeadsToCustomers extends Command
 
         // Set count to 0 and maxcount to 50
         $count = 0;
-        $maxCount = 50;
+        $maxCount = 500000;
 
         // Get all numbers from config
         $config = \Config::get("apiwha.instances");
