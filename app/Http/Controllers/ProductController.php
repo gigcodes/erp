@@ -234,7 +234,7 @@ class ProductController extends Controller
             'type' => $type,
             'users' => $users,
             'assigned_to_users' => $assigned_to_users,
-            'cropped'	=> $cropped,
+            'cropped' => $cropped,
 //            'left_for_users'	=> $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
@@ -914,7 +914,7 @@ class ProductController extends Controller
         $data[ 'brand' ] = $product->brand;
         $data[ 'color' ] = $product->color;
         $data[ 'price' ] = $product->price;
-        $data['status'] = $product->status_id;
+        $data[ 'status' ] = $product->status_id;
 //		$data['price'] = $product->inr;
         $data[ 'euro_to_inr' ] = $product->euro_to_inr;
         $data[ 'price_inr' ] = $product->price_inr;
@@ -1144,8 +1144,8 @@ class ProductController extends Controller
 
             foreach ($request->file('images') as $key => $image) {
                 $media = MediaUploader::fromSource($image)
-                                        ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
-                                        ->upload();
+                    ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                    ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
 
                 if ($key == 0) {
@@ -1317,7 +1317,7 @@ class ProductController extends Controller
         $roletype = $request->input('roletype') ?? 'Sale';
         $products = Product::where('stock', '>=', 1)
             ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'isApproved', 'stage', 'created_at'])
-            ->orderBy("created_at","DESC")
+            ->orderBy("created_at", "DESC")
             ->paginate(Setting::get('pagination'));
 
         $doSelection = true;
@@ -1386,7 +1386,7 @@ class ProductController extends Controller
 
         $products = (new Product())->newQuery()->latest();
         $products->where("has_mediables", 1);
-        
+
         if ($request->brand[ 0 ] != null) {
             $products = $products->whereIn('brand', $request->brand);
         }
@@ -1478,9 +1478,9 @@ class ProductController extends Controller
         if (trim($term) != '') {
             $products = $products->where(function ($query) use ($term) {
                 $query->where('sku', 'LIKE', "%$term%")
-                      ->orWhere('id', 'LIKE', "%$term%")
-                      ->orWhere('name', 'LIKE', "%$term%")
-                      ->orWhere('short_description', 'LIKE', "%$term%");
+                    ->orWhere('id', 'LIKE', "%$term%")
+                    ->orWhere('name', 'LIKE', "%$term%")
+                    ->orWhere('short_description', 'LIKE', "%$term%");
 
                 if ($term == -1) {
                     $query = $query->orWhere('isApproved', -1);
@@ -1521,34 +1521,34 @@ class ProductController extends Controller
         }
 
         // if source is attach_media for search then check product has image exist or not
-        if($request->get("unsupported",null) != "") {
-            
+        if ($request->get("unsupported", null) != "") {
+
             $products = $products->join("mediables", function ($query) {
                 $query->on("mediables.mediable_id", "products.id")->where("mediable_type", \App\Product::class);
             });
 
-            $mediaIds = \DB::table("media")->where("aggregate_type","image")->join("mediables", function ($query) {
+            $mediaIds = \DB::table("media")->where("aggregate_type", "image")->join("mediables", function ($query) {
                 $query->on("mediables.media_id", "media.id")->where("mediables.mediable_type", \App\Product::class);
-            })->whereNotIn("extension",config("constants.gd_supported_files"))->select("id")->pluck("id")->toArray();
+            })->whereNotIn("extension", config("constants.gd_supported_files"))->select("id")->pluck("id")->toArray();
 
-            $products = $products->whereIn("mediables.media_id",$mediaIds);
+            $products = $products->whereIn("mediables.media_id", $mediaIds);
             $products = $products->groupBy('products.id');
         }
 
 
         if (!empty($request->quick_sell_groups) && is_array($request->quick_sell_groups)) {
-            $products = $products->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (".implode(",", $request->quick_sell_groups).") ))");
+            $products = $products->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (" . implode(",", $request->quick_sell_groups) . ") ))");
         }
 
         // select fields..
-        $products = $products->select(['products.id','name','short_description','color','sku', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
+        $products = $products->select(['products.id', 'name', 'short_description', 'color', 'sku', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
 
         if ($request->get('is_on_sale') == 'on') {
             $products = $products->where('is_on_sale', 1);
         }
 
 
-        if($request->has("limit")) {
+        if ($request->has("limit")) {
             $perPageLimit = ($request->get("limit") == "all") ? $products->get()->count() : $request->get("limit");
         }
 
@@ -1563,7 +1563,7 @@ class ProductController extends Controller
                 'model_type' => $model_type
             ])->render();
 
-            return response()->json(['html' => $html,'products_count' => $products_count]);
+            return response()->json(['html' => $html, 'products_count' => $products_count]);
         }
 
         $filtered_category = json_decode($request->category, true);
@@ -1574,13 +1574,13 @@ class ProductController extends Controller
             ->selected($filtered_category)
             ->renderAsDropdown();
 
-        $locations = \App\ProductLocation::pluck("name","name");
+        $locations = \App\ProductLocation::pluck("name", "name");
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
 
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category',  'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
+        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
     }
 
 
@@ -1616,14 +1616,14 @@ class ProductController extends Controller
         switch ($model_type) {
             case 'order':
                 $order = Order::find($model_id);
-                if(!empty($order)) {
+                if (!empty($order)) {
                     $selected_products = $order->order_product()->with('product')->get()->pluck('product.id')->toArray();
                 }
                 break;
 
             case 'sale':
                 $sale = Sale::find($model_id);
-                if(!empty($sale)) {
+                if (!empty($sale)) {
                     $selected_products = json_decode($sale->selected_product, true) ?? [];
                 }
                 break;
@@ -1680,8 +1680,8 @@ class ProductController extends Controller
 
         $product->detachMediaTags(config('constants.media_tags'));
         $media = MediaUploader::fromSource($request->get('is_image_url') ? $request->get('image') : $request->file('image'))
-                                ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
-                                ->upload();
+            ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
+            ->upload();
         $product->attachMedia($media, config('constants.media_tags'));
 
         $product_image = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
@@ -1755,7 +1755,7 @@ class ProductController extends Controller
                     $child = $cat;
                 }
             }
-        } catch ( \ErrorException $e ) {
+        } catch (\ErrorException $e) {
             //
         }
 
@@ -1792,9 +1792,9 @@ class ProductController extends Controller
         if ($request->hasFile('file')) {
             $image = $request->file('file');
             $media = MediaUploader::fromSource($image)
-                                    ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
-                                    ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')).'/' . $product->id)
-                                    ->upload();
+                ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
+                ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
+                ->upload();
             $product->attachMedia($media, config('constants.media_gallery_tag'));
             $product->crop_count = $product->crop_count + 1;
             $product->save();
@@ -1813,10 +1813,10 @@ class ProductController extends Controller
             $product->save();
 
             // get the status as per crop
-            if($product->category > 0) {
+            if ($product->category > 0) {
                 $category = \App\Category::find($product->category);
-                if(!empty($category) && $category->status_after_autocrop > 0) {
-                    \App\Helpers\StatusHelper::updateStatus($product,$category->status_after_autocrop);
+                if (!empty($category) && $category->status_after_autocrop > 0) {
+                    \App\Helpers\StatusHelper::updateStatus($product, $category->status_after_autocrop);
                 }
             }
 
@@ -2223,38 +2223,38 @@ class ProductController extends Controller
     {
         $customerIds = $request->get('customers_id', '');
         $customerIds = explode(',', $customerIds);
-        $brand       = request()->get("brand",null);
-        $category    = request()->get("category",null);
-        $numberOfProduts = request()->get("number_of_products",10);
-        $quick_sell_groups = request()->get("quick_sell_groups",[]);
+        $brand = request()->get("brand", null);
+        $category = request()->get("category", null);
+        $numberOfProduts = request()->get("number_of_products", 10);
+        $quick_sell_groups = request()->get("quick_sell_groups", []);
 
         $product = new \App\Product;
 
-        $toBeRun =  false;
-        if(!empty($brand)) {
-            $toBeRun =  true;
-            $product = $product->where("brand",$brand);
+        $toBeRun = false;
+        if (!empty($brand)) {
+            $toBeRun = true;
+            $product = $product->where("brand", $brand);
         }
 
-        if(!empty($category)) {
-            $toBeRun =  true;
-            $product = $product->where("category",$category);
+        if (!empty($category)) {
+            $toBeRun = true;
+            $product = $product->where("category", $category);
         }
 
         if (!empty($quick_sell_groups)) {
-            $toBeRun =  true;
-            $product = $product->whereRaw("(products.id in (select product_id from product_quicksell_groups where quicksell_group_id in (". $quick_sell_groups.") ))");
+            $toBeRun = true;
+            $product = $product->whereRaw("(products.id in (select product_id from product_quicksell_groups where quicksell_group_id in (" . $quick_sell_groups . ") ))");
         }
 
         $extraParams = [];
 
-        if($toBeRun) {
+        if ($toBeRun) {
             $limit = (!empty($numberOfProduts) && is_numeric($numberOfProduts)) ? $numberOfProduts : 10;
-            $imagesQuery = $product->join("mediables as m","m.mediable_id", "products.id")->select("media_id")->groupBy("products.id")
-            ->limit($limit)
-            ->get()->pluck("media_id")->toArray();
-            if(!empty($imagesQuery)) {
-                $extraParams["images"] = json_encode(array_unique($imagesQuery));
+            $imagesQuery = $product->join("mediables as m", "m.mediable_id", "products.id")->select("media_id")->groupBy("products.id")
+                ->limit($limit)
+                ->get()->pluck("media_id")->toArray();
+            if (!empty($imagesQuery)) {
+                $extraParams[ "images" ] = json_encode(array_unique($imagesQuery));
             }
         }
 
@@ -2271,8 +2271,8 @@ class ProductController extends Controller
             $requestData = new Request();
             $requestData->setMethod('POST');
             $params = $request->except(['_token', 'customers_id', 'return_url']);
-            $params['customer_id'] = $customerId;
-            $params['is_queue'] = $is_queue;
+            $params[ 'customer_id' ] = $customerId;
+            $params[ 'is_queue' ] = $is_queue;
             $requestData->request->add($params + $extraParams);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
@@ -2283,7 +2283,7 @@ class ProductController extends Controller
         }
 
         if ($request->get('return_url')) {
-            return redirect("/".$request->get('return_url'));
+            return redirect("/" . $request->get('return_url'));
         }
 
         return redirect('/erp-leads');
@@ -2292,21 +2292,21 @@ class ProductController extends Controller
 
     public function queueCustomerAttachImages(Request $request)
     {
-        $data['_token'] = $request->_token;
-        $data['send_pdf'] = $request->send_pdf;
-        $data['pdf_file_name'] = !empty($request->pdf_file_name) ? $request->pdf_file_name : "";
-        $data['images'] = $request->images;
-        $data['image'] = $request->image;
-        $data['screenshot_path'] = $request->screenshot_path;
-        $data['message'] = $request->message;
-        $data['customer_id'] = $request->customer_id;
-        $data['status'] = $request->status;
+        $data[ '_token' ] = $request->_token;
+        $data[ 'send_pdf' ] = $request->send_pdf;
+        $data[ 'pdf_file_name' ] = !empty($request->pdf_file_name) ? $request->pdf_file_name : "";
+        $data[ 'images' ] = $request->images;
+        $data[ 'image' ] = $request->image;
+        $data[ 'screenshot_path' ] = $request->screenshot_path;
+        $data[ 'message' ] = $request->message;
+        $data[ 'customer_id' ] = $request->customer_id;
+        $data[ 'status' ] = $request->status;
 
         \App\Jobs\AttachImagesSend::dispatch($data);
 
-        $json = request()->get("json",false);
+        $json = request()->get("json", false);
 
-        if($json) {
+        if ($json) {
             return response()->json(["code" => 200]);
         }
 
@@ -2314,7 +2314,7 @@ class ProductController extends Controller
             return redirect($request->get('return_url'));
         }
 
-        return redirect()->route('customer.post.show',$request->customer_id)->withSuccess('Message Send For Queue');
+        return redirect()->route('customer.post.show', $request->customer_id)->withSuccess('Message Send For Queue');
     }
 
     public function cropImage(Request $request)
@@ -2322,8 +2322,8 @@ class ProductController extends Controller
         $id = $request->id;
         $img = $request->img;
         $style = $request->style;
-        $style = explode(' ',$style);
-        $name = str_replace(['scale(',')'],'',$style[4]);
+        $style = explode(' ', $style);
+        $name = str_replace(['scale(', ')'], '', $style[ 4 ]);
         $newHeight = (($name * 3.333333) * 1000);
 
         list($width, $height) = getimagesize($img);
@@ -2333,28 +2333,28 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             $source = imagecreatefrompng($img);
         }
-        
+
 
         // Resize
         imagecopyresized($thumb, $source, 0, 0, 0, 0, $newHeight, $newHeight, $width, $height);
-        
-        $thumbWidth  = imagesx($thumb);
+
+        $thumbWidth = imagesx($thumb);
         $thumbHeight = imagesy($thumb);
 
-        
+
         $canvasImage = imagecreatetruecolor(1000, 1000); // Creates a black image
 
         // Fill it with white (optional)
         $gray = imagecolorallocate($canvasImage, 227, 227, 227);
         imagefill($canvasImage, 0, 0, $gray);
 
-        imagecopy($canvasImage, $thumb, (1000-$thumbWidth)/2, (1000-$thumbHeight)/2, 0, 0, $thumbWidth, $thumbHeight);
+        imagecopy($canvasImage, $thumb, (1000 - $thumbWidth) / 2, (1000 - $thumbHeight) / 2, 0, 0, $thumbWidth, $thumbHeight);
         $url = env('APP_URL');
-        $path = str_replace($url,'',$img);
-        
-        imagejpeg($canvasImage, public_path().'/'.$path);
+        $path = str_replace($url, '', $img);
+
+        imagejpeg($canvasImage, public_path() . '/' . $path);
         $product = Product::find($id);
-        
+
         return response()->json(['success' => 'success', 200]);
     }
 }
