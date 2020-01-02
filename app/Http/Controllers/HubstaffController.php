@@ -3,8 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Article;
+use App\HubstaffMember;
 use Illuminate\Http\Request;
 use Hubstaff\Hubstaff;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
+use Session;
+
+define("STATE_MEMBERS", "MEMBERS");
+
+define("SESSION_ACCESS_TOKEN", "access_token");
+define("SESSION_REFRESH_TOKEN", "refresh_token");
 
 class HubstaffController extends Controller
 {
@@ -13,40 +22,94 @@ class HubstaffController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(){
+    public function index()
+    {
+        $value = session(SESSION_ACCESS_TOKEN);
+        $members = HubstaffMember::all();
 
-        $url = 'https://api.hubstaff.com/v2/organizations/197350/members';
-        //$url = 'https://api.hubstaff.com/v2/organizations/197350/projects?status=active';
-        //$url = 'https://api.hubstaff.com/v2/users/me';
-        $data   = array();
-        $members = $this->get_data($url);
-        if(!empty($members->members)) {
-            $data['error'] = false;
-            foreach ($members->members as $member) {
-                $member_url = 'https://api.hubstaff.com/v2/users/' . $member->user_id;
-                $users = $this->get_data($member_url);
-                $data[] = $users->user;
-            }
+        if (!$value) {
+            $url = 'https://account.hubstaff.com/.well-known/openid-configuration';
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            $decoded_json = json_decode($response);
+
+            $params = array(
+                'client_id' => getenv('HUBSTAFF_CLIENT_ID'),
+                'response_type' => 'code',
+                'nonce' => sha1(time()),
+                'redirect_uri' => getenv('APP_URL') . '/hubstaff/redirect',
+                'scope' => 'hubstaff:read hubstaff:write',
+                'state' => STATE_MEMBERS
+            );
+
+            return view(
+                'hubstaff.members',
+                [
+                    'auth' => [
+                        'should_show_login' => true,
+                        'link' => $decoded_json->authorization_endpoint . '?' . http_build_query($params)
+                    ],
+                    'members' => $members
+                ]
+            );
         }else{
-            $data['error'] = true;
-            $data['error_description'] = $members->error_description;
+            return view(
+                'hubstaff.members',
+                [
+                    'members' => $members
+                ]
+            );
         }
+    }
 
-        return view('hubstaff.members', [
-            'members' => $data,
-        ]);
+    public function getMembers()
+    {
+        $httpClient = new Client();
+
+        $access_token = session(SESSION_ACCESS_TOKEN);
+
+        $response = $httpClient->get(
+            'https://api.hubstaff.com/v2/organizations/197350/members',
+            [
+                RequestOptions::HEADERS => [
+                    'Authorization' => 'Bearer ' . $access_token
+                ]
+            ]
+        );
+
+        if ($response->getStatusCode() == 200) {
+            $responseJson = json_decode($response->getBody()->getContents());
+            foreach ($responseJson->members as $member) {
+                //eloquent insert
+                HubstaffMember::updateOrCreate(
+                    [
+                        'hubstaff_user_id' => $member->user_id
+                    ],
+                    [
+                        'hubstaff_user_id' => $member->user_id
+                    ]
+                );
+            }
+        }
+        // redirect to members list
+        return redirect('hubstaff/members');
     }
 
 
-    public function getProjects(){
+    public function getProjects()
+    {
 
         $url        = 'https://api.hubstaff.com/v2/organizations/197350/projects?status=active';
         $projects   = $this->get_data($url);
         $data   = array();
-        if(!empty($projects->projects)) {
+        if (!empty($projects->projects)) {
             $data['error'] = false;
             $data[]         = $projects->projects;
-        }else{
+        } else {
             $data['error'] = true;
             $data['error_description'] = $projects->error_description;
         }
@@ -55,15 +118,16 @@ class HubstaffController extends Controller
         ]);
     }
 
-    public function getTasks(){
+    public function getTasks()
+    {
 
         $url        = 'https://api.hubstaff.com/v2/organizations/197350/tasks';
         $tasks      = $this->get_data($url);
         $data   = array();
-        if(!empty($tasks->projects)) {
+        if (!empty($tasks->projects)) {
             $data['error'] = false;
             $data[]         = $tasks->projects;
-        }else{
+        } else {
             $data['error'] = true;
             $data['error_description'] = $tasks->error_description;
         }
@@ -73,7 +137,8 @@ class HubstaffController extends Controller
     }
 
 
-    public function get_data($url) {
+    public function get_data($url)
+    {
 
         $ch = curl_init($url);
 
@@ -84,7 +149,7 @@ class HubstaffController extends Controller
 
         $http_header = array(
             "App-Token: 2YuxAoBm9PHUtruFNYTnA9HhvI3xMEGSU-EICdO5VoM",
-            "Authorization: ".$auth_token,
+            "Authorization: " . $auth_token,
             "Content-Type: application/x-www-form-urlencoded;charset=UTF-8",
             "Accept: application/json",
         );
@@ -106,7 +171,8 @@ class HubstaffController extends Controller
      * 
      * @return json response
      */
-    public function updateTitle(Request $request) {
+    public function updateTitle(Request $request)
+    {
         $article = Article::findOrFail($request['id']);
         $article->title = $request['article_title'];
         $article->save();
@@ -122,7 +188,8 @@ class HubstaffController extends Controller
      * 
      * @return json response
      */
-    public function updateDescription(Request $request) {
+    public function updateDescription(Request $request)
+    {
         $article = Article::findOrFail($request['id']);
         $article->description = $request['article_desc'];
         $article->save();
@@ -132,4 +199,39 @@ class HubstaffController extends Controller
         ]);
     }
 
+    public function redirect(Request $request)
+    {
+        echo '<h1>Processing your request</h1>';
+
+        $code = $request->query()['code'];
+        $state = $request->query()['state'];
+        if ($code) {
+
+            $params = array(
+                'grant_type' => 'authorization_code',
+                'code' => $code,
+                'redirect_uri' => getenv('APP_URL') . '/hubstaff/redirect',
+            );
+
+            $ch = curl_init('https://account.hubstaff.com/access_tokens?' . http_build_query($params));
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_USERPWD, getenv('HUBSTAFF_CLIENT_ID') . ":" . getenv('HUBSTAFF_CLIENT_SECRET'));
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            $json_decoded_response = json_decode($response);
+
+            session([
+                SESSION_ACCESS_TOKEN => $json_decoded_response->access_token,
+                SESSION_REFRESH_TOKEN => $json_decoded_response->refresh_token
+            ]);
+
+            Session::save();
+
+            if ($state == STATE_MEMBERS) {
+                return redirect('hubstaff/members');
+            }
+        }
+    }
 }
