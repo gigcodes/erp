@@ -481,7 +481,12 @@ class ProductCropperController extends Controller
     {
         // Get product
         $product = Product::findOrFail($id);
-
+        
+        if($product->status_id == StatusHelper::$cropRejected || $product->status_id = StatusHelper::$manualImageUpload){
+            if ($request->ajax()) {
+            return response()->json(['sucesss'], 200);
+            }
+        }
         // Get last image cropper
         $lastImageCropper = $product->crop_approved_by;
 

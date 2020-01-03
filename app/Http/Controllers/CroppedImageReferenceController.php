@@ -93,7 +93,7 @@ class CroppedImageReferenceController extends Controller
     {
         
         $query = CroppedImageReference::query();
-            if($request->category || $request->brand || $request->supplier || $request->crop){
+            if($request->category || $request->brand || $request->supplier || $request->crop || $request->status){
                 
 
                 if(is_array(request('category'))){
@@ -122,6 +122,16 @@ class CroppedImageReferenceController extends Controller
                             });
                 }
 
+                if (request('status') != null){ 
+                 $query->whereHas('product', function ($qu) use ($request) {
+                                $qu->where('status_id', request('status'));
+                 });
+                }else{
+                  $query->whereHas('product', function ($qu) use ($request) {
+                                $qu->where('status_id', StatusHelper::$autoCrop);
+                            });   
+                }
+
                 if (request('crop') != null){
                     if(request('crop') == 2){
                       $query->whereNotNull('new_media_id'); 
@@ -132,9 +142,12 @@ class CroppedImageReferenceController extends Controller
             $products = $query->orderBy('id', 'desc')->paginate(50); 
 
         }else{
-            
 
-           $products = $query->orderBy('id', 'desc')->paginate(50); 
+            $query->whereHas('product', function ($qu) use ($request) {
+                                $qu->where('status_id', StatusHelper::$autoCrop);
+                            }); 
+            $products = $query->orderBy('id', 'desc')->paginate(50);
+
         }
         
         $selected_categories = $request->category ? $request->category : 1;
@@ -144,7 +157,8 @@ class CroppedImageReferenceController extends Controller
             ->renderAsDropdown();
 
         $total = $query->count(); 
-        $pendingProduct = Product::where('status_id',StatusHelper::$autoCrop)->where('stock','>=',1)->count();   
+         
+         $pendingProduct = Product::where('status_id',StatusHelper::$autoCrop)->where('stock','>=',1)->count();  
         
          if (request('customer_range') != null){
                    $dateArray =  explode('-',request('customer_range'));
