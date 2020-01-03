@@ -151,7 +151,7 @@
     <div class="infinite-scroll">
         <div class="table-responsive">
             <table class="table table-bordered table-striped">
-                @if($title == 'issue')
+                @if($title == 'issue' && auth()->user()->isAdmin())
                     <tr class="add-new-issue">
                         <form action="{{ route('development.issue.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
