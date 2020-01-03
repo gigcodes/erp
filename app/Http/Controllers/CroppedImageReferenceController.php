@@ -144,7 +144,7 @@ class CroppedImageReferenceController extends Controller
             ->renderAsDropdown();
 
         $total = $query->count(); 
-        $pendingProduct = Product::where('status_id',StatusHelper::$autoCrop)->count();   
+        $pendingProduct = Product::where('status_id',StatusHelper::$autoCrop)->where('stock','>=',1)->count();   
         
          if (request('customer_range') != null){
                    $dateArray =  explode('-',request('customer_range'));
@@ -178,5 +178,12 @@ class CroppedImageReferenceController extends Controller
             }
 
         return view('image_references.grid', compact('products','category_selection','total','pendingProduct','totalCounts'));
+    }
+
+    public function rejectCropImage(Request $request)
+    {
+        $reference = CroppedImageReference::find($request->id);
+        $product = Product::find($reference->product_id);
+        dd($product);
     }
 }

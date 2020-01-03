@@ -389,7 +389,7 @@ class DevelopmentController extends Controller
         }
 
         if ((int)$request->get('assigned_to') > 0) {
-            $issues = $issues->where('assigned_to', $request->get('assigned_to'));
+            $issues = $issues->where('user_id', $request->get('assigned_to'));
         }
 
         if ($request->get('module')) {
@@ -414,6 +414,12 @@ class DevelopmentController extends Controller
         // Hide resolved
         if ((int)$request->show_resolved !== 1) {
             $issues = $issues->where('is_resolved', 0);
+        }
+
+        if (!auth()->user()->isAdmin()) {
+            $issues = $issues->where(function($q){
+                $q->where("assigned_to",auth()->user()->id)->orWhere("responsible_user_id",auth()->user()->id);
+            });
         }
 
         // Sort
@@ -679,7 +685,7 @@ class DevelopmentController extends Controller
 
     public function issueStore(Request $request)
     {
-        
+
         $this->validate($request, [
             'priority' => 'required|integer',
             'issue' => 'required|min:3'

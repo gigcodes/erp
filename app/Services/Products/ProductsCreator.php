@@ -158,7 +158,7 @@ class ProductsCreator
                 $product->save();
             }
 
-            if ($db_supplier = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
+            if ($db_supplier = Supplier::select('suppliers.id')->leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
                 $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
             })->first()) {
                 if ($product) {
@@ -266,7 +266,7 @@ class ProductsCreator
             return;
         }
 
-        if ($db_supplier = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
+        if ($db_supplier = Supplier::select('suppliers.id')->leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
             $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
         })->first()) {
             $product->suppliers()->syncWithoutDetaching([
