@@ -45,6 +45,7 @@
                    <div class="form-group mr-3">
                         <select data-placeholder="Status Type" class="form-control select-multiple2" name="status" id="status">
                             <optgroup label="Status Type">
+                               <option value="0">Select Status</option> 
                                <option value="4">AutoCrop</option>
                                <option value="18">Crop Rejected</option> 
                                <option value="12">Manual Image Upload</option> 
