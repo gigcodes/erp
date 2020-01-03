@@ -199,7 +199,6 @@ class Kernel extends ConsoleKernel
         //Get list of schedule and put list in cron jobs table
         $schedule->command('schedule:list')->daily();
 
-
         //This will run every  five minutes checking and making keyword-customer relationship...
         $schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();
 
