@@ -122,13 +122,13 @@ class CroppedImageReferenceController extends Controller
                             });
                 }
 
-                if (request('status') != null){ 
+                if (request('status') != null && request('status') != 0){ 
                  $query->whereHas('product', function ($qu) use ($request) {
                                 $qu->where('status_id', request('status'));
                  });
                 }else{
                   $query->whereHas('product', function ($qu) use ($request) {
-                                $qu->where('status_id', StatusHelper::$autoCrop);
+                                $qu->where('status_id','!=',StatusHelper::$cropRejected);
                             });   
                 }
 
@@ -144,7 +144,7 @@ class CroppedImageReferenceController extends Controller
         }else{
 
             $query->whereHas('product', function ($qu) use ($request) {
-                                $qu->where('status_id', StatusHelper::$autoCrop);
+                                $qu->where('status_id','!=',StatusHelper::$cropRejected);
                             }); 
             $products = $query->orderBy('id', 'desc')->paginate(50);
 
