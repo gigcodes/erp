@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\ColdLeads;
 use App\Customer;
 use App\CronJobReport;
+use Carbon\Carbon;
 
 class MoveColdLeadsToCustomers extends Command
 {
@@ -42,9 +43,9 @@ class MoveColdLeadsToCustomers extends Command
     {
 
         $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+            'signature' => $this->signature,
+            'start_time' => Carbon::now()
+        ]);
 
 
         // Get cold leads
@@ -95,6 +96,6 @@ class MoveColdLeadsToCustomers extends Command
             }
         }
 
-         $report->update(['end_time' => Carbon:: now()]);
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }
