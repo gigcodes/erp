@@ -80,7 +80,7 @@ class MoveColdLeadsToCustomers extends Command
                     $customer = Customer::where('phone', $coldLead->platform_id)->first();
 
                     // Nothing found?
-                    if ($customer == null) {
+                    if ($customer == null && !empty($coldLead->name)) {
                         // Create new customer
                         $customer = new Customer();
                         $customer->name = $coldLead->name;
