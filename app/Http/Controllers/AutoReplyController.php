@@ -365,4 +365,34 @@ class AutoReplyController extends Controller
 
     }
 
+    public function mostUsedPhrases(Request $request)
+    {
+        $groupPhrases = \App\ChatbotQuestion::all();
+
+        $keyword = request("keyword" , "");
+
+        $mostUsedPhrases = new \App\ChatMessagePhrase;
+
+        if(!empty($keyword)) {
+            $mostUsedPhrases = $mostUsedPhrases->where("phrase","like","%$keyword%");
+        }
+
+        $mostUsedPhrases = $mostUsedPhrases->where(\DB::raw("LENGTH(phrase) - LENGTH(REPLACE(phrase, ' ', '')) + 1") , ">" , 3);
+
+        $mostUsedPhrases->groupBy("phrase");
+
+        $mostUsedPhrases = $mostUsedPhrases->orderBy("total","desc");
+
+        $mostUsedPhrases = $mostUsedPhrases->paginate(10);
+
+        $allSuggestedOptions = \App\ChatbotDialog::allSuggestedOptions();
+        
+        return view("autoreplies.most-used-phrases",[
+            'mostUsedPhrases' => $mostUsedPhrases,
+            'groupPhrases' => $groupPhrases,
+            'groupKeywords' => [],
+            'allSuggestedOptions' => $allSuggestedOptions
+        ]);
+    }
+
 }

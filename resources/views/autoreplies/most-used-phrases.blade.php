@@ -41,7 +41,7 @@
 @section('content')
     <div class="row margin-tb">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Most Used Words | Auto Replies</h2>
+            <h2 class="page-heading">Most Used Phrases | Auto Replies</h2>
             <div class="pull-left">
                 <form>
                     <div class="form-group">
@@ -50,8 +50,6 @@
                 </form>
             </div>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#autoReplyCreateModal">Create</a>
-                <button type="button" class="btn btn-secondary ml-3" onclick="addGroup()">Keyword Group</a>
                 <button type="button" class="btn btn-secondary ml-3" onclick="addGroupPhrase()">Phrase Group</a>
             </div>
         </div>
@@ -68,13 +66,12 @@
             </tr>
             </thead>
             <tbody>
-                @foreach ($mostUsedWords as $key => $words)
+                @foreach ($mostUsedPhrases as $key => $phrases)
                     <tr>
-                        <td><input type="checkbox" name="keyword" value="{{ $words->id }}">  {{ $words->word }}</td>
-                        <td>{{ $words->total }}</td>
+                        <td><input type="checkbox" name="phrase" data-keyword="{{ $phrases->id }}" value="{{ $phrases->id }}">  {{ $phrases->phrase }}</td>
+                        <td>{{ $phrases->total }}</td>
                         <td>
-                            <button data-id="{{ $words->id }}" class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
-                            <button data-id="{{ $words->id }}" class="btn btn-image delete-row-btn"><img src="/images/delete.png"></button>
+                            <button data-id="{{ $phrases->chat_id }}" class="btn btn-image get-chat-details"><img src="/images/chat.png"></button>
                         </td>
                     </tr>
                 @endforeach
@@ -82,7 +79,7 @@
         </table>
     </div>
     <div class="col-md-12 margin-tb">
-        {{ $mostUsedWords->appends(request()->except('page'))->links() }}
+        {{ $mostUsedPhrases->appends(request()->except('page'))->links() }}
     </div>    
     @include('partials.chat-history')
     @include('autoreplies.partials.group')
@@ -138,40 +135,6 @@
             }
         });
 
-        $(document).on("click",".expand-row-btn",function() {
-            var dataId = $(this).data("id");
-            $.ajax({
-                type: 'GET',
-                url: "/autoreply/get-phrases",
-                data: {
-                    id: dataId
-                }
-            }).done(function (response) {
-                if(response.code == 200) {
-                    $("#phrase-editor-model").find(".modal-body").html(response.html);
-                    $("#phrase-editor-model").modal("show");
-                }
-            }).fail(function (response) {
-            });
-        });
-
-        $("#phrase-editor-model").on("click",".page-link",function(e) {
-            e.preventDefault();
-            var $this =  $(this);
-            if(typeof $this.attr("href") != "undefined") {
-                $.ajax({
-                    type: 'GET',
-                    url: $this.attr("href")
-                }).done(function (response) {
-                    if(response.code == 200) {
-                        $("#phrase-editor-model").find(".modal-body").html(response.html);
-                        //$("#phrase-editor-model").modal("show");
-                    }
-                }).fail(function (response) {
-                });
-            }
-        });
-
         $(document).on("focusout","#search-by-phrases",function() {
             var dataId = $(this).data("id");
             $.ajax({
@@ -190,7 +153,7 @@
             });
         });
 
-        $(document).on("click",".delete-row-btn",function() {
+        /*$(document).on("click",".delete-row-btn",function() {
             var $this = $(this);
             var dataId = $(this).data("id");
             $.ajax({
@@ -205,7 +168,7 @@
                 $("#phrases_"+dataId).remove();
             }).fail(function (response) {
             });
-        });
+        });*/
 
         var callingMoreChat = function(chatId, pageId) {
             $.ajax({
@@ -317,19 +280,6 @@
             });*/
         });
 
-
-        function addGroup(){
-            var id = [];
-            $.each($("input[name='keyword']:checked"), function(){
-                id.push($(this).val());
-            });
-            if(id.length == 0){
-                alert('Please Select Keyword');
-            }else{
-                $('#groupCreateModal').modal('show');
-            }
-        }
-
         function addGroupPhrase(){
              var phraseId = [];
             $.each($("input[name='phrase']:checked"), function(){
@@ -341,37 +291,6 @@
                 $('#groupPhraseCreateModal').modal('show');
             }
         }
-
-        function createGroup(){
-             var id = [];
-             name = $('#keywordname').val();
-             keyword_group = $('#keywordGroup').val();
-             
-            $.each($("input[name='keyword']:checked"), function(){
-                id.push($(this).val());
-            });
-            if(id.length == 0){
-                alert('Please Select Keyword');
-            }else{
-                $.ajax({
-                type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                url: '{{ route('autoreply.save.group') }}',
-                data: {
-                    id: id,
-                    name : name,
-                    keyword_group : keyword_group,
-                },
-                }).done(response => {
-                    alert('Added Group');
-                }).fail(function (response) {
-                    alert('Could not add group!');
-                });
-            }
-        }
-
 
         function createGroupPhrase() {
             var phraseId = [];
@@ -403,10 +322,6 @@
                     alert('Could not add Phrase group!');
                 });
             }
-            
-            $(function() {
-                $('.selectpicker').selectpicker();
-            });
         }
     </script>
 @endsection
