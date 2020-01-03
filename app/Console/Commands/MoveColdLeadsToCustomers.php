@@ -77,7 +77,7 @@ class MoveColdLeadsToCustomers extends Command
                 // Add cold lead to customers table
                 if (!$coldLead->customer && !$coldLead->whatsapp) {
                     // Check for existing customer
-                    $customer = Customer::where('phone', $coldLead->platform_id)->first();
+                    $customer = Customer::where('phone', $coldLead->platform_id)->get();
 
                     // Nothing found?
                     if ($customer == null && !empty($coldLead->name)) {
@@ -88,7 +88,13 @@ class MoveColdLeadsToCustomers extends Command
                         $customer->whatsapp_number = $arrCustomerNumbers[ rand(0, count($arrCustomerNumbers) - 1) ];
                         $customer->city = $coldLead->address;
                         $customer->country = 'IN';
-                        $customer->save();
+                        try {
+                            $customer->save();
+                        } catch (\Exception $e) {
+                            echo $e->getMessage();
+                            $coldLead->customer_id = 1;
+                            $coldLead->save();
+                        }
 
                         if (!empty($customer->id)) {
                             $coldLead->customer_id = $customer->id;
