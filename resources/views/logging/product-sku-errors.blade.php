@@ -128,7 +128,12 @@
                                 @endforeach
                             </optgroup>
                         </select></th>
-                
+                <th>
+                    <select data-placeholder="Select Type" class="form-control" id="custom">
+                            <option value="0">Select</option>
+                            <option value="1">SKU is not proper</option>
+                        </select></th>
+                </th>
             </tr>
             </thead>
             <tbody id="content_data">
@@ -199,7 +204,7 @@
             });
         });
 
-         $('#brand,#category,#supplier').on('change', function () {
+         $('#brand,#category,#supplier,#custom').on('change', function () {
             $.ajax({
                 url: '/logging/sku-logs-errors',
                 dataType: "json",
@@ -208,6 +213,7 @@
                     brand: $('#brand').val(),
                     category: $('#category').val(),
                     supplier : $('#supplier').val(),
+                    custom : $('#custom').val(),
                 },
                 beforeSend: function () {
                     $("#loading-image").show();
