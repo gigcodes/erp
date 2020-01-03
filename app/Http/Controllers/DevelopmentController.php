@@ -416,6 +416,12 @@ class DevelopmentController extends Controller
             $issues = $issues->where('is_resolved', 0);
         }
 
+        if (!auth()->user()->isAdmin()) {
+            $issues = $issues->where(function($q){
+                $q->where("assigned_to",auth()->user()->id)->orWhere("responsible_user_id",auth()->user()->id);
+            });
+        }
+
         // Sort
         if ($request->order == 'priority') {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
