@@ -74,4 +74,8 @@ Route::post('duty/v1/calculate', 'SimplyDutyCalculationController@calculate');
 
 // INSTAGRAM
 Route::post('instagram/post', 'InstagramPostsController@apiPost');
+Route::get('instagram/get-hashtag-list','InstagramPostsController@getHashtagList');
+
+// SUPPLIERS
+Route::post('supplier/brands-raw', 'SupplierController@apiBrandsRaw');
 

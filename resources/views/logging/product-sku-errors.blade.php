@@ -12,6 +12,7 @@
             top: 50%;
             left: 50%;
             margin: -50px 0px 0px -50px;
+            z-index: 48;
         }
 
         input {
@@ -29,7 +30,7 @@
             <h2 class="page-heading">SKU warnings/errors (<span id="count">{{ $failed }}</span>)</h2>
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" onclick="sendMulti()" style="display: none;" id="nulti">Send Selected</button>
-                <button type="button" class="btn btn-secondary">Number of open task {{ $pendingIssues }}</button>
+                <button type="button" class="btn btn-secondary">Number of open task {{ $pendingIssuesCount }}</button>
                 <button type="button" class="btn btn-secondary">Last Created task @if($lastCreatedIssue) {{ $lastCreatedIssue->created_at->format('d-m-Y H:i:s') }} @endif</button>
                 <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png"/></button>
             </div>
@@ -38,6 +39,53 @@
     </div>
 
     @include('partials.flash_messages')
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel-group">
+                <div class="panel mt-5 panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse1">Pending Issues</a>
+                        </h4>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <div class="pull-right">
+                            <form action="{{ route('broadcasts.index') }}" method="GET">
+                                <div class="form-group">
+                                    <div class="row">
+                                    
+                                 </div>
+                             </div>
+                         </form>
+                     </div>
+                            <table class="table table-bordered table-striped" id="phone-table">
+                                <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>User</th>
+                                    <th>Count</th>
+                                    
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($pendingIssues as $issue)
+                                    <tr>
+                                        <td>{{ $issue->status }}</td>
+                                        <td>{{ \App\User::find($issue->user_id)->name }}</td>
+                                        <td>{{ $issue->countUserTaskFromReference($issue->user_id) }}</td>
+                                    </tr>
+                                    @endforeach    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
    <div class="mt-3 col-md-12">
      <table class="table table-bordered table-striped" id="log-table">
             <thead>
@@ -45,7 +93,7 @@
                 <th style="width: 20% !important;">Brand</th>
                 <th style="width: 20% !important;">Category</th>
                 <th style="width: 20% !important;">Supplier</th>
-                <th><button onclick="changeOrder()" value="0" id="order_count" class="btn btn-link">Count</button></th>
+                <th><button onclick="changeOrder()" value="1" id="order_count" class="btn btn-link">Count</button></th>
                 <th>Action</th>
             </tr>
             <tr>
@@ -80,7 +128,12 @@
                                 @endforeach
                             </optgroup>
                         </select></th>
-                
+                <th>
+                    <select data-placeholder="Select Type" class="form-control" id="custom">
+                            <option value="0">Select</option>
+                            <option value="1">SKU is not proper</option>
+                        </select></th>
+                </th>
             </tr>
             </thead>
             <tbody id="content_data">
@@ -151,7 +204,7 @@
             });
         });
 
-         $('#brand,#category,#supplier').on('change', function () {
+         $('#brand,#category,#supplier,#custom').on('change', function () {
             $.ajax({
                 url: '/logging/sku-logs-errors',
                 dataType: "json",
@@ -160,6 +213,7 @@
                     brand: $('#brand').val(),
                     category: $('#category').val(),
                     supplier : $('#supplier').val(),
+                    custom : $('#custom').val(),
                 },
                 beforeSend: function () {
                     $("#loading-image").show();
