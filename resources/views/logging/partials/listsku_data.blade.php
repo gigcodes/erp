@@ -12,7 +12,7 @@
         <td>@if($logScrapper->taskType($logScrapper->website,$logScrapper->dataUnserialize($logScrapper->category),$logScrapper->brand) == false) 
                 <button onclick="addTask('{{ $logScrapper->website }}' , '{{ $logScrapper->dataUnserialize($logScrapper->category) }}','{{ $logScrapper->sku }}','{{ $logScrapper->brand }}')" class="btn btn-secondary">Add Issue</button>
             @else
-               {{ $logScrapper->taskType($logScrapper->website,$logScrapper->dataUnserialize($logScrapper->category),$logScrapper->brand) }}
+               {!! $logScrapper->taskType($logScrapper->website,$logScrapper->dataUnserialize($logScrapper->category),$logScrapper->brand) !!}
             @endif
             </td>
     </tr>

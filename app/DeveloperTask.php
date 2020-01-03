@@ -64,4 +64,8 @@ class DeveloperTask extends Model
     {
         return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereNotIn('status', ['7', '8', '9'])->latest();
     }
+
+    public function countUserTaskFromReference($id){
+        return $this->whereNotNull('reference')->where('responsible_user_id',$id)->count();
+    }
 }

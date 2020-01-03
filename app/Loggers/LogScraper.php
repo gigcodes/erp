@@ -307,6 +307,7 @@ class LogScraper extends Model
 
     public static function validateRegexSku($sku, $brand)
     {
+        $skuNew = ProductHelper::getSku($sku);
         // Do we have a brand?
         if ($brand != null) {
             // Find brand ID from brand
@@ -321,12 +322,12 @@ class LogScraper extends Model
                 if (!empty($skuFormat->sku_format)) {
                     try {
                         // Run brand regex on sku
-                        preg_match('/' . $skuFormat->sku_format . '/', $sku, $matches, PREG_UNMATCHED_AS_NULL);
+                        preg_match('/' . $skuFormat->sku_format . '/', $skuNew, $matches, PREG_UNMATCHED_AS_NULL);
 
                         // Do we have a match
                         if (isset($matches) && isset($matches[ 0 ]) && $matches != null) {
                             // Is the match equal to the SKU
-                            if ($matches[ 0 ] == $sku) {
+                            if ($matches[ 0 ] == $skuNew) {
                                 // Return if we have a match
                                 return;
                             }
@@ -340,12 +341,12 @@ class LogScraper extends Model
                 if (!empty($skuFormat->sku_format_without_color)) {
                     try {
                         // Run brand regex on sku
-                        preg_match('/' . $skuFormat->sku_format_without_color . '/', $sku, $matchesWithoutColor, PREG_UNMATCHED_AS_NULL);
+                        preg_match('/' . $skuFormat->sku_format_without_color . '/', $skuNew, $matchesWithoutColor, PREG_UNMATCHED_AS_NULL);
 
                         // Do we have a match
                         if (isset($matchesWithoutColor) && isset($matchesWithoutColor[ 0 ]) && $matchesWithoutColor != null) {
                             // Is the match equal to the SKU
-                            if ($matchesWithoutColor[ 0 ] == $sku) {
+                            if ($matchesWithoutColor[ 0 ] == $skuNew) {
                                 // Return if we have a match
                                 return;
                             }
@@ -447,28 +448,99 @@ class LogScraper extends Model
         $issue = DeveloperTask::where('reference',$reference)->first();
         if($issue != null && $issue != ''){
             if($issue->status == 'Done'){
-                return 'Issue Resolved';
+                return '<p>Issue Resolved</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$issue->id.'" title="Load messages"><img src="/images/chat.png" alt=""></button>';
             }else{
-                return 'Issue Raised';
+                return '<p>Issue Pending</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$issue->id.'" title="Load messages"><img src="/images/chat.png" alt=""></button>';
             }
         }else{
             return false;
         }
     }
 
-    public function brandLink($sku,$brand){
+    public function brandLink($link,$sku){
         
-         $brand = Brand::select('id','sku_search_url')->where('name',$brand)->first();
-         
-         if($brand != null){
-            
-            if($brand->sku_search_url != null){
-                return $link = str_replace('[SEARCH]',$sku,$brand->sku_search_url);
+         if($link != null){
+            return $link = str_replace('[SEARCH]',$sku,$link);
+        }else{
+            return false;
+         }
+    }
+
+    public function getFailedCount($supplier,$brand){
+        
+        $count = LogScraper::where('brand',$brand)->where('website',$supplier)->where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
+        return $count;
+        
+    }
+
+    public function getSKUExample($brand){
+        $brand = Brand::select('id')->where('name',$brand)->first();
+        if($brand != null && $brand != ''){
+            $format = SkuFormat::select('sku_examples')->where('brand_id',$brand->id)->first();
+            if($format != null && $format != ''){
+                $formats = explode(',',$format->sku_examples);
+                return $formats[0];
             }else{
                 return false;
             }
         }else{
             return false;
-         }
+        }
+    }
+
+    public function getSKUExampleFormat($brand){
+        $brand = Brand::select('id')->where('name',$brand)->first();
+        if($brand != null && $brand != ''){
+            $format = SkuFormat::select('sku_format')->where('brand_id',$brand->id)->first();
+            if($format != null && $format != ''){
+                return $format->sku_format;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
+    public function getSKUExampleFromLogScraper($supplier,$brand){
+        $skuLog = LogScraper::where('brand',$brand)->where('website',$supplier)->where('validation_result', 'LIKE', '%SKU failed regex test%')->first();
+        if($skuLog != null && $skuLog != ''){
+            return $skuLog->sku;
+        }else{
+            return false;
+        }
+        
+    }
+
+    public function getSKUExampleLinkFromLogScraper($supplier,$brand){
+        $skuLog = LogScraper::where('brand',$brand)->where('website',$supplier)->where('validation_result', 'LIKE', '%SKU failed regex test%')->first();
+        if($skuLog != null && $skuLog != ''){
+            return $skuLog->url;
+        }else{
+            return false;
+        }
+        
+    }
+
+    public function brands(){
+        return $this->hasOne(Brand::class,'name','brand');
+    }
+
+    public function skuStringCompareWithExample($example,$sku)
+    {
+        if($example != null && $sku != null){
+            $sample = explode(',',$example);
+            $string = str_replace(' ', '-', $sample[0]); // Replaces all spaces with hyphens.
+            $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string);
+            
+            if(strlen($string) < strlen($sku)){
+                return 'SKU string count is bigger the example';
+            }else{
+                return 'String Count Is Proper';
+            }
+
+        }else{
+            return "SKU Example Not Present";
+        }
     }
 }

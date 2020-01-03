@@ -220,7 +220,7 @@
 
                 <div class="form-group">
                     <strong> Special Price:</strong>
-                    <input type="number" disabled class="form-control" placeholder="Price (in Euro)" value="{{ $price_special }}"/>
+                    <input type="number" disabled class="form-control" placeholder="Price (in Euro)" value="{{ isset($price_special) ? $price_special : 0 }}"/>
                 </div>
 
                 <div class="form-group">
