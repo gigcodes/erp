@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\ColdLeads;
 use App\Customer;
 use App\CronJobReport;
+use Carbon\Carbon;
 
 class MoveColdLeadsToCustomers extends Command
 {
@@ -42,9 +43,9 @@ class MoveColdLeadsToCustomers extends Command
     {
 
         $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+            'signature' => $this->signature,
+            'start_time' => Carbon::now()
+        ]);
 
 
         // Get cold leads
@@ -52,7 +53,7 @@ class MoveColdLeadsToCustomers extends Command
 
         // Set count to 0 and maxcount to 50
         $count = 0;
-        $maxCount = 50;
+        $maxCount = 500000;
 
         // Get all numbers from config
         $config = \Config::get("apiwha.instances");
@@ -75,17 +76,32 @@ class MoveColdLeadsToCustomers extends Command
 
                 // Add cold lead to customers table
                 if (!$coldLead->customer && !$coldLead->whatsapp) {
-                    // Create new customer
-                    $customer = new Customer();
-                    $customer->name = $coldLead->name;
-                    $customer->phone = $coldLead->platform_id;
-                    $customer->whatsapp_number = $arrCustomerNumbers[ rand(0, count($arrCustomerNumbers) - 1) ];
-                    $customer->city = $coldLead->address;
-                    $customer->country = 'IN';
-                    $customer->save();
+                    // Check for existing customer
+                    $customer = Customer::where('phone', $coldLead->platform_id)->get();
 
-                    if (!empty($customer->id)) {
-                        $coldLead->customer_id = $customer->id;
+                    // Nothing found?
+                    if ($customer == null && !empty($coldLead->name)) {
+                        // Create new customer
+                        $customer = new Customer();
+                        $customer->name = $coldLead->name;
+                        $customer->phone = $coldLead->platform_id;
+                        $customer->whatsapp_number = $arrCustomerNumbers[ rand(0, count($arrCustomerNumbers) - 1) ];
+                        $customer->city = $coldLead->address;
+                        $customer->country = 'IN';
+                        try {
+                            $customer->save();
+                        } catch (\Exception $e) {
+                            echo $e->getMessage();
+                            $coldLead->customer_id = 1;
+                            $coldLead->save();
+                        }
+
+                        if (!empty($customer->id)) {
+                            $coldLead->customer_id = $customer->id;
+                            $coldLead->save();
+                        }
+                    } else {
+                        $coldLead->customer_id = 1;
                         $coldLead->save();
                     }
 
@@ -95,6 +111,6 @@ class MoveColdLeadsToCustomers extends Command
             }
         }
 
-         $report->update(['end_time' => Carbon:: now()]);
+        $report->update(['end_time' => Carbon:: now()]);
     }
 }

@@ -20,7 +20,20 @@
             <h1 class="text-center">Crop Reference Grid (<span id="total">{{ $total }}</span>) ({{ $pendingProduct }})</h1>
             <div class="pull-right">
                  <button onclick="addTask()" class="btn btn-secondary">Add Issue</button>
-                 
+                 <button onclick="rejectImage()" class="btn btn-secondary">Reject Image</button>
+                 <select class="form-control-sm form-control reject-cropping bg-secondary text-light" name="reject_cropping">
+                    <option value="0">Select...</option>
+                    <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
+                    <option value="No Images Shown">No Images Shown</option>
+                    <option value="Grid Not Shown">Grid Not Shown</option>
+                    <option value="Blurry Image">Blurry Image</option>
+                    <option value="First Image Not Available">First Image Not Available</option>
+                    <option value="Dimension Not Available">Dimension Not Available</option>
+                    <option value="Wrong Grid Showing For Category">Wrong Grid Showing For Category</option>
+                    <option value="Incorrect Category">Incorrect Category</option>
+                    <option value="Only One Image Available">Only One Image Available</option>
+                    <option value="Image incorrect">Image incorrect</option>
+                </select>
             </div>
                 <br>
             <!--Product Search Input -->
@@ -315,6 +328,32 @@
                     alert('No response from server');
                 });
         }
+
+        $('.reject-cropping').on('change',function(event) {
+            event.preventDefault();
+            id = $(this).attr('data-id');
+            $.ajax({
+                    url: '/crop-references-grid/reject',
+                    type: 'POST',
+                    dataType: "json",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        id: id,
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    
+                   
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    $("#loading-image").hide();
+                    alert('No response from server');
+                });
+            /* Act on the event */
+        });
     </script>
 
 @endsection
