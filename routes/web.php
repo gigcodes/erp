@@ -897,12 +897,19 @@ Route::get('message/delete', 'WhatsAppController@delete');
 
 //Hubstaff
 Route::get('hubstaff/members', 'HubstaffController@index');
+Route::post('hubstaff/linkuser', 'HubstaffController@linkUser');
+
 Route::get('hubstaff/projects', 'HubstaffController@getProjects');
+Route::get('hubstaff/projects/{id}', 'HubstaffController@editProject');
+Route::put('hubstaff/projects/edit', 'HubstaffController@editProjectData');
 Route::get('hubstaff/tasks', 'HubstaffController@getTasks');
+Route::get('hubstaff/tasks/add', 'HubstaffController@addTaskFrom');
+Route::put('hubstaff/tasks/editData', 'HubstaffController@editTask');
+Route::post('hubstaff/tasks/addData', 'HubstaffController@addTask');
+Route::get('hubstaff/tasks/{id}', 'HubstaffController@editTaskForm');
 Route::get('hubstaff/redirect', 'HubstaffController@redirect');
 Route::get('hubstaff/members/json', 'HubstaffController@getMembers');
 Route::get('hubstaff/debug', 'HubstaffController@debug');
-Route::post('hubstaff/linkuser', 'HubstaffController@linkUser');
 
 
 /*

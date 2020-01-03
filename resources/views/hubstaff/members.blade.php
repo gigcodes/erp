@@ -28,7 +28,7 @@
 
 @if(empty($auth))
 <div class="text-right">
-  <button class="btn btn-primary">Refresh hubstaff users</button>
+  <a href="/hubstaff/members/json" class="btn btn-primary">Refresh hubstaff users</a>
 </div>
 @endif
 

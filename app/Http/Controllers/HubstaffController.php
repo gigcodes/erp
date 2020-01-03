@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Hubstaff\Hubstaff;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Facades\Input;
 use Session;
 
 define("STATE_MEMBERS", "MEMBERS");
@@ -151,6 +152,71 @@ class HubstaffController extends Controller
         );
     }
 
+    public function editProject(Request $request)
+    {
+
+        $access_token = session(SESSION_ACCESS_TOKEN);
+
+        $projectId = $request->route('id');
+
+        $httpClient = new Client();
+        $url = 'https://api.hubstaff.com/v2/projects/' . $projectId;
+        $response = $httpClient->get(
+            $url,
+            [
+                RequestOptions::HEADERS => [
+                    'Authorization' => 'Bearer ' . $access_token
+                ]
+            ]
+        );
+        $project = array(
+            'id' => $projectId,
+            'name' => '',
+            'description' => ''
+        );
+        if ($response->getStatusCode() == 200) {
+            $responseJson = json_decode($response->getBody()->getContents());
+            $project['name'] = isset($responseJson->project->name) ? $responseJson->project->name : '';
+            $project['description'] = isset($responseJson->project->description) ? $responseJson->project->description : '';
+        }
+        return view(
+            'hubstaff.projectedit',
+            [
+                'project' => $project
+            ]
+        );
+    }
+
+    public function editProjectData()
+    {
+        $projectName = Input::get('name');
+        $projectDescription = Input::get('description');
+        $projectId = Input::get('id');
+
+        $access_token = session(SESSION_ACCESS_TOKEN);
+        $url = 'https://api.hubstaff.com/v2/projects/' . $projectId;
+        $httpClient = new Client();
+        $response = $httpClient->put(
+            $url,
+            [
+                RequestOptions::HEADERS => [
+                    'Authorization' => 'Bearer ' . $access_token,
+                    'Content-Type' => 'application/json'
+                ],
+
+                RequestOptions::BODY => json_encode([
+                    'name' => $projectName,
+                    'description' => $projectDescription
+                ])
+            ]
+        );
+        if ($response->getStatusCode() == 200) {
+            return redirect('hubstaff/projects');
+        } else {
+            echo '<h1>Error in saving data to hubstaff</h1>';
+        }
+    }
+
     public function getTasks()
     {
         $access_token = session(SESSION_ACCESS_TOKEN);
@@ -164,7 +230,7 @@ class HubstaffController extends Controller
             );
         }
 
-        $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/tasks';
+        $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/tasks?status=active%2Ccompleted';
         $httpClient = new Client();
         $response = $httpClient->get(
             $url,
@@ -178,7 +244,7 @@ class HubstaffController extends Controller
         $tasks = [];
         if ($response->getStatusCode() == 200) {
             $responseJson = json_decode($response->getBody()->getContents());
-            $projects = $responseJson->tasks;
+            $tasks = $responseJson->tasks;
         }
 
         return view(
@@ -189,6 +255,184 @@ class HubstaffController extends Controller
         );
     }
 
+    public function addTaskFrom()
+    {
+        $access_token = session(SESSION_ACCESS_TOKEN);
+        $httpClient = new Client();
+        $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/projects';
+        $response = $httpClient->get(
+            $url,
+            [
+                RequestOptions::HEADERS => [
+                    'Authorization' => 'Bearer ' . $access_token
+                ]
+            ]
+        );
+
+        $usersDatabase = HubstaffMember::whereNotNull('hubstaff_user_id')
+            ->leftJoin('users', 'users.id', '=', 'hubstaff_members.user_id')
+            ->select('users.name', 'hubstaff_members.hubstaff_user_id')
+            ->get();
+
+        $users = [];
+        foreach ($usersDatabase as $user) {
+            $users[$user->hubstaff_user_id] = $user->name;
+        }
+
+        $projects = [];
+
+        if ($response->getStatusCode() == 200) {
+            $responseJson = json_decode($response->getBody()->getContents());
+
+            foreach ($responseJson->projects as $project) {
+                $projects[$project->id] = $project->name;
+            }
+        }
+
+        return view(
+            'hubstaff.taskedit',
+            [
+                'projects' => $projects,
+                'isNew' => true,
+                'users' => $users
+            ]
+        );
+    }
+
+    public function addTask()
+    {
+        $taskSummary = Input::get('summary');
+        $project_id = Input::get('project_id');
+        $assignee_id = Input::get('assignee_id');
+
+        $access_token = session(SESSION_ACCESS_TOKEN);
+
+        $url = 'https://api.hubstaff.com/v2/projects/' . $project_id . '/tasks';
+
+        $httpClient = new Client();
+        $response = $httpClient->post(
+            $url,
+            [
+                RequestOptions::HEADERS => [
+                    'Authorization' => 'Bearer ' . $access_token,
+                    'Content-Type' => 'application/json'
+                ],
+
+                RequestOptions::BODY => json_encode([
+                    'summary' => $taskSummary,
+                    'assignee_id' => $assignee_id
+                ])
+            ]
+        );
+
+        if ($response->getStatusCode() == 200 || $response->getStatusCode() == 201) {
+            return redirect('hubstaff/tasks');
+        } else {
+            echo '<h1>Error in saving data to hubstaff</h1>';
+        }
+    }
+
+    public function editTaskForm(Request $request)
+    {
+        $access_token = session(SESSION_ACCESS_TOKEN);
+        $taskId = $request->route('id');
+
+        $httpClient = new Client();
+
+
+
+        $url = 'https://api.hubstaff.com/v2/tasks/' . $taskId;
+        $response = $httpClient->get(
+            $url,
+            [
+                RequestOptions::HEADERS => [
+                    'Authorization' => 'Bearer ' . $access_token
+                ]
+            ]
+        );
+        $task = array(
+            'id' => $taskId,
+            'summary' => '',
+            'project_id' => 'none',
+        );
+        if ($response->getStatusCode() == 200) {
+            $responseJson = json_decode($response->getBody()->getContents());
+            $task['summary'] = isset($responseJson->task->summary) ? $responseJson->task->summary : '';
+            $task['project_id'] = isset($responseJson->task->project_id) ? $responseJson->task->project_id : 'none';
+        } else {
+            return response('<h1>Error in getting task data</h1>');
+        }
+
+        $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/projects';
+        $response = $httpClient->get(
+            $url,
+            [
+                RequestOptions::HEADERS => [
+                    'Authorization' => 'Bearer ' . $access_token
+                ]
+            ]
+        );
+        $projects = [];
+
+        $usersDatabase = HubstaffMember::whereNotNull('hubstaff_user_id')
+            ->leftJoin('users', 'users.id', '=', 'hubstaff_members.user_id')
+            ->select('users.name', 'hubstaff_members.hubstaff_user_id')
+            ->get();
+
+        $users = [];
+        foreach ($usersDatabase as $user) {
+            $users[$user->hubstaff_user_id] = $user->name;
+        }
+
+        if ($response->getStatusCode() == 200) {
+            $responseJson = json_decode($response->getBody()->getContents());
+
+            foreach ($responseJson->projects as $project) {
+                $projects[$project->id] = $project->name;
+            }
+            return view(
+                'hubstaff.taskedit',
+                [
+                    'projects' => $projects,
+                    'task' => $task,
+                    'users' => $users
+                ]
+            );
+        }
+    }
+
+    public function editTask()
+    {
+        $taskId = Input::get('id');
+        $taskSummary = Input::get('summary');
+        $project_id = Input::get('project_id');
+
+        $access_token = session(SESSION_ACCESS_TOKEN);
+        $url = 'https://api.hubstaff.com/v2/tasks/' . $taskId;
+
+        $httpClient = new Client();
+        $response = $httpClient->put(
+            $url,
+            [
+                RequestOptions::HEADERS => [
+                    'Authorization' => 'Bearer ' . $access_token,
+                    'Content-Type' => 'application/json'
+                ],
+
+                RequestOptions::BODY => json_encode([
+                    'summary' => $taskSummary,
+                    'project_id' => $project_id,
+                    'lock_version' => 0
+                ])
+            ]
+        );
+
+        if ($response->getStatusCode() == 200) {
+            return redirect('hubstaff/tasks');
+        } else {
+            echo '<h1>Error in saving data to hubstaff</h1>';
+        }
+    }
 
     public function get_data($url)
     {

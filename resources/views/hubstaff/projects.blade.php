@@ -51,7 +51,7 @@
             @endif
           </td>
           <td>
-            <a href="#">Edit</a>
+            <a href="projects/{{$project->id}}">Edit</a>
           </td>
         </tr>
       </tbody>

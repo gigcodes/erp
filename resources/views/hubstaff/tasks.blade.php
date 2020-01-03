@@ -26,6 +26,10 @@
 
 <h2 class="text-center">Tasks List from Hubstaff </h2>
 
+<div class="text-right">
+  <a href="/hubstaff/tasks/add" class="btn btn-primary">New</a>
+</div>
+
 <div class="container">
   @if(!empty($tasks))
   <div class="row">
@@ -35,14 +39,19 @@
           <th>Task Id</th>
           <th>Summary</th>
           <th>Status</th>
+          <th>Action</th>
         </tr>
       </thead>
-      @foreach($task as $tasks)
+      @foreach($tasks as $task)
       <tbody>
         <tr>
           <td>{{ $task->id }}</td>
           <td>{{ ucwords($task->summary) }}</td>
           <td>{{ $task->status }}</td>
+          <td>
+            <span><a href="/hubstaff/tasks/{{$task->id}}">Edit</a></span>
+            <span><a href="#">Delete</a></span>
+          </td>
         </tr>
       </tbody>
       @endforeach
