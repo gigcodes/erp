@@ -76,17 +76,26 @@ class MoveColdLeadsToCustomers extends Command
 
                 // Add cold lead to customers table
                 if (!$coldLead->customer && !$coldLead->whatsapp) {
-                    // Create new customer
-                    $customer = new Customer();
-                    $customer->name = $coldLead->name;
-                    $customer->phone = $coldLead->platform_id;
-                    $customer->whatsapp_number = $arrCustomerNumbers[ rand(0, count($arrCustomerNumbers) - 1) ];
-                    $customer->city = $coldLead->address;
-                    $customer->country = 'IN';
-                    $customer->save();
+                    // Check for existing customer
+                    $customer = Customer::where('phone', $coldLead->platform_id)->first();
 
-                    if (!empty($customer->id)) {
-                        $coldLead->customer_id = $customer->id;
+                    // Nothing found?
+                    if ($customer == null) {
+                        // Create new customer
+                        $customer = new Customer();
+                        $customer->name = $coldLead->name;
+                        $customer->phone = $coldLead->platform_id;
+                        $customer->whatsapp_number = $arrCustomerNumbers[ rand(0, count($arrCustomerNumbers) - 1) ];
+                        $customer->city = $coldLead->address;
+                        $customer->country = 'IN';
+                        $customer->save();
+
+                        if (!empty($customer->id)) {
+                            $coldLead->customer_id = $customer->id;
+                            $coldLead->save();
+                        }
+                    } else {
+                        $coldLead->customer_id = 1;
                         $coldLead->save();
                     }
 
