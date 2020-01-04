@@ -87,6 +87,14 @@ class QuestionController extends Controller
 
         $chatbotQuestion = ChatbotQuestion::where("id", $id)->first();
 
+        $validator = Validator::make($params, [
+            'question' => 'required|unique:chatbot_question_examples',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
         if ($chatbotQuestion) {
 
             $chatbotQuestion->fill($params);
@@ -213,6 +221,22 @@ class QuestionController extends Controller
         }
 
         return response()->json(["code" => 200]);
+    }
+
+    public function deleteAnnotation(Request $request)
+    {
+        $annotationId   =  $request->get("id");
+        $annotation     = \App\ChatbotIntentsAnnotation::where("id",$annotationId)->first();
+        
+        if($annotation) {
+            $questionExample = $annotation->question_example_id;
+            $annotation->delete();
+            WatsonManager::pushValue($questionExample);
+
+            return response()->json(["code" => 200]);
+        }
+
+        return response()->json(["code" => 500, "message" => "No record founds"]);
     }
 
 }

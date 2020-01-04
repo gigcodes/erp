@@ -100,20 +100,23 @@ class Model
 
             $storeParams             = [];
             $storeParams["intent"]   = $question->value;
-            $values                  = $question->chatbotQuestionExamples()->get()->pluck("question", "question")->toArray();
+            $values                  = $question->chatbotQuestionExamples()->get();
             $storeParams["examples"] = [];
-            foreach ($values as $value) {
-                $storeParams["examples"][] = [
-                    "text" => $value,
-                    "mentions" => [
-                            [
-                            "entity" => "payment_card",
-                            "location" => [
-                                7,10
-                            ]
-                        ]
-                    ]
-                ];
+            foreach ($values as $k => $value) {
+                $storeParams["examples"][$k]["text"] = $value->question;
+                $mentions = $value->annotations;
+                if(!$mentions->isEmpty()) {
+                    $sendMentions = [];
+                    foreach ($mentions as $key => $mRaw) {
+                        $sendMentions[] = [
+                            "entity"   => $mRaw->chatbotKeyword->keyword,
+                            "location" => [$mRaw->start_char_range,$mRaw->end_char_range]
+                        ];
+                    }
+                    if(!empty($sendMentions)) {
+                        $storeParams["examples"][$k]["mentions"] = $sendMentions;
+                    }
+                }
             }
 
             $watson = new IntentService(

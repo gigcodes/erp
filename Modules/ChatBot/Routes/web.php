@@ -37,6 +37,8 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::get('/search', 'QuestionController@search')->name("chatbot.question.search");
         Route::prefix('annotation')->group(function () {
             Route::post('/save', 'QuestionController@saveAnnotation')->name("chatbot.question.annotation.save");
+            Route::get('/delete', 'QuestionController@deleteAnnotation')->name("chatbot.question.annotation.delete");
+            
         });
             
         Route::prefix('{id}')->group(function () {
