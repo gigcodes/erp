@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Category;
 use App\DeveloperTask;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Setting;
 
 class LogScraperController extends Controller
 {
@@ -171,7 +173,38 @@ class LogScraperController extends Controller
         
         $logScrapper->groupBy('website')->groupBy('brand');
 
-        $logScrappers = $logScrapper->paginate(25)->appends(request()->except(['page']));
+        if($request->custom != null && $request->custom != 0){
+            $scraps = $logScrapper->get();
+            foreach ($scraps as $scrap) {
+               $example = $scrap->sku_examples;
+               if($example == null){
+                    continue;
+               } 
+               $sample = explode(',',$example);
+               $string = str_replace(' ', '-', $sample[0]); // Replaces all spaces with hyphens.
+               $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string);
+                
+                if(strlen($string) < strlen($scrap->sku)){
+                    $scrapArray[] = $scrap;
+                }
+            }
+            
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            $perPage = Setting::get('pagination');
+            $currentItems = array_slice($scrapArray, $perPage * ($currentPage - 1), $perPage);
+
+            $log = new LengthAwarePaginator($currentItems, count($scrapArray), $perPage, $currentPage, [
+                'path' => LengthAwarePaginator::resolveCurrentPath()
+            ]);
+
+            $logScrappers = $log->appends(request()->except(['page']));
+            
+        }else{
+
+            $logScrappers = $logScrapper->paginate(25)->appends(request()->except(['page']));
+
+        }
+        
 
         $failed = $logScrappers->total();
 

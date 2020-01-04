@@ -8,6 +8,9 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+        #reason-select{
+            display: none;
+        }
     </style>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />  
 @endsection
@@ -21,7 +24,7 @@
             <div class="pull-right">
                  <button onclick="addTask()" class="btn btn-secondary">Add Issue</button>
                  <button onclick="rejectImage()" class="btn btn-secondary">Reject Image</button>
-                 <select class="form-control-sm form-control reject-cropping bg-secondary text-light" name="reject_cropping">
+                 <select class="form-control-sm form-control bg-secondary text-light" name="reject_cropping" id="reason-select">
                     <option value="0">Select...</option>
                     <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
                     <option value="No Images Shown">No Images Shown</option>
@@ -39,10 +42,21 @@
             <!--Product Search Input -->
                 <form method="GET" action="crop-references-grid" class="form-inline align-items-start">
                    
+                   <div class="form-group mr-3">
+                        <select data-placeholder="Status Type" class="form-control select-multiple2" name="status" id="status">
+                            <optgroup label="Status Type">
+                               <option value="0">Select Status</option> 
+                               <option value="4">AutoCrop</option>
+                               <option value="18">Crop Rejected</option> 
+                               <option value="12">Manual Image Upload</option> 
+                            </optgroup>
+                        </select>
+                    </div>
+
                    <div class="form-group mr-3 mb-3">
                         {!! $category_selection !!}
                     </div>
-
+    
                     <div class="form-group mr-3">
                         @php $brands = \App\Brand::getAll();
                         @endphp
@@ -140,7 +154,7 @@
                         <th>Cropped Image</th>
                         <th>Time</th>
                         <th>Date</th>
-                        <th>Status</th>
+                        <th>Action</th>
                         <th>Issue</th>
                     </tr>
                      </thead>
@@ -276,7 +290,7 @@
 
  <script type="text/javascript">
         $(document).ready(function () {
-            $('#brand,#category,#crop,#supplier').on('change', function () {
+            $('#brand,#category,#crop,#supplier,#status').on('change', function () {
                 $.ajax({
                     url: '/crop-references-grid',
                     dataType: "json",
@@ -285,6 +299,7 @@
                         category: $('#category').val(),
                         crop : $('#crop').val(),
                         supplier : $('#supplier').val(),
+                        status : $('#status').val(),
                     },
                     beforeSend: function () {
                         $("#loading-image").show();
@@ -329,31 +344,85 @@
                 });
         }
 
-        $('.reject-cropping').on('change',function(event) {
-            event.preventDefault();
-            id = $(this).attr('data-id');
+        $(document).on('change', '.reject-cropping', function (event) {
+            let pid = $(this).data('id');
+            let remark = $(this).val();
+
+            if (remark == 0 || remark == '0') {
+                return;
+            }
+
+            let self = this;
+
             $.ajax({
-                    url: '/crop-references-grid/reject',
-                    type: 'POST',
-                    dataType: "json",
-                    data: {
-                        "_token": "{{ csrf_token() }}",
-                        id: id,
-                    },
-                    beforeSend: function () {
-                        $("#loading-image").show();
-                    },
-                }).done(function (data) {
-                    $("#loading-image").hide();
-                    console.log(data);
-                    
-                   
-                }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                    $("#loading-image").hide();
-                    alert('No response from server');
-                });
-            /* Act on the event */
+                url: '/products/auto-cropped/' + pid + '/reject',
+                data: {
+                    remark: remark,
+                    _token: "{{csrf_token()}}",
+                    senior: 1
+                },
+                type: 'GET',
+                success: function () {
+                    toastr['success']('Crop rejected successfully!', 'Success');
+                    removeIdFromArray(pid);
+                    $(self).removeAttr('disabled');
+                },
+                error: function () {
+                    $(self).removeAttr('disabled');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled');
+                }
+            });
+
         });
+
+        function rejectImage(){
+            var id = [];
+            $.each($("input[name='issue']:checked"), function(){
+                id.push($(this).val());
+            });
+            if(id.length == 0){
+                alert('Please Select Image');
+            }else{
+                $('#reason-select').show();
+            }
+        }
+
+         $(document).on('change', '#reason-select', function (event) {
+            let remark = $(this).val();
+            $.each($("input[name='issue']:checked"), function(){
+            if (remark == 0 || remark == '0') {
+                return;
+            }
+
+            pid = $(this).attr('data-id');
+
+            $.ajax({
+                url: '/products/auto-cropped/' + pid + '/reject',
+                data: {
+                    remark: remark,
+                    _token: "{{csrf_token()}}",
+                    senior: 1
+                },
+                type: 'GET',
+                success: function () {
+                    toastr['success']('Crop rejected successfully!', 'Success');
+                    $(self).removeAttr('disabled');
+                },
+                error: function () {
+                    $(self).removeAttr('disabled');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled');
+                }
+            });
+
+            });
+            $('#reason-select').hide();
+
+        });
+
     </script>
 
 @endsection

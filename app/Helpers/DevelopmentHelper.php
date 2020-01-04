@@ -31,6 +31,7 @@ class DevelopmentHelper
             "2" => "NodeJS Request/Cheerio",
             "3" => "NodeJS Puppeteer",
             "4" => "NodeJS Puppeteer with URL list",
+            "5" => "NodeJS Puppeteer Luminati with URL list",
         ];
     }
 
@@ -46,7 +47,7 @@ class DevelopmentHelper
     public static function needToApproveMessage()
     {
         $approveMessage = 0;
-        
+
         $approvalmodel  = \App\Setting::where("name","is_approve_message_btn")->first();
         if($approvalmodel) {
             $approveMessage = $approvalmodel->val;
