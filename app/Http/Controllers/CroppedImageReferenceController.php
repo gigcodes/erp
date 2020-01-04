@@ -190,7 +190,7 @@ class CroppedImageReferenceController extends Controller
                 'total' => $total,
             ], 200);
             }
-
+           
         return view('image_references.grid', compact('products','category_selection','total','pendingProduct','totalCounts'));
     }
 
