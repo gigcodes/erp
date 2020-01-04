@@ -87,6 +87,14 @@ class QuestionController extends Controller
 
         $chatbotQuestion = ChatbotQuestion::where("id", $id)->first();
 
+        $validator = Validator::make($params, [
+            'question' => 'required|unique:chatbot_question_examples',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
         if ($chatbotQuestion) {
 
             $chatbotQuestion->fill($params);
@@ -118,7 +126,7 @@ class QuestionController extends Controller
 
     public function saveAjax(Request $request)
     {
-        $groupId  = $request->get("group_id" , 0);
+        $groupId  = $request->get("group_id", 0);
         $name     = $request->get("name", "");
         $question = $request->get("question");
 
@@ -131,24 +139,24 @@ class QuestionController extends Controller
         } else if (!empty($name)) {
 
             $chQuestion = null;
-            
-            if(is_numeric($name)) {
+
+            if (is_numeric($name)) {
                 $chQuestion = ChatbotQuestion::where("id", $name)->first();
             }
 
-            if(!$chQuestion) {
+            if (!$chQuestion) {
                 $chQuestion = ChatbotQuestion::create([
-                    "value" => str_replace(" ", "_", preg_replace('/\s+/', ' ', $name))
+                    "value" => str_replace(" ", "_", preg_replace('/\s+/', ' ', $name)),
                 ]);
             }
 
             $groupId = $chQuestion->id;
 
-            if(is_string($question)) {
+            if (is_string($question)) {
                 ChatbotQuestionExample::create(
                     ["chatbot_question_id" => $chQuestion->id, "question" => preg_replace("/\s+/", " ", $question)]
                 );
-            }elseif (is_array($question)) {
+            } elseif (is_array($question)) {
                 foreach ($question as $key => $qRaw) {
                     ChatbotQuestionExample::create(
                         ["chatbot_question_id" => $chQuestion->id, "question" => preg_replace("/\s+/", " ", $qRaw)]
@@ -167,18 +175,68 @@ class QuestionController extends Controller
 
     public function search(Request $request)
     {
-        $keyword = request("term","");
-        $allquestion = ChatbotQuestion::where("value","like","%".$keyword."%")->limit(10)->get();
+        $keyword     = request("term", "");
+        $allquestion = ChatbotQuestion::where("value", "like", "%" . $keyword . "%")->limit(10)->get();
 
         $allquestionList = [];
-        if(!$allquestion->isEmpty()) {
-            foreach($allquestion as $all) {
-                $allquestionList[] = ["id" => $all->id , "text" => $all->value]; 
+        if (!$allquestion->isEmpty()) {
+            foreach ($allquestion as $all) {
+                $allquestionList[] = ["id" => $all->id, "text" => $all->value];
             }
         }
 
-        return response()->json(["incomplete_results" => false, "items"=> $allquestionList, "total_count" => count($allquestionList)]);
+        return response()->json(["incomplete_results" => false, "items" => $allquestionList, "total_count" => count($allquestionList)]);
 
+    }
+
+    public function saveAnnotation(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'chatbot_keyword_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "error" => []]);
+        }
+
+        $model = \App\ChatbotIntentsAnnotation::updateOrCreate(
+            [
+                "question_example_id" => $request->get("question_example_id"),
+                "chatbot_keyword_id"  => $request->get("chatbot_keyword_id"),
+                "start_char_range"    => $request->get("start_char_range"),
+                "end_char_range"      => $request->get("end_char_range"),
+            ],
+            $request->all()
+        );
+
+        if ($model) {
+            $chatbotKeywordValue = \App\ChatbotKeywordValue::create([
+                "chatbot_keyword_id" => $model->chatbot_keyword_id,
+                "value"              => $request->get("keyword_value"),
+            ]);
+            $model->chatbot_value_id = $chatbotKeywordValue->id;
+            $model->save();
+            WatsonManager::pushValue($model->question_example_id);
+        }
+
+        return response()->json(["code" => 200]);
+    }
+
+    public function deleteAnnotation(Request $request)
+    {
+        $annotationId   =  $request->get("id");
+        $annotation     = \App\ChatbotIntentsAnnotation::where("id",$annotationId)->first();
+        
+        if($annotation) {
+            $questionExample = $annotation->question_example_id;
+            $annotation->delete();
+            WatsonManager::pushValue($questionExample);
+
+            return response()->json(["code" => 200]);
+        }
+
+        return response()->json(["code" => 500, "message" => "No record founds"]);
     }
 
 }

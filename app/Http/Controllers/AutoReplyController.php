@@ -206,9 +206,9 @@ class AutoReplyController extends Controller
             ->where("customer_id",$customerId)
             ->whereNull("number")
             ->orderBy("chat_messages.id","ASC")
-            ->limit(5)->get();
+            ->paginate(5);
 
-            return response()->json(["code" => 200,"data" => $lastReplies,"question" => $currentMessage->message]);
+            return response()->json(["code" => 200,"data" => $lastReplies->items(),"question" => $currentMessage->message , "page" => $lastReplies->currentPage() + 1]);
 
         }
 
@@ -331,6 +331,8 @@ class AutoReplyController extends Controller
             $mostUsedWords = $mostUsedWords->where("word","like","%$keyword%");
         }
 
+        $mostUsedWords = $mostUsedWords->orderBy("total","asc");
+
         $mostUsedWords = $mostUsedWords->paginate(10);
 
         $allSuggestedOptions = \App\ChatbotDialog::allSuggestedOptions();
@@ -361,6 +363,38 @@ class AutoReplyController extends Controller
 
         return response()->json(["code" => 200, "html" => $string]);
 
+    }
+
+    public function mostUsedPhrases(Request $request)
+    {
+        $groupPhrases = \App\ChatbotQuestion::all();
+
+        $keyword = request("keyword" , "");
+
+        $mostUsedPhrases = new \App\ChatMessagePhrase;
+
+        if(!empty($keyword)) {
+            $mostUsedPhrases = $mostUsedPhrases->where("phrase","like","%$keyword%");
+        }
+
+        $mostUsedPhrases = $mostUsedPhrases->where(\DB::raw("LENGTH(phrase) - LENGTH(REPLACE(phrase, ' ', '')) + 1") , ">" , 3);
+
+        $mostUsedPhrases->select([\DB::raw("count(phrase) as total_count") , "chat_message_phrases.*"]);
+
+        $mostUsedPhrases->groupBy("phrase");
+
+        $mostUsedPhrases = $mostUsedPhrases->orderBy("total_count","desc");
+
+        $mostUsedPhrases = $mostUsedPhrases->paginate(10);
+
+        $allSuggestedOptions = \App\ChatbotDialog::allSuggestedOptions();
+        
+        return view("autoreplies.most-used-phrases",[
+            'mostUsedPhrases' => $mostUsedPhrases,
+            'groupPhrases' => $groupPhrases,
+            'groupKeywords' => [],
+            'allSuggestedOptions' => $allSuggestedOptions
+        ]);
     }
 
 }
