@@ -57,27 +57,27 @@ class SyncCustomersFromMagento extends Command
             $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
             //Get customer list from magento
-            $magento_customers = json_decode( json_encode( $proxy->customerCustomerList($sessionId) ), true );
+            $magentoCustomers = json_decode( json_encode( $proxy->customerCustomerList($sessionId) ), true );
 
             //Loop through customers
-            if(count($magento_customers) > 0){
-                foreach($magento_customers as $k=>$customer){
+            if(count($magentoCustomers) > 0){
+                foreach($magentoCustomers as $k=>$customer){
                     $customerId = $customer['customer_id'];
-                    $customer_email = $customer['email'];
-                    $magento_customers_address = json_decode( json_encode( $proxy->customerAddressList($sessionId, $customerId) ), true );
+                    $customerEmail = $customer['email'];
+                    $magentoCustomersAddress = json_decode( json_encode( $proxy->customerAddressList($sessionId, $customerId) ), true );
 
-                    if(count($magento_customers_address) > 0){
-                        foreach($magento_customers_address as $ck=>$customer_address){
-                            if(trim($customer_address['telephone']) != ''){
-                                $customer_phone = $this->FormatPhonenumber($customer_address['telephone'], $customer_address['country_id']);
+                    if(count($magentoCustomersAddress) > 0){
+                        foreach($magentoCustomersAddress as $ck=>$customerAddress){
+                            if(trim($customerAddress['telephone']) != ''){
+                                $customerPhone = $this->formatPhonenumber($customerAddress['telephone'], $customerAddress['country_id']);
 
                                 //Check if customer exists in ERP, with email and phone number
-                                if(!$this->CheckERPCustomer($customer_email, $customer_phone)){
+                                if(!$this->checkERPCustomer($customerEmail, $customerPhone)){
 
-                                    $customerInfo = $this->SetCustomer($customer, $customer_address);
+                                    $customerInfo = $this->setCustomer($customer, $customerAddress);
 
                                     //Add new customer to ERP
-                                    $this->AddNewCustomerToERP($customerInfo);
+                                    $this->addNewCustomerToERP($customerInfo);
                                 }
                             }
                         }
@@ -97,7 +97,7 @@ class SyncCustomersFromMagento extends Command
      *
      * @return boolean
      */
-    public function CheckERPCustomer($email, $phonenumber)
+    public function checkERPCustomer($email, $phonenumber)
     {
         //$phone number might need format.. will have to check database for properly matching the phonenumber
         $customer = Customer::where('email', $email)->where('phone', $phonenumber)->first();
@@ -110,7 +110,7 @@ class SyncCustomersFromMagento extends Command
      *
      * @return array
      */
-    public function SetCustomer($customerInfo, $customerAddress)
+    public function setCustomer($customerInfo, $customerAddress)
     {
         $customer = [];
         $customer['name'] = $customerInfo['firstname'].' '.$customerInfo['lastname'];
@@ -119,7 +119,7 @@ class SyncCustomersFromMagento extends Command
         $customer['city'] = $customerAddress['city'];
         $customer['country'] = $customerAddress['country_id'];
         $customer['pincode'] = $customerAddress['postcode'];
-        $customer['phone'] = $this->FormatPhonenumber($customerAddress['telephone'], $customerAddress['country_id']);
+        $customer['phone'] = $this->formatPhonenumber($customerAddress['telephone'], $customerAddress['country_id']);
 
         return $customer;
     }
@@ -129,7 +129,7 @@ class SyncCustomersFromMagento extends Command
      *
      * @return boolean
      */
-    public function AddNewCustomerToERP($customerInfo)
+    public function addNewCustomerToERP($customerInfo)
     {
         $customer = new Customer;
         $customer->name = $customerInfo['name'];
@@ -148,18 +148,18 @@ class SyncCustomersFromMagento extends Command
      *
      * @return string
      */
-    public function FormatPhonenumber($phonenumber, $country_id)
+    public function formatPhonenumber($phonenumber, $country_id)
     {
-        $customer_phone = str_replace(' ', '', $phonenumber);
+        $customerPhone = str_replace(' ', '', $phonenumber);
         //not sure if we need below functionality, but its been used in other part of application
-        /*$customer_phone = (int) str_replace(' ', '', $phonenumber);
-        $customer_phone = str_replace(' ', '', $phonenumber);
+        /*$customerPhone = (int) str_replace(' ', '', $phonenumber);
+        $customerPhone = str_replace(' ', '', $phonenumber);
         if ($country_id == 'IN') {
-            if (strlen($customer_phone) <= 10) {
-                $customer_phone = '91' . $customer_phone;
+            if (strlen($customerPhone) <= 10) {
+                $customerPhone = '91' . $customerPhone;
             }
         }*/
 
-        return $customer_phone;
+        return $customerPhone;
     }
 }
