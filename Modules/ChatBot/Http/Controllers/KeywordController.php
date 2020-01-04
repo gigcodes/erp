@@ -142,4 +142,21 @@ class KeywordController extends Controller
         return response()->json(["code" => 200]);
     }
 
+    public function search(Request $request)
+    {
+
+        $keyword = request("term","");
+        $allKeyword = ChatbotKeyword::where("keyword","like","%".$keyword."%")->limit(10)->get();
+
+        $allKeywordList = [];
+        if(!$allKeyword->isEmpty()) {
+            foreach($allKeyword as $all) {
+                $allKeywordList[] = ["id" => $all->id , "text" => $all->keyword]; 
+            }
+        }
+
+        return response()->json(["incomplete_results" => false, "items"=> $allKeywordList, "total_count" => count($allKeywordList)]);
+
+    }
+
 }

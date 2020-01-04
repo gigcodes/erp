@@ -5,6 +5,7 @@ namespace App\Library\Watson;
 use App\ChatbotDialog;
 use App\ChatbotKeyword;
 use App\ChatbotQuestion;
+use App\ChatbotQuestionExample;
 use App\Customer;
 use App\Library\Watson\Language\Assistant\V2\AssistantService;
 use App\Library\Watson\Language\Workspaces\V1\DialogService;
@@ -19,6 +20,8 @@ class Model
         "I didn't understand. You can try rephrasing.",
         "I didn't get your meaning.",
     ];
+
+    const API_KEY = "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC";
 
     public static function getWorkspaceId()
     {
@@ -48,7 +51,7 @@ class Model
 
             $watson = new EntitiesService(
                 "apiKey",
-                "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+                self::API_KEY
             );
 
             if (!empty($keyword->workspace_id)) {
@@ -57,6 +60,10 @@ class Model
                 $result                = $watson->create($workSpaceId, $storeParams);
                 $keyword->workspace_id = $workSpaceId;
                 $keyword->save();
+            }
+
+            if($result->getStatusCode() !=  200) {
+                \Log::info(print_r($result,true));
             }
 
         }
@@ -74,7 +81,7 @@ class Model
 
             $watson = new EntitiesService(
                 "apiKey",
-                "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+                self::API_KEY
             );
 
             $watson->delete($keyword->workspace_id, $keyword->keyword);
@@ -96,12 +103,22 @@ class Model
             $values                  = $question->chatbotQuestionExamples()->get()->pluck("question", "question")->toArray();
             $storeParams["examples"] = [];
             foreach ($values as $value) {
-                $storeParams["examples"][] = ["text" => $value];
+                $storeParams["examples"][] = [
+                    "text" => $value,
+                    "mentions" => [
+                            [
+                            "entity" => "payment_card",
+                            "location" => [
+                                7,10
+                            ]
+                        ]
+                    ]
+                ];
             }
 
             $watson = new IntentService(
                 "apiKey",
-                "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+                self::API_KEY
             );
 
             if (!empty($question->workspace_id)) {
@@ -110,6 +127,71 @@ class Model
                 $result                 = $watson->create($workSpaceId, $storeParams);
                 $question->workspace_id = $workSpaceId;
                 $question->save();
+            }
+
+            if($result->getStatusCode() !=  200) {
+                \Log::info(print_r($result,true));
+            }
+        }
+
+        return true;
+
+    }
+
+
+    public static function pushValue($exampleId, $oldExample = "")
+    {
+        $questionExample    = ChatbotQuestionExample::where("id", $exampleId)->first();
+        $workSpaceId = self::getWorkspaceId();
+
+        if ($questionExample) {
+
+            if(empty($oldExample)) {
+                $oldExample = $questionExample->question;
+            }
+
+
+            $questionModel           = $questionExample->questionModal;
+            $question                = $questionExample->question;
+            $mentions                = $questionExample->annotations;
+            $storeParams             = [
+                "text" => $questionExample->question
+            ];
+
+            $sendMentions = [];
+            if(!$mentions->isEmpty()) {
+                foreach ($mentions as $key => $mRaw) {
+                    $sendMentions[] = [
+                        "entity"   => $mRaw->chatbotKeyword->keyword,
+                        "location" => [$mRaw->start_char_range,$mRaw->end_char_range]
+                    ];
+                }
+            }
+
+            if(!empty($sendMentions)) {
+                $storeParams["mentions"] = $sendMentions;
+            }
+            /*"mentions" => [
+                    [
+                    "entity" => "payment_card",
+                    "location" => [
+                        7,10
+                    ]
+                ]
+            ]*/
+
+            $watson = new IntentService(
+                "apiKey",
+                self::API_KEY
+            );
+
+            if (!empty($questionModel->workspace_id)) {
+                $result = $watson->updateExample($questionModel->workspace_id, $questionModel->value,$oldExample, $storeParams);
+
+            }
+
+            if($result->getStatusCode() !=  200) {
+                \Log::info(print_r($result,true));
             }
         }
 
@@ -126,7 +208,7 @@ class Model
 
             $watson = new IntentService(
                 "apiKey",
-                "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+                self::API_KEY
             );
 
             $response = $watson->delete($question->workspace_id, $question->value);
@@ -158,7 +240,7 @@ class Model
 
             $watson = new DialogService(
                 "apiKey",
-                "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+                self::API_KEY
             );
 
             if (!empty($dialog->workspace_id)) {
@@ -168,6 +250,10 @@ class Model
                 $result               = $watson->create($workSpaceId, $storeParams);
                 $dialog->workspace_id = $workSpaceId;
                 $dialog->save();
+            }
+
+            if($result->getStatusCode() !=  200) {
+                \Log::info(print_r($result,true));
             }
         }
 
@@ -184,7 +270,7 @@ class Model
 
             $watson = new DialogService(
                 "apiKey",
-                "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+                self::API_KEY
             );
 
             $response = $watson->delete($dialog->workspace_id, $dialog->name);
@@ -199,7 +285,7 @@ class Model
         $assistantID = self::getAssistantId();
         $assistant   = new AssistantService(
             "apiKey",
-            "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+            self::API_KEY
         );
 
         if (empty($customer->chat_session_id)) {
@@ -300,7 +386,7 @@ class Model
             // update into watson api
             $watson = new DialogService(
                 "apiKey",
-                "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+                self::API_KEY
             );
 
             if(!empty($genericOutput)) {
@@ -336,7 +422,7 @@ class Model
 
                         $watson = new DialogService(
                             "apiKey",
-                            "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+                            self::API_KEY
                         );
 
                         if (!empty($mulDialog->workspace_id)) {
@@ -347,6 +433,10 @@ class Model
                             $result               = $watson->create($workSpaceId, $storeParams);
                             $mulDialog->workspace_id = $workSpaceId;
                             $mulDialog->save();
+                        }
+
+                        if($result->getStatusCode() !=  200) {
+                            \Log::info(print_r($result,true));
                         }
                     }
                 }
