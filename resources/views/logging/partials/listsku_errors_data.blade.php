@@ -12,9 +12,9 @@
             </td>
     </tr>
     <tr>
-        <td style="width: 20% !important;">SKU Format : {{ $logScrapper->sku_format }}</td>
-        <td style="width: 20% !important;">SKU Example : {{ $logScrapper->sku_examples }}</td>
-        <td style="width: 20% !important;">SKU Log Scraper : {{ $logScrapper->sku }}</td>
+        <td style="width: 20% !important;">SKU Format :<br> {{ $logScrapper->sku_format }}</td>
+        <td style="width: 20% !important;">SKU Example :<br> {{ $logScrapper->sku_examples }}</td>
+        <td style="width: 20% !important;">SKU Log Scraper :<br> {{ $logScrapper->sku }}</td>
         <td>{{ $logScrapper->skuStringCompareWithExample($logScrapper->sku_examples,$logScrapper->sku) }}</td>
         <td></td>
     </tr>

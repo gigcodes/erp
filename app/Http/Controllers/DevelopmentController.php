@@ -389,7 +389,7 @@ class DevelopmentController extends Controller
         }
 
         if ((int)$request->get('assigned_to') > 0) {
-            $issues = $issues->where('assigned_to', $request->get('assigned_to'));
+            $issues = $issues->where('user_id', $request->get('assigned_to'));
         }
 
         if ($request->get('module')) {
@@ -685,7 +685,7 @@ class DevelopmentController extends Controller
 
     public function issueStore(Request $request)
     {
-        
+
         $this->validate($request, [
             'priority' => 'required|integer',
             'issue' => 'required|min:3'

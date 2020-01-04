@@ -333,7 +333,7 @@ class LogScraper extends Model
                             }
                         }
                     } catch (\Exception $e) {
-                        return "[error] Regex generated an exception for brand " . $brand->name . " with regex '" . $skuFormat->sku_format . "'\n";
+                        return "[warning] Regex generated an exception for brand " . $brand->name . " with regex '" . $skuFormat->sku_format . "'\n";
                     }
                 }
 
@@ -352,7 +352,7 @@ class LogScraper extends Model
                             }
                         }
                     } catch (\Exception $e) {
-                        return "[error] Regex without color generated an exception for brand " . $brand->name . " with regex '" . $skuFormat->sku_format . "'\n";
+                        return "[warning] Regex without color generated an exception for brand " . $brand->name . " with regex '" . $skuFormat->sku_format . "'\n";
                     }
                 }
 
@@ -373,17 +373,17 @@ class LogScraper extends Model
 
             $sku = SkuFormat::where('brand_id',$brand->id)->first();
             if($sku != null){
-                return $sku->sku_format; 
+                return $sku->sku_format;
             }else{
-                return ''; 
+                return '';
             }
-            
-            
+
+
         }catch (Exception $e) {
-            
+
             return '';
         }
-        
+
     }
 
     public function skuFormatExample($sku, $brand)
@@ -394,12 +394,12 @@ class LogScraper extends Model
 
             $sku = SkuFormat::where('brand_id',$brand->id)->first();
             if($sku != null){
-                return $sku->sku_examples; 
+                return $sku->sku_examples;
             }else{
-                return ''; 
+                return '';
             }
         }catch (Exception $e) {
-            
+
             return '';
         }
     }
@@ -413,11 +413,11 @@ class LogScraper extends Model
                     if(strpos($validation, 'SKU') !== false){
                         return $validation;
                     }
-                } 
+                }
             }
 
             return '';
-            
+
         } catch (Exception $e) {
             return '';
         }
@@ -431,11 +431,11 @@ class LogScraper extends Model
             }else{
                 return $string;
             }
-            
+
         } catch (Exception $e) {
             return $string;
         }
-        
+
     }
 
     public function scraper(){
@@ -458,7 +458,7 @@ class LogScraper extends Model
     }
 
     public function brandLink($link,$sku){
-        
+
          if($link != null){
             return $link = str_replace('[SEARCH]',$sku,$link);
         }else{
@@ -467,10 +467,10 @@ class LogScraper extends Model
     }
 
     public function getFailedCount($supplier,$brand){
-        
+
         $count = LogScraper::where('brand',$brand)->where('website',$supplier)->where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
         return $count;
-        
+
     }
 
     public function getSKUExample($brand){
@@ -509,7 +509,7 @@ class LogScraper extends Model
         }else{
             return false;
         }
-        
+
     }
 
     public function getSKUExampleLinkFromLogScraper($supplier,$brand){
@@ -519,7 +519,7 @@ class LogScraper extends Model
         }else{
             return false;
         }
-        
+
     }
 
     public function brands(){
@@ -532,7 +532,7 @@ class LogScraper extends Model
             $sample = explode(',',$example);
             $string = str_replace(' ', '-', $sample[0]); // Replaces all spaces with hyphens.
             $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string);
-            
+
             if(strlen($string) < strlen($sku)){
                 return 'SKU string count is bigger the example';
             }else{

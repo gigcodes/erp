@@ -81,6 +81,8 @@ class ScrapStatisticsController extends Controller
                 sc.scraper_name=ls.website
             WHERE
                 ls.website != "internal_scraper" AND 
+                ' . ($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '') . '
+                ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
                 ls.updated_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
             GROUP BY
                 ls.website
