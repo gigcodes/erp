@@ -1797,12 +1797,22 @@ class ProductController extends Controller
             //
         }
 
-        // Set new status
-        $product->status_id = StatusHelper::$isBeingCropped;
-        $product->save();
+        if($parent == null && $parent == ''){
+            // Set new status
+            $product->status_id = StatusHelper::$attributeRejectCategory;
+            $product->save();
+            
+             // Return JSON
+            return response()->json([
+                'status' => 'no_product'
+            ]);
 
-        // Return product
-        return response()->json([
+        }else{
+            // Set new status
+            $product->status_id = StatusHelper::$isBeingCropped;
+            $product->save();
+             // Return product
+            return response()->json([
             'product_id' => $product->id,
             'image_urls' => $images,
             'l_measurement' => $product->lmeasurement,
@@ -1810,14 +1820,19 @@ class ProductController extends Controller
             'd_measurement' => $product->dmeasurement,
             'category' => "$parent $child",
             '' => ''
-        ]);
+        ]);  
+        }
+        
+
+       
+        
 
     }
 
     public function saveImage(Request $request)
     {
         // Find the product or fail
-        $product = Product::findOrFail(228034);
+        $product = Product::findOrFail($request->get('product_id'));
         
         // Check if this product is being cropped
         if ($product->status_id != StatusHelper::$isBeingCropped) {
