@@ -1797,17 +1797,17 @@ class ProductController extends Controller
             //
         }
 
-        if($parent == null && $parent == ''){
-            // Set new status
-            $product->status_id = StatusHelper::$attributeRejectCategory;
-            $product->save();
+        // if($parent == null && $parent == ''){
+        //     // Set new status
+        //     $product->status_id = StatusHelper::$attributeRejectCategory;
+        //     $product->save();
 
-             // Return JSON
-            return response()->json([
-                'status' => 'no_product'
-            ]);
+        //      // Return JSON
+        //     return response()->json([
+        //         'status' => 'no_product'
+        //     ]);
 
-        }else{
+        // }else{
             // Set new status
             $product->status_id = StatusHelper::$isBeingCropped;
             $product->save();
@@ -1821,7 +1821,7 @@ class ProductController extends Controller
             'category' => "$parent $child",
             '' => ''
         ]);  
-        }
+        //}
         
 
        
@@ -1872,9 +1872,9 @@ class ProductController extends Controller
             //     $product->status_id = StatusHelper::$cropRejected;
             //     $product->save();
             // }else{
-                $product->cropped_at = Carbon::now()->toDateTimeString();
-                $product->status_id = StatusHelper::$cropApproval;
-                $product->save();
+            $product->cropped_at = Carbon::now()->toDateTimeString();
+            $product->status_id = StatusHelper::$cropApproval;
+            $product->save();
            // }
             
             // get the status as per crop
