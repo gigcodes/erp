@@ -1,7 +1,7 @@
 @foreach($products as $product)
                         <tr>
 
-                            <td><input type="checkbox" name="issue" value="{{ $product->id }}" class="checkBox">
+                            <td><input type="checkbox" name="issue" value="{{ $product->id }}" class="checkBox" data-id="{{ $product->product_id }}">
                                 {{ $product->id }}</td>
                             <td>@if($product->product) @if (isset($product->product->product_category)) {{ $product->product->product_category->title }} @endif @endif</td> 
                             <td>@if($product->product) {{ $product->product->supplier }} @endif</td> 
@@ -10,9 +10,7 @@
                             <td> <img src="{{ $product->newMedia ? $product->newMedia->getUrl() : '' }}" alt="" height="150" width="150" onclick="bigImg('{{ $product->newMedia ? $product->newMedia->getUrl() : '' }}')"></td>
                             <td>{{ number_format((float)str_replace('0:00:','',$product->speed), 4, '.', '') }} sec</td>
                             <td>{{ $product->updated_at->format('d-m-Y : H:i:s') }}</td>
-                            <td>@if($product->product) {{ $product->product->status_id }} @endif 
-                                <br>
-                                <select class="form-control-sm form-control reject-cropping bg-secondary text-light" name="reject_cropping" data-id="{{ $product->id }}">
+                            <td><select class="form-control-sm form-control reject-cropping bg-secondary text-light" name="reject_cropping" data-id="{{ $product->product_id }}">
                                         <option value="0">Reject Product</option>
                                         <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
                                         <option value="No Images Shown">No Images Shown</option>
