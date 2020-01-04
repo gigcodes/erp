@@ -50,7 +50,6 @@
           <td>{{ $task->status }}</td>
           <td>
             <span><a href="/hubstaff/tasks/{{$task->id}}">Edit</a></span>
-            <span><a href="#">Delete</a></span>
           </td>
         </tr>
       </tbody>

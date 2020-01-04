@@ -354,11 +354,13 @@ class HubstaffController extends Controller
             'id' => $taskId,
             'summary' => '',
             'project_id' => 'none',
+            'lock_version' => 0
         );
         if ($response->getStatusCode() == 200) {
             $responseJson = json_decode($response->getBody()->getContents());
             $task['summary'] = isset($responseJson->task->summary) ? $responseJson->task->summary : '';
             $task['project_id'] = isset($responseJson->task->project_id) ? $responseJson->task->project_id : 'none';
+            $task['lock_version'] = isset($responseJson->task->lock_version) ? ($responseJson->task->lock_version): 0;
         } else {
             return response('<h1>Error in getting task data</h1>');
         }
@@ -406,6 +408,7 @@ class HubstaffController extends Controller
         $taskId = Input::get('id');
         $taskSummary = Input::get('summary');
         $project_id = Input::get('project_id');
+        $lock_version = Input::get('lock_version');
 
         $access_token = session(SESSION_ACCESS_TOKEN);
         $url = 'https://api.hubstaff.com/v2/tasks/' . $taskId;
@@ -422,7 +425,7 @@ class HubstaffController extends Controller
                 RequestOptions::BODY => json_encode([
                     'summary' => $taskSummary,
                     'project_id' => $project_id,
-                    'lock_version' => 0
+                    'lock_version' => $lock_version
                 ])
             ]
         );

@@ -10,6 +10,7 @@
         : Form::model($task, array('url' => '/hubstaff/tasks/editData', 'method' => 'PUT'))
     }}
     {{ Form::hidden('id', Input::old('id')) }}
+    {{ Form::hidden('lock_version', Input::old('lock_version')) }}
     <div class="form-group">
         {{ Form::label('summary', 'Summary') }}
         {{ Form::text('summary', Input::old('summary'), array('class' => 'form-control')) }}
