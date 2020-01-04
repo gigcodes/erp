@@ -1801,7 +1801,7 @@ class ProductController extends Controller
             // Set new status
             $product->status_id = StatusHelper::$attributeRejectCategory;
             $product->save();
-            
+
              // Return JSON
             return response()->json([
                 'status' => 'no_product'
@@ -1866,16 +1866,16 @@ class ProductController extends Controller
 
             
 
-            list($width, $height, $type, $attr) = getimagesize($image);
-            if($width != 1000 && $height != 1000){
-                $product->cropped_at = Carbon::now()->toDateTimeString();
-                $product->status_id = StatusHelper::$cropRejected;
-                $product->save();
-            }else{
+            // list($width, $height, $type, $attr) = getimagesize($image);
+            // if($width != 1000 && $height != 1000){
+            //     $product->cropped_at = Carbon::now()->toDateTimeString();
+            //     $product->status_id = StatusHelper::$cropRejected;
+            //     $product->save();
+            // }else{
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$cropApproval;
                 $product->save();
-            }
+           // }
             
             // get the status as per crop
             if ($product->category > 0) {
