@@ -130,7 +130,7 @@
                         </select></th>
                 <th>
                     <select data-placeholder="Select Type" class="form-control" id="custom">
-                            <option value="0">Select</option>
+                            <option value="0">Select For SKU String Count</option>
                             <option value="1">SKU is not proper</option>
                         </select></th>
                 </th>
