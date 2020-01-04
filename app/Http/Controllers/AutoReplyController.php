@@ -379,9 +379,11 @@ class AutoReplyController extends Controller
 
         $mostUsedPhrases = $mostUsedPhrases->where(\DB::raw("LENGTH(phrase) - LENGTH(REPLACE(phrase, ' ', '')) + 1") , ">" , 3);
 
+        $mostUsedPhrases->select([\DB::raw("count(phrase) as total_count") , "chat_message_phrases.*"]);
+
         $mostUsedPhrases->groupBy("phrase");
 
-        $mostUsedPhrases = $mostUsedPhrases->orderBy("total","desc");
+        $mostUsedPhrases = $mostUsedPhrases->orderBy("total_count","desc");
 
         $mostUsedPhrases = $mostUsedPhrases->paginate(10);
 

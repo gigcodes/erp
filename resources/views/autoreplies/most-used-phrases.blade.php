@@ -69,7 +69,7 @@
                 @foreach ($mostUsedPhrases as $key => $phrases)
                     <tr>
                         <td><input type="checkbox" name="phrase" data-keyword="{{ $phrases->id }}" value="{{ $phrases->id }}">  {{ $phrases->phrase }}</td>
-                        <td>{{ $phrases->total }}</td>
+                        <td>{{ $phrases->total_count }}</td>
                         <td>
                             <button data-id="{{ $phrases->chat_id }}" class="btn btn-image get-chat-details"><img src="/images/chat.png"></button>
                         </td>
