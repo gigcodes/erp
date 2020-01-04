@@ -24,7 +24,18 @@
 	</div>
 </div>
 <div class="tab-pane">
-	<div class="row">
+		<div class="row">
+			<div class="col-lg-12 margin-tb">
+			@if ($errors->any())
+			    <div class="alert alert-danger">
+			        <ul>
+			            @foreach ($errors->all() as $error)
+			                <li>{{ $error }}</li>
+			            @endforeach
+			        </ul>
+			    </div>
+			@endif
+		</div>
 	    <div class="col-lg-12 margin-tb">
 	    	<div class="well">
 	    		<form action="{{ route('chatbot.question.update',[$chatbotQuestion->id]) }}" method="post">
@@ -64,7 +75,12 @@
 				      	<?php echo $value->question; ?>
 				     </td>
 				     <td>
-				     	<?php echo implode(",", $value->highLightQuestion()); ?>
+				     	<?php foreach ($value->highLightQuestion() as $key => $valueRaw) { ?>
+				     			<div class="delete-annotation-raw" style="display: inline-block;padding-left: 2px;">
+				     				<?php echo $valueRaw; ?>
+					     			<span data-id="<?php echo $key; ?>" class="close delete-annotation" aria-label="Close"><span aria-hidden="true">&times;</span></span>
+					     		</div>
+				     	<?php } ?>
 				     </td>	
 				      <td>
                         <a class="btn btn-image delete-button" data-id="<?php echo $value->id; ?>" href="<?php echo route("chatbot.question-example.delete", [$chatbotQuestion->id, $value->id]); ?>">
@@ -183,6 +199,28 @@
 	               	  location.reload();
 	               }else{
 	               	  toastr['error']('data is not correct or duplicate!');
+	               } 
+	            },
+	            error: function () {
+	               toastr['error']('Could not change module!');
+	            }
+	        });
+		});
+
+		$(document).on("click",".delete-annotation",function() {
+			var $this = $(this);
+			var anntid = $this.data("id");
+			$.ajax({
+				type: "GET",
+	            url: "/chatbot/question/annotation/delete",
+	            data: {id : anntid},
+	            dataType : "json",
+	            success: function (response) {
+	               if(response.code == 200) {
+	               	  toastr['success']('data updated successfully!');
+	               	  $this.closest(".delete-annotation-raw").remove();
+	               }else{
+	               	  toastr['error']('Oops, something went wrong!');
 	               } 
 	            },
 	            error: function () {

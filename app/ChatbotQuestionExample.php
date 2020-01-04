@@ -28,7 +28,7 @@ class ChatbotQuestionExample extends Model
         $selectedAn         = [];
         if (!$getAllLengths->isEmpty()) {
             foreach ($getAllLengths as $lengths) {
-                $selectedAn[] = substr($question,$lengths->start_char_range,$lengths->end_char_range);
+                $selectedAn[$lengths->id] = substr($question,$lengths->start_char_range,$lengths->end_char_range);
             }
         }
 
