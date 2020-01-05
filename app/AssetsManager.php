@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\AssetsCategory;
 
 class AssetsManager extends Model
 {
@@ -15,11 +16,11 @@ class AssetsManager extends Model
   ];
 
   protected $fillable = [
-    'name', 'asset_type', 'category_id', 'purchase_type', 'payment_cycle', 'amount', 'archived'];
+    'name', 'asset_type', 'category_id', 'purchase_type', 'payment_cycle', 'amount', 'archived','password','provider_name','location','currency'];
 
-  /*public function category()
+  public function category()
     {
-        return $this->belongsTo('App\AssetsCategory', 'assets_manager','category_id', 'id' );
+        return $this->hasOne(AssetsCategory::class,'id','category_id');
     }
-  */
+  
 }
