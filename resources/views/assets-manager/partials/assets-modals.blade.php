@@ -22,6 +22,15 @@
           </div>
 
           <div class="form-group">
+            <strong>Password:</strong>
+            <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
+
+            @if ($errors->has('password'))
+              <div class="alert alert-danger">{{$errors->first('password')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
             <strong>Asset Type:</strong>
             <select class="form-control" name="asset_type" id="asset_type">
                 <option value="">Select</option>
@@ -47,6 +56,16 @@
               <div class="alert alert-danger">{{$errors->first('category_id')}}</div>
             @endif
           </div>
+
+          <div class="form-group">
+            <strong>Provider Name:</strong>
+            <input type="text" name="provider_name" class="form-control" value="{{ old('provider_name') }}" required>
+
+            @if ($errors->has('provider_name'))
+              <div class="alert alert-danger">{{$errors->first('provider_name')}}</div>
+            @endif
+          </div>
+
 
           <div class="form-group othercat" style="display: none;" >
             <input type="text" name="other" class="form-control" value="{{ old('other') }}">            
@@ -88,7 +107,26 @@
             @if ($errors->has('amount'))
               <div class="alert alert-danger">{{$errors->first('amount')}}</div>
             @endif
-          </div>           
+          </div> 
+
+          <div class="form-group">
+            <strong>Currency:</strong>
+            <input type="text" name="currency" class="form-control" value="{{ old('currency') }}" required>
+
+            @if ($errors->has('currency'))
+              <div class="alert alert-danger">{{$errors->first('currency')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Location:</strong>
+            <input type="text" name="location" class="form-control" value="{{ old('location') }}" required>
+
+            @if ($errors->has('location'))
+              <div class="alert alert-danger">{{$errors->first('location')}}</div>
+            @endif
+          </div>
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -123,6 +161,16 @@
             @endif
           </div>
 
+
+          <div class="form-group">
+            <strong>Password:</strong>
+            <input type="text" name="password" class="form-control" value="{{ old('password') }}" id="password" required>
+
+            @if ($errors->has('password'))
+              <div class="alert alert-danger">{{$errors->first('password')}}</div>
+            @endif
+          </div>
+
           <div class="form-group">
             <strong>Asset Type:</strong>
             <select class="form-control" name="asset_type" id="asset_asset_type">
@@ -135,7 +183,7 @@
             @endif
           </div>
 
-
+          
           <div class="form-group">
             <strong>Category:</strong>
             <select class="form-control" name="category_id" id="category_id2">
@@ -152,6 +200,17 @@
           <div class="form-group othercatedit" style="display: none;" >
             <input type="text" name="other" class="form-control" value="{{ old('other') }}">            
           </div>
+
+          <div class="form-group">
+            <strong>Provider Name:</strong>
+            <input type="text" name="provider_name" class="form-control" value="{{ old('provider_name') }}" id="provider_name" required>
+
+            @if ($errors->has('provider_name'))
+              <div class="alert alert-danger">{{$errors->first('provider_name')}}</div>
+            @endif
+          </div>
+
+
           <div class="form-group">
             <strong>Purchase Type:</strong>
             <select class="form-control" name="purchase_type" id="asset_purchase_type">
@@ -187,6 +246,24 @@
 
             @if ($errors->has('amount'))
               <div class="alert alert-danger">{{$errors->first('amount')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Currency:</strong>
+            <input type="text" name="currency" class="form-control" value="{{ old('currency') }}" id="currency" required>
+
+            @if ($errors->has('currency'))
+              <div class="alert alert-danger">{{$errors->first('currency')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Location:</strong>
+            <input type="text" name="location" class="form-control" value="{{ old('location') }}" id="location" required>
+
+            @if ($errors->has('location'))
+              <div class="alert alert-danger">{{$errors->first('location')}}</div>
             @endif
           </div>
           
