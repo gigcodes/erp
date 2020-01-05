@@ -23,7 +23,7 @@
 
           <div class="form-group">
             <strong>Password:</strong>
-            <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
+            <input type="text" name="password" class="form-control" value="{{ old('password') }}" >
 
             @if ($errors->has('password'))
               <div class="alert alert-danger">{{$errors->first('password')}}</div>
@@ -120,7 +120,7 @@
 
           <div class="form-group">
             <strong>Location:</strong>
-            <input type="text" name="location" class="form-control" value="{{ old('location') }}" required>
+            <input type="text" name="location" class="form-control" value="{{ old('location') }}">
 
             @if ($errors->has('location'))
               <div class="alert alert-danger">{{$errors->first('location')}}</div>
