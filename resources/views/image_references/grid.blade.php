@@ -21,7 +21,7 @@
     </div>
  <div class="row">
         <div class="col-md-12">
-            <h1 class="text-center">Crop Reference Grid (<span id="total">{{ $products->total() }}</span>) ({{ $pendingProduct }})</h1>
+            <h1 class="text-center">Crop Reference Grid (<span id="total">{{ $products->total() }}</span>) ({{ $pendingProduct }}) ({{ $pendingCategoryProduct }})</h1>
             <div class="pull-right">
                  <button onclick="addTask()" class="btn btn-secondary">Add Issue</button>
                  <button onclick="rejectImage()" class="btn btn-secondary">Reject Image</button>
