@@ -1540,6 +1540,42 @@ class ProductController extends Controller
             $products = $products->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (" . implode(",", $request->quick_sell_groups) . ") ))");
         }
 
+        // brand filter count start
+        $brandGroups = clone($products);
+        $brandGroups = $brandGroups->groupBy("brand")->select([\DB::raw("count(id) as total_product"),"brand"])->pluck("total_product","brand")->toArray();
+        $brandIds = array_values(array_filter(array_keys($brandGroups)));
+        
+        $brandsModel = \App\Brand::whereIn("id",$brandIds)->pluck("name","id")->toArray();
+
+        $countBrands = [];
+        if(!empty($brandGroups) && !empty($brandsModel)) {
+            foreach ($brandGroups as $key => $count) {
+                $countBrands[] = [
+                    "id" => $key,
+                    "name" => !empty($brandsModel[$key]) ? $brandsModel[$key] : "N/A",
+                    "count" => $count,
+                ];
+            }
+        }
+
+        // category filter start count
+        $categoryGroups = clone($products);
+        $categoryGroups = $categoryGroups->groupBy("category")->select([\DB::raw("count(id) as total_product"),"category"])->pluck("total_product","category")->toArray();
+        $categoryIds = array_values(array_filter(array_keys($categoryGroups)));
+        
+        $categoryModel = \App\Category::whereIn("id",$categoryIds)->pluck("title","id")->toArray();
+
+        $countCategory = [];
+        if(!empty($categoryGroups) && !empty($categoryModel)) {
+            foreach ($categoryGroups as $key => $count) {
+                $countCategory[] = [
+                    "id" => $key,
+                    "name" => !empty($categoryModel[$key]) ? $categoryModel[$key] : "N/A",
+                    "count" => $count,
+                ];
+            }
+        }
+
         // select fields..
         $products = $products->select(['products.id', 'name', 'short_description', 'color', 'sku', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
 
@@ -1560,7 +1596,9 @@ class ProductController extends Controller
                 'products' => $products,
                 'all_product_ids' => $all_product_ids,
                 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
-                'model_type' => $model_type
+                'model_type' => $model_type,
+                'countBrands' => $countBrands,
+                'countCategory' => $countCategory
             ])->render();
 
             return response()->json(['html' => $html, 'products_count' => $products_count]);
@@ -1580,7 +1618,7 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
 
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups'));
+        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory'));
     }
 
 
@@ -1759,12 +1797,22 @@ class ProductController extends Controller
             //
         }
 
-        // Set new status
-        $product->status_id = StatusHelper::$isBeingCropped;
-        $product->save();
+        if($parent == null && $parent == ''){
+            // Set new status
+            $product->status_id = StatusHelper::$attributeRejectCategory;
+            $product->save();
 
-        // Return product
-        return response()->json([
+             // Return JSON
+            return response()->json([
+                'status' => 'no_product'
+            ]);
+
+        }else{
+            // Set new status
+            $product->status_id = StatusHelper::$isBeingCropped;
+            $product->save();
+             // Return product
+            return response()->json([
             'product_id' => $product->id,
             'image_urls' => $images,
             'l_measurement' => $product->lmeasurement,
@@ -1772,14 +1820,15 @@ class ProductController extends Controller
             'd_measurement' => $product->dmeasurement,
             'category' => "$parent $child",
             '' => ''
-        ]);
+        ]);  
+        }
+    }    
 
-    }
 
     public function saveImage(Request $request)
     {
         // Find the product or fail
-        $product = Product::findOrFail(228034);
+        $product = Product::findOrFail($request->get('product_id'));
         
         // Check if this product is being cropped
         if ($product->status_id != StatusHelper::$isBeingCropped) {
@@ -1812,17 +1861,20 @@ class ProductController extends Controller
             $imageReference->save();
 
             
+            //Get the last image of the product
+            $productMediacount = $product->media()->count();
+            //CHeck number of products in Crop Reference Grid
+            $cropCount = CroppedImageReference::where('product_id',$product->id)->whereDate('created_at', Carbon::today())->count();
 
-            list($width, $height, $type, $attr) = getimagesize($image);
-            if($width != 1000 && $height != 1000){
-                $product->cropped_at = Carbon::now()->toDateTimeString();
-                $product->status_id = StatusHelper::$cropRejected;
-                $product->save();
-            }else{
+            if(($productMediacount - $cropCount) == 1){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$cropApproval;
                 $product->save();
+            }else{
+                $product->cropped_at = Carbon::now()->toDateTimeString();
+                $product->save();
             }
+
             
             // get the status as per crop
             if ($product->category > 0) {

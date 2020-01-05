@@ -75,4 +75,13 @@ class IntentService extends Service
         );
     }
 
+    public function updateExample($workspaceId, $intents, $text, $params = [], $version = '2019-02-28') 
+    {
+        return $this->client->request(
+            'POST',
+            $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/intents/' . $intents.'/examples/'.$text,
+            ['query' => ['version' => $version], "json" => $params]
+        );
+    }
+
 }
