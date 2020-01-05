@@ -158,7 +158,9 @@ class CroppedImageReferenceController extends Controller
 
         $total = $query->count(); 
          
-         $pendingProduct = Product::where('status_id',StatusHelper::$autoCrop)->where('stock','>=',1)->count();  
+         $pendingProduct = Product::where('status_id',StatusHelper::$autoCrop)->where('stock','>=',1)->count();
+
+         $pendingCategoryProduct = Product::where('status_id',StatusHelper::$attributeRejectCategory)->where('stock','>=',1)->count();  
         
          if (request('customer_range') != null){
                    $dateArray =  explode('-',request('customer_range'));
@@ -185,13 +187,13 @@ class CroppedImageReferenceController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('image_references.partials.griddata', compact('products','category_selection','total','pendingProduct','totalCounts'))->render(),
+                'tbody' => view('image_references.partials.griddata', compact('products','category_selection','total','pendingProduct','totalCounts','pendingCategoryProduct'))->render(),
                 'links' => (string)$products->render(),
                 'total' => $total,
             ], 200);
             }
            
-        return view('image_references.grid', compact('products','category_selection','total','pendingProduct','totalCounts'));
+        return view('image_references.grid', compact('products','category_selection','total','pendingProduct','totalCounts','pendingCategoryProduct'));
     }
 
     public function rejectCropImage(Request $request)
