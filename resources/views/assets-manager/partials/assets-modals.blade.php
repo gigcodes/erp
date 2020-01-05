@@ -57,6 +57,11 @@
             @endif
           </div>
 
+          
+          <div class="form-group othercat" style="display: none;" >
+            <input type="text" name="other" class="form-control" value="{{ old('other') }}">            
+          </div>
+
           <div class="form-group">
             <strong>Provider Name:</strong>
             <input type="text" name="provider_name" class="form-control" value="{{ old('provider_name') }}" required>
@@ -64,11 +69,6 @@
             @if ($errors->has('provider_name'))
               <div class="alert alert-danger">{{$errors->first('provider_name')}}</div>
             @endif
-          </div>
-
-
-          <div class="form-group othercat" style="display: none;" >
-            <input type="text" name="other" class="form-control" value="{{ old('other') }}">            
           </div>
 
           <div class="form-group">
