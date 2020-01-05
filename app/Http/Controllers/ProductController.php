@@ -1763,7 +1763,7 @@ class ProductController extends Controller
         $product = QueryHelper::approvedListingOrder($product);
 
         // Get first product
-        $product = $product->first();
+        $product = $product->whereHasMedia('original')->first();
 
         if (!$product) {
             // Return JSON
@@ -1773,7 +1773,7 @@ class ProductController extends Controller
         }
 
         // Get images
-        $images = $product->media()->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
+        $images = $product->media()->where('tag','original')->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
 
         // Get category
         $category = $product->product_category;
