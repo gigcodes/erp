@@ -964,10 +964,10 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Chatbot<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.keyword.list')}}">Keyword</a>
+                                            <a class="dropdown-item" href="{{route('chatbot.keyword.list')}}">Entities</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Question</a>
+                                            <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Intents</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.dialog.list')}}">Dialog</a>

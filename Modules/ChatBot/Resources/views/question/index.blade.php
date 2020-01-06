@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('favicon' , 'task.png')
 
-@section('title', 'Questions | Chatbot')
+@section('title', 'Intent | Chatbot')
 
 @section('content')
 <style type="text/css">
@@ -20,7 +20,7 @@
 </style>
 <div class="row">
 	<div class="col-lg-12 margin-tb">
-	    <h2 class="page-heading">Questions | Chatbot</h2>
+	    <h2 class="page-heading">Intent | Chatbot</h2>
 	</div>
 </div>
 <div class="row">
@@ -39,8 +39,8 @@
 			  <thead>
 			    <tr>
 			      <th class="th-sm">Id</th>
-			      <th class="th-sm">Value</th>
-			      <th class="th-sm">Questions</th>
+			      <th class="th-sm">Intent</th>
+			      <th class="th-sm">User Example</th>
 			      <th class="th-sm">Action</th>
 			    </tr>
 			  </thead>
@@ -60,8 +60,8 @@
 			  <tfoot>
 			    <tr>
 			      <th>Id</th>
-			      <th>Value</th>
-			      <th>Questions</th>
+			      <th>Intent</th>
+			      <th>User Example</th>
 			      <th>Action</th>
 			    </tr>
 			  </tfoot>
