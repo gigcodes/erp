@@ -7,8 +7,13 @@
             top: 50%;
             left: 50%;
             margin: -50px 0px 0px -50px;
+            z-index: 60;
+        }
+        #reason-select{
+            display: none;
         }
     </style>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />  
 @endsection
 @section('content')
 <div id="myDiv">
@@ -16,19 +21,43 @@
     </div>
  <div class="row">
         <div class="col-md-12">
-            <h1 class="text-center">Crop Reference Grid (<span id="total">{{ $total }}</span>)</h1>
+            <h1 class="text-center">Crop Reference Grid (<span id="total">{{ $products->total() }}</span>) ({{ $pendingProduct }}) ({{ $pendingCategoryProduct }})</h1>
             <div class="pull-right">
                  <button onclick="addTask()" class="btn btn-secondary">Add Issue</button>
-                 
+                 <button onclick="rejectImage()" class="btn btn-secondary">Reject Image</button>
+                 <select class="form-control-sm form-control bg-secondary text-light" name="reject_cropping" id="reason-select">
+                    <option value="0">Select...</option>
+                    <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
+                    <option value="No Images Shown">No Images Shown</option>
+                    <option value="Grid Not Shown">Grid Not Shown</option>
+                    <option value="Blurry Image">Blurry Image</option>
+                    <option value="First Image Not Available">First Image Not Available</option>
+                    <option value="Dimension Not Available">Dimension Not Available</option>
+                    <option value="Wrong Grid Showing For Category">Wrong Grid Showing For Category</option>
+                    <option value="Incorrect Category">Incorrect Category</option>
+                    <option value="Only One Image Available">Only One Image Available</option>
+                    <option value="Image incorrect">Image incorrect</option>
+                </select>
             </div>
                 <br>
             <!--Product Search Input -->
                 <form method="GET" action="crop-references-grid" class="form-inline align-items-start">
                    
+                   <div class="form-group mr-3">
+                        <select data-placeholder="Status Type" class="form-control select-multiple2" name="status" id="status">
+                            <optgroup label="Status Type">
+                               <option value="0">Select Status</option> 
+                               <option value="4">AutoCrop</option>
+                               <option value="18">Crop Rejected</option> 
+                               <option value="12">Manual Image Upload</option> 
+                            </optgroup>
+                        </select>
+                    </div>
+
                    <div class="form-group mr-3 mb-3">
                         {!! $category_selection !!}
                     </div>
-
+    
                     <div class="form-group mr-3">
                         @php $brands = \App\Brand::getAll();
                         @endphp
@@ -53,27 +82,64 @@
                         </select>
                     </div>
 
-                     <div class="form-group mr-3">
-                        <select data-placeholder="Select Crop" class="form-control select-multiple2" name="crop" id="crop">
-                            <optgroup label="Crop">
-                                <option value="1">All</option>
-                                <option value="2">Cropped</option>
-                                <option value="3">Uncropped</option>
-                            </optgroup>
-                        </select>
-                    </div>
-
-
-                   
-
-                   
-                    
+                     
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                     <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
                 </form>
         </div>
          
-       
+      
+        <div class="col-md-12">
+            <div class="panel-group">
+                <div class="panel mt-5 panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse1">Crop Stats</a>
+                        </h4>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <div class="pull-right">
+                            <form action="crop-references-grid" method="GET">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                           
+                                                <div id="reportrange_phone" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                                        <input type="hidden" name="customer_range" id="customer_range">
+                                                        <i class="fa fa-calendar"></i>&nbsp;
+                                                        <span></span> <i class="fa fa-caret-down"></i>
+                                                </div>
+                   
+                                        </div>
+
+                                        
+                                        <div class="col-md-1">
+                                         <button class="btn btn-image" type="button"><img src="/images/filter.png"/ onclick="getCount()"></button>
+                                     </div>
+                                 </div>
+                             </div>
+                         </form>
+                     </div>
+                            <table class="table table-bordered table-striped" id="phone-table">
+                                <thead>
+                                <tr>
+                                    <th>Count</th>
+                                    <th>Date Time Range</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    <th><span id="count_images"></span></th>
+                                    <th><span id="date_time"></span></th>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+   
 
         {!! $products->links() !!}
         <div class="col-md-12">
@@ -89,7 +155,7 @@
                         <th>Cropped Image</th>
                         <th>Time</th>
                         <th>Date</th>
-                        <th>Status</th>
+                        <th>Action</th>
                         <th>Issue</th>
                     </tr>
                      </thead>
@@ -126,6 +192,7 @@
 @section('scripts')
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
 <script type="text/javascript">
       $(document).ready(function () {
@@ -194,13 +261,37 @@
             }                
         });
 
+        var start = moment().subtract(29, 'days');
+        var end = moment();
 
+        function cs(start, end) {
+            if(start.format('YYYY-MM-DD') == '1995-12-25'){
+                $('#reportrange_phone span').html(end.format('MMMM D, YYYY'));
+            }else{
+                $('#reportrange_phone span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            }
+            $('#customer_range').val(start.format('YYYY/MM/DD')+' - '+end.format('YYYY/MM/DD'));
+        }
 
+        $('#reportrange_phone').daterangepicker({
+            startDate: start,
+            endDate: end,
+            ranges: {
+             'Past Hour' : [moment('1995-12-25'), moment()],  
+             'Today': [moment(), moment()],
+             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+             'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+             'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+             'This Month': [moment().startOf('month'), moment().endOf('month')],
+             'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, cs)
+        cs(start, end);
 </script>
 
  <script type="text/javascript">
         $(document).ready(function () {
-            $('#brand,#category,#crop,#supplier').on('change', function () {
+            $('#brand,#category,#crop,#supplier,#status').on('change', function () {
                 $.ajax({
                     url: '/crop-references-grid',
                     dataType: "json",
@@ -209,6 +300,7 @@
                         category: $('#category').val(),
                         crop : $('#crop').val(),
                         supplier : $('#supplier').val(),
+                        status : $('#status').val(),
                     },
                     beforeSend: function () {
                         $("#loading-image").show();
@@ -229,6 +321,109 @@
                 });
             });
         });
+
+        function getCount(){
+            $.ajax({
+                    url: '/crop-references-grid',
+                    dataType: "json",
+                    data: {
+                        customer_range: $('#customer_range').val(),
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#count_images").text(data.count);
+                    string = $('#customer_range').val();
+                    $("#date_time").text(string.replace('1995/12/25',''));
+                   
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    $("#loading-image").hide();
+                    alert('No response from server');
+                });
+        }
+
+        $(document).on('change', '.reject-cropping', function (event) {
+            let pid = $(this).data('id');
+            let remark = $(this).val();
+
+            if (remark == 0 || remark == '0') {
+                return;
+            }
+
+            let self = this;
+
+            $.ajax({
+                url: '/products/auto-cropped/' + pid + '/reject',
+                data: {
+                    remark: remark,
+                    _token: "{{csrf_token()}}",
+                    senior: 1
+                },
+                type: 'GET',
+                success: function () {
+                    toastr['success']('Crop rejected successfully!', 'Success');
+                    removeIdFromArray(pid);
+                    $(self).removeAttr('disabled');
+                },
+                error: function () {
+                    $(self).removeAttr('disabled');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled');
+                }
+            });
+
+        });
+
+        function rejectImage(){
+            var id = [];
+            $.each($("input[name='issue']:checked"), function(){
+                id.push($(this).val());
+            });
+            if(id.length == 0){
+                alert('Please Select Image');
+            }else{
+                $('#reason-select').show();
+            }
+        }
+
+         $(document).on('change', '#reason-select', function (event) {
+            let remark = $(this).val();
+            $.each($("input[name='issue']:checked"), function(){
+            if (remark == 0 || remark == '0') {
+                return;
+            }
+
+            pid = $(this).attr('data-id');
+
+            $.ajax({
+                url: '/products/auto-cropped/' + pid + '/reject',
+                data: {
+                    remark: remark,
+                    _token: "{{csrf_token()}}",
+                    senior: 1
+                },
+                type: 'GET',
+                success: function () {
+                    toastr['success']('Crop rejected successfully!', 'Success');
+                    $(self).removeAttr('disabled');
+                },
+                error: function () {
+                    $(self).removeAttr('disabled');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled');
+                }
+            });
+
+            });
+            $('#reason-select').hide();
+
+        });
+
     </script>
 
 @endsection

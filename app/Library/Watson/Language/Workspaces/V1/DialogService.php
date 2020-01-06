@@ -42,7 +42,7 @@ class DialogService extends Service
     public function getList($workspaceId, $params = [], $version = '2019-02-28')
     {
         return $this->client->request(
-            'POST',
+            'GET',
             $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/dialog_nodes',
             ['query' => ['version' => $version] + $params]
         );
@@ -51,7 +51,7 @@ class DialogService extends Service
     public function get($workspaceId, $dialogNodes, $version = '2019-02-28')
     {
         return $this->client->request(
-            'POST',
+            'GET',
             $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/dialog_nodes/' . $dialogNodes,
             ['query' => ['version' => $version]]
         );

@@ -72,13 +72,17 @@ class ScrapStatisticsController extends Controller
             FROM
                 suppliers s
             JOIN
-                scrapers sc on sc.supplier_id = s.id    
-            RIGHT JOIN
+                scrapers sc
+            ON 
+                sc.supplier_id = s.id    
+            JOIN
                 log_scraper ls 
             ON  
                 sc.scraper_name=ls.website
             WHERE
                 ls.website != "internal_scraper" AND 
+                ' . ($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '') . '
+                ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
                 ls.updated_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
             GROUP BY
                 ls.website

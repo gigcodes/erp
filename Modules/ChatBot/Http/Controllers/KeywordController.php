@@ -114,4 +114,49 @@ class KeywordController extends Controller
         return redirect()->back();
     }
 
+    public function saveAjax()
+    {
+        $params            = $request->all();
+        $params["keyword"] = str_replace(" ", "_", preg_replace('/\s+/', ' ', $params["keyword"]));
+        $values  =  $request->get("values");
+
+        $validator = Validator::make($params, [
+            'keyword' => 'required|unique:chatbot_keywords|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "error" => []]);
+        }
+
+        $chatbotKeyword = ChatbotKeyword::create($params);
+        if(!empty($values)) {
+            if(is_array($values)) {
+                foreach($values as $value) {
+                    ChatbotKeywordValue::create(["chatbot_keyword_id" => $chatbotKeyword->id,"value" => $value]);
+                }
+            }
+        }
+
+        WatsonManager::pushKeyword($chatbotKeyword->id);
+
+        return response()->json(["code" => 200]);
+    }
+
+    public function search(Request $request)
+    {
+
+        $keyword = request("term","");
+        $allKeyword = ChatbotKeyword::where("keyword","like","%".$keyword."%")->limit(10)->get();
+
+        $allKeywordList = [];
+        if(!$allKeyword->isEmpty()) {
+            foreach($allKeyword as $all) {
+                $allKeywordList[] = ["id" => $all->id , "text" => $all->keyword]; 
+            }
+        }
+
+        return response()->json(["incomplete_results" => false, "items"=> $allKeywordList, "total_count" => count($allKeywordList)]);
+
+    }
+
 }

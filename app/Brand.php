@@ -11,6 +11,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\SupplierBrandCount;
+use App\SkuFormat;
 
 class Brand extends Model
 {
@@ -82,6 +83,11 @@ class Brand extends Model
     
     public function googleServer(){
         return $this->hasOne(GoogleServer::class,'id','google_server_id');
+    }
+
+    public function skuFormat()
+    {
+       return $this->hasOne(SkuFormat::class,'brand_id','id');
     }
 
 }

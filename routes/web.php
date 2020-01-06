@@ -13,7 +13,7 @@
 
 Auth::routes();
 
-Route::get('/test/test', 'LiveChatController@sendImage');
+Route::get('/test/test', 'TextController@index');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 
@@ -51,7 +51,9 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index');
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.laravel.log');
+    Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
     Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
+
 
 });
 
@@ -68,7 +70,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('crop-references', 'CroppedImageReferenceController@index');
     Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
     Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
-
+    Route::post('crop-references-grid/reject', 'CroppedImageReferenceController@rejectCropImage');
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
@@ -110,6 +112,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing', 'ProductController@listing')->name('products.listing');
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
+    Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
     Route::get('products/listing/magento', 'ProductController@approvedMagento')->name('products.listing.magento');
     Route::get('products/listing/rejected', 'ProductController@showRejectedListedProducts');
     Route::get('product/listing-remark', 'ProductController@addListingRemarkToProduct');
@@ -178,7 +181,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('autoreply/save-group', 'AutoReplyController@saveGroup')->name('autoreply.save.group');
     Route::post('autoreply/save-group/phrases', 'AutoReplyController@saveGroupPhrases')->name('autoreply.save.group.phrases');
     Route::post('autoreply/save-by-question', 'AutoReplyController@saveByQuestion');
+    Route::get('autoreply/get-phrases', 'AutoReplyController@getPhrases');
     Route::resource('autoreply', 'AutoReplyController');
+    Route::get('most-used-words', 'AutoReplyController@mostUsedWords')->name("chatbot.mostUsedWords");
+    Route::get('most-used-phrases', 'AutoReplyController@mostUsedPhrases')->name("chatbot.mostUsedPhrases");
 
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');

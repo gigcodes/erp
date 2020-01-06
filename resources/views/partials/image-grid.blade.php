@@ -162,12 +162,20 @@
                     <input type="hidden" name="quick_product" value="true">
                     <button type="submit" class="btn btn-xs btn-secondary">Quick Sell</button>
                 </form>
-                <button type="button" class="btn btn-secondary select-all-product-btn" data-count="0">Select All</button>
+                <button type="button" class="btn btn-secondary select-all-product-btn" data-count="<?php echo (isset($products_count)) ? $products_count : 0; ?>">Select All</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="20">Select 20</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="30">Select 30</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="50">Select 50</button>
                 <button type="button" class="btn btn-secondary select-all-product-btn" data-count="100">Select 100</button>
                 <button type="button" class="btn btn-secondary select-all-same-page-btn" data-count="100">Select All Current Page</button>
+                <a class="btn btn-secondary" 
+                data-toggle="collapse" href="#brandFilterCount" role="button" aria-expanded="false" aria-controls="brandFilterCount">
+                   Show Brand(s) count 
+                </a>
+                <a class="btn btn-secondary" 
+                data-toggle="collapse" href="#categoryFilterCount" role="button" aria-expanded="false" aria-controls="categoryFilterCount">
+                   Show Categories count
+                </a>
             </div>
         </div>
     </div>

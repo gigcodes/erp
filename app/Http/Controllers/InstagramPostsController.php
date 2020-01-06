@@ -103,6 +103,8 @@ class InstagramPostsController extends Controller
 
                 // Get hashtag ID
                 $hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
+                $hashtag->is_processed = 1;
+                $hashtag->save();
 
                 // Retrieve instagram post or initiate new
                 $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson[ 'URL' ]]);
@@ -158,6 +160,7 @@ class InstagramPostsController extends Controller
         ], 200);
     }
 
+
     public function sendAccount($token)
     {
       if($token != 'sdcsds'){
@@ -192,5 +195,27 @@ class InstagramPostsController extends Controller
         $comments = InstagramCommentQueue::where('post_id',$postId)->where('message','LIKE','%'.$comment)->first().'%';
         $comments->is_send = 1;
         $comments->save();
+
+    }    
+
+    public function getHashtagList()
+    {
+        $hastags = HashTag::select('id','hashtag')->where('priority',1)->get();
+
+        if(count($hastags) == 0){
+            $hastags = HashTag::select('id','hashtag')->where('priority',2)->get();
+        }
+
+        if(count($hastags) == 0){
+            return response()->json(['hastag' => []],200);
+        }
+
+        foreach ($hastags as $hastag) {
+            $hastagIdArray[] = $hastag->id;
+            $hastagArray[] = $hastag->hashtag;
+        }
+        
+        return response()->json(['hastag' => $hastagArray ],200);
+
     }
 }
