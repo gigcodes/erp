@@ -85,12 +85,30 @@
                     <option <?php echo $excelOnly == 1 ? 'selected=selected' : '' ?> value="1">Excel only</option>
                 </select>
             </div>
+            <div class="form-group mb-3 col-md-3">
+                <select name="scrapers_status" class="form-control form-group">
+                    <option value="">Status</option>
+                    <option <?php echo request()->get('scrapers_status','') == 'Ok' ? 'selected=selected' : '' ?> value="Ok">Ok</option>
+                    <option <?php echo request()->get('scrapers_status','') == 'Rework' ? 'selected=selected' : '' ?> value="Rework">Rework</option>
+                    <option <?php echo request()->get('scrapers_status','') == 'In Process'? 'selected=selected' : '' ?> value="In Process">In Process</option>
+                </select>
+            </div>
             <div class="form-group mr-3 mb-3 col-md-3">
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
             </div>
         </div>
     </form>
-
+    <div class="row">
+        <div class="col-md-2">
+           Status Ok count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Ok')->where('supplier_status_id', 1)->count()}}
+        </div>
+        <div class="col-md-2">
+           Status Rework count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Rework')->where('supplier_status_id', 1)->count()}}
+        </div>
+        <div class="col-md-3">
+           Status In Process count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'In Process')->where('supplier_status_id', 1)->count()}}
+        </div>
+    </div>
     <div class="row no-gutters mt-3">
         <div class="col-md-12" id="plannerColumn">
             <div class="">
@@ -113,6 +131,7 @@
                         <th>Type</th>
                         <th>Parent Scrapper</th>
                         <th>Next Step</th>
+                        <th>Status</th>
                         <th>Functions</th>
                     </tr>
                     </thead>
@@ -191,6 +210,9 @@
                                 {{ isset(\App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow]) ? \App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow] : "N/A" }}
                             </td>
                             <td width="10%">
+                                {{ !empty($supplier->scrapers_status) ? $supplier->scrapers_status : "N/A" }}
+                            </td>
+                            <td width="10%">
                                 <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
                                 <button type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                             </td>
@@ -221,16 +243,22 @@
                                         <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), $supplier->scraper_type, ["class" => "form-control scraper_type select2", "style" => "width:100%;"]) ?>
                                     </div>
                                 </td>
-                                <td colspan="3">
+                                <td colspan="2">
                                     <label>Parent Scrapper:</label>
                                     <div class="form-group">
                                         <?php echo Form::select("parent_supplier_id", [0 => "N/A"] + $allScrapperName, $supplier->parent_supplier_id, ["class" => "form-control parent_supplier_id select2", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
-                                <td colspan="3">
+                                <td colspan="2">
                                     <label>Next Step:</label>
                                     <div class="form-group">
                                         <?php echo Form::select("next_step_in_product_flow", [0 => "N/A"] + \App\Helpers\StatusHelper::getStatus(), $supplier->next_step_in_product_flow, ["class" => "form-control next_step_in_product_flow select2", "style" => "width:100%;"]); ?>
+                                    </div>
+                                </td>
+                                <td colspan="2">
+                                    <label>Status:</label>
+                                    <div class="form-group">
+                                        <?php echo Form::select("status", ['' => "N/A", 'Ok' => 'Ok', 'Rework' => 'Rework', 'In Process' => 'In Process'], $supplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
                             </tr>
@@ -478,6 +506,24 @@
                     search: id,
                     field: "next_step_in_product_flow",
                     field_value: tr.find(".next_step_in_product_flow").val()
+                },
+            }).done(function (response) {
+                toastr['success']('Data updated Successfully', 'success');
+            }).fail(function (response) {
+
+            });
+        });
+
+        $(document).on("change", ".scrapers_status", function () {
+            var tr = $(this).closest("tr");
+            var id = tr.data("eleid");
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/statistics/update-field',
+                data: {
+                    search: id,
+                    field: "status",
+                    field_value: tr.find(".scrapers_status").val()
                 },
             }).done(function (response) {
                 toastr['success']('Data updated Successfully', 'success');
