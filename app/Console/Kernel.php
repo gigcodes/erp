@@ -174,11 +174,8 @@ class Kernel extends ConsoleKernel
         VisitorLogs::class,
         ImageBarcodeGenerator::class,
         UpdateImageBarcodeGenerator::class,
-<<<<<<< HEAD
         SyncCustomersFromMagento::class
-=======
         NumberOfImageCroppedCheck::class
->>>>>>> master
     ];
 
     /**
