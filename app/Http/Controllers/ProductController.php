@@ -1763,7 +1763,7 @@ class ProductController extends Controller
         $product = QueryHelper::approvedListingOrder($product);
 
         // Get first product
-        $product = $product->first();
+        $product = $product->whereHasMedia('original')->first();
 
         if (!$product) {
             // Return JSON
@@ -1773,7 +1773,7 @@ class ProductController extends Controller
         }
 
         // Get images
-        $images = $product->media()->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
+        $images = $product->media()->where('tag','original')->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
 
         // Get category
         $category = $product->product_category;
@@ -1797,12 +1797,22 @@ class ProductController extends Controller
             //
         }
 
-        // Set new status
-        $product->status_id = StatusHelper::$isBeingCropped;
-        $product->save();
+        if($parent == null && $parent == ''){
+            // Set new status
+            $product->status_id = StatusHelper::$attributeRejectCategory;
+            $product->save();
 
-        // Return product
-        return response()->json([
+             // Return JSON
+            return response()->json([
+                'status' => 'no_product'
+            ]);
+
+        }else{
+            // Set new status
+            $product->status_id = StatusHelper::$isBeingCropped;
+            $product->save();
+             // Return product
+            return response()->json([
             'product_id' => $product->id,
             'image_urls' => $images,
             'l_measurement' => $product->lmeasurement,
@@ -1810,14 +1820,15 @@ class ProductController extends Controller
             'd_measurement' => $product->dmeasurement,
             'category' => "$parent $child",
             '' => ''
-        ]);
+        ]);  
+        }
+    }    
 
-    }
 
     public function saveImage(Request $request)
     {
         // Find the product or fail
-        $product = Product::findOrFail(228034);
+        $product = Product::findOrFail($request->get('product_id'));
         
         // Check if this product is being cropped
         if ($product->status_id != StatusHelper::$isBeingCropped) {
@@ -1850,17 +1861,20 @@ class ProductController extends Controller
             $imageReference->save();
 
             
+            //Get the last image of the product
+            $productMediacount = $product->media()->count();
+            //CHeck number of products in Crop Reference Grid
+            $cropCount = CroppedImageReference::where('product_id',$product->id)->whereDate('created_at', Carbon::today())->count();
 
-            list($width, $height, $type, $attr) = getimagesize($image);
-            if($width != 1000 && $height != 1000){
-                $product->cropped_at = Carbon::now()->toDateTimeString();
-                $product->status_id = StatusHelper::$cropRejected;
-                $product->save();
-            }else{
+            if(($productMediacount - $cropCount) == 1){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$cropApproval;
                 $product->save();
+            }else{
+                $product->cropped_at = Carbon::now()->toDateTimeString();
+                $product->save();
             }
+
             
             // get the status as per crop
             if ($product->category > 0) {

@@ -34,11 +34,15 @@
           <tr>
             <th width="5%">ID</th>
             <th>Name</th>
+            <th>Password</th>
             <th width="10%">Asset Type</th>
             <th width="15%">Category</th>
+            <th width="15%">Provider Name</th>
             <th width="10%">Purchase Type</th>
             <th width="10%">Payment Cycle</th>
             <th width="10%">Amount</th>
+            <th width="10%">Currency</th>
+            <th width="15%">Location</th>
             <th width="15%">Action</th>
           </tr>
         </thead>
@@ -48,11 +52,16 @@
             <tr>
               <td>{{ $asset->id }}</td>
               <td>{{ $asset->name }}</td>
+              <td>{{ $asset->password }}</td>
               <td>{{ $asset->asset_type }}</td>
-              <td>{{ $asset->cat_name }}</td>
+              <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
+              
+              <td>{{ $asset->provider_name }}</td>
               <td>{{ $asset->purchase_type }}</td>
               <td>{{ $asset->payment_cycle }}</td>              
-              <td>{{ $asset->amount }}</td>        
+              <td>{{ $asset->amount }}</td>
+              <td>{{ $asset->currency }}</td> 
+              <td>{{ $asset->location }}</td>        
               <td>
                   <div style="min-width: 100px;">
                     <!--   <a href="{{ route('assets-manager.show', $asset->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a> -->
@@ -80,9 +89,13 @@
     $(document).on('click', '.edit-assets', function() {
       var asset = $(this).data('assets');
       var url = "{{ url('assets-manager') }}/" + asset.id;
-
+      console.log(asset);
       $('#assetsEditModal form').attr('action', url);
       $('#asset_name').val(asset.name);
+      $('#password').val(asset.password);
+      $('#provider_name').val(asset.provider_name);
+      $('#location').val(asset.location);
+      $('#currency').val(asset.currency);
       $('#asset_asset_type').val(asset.asset_type);
       $('#category_id2').val(asset.category_id);
       $('#asset_purchase_type').val(asset.purchase_type);

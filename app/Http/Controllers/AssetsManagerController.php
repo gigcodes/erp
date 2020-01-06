@@ -21,13 +21,9 @@ class AssetsManagerController extends Controller
 
 		$category = DB::table('assets_category')->get();;
 		
-		$assets = AssetsManager::join('assets_category', function ($join) {
-            $join->on('assets_manager.id', '=', 'assets_category.id');
-        })->orderBy('assets_manager.id','DESC')->where('archived', $archived)->paginate(10);
+		$assets = AssetsManager::paginate(10);
 
-		/*print_r($assets);
-		exit;*/
-		return view('assets-manager.index',compact('assets', 'category'))
+	return view('assets-manager.index',compact('assets', 'category'))
 			->with('i', ($request->input('page', 1) - 1) * 10);
 	}
 
@@ -51,6 +47,7 @@ class AssetsManagerController extends Controller
 	 */
 	public function store(Request $request)
 	{
+
 		$this->validate($request, [
 			'name' => 'required',
 			'asset_type' => 'required',
@@ -83,7 +80,8 @@ class AssetsManagerController extends Controller
 		if($catid != '')
 		{
 			$data['category_id'] = $catid;
-		}		
+		}
+
 		AssetsManager::create($data);
 
 		return redirect()->route('assets-manager.index')
