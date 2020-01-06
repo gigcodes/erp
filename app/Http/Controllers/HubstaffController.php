@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Article;
 use App\HubstaffMember;
 use App\User;
+use Auth;
 use Illuminate\Http\Request;
 use Hubstaff\Hubstaff;
 use GuzzleHttp\Client;
@@ -503,6 +504,13 @@ class HubstaffController extends Controller
     {
         echo '<h1>Processing your request</h1>';
 
+        $user = Auth::user();
+
+        if(!$user){
+            echo '<h1>Unauthorized</h1>';
+            exit;
+        }
+
         $code = $request->query()['code'];
         $state = $request->query()['state'];
         if ($code) {
@@ -518,19 +526,18 @@ class HubstaffController extends Controller
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_USERPWD, getenv('HUBSTAFF_CLIENT_ID') . ":" . getenv('HUBSTAFF_CLIENT_SECRET'));
             $response = curl_exec($ch);
+            $info = curl_getinfo($ch);
             curl_close($ch);
 
-            $json_decoded_response = json_decode($response);
-
-            session([
-                SESSION_ACCESS_TOKEN => $json_decoded_response->access_token,
-                SESSION_REFRESH_TOKEN => $json_decoded_response->refresh_token
-            ]);
-
-            Session::save();
-
-            if ($state == STATE_MEMBERS) {
-                return redirect('hubstaff/members');
+            if($info['http_code'] == 200){
+                $json_decoded_response = json_decode($response);
+                $user->auth_token_hubstaff = $json_decoded_response->access_token;
+                $user->save();
+                if ($state == STATE_MEMBERS) {
+                    return redirect('hubstaff/members');
+                }
+            }else{
+                echo '<h1>Error processing request</h1>';
             }
         }
     }
