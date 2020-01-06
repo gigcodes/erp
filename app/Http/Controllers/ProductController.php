@@ -1576,6 +1576,31 @@ class ProductController extends Controller
             }
         }
 
+        // suppliers filter start count
+        $suppliersGroups = clone($products);
+        $all_product_ids = $suppliersGroups->pluck('id')->toArray();
+        $countSuppliers = [];
+        if (!empty($all_product_ids)) {
+            $suppliersGroups = \App\Product::leftJoin('product_suppliers', 'product_id', '=', 'products.id')
+                                            ->where('products.id', $all_product_ids)
+                                            ->groupBy("supplier_id")
+                                            ->select([\DB::raw("count(products.id) as total_product"),"supplier_id"])
+                                            ->pluck("total_product","supplier_id")
+                                            ->toArray();
+            $suppliersIds = array_values(array_filter(array_keys($suppliersGroups)));
+            $suppliersModel = \App\Supplier::whereIn("id",$suppliersIds)->pluck("supplier","id")->toArray();
+            
+            if(!empty($suppliersGroups)) {
+                foreach ($suppliersGroups as $key => $count) {
+                    $countSuppliers[] = [
+                        "id" => $key,
+                        "name" => !empty($suppliersModel[$key]) ? $suppliersModel[$key] : "N/A",
+                        "count" => $count,
+                    ];
+                }
+            }
+        }
+
         // select fields..
         $products = $products->select(['products.id', 'name', 'short_description', 'color', 'sku', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
 
@@ -1598,7 +1623,8 @@ class ProductController extends Controller
                 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
                 'model_type' => $model_type,
                 'countBrands' => $countBrands,
-                'countCategory' => $countCategory
+                'countCategory' => $countCategory,
+                'countSuppliers' => $countSuppliers
             ])->render();
 
             return response()->json(['html' => $html, 'products_count' => $products_count]);
@@ -1618,7 +1644,7 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
 
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory'));
+        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers'));
     }
 
 
