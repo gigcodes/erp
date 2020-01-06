@@ -9,6 +9,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 use \App\ChatbotQuestion;
 use \App\ChatbotQuestionExample;
+use \App\ChatbotCategory;
 
 class QuestionController extends Controller
 {
@@ -20,7 +21,8 @@ class QuestionController extends Controller
     {
 
         $chatQuestions = ChatbotQuestion::leftJoin("chatbot_question_examples as cqe", "cqe.chatbot_question_id", "chatbot_questions.id")
-            ->select("chatbot_questions.*", \DB::raw("group_concat(cqe.question) as `questions`"))
+            ->leftJoin("chatbot_categories as cc","cc.id","chatbot_questions.category_id")
+            ->select("chatbot_questions.*", \DB::raw("group_concat(cqe.question) as `questions`"),"cc.name as category_name")
             ->groupBy("chatbot_questions.id")
             ->orderBy("chatbot_questions.id", "desc")
             ->paginate(10);
@@ -100,6 +102,22 @@ class QuestionController extends Controller
             $chatbotQuestion->fill($params);
             $chatbotQuestion->save();
 
+            if(!empty($params["category_id"])) {
+                if(is_numeric($params["category_id"])) {
+                    $chatbotQuestion->category_id = $params["category_id"];
+                    $chatbotQuestion->save();
+                }else {
+                    $catModel = ChatbotCategory::create([
+                        "name" => $params["category_id"]
+                    ]);
+
+                    if($catModel) {
+                        $chatbotQuestion->category_id = $catModel->id;
+                        $chatbotQuestion->save();
+                    }
+                }
+            }
+
             if (!empty($params["question"])) {
                 $chatbotQuestionExample = new ChatbotQuestionExample;
                 $chatbotQuestionExample->fill($params);
@@ -129,6 +147,7 @@ class QuestionController extends Controller
         $groupId  = $request->get("group_id", 0);
         $name     = $request->get("name", "");
         $question = $request->get("question");
+        $category_id = $request->get("category_id");
 
         if (!empty($groupId) && $groupId > 0) {
             $q = ChatbotQuestionExample::updateOrCreate(
@@ -148,6 +167,22 @@ class QuestionController extends Controller
                 $chQuestion = ChatbotQuestion::create([
                     "value" => str_replace(" ", "_", preg_replace('/\s+/', ' ', $name)),
                 ]);
+
+                if(!empty($category_id)) {
+                    if(is_numeric($category_id)) {
+                        $chQuestion->category_id = $category_id;
+                        $chQuestion->save();
+                    }else {
+                        $catModel = ChatbotCategory::create([
+                            "name" => $category_id
+                        ]);
+
+                        if($catModel) {
+                            $chQuestion->category_id = $catModel->id;
+                            $chQuestion->save();
+                        }
+                    }
+                }
             }
 
             $groupId = $chQuestion->id;
@@ -237,6 +272,23 @@ class QuestionController extends Controller
         }
 
         return response()->json(["code" => 500, "message" => "No record founds"]);
+    }
+
+    public function searchCategory(Request $request)
+    {
+
+        $keyword     = request("term", "");
+        $allCategory = ChatbotCategory::where("name", "like", "%" . $keyword . "%")->limit(10)->get();
+
+        $allCategoryList = [];
+        if (!$allCategory->isEmpty()) {
+            foreach ($allCategory as $all) {
+                $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
+            }
+        }
+
+        return response()->json(["incomplete_results" => false, "items" => $allCategoryList, "total_count" => count($allCategoryList)]);
+        
     }
 
 }

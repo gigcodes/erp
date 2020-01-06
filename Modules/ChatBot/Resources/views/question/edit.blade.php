@@ -49,6 +49,12 @@
 					  </div>
 					  <div class="form-row">
 					    <div class="form-group col-md-6">
+					      <label for="question">Category</label>
+					      <?php echo Form::select("category_id",[], null, ["class" => "form-control select-chatbot-category", "id" => "chatbot-category-id"]); ?>
+					    </div>
+					  </div>
+					  <div class="form-row">
+					    <div class="form-group col-md-6">
 					      <label for="question">User Example</label>
 					      <?php echo Form::text("question", null, ["class" => "form-control", "id" => "question", "placeholder" => "Enter your question"]); ?>
 					    </div>
@@ -229,7 +235,21 @@
 	        });
 		});
 
-
+		$(".select-chatbot-category").select2({
+            placeholder: "Enter category name or existing",
+            width: "100%",
+            tags: true,
+            allowClear: true,
+            ajax: {
+                url: '/chatbot/question/search-category',
+                dataType: 'json',
+                processResults: function(data) {
+                    return {
+                        results: data.items
+                    };
+                }
+            }
+        });
 </script>
 
 @endsection

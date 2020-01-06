@@ -41,6 +41,7 @@
 			      <th class="th-sm">Id</th>
 			      <th class="th-sm">Intent</th>
 			      <th class="th-sm">User Example</th>
+			      <th class="th-sm">Category</th>
 			      <th class="th-sm">Action</th>
 			    </tr>
 			  </thead>
@@ -50,6 +51,7 @@
 				      <td><?php echo $chatQuestion->id; ?></td>
 				      <td><?php echo $chatQuestion->value; ?></td>
 				      <td><?php echo $chatQuestion->questions; ?></td>
+				      <td><?php echo $chatQuestion->category_name; ?></td>
 				      <td>
                         <a class="btn btn-image edit-button" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
                         <a class="btn btn-image delete-button" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
@@ -62,6 +64,7 @@
 			      <th>Id</th>
 			      <th>Intent</th>
 			      <th>User Example</th>
+			      <th>Category</th>
 			      <th>Action</th>
 			    </tr>
 			  </tfoot>
