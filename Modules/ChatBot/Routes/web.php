@@ -19,6 +19,7 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::get('/', 'KeywordController@index')->name("chatbot.keyword.list");
         Route::post('/', 'KeywordController@save')->name("chatbot.keyword.save");
         Route::post('/submit', 'KeywordController@saveAjax')->name("chatbot.keyword.saveAjax");
+        Route::get('/search', 'KeywordController@search')->name("chatbot.keyword.search");
         Route::prefix('{id}')->group(function () {
             Route::get('/edit', 'KeywordController@edit')->name("chatbot.keyword.edit");
             Route::post('/edit', 'KeywordController@update')->name("chatbot.keyword.update");
@@ -34,6 +35,12 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::post('/', 'QuestionController@save')->name("chatbot.question.save");
         Route::post('/submit', 'QuestionController@saveAjax')->name("chatbot.question.saveAjax");
         Route::get('/search', 'QuestionController@search')->name("chatbot.question.search");
+        Route::prefix('annotation')->group(function () {
+            Route::post('/save', 'QuestionController@saveAnnotation')->name("chatbot.question.annotation.save");
+            Route::get('/delete', 'QuestionController@deleteAnnotation')->name("chatbot.question.annotation.delete");
+            
+        });
+            
         Route::prefix('{id}')->group(function () {
             Route::get('/edit', 'QuestionController@edit')->name("chatbot.question.edit");
             Route::post('/edit', 'QuestionController@update')->name("chatbot.question.update");

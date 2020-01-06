@@ -87,6 +87,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\RunErpEvents;
+use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -173,7 +174,11 @@ class Kernel extends ConsoleKernel
         VisitorLogs::class,
         ImageBarcodeGenerator::class,
         UpdateImageBarcodeGenerator::class,
+<<<<<<< HEAD
         SyncCustomersFromMagento::class
+=======
+        NumberOfImageCroppedCheck::class
+>>>>>>> master
     ];
 
     /**
@@ -198,7 +203,6 @@ class Kernel extends ConsoleKernel
 
         //Get list of schedule and put list in cron jobs table
         $schedule->command('schedule:list')->daily();
-
 
         //This will run every  five minutes checking and making keyword-customer relationship...
         $schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();
@@ -269,6 +273,8 @@ class Kernel extends ConsoleKernel
         })->hourly();
 
         $schedule->command('product:replace-text')->everyFiveMinutes();
+
+        $schedule->command('numberofimages:cropped')->hourly()->withoutOverlapping();
 
 //        $schedule->command('instagram:grow-accounts')->dailyAt('13:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');

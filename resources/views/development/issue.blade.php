@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
     <style type="text/css">
-        
+
     </style>
 @endsection
 
@@ -151,7 +151,7 @@
     <div class="infinite-scroll">
         <div class="table-responsive">
             <table class="table table-bordered table-striped">
-                @if($title == 'issue')
+                @if($title == 'issue' && auth()->user()->isAdmin())
                     <tr class="add-new-issue">
                         <form action="{{ route('development.issue.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
@@ -259,7 +259,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                             </td>
                             <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }} </td>
                             <td data-id="{{ $issue->id }}">
@@ -380,6 +379,7 @@
                                 <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
                                 <td>{{ $issue->task }}</td>
                                 <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
+                                <td>&nbsp;</td>
                                 <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}</td>
                                 <td>
                                     @if($issue->responsibleUser)
