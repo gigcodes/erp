@@ -22,8 +22,16 @@
             width: 100%;
             height: 100%;
         }
+        #crop-image{
+            display: none;
+            position: fixed;
+            top: 25%;
+            left: 38%;
+            right: 35%;
+            margin: -50px 0px 0px -50px;
+            z-index: 60;
+        }
         .cropper{
-            display: none; 
             padding: 30px; 
             border: 1px solid; 
             margin: 10px; 
@@ -37,6 +45,24 @@
 @section('content')
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
+    <div id="crop-image">
+        <div class="cropper">
+            <form  method="POST" action="{{route('google.search.crop.post')}}" id="cropImageSend">
+            <img id="image_crop" width="100%">
+                {{ csrf_field() }}
+            <div class="col text-center">
+            <select name="type" id="crop-type" class="form-control">
+                <option value="0">Select Crop Type</option>
+                <option value="8">8</option>
+            </select>
+            <input type="hidden" name="product_id" id="product-id">
+            <input type="hidden" name="media_id" id="media_id">
+            <button type="button" class="btn btn-default" onclick="sendImageMessageCrop()">Crop Image</button>
+            <button type="button" class="btn btn-default" onclick="hideCrop()">Close</button>
+            </div>
+          </form>    
+        </div>
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
@@ -156,22 +182,6 @@
             </form>
             <div class="row">
                 <div class="col text-center">
-                    <div  class="cropper" id="crop-image">
-                        <form  method="POST" action="{{route('google.search.crop.post')}}" id="cropImageSend">
-                        <img id="image_crop" width="100%">
-                            {{ csrf_field() }}
-                        <div class="col text-center">
-                        <select name="type" id="crop-type" class="form-control">
-                            <option value="0">Select Crop Type</option>
-                            <option value="8">8</option>
-                        </select>
-                        <input type="hidden" name="product_id" id="product-id">
-                        <input type="hidden" name="media_id" id="media_id">
-                        <button type="button" class="btn btn-default" onclick="sendImageMessageCrop()">Crop Image</button>
-                        <button type="button" class="btn btn-default" onclick="hideCrop()">Close</button>
-                        </div>
-                      </form>    
-                    </div>
                     <button type="button" class="btn btn-image my-3" id="sendImageMessage" onclick="sendImage()"><img src="/images/filled-sent.png"/></button>
                 </div>
             </div>
