@@ -6,6 +6,7 @@ use App\Article;
 use App\HubstaffMember;
 use App\User;
 use Auth;
+use Exception;
 use Illuminate\Http\Request;
 use Hubstaff\Hubstaff;
 use GuzzleHttp\Client;
@@ -82,7 +83,7 @@ class HubstaffController extends Controller
     {
         $httpClient = new Client();
 
-        $access_token = session(SESSION_ACCESS_TOKEN);
+        $access_token = Auth::user()->auth_token_hubstaff;
 
         $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/members';
 
@@ -98,13 +99,33 @@ class HubstaffController extends Controller
         if ($response->getStatusCode() == 200) {
             $responseJson = json_decode($response->getBody()->getContents());
             foreach ($responseJson->members as $member) {
+
+                try{
+                    $url = 'https://api.hubstaff.com/v2/users/' . $member->user_id;
+                    $response = $httpClient->get(
+                        $url,
+                        [
+                            RequestOptions::HEADERS => [
+                                'Authorization' => 'Bearer ' . $access_token
+                            ]
+                        ]
+                    );
+
+                    $userResponseJson = json_decode($response->getBody()->getContents());
+                    $member->email = $userResponseJson->user->email;
+                    
+                }catch(Exception $e){
+                    // do nothing
+                }
+
                 //eloquent insert
                 HubstaffMember::updateOrCreate(
                     [
-                        'hubstaff_user_id' => $member->user_id
+                        'hubstaff_user_id' => $member->user_id,
                     ],
                     [
-                        'hubstaff_user_id' => $member->user_id
+                        'hubstaff_user_id' => $member->user_id,
+                        'email' => $member->email
                     ]
                 );
             }

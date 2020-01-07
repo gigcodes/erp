@@ -9,6 +9,14 @@ class HubstaffMember extends Model
 {
     use SoftDeletes;
     protected $fillable = [
-        'bill_rate', 'created_at', 'currency', 'hubstaff_user_id', 'id', 'pay_rate', 'updated_at', 'user_id'
+        'bill_rate', 
+        'created_at', 
+        'currency', 
+        'hubstaff_user_id', 
+        'id', 
+        'pay_rate', 
+        'updated_at', 
+        'user_id',
+        'email'
     ];
 }
