@@ -24,6 +24,9 @@ use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\CroppedImageReference;
+use App\Helpers\StatusHelper;
+
 
 class MasterControlController extends Controller
 {
@@ -37,7 +40,14 @@ class MasterControlController extends Controller
       $start = $request->range_start ?  "$request->range_start 00:00" : Carbon::now()->subDay()->format('Y-m-d 00:00');
       $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay()->format('Y-m-d 23:59');
 
-     return view('mastercontrol.index', ['start' => $start, 'end' => $end]);
+      $cropReference = CroppedImageReference::count(); 
+      
+      $pendingCropReferenceProducts = Product::where('status_id',StatusHelper::$autoCrop)->where('stock','>=',1)->count();
+
+      $pendingCropReferenceCategory = Product::where('status_id',StatusHelper::$attributeRejectCategory)->where('stock','>=',1)->count(); 
+
+
+     return view('mastercontrol.index', ['start' => $start, 'end' => $end , 'cropReference' => $cropReference,'pendingCropReferenceProducts' => $pendingCropReferenceProducts , 'pendingCropReferenceCategory' => $pendingCropReferenceCategory]);
     }
 
     /**
