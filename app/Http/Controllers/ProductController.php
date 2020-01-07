@@ -41,6 +41,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use seo2websites\GoogleVision\LogGoogleVision;
 
 class ProductController extends Controller
 {
@@ -1775,6 +1776,29 @@ class ProductController extends Controller
         // Get images
         $images = $product->media()->where('tag','original')->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
 
+         foreach ($images as $image) {
+            $link = $image->getUrl();
+            //$link = 'https://erp.amourint.com/uploads/15d428fb0c6944.jpg';
+            $vision = LogGoogleVision::where('image_url','LIKE','%'.$link.'%')->first();
+            if($vision != null){
+               $keywords = preg_split('/[\n,]+/',$vision->response);
+               $countKeywords = count($keywords);
+               for ($i=0; $i < $countKeywords; $i++) { 
+                    if (strpos($keywords[$i], 'Object') !== false) {
+                            $key = str_replace('Object: ','',$keywords[$i]);
+                            $value = str_replace('Score (confidence): ','',$keywords[$i+1]);
+                            $output[] = array($key => $value); 
+                    }
+               }
+            }
+            if(isset($output)){
+               $image->setAttribute('objects', json_encode($output));
+            }else{
+              $image->setAttribute('objects', '');  
+            }
+            
+        }
+
         // Get category
         $category = $product->product_category;
 
@@ -1819,7 +1843,7 @@ class ProductController extends Controller
             'h_measurement' => $product->hmeasurement,
             'd_measurement' => $product->dmeasurement,
             'category' => "$parent $child",
-            '' => ''
+            '' => '',
         ]);  
         }
     }    
