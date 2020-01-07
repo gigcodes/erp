@@ -176,6 +176,10 @@
                 data-toggle="collapse" href="#categoryFilterCount" role="button" aria-expanded="false" aria-controls="categoryFilterCount">
                    Show Categories count
                 </a>
+                <a class="btn btn-secondary" style="margin-top: 3px;" 
+                data-toggle="collapse" href="#suppliersFilterCount" role="button" aria-expanded="false" aria-controls="suppliersFilterCount">
+                   Show suppliers count
+                </a>
             </div>
         </div>
     </div>
