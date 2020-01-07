@@ -769,8 +769,7 @@
                 },
             
             }).done(function (data) {
-                 $("#loading-image").hide();
-                console.log(data);
+                $("#loading-image").hide();
                 $("#vendor-table tbody").empty().html(data.tbody);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
@@ -789,10 +788,54 @@
          });
 
      $(document).on("change",".quickComment",function(e){
-        $(".quick-message-field").val($(this).val());
+
+        var message = $(this).val();
+
+        if($.isNumeric(message) == false){
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "/vendor/reply/add",
+                dataType: "json",
+                method : "POST",
+                data: {reply : message}
+            }).done(function (data) {
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        }
+        $(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
+
      });  
 
-     $(".select2-quick-reply").select2({});
-       
+     $(".select2-quick-reply").select2({tags:true});
+
+     $(document).on("click",".delete_quick_comment",function(e){
+        var deleteAuto = $(this).closest(".d-flex").find(".quickComment").find("option:selected").val();
+        if(typeof deleteAuto != "undefined") {
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "/vendor/reply/delete",
+                dataType: "json",
+                method : "GET",
+                data: {id : deleteAuto}
+            }).done(function (data) {
+                if(data.code == 200) {
+                    $(".quickComment").empty();
+                    $.each(data.data,function(k,v) {
+                        $(".quickComment").append("<option value='"+k+"'>"+v+"</option>");
+                    });
+                    $(".quickComment").select2({tags:true});
+                }
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        }
+     });
     </script>
 @endsection
