@@ -977,6 +977,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::resource('hashtag', 'HashtagController');
     Route::post('hashtag/process/queue','HashtagController@rumCommand')->name('hashtag.command');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
+    Route::get('influencers', 'HashtagController@influencer')->name('influencers.index');
+    
     Route::get('comments', 'InstagramController@getComments');
     Route::post('comments', 'InstagramController@postComment');
     Route::get('post-media', 'InstagramController@showImagesToBePosted');
