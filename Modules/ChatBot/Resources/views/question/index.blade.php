@@ -24,14 +24,29 @@
 	</div>
 </div>
 <div class="row">
-        <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
-            <div class="pull-right">
-                <div class="form-inline">
-                    <button type="button" class="btn btn-secondary ml-3" id="create-keyword-btn">Create</button>
-            	</div>
-            </div>
+    <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
+    	<div class="pull-left">
+    		<form action="" method="get">
+	            <div class="row">
+				    <div class="col">
+				      <input type="text" name="q" value="<?php echo request("q",""); ?>" class="form-control" placeholder="Keyword">
+				    </div>
+				    <div class="col">
+				      <select name="category_id" class="select-chatbot-category form-control"></select>
+				    </div>
+				    <div class="col">
+				      <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
+				    </div>
+				</div>
+			</form>
+        </div>
+        <div class="pull-right">
+            <div class="form-inline">
+                <button type="button" class="btn btn-secondary ml-3" id="create-keyword-btn">Create</button>
+        	</div>
         </div>
     </div>
+</div>
 <div class="tab-pane">
 	<div class="row">
 	    <div class="col-lg-12 margin-tb">
@@ -102,5 +117,21 @@
             }
         });
 	});
+
+	$(".select-chatbot-category").select2({
+            placeholder: "Enter category name",
+            width: "100%",
+            tags: true,
+            allowClear: true,
+            ajax: {
+                url: '/chatbot/question/search-category',
+                dataType: 'json',
+                processResults: function(data) {
+                    return {
+                        results: data.items
+                    };
+                }
+            }
+        });		
 </script>
 @endsection

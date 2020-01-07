@@ -19,11 +19,25 @@ class QuestionController extends Controller
      */
     public function index()
     {
+        $q = request("q","");
+        $category_id = request("category_id",0);
 
         $chatQuestions = ChatbotQuestion::leftJoin("chatbot_question_examples as cqe", "cqe.chatbot_question_id", "chatbot_questions.id")
             ->leftJoin("chatbot_categories as cc","cc.id","chatbot_questions.category_id")
-            ->select("chatbot_questions.*", \DB::raw("group_concat(cqe.question) as `questions`"),"cc.name as category_name")
-            ->groupBy("chatbot_questions.id")
+            ->select("chatbot_questions.*", \DB::raw("group_concat(cqe.question) as `questions`"),"cc.name as category_name");
+            
+
+        if(!empty($q)) {
+            $chatQuestions = $chatQuestions->where(function($query) use ($q) {
+                $query->where("chatbot_questions.value","like","%".$q."%")->orWhere("cqe.question","like","%".$q."%");
+            });
+        }
+
+        if(!empty($category_id)) {
+            $chatQuestions = $chatQuestions->where("cc.id",$category_id);
+        }   
+
+        $chatQuestions = $chatQuestions->groupBy("chatbot_questions.id")
             ->orderBy("chatbot_questions.id", "desc")
             ->paginate(10);
 
