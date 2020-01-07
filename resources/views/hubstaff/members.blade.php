@@ -10,13 +10,6 @@
 
 @section('content')
 
-@if(!empty($auth) && $auth['should_show_login'] == true)
-<div class="text-center">
-  <p>You are not authorized on hubstaff</p>
-  <a class="btn btn-primary" href="{{ $auth['link'] }}">Authorize</a>
-</div>
-@endif
-
 @if(Session::has('message'))
 <div class="alert alert-success alert-block">
   <button type="button" class="close" data-dismiss="alert">×</button>
@@ -26,12 +19,6 @@
 
 <h2 class="text-center">Users List from Hubstaff </h2>
 
-@if(empty($auth))
-<div class="text-right">
-  <a href="/hubstaff/members/json" class="btn btn-primary">Refresh hubstaff users</a>
-</div>
-@endif
-
 <div class="container">
   @if(!empty($members))
   <div class="row">
@@ -39,6 +26,7 @@
       <thead>
         <tr>
           <th>HubStaff Id</th>
+          <th>Hubstaff Email</th>
           <th>User</th>
 
         </tr>
@@ -47,6 +35,7 @@
       <tbody>
         <tr>
           <td>{{ $member->hubstaff_user_id }}</td>
+          <td>{{ $member->email }}</td>
           <td>
             <select onchange="saveUser(this)">
               <option value="unassigned">Unassigned</option>

@@ -913,7 +913,6 @@ Route::put('hubstaff/tasks/editData', 'HubstaffController@editTask');
 Route::post('hubstaff/tasks/addData', 'HubstaffController@addTask');
 Route::get('hubstaff/tasks/{id}', 'HubstaffController@editTaskForm');
 Route::get('hubstaff/redirect', 'HubstaffController@redirect');
-Route::get('hubstaff/members/json', 'HubstaffController@getMembers');
 Route::get('hubstaff/debug', 'HubstaffController@debug');
 
 

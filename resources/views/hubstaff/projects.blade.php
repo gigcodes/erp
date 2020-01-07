@@ -34,6 +34,7 @@
         <tr>
           <th>Project ID</th>
           <th>Name</th>
+          <th>Description</th>
           <th>Status</th>
           <th>Action</th>
         </tr>
@@ -41,10 +42,11 @@
       @foreach($projects as $project)
       <tbody>
         <tr>
-          <td>{{ $project->id }}</td>
-          <td>{{ ucwords($project->name) }}</td>
+          <td>{{ $project->hubstaff_project_id }}</td>
+          <td>{{ ucwords($project->hubstaff_project_name) }}</td>
+          <td> {{ $project->hubstaff_project_description }} </td>
           <td>
-            @if($project->status == "active")
+            @if($project->hubstaff_project_status == "active")
             <span class="badge badge-success">Active</span>
             @else
             <span class="badge badge-danger">In active</span>

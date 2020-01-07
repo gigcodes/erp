@@ -4,45 +4,68 @@ namespace App\Http\Controllers;
 
 use App\Article;
 use App\HubstaffMember;
+use App\HubstaffProject;
 use App\User;
 use Auth;
 use Exception;
 use Illuminate\Http\Request;
 use Hubstaff\Hubstaff;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Input;
 use Session;
+use Storage;
 
-define("STATE_MEMBERS", "MEMBERS");
+define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
+define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
 
-define("SESSION_ACCESS_TOKEN", "access_token");
-define("SESSION_REFRESH_TOKEN", "refresh_token");
 
 class HubstaffController extends Controller
 {
 
-    private function getLoginUrl()
+    private function getTokens()
     {
-        $url = 'https://account.hubstaff.com/.well-known/openid-configuration';
+        if (!Storage::disk('local')->exists(HUBSTAFF_TOKEN_FILE_NAME)) {
+            $this->generateAccessToken(SEED_REFRESH_TOKEN);
+        }
+        $tokens = json_decode(Storage::disk('local')->get(HUBSTAFF_TOKEN_FILE_NAME));
+        return $tokens;
+    }
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        $response = curl_exec($ch);
-        curl_close($ch);
+    private function refreshTokens(){
+        $tokens = $this->getTokens();
+        $this->generateAccessToken($tokens->refresh_token);
+    }
 
-        $decoded_json = json_decode($response);
+    /**
+     * returns boolean
+     */
+    private function generateAccessToken(string $refreshToken)
+    {
+        $httpClient = new Client();
+        try{
+            $response = $httpClient->post(
+                'https://account.hubstaff.com/access_tokens',
+                [
+                    RequestOptions::FORM_PARAMS => [
+                        'grant_type' => 'refresh_token',
+                        'refresh_token' => $refreshToken
+                    ]
+                ]
+            );
 
-        $params = array(
-            'client_id' => getenv('HUBSTAFF_CLIENT_ID'),
-            'response_type' => 'code',
-            'nonce' => sha1(time()),
-            'redirect_uri' => getenv('APP_URL') . '/hubstaff/redirect',
-            'scope' => 'hubstaff:read hubstaff:write',
-            'state' => STATE_MEMBERS
-        );
+            $responseJson = json_decode($response->getBody()->getContents());
 
-        return $decoded_json->authorization_endpoint . '?' . http_build_query($params);
+            $tokens = [
+                'access_token' => $responseJson->access_token,
+                'refresh_token' => $responseJson->refresh_token
+            ];
+
+            return Storage::disk('local')->put(HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
+        }catch(Exception $e){
+            return false;
+        }
     }
 
     /**
@@ -52,119 +75,72 @@ class HubstaffController extends Controller
      */
     public function index()
     {
-        $value = session(SESSION_ACCESS_TOKEN);
         $members = HubstaffMember::all();
         $users = User::all('id', 'name');
 
-        if (!$value) {
-            return view(
-                'hubstaff.members',
-                [
-                    'auth' => [
-                        'should_show_login' => true,
-                        'link' => $this->getLoginUrl()
-                    ],
-                    'members' => $members,
-                    'users' => $users
-                ]
-            );
-        } else {
-            return view(
-                'hubstaff.members',
-                [
-                    'members' => $members,
-                    'users' => $users
-                ]
-            );
-        }
-    }
-
-    public function getMembers()
-    {
-        $httpClient = new Client();
-
-        $access_token = Auth::user()->auth_token_hubstaff;
-
-        $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/members';
-
-        $response = $httpClient->get(
-            $url,
+        return view(
+            'hubstaff.members',
             [
-                RequestOptions::HEADERS => [
-                    'Authorization' => 'Bearer ' . $access_token
-                ]
+                'members' => $members,
+                'users' => $users
             ]
         );
+    }
 
-        if ($response->getStatusCode() == 200) {
-            $responseJson = json_decode($response->getBody()->getContents());
-            foreach ($responseJson->members as $member) {
+    private function refreshProjectsFromApi($shouldRetry = true){
+        try{
+            $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/projects';
+            $httpClient = new Client();
+            $response = $httpClient->get(
+                $url,
+                [
+                    RequestOptions::HEADERS => [
+                        'Authorization' => 'Bearer ' . $this->getTokens()->access_token
+                    ]
+                ]
+            );
+    
+            
+            if ($response->getStatusCode() == 200) {
+                $responseJson = json_decode($response->getBody()->getContents());
+                $projects = $responseJson->projects;
 
-                try{
-                    $url = 'https://api.hubstaff.com/v2/users/' . $member->user_id;
-                    $response = $httpClient->get(
-                        $url,
-                        [
-                            RequestOptions::HEADERS => [
-                                'Authorization' => 'Bearer ' . $access_token
-                            ]
-                        ]
-                    );
+                foreach($projects as $project)
 
-                    $userResponseJson = json_decode($response->getBody()->getContents());
-                    $member->email = $userResponseJson->user->email;
-                    
-                }catch(Exception $e){
-                    // do nothing
-                }
-
-                //eloquent insert
-                HubstaffMember::updateOrCreate(
+                HubstaffProject::updateOrCreate(
                     [
-                        'hubstaff_user_id' => $member->user_id,
+                        'hubstaff_project_id' => $project->id
                     ],
                     [
-                        'hubstaff_user_id' => $member->user_id,
-                        'email' => $member->email
+                        'hubstaff_project_id' => $project->id,
+                        'organisation_id' => getenv('HUBSTAFF_ORG_ID'),
+                        'hubstaff_project_name' => $project->name,
+                        'hubstaff_project_description' => $project->description,
+                        'hubstaff_project_status' => $project->status
                     ]
                 );
             }
+        }catch(Exception $e){
+            echo $e->getMessage();
+            if($e instanceof ClientException){
+                if($e->getResponse()->getStatusCode() == 403){
+                    // token expired
+                    $this->refreshTokens();
+                    
+                    if($shouldRetry){
+                        $this->refreshProjectsFromApi(false);
+                    }
+                }
+            }
         }
-        // redirect to members list
-        return redirect('hubstaff/members');
     }
-
 
     public function getProjects()
     {
 
-        $access_token = session(SESSION_ACCESS_TOKEN);
+        $this->refreshProjectsFromApi();
 
-        if (!$access_token) {
-            return view(
-                'hubstaff.projects',
-                [
-                    'auth' =>  $this->getLoginUrl(),
-                ]
-            );
-        }
-
-        $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/projects';
-        $httpClient = new Client();
-        $response = $httpClient->get(
-            $url,
-            [
-                RequestOptions::HEADERS => [
-                    'Authorization' => 'Bearer ' . $access_token
-                ]
-            ]
-        );
-
-        $projects = [];
-        if ($response->getStatusCode() == 200) {
-            $responseJson = json_decode($response->getBody()->getContents());
-            $projects = $responseJson->projects;
-        }
+        $projects = HubstaffProject::all();
 
         return view(
             'hubstaff.projects',
