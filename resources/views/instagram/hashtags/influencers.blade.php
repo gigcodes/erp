@@ -22,10 +22,15 @@
         <div class="col-md-12">
            <h2 class="page-heading">Influencers (<span id="total">{{ $influencers->total() }}</span>)</h2>
             <div class="pull-left">
+                <div class="row">
                 <div class="form-group mr-3 mb-3">
                         <input name="term" type="text" class="form-control global" id="term"
                                value="{{ isset($term) ? $term : '' }}"
                                placeholder="name">
+                </div>
+                <div class="form-group mr-3 mb-3">
+                    <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button> 
+                </div>
                 </div>
             </div>
         </div>
@@ -109,6 +114,34 @@
        
         });
     });
+
+     function resetSearch(){
+         blank = '';
+         $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    blank : blank,
+                },
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            
+            }).done(function (data) {
+                 $("#loading-image").hide();
+                console.log(data);
+                $('#total').val(data.total)
+                $("#data-table tbody").empty().html(data.tbody);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+     }    
     </script>
 
 @endsection
