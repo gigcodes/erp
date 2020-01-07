@@ -22,6 +22,7 @@
 
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/richtext.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
@@ -962,10 +963,10 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Chatbot<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.keyword.list')}}">Keyword</a>
+                                            <a class="dropdown-item" href="{{route('chatbot.keyword.list')}}">Entities</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Question</a>
+                                            <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Intents</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.dialog.list')}}">Dialog</a>
@@ -978,6 +979,7 @@
                                         </li>
                                     </ul>
                                 </li>
+
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1404,9 +1406,12 @@
 
                     </tbody>
                 </table>
+        <div class="col-md-8 page-notes-list-rt dis-none">
+            <div class="well">
+                <textarea class="note-content" name="note_content"></textarea>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-5">
             <button class="help-button"><span>+</span></button>
         </div>
     </div>
@@ -1536,10 +1541,13 @@
 
 }(document, 'script', 'facebook-jssdk'));</script> --}}
 
-    @yield('scripts')
-
-    <script>
-        window.token = "{{ csrf_token() }}";
+@yield('scripts')
+<script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
+<script>
+    $(document).ready(function() {
+        $('.note-content').richText();
+    });
+    window.token = "{{ csrf_token() }}";
 
         var url = window.location;
         window.collectedData = [{

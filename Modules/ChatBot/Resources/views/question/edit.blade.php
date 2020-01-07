@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('favicon' , 'task.png')
 
-@section('title', 'Question | Chatbot')
+@section('title', 'Intent | Chatbot')
 
 @section('content')
 <style type="text/css">
@@ -42,18 +42,24 @@
     				  <?php echo csrf_field(); ?>
 					  <div class="form-row">
 					    <div class="form-group col-md-6">
-					      <label for="value">Value</label>
-					      <small id="emailHelp" class="form-text text-muted">Name your entity to match the category of values that it will detect.</small>
+					      <label for="value">Intent</label>
+					      <small id="emailHelp" class="form-text text-muted">Name your intent to match the category of values that it will detect.</small>
 					      <?php echo Form::text("value", $chatbotQuestion->value, ["class" => "form-control", "id" => "value", "placeholder" => "Enter your value"]); ?>
 					    </div>
 					  </div>
 					  <div class="form-row">
 					    <div class="form-group col-md-6">
-					      <label for="question">Question</label>
+					      <label for="question">Category</label>
+					      <?php echo Form::select("category_id",[], null, ["class" => "form-control select-chatbot-category", "id" => "chatbot-category-id"]); ?>
+					    </div>
+					  </div>
+					  <div class="form-row">
+					    <div class="form-group col-md-6">
+					      <label for="question">User Example</label>
 					      <?php echo Form::text("question", null, ["class" => "form-control", "id" => "question", "placeholder" => "Enter your question"]); ?>
 					    </div>
 					  </div>
-					  <button type="submit" class="btn btn-primary">Add Value</button>
+					  <button type="submit" class="btn btn-primary">Add Intent</button>
 				</form>
 	    	</div>
 		</div>
@@ -62,7 +68,7 @@
 			  <thead>
 			    <tr>
 			      <th class="th-sm">Id</th>
-			      <th class="th-sm">Question</th>
+			      <th class="th-sm">User Example</th>
 			      <th class="th-sm">Annotation</th>
 			      <th class="th-sm">Action</th>
 			    </tr>
@@ -96,7 +102,7 @@
 			  <tfoot>
 			    <tr>
 			      <th>Id</th>
-			      <th>Question</th>
+			      <th>User Example</th>
 			      <th>Annotation</th>
 			      <th>Action</th>
 			    </tr>
@@ -114,7 +120,7 @@
     	var keywordBox = ele.find(".search-keyword");
 	    if (keywordBox.length > 0) {
 	        keywordBox.select2({
-	            placeholder: "Enter keyword name or create new one",
+	            placeholder: "Enter entity name or create new one",
 	            width: "100%",
 	            tags: true,
 	            allowClear: true,
@@ -229,7 +235,21 @@
 	        });
 		});
 
-
+		$(".select-chatbot-category").select2({
+            placeholder: "Enter category name or existing",
+            width: "100%",
+            tags: true,
+            allowClear: true,
+            ajax: {
+                url: '/chatbot/question/search-category',
+                dataType: 'json',
+                processResults: function(data) {
+                    return {
+                        results: data.items
+                    };
+                }
+            }
+        });
 </script>
 
 @endsection

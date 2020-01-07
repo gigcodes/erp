@@ -380,6 +380,9 @@ class AutoReplyController extends Controller
         $mostUsedPhrases = $mostUsedPhrases->where(\DB::raw("LENGTH(phrase) - LENGTH(REPLACE(phrase, ' ', '')) + 1") , ">" , 3);
 
         $mostUsedPhrases->select([\DB::raw("count(phrase) as total_count") , "chat_message_phrases.*"]);
+        $mostUsedPhrases->join(\DB::raw('(SELECT id from chat_message_phrases group by chat_id) as cmp'),function($join) {
+           $join->on("chat_message_phrases.id","=","cmp.id");      
+        });
 
         $mostUsedPhrases->groupBy("phrase");
 

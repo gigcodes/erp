@@ -41,6 +41,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use seo2websites\GoogleVision\LogGoogleVision;
 
 class ProductController extends Controller
 {
@@ -1576,6 +1577,31 @@ class ProductController extends Controller
             }
         }
 
+        // suppliers filter start count
+        $suppliersGroups = clone($products);
+        $all_product_ids = $suppliersGroups->pluck('id')->toArray();
+        $countSuppliers = [];
+        if (!empty($all_product_ids)) {
+            $suppliersGroups = \App\Product::leftJoin('product_suppliers', 'product_id', '=', 'products.id')
+                                            ->where('products.id', $all_product_ids)
+                                            ->groupBy("supplier_id")
+                                            ->select([\DB::raw("count(products.id) as total_product"),"supplier_id"])
+                                            ->pluck("total_product","supplier_id")
+                                            ->toArray();
+            $suppliersIds = array_values(array_filter(array_keys($suppliersGroups)));
+            $suppliersModel = \App\Supplier::whereIn("id",$suppliersIds)->pluck("supplier","id")->toArray();
+            
+            if(!empty($suppliersGroups)) {
+                foreach ($suppliersGroups as $key => $count) {
+                    $countSuppliers[] = [
+                        "id" => $key,
+                        "name" => !empty($suppliersModel[$key]) ? $suppliersModel[$key] : "N/A",
+                        "count" => $count,
+                    ];
+                }
+            }
+        }
+
         // select fields..
         $products = $products->select(['products.id', 'name', 'short_description', 'color', 'sku', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
 
@@ -1598,7 +1624,8 @@ class ProductController extends Controller
                 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
                 'model_type' => $model_type,
                 'countBrands' => $countBrands,
-                'countCategory' => $countCategory
+                'countCategory' => $countCategory,
+                'countSuppliers' => $countSuppliers
             ])->render();
 
             return response()->json(['html' => $html, 'products_count' => $products_count]);
@@ -1618,7 +1645,7 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
 
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory'));
+        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers'));
     }
 
 
@@ -1775,6 +1802,29 @@ class ProductController extends Controller
         // Get images
         $images = $product->media()->where('tag','original')->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
 
+         foreach ($images as $image) {
+            $link = $image->getUrl();
+            //$link = 'https://erp.amourint.com/uploads/15d428fb0c6944.jpg';
+            $vision = LogGoogleVision::where('image_url','LIKE','%'.$link.'%')->first();
+            if($vision != null){
+               $keywords = preg_split('/[\n,]+/',$vision->response);
+               $countKeywords = count($keywords);
+               for ($i=0; $i < $countKeywords; $i++) { 
+                    if (strpos($keywords[$i], 'Object') !== false) {
+                            $key = str_replace('Object: ','',$keywords[$i]);
+                            $value = str_replace('Score (confidence): ','',$keywords[$i+1]);
+                            $output[] = array($key => $value); 
+                    }
+               }
+            }
+            if(isset($output)){
+               $image->setAttribute('objects', json_encode($output));
+            }else{
+              $image->setAttribute('objects', '');  
+            }
+            
+        }
+
         // Get category
         $category = $product->product_category;
 
@@ -1819,7 +1869,7 @@ class ProductController extends Controller
             'h_measurement' => $product->hmeasurement,
             'd_measurement' => $product->dmeasurement,
             'category' => "$parent $child",
-            '' => ''
+            '' => '',
         ]);  
         }
     }    

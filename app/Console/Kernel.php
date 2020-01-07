@@ -79,6 +79,7 @@ use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
 use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\SendQueuePendingChatMessages;
+use App\Console\Commands\SyncCustomersFromMagento;
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -101,7 +102,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         PostScheduledMedia::class,
         CheckLogins::class,
-//        SyncInstagramMessage::class,
+        //        SyncInstagramMessage::class,
         GetGebnegozionlineProductDetails::class,
         GetGebnegozionlineProductEntries::class,
         AutoInterestMessage::class,
@@ -139,7 +140,7 @@ class Kernel extends ConsoleKernel
         MovePlannedTasks::class,
         SendDailyPlannerReport::class,
         ResetDailyPlanner::class,
-//        SaveProductsImages::class,
+        //        SaveProductsImages::class,
         GrowInstagramAccounts::class,
         SendMessageToUserIfTheirTaskIsNotComplete::class,
         SendReminderToCustomerIfTheyHaventReplied::class,
@@ -173,7 +174,8 @@ class Kernel extends ConsoleKernel
         VisitorLogs::class,
         ImageBarcodeGenerator::class,
         UpdateImageBarcodeGenerator::class,
-        NumberOfImageCroppedCheck::class
+        SyncCustomersFromMagento::class,
+        NumberOfImageCroppedCheck::class,
     ];
 
     /**
@@ -234,8 +236,8 @@ class Kernel extends ConsoleKernel
             $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
             $tasks = Task::where('is_statutory', 0)->whereNotNull('is_verified')->get();
 
-            if ($benchmark[ 'for_date' ] != date('Y-m-d')) {
-                $benchmark[ 'for_date' ] = date('Y-m-d');
+            if ($benchmark['for_date'] != date('Y-m-d')) {
+                $benchmark['for_date'] = date('Y-m-d');
                 Benchmark::create($benchmark);
             }
 
@@ -247,7 +249,7 @@ class Kernel extends ConsoleKernel
                 }
             }
 
-            $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
         })->dailyAt('00:00');
 
         $schedule->call(function () {
@@ -264,20 +266,20 @@ class Kernel extends ConsoleKernel
             MagentoController::get_magento_orders();
             //fetched magento orders...
 
-            $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
         })->hourly();
 
         $schedule->command('product:replace-text')->everyFiveMinutes();
 
         $schedule->command('numberofimages:cropped')->hourly()->withoutOverlapping();
 
-//        $schedule->command('instagram:grow-accounts')->dailyAt('13:00')->timezone('Asia/Kolkata');
+        //        $schedule->command('instagram:grow-accounts')->dailyAt('13:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
         $schedule->command('run:message-queues')->everyFiveMinutes()->between('07:30', '17:00')->withoutOverlapping(10);
         $schedule->command('monitor:cron-jobs')->everyMinute();
-//        $schedule->command('cold-leads:send-broadcast-messages')->everyMinute()->withoutOverlapping();
+        //        $schedule->command('cold-leads:send-broadcast-messages')->everyMinute()->withoutOverlapping();
         // $schedule->exec('/usr/local/php72/bin/php-cli artisan queue:work --once --timeout=120')->everyMinute()->withoutOverlapping(3);
 
         // $schedule->command('save:products-images')->hourly();
@@ -288,8 +290,8 @@ class Kernel extends ConsoleKernel
         // Updates Magento Products status on ERP
         // $schedule->command('update:magento-product-status')->dailyAt(03);
 
-//        $schedule->command('post:scheduled-media')
-//            ->everyMinute();
+        //        $schedule->command('post:scheduled-media')
+        //            ->everyMinute();
 
         //Getting SKU ERROR LOG
         $schedule->command('sku-error:log')->hourly();
@@ -328,7 +330,7 @@ class Kernel extends ConsoleKernel
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         $schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
 
-         //This command saves the twilio call logs in call_busy_messages table...
+        //This command saves the twilio call logs in call_busy_messages table...
         $schedule->command('twilio:allcalls')->everyFifteenMinutes();
         // Saved zoom recordings corresponding to past meetings based on meeting id
         $schedule->command('meeting:getrecordings')->hourly();
@@ -346,12 +348,17 @@ class Kernel extends ConsoleKernel
         // need to run this both cron every minutes
         $schedule->command('cronschedule:update')->everyMinute();
         $schedule->command('erpevents:run')->everyMinute();
-//        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '07:00')->withoutOverlapping();
-//        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->between('23:00', '07:00')->withoutOverlapping();
+        //        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '07:00')->withoutOverlapping();
+        //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->between('23:00', '07:00')->withoutOverlapping();
+        $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
+        $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
 
         // HUBSTAFF
         // update user list
         $schedule->command('hubstaff:refresh_users')->daily();
+
+        //Sync customer from magento to ERP
+        $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
     }
 
     /**
