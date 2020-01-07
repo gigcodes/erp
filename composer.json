@@ -102,23 +102,23 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@bitbucket.org:seo2websites/erp-excel-importer"
+            "url": "git@github.com:ludxb/erp-excel-importer"
         },
         {
             "type": "vcs",
-            "url": "git@bitbucket.org:seo2websites/google-vision"
+            "url": "git@github.com:ludxb/google-vision"
         },
         {
             "type": "vcs",
-            "url": "git@bitbucket.org:seo2websites/price-comparison-scraper"
+            "url": "git@github.com:ludxb/price-comparison-scraper"
         },
         {
             "type": "vcs",
-            "url": "git@bitbucket.org:seo2websites/erp-customer"
+            "url": "git@github.com:ludxb/erp-customer"
         },
         {
             "type": "vcs",
-            "url": "git@bitbucket.org:seo2websites/laravel-zoom"
+            "url": "git@github.com:ludxb/laravel-zoom"
         }
     ],
     "scripts": {

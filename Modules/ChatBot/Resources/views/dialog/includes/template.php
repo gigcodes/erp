@@ -1,3 +1,8 @@
+<style type="text/css">
+	.select2-dropdown {
+		z-index: 3250;
+	}
+</style>
 <script id="dialog-leaf-button-options" type="text/x-jsrender">
 	<ul class="bx--overflow-menu-options bx--overflow-menu--flip bx--overflow-menu-options--open" tabindex="-1" role="menu">
 	  	<li class="bx--overflow-menu-options__option" role="menuitem">
@@ -246,6 +251,11 @@
 			<div class="form-row">
 		    	<div class="form-group col-md-9">
 			      	<input class="form-control question-insert" name="intent[question]" value="{{if data.intent.question}} {{:data.intent.question}} {{/if}}" placeholder="Insert your question"></select>
+			    </div>
+			</div>
+			<div class="form-row">
+		    	<div class="form-group col-md-9">
+			      	<select class="form-control search-category" name="intent[category_id]" placeholder="Select Category"></select>
 			    </div>
 			</div>
 			<div class="form-row">

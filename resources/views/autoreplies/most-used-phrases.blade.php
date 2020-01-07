@@ -262,6 +262,7 @@
             
             var eleLeaf = $("#leaf-editor-model");
             searchForIntent(eleLeaf);
+            searchForCategory(eleLeaf);
             searchForDialog(eleLeaf);
             previousDialog(eleLeaf);
             parentDialog(eleLeaf);
