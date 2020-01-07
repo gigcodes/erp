@@ -348,6 +348,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('erpevents:run')->everyMinute();
 //        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '07:00')->withoutOverlapping();
 //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->between('23:00', '07:00')->withoutOverlapping();
+
+        // HUBSTAFF
+        // update user list
+        $schedule->command('hubstaff:refresh_users')->daily();
     }
 
     /**
