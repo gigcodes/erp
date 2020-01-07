@@ -290,12 +290,55 @@
                         <th>Queued for AI</th>
                         <th>Auto crop</th>
                     </tr>
+                    @php
+                    $count = 0;
+                    @endphp
                     <tr>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$import]) ? (int) $productStats[\App\Helpers\StatusHelper::$import] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$scrape]) ? (int) $productStats[\App\Helpers\StatusHelper::$scrape] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingScraped]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingScraped] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$AI]) ? (int) $productStats[\App\Helpers\StatusHelper::$AI] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$autoCrop]) ? (int) $productStats[\App\Helpers\StatusHelper::$autoCrop] : 0 }}</td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$import]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$import] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                         </td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$scrape]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$scrape] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$isBeingScraped]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$isBeingScraped] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$AI]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$AI] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$autoCrop]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$autoCrop] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <th>Is being cropped</th>
@@ -305,11 +348,53 @@
                         <th>Image Enhancement</th>
                     </tr>
                     <tr>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingCropped]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingCropped] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropApproval]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropApproval] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropSequencing]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropSequencing] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingSequenced]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingSequenced] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$imageEnhancement]) ? (int) $productStats[\App\Helpers\StatusHelper::$imageEnhancement] : 0 }}</td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$isBeingCropped]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$isBeingCropped] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$cropApproval]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$cropApproval] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$cropSequencing]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$cropSequencing] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$isBeingSequenced]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$isBeingSequenced] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$imageEnhancement]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$imageEnhancement] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <th>Is being enhanced</th>
@@ -319,11 +404,51 @@
                         <th>In Magento</th>
                     </tr>
                     <tr>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingEnhanced]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingEnhanced] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$manualAttribute]) ? (int) $productStats[\App\Helpers\StatusHelper::$manualAttribute] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$finalApproval]) ? (int) $productStats[\App\Helpers\StatusHelper::$finalApproval] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$pushToMagento]) ? (int) $productStats[\App\Helpers\StatusHelper::$pushToMagento] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$inMagento]) ? (int) $productStats[\App\Helpers\StatusHelper::$inMagento] : 0 }}</td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$isBeingEnhanced]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$isBeingEnhanced] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$manualAttribute]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$manualAttribute] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$finalApproval]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$finalApproval] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$pushToMagento]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$pushToMagento] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$inMagento]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$inMagento] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <th>Unable to scrape</th>
@@ -332,18 +457,53 @@
                         <th>Crop Skipped</th>
                     </tr>
                     <tr>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unableToScrape]) ? (int) $productStats[\App\Helpers\StatusHelper::$unableToScrape] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unableToScrapeImages]) ? (int) $productStats[\App\Helpers\StatusHelper::$unableToScrapeImages] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropRejected]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropRejected] : 0 }}</td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropSkipped]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropSkipped] : 0 }}</td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$unableToScrape]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$unableToScrape] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$unableToScrapeImages]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$unableToScrapeImages] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$cropRejected]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$cropRejected] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
+                        <td>@if(isset($productStats[\App\Helpers\StatusHelper::$cropSkipped]))
+                            {{ (int) $productStats[\App\Helpers\StatusHelper::$cropSkipped] }}
+                            @else
+                            0
+                            @php
+                            $count++;
+                            @endphp
+                            @endif
+                        </td>
                     </tr>
                     <tr>
-                        <th colspan="3">&nbsp;</th>
+                        <th colspan="2">&nbsp;</th>
+                        <th>Others</th>
                         <th>Scraped Total</th>
                         <th>Total</th>
                     </tr>
                     <tr>
-                        <td colspan="3">&nbsp;</td>
+                        <td colspan="2">&nbsp;</td>
+                        <td style="background-color: #eee;"><strong style="font-size: 1.5em; text-align: center;">{{ $count }}</strong></td>
                         <td style="background-color: #eee;"><strong style="font-size: 1.5em; text-align: center;">{{ isset($resultScrapedProductsInStock[0]->ttl) ? (int) $resultScrapedProductsInStock[0]->ttl : '-' }}</strong></td>
                         <td style="background-color: #eee;"><strong style="font-size: 1.5em; text-align: center;">{{ (int) array_sum($productStats) }}</strong></td>
                     </tr>
