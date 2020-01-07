@@ -124,8 +124,22 @@
                             <img src="{{ asset('images/search.png') }}" alt="Search">
                         </button>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         <a class="btn btn-secondary d-inline priority_model_btn">Priority</a>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-2">
+                        <a class="btn btn-secondary" 
+                            data-toggle="collapse" href="#plannedFilterCount" role="button" aria-expanded="false" aria-controls="plannedFilterCount">
+                               Show Planned count
+                            </a>
+                    </div>
+                    <div class="col-md-2">
+                         <a class="btn btn-secondary" 
+                            data-toggle="collapse" href="#inProgressFilterCount" role="button" aria-expanded="false" aria-controls="inProgressFilterCount">
+                               Show In Progress count
+                            </a>
                     </div>
                 </div>
             </form>
@@ -134,7 +148,48 @@
             @endif
         </div>
     </div>
-
+    <div class="row">
+        <div class="collapse" id="plannedFilterCount">
+            <div class="card card-body">
+              <?php if(!empty($countPlanned)) { ?>
+                <div class="row col-md-12">
+                    <?php foreach($countPlanned as $listFilter) { ?>
+                      <div class="card">
+                          <div class="card-header">
+                            <?php echo $listFilter["name"]; ?>
+                          </div>
+                          <div class="card-body">
+                              <?php echo $listFilter["count"]; ?>
+                          </div>
+                      </div>
+                  <?php } ?>
+                </div>
+              <?php } else  { 
+                echo "Sorry , No data available";
+              } ?>
+            </div>
+        </div>
+        <div class="collapse" id="inProgressFilterCount">
+            <div class="card card-body">
+              <?php if(!empty($countInProgress)) { ?>
+                <div class="row col-md-12">
+                    <?php foreach($countInProgress as $listFilter) { ?>
+                      <div class="card">
+                          <div class="card-header">
+                            <?php echo $listFilter["name"]; ?>
+                          </div>
+                          <div class="card-body">
+                              <?php echo $listFilter["count"]; ?>
+                          </div>
+                      </div>
+                  <?php } ?>
+                </div>
+              <?php } else  { 
+                echo "Sorry , No data available";
+              } ?>
+            </div>
+        </div>
+    </div>
     <?php
     $query = http_build_query(Request::except('page'));
     $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query . '&page=');
