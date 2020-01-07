@@ -25,6 +25,11 @@ class HashtagController extends Controller
 {
 
     private $maxId;
+    public $platformsId;
+
+    public function __construct(Request $request){
+        $this->platformsId = 1;
+  }     
     /**
      * Display a listing of the resource.
      *
@@ -40,23 +45,25 @@ class HashtagController extends Controller
 
                  $hashtags  = HashTag::query()
                         ->where('priority',1)
+                        ->where('platforms_id', $this->platformsId)
                         ->where('hashtag', 'LIKE', "%{$request->term}%")
                         ->paginate(Setting::get('pagination'));
                 return view('instagram.hashtags.index', compact('hashtags'));        
             }
             if($request->priority == 'on'){
-                $hashtags = HashTag::where('priority',1)->paginate(Setting::get('pagination')); 
+                $hashtags = HashTag::where('priority',1)->where('platforms_id', $this->platformsId)->paginate(Setting::get('pagination')); 
                 return view('instagram.hashtags.index', compact('hashtags')); 
             }
             if($request->term != null){
                 $hashtags  = HashTag::query()
                         ->where('hashtag', 'LIKE', "%{$request->term}%")
+                        ->where('platforms_id', $this->platformsId)
                         ->paginate(Setting::get('pagination'));
                 return view('instagram.hashtags.index', compact('hashtags'));        
             }
             
         }else{
-            $hashtags = HashTag::paginate(Setting::get('pagination'));  
+            $hashtags = HashTag::where('platforms_id', $this->platformsId)->paginate(Setting::get('pagination'));
             return view('instagram.hashtags.index', compact('hashtags'));  
         }
         
@@ -89,6 +96,7 @@ class HashtagController extends Controller
         $hashtag = new HashTag();
         $hashtag->hashtag = $request->get('name');
         $hashtag->rating = $request->get('rating') ?? 8;
+        $hashtag->platforms_id = $this->platformsId;
         $hashtag->save();
 
         return redirect()->back()->with('message', 'Hashtag created successfully!');
@@ -269,7 +277,7 @@ class HashtagController extends Controller
     }
 
     public function sendHashtagsApi() {
-        $hashtags = HashTag::get(['hashtag', 'id']);
+        $hashtags = HashTag::where('platforms_id', $this->platformsId)->get(['hashtag', 'id']);
 
         return response()->json($hashtags);
     }
@@ -379,7 +387,7 @@ class HashtagController extends Controller
        // dd($request);
        $id = $request->id;
        //check if 30 limit is exceded
-       $hashtags = HashTag::where('priority',1)->get();
+       $hashtags = HashTag::where('priority',1)->where('platforms_id', $this->platformsId)->get();
       
        if(count($hashtags) > 30 && $request->type == 1){
              return response()->json([

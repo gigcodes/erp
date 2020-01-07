@@ -83,4 +83,6 @@ Route::get('instagram/get-hashtag-list','InstagramPostsController@getHashtagList
 // SUPPLIERS
 Route::post('supplier/brands-raw', 'SupplierController@apiBrandsRaw');
 
-
+//Google search
+Route::get('google/keywords', 'GoogleSearchController@getKeywordsApi');
+Route::post('google/search-results', 'GoogleSearchController@apiPost');

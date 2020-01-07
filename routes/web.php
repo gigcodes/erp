@@ -1338,3 +1338,9 @@ Route::group(['middleware' => 'auth'], function () {
 Route::prefix('chat-bot')->middleware('auth')->group(function () {
     Route::get('/connection', 'ChatBotController@connection');
 });
+
+Route::prefix('google')->middleware('auth')->group(function () {
+    Route::resource('search', 'GoogleSearchController');
+    Route::get('/search', 'GoogleSearchController@index')->name('google.search');
+    Route::get('keyword/markPriority','GoogleSearchController@markPriority')->name('google.keyword.priority');
+});
