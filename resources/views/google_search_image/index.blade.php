@@ -22,6 +22,14 @@
             width: 100%;
             height: 100%;
         }
+        .cropper{
+            display: none; 
+            padding: 30px; 
+            border: 1px solid; 
+            margin: 10px; 
+            background: #f1f1f1;
+        }
+
         
     </style>
 @endsection
@@ -145,17 +153,34 @@
                     </div>
                 @endforeach
             </div>
+            </form>
             <div class="row">
                 <div class="col text-center">
+                    <div  class="cropper" id="crop-image">
+                        <form  method="POST" action="{{route('google.search.crop.post')}}" id="cropImageSend">
+                        <img id="image_crop" width="100%">
+                            {{ csrf_field() }}
+                        <div class="col text-center">
+                        <select name="type" id="crop-type" class="form-control">
+                            <option value="0">Select Crop Type</option>
+                            <option value="8">8</option>
+                        </select>
+                        <input type="hidden" name="product_id" id="product-id">
+                        <input type="hidden" name="media_id" id="media_id">
+                        <button type="button" class="btn btn-default" onclick="sendImageMessageCrop()">Crop Image</button>
+                        <button type="button" class="btn btn-default" onclick="hideCrop()">Close</button>
+                        </div>
+                      </form>    
+                    </div>
                     <button type="button" class="btn btn-image my-3" id="sendImageMessage" onclick="sendImage()"><img src="/images/filled-sent.png"/></button>
                 </div>
             </div>
-        </form>
+        
         {!! $products->appends(Request::except('page'))->links() !!}
     </div>
 
     @include('google_search_image.partials.get-products-by-image')
-    @include('google_search_image.partials.products.crop')
+    
 @endsection
 
 @section('scripts')
@@ -245,7 +270,7 @@
                 $('#product-id').val(clicked);
                 $('#media_id').val(media_id);
                 $('#image_crop').rcrop({full : true});
-                $('#cropModal').modal('show');
+                $('#crop-image').show();
             } else {
                 $.each($("input[name='product_id']:checked"), function () {
                     id = $(this).val();
@@ -299,32 +324,35 @@
 
         }
 
-        function sendImageMessage(){
-         crop = $('#crop-type').val();
-         if(crop == 0){
-            document.getElementById('formSubmit').submit();
-         }
-         else{
-            id = $('#product-id').val();
-            sequence = crop;
-            $.ajax({
-                    url: "{{ route('google.crop.sequence') }}",
-                    type: 'POST',
-                    beforeSend: function () {
-                        $("#loading-image").show();
-                    },
-                    success: function (response) {
-                        $("#loading-image").hide();
-                        history.back();
-                    },
-                    data: {
-                        id: id,
-                        sequence : sequence,
-                        _token: "{{ csrf_token() }}",
-                    }
-                });
-         }
-    }
-    
+        function hideCrop(){
+            $('#crop-image').hide();
+        }
+
+        function sendImageMessageCrop(){
+             crop = $('#crop-type').val();
+             if(crop == 0){
+                document.getElementById("cropImageSend").submit();
+             }
+             else{
+                id = $('#product-id').val();
+                sequence = crop;
+                $.ajax({
+                        url: "{{ route('google.crop.sequence') }}",
+                        type: 'POST',
+                        beforeSend: function () {
+                            $("#loading-image").show();
+                        },
+                        success: function (response) {
+                            $("#loading-image").hide();
+                            history.back();
+                        },
+                        data: {
+                            id: id,
+                            sequence : sequence,
+                            _token: "{{ csrf_token() }}",
+                        }
+                    });
+             }
+        }
     </script>
 @endsection
