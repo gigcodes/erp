@@ -24,8 +24,19 @@ use App\DeveloperCost;
 use App\PushNotification;
 use App\User;
 use App\Helpers;
+use App\HubstaffMember;
+use App\HubstaffProject;
+use App\HubstaffTask;
 use App\Issue;
+use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\RequestOptions;
 use Response;
+use Storage;
+
+define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
 
 class DevelopmentController extends Controller
 {
@@ -171,7 +182,7 @@ class DevelopmentController extends Controller
         \App\ErpPriority::whereIn('model_id', $developerTask)->where('model_type', '=', DeveloperTask::class)->delete();
 
         if (!empty($priority)) {
-            foreach ((array)$priority as $model_id) {
+            foreach ((array) $priority as $model_id) {
                 \App\ErpPriority::create([
                     'model_id' => $model_id,
                     'model_type' => DeveloperTask::class
@@ -198,7 +209,7 @@ class DevelopmentController extends Controller
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $params = [];
-                $params[ 'user_id' ] = $request->get('user_id', 0);
+                $params['user_id'] = $request->get('user_id', 0);
 
                 $string = "";
 
@@ -208,8 +219,8 @@ class DevelopmentController extends Controller
 
                 $string .= "Task Priority is : \n" . $message;
 
-                $params[ 'message' ] = $string;
-                $params[ 'status' ] = 2;
+                $params['message'] = $string;
+                $params['status'] = 2;
                 $requestData->request->add($params);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
             }
@@ -221,8 +232,8 @@ class DevelopmentController extends Controller
 
     public function index(Request $request)
     {
-//        //$this->issueTaskIndex( $request,'task');
-//        return Redirect::to('/development/list/task');
+        //        //$this->issueTaskIndex( $request,'task');
+        //        return Redirect::to('/development/list/task');
 
         // Set required data
         $user = $request->user ?? Auth::id();
@@ -243,7 +254,7 @@ class DevelopmentController extends Controller
         }
 
         // Get tasks for specific user if you are admin
-        if (Auth::user()->hasRole('Admin') && (int)$request->user > 0) {
+        if (Auth::user()->hasRole('Admin') && (int) $request->user > 0) {
             $progressTasks = DeveloperTask::where('user_id', $user);
             $plannedTasks = DeveloperTask::where('user_id', $user);
             $completedTasks = DeveloperTask::where('user_id', $user);
@@ -291,7 +302,7 @@ class DevelopmentController extends Controller
 
         // Loop over all modules and store them
         foreach ($modules as $module) {
-            $moduleNames[ $module->id ] = $module->name;
+            $moduleNames[$module->id] = $module->name;
         }
 
         $times = [];
@@ -377,18 +388,18 @@ class DevelopmentController extends Controller
         // Load issues
         $issues = DeveloperTask::where('task_type_id', $type == 'issue' ? '3' : '1');
 
-        if ((int)$request->get('submitted_by') > 0) {
+        if ((int) $request->get('submitted_by') > 0) {
             $issues = $issues->where('created_by', $request->get('submitted_by'));
         }
-        if ((int)$request->get('responsible_user') > 0) {
+        if ((int) $request->get('responsible_user') > 0) {
             $issues = $issues->where('responsible_user_id', $request->get('responsible_user'));
         }
 
-        if ((int)$request->get('corrected_by') > 0) {
+        if ((int) $request->get('corrected_by') > 0) {
             $issues = $issues->where('user_id', $request->get('corrected_by'));
         }
 
-        if ((int)$request->get('assigned_to') > 0) {
+        if ((int) $request->get('assigned_to') > 0) {
             $issues = $issues->where('user_id', $request->get('assigned_to'));
         }
 
@@ -412,25 +423,25 @@ class DevelopmentController extends Controller
         $users = Helpers::getUserArray(User::all());
 
         // Hide resolved
-        if ((int)$request->show_resolved !== 1) {
+        if ((int) $request->show_resolved !== 1) {
             $issues = $issues->where('is_resolved', 0);
         }
 
         if (!auth()->user()->isAdmin()) {
-            $issues = $issues->where(function($q){
-                $q->where("assigned_to",auth()->user()->id)->orWhere("responsible_user_id",auth()->user()->id);
+            $issues = $issues->where(function ($q) {
+                $q->where("assigned_to", auth()->user()->id)->orWhere("responsible_user_id", auth()->user()->id);
             });
         }
 
         // category filter start count
-        $issuesGroups = clone($issues);
-        $issuesGroups = $issuesGroups->where('status', 'Planned')->groupBy("user_id")->select([\DB::raw("count(id) as total_product"),"user_id"])->pluck("total_product","user_id")->toArray();
+        $issuesGroups = clone ($issues);
+        $issuesGroups = $issuesGroups->where('status', 'Planned')->groupBy("user_id")->select([\DB::raw("count(id) as total_product"), "user_id"])->pluck("total_product", "user_id")->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
-        
-        $userModel = \App\User::whereIn("id",$userIds)->pluck("name","id")->toArray();
+
+        $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
 
         $countPlanned = [];
-        if(!empty($issuesGroups) && !empty($userModel)) {
+        if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countPlanned[] = [
                     "id" => $key,
@@ -441,14 +452,14 @@ class DevelopmentController extends Controller
         }
 
         // category filter start count
-        $issuesGroups = clone($issues);
-        $issuesGroups = $issuesGroups->where('status', 'In Progress')->groupBy("user_id")->select([\DB::raw("count(id) as total_product"),"user_id"])->pluck("total_product","user_id")->toArray();
+        $issuesGroups = clone ($issues);
+        $issuesGroups = $issuesGroups->where('status', 'In Progress')->groupBy("user_id")->select([\DB::raw("count(id) as total_product"), "user_id"])->pluck("total_product", "user_id")->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
-        
-        $userModel = \App\User::whereIn("id",$userIds)->pluck("name","id")->toArray();
+
+        $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
 
         $countInProgress = [];
-        if(!empty($issuesGroups) && !empty($userModel)) {
+        if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countInProgress[] = [
                     "id" => $key,
@@ -482,22 +493,20 @@ class DevelopmentController extends Controller
             'countPlanned' => $countPlanned,
             'countInProgress' => $countInProgress,
         ]);
-
-
     }
 
     public function issueIndex(Request $request)
     {
         $issues = new Issue;
 
-        if ((int)$request->get('submitted_by') > 0) {
+        if ((int) $request->get('submitted_by') > 0) {
             $issues = $issues->where('submitted_by', $request->get('submitted_by'));
         }
-        if ((int)$request->get('responsible_user') > 0) {
+        if ((int) $request->get('responsible_user') > 0) {
             $issues = $issues->where('responsible_user_id', $request->get('responsible_user'));
         }
 
-        if ((int)$request->get('corrected_by') > 0) {
+        if ((int) $request->get('corrected_by') > 0) {
             $issues = $issues->where('user_id', $request->get('corrected_by'));
         }
 
@@ -516,7 +525,7 @@ class DevelopmentController extends Controller
         $users = Helpers::getUserArray(User::all());
 
         // Hide resolved
-        if ((int)$request->show_resolved !== 1) {
+        if ((int) $request->show_resolved !== 1) {
             $issues = $issues->where('is_resolved', 0);
         }
 
@@ -578,7 +587,7 @@ class DevelopmentController extends Controller
         \App\ErpPriority::whereIn('model_id', $issues)->where('model_type', '=', DeveloperTask::class)->delete();
 
         if (!empty($priority)) {
-            foreach ((array)$priority as $model_id) {
+            foreach ((array) $priority as $model_id) {
                 \App\ErpPriority::create([
                     'model_id' => $model_id,
                     'model_type' => DeveloperTask::class
@@ -607,7 +616,7 @@ class DevelopmentController extends Controller
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $params = [];
-                $params[ 'user_id' ] = $request->get('user_id', 0);
+                $params['user_id'] = $request->get('user_id', 0);
 
                 $string = "";
 
@@ -617,8 +626,8 @@ class DevelopmentController extends Controller
 
                 $string .= "Issue Priority is : \n" . $message;
 
-                $params[ 'message' ] = $string;
-                $params[ 'status' ] = 2;
+                $params['message'] = $string;
+                $params['status'] = 2;
                 $requestData->request->add($params);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
             }
@@ -643,6 +652,97 @@ class DevelopmentController extends Controller
         return view('development.issue-create');
     }
 
+    private function getTokens()
+    {
+        if (!Storage::disk('local')->exists(HUBSTAFF_TOKEN_FILE_NAME)) {
+            $this->generateAccessToken(SEED_REFRESH_TOKEN);
+        }
+        $tokens = json_decode(Storage::disk('local')->get(HUBSTAFF_TOKEN_FILE_NAME));
+        return $tokens;
+    }
+
+    private function generateAccessToken(string $refreshToken)
+    {
+        $httpClient = new Client();
+        try {
+            $response = $httpClient->post(
+                'https://account.hubstaff.com/access_tokens',
+                [
+                    RequestOptions::FORM_PARAMS => [
+                        'grant_type' => 'refresh_token',
+                        'refresh_token' => $refreshToken
+                    ]
+                ]
+            );
+
+            $responseJson = json_decode($response->getBody()->getContents());
+
+            $tokens = [
+                'access_token' => $responseJson->access_token,
+                'refresh_token' => $responseJson->refresh_token
+            ];
+
+            return Storage::disk('local')->put(HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    private function refreshTokens()
+    {
+        $tokens = $this->getTokens();
+        $this->generateAccessToken($tokens->refresh_token);
+    }
+
+    private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
+    {
+        $tokens = $this->getTokens();
+
+        $url = 'https://api.hubstaff.com/v2/projects/' . $projectId . '/tasks';
+        $httpClient = new Client();
+        try {
+
+            $body = array(
+                'summary' => $taskSummary
+            );
+
+            if ($hubstaffUserId) {
+                $body['assignee_id'] = $hubstaffUserId;
+            }else{
+                $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+            }
+
+            $response = $httpClient->post(
+                $url,
+                [
+                    RequestOptions::HEADERS => [
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
+                        'Content-Type' => 'application/json'
+                    ],
+
+                    RequestOptions::BODY => json_encode($body)
+                ]
+            );
+            $parsedResponse = json_decode($response->getBody()->getContents());
+            return $parsedResponse->task->id;
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            exit;
+            if ($e instanceof ClientException) {
+                $this->refreshTokens();
+                if ($shouldRetry) {
+                    return $this->createHubstaffTask(
+                        $taskSummary,
+                        $hubstaffUserId,
+                        $projectId,
+                        false
+                    );
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -656,13 +756,14 @@ class DevelopmentController extends Controller
             'subject' => 'sometimes|nullable|string',
             'task' => 'required|string|min:3',
             'cost' => 'sometimes|nullable|integer',
-            'status' => 'required'
+            'status' => 'required',
+            'hubstaff_project' => 'required'
         ]);
 
         $data = $request->except('_token');
-        $data[ 'user_id' ] = $request->user_id ? $request->user_id : Auth::id();
-        $data[ 'responsible_user_id' ] = $request->user_id ? $request->user_id : Auth::id();
-        $data[ 'created_by' ] = Auth::id();
+        $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
+        $data['responsible_user_id'] = $request->user_id ? $request->user_id : Auth::id();
+        $data['created_by'] = Auth::id();
         //$data[ 'submitted_by' ] = Auth::id();
 
         $module = $request->get('module_id');
@@ -672,7 +773,7 @@ class DevelopmentController extends Controller
                 $module = new DeveloperModule();
                 $module->name = $request->get('module_id');
                 $module->save();
-                $data[ 'module_id' ] = $module->id;
+                $data['module_id'] = $module->id;
             }
         }
 
@@ -714,6 +815,29 @@ class DevelopmentController extends Controller
         //   ]);
         // }
 
+        $assignedUser = HubstaffMember::where('user_id', $request->input('user_id'))->first();
+        $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
+
+        $hubstaffUserId = null;
+        if ($assignedUser) {
+            $hubstaffUserId = $assignedUser->hubstaff_user_id;
+        }
+
+        $hubstaffTaskId = $this->createHubstaffTask(
+            $request->input('task'),
+            $hubstaffUserId,
+            $hubstaffProject->hubstaff_project_id
+        );
+
+        if($hubstaffUserId){
+            $task = new HubstaffTask();
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->project_id = $hubstaffProject->id;
+            $task->hubstaff_project_id = $hubstaffProject->hubstaff_project_id;
+            $task->summary = $request->input('task');
+            $task->save();
+        }
+
         if ($request->ajax()) {
             return response()->json(['task' => $task]);
         }
@@ -732,18 +856,17 @@ class DevelopmentController extends Controller
         $data = $request->except('_token');
 
         $module = $request->get('module');
-        if($request->response == 1){
+        if ($request->response == 1) {
 
             $reference = md5(strtolower($request->reference));
             //Check if reference exist
-            $existReference = DeveloperTask::where('reference',$reference)->first();
-            if($existReference != null || $existReference != ''){
+            $existReference = DeveloperTask::where('reference', $reference)->first();
+            if ($existReference != null || $existReference != '') {
                 return redirect()->back()->withErrors(['Issue Already Created!']);
             }
-
         }
 
-        if(!isset($reference)){
+        if (!isset($reference)) {
             $reference = null;
         }
 
@@ -753,7 +876,7 @@ class DevelopmentController extends Controller
             $module = new DeveloperModule();
             $module->name = $request->get('module');
             $module->save();
-            $data[ 'module' ] = $module->id;
+            $data['module'] = $module->id;
         }
 
         //$issue = Issue::create($data);
@@ -820,7 +943,7 @@ class DevelopmentController extends Controller
         ]);
 
         $data = $request->except('_token');
-        $data[ 'user_id' ] = Auth::id();
+        $data['user_id'] = Auth::id();
 
         DeveloperComment::create($data);
 
@@ -932,7 +1055,7 @@ class DevelopmentController extends Controller
         ]);
 
         $data = $request->except('_token');
-        $data[ 'user_id' ] = $request->user_id ? $request->user_id : Auth::id();
+        $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
 
         $task = DeveloperTask::find($id);
         $task->update($data);
@@ -1253,7 +1376,6 @@ class DevelopmentController extends Controller
         return response()->json([
             'status' => 'success'
         ]);
-
     }
 
     public function overview(Request $request)
@@ -1328,16 +1450,16 @@ class DevelopmentController extends Controller
         ]);
 
         $data = $request->except('_token');
-        $data[ 'user_id' ] = Auth::id();
+        $data['user_id'] = Auth::id();
 
         $created = DeveloperTaskComment::create($data);
         if ($created) {
-            $response[ 'status' ] = 'ok';
-            $response[ 'msg' ] = 'Comment stored successfully';
+            $response['status'] = 'ok';
+            $response['msg'] = 'Comment stored successfully';
             echo json_encode($response);
         } else {
-            $response[ 'status' ] = 'error';
-            $response[ 'msg' ] = 'Error';
+            $response['status'] = 'error';
+            $response['msg'] = 'Error';
         }
     }
 
@@ -1371,10 +1493,10 @@ class DevelopmentController extends Controller
             foreach ($request->file('attached_document') as $image) {
                 $name = time() . '_' . $image->getClientOriginalName();
                 $new_id = floor($task_id / 1000);
-//                $path = public_path().'/developer-task' . $task_id;
-//                if (!file_exists($path)) {
-//                    $this->makeDirectory($path);
-//                }
+                //                $path = public_path().'/developer-task' . $task_id;
+                //                if (!file_exists($path)) {
+                //                    $this->makeDirectory($path);
+                //                }
 
                 $dirname = public_path() . '/uploads/developer-task/' . $new_id;
                 if (file_exists($dirname)) {
@@ -1429,24 +1551,24 @@ class DevelopmentController extends Controller
         return Response::download($file, $file_name, $headers);
     }
 
-//    public function downloadFile($path) {
-//        if (file_exists($path) && is_file($path)) {
-//            // file exist
-//            header('Content-Description: File Transfer');
-//            header('Content-Type: application/octet-stream');
-//            header('Content-Disposition: attachment; filename=' . basename($path));
-//            header('Content-Transfer-Encoding: binary');
-//            header('Expires: 0');
-//            header('Cache-Control: must-revalidate');
-//            header('Pragma: public');
-//            header('Content-Length: ' . filesize($path));
-//            set_time_limit(0);
-//            @readfile($path);//"@" is an error control operator to suppress errors
-//        } else {
-//            // file doesn't exist
-//            die('Error: The file ' . basename($path) . ' does not exist!');
-//        }
-//    }
+    //    public function downloadFile($path) {
+    //        if (file_exists($path) && is_file($path)) {
+    //            // file exist
+    //            header('Content-Description: File Transfer');
+    //            header('Content-Type: application/octet-stream');
+    //            header('Content-Disposition: attachment; filename=' . basename($path));
+    //            header('Content-Transfer-Encoding: binary');
+    //            header('Expires: 0');
+    //            header('Cache-Control: must-revalidate');
+    //            header('Pragma: public');
+    //            header('Content-Length: ' . filesize($path));
+    //            set_time_limit(0);
+    //            @readfile($path);//"@" is an error control operator to suppress errors
+    //        } else {
+    //            // file doesn't exist
+    //            die('Error: The file ' . basename($path) . ' does not exist!');
+    //        }
+    //    }
 
     public function openNewTaskPopup(Request $request)
     {
@@ -1461,10 +1583,14 @@ class DevelopmentController extends Controller
         $modules = DeveloperModule::all();
         // Loop over all modules and store them
         foreach ($modules as $module) {
-            $moduleNames[ $module->id ] = $module->name;
+            $moduleNames[$module->id] = $module->name;
         }
 
-        $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames"))->render();
+        //Get hubstaff projects
+        $projects = HubstaffProject::all();
+
+
+        $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames", "projects"))->render();
         return json_encode(compact("html", "status"));
     }
 }
