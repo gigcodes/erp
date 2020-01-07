@@ -40,6 +40,7 @@ class StatusHelper extends Model
     public static $isBeingScrapedWithGoogleTextSearch = 30;
     public static $pendingVerificationGoogleTextSearch = 31;
     public static $googleTextSearchManuallyRejected = 32;
+    public static $attributeRejectCategory = 33;
 
     public static function getStatus()
     {
@@ -76,6 +77,7 @@ class StatusHelper extends Model
             30 => 'is being scraped with google text search',
             31 => 'pending verification google text search',
             32 => 'manually rejected google text search',
+            33 => 'pending products without category',
         ];
     }
     public static function updateStatus(\App\Product $product, $newStatus = 0)

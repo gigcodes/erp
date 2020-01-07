@@ -43,25 +43,23 @@ class Product extends Model
 
     public static function boot()
     {
-       parent::boot();
+        parent::boot();
 
-       static::saved(function($model)
-       {
-         $flag = 0;
-         if ($model->hasMedia(config('constants.attach_image_tag')))  {
-            $flag = 1;
-         }
-         \DB::table("products")->where("id",$model->id)->update(["has_mediables" => $flag]);  
-       });
+        static::saved(function ($model) {
+            $flag = 0;
+            if ($model->hasMedia(config('constants.attach_image_tag'))) {
+                $flag = 1;
+            }
+            \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+        });
 
-       static::created(function($model)
-       {
-         $flag = 0;
-         if ($model->hasMedia(config('constants.attach_image_tag')))  {
-            $flag = 1;
-         }
-         \DB::table("products")->where("id",$model->id)->update(["has_mediables" => $flag]); 
-       });        
+        static::created(function ($model) {
+            $flag = 0;
+            if ($model->hasMedia(config('constants.attach_image_tag'))) {
+                $flag = 1;
+            }
+            \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+        });
     }
 
     /**
@@ -191,7 +189,9 @@ class Product extends Model
                 }
 
                 // Check for valid supplier and store details linked to supplier
-                if ($dbSupplier = \App\Scraper::where('scraper_name', $json->website)->first()) {
+                if ($dbSupplier = Supplier::select('suppliers.id')->leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($json) {
+                    $query->where('supplier', '=', $json->website)->orWhere('sc.scraper_name', '=', $json->website);
+                })->first()) {
                     if ($product) {
                         $product->suppliers()->syncWithoutDetaching([
                             $dbSupplier->supplier_id => [
@@ -304,7 +304,9 @@ class Product extends Model
                 ProductStatus::updateStatus($product->id, 'CREATED_NEW_PRODUCT_BY_JSON', 1);
 
                 // Check for valid supplier and store details linked to supplier
-                if ($dbSupplier = \App\Scraper::where('scraper_name', $json->website)->first()) {
+                if ($dbSupplier = Supplier::select('suppliers.id')->leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($json) {
+                    $query->where('supplier', '=', $json->website)->orWhere('sc.scraper_name', '=', $json->website);
+                })->first()) {
                     if ($product) {
                         $product->suppliers()->syncWithoutDetaching([
                             $dbSupplier->supplier_id => [

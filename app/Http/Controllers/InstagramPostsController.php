@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use InstagramAPI\Instagram;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use File;
+use App\CommentsStats;
+use App\InstagramCommentQueue;
 
 class InstagramPostsController extends Controller
 {
@@ -101,6 +103,8 @@ class InstagramPostsController extends Controller
 
                 // Get hashtag ID
                 $hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
+                $hashtag->is_processed = 1;
+                $hashtag->save();
 
                 // Retrieve instagram post or initiate new
                 $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson[ 'URL' ]]);
@@ -154,5 +158,64 @@ class InstagramPostsController extends Controller
         return response()->json([
             'ok'
         ], 200);
+    }
+
+
+    public function sendAccount($token)
+    {
+      if($token != 'sdcsds'){
+        return response()->json(['message' => 'Invalid Token'], 400);
+      }
+      $account = Account::where('platform','instagram')->where('comment_pending',1)->first();
+
+     return response()->json(['username' => $account->last_name , 'password' => $account->password], 200);
+    }
+
+    public function getComments($username , $password)
+    {
+        $account = Account::where('last_name',$username)->where('password',$password)->first();
+
+        if($account == null && $account == ''){
+             return response()->json(['message' => 'Account Not Found'], 400);
+        }
+        $comments = InstagramCommentQueue::where('account_id',$account->id)->where('is_send',0)->get()->take(20);
+        foreach ($comments as $comment) {
+            $commentArray[] = $comment->message;
+            $codeArray[] = str_replace(["https://www.instagram.com/p/","/"],'',$comment->getPost->location);
+        }
+        
+        return response()->json(['comment' => $commentArray , 'code' => $codeArray ],200);        
+
+    }
+
+    public function commentSent(Request $request)
+    {
+        $comment = $request->comment;
+        $postId = $request->post_id;
+        $comments = InstagramCommentQueue::where('post_id',$postId)->where('message','LIKE','%'.$comment)->first().'%';
+        $comments->is_send = 1;
+        $comments->save();
+
+    }    
+
+    public function getHashtagList()
+    {
+        $hastags = HashTag::select('id','hashtag')->where('priority',1)->get();
+
+        if(count($hastags) == 0){
+            $hastags = HashTag::select('id','hashtag')->where('priority',2)->get();
+        }
+
+        if(count($hastags) == 0){
+            return response()->json(['hastag' => []],200);
+        }
+
+        foreach ($hastags as $hastag) {
+            $hastagIdArray[] = $hastag->id;
+            $hastagArray[] = $hastag->hashtag;
+        }
+        
+        return response()->json(['hastag' => $hastagArray ],200);
+
     }
 }

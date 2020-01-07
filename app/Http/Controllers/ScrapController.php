@@ -542,14 +542,22 @@ class ScrapController extends Controller
     {
         $pendingUrl = array();
         $links = $request->links;
+        $website = $request->website;
 
+        if (empty($website)) {
+            $rawJson = json_decode($request->instance()->getContent());
+            $website = isset($rawJson->website) ? $rawJson->website : null;
+        }
         if (is_string($links)) {
             $links = json_decode($links);
+        } else {
+            $rawJson = json_decode($request->instance()->getContent());
+            $links = isset($rawJson->links) ? $rawJson->links : null;
         }
 
         if (is_array($links)) {
             foreach ($links as $link) {
-                $logScraper = LogScraper::where('url', $link)->where('website', $request->website)->first();
+                $logScraper = LogScraper::where('url', $link)->where('website', $website)->first();
 
                 if ($logScraper != null) {
                     Log::channel('productUpdates')->debug("[log_scraper] Found existing product with url " . $link);
@@ -557,7 +565,7 @@ class ScrapController extends Controller
                     $logScraper->save();
 
                     // Load scraped product and update last_inventory_at
-                    $scrapedProduct = ScrapedProducts::where('sku', ProductHelper::getSku($logScraper->sku))->where('website', $request->website)->first();
+                    $scrapedProduct = ScrapedProducts::where('sku', ProductHelper::getSku($logScraper->sku))->where('website', $website)->first();
 
                     if ($scrapedProduct != null) {
                         Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($logScraper->sku));
@@ -574,7 +582,7 @@ class ScrapController extends Controller
 
             //Getting Supplier by Scraper name
             try {
-                $scraper = Scraper::where('scraper_name', $request->website)->first();
+                $scraper = Scraper::where('scraper_name', $website)->first();
                 $totalLinks = count($links);
                 $pendingLinks = count($pendingUrl);
                 $existingLinks = ($totalLinks - $pendingLinks);
@@ -588,7 +596,7 @@ class ScrapController extends Controller
 
                 $scraperResult = new ScraperResult();
                 $scraperResult->date = date("Y-m-d");
-                $scraperResult->scraper_name = $request->website;
+                $scraperResult->scraper_name = $website;
                 $scraperResult->total_urls = $totalLinks;
                 $scraperResult->existing_urls = $existingLinks;
                 $scraperResult->new_urls = $pendingLinks;
@@ -604,9 +612,10 @@ class ScrapController extends Controller
     }
 
 
-    public function scrapedUrls(Request $request){
+    public function scrapedUrls(Request $request)
+    {
 
-         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns) {
+        if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns) {
 
             $query = LogScraper::query();
 
@@ -624,7 +633,7 @@ class ScrapController extends Controller
                 $query->where('sku', 'LIKE', "%{$request->sku}%");
             }
 
-             if (request('title') != null) {
+            if (request('title') != null) {
                 $query->where('title', 'LIKE', "%{$request->title}%");
             }
 
@@ -649,48 +658,47 @@ class ScrapController extends Controller
                 $query->whereDate('updated_at', request('updated'));
             }
 
-            if(request('orderCreated') != null){
-                if(request('orderCreated') == 0){
-                    $query->orderby('created_at','asc');
-                }else{
-                    $query->orderby('created_at','desc');
+            if (request('orderCreated') != null) {
+                if (request('orderCreated') == 0) {
+                    $query->orderby('created_at', 'asc');
+                } else {
+                    $query->orderby('created_at', 'desc');
                 }
             }
 
-            if(request('orderUpdated') != null){
-                if(request('orderUpdated') == 0){
-                    $query->orderby('updated_at','asc');
-                }else{
-                    $query->orderby('updated_at','desc');
+            if (request('orderUpdated') != null) {
+                if (request('orderUpdated') == 0) {
+                    $query->orderby('updated_at', 'asc');
+                } else {
+                    $query->orderby('updated_at', 'desc');
                 }
             }
 
-            if(request('orderCreated') == null && request('orderUpdated') == null){
-                $query->orderby('updated_at','desc');
+            if (request('orderCreated') == null && request('orderUpdated') == null) {
+                $query->orderby('updated_at', 'desc');
             }
 
             $paginate = (Setting::get('pagination') * 10);
             $logs = $query->paginate($paginate)->appends(request()->except(['page']));
             $response = request()->except(['page']);
 
-        }
-        else {
+        } else {
             $response = '';
-             $paginate = (Setting::get('pagination') * 10);
-            $logs = LogScraper::orderby('updated_at','desc')->paginate($paginate);
+            $paginate = (Setting::get('pagination') * 10);
+            $logs = LogScraper::orderby('updated_at', 'desc')->paginate($paginate);
 
         }
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('scrap.partials.scraped_url_data', compact('logs','response'))->render(),
+                'tbody' => view('scrap.partials.scraped_url_data', compact('logs', 'response'))->render(),
                 'links' => (string)$logs->render(),
                 'count' => $logs->total(),
             ], 200);
         }
 
-        return view('scrap.scraped_url',compact('logs','response'));
-        }
+        return view('scrap.scraped_url', compact('logs', 'response'));
+    }
 
     public function getProductsToScrape()
     {
