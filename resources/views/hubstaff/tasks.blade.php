@@ -38,16 +38,14 @@
         <tr>
           <th>Task Id</th>
           <th>Summary</th>
-          <th>Status</th>
           <th>Action</th>
         </tr>
       </thead>
       @foreach($tasks as $task)
       <tbody>
         <tr>
-          <td>{{ $task->id }}</td>
+          <td>{{ $task->hubstaff_task_id }}</td>
           <td>{{ ucwords($task->summary) }}</td>
-          <td>{{ $task->status }}</td>
           <td>
             <span><a href="/hubstaff/tasks/{{$task->id}}">Edit</a></span>
           </td>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Article;
 use App\HubstaffMember;
 use App\HubstaffProject;
+use App\HubstaffTask;
 use App\User;
 use Auth;
 use Exception;
@@ -233,35 +234,77 @@ class HubstaffController extends Controller
         }
     }
 
-    public function getTasks()
-    {
-        $access_token = session(SESSION_ACCESS_TOKEN);
+    private function refreshTasksFromApi(bool $shouldRetry = true){
 
-        if (!$access_token) {
-            return view(
-                'hubstaff.projects',
-                [
-                    'auth' =>  $this->getLoginUrl(),
-                ]
-            );
-        }
+        $tokens = $this->getTokens();
 
         $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/tasks?status=active%2Ccompleted';
         $httpClient = new Client();
-        $response = $httpClient->get(
-            $url,
-            [
-                RequestOptions::HEADERS => [
-                    'Authorization' => 'Bearer ' . $access_token
+        try{
+            $response = $httpClient->get(
+                $url,
+                [
+                    RequestOptions::HEADERS => [
+                        'Authorization' => 'Bearer ' . $tokens->access_token
+                    ]
                 ]
-            ]
-        );
+            );
 
-        $tasks = [];
-        if ($response->getStatusCode() == 200) {
             $responseJson = json_decode($response->getBody()->getContents());
             $tasks = $responseJson->tasks;
+
+            $hubstaffProjectIds = [];
+            foreach($tasks as $task){
+                $hubstaffProjectIds[] = $task->project_id;
+            }
+
+            $projects = HubstaffProject::whereIn('hubstaff_project_id', $hubstaffProjectIds)->get();
+
+            $hubstaffProjects = [];
+            foreach($projects as $project){
+                $hubstaffProjects[$project->hubstaff_project_id] = $project;
+            }
+
+            foreach($tasks as $task){
+
+                $project = $hubstaffProjects[$task->project_id];
+
+                HubstaffTask::updateOrCreate(
+                    [
+                        'hubstaff_task_id' => $task->id
+                    ],
+                    [
+                        'hubstaff_task_id' => $task->id,
+                        'project_id' => $project ? $project->id : null,
+                        'hubstaff_project_id' => $task->project_id,
+                        'summary' => $task->summary
+                    ]
+                );
+            }
+
+        }catch(Exception $e){
+            echo $e->getMessage();
+            if($e instanceof ClientException){
+                if($e->getResponse()->getStatusCode() == 403){
+                    // the access token might have expired and hence refresh
+                    $this->refreshTokens();
+                    if($shouldRetry){
+                        $this->refreshTasksFromApi(false);
+                    }
+                }
+            }
         }
+        
+
+
+    }
+
+    public function getTasks()
+    {
+
+        $this->refreshTasksFromApi();
+
+        $tasks = HubstaffTask::all();
 
         return view(
             'hubstaff.tasks',
