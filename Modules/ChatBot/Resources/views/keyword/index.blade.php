@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('favicon' , 'task.png')
 
-@section('title', 'Keyword | Chatbot')
+@section('title', 'Entities | Chatbot')
 
 @section('content')
 <style type="text/css">
@@ -20,7 +20,7 @@
 </style>
 <div class="row">
 	<div class="col-lg-12 margin-tb">
-	    <h2 class="page-heading">Keyword | Chatbot</h2>
+	    <h2 class="page-heading">Entities | Chatbot</h2>
 	</div>
 </div>
 <div class="row">
@@ -39,7 +39,7 @@
 			  <thead>
 			    <tr>
 			      <th class="th-sm">Id</th>
-			      <th class="th-sm">Keyword</th>
+			      <th class="th-sm">Entity</th>
 			      <th class="th-sm">Values</th>
 			      <th class="th-sm">Action</th>
 			    </tr>
@@ -60,7 +60,7 @@
 			  <tfoot>
 			    <tr>
 			      <th>Id</th>
-			      <th>Keyword</th>
+			      <th>Entity</th>
 			      <th>Values</th>
 			      <th>Action</th>
 			    </tr>

@@ -4,7 +4,7 @@
       <form method="post" action="<?php echo route("chatbot.keyword.save"); ?>">
       	 <?php echo csrf_field(); ?>
 	      <div class="modal-header">
-	        <h5 class="modal-title">Create Keyword</h5>
+	        <h5 class="modal-title">Create Entity</h5>
 	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 	          <span aria-hidden="true">&times;</span>
 	        </button>

@@ -422,6 +422,42 @@ class DevelopmentController extends Controller
             });
         }
 
+        // category filter start count
+        $issuesGroups = clone($issues);
+        $issuesGroups = $issuesGroups->where('status', 'Planned')->groupBy("user_id")->select([\DB::raw("count(id) as total_product"),"user_id"])->pluck("total_product","user_id")->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+        
+        $userModel = \App\User::whereIn("id",$userIds)->pluck("name","id")->toArray();
+
+        $countPlanned = [];
+        if(!empty($issuesGroups) && !empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                $countPlanned[] = [
+                    "id" => $key,
+                    "name" => !empty($userModel[$key]) ? $userModel[$key] : "N/A",
+                    "count" => $count,
+                ];
+            }
+        }
+
+        // category filter start count
+        $issuesGroups = clone($issues);
+        $issuesGroups = $issuesGroups->where('status', 'In Progress')->groupBy("user_id")->select([\DB::raw("count(id) as total_product"),"user_id"])->pluck("total_product","user_id")->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+        
+        $userModel = \App\User::whereIn("id",$userIds)->pluck("name","id")->toArray();
+
+        $countInProgress = [];
+        if(!empty($issuesGroups) && !empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                $countInProgress[] = [
+                    "id" => $key,
+                    "name" => !empty($userModel[$key]) ? $userModel[$key] : "N/A",
+                    "count" => $count,
+                ];
+            }
+        }
+
         // Sort
         if ($request->order == 'priority') {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
@@ -442,7 +478,9 @@ class DevelopmentController extends Controller
             'modules' => $modules,
             'request' => $request,
             'title' => $type,
-            'priority' => $priority
+            'priority' => $priority,
+            'countPlanned' => $countPlanned,
+            'countInProgress' => $countInProgress,
         ]);
 
 

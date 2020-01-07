@@ -79,6 +79,7 @@ use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
 use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\SendQueuePendingChatMessages;
+use App\Console\Commands\SyncCustomersFromMagento;
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -173,7 +174,8 @@ class Kernel extends ConsoleKernel
         VisitorLogs::class,
         ImageBarcodeGenerator::class,
         UpdateImageBarcodeGenerator::class,
-        NumberOfImageCroppedCheck::class
+        SyncCustomersFromMagento::class,
+        NumberOfImageCroppedCheck::class,
     ];
 
     /**
@@ -346,8 +348,11 @@ class Kernel extends ConsoleKernel
         // need to run this both cron every minutes
         $schedule->command('cronschedule:update')->everyMinute();
         $schedule->command('erpevents:run')->everyMinute();
-//        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '07:00')->withoutOverlapping();
-//        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->between('23:00', '07:00')->withoutOverlapping();
+        $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
+        $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
+
+        //Sync customer from magento to ERP
+        $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
     }
 
     /**
