@@ -271,6 +271,86 @@
                    </div> 
                 </td>
               </tr>
+              <tr>
+                <td>Product Stats</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table"><div class="table">
+                  <table class="table table-striped table-bordered">
+                    <tr>
+                        <th>Import</th>
+                        <th>Scraping</th>
+                        <th>Is being scraped</th>
+                        <th>Queued for AI</th>
+                        <th>Auto crop</th>
+                    </tr>
+                    <tr>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$import]) ? (int) $productStats[\App\Helpers\StatusHelper::$import] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$scrape]) ? (int) $productStats[\App\Helpers\StatusHelper::$scrape] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingScraped]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingScraped] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$AI]) ? (int) $productStats[\App\Helpers\StatusHelper::$AI] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$autoCrop]) ? (int) $productStats[\App\Helpers\StatusHelper::$autoCrop] : 0 }}</td>
+                    </tr>
+                    <tr>
+                        <th>Is being cropped</th>
+                        <th>Crop Approval</th>
+                        <th>Crop Sequencing</th>
+                        <th>Is being sequenced</th>
+                        <th>Image Enhancement</th>
+                    </tr>
+                    <tr>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingCropped]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingCropped] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropApproval]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropApproval] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropSequencing]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropSequencing] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingSequenced]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingSequenced] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$imageEnhancement]) ? (int) $productStats[\App\Helpers\StatusHelper::$imageEnhancement] : 0 }}</td>
+                    </tr>
+                    <tr>
+                        <th>Is being enhanced</th>
+                        <th>Manual Attribute</th>
+                        <th>Final Approval</th>
+                        <th>Queued for Magento</th>
+                        <th>In Magento</th>
+                    </tr>
+                    <tr>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingEnhanced]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingEnhanced] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$manualAttribute]) ? (int) $productStats[\App\Helpers\StatusHelper::$manualAttribute] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$finalApproval]) ? (int) $productStats[\App\Helpers\StatusHelper::$finalApproval] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$pushToMagento]) ? (int) $productStats[\App\Helpers\StatusHelper::$pushToMagento] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$inMagento]) ? (int) $productStats[\App\Helpers\StatusHelper::$inMagento] : 0 }}</td>
+                    </tr>
+                    <tr>
+                        <th>Unable to scrape</th>
+                        <th>Unable to scrape images</th>
+                        <th>Crop Rejected</th>
+                        <th>Crop Skipped</th>
+                    </tr>
+                    <tr>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unableToScrape]) ? (int) $productStats[\App\Helpers\StatusHelper::$unableToScrape] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unableToScrapeImages]) ? (int) $productStats[\App\Helpers\StatusHelper::$unableToScrapeImages] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropRejected]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropRejected] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropSkipped]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropSkipped] : 0 }}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="3">&nbsp;</th>
+                        <th>Scraped Total</th>
+                        <th>Total</th>
+                    </tr>
+                    <tr>
+                        <td colspan="3">&nbsp;</td>
+                        <td style="background-color: #eee;"><strong style="font-size: 1.5em; text-align: center;">{{ isset($resultScrapedProductsInStock[0]->ttl) ? (int) $resultScrapedProductsInStock[0]->ttl : '-' }}</strong></td>
+                        <td style="background-color: #eee;"><strong style="font-size: 1.5em; text-align: center;">{{ (int) array_sum($productStats) }}</strong></td>
+                    </tr>
+                </table>
+                </div>
+                </td>
+              </tr>
            </tbody>
         </table>
     </div>
