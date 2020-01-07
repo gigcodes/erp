@@ -27,7 +27,8 @@ var searchForIntent = function(ele) {
                 url: '/chatbot/question/submit',
                 data: {
                     "name": $this.val(),
-                    "question": $("#dialog-save-response-form").find(".question-insert").val()
+                    "question": $("#dialog-save-response-form").find(".question-insert").val(),
+                    "category_id" : $("#dialog-save-response-form").find(".search-category").val()
                 },
                 dataType: "json",
                 success: function(response) {
@@ -44,6 +45,28 @@ var searchForIntent = function(ele) {
         });
     }
 };
+
+var searchForCategory = function(ele) {
+    var categoryBox = ele.find(".search-category");
+    if (categoryBox.length > 0) {
+        categoryBox.select2({
+            placeholder: "Enter category name or create new one",
+            width: "100%",
+            tags: true,
+            allowClear: true,
+            ajax: {
+                url: '/chatbot/question/search-category',
+                dataType: 'json',
+                processResults: function(data) {
+                    return {
+                        results: data.items
+                    };
+                }
+            }
+        });
+    }
+};
+
 var searchForKeyword = function(ele) {
     var keywordBox = ele.find(".search-keyword");
     if (keywordBox.length > 0) {
