@@ -195,11 +195,11 @@ class VendorController extends Controller
 
       $users = User::all();
 
-      
+      $replies = \App\Reply::pluck("reply","reply")->toArray();
 
        if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('vendors.partials.data', compact('vendors'))->render(),
+                'tbody' => view('vendors.partials.data', compact('vendors','replies'))->render(),
                 'links' => (string)$vendors->render()
             ], 200);
         }
@@ -209,7 +209,8 @@ class VendorController extends Controller
         'vendor_categories' => $vendor_categories,
         'term'    => $term,
         'orderby'    => $orderby,
-          'users' => $users
+          'users' => $users,
+          'replies' => $replies
       ]);
     }
 

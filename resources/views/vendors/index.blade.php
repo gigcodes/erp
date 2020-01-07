@@ -741,6 +741,7 @@
                 } else {
                     $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
                 }
+                $(".select2-quick-reply").select2({});
                 
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
@@ -776,6 +777,7 @@
                 } else {
                     $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
                 }
+                $(".select2-quick-reply").select2({});
                 
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
@@ -786,6 +788,11 @@
         });
          });
 
+     $(document).on("change",".quickComment",function(e){
+        $(".quick-message-field").val($(this).val());
+     });  
+
+     $(".select2-quick-reply").select2({});
        
     </script>
 @endsection
