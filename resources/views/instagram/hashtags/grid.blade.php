@@ -222,40 +222,45 @@
             $('#name').val(hashtag);
         });
 
-        $('.comment-it').keyup(function(event) {
-            if (event.keyCode == 13) {
-                let message = $(this).val();
-                let mediaId = $(this).attr('data-mediaId');
-                let author = $(this).attr('data-author');
-                let code = $(this).attr('data-code');
-                let accountId = $('#account_id_'+mediaId).val();
-                let narrative = $('#narrative_'+mediaId).val();
-                let self = this;
+        $('.comment-it').click(function() {
+            
+                let id = $(this).attr('data-id');
+                let message = $('#textbox_'+id).val();
+                let textbox = $('#textbox_'+id);
+                let accountId = $('#account_id_'+id).val();
+                let narrative = $('#narrative_'+id).val();
+                let selectedusers = $('#selected_user_'+id).val();
+                if(accountId == 'Select User'){
+                    alert('Please Select User to Comment');
+                }else{
+                    let self = textbox;
+                    $(self).attr('disabled', true);
+                    
+                    $.ajax({
+                        url: '{{action('HashtagController@commentOnHashtag')}}',
+                        type: 'POST',
+                        data: {
+                            message: message,
+                            account_id: accountId,
+                            id : id,
+                            narrative: narrative,
+                            hashtag: "{{$hashtag->hashtag}}",
+                            _token: '{{ csrf_token() }}'
+                        },beforeSend: function() {
+                           $("#loading-image").show();
+                        },
+                        success: function() {
+                            $("#loading-image").hide();
+                            alert('Comment added successfully!');
+                            $(self).removeAttr('disabled');
+                            $(self).val('');
+                        }
+                    });
 
-                $(this).attr('disabled', true);
+                }
 
-                $.ajax({
-                    url: '{{action('HashtagController@commentOnHashtag')}}',
-                    type: 'POST',
-                    data: {
-                        message: message,
-                        post_id: mediaId,
-                        account_id: accountId,
-                        code: code,
-                        author: author,
-                        narrative: narrative,
-                        hashtag: "{{$hashtag->hashtag}}",
-                        _token: '{{ csrf_token() }}'
-                    },beforeSend: function() {
-                       $("#loading-image").show();
-                    },
-                    success: function() {
-                        $("#loading-image").hide();
-                        alert('Comment added successfully!');
-                        $(self).removeAttr('disabled');
-                    }
-                });
-            }
+                
+            
         });
 
  
@@ -349,5 +354,13 @@
         });
     });
 
+
+    function addUserToTextArea(value,id){
+        username = '@'+$(value).val();
+        
+        $("#textbox_"+id).val(function() {
+        return this.value +' '+username;
+        });
+    }
     </script>
 @endsection

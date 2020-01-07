@@ -278,5 +278,9 @@ input:checked + .slider:before {
                     }
                         });
         }
+
+      $(function() {
+          $('.selectpicker').selectpicker();
+      });
     </script>
 @endsection
