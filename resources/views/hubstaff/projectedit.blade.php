@@ -6,6 +6,7 @@
 
     {{Form::model($project, array('url' => '/hubstaff/projects/edit', 'method' => 'PUT'))}}
     {{ Form::hidden('id', Input::old('id')) }}
+    {{ Form::hidden('hubstaff_project_id', Input::old('hubstaff_project_id')) }}
     <div class="form-group">
         {{ Form::label('name', 'Name') }}
         {{ Form::text('name', Input::old('name'), array('class' => 'form-control')) }}
