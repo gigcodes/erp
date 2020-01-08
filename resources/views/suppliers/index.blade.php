@@ -254,6 +254,10 @@
                       {!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
                       {!! Form::close() !!}
+
+                      <button data-toggle="modal" data-target="#updateBrand" class="btn btn-image update-brand" data-id="{{ $supplier->id }}" title="Update Brands">
+                      <img src="{{ asset('images/list-128x128.png') }}" alt="" style="width: 18px;">
+                      </button>
                   </div>
               </td>
             </tr>
@@ -325,6 +329,41 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="updateBrand" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Scraped Brands</h4>
+                </div>
+                <div class="modal-body">
+                  <table class="table table-bordered table-striped">
+                    <thead>
+                      <tr>
+                        <th width="50%">Pick Brands</th>
+                        <th width="50%">Existing Brands</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <td>
+                            <div style="overflow-y: scroll; height: 250px">
+                              <div id="brandRawList"></div>
+                            </div>
+                          </td>
+                          <td id="selectedBrands">
+                          </td>
+                        </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-default" id="doUpdateBrand">Save</button>
                 </div>
             </div>
         </div>
@@ -713,5 +752,67 @@
       //   console.log(numberCallFrom);
 
       // });
+
+      //Show selected brand and raw brands after opening the update brand modal
+      var brandUpdateSupplierId = 0;
+      $('.update-brand').on('click', function() {
+        brandUpdateSupplierId = $(this).data('id');
+
+        $('#doUpdateBrand').prop('disabled', false);
+
+        $('#brandRawList').html('');
+        $('#selectedBrands').html('');
+        $.ajax({
+            url: "{{ route('supplier.brands.rawbrands.list') }}",
+            type: 'GET',
+            data: {
+                id: brandUpdateSupplierId
+            },
+            success: function(data) {
+                var rawBrands = '';
+                if (data.scrapedBrandsRaw.length > 0) {
+                  $.each(data.scrapedBrandsRaw, function( index, value ) {
+                    rawBrands += '<input type="checkbox" class="newBrandSelection" name="newBrands[]" value="' + value + '"';
+                    rawBrands += (data.scrapedBrands.indexOf(value) > -1) ? ' checked ' : '';
+                    rawBrands += ' style="margin-right:10px">' + value + '<br>';
+                  });
+                }
+                $('#brandRawList').html(rawBrands);
+                $('#selectedBrands').html(data.scrapedBrands.join(', '));
+            }
+        });
+      });
+
+      //Send selected brands to backend and update supplier brands
+      $('#doUpdateBrand').on('click', function() {
+        $('#doUpdateBrand').prop('disabled', true);
+
+        //Get selected brands
+        var newBrands = [];
+        $('.newBrandSelection').each(function(){
+          if($(this).prop('checked') == true){
+            newBrands.push($(this).val());
+          }
+        });
+
+        //Send data to server and close modal
+        $.ajax({
+            url: "{{ route('supplier.brands.update') }}",
+            type: 'POST',
+            data: {
+                id: brandUpdateSupplierId,
+                newBrandData: newBrands,
+                _token: "{{ csrf_token() }}"
+            },            
+            success: function() {
+                alert('Brands updated successfully');
+                $('#updateBrand').modal('hide');
+
+                $('#doUpdateBrand').prop('disabled', false);
+
+                brandUpdateSupplierId = 0;
+            }
+        });
+      });
   </script>
 @endsection
