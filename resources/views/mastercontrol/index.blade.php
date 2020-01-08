@@ -255,6 +255,8 @@
                    <table>
                    <tr>
                     <th width="32%"></th>
+                    <th>Today Cropped</th>
+                    <th>Last 7 Days</th>
                     <th>Total Crop Reference</th>
                     <th>Pending Products</th>
                     <th>Products With Out Category</th>
@@ -262,6 +264,8 @@
                    </tr>
                    <tr>
                     <td width="32%"></td>
+                    <td>{{ $cropReferenceDailyCount }}</td>
+                    <td>{{ $cropReferenceWeekCount }}</td>
                     <td>{{ $cropReference }}</td>
                     <td>{{ $pendingCropReferenceProducts }}</td>
                     <td>{{ $pendingCropReferenceCategory }}</td>

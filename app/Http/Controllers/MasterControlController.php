@@ -53,6 +53,19 @@ class MasterControlController extends Controller
 
       $pendingCropReferenceProducts = Cache::get( 'pending_crop_reference' );
 
+
+      Cache::remember('crop_reference_week_count', 15, function() {
+            return CroppedImageReference::where('created_at', '>=', \Carbon\Carbon::now()->subDays(7)->startOfDay())->count();
+        });
+
+      $cropReferenceWeekCount = Cache::get( 'crop_reference_week_count' );
+      
+      Cache::remember('crop_reference_daily_count', 15, function() {
+            return CroppedImageReference::whereDate('created_at', Carbon::today())->count();
+        });
+
+      $cropReferenceDailyCount = Cache::get( 'crop_reference_daily_count' );
+      
       Cache::remember('pending_crop_category', 15, function() {
             return Product::where('status_id',StatusHelper::$attributeRejectCategory)->where('stock','>=',1)->count();
         });
@@ -102,6 +115,9 @@ class MasterControlController extends Controller
         'pendingCropReferenceCategory' => $pendingCropReferenceCategory,
         'productStats' => $productStats,
         'resultScrapedProductsInStock' => $resultScrapedProductsInStock,
+        'cropReferenceWeekCount' => $cropReferenceWeekCount,
+        'cropReferenceDailyCount' => $cropReferenceDailyCount,
+
     ]);
     }
 
