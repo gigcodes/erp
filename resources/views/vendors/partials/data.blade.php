@@ -52,8 +52,9 @@
                                 </div>
                            </div>
                            <div style="margin-top:5px;" class="col-md-12">
-                                <div class="form-input">
-                                    <?php echo Form::select("quickComment",["" => "--Auto Reply--"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply"]); ?>
+                                <div class="d-flex">
+                                    <?php echo Form::select("quickComment",["" => "--Auto Reply--"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]); ?>
+                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
                                 </div>
                             </div> 
                         </div>  
