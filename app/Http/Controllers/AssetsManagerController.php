@@ -19,9 +19,34 @@ class AssetsManagerController extends Controller
 		if($request->archived == 1)
 			$archived = 1;
 
-		$category = DB::table('assets_category')->get();;
+		$category = DB::table('assets_category')->get();
+			
+		$search 		= request("search","");
+		$paymentCycle 	= request("payment_cycle","");
+		$assetType 		= request("asset_type","");
+		$purchaseType 	= request("purchase_type","");
+
+		$assets = new AssetsManager;
 		
-		$assets = AssetsManager::paginate(10);
+		if(!empty($search)) {
+			$assets = $assets->where(function($q) use($search) {
+				$q->where("name","LIKE","%".$search."%")->orWhere("provider_name","LIKE","%".$search."%");
+			});
+		}
+
+		if(!empty($paymentCycle)) {
+			$assets = $assets->where("payment_cycle",$paymentCycle);
+		}
+
+		if(!empty($assetType)) {
+			$assets = $assets->where("asset_type",$assetType);
+		}
+
+		if(!empty($purchaseType)) {
+			$assets = $assets->where("purchase_type",$purchaseType);
+		}		
+
+		$assets = $assets->paginate(10);
 
 	return view('assets-manager.index',compact('assets', 'category'))
 			->with('i', ($request->input('page', 1) - 1) * 10);
