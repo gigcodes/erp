@@ -31,36 +31,68 @@
 
         </div>
     </div>
-  
+
     @include('partials.flash_messages')
-    <form action="/scrap/scraped-urls" method="get">
+     <div class="mt-3 col-md-12">
+        <form action="/scrap/scraped-urls" method="get">
+            <div class="row">
+                <div class="col-md-5">
+                    
+                     <select class="form-control select-multiple2" data-placeholder="Select columns.." multiple id="columns" name="columns[]">
+                        <optgroup label="columns">
+                            <option value="">Select Any</option>
+                            <option value="color" @if($response != null) @if(in_array('color',$response['columns']))  selected  @endif @endif>Color</option>
+                            <option value="category"  @if($response != null) @if(in_array('category',$response['columns']))  selected  @endif @endif>Category</option>
+                            <option value="description"  @if($response != null) @if(in_array('description',$response['columns']))  selected  @endif @endif>Description</option>
+                            <option value="size_system"  @if($response != null) @if(in_array('size_system',$response['columns']))  selected  @endif @endif>Size system</option>
+                            <option value="is_sale"  @if($response != null) @if(in_array('is_sale',$response['columns']))  selected  @endif @endif>Is Sale</option>
+                            <option value="gender"  @if($response != null) @if(in_array('gender',$response['columns']))  selected  @endif @endif>Gender</option>
+                            <option value="composition"  @if($response != null) @if(in_array('composition',$response['columns']))  selected  @endif @endif>Composition</option>
+                            <option value="size"  @if($response != null) @if(in_array('size',$response['columns']))  selected  @endif @endif>Size</option>
+                            <option value="lmeasurement"  @if($response != null) @if(in_array('lmeasurement',$response['columns']))  selected  @endif @endif>Lmeasurement</option>
+                            <option value="hmeasurement"  @if($response != null) @if(in_array('hmeasurement',$response['columns']))  selected  @endif @endif>Hmeasurement</option>
+                            <option value="dmeasurement"  @if($response != null) @if(in_array('dmeasurement',$response['columns']))  selected  @endif @endif>Dmeasurement</option>
+                            <option value="measurement_size_type"  @if($response != null) @if(in_array('measurement_size_type',$response['columns']))  selected  @endif @endif>Measurement size type</option>
+                        </optgroup>
+                      </select>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group input-daterange">
+                        <input type="text" name="daterange" class="form-control" value="2012-04-05">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                </div>
+            </div>    
+        </form>
+     </div>
      <div class="mt-3 col-md-12">
         <div class="row">
-            <div class="col-md-6">
-                
-                 <select class="form-control select-multiple2" data-placeholder="Select columns.." multiple id="columns" name="columns[]">
-                    <optgroup label="columns">
-                        <option value="color" @if($response != null) @if(in_array('color',$response['columns']))  selected  @endif @endif>Color</option>
-                        <option value="category"  @if($response != null) @if(in_array('category',$response['columns']))  selected  @endif @endif>Category</option>
-                        <option value="description"  @if($response != null) @if(in_array('description',$response['columns']))  selected  @endif @endif>Description</option>
-                        <option value="size_system"  @if($response != null) @if(in_array('size_system',$response['columns']))  selected  @endif @endif>Size system</option>
-                        <option value="is_sale"  @if($response != null) @if(in_array('is_sale',$response['columns']))  selected  @endif @endif>Is Sale</option>
-                        <option value="gender"  @if($response != null) @if(in_array('gender',$response['columns']))  selected  @endif @endif>Gender</option>
-                        <option value="composition"  @if($response != null) @if(in_array('composition',$response['columns']))  selected  @endif @endif>Composition</option>
-                        <option value="size"  @if($response != null) @if(in_array('size',$response['columns']))  selected  @endif @endif>Size</option>
-                        <option value="lmeasurement"  @if($response != null) @if(in_array('lmeasurement',$response['columns']))  selected  @endif @endif>Lmeasurement</option>
-                        <option value="hmeasurement"  @if($response != null) @if(in_array('hmeasurement',$response['columns']))  selected  @endif @endif>Hmeasurement</option>
-                        <option value="dmeasurement"  @if($response != null) @if(in_array('dmeasurement',$response['columns']))  selected  @endif @endif>Dmeasurement</option>
-                        <option value="measurement_size_type"  @if($response != null) @if(in_array('measurement_size_type',$response['columns']))  selected  @endif @endif>Measurement size type</option>
-                    </optgroup>
-                  </select>
+            <div class="col-lg-12 margin-tb">
+                   <table class="table table-bordered table-striped" id="log-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>    
+                                <th>Total</th>
+                                <th>Total Unique</th>
+                            </th>
+                        </thead>
+                        <tbody>
+                            <?php if(!$summeryRecords->isEmpty()){ ?>
+                                <?php foreach($summeryRecords as $rec){ ?>
+                                    <tr>
+                                        <td><?php echo $rec->date; ?></td>
+                                        <td><?php echo $rec->total_record; ?></td>
+                                        <td><?php echo $rec->total_u_record; ?></td>
+                                    </tr>
+                                <?php } ?>    
+                            <?php } ?> 
+                        </tbody>
+                   </table>
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-            </div>
-        </div>    
-     </div>
-    </form>
+        </div>
+     </div>   
     <div class="mt-3 col-md-12">
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
@@ -669,5 +701,10 @@
             });  
 
          }
+         $('.input-daterange input').each(function() {
+            $(this).daterangepicker({
+                locale: { format: "YYYY-MM-DD"}
+            });
+        });
     </script>
 @endsection
