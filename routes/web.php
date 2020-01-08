@@ -1340,3 +1340,5 @@ Route::group(['middleware' => 'auth'], function () {
 Route::prefix('chat-bot')->middleware('auth')->group(function () {
     Route::get('/connection', 'ChatBotController@connection');
 });
+
+Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
