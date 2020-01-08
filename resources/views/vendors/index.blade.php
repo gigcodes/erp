@@ -248,6 +248,38 @@
     </div>
 
     @include('customers.zoomMeeting');
+    <div id="forwardModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <form action="{{ route('whatsapp.forward') }}" method="POST">
+            @csrf
+            <input type="hidden" name="message_id" id="forward_message_id" value="">
+
+            <div class="modal-header">
+              <h4 class="modal-title">Forward Message</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                  <strong>Client:</strong>
+                  <select class="selectpicker form-control" name="customer_id[]" title="Choose a Customer" required multiple></select>
+
+                  @if ($errors->has('customer_id'))
+                      <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
+                  @endif
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Forward Message</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -256,7 +288,46 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <script type="text/javascript">
+        $('.selectpicker').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/erp-leads/customer-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
 
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Customer by id, Name, No',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+                if (customer.loading) {
+                    return customer.name;
+                }
+
+                if (customer.name) {
+                    return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.name,
+
+        });
         var vendorToRemind = null;
         $('#vendor-search').select2({
             tags: true,
