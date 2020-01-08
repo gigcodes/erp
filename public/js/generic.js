@@ -136,14 +136,18 @@ $(document).on('click', '.load-communication-modal', function () {
                              }
                          }
                          button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
-                    }
+                    } 
 
                     if (message.type == "task" || message.type == "vendor") {
                         button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
                         if(message.type != "vendor") {
                             button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
                         }
-                     }
+                    }
+
+                    if (message.type == "vendor") {
+                        button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" />';
+                    }
                 }
             }
             button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 delete-message" data-id="' + message.id + '">- Remove</a>';
