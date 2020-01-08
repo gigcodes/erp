@@ -614,11 +614,24 @@ class ScrapController extends Controller
 
     public function scrapedUrls(Request $request)
     {
+        $totalSkuRecords       = 0;
+        $totalUniqueSkuRecords = 0;
 
         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns) {
 
             $query = LogScraper::query();
 
+            $dateRange = request("daterange","");
+            $startDate = false;
+            $endDate   = false;
+            
+            if(!empty($dateRange)) {
+                $range = explode(" - ", $dateRange);
+                if(!empty($range[0]) && !empty($range[1])) {
+                    $startDate = $range[0];
+                    $endDate   = $range[1];
+                }
+            }
 
             //global search website
             if (request('website') != null) {
@@ -658,6 +671,14 @@ class ScrapController extends Controller
                 $query->whereDate('updated_at', request('updated'));
             }
 
+            if(!empty($startDate)) {
+                $query->whereDate('created_at'," >= " , $startDate);   
+            }
+
+            if(!empty($endDate)) {
+                $query->whereDate('created_at'," <= " , $endDate);   
+            }
+
             if (request('orderCreated') != null) {
                 if (request('orderCreated') == 0) {
                     $query->orderby('created_at', 'asc');
@@ -680,24 +701,57 @@ class ScrapController extends Controller
 
             $paginate = (Setting::get('pagination') * 10);
             $logs = $query->paginate($paginate)->appends(request()->except(['page']));
+            
+            $search = [
+                \DB::raw("count(*) as total_record"),
+                \DB::raw("count(DISTINCT sku) as total_u_record")
+            ];
+
+
+
+            if(!empty($startDate) && !empty($endDate)) {
+                $search[] = \DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as date");
+            }else{
+                $search[] = \DB::raw("'All' as date");
+            }
+
+            $totalUniqueSkuRecords = \DB::table("log_scraper");
+
+            if(!empty($startDate)) {
+                $totalUniqueSkuRecords->whereDate('created_at'," >= " , $startDate);   
+            }
+
+            if(!empty($endDate)) {
+                $totalUniqueSkuRecords->whereDate('created_at'," <= " , $endDate);   
+                $totalUniqueSkuRecords->groupBy(\DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d")'));
+            }
+            
+            $totalUniqueSkuRecords->select($search);
+            $summeryRecords = $totalUniqueSkuRecords->get();
+
             $response = request()->except(['page']);
+            if(empty($response['columns'])) {
+                $response['columns'] = [];
+            }
 
         } else {
             $response = '';
             $paginate = (Setting::get('pagination') * 10);
+
+
             $logs = LogScraper::orderby('updated_at', 'desc')->paginate($paginate);
 
         }
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('scrap.partials.scraped_url_data', compact('logs', 'response'))->render(),
+                'tbody' => view('scrap.partials.scraped_url_data', compact('logs', 'response','summeryRecords'))->render(),
                 'links' => (string)$logs->render(),
                 'count' => $logs->total(),
             ], 200);
         }
 
-        return view('scrap.scraped_url', compact('logs', 'response'));
+        return view('scrap.scraped_url', compact('logs', 'response','summeryRecords'));
     }
 
     public function getProductsToScrape()
