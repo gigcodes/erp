@@ -1349,3 +1349,10 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
+
+Route::prefix('github')->group(function(){
+    Route::get('/repos', 'Github\RepositoryController@listRepositories');
+    Route::get('/repos/{id}/users', 'Github\UserController@listUsers');
+    Route::get('/users', 'Github\UserController@listUsers');
+    Route::get('/groups', 'Github\GroupController@listGroups');
+});
