@@ -24,6 +24,7 @@ use App\Services\Products\ProductsCreator;
 use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Scrap\PinterestScraper;
 use App\Setting;
+use App\ScraperMapping;
 use App\Supplier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -764,4 +765,104 @@ class ScrapController extends Controller
         return response()->json($productsToPush);
 
     }
+
+    public function genericScraper(Request $request)
+    {
+        $query = Scraper::query();
+
+        $scrapers = $query->paginate(25);
+
+        return view('scrap.supplier-scraper',compact('scrapers'));
+    }
+
+    public function genericScraperSave(Request $request){
+        
+        $scraper = Scraper::find($request->id);
+        $scraper->run_gap = $request->run_gap;
+        $scraper->time_out = $request->time_out;
+        $scraper->starting_urls = $request->starting_url;
+        $scraper->designer_url_selector = $request->designer_url;
+        $scraper->update();
+
+        return response()->json(['success'],200);
+    }
+
+    public function genericMapping($id)
+    {
+       $scraper = Scraper::find($id);
+       $mappings = ScraperMapping::where('scrapers_id',$id)->get();
+       return view('scrap.generic-scraper-mapping',compact('scraper','mappings','id'));
+    }
+
+    public function genericMappingSave(Request $request)
+    {
+            $id = $request->id;
+            $select = $request->select;
+            $count = count($select);
+            $functions = $request->functions;
+            $parameter = $request->parameter;
+            $selector = $request->selector;
+
+            for ($i=0; $i < $count; $i++) {
+                if($select[$i] != null){
+                    $updateMapping = ScraperMapping::where('scrapers_id',$id)->where('field_name',$select[$i])->first();
+                    if($updateMapping != null){
+                        $mapping = $updateMapping;
+                    }else{
+                        $mapping = new ScraperMapping;
+                    }
+                    
+                    $mapping->field_name = $select[$i];
+                    $mapping->scrapers_id = $id;
+                    $mapping->selector = $selector[$i];
+                    $mapping->function = $functions[$i];
+                    $mapping->parameter = $parameter[$i];
+                    $mapping->save();
+                } 
+            } 
+
+            return response()->json(['success'],200);      
+    }
+
+    public function sendScrapDetails()
+    {
+       
+       $scraper = Scraper::whereRaw('scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)')->first();
+
+       if($scraper == null){
+            return response()->json(['message' => 'No Scraper Present'], 400);
+       }
+        $startingURLs = explode("\n", str_replace("\r", "", $scraper->starting_urls));
+        
+        $maps = ScraperMapping::where('scrapers_id',$scraper->id)->get();
+       
+        foreach ($maps as $map) {
+            $mapArray[]  = array($map->field_name => array('selector' => $map->selector,'function' => $map->function , 'parameters' => $map->parameter));
+        }
+
+        if(!isset($mapArray)){
+            $mapArray = [];
+        }
+
+        $scraper->start_time = now();
+        $scraper->save();
+
+       $json = json_encode(array("website" => $scraper->scraper_name , "timeout" => $scraper->time_out , "starting_urls" => $startingURLs , "designer_url_selector" => $scraper->designer_url_selector, "product_url_selector" => '.product',"map" => $mapArray));
+
+       return $json;
+
+    }
+
+    public function recieveScrapDetails(Request $request){
+        $id = $request->id;
+        $scraper = Scraper::find($id);
+        if($scraper == null){
+            return response()->json(['message' => 'No Scraper Present'], 400);
+        }
+        $scraper->end_time = now();
+        $scraper->save();
+
+        return response()->json(['success'],200);   
+    }
 }
+

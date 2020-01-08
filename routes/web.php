@@ -1044,7 +1044,14 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/google/images', 'ScrapController@scrapGoogleImages');
     Route::post('/google/images/download', 'ScrapController@downloadImages');
     Route::get('/scraped-urls', 'ScrapController@scrapedUrls');
+    Route::get('/generic-scraper', 'ScrapController@genericScraper');
+    Route::post('/generic-scraper/save', 'ScrapController@genericScraperSave')->name('generic.save.scraper');
+    Route::get('/generic-scraper/mapping/{id}', 'ScrapController@genericMapping')->name('generic.mapping');
+    Route::post('/generic-scraper/mapping/save', 'ScrapController@genericMappingSave')->name('generic.mapping.save');
+
     Route::get('/{name}', 'ScrapController@showProducts');
+
+     
 });
 
 Route::resource('quick-reply', 'QuickReplyController');
