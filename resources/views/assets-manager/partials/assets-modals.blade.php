@@ -127,6 +127,16 @@
             @endif
           </div>
 
+          <div class="form-group">
+            <strong>Usage:</strong>
+            <input type="text" name="usage" class="form-control" value="{{ old('usage') }}">
+
+            @if ($errors->has('usage'))
+              <div class="alert alert-danger">{{$errors->first('usage')}}</div>
+            @endif
+          </div>
+
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -264,6 +274,15 @@
 
             @if ($errors->has('location'))
               <div class="alert alert-danger">{{$errors->first('location')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Usage:</strong>
+            <input type="text" id="usage" name="usage" class="form-control" value="{{ old('usage') }}">
+
+            @if ($errors->has('usage'))
+              <div class="alert alert-danger">{{$errors->first('usage')}}</div>
             @endif
           </div>
           
