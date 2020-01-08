@@ -811,6 +811,15 @@ class ScrapController extends Controller
                     }else{
                         $mapping = new ScraperMapping;
                     }
+                    if($selector[$i] == null){
+                        $selector[$i] = '';
+                    }
+                    if($functions[$i] == null){
+                        $functions[$i] = '';
+                    }
+                    if($parameter[$i] == null){
+                        $parameter[$i] = '';
+                    }
                     
                     $mapping->field_name = $select[$i];
                     $mapping->scrapers_id = $id;
