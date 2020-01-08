@@ -27,8 +27,12 @@
             <textarea type="text" name="starting_url" id="starting_url" class="form-control"></textarea>
           </div>
           <div class="form-group">
-            <strong>Designer URL:</strong>
+            <strong>Designer URL Selector:</strong>
             <input type="text" name="designer_url" id="designer_url" class="form-control">
+          </div>
+          <div class="form-group">
+            <strong>Product URL Selector:</strong>
+            <input type="text" name="designer_url" id="product_url_selector" class="form-control">
           </div>
           <input type="hidden" id="scraper_id">
           </div>

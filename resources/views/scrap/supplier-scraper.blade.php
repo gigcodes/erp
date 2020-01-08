@@ -42,8 +42,8 @@
                 <th>Run Gap</th>
                 <th>Time Out</th>
                 <th>Starting URL</th>
-                <th>Designer URL Select</th>
-                <th>Product URL Select</th>
+                <th>Designer URL Selector</th>
+                <th>Product URL Selector</th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -266,6 +266,7 @@
         $("#time_out").val(scraper.time_out);
         $("#starting_url").val(scraper.starting_urls);
         $("#designer_url").val(scraper.designer_url_selector);
+        $("#product_url_selector").val(scraper.product_url_selector);
         $("#scrapEditModal").modal('show');
     }
 
@@ -280,6 +281,7 @@
                     id : id,
                     starting_url : $("#starting_url").val(),
                     designer_url : $("#designer_url").val(),
+                    product_url_selector : $("#product_url_selector").val(),
                     run_gap : $("#run_gap").val(),
                     time_out: $("#time_out").val()
                 },
