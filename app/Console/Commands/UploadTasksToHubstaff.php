@@ -54,7 +54,24 @@ class UploadTasksToHubstaff extends Command
     public function handle()
     {
         //
+        $this->uploadNormalTasks();
+        $this->uploadDeveloperTasks();
+    }
 
+    private function uploadNormalTasks()
+    {
+        $tasks = DB::table('tasks')
+            ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'tasks.assign_to')
+            ->select(['tasks.id', 'tasks.task_subject as summary', 'tasks.task_details as task', 'hubstaff_members.hubstaff_user_id as assignee_id'])
+            ->get();
+
+        echo "Total tasks: " . sizeof($tasks) . PHP_EOL;
+        $this->uploadTasks($tasks);
+        echo "UPLOADED TASKS" . PHP_EOL;
+    }
+
+    private function uploadDeveloperTasks()
+    {
         $assignedTasks = DB::table('developer_tasks')
             ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'developer_tasks.user_id')
             ->select(['developer_tasks.id', 'developer_tasks.subject as summary', 'developer_tasks.task as task', 'hubstaff_members.hubstaff_user_id as assignee_id'])
@@ -62,10 +79,9 @@ class UploadTasksToHubstaff extends Command
             ->get();
 
 
-        //echo $assignedTasks[0]->summary;
         echo "Total Dev tasks: " . sizeof($assignedTasks) . PHP_EOL;
         $this->uploadTasks($assignedTasks);
-        echo "DONE";
+        echo "UPLOADED DEVELOPER TASKS";
     }
 
     private function uploadTasks($tasks)
@@ -89,7 +105,7 @@ class UploadTasksToHubstaff extends Command
         $httpClient = new Client();
         try {
 
-            $summary = $task->summary.'=>'.$task->task;
+            $summary = $task->summary . '=>' . $task->task;
 
             $response = $httpClient->post(
                 $url,
