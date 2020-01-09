@@ -3423,7 +3423,7 @@ class WhatsAppController extends FindByNumberController
                                             //Attach image to chat message
                                             $chatMessage->attachMedia($url['key'], config('constants.media_tags'));
                                             $priority = 1;
-                                            $send = InstantMessagingHelper::scheduleMessage($customer->phone, $customer->broadcast_number,'', $url[ 'url' ], $priority, $now);
+                                            $send = InstantMessagingHelper::scheduleMessage($customer->phone, $customer->broadcast_number,$request->message, $url[ 'url' ], $priority, $now);
                                             if ($send != false) {
                                                 $now->addMinutes($minutes);
                                                 $now = InstantMessagingHelper::broadcastSendingTimeCheck($now);

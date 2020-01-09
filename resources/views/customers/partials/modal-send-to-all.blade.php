@@ -46,7 +46,7 @@
 
                   <div class="form-group">
                         <strong>Message</strong>
-                        <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
+                        <textarea name="message" id="message_to_all_field" rows="2" cols="20" class="form-control"></textarea>
                     </div>
 
                     <div class="form-group">
