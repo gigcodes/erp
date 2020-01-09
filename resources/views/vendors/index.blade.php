@@ -70,12 +70,8 @@
                 </form>
             </div>
             <div class="pull-right">
-                <?php 
-                    $params = request()->all();
-                    $params['select_all'] = request()->get('select_all') == 'true' ? 'false' : 'true';
-                ?>
-                <a class="btn btn-secondary" href="{{route('vendor.index', $params)}}">{{request()->get('select_all') == 'true' ? 'Unselect All' : 'Select All'}}</a>
-                <button type="button" class="btn btn-secondary emailToAllModal" >Bulk Email</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
             </div>
@@ -169,6 +165,7 @@
     @include('vendors.partials.vendor-modals')
     {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')
+    @include('vendors.partials.modal-conference')
 
     <div id="reminderModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -701,91 +698,13 @@
         });
 
          $(document).on('click', '.call-select', function() {
-        var id = $(this).data('id');
-        $('#show'+id).toggle();
-        console.log('#show'+id);
-      });
-
-          $(document).ready(function() {
-        src = "{{ route('vendor.index') }}";
-        $(".search").autocomplete({
-        source: function(request, response) {
-            id = $('#id').val();
-            name = $('#name').val();
-            email = $('#email').val();
-            phone = $('#phone').val();
-            address = $('#address').val();
-            category = $('#category').val();
-
-            $.ajax({
-                url: src,
-                dataType: "json",
-                data: {
-                    id : id,
-                    name : name,
-                    phone : phone,
-                    email : email,
-                    address : address,
-                    category : category,
-                },
-                beforeSend: function() {
-                       $("#loading-image").show();
-                },
-            
-            }).done(function (data) {
-                 $("#loading-image").hide();
-                console.log(data);
-                $("#vendor-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-                
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
-            });
-        },
-        minLength: 1,
-       
+            var id = $(this).data('id');
+            $('#show'+id).toggle();
+            console.log('#show'+id);
         });
-    });
 
-
-
-       $(document).ready(function() {
-        src = "{{ route('vendor.index') }}";
-        $("#search_id").autocomplete({
-        source: function(request, response) {
-            $.ajax({
-                url: src,
-                dataType: "json",
-                data: {
-                    term : request.term
-                },
-                beforeSend: function() {
-                       $("#loading-image").show();
-                },
-            
-            }).done(function (data) {
-                 $("#loading-image").hide();
-                console.log(data);
-                $("#vendor-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-                
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
-            });
-        },
-        minLength: 1,
-       
+         $(function() {
+            $('.selectpicker').selectpicker();
         });
-         });
-
-       
     </script>
 @endsection

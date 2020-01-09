@@ -13,7 +13,10 @@
 
 Auth::routes();
 
-Route::get('/test/test', 'TextController@index');
+
+Route::get('/test/test', function(){
+    return session()->all();
+});
 Route::get('create-media-image', 'CustomerController@testImage');
 
 
