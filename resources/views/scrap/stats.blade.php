@@ -5,6 +5,7 @@
 @section('title', 'Scrape Statistics')
 
 @section('styles')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css">
@@ -114,9 +115,9 @@
                         <th>Parent Scrapper</th>
                         <th>Next Step</th>
                         <th>Functions</th>
+                        <th>View Log</th>
                     </tr>
                     </thead>
-
                     <tbody>
                     @php $arMatchedScrapers = []; $i=0; @endphp
                     @foreach ($activeSuppliers as $supplier)
@@ -232,6 +233,9 @@
                                     <div class="form-group">
                                         <?php echo Form::select("next_step_in_product_flow", [0 => "N/A"] + \App\Helpers\StatusHelper::getStatus(), $supplier->next_step_in_product_flow, ["class" => "form-control next_step_in_product_flow select2", "style" => "width:100%;"]); ?>
                                     </div>
+                                </td>
+                                <td colspan="3">
+                                    <a class="btn  d-inline btn-image" href="{{url('scrap-logs/')}}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                 </td>
                             </tr>
                         @endif
@@ -506,6 +510,5 @@
         });
 
         $(".select2").select2();
-
     </script>
 @endsection
