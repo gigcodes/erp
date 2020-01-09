@@ -1,2 +1,2 @@
 php artisan key:generate
-php artisan serve --host 0.0.0.0 --port 8200
+sudo php artisan serve --host localhost --port 80
