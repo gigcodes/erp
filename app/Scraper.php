@@ -20,4 +20,9 @@ class Scraper extends Model
         return $this->hasOne('App\Scraper', "supplier_id", "parent_supplier_id");
     }
 
+    public function supplier()
+    {
+        return $this->hasOne('App\Scraper', "id", "supplier_id");
+    }
+
 }

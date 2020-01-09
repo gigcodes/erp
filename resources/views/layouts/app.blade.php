@@ -412,6 +412,7 @@
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                
                                                 <a class="dropdown-item" href="{{ url('scrap/statistics') }}">Statistics</a>
+                                                <a class="dropdown-item" href="{{ url('scrap/generic-scraper') }}">Generic Supplier Scraper</a>
                                                 <a class="dropdown-item" href="{{ action('CategoryController@brandMinMaxPricing') }}">Min/Max Pricing</a>
                                                 <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
                                                 <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
