@@ -10,12 +10,14 @@ use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
 use Storage;
 
-define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
-define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+
 
 
 class RefreshHubstaffUsers extends Command
 {
+
+    var $HUBSTAFF_TOKEN_FILE_NAME;
+    var $SEED_REFRESH_TOKEN;
 
     /**
      * The name and signature of the console command.
@@ -39,6 +41,8 @@ class RefreshHubstaffUsers extends Command
     public function __construct()
     {
         parent::__construct();
+        $this->HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
+        $this->SEED_REFRESH_TOKEN  = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
     }
 
     /**
@@ -55,10 +59,10 @@ class RefreshHubstaffUsers extends Command
 
     private function getTokens()
     {
-        if (!Storage::disk('local')->exists(HUBSTAFF_TOKEN_FILE_NAME)) {
-            $this->generateAccessToken(SEED_REFRESH_TOKEN);
+        if (!Storage::disk('local')->exists($this->HUBSTAFF_TOKEN_FILE_NAME)) {
+            $this->generateAccessToken($this->SEED_REFRESH_TOKEN);
         }
-        $tokens = json_decode(Storage::disk('local')->get(HUBSTAFF_TOKEN_FILE_NAME));
+        $tokens = json_decode(Storage::disk('local')->get($this->HUBSTAFF_TOKEN_FILE_NAME));
         return $tokens;
     }
 
@@ -68,7 +72,7 @@ class RefreshHubstaffUsers extends Command
     private function generateAccessToken(string $refreshToken)
     {
         $httpClient = new Client();
-        try{
+        try {
             $response = $httpClient->post(
                 'https://account.hubstaff.com/access_tokens',
                 [
@@ -86,8 +90,8 @@ class RefreshHubstaffUsers extends Command
                 'refresh_token' => $responseJson->refresh_token
             ];
 
-            return Storage::disk('local')->put(HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
-        }catch(Exception $e){
+            return Storage::disk('local')->put($this->HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -114,7 +118,7 @@ class RefreshHubstaffUsers extends Command
 
             foreach ($responseJson->members as $member) {
 
-                try{
+                try {
                     $url = 'https://api.hubstaff.com/v2/users/' . $member->user_id;
                     $response = $httpClient->get(
                         $url,
@@ -127,8 +131,7 @@ class RefreshHubstaffUsers extends Command
 
                     $userResponseJson = json_decode($response->getBody()->getContents());
                     $member->email = $userResponseJson->user->email;
-                    
-                }catch(Exception $e){
+                } catch (Exception $e) {
                     // do nothing
                 }
 
@@ -143,7 +146,6 @@ class RefreshHubstaffUsers extends Command
                     ]
                 );
             }
-
         } catch (ClientException $e) {
 
             if ($e->hasResponse()) {
