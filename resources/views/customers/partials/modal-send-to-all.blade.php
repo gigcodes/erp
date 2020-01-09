@@ -49,7 +49,7 @@
                         <textarea name="message" id="message_to_all_field" rows="2" cols="20" class="form-control"></textarea>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" hidden>
                         <input type="checkbox" id="send_type" name="to_all" checked>
                         <label for="send_type">Send Message to All Existing Customers</label>
                     </div>
