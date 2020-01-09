@@ -61,9 +61,19 @@ class UploadTasksToHubstaff extends Command
     private function uploadNormalTasks()
     {
         $tasks = DB::table('tasks')
+            ->whereNull('is_completed')
             ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'tasks.assign_to')
-            ->select(['tasks.id', 'tasks.task_subject as summary', 'tasks.task_details as task', 'hubstaff_members.hubstaff_user_id as assignee_id'])
-            ->get();
+            ->select(['tasks.id', 'tasks.task_subject as summary', 'hubstaff_members.hubstaff_user_id as assignee_id'])
+            ->get()
+            ->toArray();
+
+        $tasks = array_map(
+            function($task){
+                $task->summary = '#'.$task->id. ' => '.$task->summary;
+                return $task;
+            },
+            $tasks
+        );
 
         echo "Total tasks: " . sizeof($tasks) . PHP_EOL;
         $this->uploadTasks($tasks);
@@ -73,11 +83,23 @@ class UploadTasksToHubstaff extends Command
     private function uploadDeveloperTasks()
     {
         $assignedTasks = DB::table('developer_tasks')
+            ->whereIn('status', ['Discussing', 'In Progress', 'Issue', 'Planned'])
             ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'developer_tasks.user_id')
-            ->select(['developer_tasks.id', 'developer_tasks.subject as summary', 'developer_tasks.task as task', 'hubstaff_members.hubstaff_user_id as assignee_id'])
-            //->whereNotNull('hubstaff_members.hubstaff_user_id')
-            ->get();
+            ->select(['developer_tasks.id', 'developer_tasks.subject as summary', 'developer_tasks.task_type_id', 'hubstaff_members.hubstaff_user_id as assignee_id'])
+            ->get()
+            ->toArray();
 
+        $assignedTasks =array_map(
+            function($task){
+                $summary = '#';
+                if($task->task_type_id == 1){
+                    $summary .= 'DEVTASK-'.$task->id.' => '.$task->summary;
+                }
+                $task->summary = $summary;
+                return $task;
+            },
+            $assignedTasks
+        );
 
         echo "Total Dev tasks: " . sizeof($assignedTasks) . PHP_EOL;
         $this->uploadTasks($assignedTasks);
@@ -105,8 +127,6 @@ class UploadTasksToHubstaff extends Command
         $httpClient = new Client();
         try {
 
-            $summary = $task->summary . '=>' . $task->task;
-
             $response = $httpClient->post(
                 $url,
                 [
@@ -116,7 +136,7 @@ class UploadTasksToHubstaff extends Command
                     ],
 
                     RequestOptions::BODY => json_encode([
-                        'summary' => $summary,
+                        'summary' => $task->summary,
                         'assignee_id' => isset($task->assignee_id) ? $task->assignee_id : getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID')
                     ])
                 ]
