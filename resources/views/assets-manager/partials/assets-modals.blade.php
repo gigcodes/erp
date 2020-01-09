@@ -20,6 +20,14 @@
               <div class="alert alert-danger">{{$errors->first('name')}}</div>
             @endif
           </div>
+          <div class="form-group">
+            <strong>Capacity:</strong>
+            <input type="text" name="capacity" class="form-control" value="{{ old('capacity') }}">
+
+            @if ($errors->has('capacity'))
+              <div class="alert alert-danger">{{$errors->first('capacity')}}</div>
+            @endif
+          </div>
 
           <div class="form-group">
             <strong>Password:</strong>
@@ -168,6 +176,14 @@
 
             @if ($errors->has('name'))
               <div class="alert alert-danger">{{$errors->first('name')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Capacity:</strong>
+            <input type="text" name="capacity" id="capacity" class="form-control" value="{{ old('capacity') }}">
+
+            @if ($errors->has('capacity'))
+              <div class="alert alert-danger">{{$errors->first('capacity')}}</div>
             @endif
           </div>
 
