@@ -57,7 +57,7 @@ class UploadTasksToHubstaff extends Command
 
         $assignedTasks = DB::table('developer_tasks')
             ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'developer_tasks.user_id')
-            ->select(['developer_tasks.id', 'developer_tasks.subject as summary', 'hubstaff_members.hubstaff_user_id as assignee_id'])
+            ->select(['developer_tasks.id', 'developer_tasks.subject as summary', 'developer_tasks.task as task', 'hubstaff_members.hubstaff_user_id as assignee_id'])
             //->whereNotNull('hubstaff_members.hubstaff_user_id')
             ->get();
 
@@ -88,6 +88,9 @@ class UploadTasksToHubstaff extends Command
         $url = 'https://api.hubstaff.com/v2/projects/' . getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID') . '/tasks';
         $httpClient = new Client();
         try {
+
+            $summary = $task->summary.'=>'.$task->task;
+
             $response = $httpClient->post(
                 $url,
                 [
@@ -97,7 +100,7 @@ class UploadTasksToHubstaff extends Command
                     ],
 
                     RequestOptions::BODY => json_encode([
-                        'summary' => $task->summary,
+                        'summary' => $summary,
                         'assignee_id' => isset($task->assignee_id) ? $task->assignee_id : getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID')
                     ])
                 ]
