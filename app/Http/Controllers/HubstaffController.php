@@ -126,7 +126,7 @@ class HubstaffController extends Controller
         } catch (Exception $e) {
             echo $e->getMessage();
             if ($e instanceof ClientException) {
-                if ($e->getResponse()->getStatusCode() == 403) {
+                if ($e->getResponse()->getStatusCode() == 401) {
                     // token expired
                     $this->refreshTokens();
 
@@ -195,7 +195,7 @@ class HubstaffController extends Controller
             return true;
         } catch (Exception $e) {
             if ($e instanceof ClientException) {
-                if ($e->getResponse()->getStatusCode() == 403) {
+                if ($e->getResponse()->getStatusCode() == 401) {
                     // token has expired
                     $this->refreshTokens();
                     if ($shouldRetryOnRefresh) {
@@ -285,7 +285,7 @@ class HubstaffController extends Controller
         } catch (Exception $e) {
             echo $e->getMessage();
             if ($e instanceof ClientException) {
-                if ($e->getResponse()->getStatusCode() == 403) {
+                if ($e->getResponse()->getStatusCode() == 401) {
                     // the access token might have expired and hence refresh
                     $this->refreshTokens();
                     if ($shouldRetry) {
@@ -445,7 +445,7 @@ class HubstaffController extends Controller
             return $parsedResponse->task;
         } catch (Exception $e) {
             if ($e instanceof ClientException) {
-                if ($e->getResponse()->getStatusCode() == 403) {
+                if ($e->getResponse()->getStatusCode() == 401) {
                     // the access token might have expired
                     $this->refreshTokens();
                     if ($shouldRetry) {
@@ -530,7 +530,7 @@ class HubstaffController extends Controller
             return true;
         } catch (Exception $e) {
             if ($e instanceof ClientException) {
-                if ($e->getResponse()->getStatusCode() == 403) {
+                if ($e->getResponse()->getStatusCode() == 401) {
                     // access token might be invalid and hence retry after refresh
                     $this->refreshTokens();
                     if ($shouldRetry) {

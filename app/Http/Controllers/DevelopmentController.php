@@ -726,8 +726,6 @@ class DevelopmentController extends Controller
             $parsedResponse = json_decode($response->getBody()->getContents());
             return $parsedResponse->task->id;
         } catch (Exception $e) {
-            echo $e->getMessage();
-            exit;
             if ($e instanceof ClientException) {
                 $this->refreshTokens();
                 if ($shouldRetry) {

@@ -152,7 +152,7 @@ class RefreshHubstaffUsers extends Command
 
                 $errorResponse = $e->getResponse();
 
-                if ($errorResponse->getStatusCode() == 403) {
+                if ($errorResponse->getStatusCode() == 401) {
                     //the token as expired and hence try to generate new access token and retry
                     $this->generateAccessToken($this->getTokens()->refresh_token);
                     $this->refreshUserList($this->getTokens()->access_token);
