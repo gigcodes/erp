@@ -17,8 +17,6 @@ define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
 class RefreshHubstaffUsers extends Command
 {
 
-    private $seedRefreshToken = '';
-
     /**
      * The name and signature of the console command.
      *
