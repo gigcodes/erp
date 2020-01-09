@@ -1023,4 +1023,62 @@ class SupplierController extends Controller
         // Still here? Return an error
         return response()->json(['error' => 'Supplier not found'], 403);
     }
+
+    /**
+    * Get scraped brand and scraped brands raw of a supplier
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return json response with brand and brand raw
+    */
+    public function getScrapedBrandAndBrandRaw(Request $request)
+    {
+        $supplierId = $request->id;
+        
+        $supplier = Supplier::find($supplierId);
+        if ($supplier->scraped_brands != ''){
+          $scrapedBrands = array_filter(explode(',', $supplier->scraped_brands));
+          
+          sort($scrapedBrands);
+        }
+        else {
+          $scrapedBrands = array();
+        }
+
+        if ($supplier->scraped_brands_raw != ''){
+          $rawBrands = array_unique(array_filter(array_column(json_decode($supplier->scraped_brands_raw, true), 'name')));
+          
+          sort($rawBrands);
+        }
+        else{
+          $rawBrands = array();
+        }
+
+        return response()->json(['scrapedBrands' => $scrapedBrands, 'scrapedBrandsRaw' => $rawBrands], 200);
+    }
+
+    /**
+    * Update scraped brand from scrapped brands raw for a supplier
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return json response with update status
+    */
+    public function updateScrapedBrandFromBrandRaw(Request $request)
+    {
+        $supplierId = $request->id;
+        $newBrandData = implode(',', $request->newBrandData);
+        
+        // Get Supplier model
+        $supplier = Supplier::find($supplierId);
+
+        // Do we have a result?
+        if ($supplier != null) {
+            $supplier->scraped_brands = $newBrandData;
+            $supplier->save();
+
+            return response()->json(['success' => 'Supplier brand updated'], 200);
+        }
+
+        // Still here? Return an error
+        return response()->json(['error' => 'Supplier not found'], 403);
+    }    
 }

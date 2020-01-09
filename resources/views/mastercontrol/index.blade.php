@@ -68,7 +68,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
               <tr>
@@ -81,7 +81,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
               <tr>
@@ -94,7 +94,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
               <tr>
@@ -107,7 +107,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
               <tr>
@@ -120,7 +120,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
               <tr>
@@ -133,7 +133,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
               <tr>
@@ -146,7 +146,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
                <tr>
@@ -159,7 +159,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
                <tr>
@@ -172,7 +172,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
                <tr>
@@ -185,7 +185,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
                <tr>
@@ -198,7 +198,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
                <tr>
@@ -211,7 +211,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
                <tr>
@@ -224,7 +224,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
                <tr>
@@ -237,7 +237,38 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="7" class="sub-table"><p></p>
+                <td colspan="7" class="sub-table"><div class="table"></div>
+                </td>
+              </tr>
+              <tr>
+                <td>Crop Reference Grid</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table">
+                  <div class="table">
+                   <table>
+                   <tr>
+                    <th width="32%"></th>
+                    <th>Total Crop Reference</th>
+                    <th>Pending Products</th>
+                    <th>Products With Out Category</th>
+                    
+                   </tr>
+                   <tr>
+                    <td width="32%"></td>
+                    <td>{{ $cropReference }}</td>
+                    <td>{{ $pendingCropReferenceProducts }}</td>
+                    <td>{{ $pendingCropReferenceCategory }}</td>
+                    
+                   </tr>
+                 </table>
+                   </div> 
                 </td>
               </tr>
            </tbody>
@@ -332,14 +363,14 @@
     cb(start, end);
 
     $(function() {
-    $(".sub-table").find("p").hide();
+    $(".sub-table").find(".table").hide();
     $("table").click(function(event) {
         event.stopPropagation();
         var $target = $(event.target);
         if ( $target.closest("td").attr("colspan") > 1 ) {
             $target.slideUp();
         } else {
-            $target.closest("tr").next().find("p").slideToggle();
+            $target.closest("tr").next().find(".table").slideToggle();
         }                    
     });
     });

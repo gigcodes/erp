@@ -389,15 +389,15 @@ class DevelopmentController extends Controller
         }
 
         if ((int)$request->get('assigned_to') > 0) {
-            $issues = $issues->where('user_id', $request->get('assigned_to'));
+            $issues = $issues->where('assigned_to', $request->get('assigned_to'));
         }
 
         if ($request->get('module')) {
             $issues = $issues->where('module_id', $request->get('module'));
         }
 
-        if ($request->get('task_status')) {
-            $issues = $issues->where('status', $request->get('task_status'));
+        if (!empty($request->get('task_status', []))) {
+            $issues = $issues->whereIn('status', $request->get('task_status'));
         }
 
         if ($request->get('subject') != '') {
@@ -422,6 +422,42 @@ class DevelopmentController extends Controller
             });
         }
 
+        // category filter start count
+        $issuesGroups = clone($issues);
+        $issuesGroups = $issuesGroups->where('status', 'Planned')->groupBy("user_id")->select([\DB::raw("count(id) as total_product"),"user_id"])->pluck("total_product","user_id")->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+        
+        $userModel = \App\User::whereIn("id",$userIds)->pluck("name","id")->toArray();
+
+        $countPlanned = [];
+        if(!empty($issuesGroups) && !empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                $countPlanned[] = [
+                    "id" => $key,
+                    "name" => !empty($userModel[$key]) ? $userModel[$key] : "N/A",
+                    "count" => $count,
+                ];
+            }
+        }
+
+        // category filter start count
+        $issuesGroups = clone($issues);
+        $issuesGroups = $issuesGroups->where('status', 'In Progress')->groupBy("user_id")->select([\DB::raw("count(id) as total_product"),"user_id"])->pluck("total_product","user_id")->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+        
+        $userModel = \App\User::whereIn("id",$userIds)->pluck("name","id")->toArray();
+
+        $countInProgress = [];
+        if(!empty($issuesGroups) && !empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                $countInProgress[] = [
+                    "id" => $key,
+                    "name" => !empty($userModel[$key]) ? $userModel[$key] : "N/A",
+                    "count" => $count,
+                ];
+            }
+        }
+
         // Sort
         if ($request->order == 'priority') {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
@@ -442,7 +478,9 @@ class DevelopmentController extends Controller
             'modules' => $modules,
             'request' => $request,
             'title' => $type,
-            'priority' => $priority
+            'priority' => $priority,
+            'countPlanned' => $countPlanned,
+            'countInProgress' => $countInProgress,
         ]);
 
 
@@ -623,7 +661,7 @@ class DevelopmentController extends Controller
 
         $data = $request->except('_token');
         $data[ 'user_id' ] = $request->user_id ? $request->user_id : Auth::id();
-        $data[ 'responsible_user_id' ] = $request->user_id ? $request->user_id : Auth::id();
+        //$data[ 'responsible_user_id' ] = $request->user_id ? $request->user_id : Auth::id();
         $data[ 'created_by' ] = Auth::id();
         //$data[ 'submitted_by' ] = Auth::id();
 
@@ -1135,7 +1173,7 @@ class DevelopmentController extends Controller
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
         //$issue = Issue::find($request->get('issue_id'));
-        $issue->responsible_user_id = $request->get('responsible_user_id');
+        //$issue->responsible_user_id = $request->get('responsible_user_id');
         $issue->assigned_by = \Auth::id();
         $issue->assigned_to = $request->get('responsible_user_id');
         $issue->save();
@@ -1164,6 +1202,7 @@ class DevelopmentController extends Controller
         //$issue->is_resolved = $request->get('is_resolved');
         $issue->status = $request->get('is_resolved');
         if (strtolower($request->get('is_resolved')) == "done") {
+            $issue->responsible_user_id = $issue->assigned_to;
             $issue->is_resolved = 1;
         }
 

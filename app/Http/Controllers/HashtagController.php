@@ -16,6 +16,7 @@ use InstagramAPI\Signatures;
 use Plank\Mediable\Media;
 use App\Setting;
 use App\Jobs\InstagramComment;
+use App\ScrapInfluencer;
 
 
 
@@ -406,5 +407,29 @@ class HashtagController extends Controller
         } catch (\Exception $e) {
             return ['error' => true, 'message' => 'Something went wrong'];
         }
+    }
+
+    public function influencer(Request $request)
+    {
+        
+        if($request->term != null){
+
+                 $influencers  = ScrapInfluencer::query()
+                        ->where('name', 'LIKE', "%{$request->term}%")
+                        ->paginate(25);
+               
+        }else{
+          $influencers =  ScrapInfluencer::paginate(25);
+        }
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('instagram.hashtags.partials.influencer-data', compact('influencers'))->render(),
+                'links' => (string)$influencers->render(),
+                'total' => $influencers->total(),
+            ], 200);
+            }
+
+         return view('instagram.hashtags.influencers', compact('influencers'));
     }
 }

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('favicon' , 'task.png')
 
-@section('title', 'Keyword | Chatbot')
+@section('title', 'Entities | Chatbot')
 
 @section('content')
 <div class="row">
@@ -17,7 +17,7 @@
     				  <?php echo csrf_field(); ?>
 					  <div class="form-row">
 					    <div class="form-group col-md-6">
-					      <label for="keyword">Keyword</label>
+					      <label for="keyword">Entity</label>
 					      <small id="emailHelp" class="form-text text-muted">Name your entity to match the category of values that it will detect.</small>
 					      <?php echo Form::text("keyword", $chatbotKeyword->keyword, ["class" => "form-control", "id" => "keyword", "placeholder" => "Enter your keyword"]); ?>
 					    </div>
@@ -36,8 +36,8 @@
 			<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
 				  <thead>
 				    <tr>
+				      <th class="th-sm">Id</th>
 				      <th class="th-sm">Value</th>
-				      <th class="th-sm">Type</th>
 				      <th class="th-sm">Action</th>
 				    </tr>
 				  </thead>
@@ -56,8 +56,8 @@
 				  </tbody>
 				  <tfoot>
 				    <tr>
+				      <th>Id</th>
 				      <th>Value</th>
-				      <th>Type</th>
 				      <th>Action</th>
 				    </tr>
 				  </tfoot>
