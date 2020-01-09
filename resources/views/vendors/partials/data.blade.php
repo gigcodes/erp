@@ -44,10 +44,22 @@
                     {{-- <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
                     <td style="word-break: break-all;">{{ $vendor->website }}</td> --}}
                     <td>
-                        <div class="d-flex">
-                            <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
-                            <button class="btn btn-sm btn-image send-message" data-vendorid="{{ $vendor->id }}"><img src="/images/filled-sent.png"/></button>
-                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="d-flex">
+                                    <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+                                    <button class="btn btn-sm btn-image send-message" data-vendorid="{{ $vendor->id }}"><img src="/images/filled-sent.png"/></button>
+                                </div>
+                           </div>
+                           <div style="margin-top:5px;" class="col-md-12">
+                                <div class="d-flex">
+                                    <?php echo Form::select("quickComment",["" => "--Auto Reply--"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]); ?>
+                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
+                                </div>
+                            </div> 
+                        </div>  
+                        
+                        
                     </td>
                     <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
                         <span class="td-full-container">

@@ -3270,16 +3270,10 @@ class WhatsAppController extends FindByNumberController
 
     public function sendToAll(Request $request, $validate = true)
     {
-        //dd($request);
         set_time_limit(0);
         if ($validate) {
             $this->validate($request, [
-                // 'message'         => 'required_without:images,linked_images',
-                // 'images'          => 'required_without:message|mimetypes:image/jpeg,image/png',
-                // 'images.*'        => 'required_without:message|mimetypes:image/jpeg,image/png',
-                'file' => 'sometimes|mimes:xlsx,xls',
                 'sending_time' => 'required|date',
-                'whatsapp_number' => 'required_with:file',
                 'frequency' => 'required|numeric',
                 'rating' => 'sometimes|nullable|numeric',
                 'gender' => 'sometimes|nullable|string',
@@ -3287,42 +3281,40 @@ class WhatsAppController extends FindByNumberController
         }
         $frequency = $request->frequency;
 
-        if ($request->moduletype == 'customers') {
-            $content[ 'message' ] = $request->body;
+        // if ($request->moduletype == 'customers') {
+        //     $content[ 'message' ] = $request->body;
 
-            foreach (json_decode($request->images) as $key => $image) {
-                $media = Media::find($image);
+        //     foreach (json_decode($request->images) as $key => $image) {
+        //         $media = Media::find($image);
 
-                $content[ 'image' ][ $key ][ 'key' ] = $media->getKey();
-                $content[ 'image' ][ $key ][ 'url' ] = $media->getUrl();
-            }
-        } else {
-            $content[ 'message' ] = $request->message;
+        //         $content[ 'image' ][ $key ][ 'key' ] = $media->getKey();
+        //         $content[ 'image' ][ $key ][ 'url' ] = $media->getUrl();
+        //     }
+        // } else {
+        //     $content[ 'message' ] = $request->message;
 
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $key => $image) {
-                    $media = MediaUploader::fromSource($image)->upload();
-                    $content[ 'image' ][ $key ][ 'key' ] = $media->getKey();
-                    $content[ 'image' ][ $key ][ 'url' ] = $media->getUrl();
-                }
-            }
-        }
+        //     if ($request->hasFile('images')) {
+        //         foreach ($request->file('images') as $key => $image) {
+        //             $media = MediaUploader::fromSource($image)->upload();
+        //             $content[ 'image' ][ $key ][ 'key' ] = $media->getKey();
+        //             $content[ 'image' ][ $key ][ 'url' ] = $media->getUrl();
+        //         }
+        //     }
+        // }
 
-        if ($request->linked_images != '') {
-            foreach (json_decode($request->linked_images) as $key => $id) {
-                $broadcast_image = BroadcastImage::find($id);
-
+        if ($request->image_id != '') {
+            $broadcast_image = BroadcastImage::find($request->image_id);
                 if ($broadcast_image->hasMedia(config('constants.media_tags'))) {
                     foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $key2 => $brod_image) {
-                        $content[ 'linked_images' ][ $key + $key2 ][ 'key' ] = $brod_image->getKey();
-                        $content[ 'linked_images' ][ $key + $key2 ][ 'url' ] = $brod_image->getUrl();
+                        $content[ 'image' ][ 'url' ] = $brod_image->getUrl();
+                        $content[ 'image' ]['key'] = $brod_image->getKey();
                     }
                 }
 
-            }
-            // $content['linked_images'] = json_decode($request->linked_images);
+            
+            
         }
-
+        
         if ($request->to_all || $request->moduletype == 'customers') {
             // Create empty array for checking numbers
             $arrCustomerNumbers = [];
@@ -3421,15 +3413,17 @@ class WhatsAppController extends FindByNumberController
                                 ];
 
                                 $priority = null; // Priority for broadcast messages, now the same as for normal messages
-                                if ($request->linked_images != null) {
-                                    if ($content[ 'linked_images' ] != null) {
+                                if ($request->image_id != null) {
+                                    
+                                    if ($content[ 'image' ] != null) {
+                                        
                                         //Saving Message In Chat Message
                                         $chatMessage = ChatMessage::create($params);
-                                        foreach ($content[ 'linked_images' ] as $url) {
+                                        foreach ($content as $url) {
                                             //Attach image to chat message
-                                            $chatMessage->attachMedia($url[ 'key' ], config('constants.media_tags'));
-
-                                            $send = InstantMessagingHelper::scheduleMessage($customer->phone, $customer->broadcast_number, $request->message, $url[ 'url' ], $priority, $now);
+                                            $chatMessage->attachMedia($url['key'], config('constants.media_tags'));
+                                            $priority = 1;
+                                            $send = InstantMessagingHelper::scheduleMessage($customer->phone, $customer->broadcast_number,$request->message, $url[ 'url' ], $priority, $now);
                                             if ($send != false) {
                                                 $now->addMinutes($minutes);
                                                 $now = InstantMessagingHelper::broadcastSendingTimeCheck($now);

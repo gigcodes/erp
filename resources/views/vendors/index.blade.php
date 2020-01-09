@@ -248,6 +248,38 @@
     </div>
 
     @include('customers.zoomMeeting');
+    <div id="forwardModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <form action="{{ route('whatsapp.forward') }}" method="POST">
+            @csrf
+            <input type="hidden" name="message_id" id="forward_message_id" value="">
+
+            <div class="modal-header">
+              <h4 class="modal-title">Forward Message</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                  <strong>Client:</strong>
+                  <select class="selectpicker form-control" name="customer_id[]" title="Choose a Customer" required multiple></select>
+
+                  @if ($errors->has('customer_id'))
+                      <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
+                  @endif
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Forward Message</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -256,7 +288,46 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <script type="text/javascript">
+        $('.selectpicker').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/erp-leads/customer-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
 
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Customer by id, Name, No',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+                if (customer.loading) {
+                    return customer.name;
+                }
+
+                if (customer.name) {
+                    return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.name,
+
+        });
         var vendorToRemind = null;
         $('#vendor-search').select2({
             tags: true,
@@ -741,6 +812,7 @@
                 } else {
                     $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
                 }
+                $(".select2-quick-reply").select2({});
                 
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
@@ -768,14 +840,14 @@
                 },
             
             }).done(function (data) {
-                 $("#loading-image").hide();
-                console.log(data);
+                $("#loading-image").hide();
                 $("#vendor-table tbody").empty().html(data.tbody);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
                 } else {
                     $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
                 }
+                $(".select2-quick-reply").select2({});
                 
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
@@ -786,6 +858,55 @@
         });
          });
 
-       
+     $(document).on("change",".quickComment",function(e){
+
+        var message = $(this).val();
+
+        if($.isNumeric(message) == false){
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "/vendor/reply/add",
+                dataType: "json",
+                method : "POST",
+                data: {reply : message}
+            }).done(function (data) {
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        }
+        $(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
+
+     });  
+
+     $(".select2-quick-reply").select2({tags:true});
+
+     $(document).on("click",".delete_quick_comment",function(e){
+        var deleteAuto = $(this).closest(".d-flex").find(".quickComment").find("option:selected").val();
+        if(typeof deleteAuto != "undefined") {
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "/vendor/reply/delete",
+                dataType: "json",
+                method : "GET",
+                data: {id : deleteAuto}
+            }).done(function (data) {
+                if(data.code == 200) {
+                    $(".quickComment").empty();
+                    $.each(data.data,function(k,v) {
+                        $(".quickComment").append("<option value='"+k+"'>"+v+"</option>");
+                    });
+                    $(".quickComment").select2({tags:true});
+                }
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        }
+     });
     </script>
 @endsection
