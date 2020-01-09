@@ -1248,6 +1248,18 @@
                             </li>
                         </ul>
                     </li>
+                    
+                    <!------    System Menu     !-------->
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">System <span class="caret"></span></a>
+                        <ul class="dropdown-menu multi-level">
+                            {{-- Sub Menu Product --}}
+
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('jobs.list')}}">Queue</a>
+                            </li>
+                        </ul>
+                    </li>
 
                 </ul>
 
