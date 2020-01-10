@@ -76,7 +76,7 @@ class SetTemplatesForProduct extends Command
                     $productTemplate->brand_id = $product->brand;
                     $productTemplate->currency = 'eur';
                     $productTemplate->price = $product->price;
-                    $productTemplate->discounted_price = $product->price_special_offer; 
+                    $productTemplate->discounted_price = $product->price_eur_discounted; 
                     $productTemplate->product_id = $product->id;
                     $productTemplate->is_processed = 0;
                     $productTemplate->save();
