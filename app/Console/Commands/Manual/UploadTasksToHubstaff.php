@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Manual;
 
 use App\DeveloperTask;
 use DB;
