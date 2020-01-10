@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Article;
-use App\HubstaffMember;
-use App\HubstaffProject;
-use App\HubstaffTask;
+use App\Hubstaff\HubstaffMember;
+use App\Hubstaff\HubstaffProject;
+use App\Hubstaff\HubstaffTask;
 use App\User;
 use Auth;
 use Exception;
 use Illuminate\Http\Request;
-use Hubstaff\Hubstaff;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
@@ -20,6 +19,7 @@ use Storage;
 
 define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
 define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+define('STATE_MEMBERS', 'STATE_MEMBERS');
 
 
 class HubstaffController extends Controller

@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Hubstaff;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

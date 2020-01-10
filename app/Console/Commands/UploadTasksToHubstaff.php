@@ -147,7 +147,7 @@ class UploadTasksToHubstaff extends Command
             if ($e instanceof ClientException) {
                 $this->refreshTokens();
                 if ($shouldRetry) {
-                    return $this->addTaskToHubstaff(
+                    return $this->uploadTask(
                         $task,
                         false
                     );
