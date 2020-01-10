@@ -157,6 +157,12 @@ class UploadTasksToHubstaff extends Command
         return false;
     }
 
+    private function refreshTokens()
+    {
+        $tokens = $this->getTokens();
+        $this->generateAccessToken($tokens->refresh_token);
+    }
+
     private function getTokens()
     {
         if (!Storage::disk('local')->exists($this->HUBSTAFF_TOKEN_FILE_NAME)) {
