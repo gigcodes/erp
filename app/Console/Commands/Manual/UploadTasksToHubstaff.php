@@ -153,6 +153,7 @@ class UploadTasksToHubstaff extends Command
                     );
                 }
             }
+            echo $e->getMessage().PHP_EOL;
         }
         return false;
     }
