@@ -1,4 +1,4 @@
-<div class="modal" id="create-question-annotation" tabindex="-1" role="dialog">
+<div class="modal" id="create-question-annotation" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <form method="post" action="<?php echo route("chatbot.question.annotation.save"); ?>">

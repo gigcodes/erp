@@ -16,7 +16,7 @@ class AssetsManager extends Model
     ];
 
     protected $fillable = [
-        'name', 'asset_type', 'category_id', 'purchase_type', 'payment_cycle', 'amount', 'archived', 'password', 'provider_name', 'location', 'currency','usage'];
+        'name', 'capacity', 'asset_type', 'category_id', 'purchase_type', 'payment_cycle', 'amount', 'archived', 'password', 'provider_name', 'location', 'currency','usage'];
 
     public function category()
     {

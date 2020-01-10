@@ -10,8 +10,7 @@
             <form action="{{ route('customer.whatsapp.send.all') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
-                <input type="hidden" name="linked_images" id="linked_images" value="">
-
+                <input type="hidden" id="broadcast_image" name="image_id">
                 <div class="modal-body">
                   {{-- @if ($queues_total_count > $queues_sent_count)
                     <div class="form-group alert alert-success">
@@ -45,24 +44,12 @@
                     <input type="number" name="frequency" class="form-control" value="10" required />
                   </div>
 
-                    <div class="form-group">
+                  <div class="form-group">
                         <strong>Message</strong>
-                        <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
+                        <textarea name="message" id="message_to_all_field" rows="2" cols="20" class="form-control"></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <input type="file" name="images[]" multiple />
-                    </div>
-
-                    <div class="form-group">
-                      <button type="button" class="btn btn-xs btn-secondary link-images-button">Link Images</button>
-                    </div>
-
-                    {{-- <div class="form-group">
-                      <a href="#" class="btn btn-image attach-images-btn"><img src="/images/attach.png" />Attach from Grid</a>
-                    </div> --}}
-
-                    <div class="form-group">
+                    <div class="form-group" hidden>
                         <input type="checkbox" id="send_type" name="to_all" checked>
                         <label for="send_type">Send Message to All Existing Customers</label>
                     </div>
@@ -102,22 +89,6 @@
                      </div>
 
                     <hr>
-
-                    <div class="form-group">
-                      <strong>Sending Number</strong>
-                      <select class="form-control" name="whatsapp_number">
-                        <option value="">Select a Number</option>
-
-                        @foreach ($api_keys as $api_key)
-                          <option value="{{ $api_key }}">{{ $api_key }}</option>
-                        @endforeach
-                      </select>
-                    </div>
-
-                    <div class="form-group">
-                      <strong>Upload Phone Numbers</strong>
-                      <input type="file" name="file" />
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
