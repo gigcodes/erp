@@ -19,4 +19,11 @@ class HubstaffMember extends Model
         'user_id',
         'email'
     ];
+
+    static function linkUser($hubstaffId, $userId){
+        self::where('hubstaff_user_id', $hubstaffId)
+            ->update([
+                'user_id' => $userId
+            ]);
+    }
 }

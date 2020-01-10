@@ -107,21 +107,7 @@ class HubstaffController extends Controller
             if ($response->getStatusCode() == 200) {
                 $responseJson = json_decode($response->getBody()->getContents());
                 $projects = $responseJson->projects;
-
-                foreach ($projects as $project)
-
-                    HubstaffProject::updateOrCreate(
-                        [
-                            'hubstaff_project_id' => $project->id
-                        ],
-                        [
-                            'hubstaff_project_id' => $project->id,
-                            'organisation_id' => getenv('HUBSTAFF_ORG_ID'),
-                            'hubstaff_project_name' => $project->name,
-                            'hubstaff_project_description' => isset($project->description)?$project->description:'',
-                            'hubstaff_project_status' => $project->status
-                        ]
-                    );
+                HubstaffProject::updateOrCreateApiProjects($projects);
             }
         } catch (Exception $e) {
             echo $e->getMessage();
@@ -225,9 +211,7 @@ class HubstaffController extends Controller
             $projectDescription
         )) {
             $project = HubstaffProject::find($projectId);
-            $project->hubstaff_project_name = $projectName;
-            $project->hubstaff_project_description = $projectDescription;
-            $project->save();
+            $project->editProject($projectName, $projectDescription);
             return redirect('hubstaff/projects');
         } else {
             echo '<h1>Error in saving data to hubstaff</h1>';
@@ -641,48 +625,6 @@ class HubstaffController extends Controller
         ]);
     }
 
-    public function redirect(Request $request)
-    {
-        echo '<h1>Processing your request</h1>';
-
-        $user = Auth::user();
-
-        if (!$user) {
-            echo '<h1>Unauthorized</h1>';
-            exit;
-        }
-
-        $code = $request->query()['code'];
-        $state = $request->query()['state'];
-        if ($code) {
-
-            $params = array(
-                'grant_type' => 'authorization_code',
-                'code' => $code,
-                'redirect_uri' => getenv('APP_URL') . '/hubstaff/redirect',
-            );
-
-            $ch = curl_init('https://account.hubstaff.com/access_tokens?' . http_build_query($params));
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_USERPWD, getenv('HUBSTAFF_CLIENT_ID') . ":" . getenv('HUBSTAFF_CLIENT_SECRET'));
-            $response = curl_exec($ch);
-            $info = curl_getinfo($ch);
-            curl_close($ch);
-
-            if ($info['http_code'] == 200) {
-                $json_decoded_response = json_decode($response);
-                $user->auth_token_hubstaff = $json_decoded_response->access_token;
-                $user->save();
-                if ($state == STATE_MEMBERS) {
-                    return redirect('hubstaff/members');
-                }
-            } else {
-                echo '<h1>Error processing request</h1>';
-            }
-        }
-    }
-
     public function linkUser(Request $request)
     {
         $bodyContent = $request->getContent();
@@ -700,19 +642,10 @@ class HubstaffController extends Controller
             );
         }
 
-        HubstaffMember::where('hubstaff_user_id', $hubstaffUserId)
-            ->update([
-                'user_id' => $userId
-            ]);
-
+        HubstaffMember::linkUser($hubstaffUserId, $userId);
 
         return response()->json([
             'message' => 'link success'
         ]);
-    }
-
-    public function debug()
-    {
-        echo "debug";
     }
 }
