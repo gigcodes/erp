@@ -118,7 +118,7 @@ class HubstaffController extends Controller
                             'hubstaff_project_id' => $project->id,
                             'organisation_id' => getenv('HUBSTAFF_ORG_ID'),
                             'hubstaff_project_name' => $project->name,
-                            'hubstaff_project_description' => $project->description,
+                            'hubstaff_project_description' => isset($project->description)?$project->description:'',
                             'hubstaff_project_status' => $project->status
                         ]
                     );
