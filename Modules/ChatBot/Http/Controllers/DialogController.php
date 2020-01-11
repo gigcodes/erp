@@ -20,38 +20,7 @@ class DialogController extends Controller
      */
     public function index()
     {
-
-        $testDialog = WatsonManager::newPushDialog(123);
-
-        /*$chatDialog = ChatbotDialog::leftJoin("chatbot_dialog_responses as cdr", "cdr.chatbot_dialog_id", "chatbot_dialogs.id")
-        ->select("chatbot_dialogs.*", \DB::raw("count(cdr.chatbot_dialog_id) as `total_response`"))
-        ->where("chatbot_dialogs.response_type","standard")
-        ->groupBy("chatbot_dialogs.id")
-        ->orderBy("chatbot_dialogs.previous_sibling","asc")->get();
-
-        $chatDialogArray = array_column($chatDialog->toArray(), null, 'previous_sibling');
-
-        $chatDialog = [];
-        if(!empty($chatDialogArray)) {
-        foreach($chatDialogArray as $k => $chatDlg) {
-        if($k == 0) {
-        $chatDialog[] = $chatDlg;
-        }
-        if(isset($chatDialogArray[$chatDlg["id"]])) {
-        $chatDialog[] = $chatDialogArray[$chatDlg["id"]];
-        }
-        }
-        }*/
         $allSuggestedOptions = ChatbotDialog::allSuggestedOptions();
-
-        /*$watson = new DialogService(
-        "apiKey",
-        "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
-        );
-
-        $result = $watson->getList("19cf3225-f007-4332-8013-74443d36a3f7");
-        echo '<pre>'; print_r($result->getContent()); echo '</pre>';exit;*/
-
         return view('chatbot::dialog.index', compact('allSuggestedOptions'));
     }
 
@@ -72,6 +41,10 @@ class DialogController extends Controller
         if ($validator->fails()) {
             return response()->json(["code" => 500, "error" => []]);
         }
+
+        // check the last id of previous sibling and add it 
+        /*$previousSibling = ChatbotDialog::where()*/
+
 
         $chatbotDialog = ChatbotDialog::create($params);
 
@@ -425,9 +398,10 @@ class DialogController extends Controller
             foreach ($chatDialogArray as $k => $chatDlg) {
                 if ($k == 0) {
                     $chatDialog[] = $chatDlg;
-                }
-                if (isset($chatDialogArray[$chatDlg["id"]])) {
-                    $chatDialog[] = $chatDialogArray[$chatDlg["id"]];
+                    $branch = [];
+                    $more = previous_sibling($chatDialogArray,$chatDlg["id"],$branch);
+                    $chatDialog = array_merge($chatDialog,$more);
+                    break;
                 }
             }
         }
@@ -458,6 +432,15 @@ class DialogController extends Controller
                 }
                 $chatbotDialog->parentResponse()->where("response_type", "response_condition")->delete();
             }
+
+            // update previous_sibling
+            $findPrevious = ChatbotDialog::where("previous_sibling",$chatbotDialog->id)->first();
+            if($findPrevious) {
+                $findPrevious->previous_sibling = $chatbotDialog->previous_sibling;
+                $findPrevious->save();
+                WatsonManager::newPushDialog($findPrevious->id);
+            }
+
             WatsonManager::deleteDialog($chatbotDialog->id);
             $chatbotDialog->response()->delete();
             $chatbotDialog->delete();
