@@ -824,22 +824,89 @@ class ScrapController extends Controller
     {
         $query = Scraper::query();
 
-        $scrapers = $query->paginate(25);
+        if($request->global != null){
+            $query = $query->where('scraper_name', 'LIKE', "%{$request->global}%")
+                    ->orWhere('product_url_selector', 'LIKE', "%{$request->global}%")
+                    ->orWhere('designer_url_selector', 'LIKE', "%{$request->global}%")
+                    ->orWhere('starting_urls', 'LIKE', "%{$request->global}%")
+                    ->orWhere('run_gap', 'LIKE', "%{$request->global}%")
+                    ->orWhere('time_out', 'LIKE', "%{$request->global}%")
+                    ->orWhereHas('mainSupplier', function ($qu) use ($request) {
+                        $qu->where('supplier', 'LIKE', "%{$request->global}%");
+                    });
+        }
 
-        return view('scrap.supplier-scraper',compact('scrapers'));
+        if($request->scraper_name != null){
+            $query = $query->where('scraper_name', 'LIKE', "%{$request->scraper_name}%");
+        }
+
+        if($request->run_gap_search != null){
+            $query = $query->where('run_gap', 'LIKE', "%{$request->run_gap_search}%");
+        }
+
+        if($request->time_out_search != null){
+            $query = $query->where('time_out', 'LIKE', "%{$request->time_out_search}%");
+        }
+
+        if($request->starting_url_search != null){
+            $query = $query->where('starting_urls', 'LIKE', "%{$request->starting_url_search}%");
+        }
+
+        if($request->designer_url_search != null){
+            $query = $query->where('designer_url_selector', 'LIKE', "%{$request->designer_url_search}%");
+        }
+
+        if($request->product_url_search != null){
+            $query = $query->where('product_url_selector', 'LIKE', "%{$request->product_url_search}%");
+        }
+
+        if($request->supplier_name != null){
+            $query = $query->whereHas('mainSupplier', function ($qu) use ($request) {
+                        $qu->where('supplier', 'LIKE', "%{$request->supplier_name}%");
+                    });
+
+        }
+
+
+        $suppliers = Supplier::where('supplier_status_id',1)->get();
+        $scrapers = $query->paginate(25)->appends(request()->except(['page']));;
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('scrap.partials.supplier-scraper-data', compact('scrapers','suppliers'))->render(),
+                'links' => (string)$scrapers->render(),
+                'count' => $scrapers->total(),
+            ], 200);
+        }
+
+        
+        
+        return view('scrap.supplier-scraper',compact('scrapers','suppliers'));
     }
 
     public function genericScraperSave(Request $request){
         
-        $scraper = Scraper::find($request->id);
+        if($request->id){
+            $scraper = Scraper::find($request->id);    
+        }else{
+            $scraper = new Scraper; 
+            $scraper->scraper_name = $request->name;
+            $scraper->supplier_id = $request->supplier_id; 
+        }
+        
+
         $scraper->run_gap = $request->run_gap;
         $scraper->time_out = $request->time_out;
         $scraper->starting_urls = $request->starting_url;
         $scraper->product_url_selector = $request->product_url_selector;
         $scraper->designer_url_selector = $request->designer_url;
-        $scraper->update();
+        $scraper->save();
 
+        if ($request->ajax()) {
         return response()->json(['success'],200);
+        }
+
+        return redirect()->back()->with('message', 'Scraper Saved');
     }
 
     public function genericMapping($id)
@@ -926,6 +993,13 @@ class ScrapController extends Controller
         $scraper->end_time = now();
         $scraper->save();
 
+        return response()->json(['success'],200);   
+    }
+
+    public function genericMappingDelete(Request $request){
+        $id = $request->id;
+        $mapping = ScraperMapping::find($id);
+        $mapping->delete();
         return response()->json(['success'],200);   
     }
 }

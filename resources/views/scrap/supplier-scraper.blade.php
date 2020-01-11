@@ -24,7 +24,11 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Generic Supplier Scraper (<span id="count">{{ $scrapers->total() }}</span>)</h2>
             <div class="pull-right">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#scrapAddModal">+</a>
                 <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png"/></button>
+            </div>
+            <div class="pull-left">
+                <input type="text" class="form-control" id="global" placeholder="Global Search">
             </div>
 
         </div>
@@ -32,20 +36,36 @@
 
     @include('partials.flash_messages')
    <div class="mt-3 col-md-12">
-     <table class="table table-bordered table-striped" id="log-table">
+     <table class="table table-bordered table-striped" id="scraper-table">
             <thead>
             <tr>
                 <th>Id</th>
-                <th style="width: 5% !important;">Scraper name</th>
-                <th>Start Time</th>
-                <th>End Time</th>
+                <th>Scraper name</th>
+                <th>Supplier</th>
+                <th style="width: 5%">Start Time</th>
+                <th style="width: 5%">End Time</th>
                 <th>Run Gap</th>
                 <th>Time Out</th>
                 <th>Starting URL</th>
                 <th>Designer URL Selector</th>
                 <th>Product URL Selector</th>
-                <th>Action</th>
+                <th style="width: 15%">Action</th>
             </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <th><input type="text" id="scraper_name" class="form-control"></th>
+                <th><input type="text" id="supplier_name" class="form-control"></th>
+                <th style="width: 5%">&nbsp;</th>
+                <th style="width: 5%">&nbsp;</th>
+                <th><input type="text" id="run_gap_search" class="form-control"></th>
+                <th><input type="text" id="time_out_search" class="form-control"></th>
+                <th><input type="text" id="starting_url_search" class="form-control"></th>
+                <th><input type="text" id="designer_url_search" class="form-control"></th>
+                <th><input type="text" id="product_url_search" class="form-control"></th>
+                <th style="width: 15%">&nbsp;</th>
+                
+            </tr>
+
             </thead>
             <tbody id="content_data">
             @include('scrap.partials.supplier-scraper-data')
@@ -57,7 +77,7 @@
         {{ $scrapers->render() }}
     </div>
 
-@include('scrap.partials.edit-supplier-scraper-modal')
+@include('scrap.partials.add-edit-supplier-scraper-modal')
 @endsection
 
 @section('scripts')
@@ -69,77 +89,16 @@
     <script type="text/javascript">
 
 
-    $(document).ready(function() {
-       $(".select-multiple").multiselect();
-       $(".select-multiple2").select2();
-         });
-    
-    $(document).ready(function () {
-        $('#sku,#category').on('blur', function () {
+        $(document).ready(function() {
+         $(".select-multiple").multiselect();
+         $(".select-multiple2").select2();
+     });
+
+
+        function refreshPage(){
+            blank = '';
             $.ajax({
-                url: '/logging/sku-logs',
-                dataType: "json",
-                data: {
-                    sku: $('#sku').val(),
-                    brand: $('#brand').val(),
-                    category: $('#category').val()
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-            }).done(function (data) {
-                $("#loading-image").hide();
-                console.log(data);
-                $("#count").text(data.totalFailed);
-                $("#log-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                $("#loading-image").hide();
-                alert('No response from server');
-            });
-        });
-
-         $('#brand,#category,#supplier').on('change', function () {
-            $.ajax({
-                url: '/logging/sku-logs',
-                dataType: "json",
-                data: {
-                    sku: $('#sku').val(),
-                    brand: $('#brand').val(),
-                    category: $('#category').val(),
-                    supplier : $('#supplier').val(),
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-            }).done(function (data) {
-                $("#loading-image").hide();
-                 $("#nulti").show();
-                console.log(data);
-                $("#count").text(data.totalFailed);
-                $("#log-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                $("#loading-image").hide();
-                alert('No response from server');
-            });
-        });
-    
-
-
-    });
-    function refreshPage(){
-        blank = '';
-        $.ajax({
-                url: '/logging/sku-logs',
+                url: '/scrap/generic-scraper',
                 dataType: "json",
                 data: {
                     blank : blank
@@ -148,11 +107,20 @@
                     $("#loading-image").show();
                 },
             }).done(function (data) {
+
+                //Removing Text From Search
+                $('#scraper_name').val('');
+                $('#supplier_name').val('');
+                $('#run_gap_search').val('');
+                $('#time_out_search').val('');
+                $('#starting_url_search').val('');
+                $('#designer_url_search').val('');
+                $('#product_url_search').val('');
+
+                //Loading Data
                 $("#loading-image").hide();
-                $("#nulti").show();
-                console.log(data);
-                $("#count").text(data.totalFailed);
-                $("#log-table tbody").empty().html(data.tbody);
+                $("#count").text(data.count);
+                $("#scraper-table tbody").empty().html(data.tbody);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
                 } else {
@@ -162,117 +130,23 @@
                 $("#loading-image").hide();
                 alert('No response from server');
             });
-    }
-
-    function addTask(supplier , category , sku , brand) {
-        $('#taskModal').modal('show');
-        $('#task_subject').val(supplier +' '+category+' '+sku);
-        $('#references').val(supplier+''+category+''+brand);
-    }
-
-    $(".checkbox").change(function() {
-    if(this.checked) {
-        validate = 1;
-        $.ajax({
-                url: '/logging/sku-logs',
-                dataType: "json",
-                data: {
-                    sku: $('#sku').val(),
-                    brand: $('#brand').val(),
-                    category: $('#category').val(),
-                    supplier : $('#supplier').val(),
-                    validate : validate,
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-            }).done(function (data) {
-                $("#loading-image").hide();
-                $("#nulti").show();
-                console.log(data);
-                $("#count").text(data.totalFailed);
-                $("#log-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                $("#loading-image").hide();
-                alert('No response from server');
-            });
-        
-    }else{
-        validate = 2;
-        $.ajax({
-                url: '/logging/sku-logs',
-                dataType: "json",
-                data: {
-                    sku: $('#sku').val(),
-                    brand: $('#brand').val(),
-                    category: $('#category').val(),
-                    supplier : $('#supplier').val(),
-                    validate : validate,
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-            }).done(function (data) {
-                $("#loading-image").hide();
-                $("#nulti").show();
-                console.log(data);
-                $("#count").text(data.totalFailed);
-                $("#log-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                $("#loading-image").hide();
-                alert('No response from server');
-            });
-        
-    }
-    });
-
-    function sendMulti(){
-        brand =  $('#brand').val();
-        category = $('#category').val();
-        supplier = $('#supplier').val();
-        if(brand == ''){
-            alert('Please Select Brand');
         }
-        if(category == ''){
-            alert('Please Select Category');
-        }
-        if(supplier == ''){
-            alert('Please Select Supplier');
-        }
-        if(brand != '' && category != '' && supplier != ''){
-            $('#taskModal').modal('show');
-            $('#task_subject').val(supplier +' '+category+' multi');
-            $('#references').val(supplier+''+category+''+brand);
-        }
-        
-    }
 
+        function editSupplier(scraper){
+            console.log(JSON.stringify(scraper));
+            $("#scraper_id").val(scraper.id);
 
-    function editSupplier(scraper){
-        console.log(JSON.stringify(scraper));
-        $("#scraper_id").val(scraper.id);
-        
-        $("#run_gap").val(scraper.run_gap);
-        $("#time_out").val(scraper.time_out);
-        $("#starting_url").val(scraper.starting_urls);
-        $("#designer_url").val(scraper.designer_url_selector);
-        $("#product_url_selector").val(scraper.product_url_selector);
-        $("#scrapEditModal").modal('show');
-    }
+            $("#run_gap").val(scraper.run_gap);
+            $("#time_out").val(scraper.time_out);
+            $("#starting_url").val(scraper.starting_urls);
+            $("#designer_url").val(scraper.designer_url_selector);
+            $("#product_url_selector").val(scraper.product_url_selector);
+            $("#scrapEditModal").modal('show');
+        }
 
-    function updateSupplier(){
-        id = $("#scraper_id").val();
-        $.ajax({
+        function updateSupplier(){
+            id = $("#scraper_id").val();
+            $.ajax({
                 url: "{{ route('generic.save.scraper') }}",
                 dataType: "json",
                 type : "POST",
@@ -295,8 +169,42 @@
                 $("#loading-image").hide();
                 alert('No response from server');
             });
-           
-    }
 
+        }
+        
+        $(document).ready(function () {
+            $('#global,#scraper_name,#supplier_name,#run_gap_search,#time_out_search,#starting_url_search,#designer_url_search,#product_url_search').on('blur', function () {
+                $.ajax({
+                    url: '/scrap/generic-scraper',
+                    dataType: "json",
+                    data: {
+                        global: $('#global').val(),
+                        scraper_name: $('#scraper_name').val(),
+                        supplier_name: $('#supplier_name').val(),
+                        run_gap_search: $('#run_gap_search').val(),
+                        time_out_search: $('#time_out_search').val(),
+                        starting_url_search: $('#starting_url_search').val(),
+                        designer_url_search: $('#designer_url_search').val(),
+                        product_url_search: $('#product_url_search').val(),
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    console.log(data);
+                    $("#count").val(data.count);
+                    $("#scraper-table tbody").empty().html(data.tbody);
+                    if (data.links.length > 10) {
+                        $('ul.pagination').replaceWith(data.links);
+                    } else {
+                        $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                    }
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    $("#loading-image").hide();
+                    alert('No response from server');
+                });
+            });
+        });
     </script>
 @endsection
