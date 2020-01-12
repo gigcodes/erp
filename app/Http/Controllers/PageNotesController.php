@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 //use Spatie\Permission\Models\Permission;
 //use Spatie\Permission\Models\Role;
@@ -28,6 +29,14 @@ class PageNotesController extends Controller
     {
 
         $pageNotes          = new \App\PageNotes;
+
+        if ($request->get("isUpdate")) {
+            $pageNotes = \App\PageNotes::where('user_id', \Auth::user()->id)->whereDate('created_at', Carbon::today())->first();
+            if (empty($pageNotes)) {
+                $pageNotes = new \App\PageNotes;
+            }
+        }
+
         $pageNotes->user_id = \Auth::user()->id;
         $pageNotes->url     = $request->get("url", "");
         $pageNotes->category_id = $request->get("category_id", null);

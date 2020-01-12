@@ -6,6 +6,8 @@ use App\CroppedImageReference;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Category;
+use App\Helpers\StatusHelper;
+use App\Product;
 
 class CroppedImageReferenceController extends Controller
 {
@@ -91,7 +93,7 @@ class CroppedImageReferenceController extends Controller
     {
         
         $query = CroppedImageReference::query();
-            if($request->category || $request->brand || $request->supplier || $request->crop){
+            if($request->category || $request->brand || $request->supplier || $request->crop || $request->status){
                 
 
                 if(is_array(request('category'))){
@@ -120,6 +122,16 @@ class CroppedImageReferenceController extends Controller
                             });
                 }
 
+                if (request('status') != null && request('status') != 0){ 
+                 $query->whereHas('product', function ($qu) use ($request) {
+                                $qu->where('status_id', request('status'));
+                 });
+                }else{
+                  $query->whereHas('product', function ($qu) use ($request) {
+                                $qu->where('status_id','!=',StatusHelper::$cropRejected);
+                            });   
+                }
+
                 if (request('crop') != null){
                     if(request('crop') == 2){
                       $query->whereNotNull('new_media_id'); 
@@ -130,9 +142,12 @@ class CroppedImageReferenceController extends Controller
             $products = $query->orderBy('id', 'desc')->paginate(50); 
 
         }else{
-            
 
-           $products = $query->orderBy('id', 'desc')->paginate(50); 
+            $query->whereHas('product', function ($qu) use ($request) {
+                                $qu->where('status_id','!=',StatusHelper::$cropRejected);
+                            }); 
+            $products = $query->orderBy('id', 'desc')->paginate(50);
+
         }
         
         $selected_categories = $request->category ? $request->category : 1;
@@ -141,16 +156,50 @@ class CroppedImageReferenceController extends Controller
             ->selected($selected_categories)
             ->renderAsDropdown();
 
-        $total = $query->count();    
+        $total = $query->count(); 
+         
+         $pendingProduct = Product::where('status_id',StatusHelper::$autoCrop)->where('stock','>=',1)->count();
+
+         $pendingCategoryProduct = Product::where('status_id',StatusHelper::$attributeRejectCategory)->where('stock','>=',1)->count();  
         
+         if (request('customer_range') != null){
+                   $dateArray =  explode('-',request('customer_range'));
+                   $startDate = trim($dateArray[0]);
+                   $endDate = trim(end($dateArray));
+                   if($startDate == '1995/12/25'){
+                      $totalCounts = CroppedImageReference::where('created_at', '>=', \Carbon\Carbon::now()->subHour())->count();
+                   }
+                   elseif($startDate == $endDate){
+
+                      $totalCounts = CroppedImageReference::whereDate('created_at', '=', end($dateArray))->count();  
+                   }else{
+                     $totalCounts = CroppedImageReference::whereBetween('created_at', [$startDate, $endDate])->count();     
+                   }
+
+                   if ($request->ajax()) {
+                    return response()->json([
+                        'count' => $totalCounts
+                    ], 200);
+                    }
+        }else{
+            $totalCounts = 0;
+        }
+
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('image_references.partials.griddata', compact('products','category_selection','total'))->render(),
+                'tbody' => view('image_references.partials.griddata', compact('products','category_selection','total','pendingProduct','totalCounts','pendingCategoryProduct'))->render(),
                 'links' => (string)$products->render(),
                 'total' => $total,
             ], 200);
             }
+           
+        return view('image_references.grid', compact('products','category_selection','total','pendingProduct','totalCounts','pendingCategoryProduct'));
+    }
 
-        return view('image_references.grid', compact('products','category_selection','total'));
+    public function rejectCropImage(Request $request)
+    {
+        $reference = CroppedImageReference::find($request->id);
+        $product = Product::find($reference->product_id);
+        dd($product);
     }
 }

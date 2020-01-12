@@ -11,8 +11,9 @@
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <style type="text/css">
-        
+
     </style>
 @endsection
 
@@ -70,6 +71,7 @@
                             @endforeach
                         </select>
                     </div>
+                    {{--
                     <div class="col-md-1">
                         <select class="form-control" name="responsible_user" id="responsible_user">
                             <option value="">Responsible User...</option>
@@ -86,6 +88,7 @@
                             @endforeach
                         </select>
                     </div>
+                    --}}
                     <div class="col-md-1">
                         <select name="module" id="module_id" class="form-control">
                             <option value="">Module</option>
@@ -97,6 +100,15 @@
                     <div class="col-md-2">
                         <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
                     </div>
+                    @if($title == 'devtask')
+                        <div class="col-md-2">
+                            <select name="task_status[]" class="form-control multiselect" multiple>
+                                <option value="Planned" {{ in_array('Planned', request()->get('task_status', [])) ? 'selected' : '' }}>Planned</option>
+                                <option value="In Progress" {{ in_array('In Progress', request()->get('task_status', [])) ? 'selected' : '' }}>In Progress</option>
+                                <option value="Done" {{ in_array('Done', request()->get('task_status', [])) ? 'selected' : '' }}>Done</option>
+                            </select>
+                        </div>
+                    @endif
                     <div class="col-md-1">
                         <select name="order" id="order_query" class="form-control">
                             <option {{$request->get('order')== "" ? 'selected' : ''}} value="create">Order by date descending</option>
@@ -104,28 +116,35 @@
                             <option {{$request->get('order')== "create_asc" ? 'selected' : ''}} value="create">Order by date</option>
                         </select>
                     </div>
-                    @if($title == 'devtask')
-                        <div class="col-md-2">
-                            <select name="task_status" id="task_status" class="form-control change-task-status">
-                                <option value="">Please Select</option>
-                                <option value="Planned" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'Planned' ? 'selected' : '') }}>Planned</option>
-                                <option value="In Progress" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
-                                <option value="Done" {{ (!empty(app('request')->input('task_status')) && app('request')->input('task_status') ==  'Done' ? 'selected' : '') }}>Done</option>
-                            </select>
-                        </div>
-                    @endif
-                    <div class="col-md-2">
+                    <div class="col-md-1">
+                        {{--
                         @if ( isset($_REQUEST['show_resolved']) && $_REQUEST['show_resolved'] == 1 )
                             <input type="checkbox" name="show_resolved" value="1" checked> incl.resolved
                         @else
                             <input type="checkbox" name="show_resolved" value="1"> incl.resolved
                         @endif
+                         --}}
                         <button class="btn btn-image">
                             <img src="{{ asset('images/search.png') }}" alt="Search">
                         </button>
                     </div>
-                    <div class="col-md-2">
+                   
+                    <div class="col-md-1">
                         <a class="btn btn-secondary d-inline priority_model_btn">Priority</a>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-2">
+                        <a class="btn btn-secondary" 
+                            data-toggle="collapse" href="#plannedFilterCount" role="button" aria-expanded="false" aria-controls="plannedFilterCount">
+                               Show Planned count
+                            </a>
+                    </div>
+                    <div class="col-md-2">
+                         <a class="btn btn-secondary" 
+                            data-toggle="collapse" href="#inProgressFilterCount" role="button" aria-expanded="false" aria-controls="inProgressFilterCount">
+                               Show In Progress count
+                            </a>
                     </div>
                 </div>
             </form>
@@ -134,7 +153,54 @@
             @endif
         </div>
     </div>
-
+    <div class="row">
+        <div class="col-md-12">
+            <div class="collapse" id="plannedFilterCount">
+                <div class="card card-body">
+                  <?php if(!empty($countPlanned)) { ?>
+                    <div class="row col-md-12">
+                        <?php foreach($countPlanned as $listFilter) { ?>
+                          <div class="col-md-2">
+                                <div class="card">
+                                  <div class="card-header">
+                                    <?php echo $listFilter["name"]; ?>
+                                  </div>
+                                  <div class="card-body">
+                                      <?php echo $listFilter["count"]; ?>
+                                  </div>
+                              </div>
+                           </div> 
+                      <?php } ?>
+                    </div>
+                  <?php } else  { 
+                    echo "Sorry , No data available";
+                  } ?>
+                </div>
+            </div>
+            <div class="collapse" id="inProgressFilterCount">
+                <div class="card card-body">
+                  <?php if(!empty($countInProgress)) { ?>
+                    <div class="row col-md-12">
+                        <?php foreach($countInProgress as $listFilter) { ?>
+                            <div class="col-md-2">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <?php echo $listFilter["name"]; ?>
+                                    </div>
+                                    <div class="card-body">
+                                        <?php echo $listFilter["count"]; ?>
+                                    </div>
+                                </div>
+                            </div>
+                      <?php } ?>
+                    </div>
+                  <?php } else  { 
+                    echo "Sorry , No data available";
+                  } ?>
+                </div>
+            </div>
+        </div>    
+    </div>
     <?php
     $query = http_build_query(Request::except('page'));
     $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query . '&page=');
@@ -151,7 +217,7 @@
     <div class="infinite-scroll">
         <div class="table-responsive">
             <table class="table table-bordered table-striped">
-                @if($title == 'issue')
+                @if($title == 'issue' && auth()->user()->isAdmin())
                     <tr class="add-new-issue">
                         <form action="{{ route('development.issue.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
@@ -180,8 +246,8 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <select class="form-control select2" name="responsible_user_id" id="responsible_user_id">
-                                            <option value="">Responsible User...</option>
+                                        <select class="form-control select2" name="assigned_to" id="assigned_to">
+                                            <option value="">Assigned To...</option>
                                             @foreach($users as $id=>$user)
                                                 <option value="{{$id}}">{{ $user }}</option>
                                             @endforeach
@@ -207,9 +273,9 @@
                     <th width="15%">Issue</th>
                     <th width="5%">Date Created</th>
                     <th width="5%">Est Completion Time</th>
-                    <th width="5%">Submitted By</th>
+                    {{--<th width="5%">Submitted By</th>--}}
                     <th width="5%">Assigned To</th>
-                    <th width="5%">Corrected By</th>
+                    <th width="5%">Responsible User</th>
                     <th width="5%">Resolved</th>
                     <th width="5%">Cost</th>
                 </tr>
@@ -259,7 +325,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                             </td>
                             <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }} </td>
                             <td data-id="{{ $issue->id }}">
@@ -273,15 +338,12 @@
                                     <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button>
                                 </div>
                             </td>
-                            <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}
-
-                            </td>
-
+                            {{--<td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }} </td>--}}
                             <td>
-                                <select class="form-control assign-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">
+                                <select class="form-control assign-user" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">
                                     <option value="">Select...</option>
                                     @foreach($users as $id=>$name)
-                                        @if( isset($issue->responsibleUser->id) && (int) $issue->responsibleUser->id == $id )
+                                        @if( isset($issue->assignedUser->id) && (int) $issue->assignedUser->id == $id )
                                             <option value="{{$id}}" selected>{{ $name }}</option>
                                         @else
                                             <option value="{{$id}}">{{ $name }}</option>
@@ -293,7 +355,7 @@
                                 <select class="form-control set-responsible-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">
                                     <option value="">Select...</option>
                                     @foreach($users as $id=>$name)
-                                        @if( isset($issue->assignedUser->id) && (int) $issue->assignedUser->id == $id )
+                                        @if( isset($issue->responsibleUser->id) && (int) $issue->responsibleUser->id == $id )
                                             <option value="{{$id}}" selected>{{ $name }}</option>
                                         @else
                                             <option value="{{$id}}">{{ $name }}</option>
@@ -380,15 +442,8 @@
                                 <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
                                 <td>{{ $issue->task }}</td>
                                 <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
-                                <td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}</td>
-                                <td>
-                                    @if($issue->responsibleUser)
-                                        {{ $issue->responsibleUser->name  }}
-                                    @else
-                                        N/A
-                                    @endif
-
-                                </td>
+                                <td>&nbsp;</td>
+                                {{--<td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}</td>--}}
                                 <td>
                                     @if($issue->assignedUser)
                                         {{ $issue->assignedUser->name }}
@@ -397,7 +452,14 @@
                                     @endif
 
                                 </td>
+                                <td>
+                                    @if($issue->responsibleUser)
+                                        {{ $issue->responsibleUser->name  }}
+                                    @else
+                                        N/A
+                                    @endif
 
+                                </td>
                                 <td>
                                     @if($issue->is_resolved)
                                         <strong>Resolved</strong>
@@ -626,8 +688,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
         $(document).ready(function () {
+            $(".multiselect").multiselect({
+                nonSelectedText:'Please Select'
+            });
             $('.infinite-scroll').jscroll({
                 debug: true,
                 autoTrigger: true,
@@ -788,9 +854,9 @@
             }
 
             $.ajax({
-                url: "{{action('DevelopmentController@assignUser')}}",
+                url: "{{action('DevelopmentController@assignResponsibleUser')}}",
                 data: {
-                    user_id: userId,
+                    responsible_user_id: userId,
                     issue_id: id
                 },
                 success: function () {
@@ -808,9 +874,9 @@
             }
 
             $.ajax({
-                url: "{{action('DevelopmentController@assignResponsibleUser')}}",
+                url: "{{action('DevelopmentController@assignUser')}}",
                 data: {
-                    responsible_user_id: userId,
+                    assigned_to: userId,
                     issue_id: id
                 },
                 success: function () {

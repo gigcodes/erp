@@ -27,7 +27,8 @@ var searchForIntent = function(ele) {
                 url: '/chatbot/question/submit',
                 data: {
                     "name": $this.val(),
-                    "question": $("#dialog-save-response-form").find(".question-insert").val()
+                    "question": $("#dialog-save-response-form").find(".question-insert").val(),
+                    "category_id" : $("#dialog-save-response-form").find(".search-category").val()
                 },
                 dataType: "json",
                 success: function(response) {
@@ -44,6 +45,28 @@ var searchForIntent = function(ele) {
         });
     }
 };
+
+var searchForCategory = function(ele) {
+    var categoryBox = ele.find(".search-category");
+    if (categoryBox.length > 0) {
+        categoryBox.select2({
+            placeholder: "Enter category name or create new one",
+            width: "100%",
+            tags: true,
+            allowClear: true,
+            ajax: {
+                url: '/chatbot/question/search-category',
+                dataType: 'json',
+                processResults: function(data) {
+                    return {
+                        results: data.items
+                    };
+                }
+            }
+        });
+    }
+};
+
 var searchForKeyword = function(ele) {
     var keywordBox = ele.find(".search-keyword");
     if (keywordBox.length > 0) {
@@ -94,13 +117,38 @@ var previousDialog =  function(ele) {
         dialogBox.select2({
             placeholder: "Enter previous dialog name",
             width: "100%",
+            allowClear: true
         });
     }    
 };
 
+var previousDialogSearch = function(ele,parentId)
+{
+    $.ajax({
+        type: "get",
+        url: '/chatbot/dialog/search',
+        data: {
+            "parent_id": parentId
+        },
+        dataType: "json",
+        success: function(response) {
+            ele.find(".previous-dialog-node").empty().select2({
+                data: response.items,
+                placeholder: "Enter previous dialog name",
+                width: "100%",
+                allowClear: true
+            });
+        },
+        error: function() {
+            toastr['error']('Can not store intent name please review!');
+        }
+    });
+}
+
 var parentDialog = function(ele) {
 	var parentDialog = ele.find(".parent-dialog-node");
 	if (parentDialog.length > 0) {
+        previousDialogSearch(ele,0);
         parentDialog.select2({
             placeholder: "Enter Parent dialog name , leave empty if not needed",
             width: "100%",
@@ -116,22 +164,7 @@ var parentDialog = function(ele) {
             }
         }).on("change.select2", function() {
             var $this = $(this);
-            $.ajax({
-                type: "get",
-                url: '/chatbot/dialog/search',
-                data: {
-                    "parent_id": $this.val()
-                },
-                dataType: "json",
-                success: function(response) {
-                    ele.find(".previous-dialog-node").empty().select2({
-					    data: response.items
-					});
-                },
-                error: function() {
-                    toastr['error']('Can not store intent name please review!');
-                }
-            });
+            previousDialogSearch(ele,$this.val());
         });
     }
 };

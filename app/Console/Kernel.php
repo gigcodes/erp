@@ -79,6 +79,7 @@ use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
 use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\SendQueuePendingChatMessages;
+use App\Console\Commands\SyncCustomersFromMagento;
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -87,6 +88,7 @@ use App\CronJobReport;
 use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\RunErpEvents;
 use App\Console\Commands\GetOrdersFromnMagento;
+use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -174,6 +176,8 @@ class Kernel extends ConsoleKernel
         ImageBarcodeGenerator::class,
         UpdateImageBarcodeGenerator::class,
         GetOrdersFromnMagento::class,
+        SyncCustomersFromMagento::class,
+        NumberOfImageCroppedCheck::class,
     ];
 
     /**
@@ -199,15 +203,19 @@ class Kernel extends ConsoleKernel
         //Get list of schedule and put list in cron jobs table
         $schedule->command('schedule:list')->daily();
 
+
         //Get Orders From Magento 
         $schedule->command('getorders:magento')->everyFiveMinutes()->withoutOverlapping();
-
 
         //This will run every  five minutes checking and making keyword-customer relationship...
         $schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();
 
         //This will run every fifteen minutes checking if new mail is recieved for email importer...
         $schedule->command('excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
+
+        //This will run every fifteen minutes checking if new mail is recieved form supplier email importer...
+        $schedule->command('supplier-excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
+
 
         //Flag customer if they have a complaint
         $schedule->command('flag:customers-with-complaints')->daily();
@@ -272,6 +280,8 @@ class Kernel extends ConsoleKernel
         })->hourly();
 
         $schedule->command('product:replace-text')->everyFiveMinutes();
+
+        $schedule->command('numberofimages:cropped')->hourly()->withoutOverlapping();
 
 //        $schedule->command('instagram:grow-accounts')->dailyAt('13:00')->timezone('Asia/Kolkata');
         $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
@@ -348,8 +358,11 @@ class Kernel extends ConsoleKernel
         // need to run this both cron every minutes
         $schedule->command('cronschedule:update')->everyMinute();
         $schedule->command('erpevents:run')->everyMinute();
-        $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
-        $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
+      //  $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
+      //  $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
+
+        //Sync customer from magento to ERP
+        $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
     }
 
     /**

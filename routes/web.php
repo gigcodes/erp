@@ -70,8 +70,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('crop-references', 'CroppedImageReferenceController@index');
     Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
     Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
+
     Route::get('/magento/status', 'MagentoController@addStatus');
     Route::post('/magento/status/save', 'MagentoController@saveStatus')->name('magento.save.status');
+
+    Route::post('crop-references-grid/reject', 'CroppedImageReferenceController@rejectCropImage');
+
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
@@ -182,7 +186,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('autoreply/save-group', 'AutoReplyController@saveGroup')->name('autoreply.save.group');
     Route::post('autoreply/save-group/phrases', 'AutoReplyController@saveGroupPhrases')->name('autoreply.save.group.phrases');
     Route::post('autoreply/save-by-question', 'AutoReplyController@saveByQuestion');
+    Route::get('autoreply/get-phrases', 'AutoReplyController@getPhrases');
     Route::resource('autoreply', 'AutoReplyController');
+    Route::get('most-used-words', 'AutoReplyController@mostUsedWords')->name("chatbot.mostUsedWords");
+    Route::get('most-used-phrases', 'AutoReplyController@mostUsedPhrases')->name("chatbot.mostUsedPhrases");
 
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
@@ -773,6 +780,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Vendor Module
     Route::get('vendor/product', 'VendorController@product')->name('vendor.product.index');
+    Route::post('vendor/reply/add', 'VendorController@addReply')->name('vendor.reply.add');
+    Route::get('vendor/reply/delete', 'VendorController@deleteReply')->name('vendor.reply.delete');
     Route::post('vendor/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendor.email.send.bulk');
     Route::post('vendor/send/email', 'VendorController@sendEmail')->name('vendor.email.send');
     Route::get('vendor/email/inbox', 'VendorController@emailInbox')->name('vendor.email.inbox');
@@ -803,6 +812,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/updateBrandCount', 'SupplierController@updateSupplierBrandCount')->name('supplier.brand.count.update');
     Route::post('supplier/deleteBrandCount', 'SupplierController@deleteSupplierBrandCount')->name('supplier.brand.count.delete');
 
+    // Get supplier brands and raw brands
+    Route::get('supplier/get-brands-and-rawbrands', 'SupplierController@getScrapedBrandAndBrandRaw')->name('supplier.brands.rawbrands.list');
+    // Update supplier brands and raw brands
+    Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
+    
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
@@ -975,6 +989,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::resource('hashtag', 'HashtagController');
     Route::post('hashtag/process/queue','HashtagController@rumCommand')->name('hashtag.command');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
+    Route::get('influencers', 'HashtagController@influencer')->name('influencers.index');
+    
     Route::get('comments', 'InstagramController@getComments');
     Route::post('comments', 'InstagramController@postComment');
     Route::get('post-media', 'InstagramController@showImagesToBePosted');
@@ -1038,7 +1054,14 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/google/images', 'ScrapController@scrapGoogleImages');
     Route::post('/google/images/download', 'ScrapController@downloadImages');
     Route::get('/scraped-urls', 'ScrapController@scrapedUrls');
+    Route::get('/generic-scraper', 'ScrapController@genericScraper');
+    Route::post('/generic-scraper/save', 'ScrapController@genericScraperSave')->name('generic.save.scraper');
+    Route::get('/generic-scraper/mapping/{id}', 'ScrapController@genericMapping')->name('generic.mapping');
+    Route::post('/generic-scraper/mapping/save', 'ScrapController@genericMappingSave')->name('generic.mapping.save');
+
     Route::get('/{name}', 'ScrapController@showProducts');
+
+     
 });
 
 Route::resource('quick-reply', 'QuickReplyController');
@@ -1336,3 +1359,5 @@ Route::group(['middleware' => 'auth'], function () {
 Route::prefix('chat-bot')->middleware('auth')->group(function () {
     Route::get('/connection', 'ChatBotController@connection');
 });
+
+Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
