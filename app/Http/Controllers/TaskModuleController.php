@@ -353,7 +353,13 @@ class TaskModuleController extends Controller {
 
 		$tasks_view = [];
 		$priority  = \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
-		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority'));
+
+		$openTask = \App\Task::join("users as u","u.id","tasks.assign_to")
+		->whereNull("tasks.is_completed")
+		->select(\DB::raw("count(u.id) as total"),"u.name as person")
+		->pluck("total","person");
+
+		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask'));
 	}
 
 	public function updateApproximate(Request $request) {
