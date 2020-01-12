@@ -44,3 +44,15 @@ function get_folder_number($id)
 {
     return floor($id / config('constants.image_per_folder'));
 }
+
+function previous_sibling(array $elements, $previous_sibling = 0, &$branch = []) 
+{
+    foreach ($elements as $k => $element) {
+        if ($element['previous_sibling'] == $previous_sibling && $previous_sibling != 0) {
+            $branch[] = $element;
+            previous_sibling($elements, $element["id"],$branch);
+        }
+    }
+
+    return $branch;
+}
