@@ -514,7 +514,6 @@
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers - unread</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
-                                            <a class="dropdown-item" href="{{ action('VisitorController@index') }}">Livechat Visitor Logs</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -929,6 +928,200 @@
                                     </ul>
                                 </li>
                                 @endif
+
+                                @if(auth()->user()->isAdmin())
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>LiveChat, Inc.<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('VisitorController@index') }}">LiveChat Visitor Log</a>
+                                                <a class="dropdown-item" href="{{ action('LiveChatController@setting') }}">LiveChat Settings</a>
+                                            </li>
+
+                                            <hr />
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('instagram/hashtag') }}">Hashtags</a>
+                                            </li>
+
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag monitoring & manual Commenting</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments (Notifications)</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Location</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">Keywords For comments</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">Processed Comments</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">All Competitors On Instagram</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comments Statistics</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customers followers</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags Used by top customers.</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign </a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
+                                            </li>
+
+                                            <hr />
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('instagram/hashtag') }}">Hashtags</a>
+                                            </li>
+
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag monitoring & manual Commenting</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments (Notifications)</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Location</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">Keywords For comments</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">Processed Comments</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">All Competitors On Instagram</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comments Statistics</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customers followers</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags Used by top customers.</a>
+                                            </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign </a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
+                                            </li>
+
+                                        </ul>
+                                    </li>
+                                @endif
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
