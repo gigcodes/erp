@@ -342,6 +342,33 @@
 
     @include('task-module.partials.modal-reminder')
 
+    @if(auth()->user()->isAdmin())
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-body">
+                  <?php if(!empty($openTask)) { ?>
+                    <div class="row col-md-12">
+                        <?php foreach($openTask as $k => $v) { ?>
+                          <div class="col-md-2">
+                                <div class="card">
+                                  <div class="card-header">
+                                    <?php echo $k; ?>
+                                  </div>
+                                  <div class="card-body">
+                                      <?php echo $v; ?>
+                                  </div>
+                              </div>
+                           </div> 
+                      <?php } ?>
+                    </div>
+                  <?php } else  { 
+                    echo "Sorry , No data available";
+                  } ?>
+                </div>
+            </div>    
+        </div>
+    @endif    
+
     <div id="exTab2" class="container" style="overflow: auto">
         <ul class="nav nav-tabs">
             <li class="active">

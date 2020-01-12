@@ -34,4 +34,8 @@ class ReplyCategory extends Model
     return $this->hasMany('App\Reply', 'category_id')->where('model', 'Product Dispatch');
   }
 
+  public function vendor() {
+    return $this->hasMany('App\Reply', 'category_id')->where('model', 'Vendor');
+  }
+
 }
