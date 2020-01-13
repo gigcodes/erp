@@ -108,7 +108,8 @@ class UserTableSeeder extends Seeder
 
             if ($role->name == 'Admin') {
                 // assign all permissions
-                $role->syncPermissions(Permission::all());
+                //$role->syncPermissions(Permission::all());
+                $role->syncPermissions(Permission::where('guard_name','!=','')->get());
                 $this->command->info('Admin granted all the permissions');
             } else {
                 // for others by default only read access

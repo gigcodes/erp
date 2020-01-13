@@ -775,6 +775,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Vendor Module
     Route::get('vendor/product', 'VendorController@product')->name('vendor.product.index');
+    Route::post('vendor/reply/add', 'VendorController@addReply')->name('vendor.reply.add');
+    Route::get('vendor/reply/delete', 'VendorController@deleteReply')->name('vendor.reply.delete');
     Route::post('vendor/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendor.email.send.bulk');
     Route::post('vendor/send/email', 'VendorController@sendEmail')->name('vendor.email.send');
     Route::get('vendor/email/inbox', 'VendorController@emailInbox')->name('vendor.email.inbox');
@@ -805,6 +807,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/updateBrandCount', 'SupplierController@updateSupplierBrandCount')->name('supplier.brand.count.update');
     Route::post('supplier/deleteBrandCount', 'SupplierController@deleteSupplierBrandCount')->name('supplier.brand.count.delete');
 
+    // Get supplier brands and raw brands
+    Route::get('supplier/get-brands-and-rawbrands', 'SupplierController@getScrapedBrandAndBrandRaw')->name('supplier.brands.rawbrands.list');
+    // Update supplier brands and raw brands
+    Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
+    
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
@@ -1042,7 +1049,14 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/google/images', 'ScrapController@scrapGoogleImages');
     Route::post('/google/images/download', 'ScrapController@downloadImages');
     Route::get('/scraped-urls', 'ScrapController@scrapedUrls');
+    Route::get('/generic-scraper', 'ScrapController@genericScraper');
+    Route::post('/generic-scraper/save', 'ScrapController@genericScraperSave')->name('generic.save.scraper');
+    Route::get('/generic-scraper/mapping/{id}', 'ScrapController@genericMapping')->name('generic.mapping');
+    Route::post('/generic-scraper/mapping/save', 'ScrapController@genericMappingSave')->name('generic.mapping.save');
+
     Route::get('/{name}', 'ScrapController@showProducts');
+
+     
 });
 
 Route::resource('quick-reply', 'QuickReplyController');
@@ -1340,3 +1354,5 @@ Route::group(['middleware' => 'auth'], function () {
 Route::prefix('chat-bot')->middleware('auth')->group(function () {
     Route::get('/connection', 'ChatBotController@connection');
 });
+
+Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
