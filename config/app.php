@@ -169,7 +169,7 @@ return [
         Pusher\Laravel\PusherServiceProvider::class,
         Chumper\Zipper\ZipperServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
-        //Maatwebsite\Excel\ExcelServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
         PragmaRX\Tracker\Vendor\Laravel\ServiceProvider::class,
         Thujohn\Twitter\TwitterServiceProvider::class,
 
