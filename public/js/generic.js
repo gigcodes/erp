@@ -155,7 +155,7 @@ $(document).on('click', '.load-communication-modal', function () {
                button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>'; 
             }
 
-            if (message.inout == 'out') {
+            if (message.inout == 'out' || message.inout == 'in') {
                 button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 create-dialog">+ Dialog</a>'; 
             }    
 

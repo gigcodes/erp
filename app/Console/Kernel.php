@@ -209,6 +209,10 @@ class Kernel extends ConsoleKernel
         //This will run every fifteen minutes checking if new mail is recieved for email importer...
         $schedule->command('excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
 
+        //This will run every fifteen minutes checking if new mail is recieved form supplier email importer...
+        $schedule->command('supplier-excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
+
+
         //Flag customer if they have a complaint
         $schedule->command('flag:customers-with-complaints')->daily();
 
