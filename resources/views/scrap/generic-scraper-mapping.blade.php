@@ -38,6 +38,7 @@
                 <th>Selector</th>
                 <th>Function</th>
                 <th>Parameter</th>
+                <th>Remove</th>
                 
             </tr>
             </thead>
@@ -71,6 +72,7 @@
                 <td><input type="text" class="selector form-control" value="{{ $mapping->selector }}"></td>
                 <td><input type="text" class="function form-control" value="{{ $mapping->function }}"></td>
                 <td><input type="text" class="parameter form-control" value="{{ $mapping->parameter }}"></td>
+                <td><button class="btn btn-secondary" onclick="removeEntry({{ $mapping->id }})">Remove</button></td>
                 </tr>
                 @endforeach
                 
@@ -106,6 +108,7 @@
         size_system = '<option value="size_system">Sizesystem</option >';
         currency = '<option value="currency">Currency</option >';
         b2b_price = '<option value="b2b_price">B2bprice</option >';
+        composition = '<option value="composition">Composition</option >';
 
         $(".select-value").each(function( index ) {
             if($(this).children("option:selected").val() == 'sku'){
@@ -141,9 +144,6 @@
             if($(this).children("option:selected").val() == 'sizes'){
                 sizes = '';
             }
-            if($(this).children("option:selected").val() == 'brand'){
-                brand = '';
-            }
             if($(this).children("option:selected").val() == 'color'){
                 color = '';
             }
@@ -162,9 +162,12 @@
             if($(this).children("option:selected").val() == 'b2b_price'){
                 b2b_price = '';
             }
+            if($(this).children("option:selected").val() == 'composition'){
+                composition = '';
+            }
         });
 
-        html = '<tr><td><select class="form-control select-value">'+sku+''+url+''+category+''+material_used+''+description+''+price+''+discounted_price+''+images+''+sizes+''+brand+''+color+''+country+''+is_sale+''+size_system+''+currency+''+b2b_price+'</select></td><td><input type="text" class="selector form-control"></td><td><input type="text" class="function form-control"></td><td><input type="text" class="parameter form-control"></td></tr>';
+        html = '<tr><td><select class="form-control select-value">'+sku+''+url+''+title+''+category+''+material_used+''+description+''+price+''+discounted_price+''+images+''+sizes+''+brand+''+color+''+country+''+is_sale+''+size_system+''+currency+''+b2b_price+''+composition+'</select></td><td><input type="text" class="selector form-control"></td><td><input type="text" class="function form-control"></td><td><input type="text" class="parameter form-control"></td></tr>';
         if(sku == '' && url == '' && category == '' && material_used == '' && description == '' && price == '' && discounted_price == '' && images == '' && sizes == '' && brand == '' && color == '' && country == '' && is_sale == '' && size_system == '' && currency == '' && b2b_price == ''){
             alert('All Fields Selected');
         }else{
@@ -217,6 +220,27 @@
         })
         
         
+    }
+
+    function removeEntry(id){
+        var result = confirm("Want to delete?");
+        if (result) {
+            $.ajax({
+            url: "{{ route('generic.mapping.delete') }}",
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                "_token": "{{ csrf_token() }}",
+                id : id,
+            },
+            })
+            .done(function() {
+                location.reload();
+            })
+            .fail(function() {
+                alert('Something went wrong');
+            })
+        }
     }
 
 

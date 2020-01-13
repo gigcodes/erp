@@ -1054,6 +1054,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/generic-scraper/save', 'ScrapController@genericScraperSave')->name('generic.save.scraper');
     Route::get('/generic-scraper/mapping/{id}', 'ScrapController@genericMapping')->name('generic.mapping');
     Route::post('/generic-scraper/mapping/save', 'ScrapController@genericMappingSave')->name('generic.mapping.save');
+    Route::post('/generic-scraper/mapping/delete', 'ScrapController@genericMappingDelete')->name('generic.mapping.delete');
 
     Route::get('/{name}', 'ScrapController@showProducts');
 
