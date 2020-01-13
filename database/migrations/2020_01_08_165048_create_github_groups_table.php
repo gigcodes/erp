@@ -16,7 +16,6 @@ class CreateGithubGroupsTable extends Migration
         Schema::create('github_groups', function (Blueprint $table) {
             //
             $table->integer('id');
-            $table->integer('vendor_id');
             $table->string('name');
             $table->timestamps();
 

@@ -1350,5 +1350,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
         Route::get('/users', 'Github\UserController@listOrganizationUsers');
         Route::get('/groups', 'Github\GroupController@listGroups');
+        Route::get('/sync', 'Github\SyncController@index');
+        Route::get('/sync/start', 'Github\SyncController@startSync');
     });
 });

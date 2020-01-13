@@ -8,13 +8,10 @@ class GithubGroup extends Model{
 
     protected $fillable = [
         'id',
-        'vendor_id',
         'name'
     ];
 
-    public function vendor(){
-        return $this->belongsTo('App\Vendor');
-    }
+
 
     public function users()
     {
