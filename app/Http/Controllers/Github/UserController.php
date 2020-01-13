@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Github;
 
+use App\Github\GithubRepository;
+use App\Github\GithubRepositoryUser;
+use App\Github\GithubUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
@@ -21,31 +24,72 @@ class UserController extends Controller
 
 
 
-    public function listUsers(){
+    public function listUsers()
+    {
         return view('github.users');
     }
 
-    private function refreshUsersForRespository(string $repositoryName){
+    private function refreshUsersForRespository(string $repositoryName)
+    {
 
-        $url = "https://api.github.com/repos/".getenv('GITHUB_ORG_ID')."/".$repositoryName."/collaborators";
+        $githubRepository = GithubRepository::where('name', $repositoryName)->first();
+
+        $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID') . "/" . $repositoryName . "/collaborators";
         $response = $this->client->get($url);
 
         $users = json_decode($response->getBody()->getContents());
 
-        foreach($users as $user){
-
+        $returnUsers = [];
+        foreach ($users as $user) {
             $dbUser = [
                 'id' => $user->id,
                 'username' => $user->login,
             ];
 
-            
-        }
+            GithubUser::updateOrCreate(
+                [
+                    'id' => $user->id
+                ],
+                $dbUser
+            );
 
+            $rights = null;
+            if ($user->permissions->admin == true) {
+                $rights = 'admin';
+            } else if ($user->permissions->push == true) {
+                $rights = 'push';
+            } else if ($user->permissions->pull == true) {
+                $rights = 'pull';
+            }
+
+
+
+            GithubRepositoryUser::updateOrCreate(
+                [
+                    'github_users_id' => $user->id,
+                    'github_repositories_id' => $githubRepository->id
+                ],
+                [
+                    'github_users_id' => $user->id,
+                    'github_repositories_id' => $githubRepository->id,
+                    'rights' => $rights
+                ]
+            );
+
+            $returnUsers[] = [
+                'id' => $user->id,
+                'username' => $user->login,
+                'rights' => $rights
+            ];
+        }
+        return $returnUsers;
     }
 
-    public function listUsersOfRepository(){
+    public function listUsersOfRepository()
+    {
         $name = Route::current()->parameter('name');
-        return response($name);
+        $users = $this->refreshUsersForRespository($name);
+        
+        return view('github.users', ['users' => $users]);
     }
 }

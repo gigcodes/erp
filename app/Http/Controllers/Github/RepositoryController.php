@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Github;
 
-use App\GithubRepository;
+use App\Github\GithubRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
