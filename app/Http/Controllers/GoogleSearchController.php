@@ -219,5 +219,91 @@ class GoogleSearchController extends Controller
         return response()->json([
             'ok'
         ], 200);
-    }      
+    }
+
+    /**
+    * function to get google search results
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return data to view
+    */
+    public function searchResults(Request $request)
+    {
+        $queryString = '';
+        $orderBy = 'DESC';
+        if (!empty($request->hashtag)) {
+            $queryString .= 'hashtag=' . $request->hashtag . '&';
+        }
+        if (!empty($request->location)) {
+            $queryString .= 'location=' . $request->location . '&';
+        }
+        if (!empty($request->post)) {
+            $queryString .= 'post=' . $request->post . '&';
+        }
+        if (!empty($request->date)) {
+            $queryString .= 'date=' . $request->date . '&';
+        }
+        if (!empty($request->orderby)) {
+            $orderBy = $request->orderby;
+        }
+
+        // Load posts
+        $posts = $this->getFilteredGoogleSearchResults($request);
+
+        // Paginate
+        $posts = $posts->paginate(Setting::get('pagination'));
+
+        // For ajax
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('google.search.row_results', compact('posts'))->render(),
+                'links' => (string)$posts->appends($request->all())->render()
+            ], 200);
+        }
+
+        // Return view
+        return view('google.search.results', compact('posts', 'request', 'queryString', 'orderBy'));
+    }
+
+    /**
+    * function to get google search results
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return array of search results
+    */
+    private function getFilteredGoogleSearchResults(Request $request) {
+        $sortBy = ($request->input('sortby') == '') ? 'posted_at' : $request->input('sortby');
+        $orderBy = ($request->input('orderby') == '') ? 'DESC' : $request->input('orderby');
+
+        // Base query
+        $instagramPosts = InstagramPosts::orderBy($sortBy, $orderBy)
+            ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id')
+            ->select(['instagram_posts.*','hash_tags.hashtag']);
+
+        //Pick google search result from DB
+        $instagramPosts->where('source', '=', 'google');
+
+        // Apply hashtag filter
+        if (!empty($request->hashtag)) {
+            $instagramPosts->where('hash_tags.hashtag', $request->hashtag);
+        }
+
+        // Apply location filter
+        if (!empty($request->location)) {
+            $instagramPosts->where('location', 'LIKE', '%' . $request->location . '%');
+        }
+
+        // Apply post filter
+        if (!empty($request->post)) {
+            $instagramPosts->where('caption', 'LIKE', '%' . $request->post . '%');
+        }
+
+        // Apply posted at filter
+        if (!empty($request->date)) {
+            $instagramPosts->where('posted_at', date('Y-m-d H:i:s', strtotime($request->date)));
+        }
+
+        // Return google search results
+        return $instagramPosts;
+    }
 }

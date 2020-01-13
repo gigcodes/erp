@@ -1365,6 +1365,7 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::resource('search', 'GoogleSearchController');
     Route::get('/search', 'GoogleSearchController@index')->name('google.search');
     Route::get('keyword/markPriority','GoogleSearchController@markPriority')->name('google.keyword.priority');
+    Route::get('/results', 'GoogleSearchController@searchResults')->name('google.results');
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');

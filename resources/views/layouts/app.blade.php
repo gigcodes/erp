@@ -1100,7 +1100,10 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Google<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('google.search')}}">Search</a>
+                                            <a class="dropdown-item" href="{{route('google.search')}}">Keywords</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('google.results')}}">Search Results</a>
                                         </li>
                                     </ul>
                                 </li>
