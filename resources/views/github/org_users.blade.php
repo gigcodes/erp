@@ -8,7 +8,7 @@
             <tr>
                 <th>Id</th>
                 <th>Name</th>
-                <th>Vendor</th>
+                <th>Repositories</th>
             </tr>
         </thead>
         <tbody>
@@ -16,7 +16,11 @@
             <tr>
                 <td>{{$user['id']}}</td>
                 <td>{{$user['username']}}</td>
-                <td>{{ $user->vendor ? $user->vendor->name : '' }}</td>
+                <td>
+                    @foreach($user->repositories as $repository)
+                        <span class="badge badge-pill badge-light">{{$repository->name}}</span>
+                    @endforeach
+                </td>
             </tr>
             @endforeach
         </tbody>

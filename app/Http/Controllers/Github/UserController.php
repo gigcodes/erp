@@ -48,8 +48,17 @@ class UserController extends Controller
     public function listOrganizationUsers()
     {
         $this->refreshUsersForOrganization();
-        $users = GithubUser::with('vendor')->get();
+        $users = GithubUser::with('repositories')->get();
         return view('github.org_users', ['users' => $users]);
+    }
+
+    public function repositoryNames($user){
+        return array_map(
+            function ($repository){
+                return $repository->name;
+            },
+            $user->repositories->toArray()
+        );
     }
 
     private function refreshUsersForRespository(string $repositoryName)

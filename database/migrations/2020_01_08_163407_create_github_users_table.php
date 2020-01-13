@@ -16,7 +16,7 @@ class CreateGithubUsersTable extends Migration
         Schema::create('github_users', function (Blueprint $table) {
             $table->integer('id');
             $table->string('username');
-            $table->integer('vendor_id');
+            $table->integer('user_id');
             $table->timestamps();
             $table->primary(['id']);
         });
