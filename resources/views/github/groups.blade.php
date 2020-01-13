@@ -13,8 +13,8 @@
         <tbody>
             @foreach($groups as $group)
             <tr>
-                <td>{{$group['id']}}</th>
-                <th>{{$group['name']}}</th>
+                <td>{{$group['id']}}</td>
+                <td>{{$group['name']}}</td>
             </tr>
             @endforeach
         </tbody>

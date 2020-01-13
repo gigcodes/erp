@@ -15,13 +15,13 @@
         <tbody>
             @foreach($repositories as $repository)
             <tr>
-                <td>{{$repository['id']}}</th>
-                <th>{{$repository['name']}}</th>
-                <th>{{$repository['updated_at']}}</th>
-                <th>
+                <td>{{$repository['id']}}</td>
+                <td>{{$repository['name']}}</td>
+                <td>{{$repository['updated_at']}}</td>
+                <td>
                     <a href="#">Settings</a>
                     <a href="{{ url('/github/repos/'.$repository['name'].'/users') }}">Users</a>
-                </th>
+                </td>
             </tr>
             @endforeach
         </tbody>
