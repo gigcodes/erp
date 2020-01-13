@@ -17,7 +17,6 @@ class AddLanguageColumnToSuppliersTable13012020 extends Migration
             $table->string('language')->after('updated_by')->index();
         });
     }
-    }
 
     /**
      * Reverse the migrations.
