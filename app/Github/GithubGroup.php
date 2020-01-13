@@ -12,4 +12,13 @@ class GithubGroup extends Model{
         'name'
     ];
 
+    public function vendor(){
+        return $this->belongsTo('App\Vendor');
+    }
+
+    public function users()
+    {
+        //return $this->hasManyThrough('App\Github\GithubUser', '');
+    }
+
 }

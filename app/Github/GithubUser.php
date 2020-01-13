@@ -14,4 +14,8 @@ class GithubUser extends Model
         'updated_at'
     ];
 
+    public function vendor(){
+        return $this->belongsTo('App\Vendor');
+    }
+
 }

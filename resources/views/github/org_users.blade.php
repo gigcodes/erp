@@ -8,6 +8,7 @@
             <tr>
                 <th>Id</th>
                 <th>Name</th>
+                <th>Vendor</th>
             </tr>
         </thead>
         <tbody>
@@ -15,6 +16,7 @@
             <tr>
                 <td>{{$user['id']}}</td>
                 <td>{{$user['username']}}</td>
+                <td>{{ $user->vendor ? $user->vendor->name : '' }}</td>
             </tr>
             @endforeach
         </tbody>

@@ -34,20 +34,21 @@ class UserController extends Controller
                 'username' => $user->login,
             ];
 
-            GithubUser::updateOrCreate(
+            $updatedUser = GithubUser::updateOrCreate(
                 [
                     'id' => $user->id
                 ],
                 $dbUser
             );
-            $returnUser[] = $dbUser;
+            $returnUser[] = $updatedUser;
         }
         return $returnUser;
     }
 
     public function listOrganizationUsers()
     {
-        $users = $this->refreshUsersForOrganization();
+        $this->refreshUsersForOrganization();
+        $users = GithubUser::with('vendor')->get();
         return view('github.org_users', ['users' => $users]);
     }
 
