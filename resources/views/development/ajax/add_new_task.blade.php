@@ -13,15 +13,15 @@
                 <div class="modal-body">
                     @if(auth()->user()->checkPermission('development-list'))
                         <div class="form-group">
-                            <strong>User:</strong>
-                            <select class="form-control" name="user_id" required>
+                            <strong>Assigned To:</strong>
+                            <select class="form-control" name="assigned_to" required>
                                 @foreach ($users as $key => $obj)
-                                    <option value="{{ $key }}" {{ old('user_id') == $key ? 'selected' : '' }}>{{ $obj }}</option>
+                                    <option value="{{ $key }}" {{ old('assigned_to') == $key ? 'selected' : '' }}>{{ $obj }}</option>
                                 @endforeach
                             </select>
 
-                            @if ($errors->has('user_id'))
-                                <div class="alert alert-danger">{{$errors->first('user_id')}}</div>
+                            @if ($errors->has('assigned_to'))
+                                <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
                             @endif
                         </div>
                     @endif

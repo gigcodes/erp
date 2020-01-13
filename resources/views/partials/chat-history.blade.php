@@ -1,4 +1,4 @@
-<div id="chat-list-history" class="modal" role="dialog">
+<div id="chat-list-history" class="modal" role="dialog" style="z-index: 2015;">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

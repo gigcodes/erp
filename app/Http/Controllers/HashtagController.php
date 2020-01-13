@@ -15,6 +15,9 @@ use InstagramAPI\Instagram;
 use InstagramAPI\Signatures;
 use Plank\Mediable\Media;
 use App\Setting;
+use App\Jobs\InstagramComment;
+use App\ScrapInfluencer;
+
 
 
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
@@ -320,36 +323,41 @@ class HashtagController extends Controller
 
         $this->validate($request, [
             'message' => 'required',
-            'post_id' => 'required',
             'account_id' => 'required',
-            'code' => 'required',
-            'author' => 'required',
+            'id' => 'required',
             'hashtag' => 'required',
             'narrative' => 'required'
         ]);
 
         $acc = Account::findOrFail($request->get('account_id'));
+        $acc->comment_pending = 1;
+        $acc->save();
+        // $instagram = new Instagram();
+        // try {
 
-        $instagram = new Instagram();
-        try {
+        //     $instagram->login($acc->last_name, $acc->password);
 
-            $instagram->login($acc->last_name, $acc->password);
-
-        } catch (\Exception $e) {
-            $acc->last_name = env('IG_USERNAME');
-            $instagram->login(env('IG_USERNAME'), env('IG_PASSWORD'));
-        }
+        // } catch (\Exception $e) {
+        //     $acc->last_name = env('IG_USERNAME');
+        //     $instagram->login(env('IG_USERNAME'), env('IG_PASSWORD'));
+        // }
         
-        $instagram->media->comment($request->get('post_id'), $request->get('message'));
+        //$instagram->media->comment($request->get('post_id'), $request->get('message'));
+        //$post = InstagramPosts::find($request->get('id'));
 
+        InstagramComment::dispatchNow($request);
+        
+       
         $stat = new CommentsStats();
         $stat->target = $request->get('hashtag');
         $stat->sender = $acc->last_name;
         $stat->comment = $request->get('message');
-        $stat->post_author = $request->get('author');
-        $stat->code = $request->get('code');
+        $stat->post_author = '';
+        $stat->code = '';
         $stat->narrative = $request->get('narrative');
         $stat->save();
+
+       
 
         return response()->json([
             'status' => 'success'
@@ -399,5 +407,29 @@ class HashtagController extends Controller
         } catch (\Exception $e) {
             return ['error' => true, 'message' => 'Something went wrong'];
         }
+    }
+
+    public function influencer(Request $request)
+    {
+        
+        if($request->term != null){
+
+                 $influencers  = ScrapInfluencer::query()
+                        ->where('name', 'LIKE', "%{$request->term}%")
+                        ->paginate(25);
+               
+        }else{
+          $influencers =  ScrapInfluencer::paginate(25);
+        }
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('instagram.hashtags.partials.influencer-data', compact('influencers'))->render(),
+                'links' => (string)$influencers->render(),
+                'total' => $influencers->total(),
+            ], 200);
+            }
+
+         return view('instagram.hashtags.influencers', compact('influencers'));
     }
 }

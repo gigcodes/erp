@@ -15,6 +15,7 @@ use App\ChatMessagePhrase;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionExample;
 use App\ChatMessageWord;
+use App\ChatbotDialog;
 use App\Library\Watson\Model as WatsonManager;
 
 class AutoReplyController extends Controller
@@ -38,18 +39,12 @@ class AutoReplyController extends Controller
         $simple_auto_replies = new LengthAwarePaginator($currentItems, count($simple_auto_replies), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);
-        $groupKeywords = ChatbotKeyword::all();
-        $groupPhrases = ChatbotQuestion::all();
-        $mostUsedWords = ChatMessageWord::get()->take(3);
-  
+        
         return view('autoreplies.index', [
             'auto_replies' => $auto_replies,
             'simple_auto_replies' => $simple_auto_replies,
             'priority_customers_replies' => $priority_customers_replies,
-            'show_automated_messages' => $show_automated_messages,
-            'mostUsedWords' => $mostUsedWords,
-            'groupPhrases' => $groupPhrases,
-            'groupKeywords' => $groupKeywords,
+            'show_automated_messages' => $show_automated_messages
         ]);
     }
 
@@ -211,9 +206,9 @@ class AutoReplyController extends Controller
             ->where("customer_id",$customerId)
             ->whereNull("number")
             ->orderBy("chat_messages.id","ASC")
-            ->limit(5)->get();
+            ->paginate(5);
 
-            return response()->json(["code" => 200,"data" => $lastReplies,"question" => $currentMessage->message]);
+            return response()->json(["code" => 200,"data" => $lastReplies->items(),"question" => $currentMessage->message , "page" => $lastReplies->currentPage() + 1]);
 
         }
 
@@ -321,6 +316,88 @@ class AutoReplyController extends Controller
         WatsonManager::pushQuestion($groupId);
        
        return response()->json(["response" => 200]);
+    }
+
+    public function mostUsedWords(Request $request)
+    {
+        $groupKeywords = \App\ChatbotKeyword::all();
+        $groupPhrases = \App\ChatbotQuestion::all();
+
+        $keyword = request("keyword" , "");
+
+        $mostUsedWords = new \App\ChatMessageWord;
+
+        if(!empty($keyword)) {
+            $mostUsedWords = $mostUsedWords->where("word","like","%$keyword%");
+        }
+
+        $mostUsedWords = $mostUsedWords->orderBy("total","asc");
+
+        $mostUsedWords = $mostUsedWords->paginate(10);
+
+        $allSuggestedOptions = \App\ChatbotDialog::allSuggestedOptions();
+        
+        return view("autoreplies.most-used-words",[
+            'mostUsedWords' => $mostUsedWords,
+            'groupPhrases' => $groupPhrases,
+            'groupKeywords' => $groupKeywords,
+            'allSuggestedOptions' => $allSuggestedOptions
+        ]);
+    }
+
+    public function getPhrases(Request $request) 
+    {
+
+        $id = $request->get("id",0);
+        $keyword =  $request->get("keyword",""); 
+
+        $phrases = \App\ChatMessagePhrase::where("word_id",$id)->where("phrase","!=","")->groupBy("phrase");
+
+        if(!empty($keyword)) {
+            $phrases = $phrases->where("phrase","like","%$keyword%");
+        }
+
+        $phrases = $phrases->paginate(10);
+
+        $string = (string)view("autoreplies.partials.phrases",compact('phrases',"id",'keyword'));
+
+        return response()->json(["code" => 200, "html" => $string]);
+
+    }
+
+    public function mostUsedPhrases(Request $request)
+    {
+        $groupPhrases = \App\ChatbotQuestion::all();
+
+        $keyword = request("keyword" , "");
+
+        $mostUsedPhrases = new \App\ChatMessagePhrase;
+
+        if(!empty($keyword)) {
+            $mostUsedPhrases = $mostUsedPhrases->where("phrase","like","%$keyword%");
+        }
+
+        $mostUsedPhrases = $mostUsedPhrases->where(\DB::raw("LENGTH(phrase) - LENGTH(REPLACE(phrase, ' ', '')) + 1") , ">" , 3);
+
+        $mostUsedPhrases->select([\DB::raw("count(phrase) as total_count") , "chat_message_phrases.*"]);
+        $mostUsedPhrases->join(\DB::raw('(SELECT id from chat_message_phrases group by chat_id) as cmp'),function($join) {
+           $join->on("chat_message_phrases.id","=","cmp.id");      
+        });
+
+        $mostUsedPhrases->groupBy("phrase");
+
+        $mostUsedPhrases = $mostUsedPhrases->orderBy("total_count","desc");
+
+        $mostUsedPhrases = $mostUsedPhrases->paginate(10);
+
+        $allSuggestedOptions = \App\ChatbotDialog::allSuggestedOptions();
+        
+        return view("autoreplies.most-used-phrases",[
+            'mostUsedPhrases' => $mostUsedPhrases,
+            'groupPhrases' => $groupPhrases,
+            'groupKeywords' => [],
+            'allSuggestedOptions' => $allSuggestedOptions
+        ]);
     }
 
 }

@@ -481,12 +481,29 @@ class ProductCropperController extends Controller
     {
         // Get product
         $product = Product::findOrFail($id);
+        
+        if($product->status_id == StatusHelper::$cropRejected){
+            if ($request->ajax()) {
+                return response()->json(['sucesss'], 200);
+            }
+        }
+
+        if($product->status_id == StatusHelper::$manualImageUpload){
+            if ($request->ajax()) {
+                return response()->json(['sucesss'], 200);
+            }
+        }
 
         // Get last image cropper
         $lastImageCropper = $product->crop_approved_by;
 
         // Update product to status rejected
-        $product->status_id = StatusHelper::$cropRejected;
+        if($request->get('remark') == 'Image incorrect'){
+            $product->status_id = StatusHelper::$manualImageUpload;
+        }else{
+            $product->status_id = StatusHelper::$cropRejected;
+        }
+        
         $product->is_crop_rejected = 1;
         $product->crop_remark = $request->get('remark');
         $product->crop_rejected_by = Auth::user()->id;

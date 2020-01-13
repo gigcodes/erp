@@ -13,7 +13,7 @@
 
 Auth::routes();
 
-Route::get('/test/test', 'LiveChatController@sendImage');
+Route::get('/test/test', 'TextController@index');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 
@@ -54,7 +54,9 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index');
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.laravel.log');
+    Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
     Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
+
 
 });
 
@@ -71,7 +73,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('crop-references', 'CroppedImageReferenceController@index');
     Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
     Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
-
+    Route::post('crop-references-grid/reject', 'CroppedImageReferenceController@rejectCropImage');
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
@@ -113,6 +115,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing', 'ProductController@listing')->name('products.listing');
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
+    Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
     Route::get('products/listing/magento', 'ProductController@approvedMagento')->name('products.listing.magento');
     Route::get('products/listing/rejected', 'ProductController@showRejectedListedProducts');
     Route::get('product/listing-remark', 'ProductController@addListingRemarkToProduct');
@@ -181,7 +184,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('autoreply/save-group', 'AutoReplyController@saveGroup')->name('autoreply.save.group');
     Route::post('autoreply/save-group/phrases', 'AutoReplyController@saveGroupPhrases')->name('autoreply.save.group.phrases');
     Route::post('autoreply/save-by-question', 'AutoReplyController@saveByQuestion');
+    Route::get('autoreply/get-phrases', 'AutoReplyController@getPhrases');
     Route::resource('autoreply', 'AutoReplyController');
+    Route::get('most-used-words', 'AutoReplyController@mostUsedWords')->name("chatbot.mostUsedWords");
+    Route::get('most-used-phrases', 'AutoReplyController@mostUsedPhrases')->name("chatbot.mostUsedPhrases");
 
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
@@ -322,6 +328,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/productapprover/isFinal/{product}', 'ProductApproverController@isFinal')->name('productapprover.isfinal');
 
     Route::get('/productinventory/in/stock', 'ProductInventoryController@instock')->name('productinventory.instock');
+    Route::post('/productinventory/in/stock/update-field', 'ProductInventoryController@updateField')->name('productinventory.instock.update-field');
     Route::get('/productinventory/in/delivered', 'ProductInventoryController@inDelivered')->name('productinventory.indelivered');
     Route::get('/productinventory/in/stock/instruction-create', 'ProductInventoryController@instructionCreate')->name('productinventory.instruction.create');
     Route::post('/productinventory/in/stock/instruction', 'ProductInventoryController@instruction')->name('productinventory.instruction');
@@ -772,6 +779,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Vendor Module
     Route::get('vendor/product', 'VendorController@product')->name('vendor.product.index');
+    Route::post('vendor/reply/add', 'VendorController@addReply')->name('vendor.reply.add');
+    Route::get('vendor/reply/delete', 'VendorController@deleteReply')->name('vendor.reply.delete');
     Route::post('vendor/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendor.email.send.bulk');
     Route::post('vendor/send/email', 'VendorController@sendEmail')->name('vendor.email.send');
     Route::get('vendor/email/inbox', 'VendorController@emailInbox')->name('vendor.email.inbox');
@@ -802,6 +811,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/updateBrandCount', 'SupplierController@updateSupplierBrandCount')->name('supplier.brand.count.update');
     Route::post('supplier/deleteBrandCount', 'SupplierController@deleteSupplierBrandCount')->name('supplier.brand.count.delete');
 
+    // Get supplier brands and raw brands
+    Route::get('supplier/get-brands-and-rawbrands', 'SupplierController@getScrapedBrandAndBrandRaw')->name('supplier.brands.rawbrands.list');
+    // Update supplier brands and raw brands
+    Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
+    
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
@@ -832,6 +846,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/', 'TemplatesController@index')->name('templates');
         Route::get('response', 'TemplatesController@response');
         Route::post('create', 'TemplatesController@create');
+        Route::post('edit', 'TemplatesController@edit');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
     });
 
@@ -974,6 +989,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::resource('hashtag', 'HashtagController');
     Route::post('hashtag/process/queue','HashtagController@rumCommand')->name('hashtag.command');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
+    Route::get('influencers', 'HashtagController@influencer')->name('influencers.index');
+    
     Route::get('comments', 'InstagramController@getComments');
     Route::post('comments', 'InstagramController@postComment');
     Route::get('post-media', 'InstagramController@showImagesToBePosted');
@@ -1037,7 +1054,15 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/google/images', 'ScrapController@scrapGoogleImages');
     Route::post('/google/images/download', 'ScrapController@downloadImages');
     Route::get('/scraped-urls', 'ScrapController@scrapedUrls');
+    Route::get('/generic-scraper', 'ScrapController@genericScraper');
+    Route::post('/generic-scraper/save', 'ScrapController@genericScraperSave')->name('generic.save.scraper');
+    Route::get('/generic-scraper/mapping/{id}', 'ScrapController@genericMapping')->name('generic.mapping');
+    Route::post('/generic-scraper/mapping/save', 'ScrapController@genericMappingSave')->name('generic.mapping.save');
+    Route::post('/generic-scraper/mapping/delete', 'ScrapController@genericMappingDelete')->name('generic.mapping.delete');
+
     Route::get('/{name}', 'ScrapController@showProducts');
+
+     
 });
 
 Route::resource('quick-reply', 'QuickReplyController');
@@ -1340,3 +1365,5 @@ Route::group(['middleware' => 'auth'], function () {
 Route::prefix('chat-bot')->middleware('auth')->group(function () {
     Route::get('/connection', 'ChatBotController@connection');
 });
+
+Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');

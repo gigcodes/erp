@@ -196,12 +196,12 @@ class SupplierController extends Controller
 
         $supplier = Supplier::create($data);
 
-        if($supplier->id > 0) {
-          \App\Scraper::create([
-            "supplier_id" => $supplier->id,
-            "scraper_name" => $request->get("scraper_name",""),
-            "inventory_lifetime" => $request->get("inventory_lifetime",""),
-          ]);
+        if ($supplier->id > 0) {
+            \App\Scraper::create([
+                "supplier_id" => $supplier->id,
+                "scraper_name" => $request->get("scraper_name", ""),
+                "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+            ]);
         }
 
         return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier!');
@@ -216,7 +216,7 @@ class SupplierController extends Controller
     public function show($id)
     {
         $supplier = Supplier::find($id);
-        $suppliers = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier','asc')->get();
+        $suppliers = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
         $reply_categories = ReplyCategory::all();
         $users_array = Helpers::getUserArray(User::all());
         $emails = [];
@@ -279,7 +279,7 @@ class SupplierController extends Controller
 
         $scraper = \App\Scraper::updateOrCreate(
             ['supplier_id' => $id],
-            ['inventory_lifetime' => $request->get("inventory_lifetime",""), 'scraper_name' => $request->get("scraper_name","")]
+            ['inventory_lifetime' => $request->get("inventory_lifetime", ""), 'scraper_name' => $request->get("scraper_name", "")]
         );
 
 
@@ -525,7 +525,7 @@ class SupplierController extends Controller
         $suppliercount = SupplierCategoryCount::all();
         $category_parent = Category::where('parent_id', 0)->get();
         $category_child = Category::where('parent_id', '!=', 0)->get();
-        $supplier = Supplier::where('supplier_status_id', 1)->orderby('supplier','asc')->get();
+        $supplier = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
 
         return view('suppliers.supplier_category_count', compact('supplier', 'suppliercount', 'category_parent', 'category_child'));
     }
@@ -548,7 +548,7 @@ class SupplierController extends Controller
     {
 
         $suppliercount = SupplierCategoryCount::all();
-        $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier','asc')->get();
+        $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
         $category_parent = Category::where('parent_id', 0)->get();
         $category_child = Category::where('parent_id', '!=', 0)->get();
 
@@ -645,11 +645,11 @@ class SupplierController extends Controller
 
         $suppliercount = SupplierBrandCount::all();
         $brand = Brand::orderby('name', 'asc')->get();
-        $supplier = Supplier::where('supplier_status_id', 1)->orderby('supplier','asc')->get();
+        $supplier = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
         $category_parent = Category::where('parent_id', 0)->get();
         $category_child = Category::where('parent_id', '!=', 0)->get();
 
-        return view('suppliers.supplier_brand_count', compact('supplier', 'suppliercount', 'brand','category_parent','category_child'));
+        return view('suppliers.supplier_brand_count', compact('supplier', 'suppliercount', 'brand', 'category_parent', 'category_child'));
     }
 
     public function saveSupplierBrandCount(Request $request)
@@ -674,10 +674,10 @@ class SupplierController extends Controller
     public function getSupplierBrandCount()
     {
         $suppliercount = SupplierBrandCount::all();
-        $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier','asc')->get();
+        $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
         $brand_list = Brand::orderby('name', 'asc')->get();
-        $category_parent = Category::where('parent_id', 0)->orderby('title','asc')->get();
-        $category_child = Category::where('parent_id', '!=', 0)->orderby('title','asc')->get();
+        $category_parent = Category::where('parent_id', 0)->orderby('title', 'asc')->get();
+        $category_child = Category::where('parent_id', '!=', 0)->orderby('title', 'asc')->get();
 
 
         foreach ($suppliercount as $supplier) {
@@ -702,7 +702,7 @@ class SupplierController extends Controller
             }
 
             $cat = "";
-            $cat .=  '<option>Select Category</option>';
+            $cat .= '<option>Select Category</option>';
             foreach ($category_parent as $c) {
                 if ($c->id == $supplier->category_id) {
                     $cat .= '<option value="' . $c->id . '" selected>' . $c->title . '</option>';
@@ -801,7 +801,8 @@ class SupplierController extends Controller
         return 'Data Deleted';
     }
 
-    public function block(Request $request){
+    public function block(Request $request)
+    {
         $supplier = Supplier::find($request->supplier_id);
 
         if ($supplier->is_blocked == 0) {
@@ -822,11 +823,11 @@ class SupplierController extends Controller
         if ($request->type == 1) {
 
             // Create Group ID with Product
-            $images = explode(",",$request->checkbox1[0]);
+            $images = explode(",", $request->checkbox1[ 0 ]);
 
             if ($images) {
                 foreach ($images as $image) {
-                    if($image != null) {
+                    if ($image != null) {
                         $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
                         if ($product) {
                             $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
@@ -842,42 +843,42 @@ class SupplierController extends Controller
                         $product->brand = $product->brand = $request->brand;
                         $product->color = '';
                         $product->location = '';
-                         if($request->category == null){
-                        $product->category = '';
-                    }else{
-                        $product->category = $request->category;
-                    }
+                        if ($request->category == null) {
+                            $product->category = '';
+                        } else {
+                            $product->category = $request->category;
+                        }
 
-                    if($request->supplier == null){
-                      $product->supplier = 'QUICKSELL';
-                    }else{
-                      $sup = Supplier::findorfail($request->supplier);
-                      $product->supplier = $sup->supplier;
-                    }
-                    if($request->buying_price == null){
-                        $product->price = 0;
-                    }else{
-                        $product->price = $request->buying_price;
-                    }
-                    if($request->special_price == null){
-                        $product->price_inr_special = 0;
-                    }else{
-                         $product->price_inr_special = $request->special_price;
-                    }
+                        if ($request->supplier == null) {
+                            $product->supplier = 'QUICKSELL';
+                        } else {
+                            $sup = Supplier::findorfail($request->supplier);
+                            $product->supplier = $sup->supplier;
+                        }
+                        if ($request->buying_price == null) {
+                            $product->price = 0;
+                        } else {
+                            $product->price = $request->buying_price;
+                        }
+                        if ($request->special_price == null) {
+                            $product->price_inr_special = 0;
+                        } else {
+                            $product->price_inr_special = $request->special_price;
+                        }
                         $product->stock = 1;
                         $product->quick_product = 1;
                         $product->is_pending = 1;
                         $product->save();
                         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
-                        $image = $match[0][0];
+                        $image = $match[ 0 ][ 0 ];
 
                         $jpg = \Image::make($image)->encode('jpg');
                         $filename = substr($image, strrpos($image, '/'));
-                        $filename = str_replace("/","",$filename);
+                        $filename = str_replace("/", "", $filename);
                         $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
                         $product->attachMedia($media, config('constants.media_tags'));
 
-                       // return redirect()->back()->withSuccess('You have successfully saved product(s)!');
+                        // return redirect()->back()->withSuccess('You have successfully saved product(s)!');
                     }
                 }
                 return redirect()->back()->withSuccess('You have successfully saved product(s)!');
@@ -886,42 +887,42 @@ class SupplierController extends Controller
         } else {
 
             // Create Group ID with Product
-            $images = explode(",",$request->checkbox[0]);
+            $images = explode(",", $request->checkbox[ 0 ]);
 
             if ($images) {
                 // Loop Over Images
 
                 $group = QuickSellGroup::orderBy('id', 'desc')->first();
                 if ($group != null) {
-                    if($request->groups != null){
-                        $group_create =   QuickSellGroup::findorfail($request->groups);
+                    if ($request->groups != null) {
+                        $group_create = QuickSellGroup::findorfail($request->groups);
                         $group_id = $group_create->group;
-                    }else{
-                        $group_create =  new QuickSellGroup();
-                        $incrementId = ($group->group+1);
-                        if($request->group_id != null){
-                        $group_create->name = $request->group_id;
+                    } else {
+                        $group_create = new QuickSellGroup();
+                        $incrementId = ($group->group + 1);
+                        if ($request->group_id != null) {
+                            $group_create->name = $request->group_id;
                         }
                         $group_create->suppliers = json_encode($request->supplier);
                         $group_create->brands = json_encode($request->brand);
                         $group_create->price = $request->buying_price;
                         $group_create->special_price = $request->special_price;
-                        $group_create->categories =  json_encode($request->category);
+                        $group_create->categories = json_encode($request->category);
                         $group_create->group = $incrementId;
                         $group_create->save();
                         $group_id = $group_create->group;
-                      }
+                    }
                 } else {
-                   $group =  new QuickSellGroup();
-                   $group->group = 1;
-                   $group_create->name = $request->group_id;
-                   $group_create->suppliers = json_encode($request->suppliers);
-                   $group_create->brands = json_encode($request->brand);
-                   $group_create->price = $request->buying_price;
-                   $group_create->special_price = $request->special_price;
-                   $group_create->categories =  json_encode($request->categories);
-                   $group->save();
-                   $group_id = $group->group;
+                    $group = new QuickSellGroup();
+                    $group->group = 1;
+                    $group_create->name = $request->group_id;
+                    $group_create->suppliers = json_encode($request->suppliers);
+                    $group_create->brands = json_encode($request->brand);
+                    $group_create->price = $request->buying_price;
+                    $group_create->special_price = $request->special_price;
+                    $group_create->categories = json_encode($request->categories);
+                    $group->save();
+                    $group_id = $group->group;
                 }
                 foreach ($images as $image) {
                     //Getting the last created QUICKSELL
@@ -940,27 +941,27 @@ class SupplierController extends Controller
                     $product->brand = $request->brand;
                     $product->color = '';
                     $product->location = '';
-                    if($request->category == null){
+                    if ($request->category == null) {
                         $product->category = '';
-                    }else{
+                    } else {
                         $product->category = $request->category;
                     }
 
-                    if($request->supplier == null){
-                      $product->supplier = 'QUICKSELL';
-                    }else{
-                      $sup = Supplier::findorfail($request->supplier);
-                      $product->supplier = $sup->supplier;
+                    if ($request->supplier == null) {
+                        $product->supplier = 'QUICKSELL';
+                    } else {
+                        $sup = Supplier::findorfail($request->supplier);
+                        $product->supplier = $sup->supplier;
                     }
-                    if($request->buying_price == null){
+                    if ($request->buying_price == null) {
                         $product->price = 0;
-                    }else{
+                    } else {
                         $product->price = $request->buying_price;
                     }
-                    if($request->special_price == null){
+                    if ($request->special_price == null) {
                         $product->price_inr_special = 0;
-                    }else{
-                         $product->price_inr_special = $request->special_price;
+                    } else {
+                        $product->price_inr_special = $request->special_price;
                     }
 
                     $product->stock = 1;
@@ -968,11 +969,11 @@ class SupplierController extends Controller
                     $product->is_pending = 1;
                     $product->save();
                     preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
-                    $image = $match[0][0];
+                    $image = $match[ 0 ][ 0 ];
                     $jpg = \Image::make($image)->encode('jpg');
 
                     $filename = substr($image, strrpos($image, '/'));
-                    $filename = str_replace("/","",$filename);
+                    $filename = str_replace("/", "", $filename);
                     $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
                     $product->attachMedia($media, config('constants.media_tags'));
                     // if Product is true
@@ -997,4 +998,87 @@ class SupplierController extends Controller
             return redirect()->back()->withSuccess('Please Select Image');
         }
     }
+
+    public function apiBrandsRaw(Request $request)
+    {
+        // Get supplier ID
+        $supplierId = (int)$request->supplier_id;
+        $brandsRaw = $request->brands_raw;
+
+        if (empty($supplierId) || empty($brandsRaw)) {
+            return response()->json(['error' => 'The fields supplier_id and brands_raw are obligated'], 403);
+        }
+
+        // Get Supplier model
+        $supplier = Supplier::find($supplierId);
+
+        // Do we have a result?
+        if ($supplier != null) {
+            $supplier->scraped_brands_raw = $brandsRaw;
+            $supplier->save();
+
+            return response()->json(['success' => 'Supplier updated'], 200);
+        }
+
+        // Still here? Return an error
+        return response()->json(['error' => 'Supplier not found'], 403);
+    }
+
+    /**
+    * Get scraped brand and scraped brands raw of a supplier
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return json response with brand and brand raw
+    */
+    public function getScrapedBrandAndBrandRaw(Request $request)
+    {
+        $supplierId = $request->id;
+        
+        $supplier = Supplier::find($supplierId);
+        if ($supplier->scraped_brands != ''){
+          $scrapedBrands = array_filter(explode(',', $supplier->scraped_brands));
+          
+          sort($scrapedBrands);
+        }
+        else {
+          $scrapedBrands = array();
+        }
+
+        if ($supplier->scraped_brands_raw != ''){
+          $rawBrands = array_unique(array_filter(array_column(json_decode($supplier->scraped_brands_raw, true), 'name')));
+          
+          sort($rawBrands);
+        }
+        else{
+          $rawBrands = array();
+        }
+
+        return response()->json(['scrapedBrands' => $scrapedBrands, 'scrapedBrandsRaw' => $rawBrands], 200);
+    }
+
+    /**
+    * Update scraped brand from scrapped brands raw for a supplier
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return json response with update status
+    */
+    public function updateScrapedBrandFromBrandRaw(Request $request)
+    {
+        $supplierId = $request->id;
+        $newBrandData = implode(',', $request->newBrandData);
+        
+        // Get Supplier model
+        $supplier = Supplier::find($supplierId);
+
+        // Do we have a result?
+        if ($supplier != null) {
+            $supplier->scraped_brands = $newBrandData;
+            $supplier->save();
+
+            return response()->json(['success' => 'Supplier brand updated'], 200);
+        }
+
+        // Still here? Return an error
+        return response()->json(['error' => 'Supplier not found'], 403);
+    }    
 }
