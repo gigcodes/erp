@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Marketing;
 
+use App\ImQueue;
 use App\Marketing\WhatsappConfig;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -183,5 +184,31 @@ class WhatsappConfigController extends Controller
             'success' => true,
             'message' => 'WhatsApp Config Deleted'
         ));
+    }
+
+    /**
+     * @param $id
+     * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function history($id, Request $request)
+    {
+        $term  = $request->term;
+        $date  = $request->date;
+        $config = WhatsappConfig::find($id);
+        if($config->provider === 'py-whatsapp'){
+
+            $data = ImQueue::whereNotNull('sent_at')->where('number_from', $config->number)->orderBy('sent_at', 'desc');
+            if (request('term') != null) {
+                $data = $data->where('number_to', 'LIKE', "%{$request->term}%");
+                $data = $data->orWhere('text', 'LIKE', "%{$request->term}%");
+                $data = $data->orWhere('priority', 'LIKE', "%{$request->term}%");
+            }
+            if (request('date') != null) {
+                $data = $data->whereDate('send_after', request('date'));
+            }
+            $data = $data->get();
+        }
+
+        return view('marketing.whatsapp-configs.history', compact('data', 'id', 'term', 'date'));
     }
 }

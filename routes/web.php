@@ -1320,6 +1320,7 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
 {
     // Whats App Config
     Route::get('whatsapp-config','WhatsappConfigController@index')->name('whatsapp.config.index');
+    Route::get('whatsapp-history/{id}','WhatsappConfigController@history')->name('whatsapp.config.history');
     Route::post('whatsapp-config/store', 'WhatsappConfigController@store')->name('whatsapp.config.store');
     Route::post('whatsapp-config/edit', 'WhatsappConfigController@edit')->name('whatsapp.config.edit');
     Route::post('whatsapp-config/delete', 'WhatsappConfigController@destroy')->name('whatsapp.config.delete');
