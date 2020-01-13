@@ -40,10 +40,14 @@ class HsCodeController extends Controller
         $setting = HsCodeSetting::all();
         if(count($setting) == 0){
             $set = new HsCodeSetting();
+            $set->from_country = $request->from;
+            $set->destination_country = $request->destination;
             $set->key = $request->key;
             $set->save();
         }else{
-            $set = HsCodeSetting::find(1);
+            $set = HsCodeSetting::first();
+            $set->from_country = $request->from;
+            $set->destination_country = $request->destination;
             $set->key = $request->key;
             $set->save();
         }
@@ -52,3 +56,4 @@ class HsCodeController extends Controller
 
     }
 }
+ 

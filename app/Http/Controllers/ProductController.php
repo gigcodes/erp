@@ -46,6 +46,7 @@ use App\HsCodeGroup;
 use App\HsCodeGroupsCategoriesComposition;
 use App\HsCode;
 use App\HsCodeSetting;
+use App\SimplyDutyCountry;
 
 class ProductController extends Controller
 {
@@ -2380,8 +2381,9 @@ class ProductController extends Controller
         $pendingCategory = Category::all()->except($cate);
         $pendingCategoryCount = $pendingCategory->count();
         $setting = HsCodeSetting::first();
+        $countries = SimplyDutyCountry::all();
         
-        return view('products.hscode', compact('keyword','compositions','childCategory','parentCategory','category_selection','hscodes','categories','groups','groupSelected','pendingCategoryCount','setting'));
+        return view('products.hscode', compact('keyword','compositions','childCategory','parentCategory','category_selection','hscodes','categories','groups','groupSelected','pendingCategoryCount','setting','countries'));
     }
 
     public function saveGroupHsCode(Request $request)
@@ -2389,8 +2391,15 @@ class ProductController extends Controller
         $name = $request->name;
         $compositions = $request->compositions; 
         $key = HsCodeSetting::first();
+        if($key == null){
+            return response()->json(['Please Update the Hscode Setting']);
+        }
         $api = $key->key;
-
+        $fromCountry = $key->from_country;
+        $destinationCountry = $key->destination_country;
+        if($api == null || $fromCountry == null || $destinationCountry == null){
+            return response()->json(['Please Update the Hscode Setting']);
+        }
         $category = Category::select('id','title')->where('id',$request->category)->first();
         $categoryId = $category->id;
 
@@ -2399,7 +2408,7 @@ class ProductController extends Controller
 
         $hscodeSearchString = urlencode($hscodeSearchString);
 
-        $searchString = 'https://www.api.simplyduty.com/api/classification/get-hscode?APIKey='.$api.'&fullDescription='.$hscodeSearchString.'&originCountry=AE&destinationCountry=IN&getduty=false';
+        $searchString = 'https://www.api.simplyduty.com/api/classification/get-hscode?APIKey='.$api.'&fullDescription='.$hscodeSearchString.'&originCountry='.$fromCountry.'&destinationCountry='.$destinationCountry.'&getduty=false';
         
         $ch = curl_init();
 

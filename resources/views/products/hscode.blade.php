@@ -12,6 +12,10 @@
             top: 50%;
             left: 50%;
             margin: -50px 0px 0px -50px;
+            z-index: 60;
+        }
+        .wi{
+            width: 150px !important;
         }
     </style>
 @endsection
@@ -26,12 +30,31 @@
             <div class="pull-left">
                 <form class="form-inline" action="{{ route('simplyduty.hscode.key') }}" method="POST">
                     @csrf
-                 <div class="form-group mr-3">
-                              <input name="key" type="text" class="form-control"  placeholder="Hscode Key" value="@if(isset($setting) && $setting != '') {{ $setting->key  }}  @endif">
-                            </div>           
-                    <button type="submit" class="btn btn-info"><i class="fa fa-filter"></i> Submit</button>
-                </form>
-            </div>
+                    <div class="form-group mr-3">
+                      <input name="key" type="text" class="form-control"  placeholder="Hscode Key" value="@if(isset($setting) && $setting != '') {{ $setting->key  }}  @endif">
+                  </div>
+                  <div class="form-group mr-3" style="display: -webkit-inline-box;">
+                      <label>Origin Country</label>
+                      <select class="form-control selectpicker wi" name="from" data-live-search="true">
+                          <option>Please Select Origin Country</option>  
+                          @foreach($countries as $country)  
+                          <option value="{{ $country->country_code }}" @if(isset($setting->destination_country) && $setting->from_country == $country->country_code) selected @endif>{{ $country->country_name }} </option>
+                          @endforeach
+                      </select>
+                  </div>
+                  <div class="form-group mr-3" style="display: -webkit-inline-box;">
+                  <label>Destination Country</label>
+                  <select class="form-control wi selectpicker" name="destination" data-live-search="true">
+                   <option>Please Select Destination Country</option>
+                   @foreach($countries as $country)  
+                   <option value="{{ $country->country_code }}" @if(isset($setting->destination_country) && $setting->destination_country == $country->country_code) selected @endif>{{ $country->country_name }} </option>
+                   @endforeach
+                    </select>
+                    </div>
+                    <small>*getting it from simply duty country </small>
+               <button type="submit" class="btn btn-info"><i class="fa fa-filter"></i> Submit</button>
+           </form>
+       </div>
              <div class="pull-right">
 
                 <button type="button" class="btn btn-secondary" onclick="createGroup()">Group</button>
