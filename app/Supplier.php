@@ -102,4 +102,25 @@ class Supplier extends Model
         return $this->hasOne('App\Scraper',"supplier_id","id");
     }
 
+    public function getSupplierExcelFromSupplierEmail(){
+        
+        $supplier_array = ['birba_excel','colognese_excel','cologneseSecond_excel','cologneseThird_excel',
+        'cologneseFourth_excel','distributionet_excel','gru_excel','ines_excel','le-lunetier_excel',
+        'lidia_excel','maxim_gucci_excel','lidiafirst_excel','modes_excel','mv1_excel','tory_excel','valenti_excel','dna_excel','master',
+        ];
+        foreach ($supplier_array as $supp) {
+            $supp = str_replace('_excel', '', $supp);
+            if (strpos($this->email, $supp) !== false) {
+              if($supp != 'master'){
+                return $supplier = $supp.'_excel';
+                }else{
+                return $supplier = $supp;
+                }
+            }
+        }
+
+        return $supplier = 'master';
+                  
+    }
+
 }

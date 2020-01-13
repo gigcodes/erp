@@ -448,6 +448,25 @@
                     </div>
                 </div>
             </div>
+            <div id="excel" class="mt-3">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" href="#collapse-excel">Excel Importer </a>
+                            </h4>
+                        </div>
+                        <div id="collapse-excel" class="panel-collapse collapse">
+                            <div class="panel-body" id="note_list">
+                                
+                            </div>
+                            <div class="panel-footer">
+                                <input name="add_new_remark" id="add_new_remark" type="file" placeholder="Type new remark..." class="form-control add-new-remark">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="col-xs-12 col-md-4">
@@ -1884,6 +1903,8 @@
             $("#count_images").html(images.length);
             $('#productGroupDetails').modal('show');
         });
-
+        function processExcel(){
+            alert('hello');
+        }  
     </script>
 @endsection

@@ -8,7 +8,7 @@
               @if ($email['seen'] == 0)
                 <u>
                   <strong>{{ $email['subject'] }}</strong>
-
+                  
                   @if ($email['type'] == 'outgoing')
                     {{ $email['to'] }}
                   @else
@@ -31,7 +31,6 @@
                 </u>
               @else
                 <strong>{{ $email['subject'] }}</strong>
-
                 @if ($email['type'] == 'outgoing')
                   {{ $email['to'] }}
                 @else
@@ -40,7 +39,32 @@
 
                 <br>
                 {{ $email['date'] }}
+                <br>
+                  @if(count($email['alert']) != 0 && count($email['alert']) == 1)
+                  <button class="btn btn-secondary">{{ $email['alert'][0] }}</button>
+                  @elseif(count($email['alert']) != 0 && count($email['alert']) != 1)
+                  @php
+                    $countSucess = 0;
+                    $countError = 0;
+                    $countPending = 0;
+                  @endphp
 
+                  @foreach($email['alert'] as $alert)
+                    @php
+                    if($alert = 'Excel import process'){
+                      $countPending++;
+                    }elseif($alert = 'Excel import created'){
+                      $countSucess++;
+                    }elseif($alert = 'Excel import error'){
+                      $countError++;
+                    }
+                    @endphp
+                  @endforeach
+                    <h5>Total Attachment : {{ count($email['alert']) }}</h5>
+                    <h5>Pending Excel : {{ $countPending }}</h5>
+                    <h5>Sucess Excel : {{ $countSucess }}</h5>
+                    <h5>Failed Excel : {{ $countError }}</h5>
+                  @endif
                 @if ($email['cc'])
                   <div style="color: #767676">
                     CC: {{ join(', ', $email['cc']) }}
