@@ -1361,7 +1361,7 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
 Route::get('scrap-logs', 'ScrapLogsController@index');
 Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
 Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
-Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
+Route::get('scrap-logs/file-view/{filepath}', 'ScrapLogsController@fileView');
 
 Route::prefix('google')->middleware('auth')->group(function () {
     Route::resource('search', 'GoogleSearchController');
