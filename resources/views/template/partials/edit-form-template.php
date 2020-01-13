@@ -1,47 +1,48 @@
-<script type="text/x-jsrender" id="product-templates-create-block">
-<div class="modal fade" id="product-template-create-modal" role="dialog">
+<div class="modal fade" id="product-template-edit-modal" role="dialog">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Create Template</h4>
+          <h4 class="modal-title">Edit Template</h4>
         </div>
         <div class="modal-body">
-          <form method="post" enctype="multipart/form-data" id="product-template-from">
+          <form method="post" enctype="multipart/form-data" action="/templates/edit">
              <?php echo csrf_field(); ?>
              <div class="form-group row">
                 <label for="name" class="col-sm-3 col-form-label">Template Name</label>
                 <div class="col-sm-6">
-                   <?php echo Form::text("name",null,["class" => "form-control name"]); ?>
+                  <input type="text" name="name" class="form-control" id="name">
                 </div>
              </div>
              <div class="form-group row">
                 <label for="no_of_images" class="col-sm-3 col-form-label">No Of Images</label>
                 <div class="col-sm-6">
-                   <?php echo Form::text("no_of_images",0,["class" => "form-control no_of_images"]); ?>
+                     <input type="integer" name="number" class="form-control" id="number">
                 </div>
              </div>
              <div class="form-group row">
-                <label for="no_of_images" class="col-sm-3 col-form-label">Auto generate for products</label>
+                <label for="auto_generate_product" class="col-sm-3 col-form-label">Auto generate for products</label>
                 <div class="col-sm-6">
-                   <?php echo Form::checkbox("auto_generate_product",null,null, array("class" => "form-control auto_generate_product")); ?>
+                   <input type="checkbox" name="auto" id="auto" class="form-control">
                 </div>
              </div>
+             <input type="hidden" name="id" id="id">
              <div class="form-group row show-product-image"> </div>
              <div class="form-group row">
               <div class="col-sm-3 imgUp">
-                 <div class="imagePreview"></div>
+                 <div class="imagePreview" id="imagePreview"></div>
                  <label class="btn btn-primary">
-                 Upload<input type="file" name="files[]" class="uploadFile img" value="Upload Photo" style="width: 0px;height: 0px;overflow: hidden;">
+                 Upload<input type="file" name="files[]" class="uploadFile img" value="Upload Photo" style="width: 0px;height: 0px;overflow: hidden;" id="uploadFile">
                  </label>
               </div>
            </div>
-          </form>
+          
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary create-product-template">Create Template</button>
+          <button type="submit" class="btn btn-secondary">Edit Template</button>
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
+        </form>
       </div>
     </div>
   </div>
-</script>
+
