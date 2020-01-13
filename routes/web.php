@@ -328,6 +328,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/productapprover/isFinal/{product}', 'ProductApproverController@isFinal')->name('productapprover.isfinal');
 
     Route::get('/productinventory/in/stock', 'ProductInventoryController@instock')->name('productinventory.instock');
+    Route::post('/productinventory/in/stock/update-field', 'ProductInventoryController@updateField')->name('productinventory.instock.update-field');
     Route::get('/productinventory/in/delivered', 'ProductInventoryController@inDelivered')->name('productinventory.indelivered');
     Route::get('/productinventory/in/stock/instruction-create', 'ProductInventoryController@instructionCreate')->name('productinventory.instruction.create');
     Route::post('/productinventory/in/stock/instruction', 'ProductInventoryController@instruction')->name('productinventory.instruction');
@@ -845,6 +846,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/', 'TemplatesController@index')->name('templates');
         Route::get('response', 'TemplatesController@response');
         Route::post('create', 'TemplatesController@create');
+        Route::post('edit', 'TemplatesController@edit');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
     });
 
@@ -1056,6 +1058,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/generic-scraper/save', 'ScrapController@genericScraperSave')->name('generic.save.scraper');
     Route::get('/generic-scraper/mapping/{id}', 'ScrapController@genericMapping')->name('generic.mapping');
     Route::post('/generic-scraper/mapping/save', 'ScrapController@genericMappingSave')->name('generic.mapping.save');
+    Route::post('/generic-scraper/mapping/delete', 'ScrapController@genericMappingDelete')->name('generic.mapping.delete');
 
     Route::get('/{name}', 'ScrapController@showProducts');
 
@@ -1356,6 +1359,12 @@ Route::group(['middleware' => 'auth'], function () {
 
 Route::prefix('chat-bot')->middleware('auth')->group(function () {
     Route::get('/connection', 'ChatBotController@connection');
+});
+
+Route::prefix('google')->middleware('auth')->group(function () {
+    Route::resource('search', 'GoogleSearchController');
+    Route::get('/search', 'GoogleSearchController@index')->name('google.search');
+    Route::get('keyword/markPriority','GoogleSearchController@markPriority')->name('google.keyword.priority');
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');

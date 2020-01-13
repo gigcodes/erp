@@ -220,7 +220,9 @@ class InstantMessagingHelper
             if($result != $code){
                 if($type == 1){
                     $customer->broadcast_number = NULL;
+                    if($customer->phone != 0){
                     $customer->phone = (int)$customer->phone * -1;
+                    }
                     $customer->update();
                     \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
                 }   
@@ -231,7 +233,9 @@ class InstantMessagingHelper
         }catch(\Exception $e){
                 if($type == 1){
                 $customer->broadcast_number = NULL;
-                $customer->phone = (int)$customer->phone * -1;
+                if($customer->phone != 0){
+                    $customer->phone = (int)$customer->phone * -1;
+                }
                 $customer->update();
                 \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
                 }
@@ -245,7 +249,9 @@ class InstantMessagingHelper
             if($isValid == false){
                 if($type == 1){
                 $customer->broadcast_number = NULL;
-                $customer->phone = (int)$customer->phone * -1;
+                if($customer->phone != 0){
+                    $customer->phone = (int)$customer->phone * -1;
+                }
                 $customer->update();
                 \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
                 }
@@ -254,7 +260,9 @@ class InstantMessagingHelper
         } catch (\libphonenumber\NumberParseException $e) {
             if($type == 1){
             $customer->broadcast_number = NULL;
-            $customer->phone = (int)$customer->phone * -1;
+            if($customer->phone != 0){
+                $customer->phone = (int)$customer->phone * -1;
+            }
             $customer->update();
             \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
             }
