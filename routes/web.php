@@ -889,6 +889,8 @@ Route::post('livechat/getUserList','LiveChatController@getUserList')->name('live
 
 /* ---------------------------------------------------------------------------------- */
 
+Route::post('livechat/send-file','LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');
+
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/incomingNew', 'WhatsAppController@incomingMessageNew');
 Route::post('whatsapp/outgoingProcessed', 'WhatsAppController@outgoingProcessed');
