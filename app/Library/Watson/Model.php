@@ -35,6 +35,10 @@ class Model
 
     public static function pushKeyword($id)
     {
+        if(env("PUSH_WATSON",true) == false) {
+            return true;
+        }
+
         $keyword     = ChatbotKeyword::where("id", $id)->first();
         $workSpaceId = self::getWorkspaceId();
 
@@ -74,6 +78,9 @@ class Model
 
     public static function deleteKeyword($id)
     {
+        if(env("PUSH_WATSON",true) == false) {
+            return true;
+        }
 
         $keyword = ChatbotKeyword::where("id", $id)->first();
 
@@ -93,6 +100,10 @@ class Model
 
     public static function pushQuestion($id)
     {
+        if(env("PUSH_WATSON",true) == false) {
+            return true;
+        }
+
         $question    = ChatbotQuestion::where("id", $id)->first();
         $workSpaceId = self::getWorkspaceId();
 
@@ -144,6 +155,10 @@ class Model
 
     public static function pushValue($exampleId, $oldExample = "")
     {
+        if(env("PUSH_WATSON",true) == false) {
+            return true;
+        }
+
         $questionExample    = ChatbotQuestionExample::where("id", $exampleId)->first();
         $workSpaceId = self::getWorkspaceId();
 
@@ -161,13 +176,16 @@ class Model
                 "text" => $questionExample->question
             ];
 
+
             $sendMentions = [];
             if(!$mentions->isEmpty()) {
                 foreach ($mentions as $key => $mRaw) {
-                    $sendMentions[] = [
-                        "entity"   => $mRaw->chatbotKeyword->keyword,
-                        "location" => [$mRaw->start_char_range,$mRaw->end_char_range]
-                    ];
+                    if($mRaw->chatbotKeyword) {
+                        $sendMentions[] = [
+                            "entity"   => $mRaw->chatbotKeyword->keyword,
+                            "location" => [$mRaw->start_char_range,$mRaw->end_char_range]
+                        ];
+                    }
                 }
             }
 
@@ -204,6 +222,9 @@ class Model
 
     public static function deleteQuestion($id)
     {
+        if(env("PUSH_WATSON",true) == false) {
+            return true;
+        }
 
         $question = ChatbotQuestion::where("id", $id)->first();
 
@@ -223,6 +244,10 @@ class Model
 
     public static function pushDialog($id)
     {
+        if(env("PUSH_WATSON",true) == false) {
+            return true;
+        }
+
         $dialog = ChatbotDialog::where("id", $id)->first();
 
         $workSpaceId = self::getWorkspaceId();
@@ -266,6 +291,9 @@ class Model
 
     public static function deleteDialog($id)
     {
+        if(env("PUSH_WATSON",true) == false) {
+            return true;
+        }
 
         $dialog = ChatbotDialog::where("id", $id)->first();
 
@@ -285,6 +313,10 @@ class Model
 
     public static function sendMessage(Customer $customer, $inputText)
     {
+        if(env("PUSH_WATSON",true) == false) {
+            return true;
+        }
+
         $assistantID = self::getAssistantId();
         $assistant   = new AssistantService(
             "apiKey",
@@ -328,6 +360,10 @@ class Model
 
     public static function createSession(Customer $customer, AssistantService $assistant)
     {
+        if(env("PUSH_WATSON",true) == false) {
+            return true;
+        }
+
         $assistantID = self::getAssistantId();
 
         $session = $assistant->createSession($assistantID);
@@ -346,6 +382,10 @@ class Model
 
     public static function sendMessageCustomer(Customer $customer, AssistantService $assistant, $inputText)
     {
+        if(env("PUSH_WATSON",true) == false) {
+            return true;
+        }
+
         $assistantID = self::getAssistantId();
 
         $result = $assistant->sendMessage($assistantID, $customer->chat_session_id, [
@@ -360,6 +400,10 @@ class Model
 
     public static function newPushDialog($id)
     {
+        if(env("PUSH_WATSON",true) == false) {
+            return true;
+        }
+
         $dialog      = ChatbotDialog::where("id", $id)->first();
         $workSpaceId = self::getWorkspaceId();
 

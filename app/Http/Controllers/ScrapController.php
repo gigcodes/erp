@@ -24,6 +24,7 @@ use App\Services\Products\ProductsCreator;
 use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Scrap\PinterestScraper;
 use App\Setting;
+use App\ScraperMapping;
 use App\Supplier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -614,11 +615,24 @@ class ScrapController extends Controller
 
     public function scrapedUrls(Request $request)
     {
+        $totalSkuRecords       = 0;
+        $totalUniqueSkuRecords = 0;
 
         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns) {
 
             $query = LogScraper::query();
 
+            $dateRange = request("daterange","");
+            $startDate = false;
+            $endDate   = false;
+            
+            if(!empty($dateRange)) {
+                $range = explode(" - ", $dateRange);
+                if(!empty($range[0]) && !empty($range[1])) {
+                    $startDate = $range[0];
+                    $endDate   = $range[1];
+                }
+            }
 
             //global search website
             if (request('website') != null) {
@@ -658,6 +672,14 @@ class ScrapController extends Controller
                 $query->whereDate('updated_at', request('updated'));
             }
 
+            if(!empty($startDate)) {
+                $query->whereDate('created_at'," >= " , $startDate);   
+            }
+
+            if(!empty($endDate)) {
+                $query->whereDate('created_at'," <= " , $endDate);   
+            }
+
             if (request('orderCreated') != null) {
                 if (request('orderCreated') == 0) {
                     $query->orderby('created_at', 'asc');
@@ -680,24 +702,57 @@ class ScrapController extends Controller
 
             $paginate = (Setting::get('pagination') * 10);
             $logs = $query->paginate($paginate)->appends(request()->except(['page']));
+            
+            $search = [
+                \DB::raw("count(*) as total_record"),
+                \DB::raw("count(DISTINCT sku) as total_u_record")
+            ];
+
+
+
+            if(!empty($startDate) && !empty($endDate)) {
+                $search[] = \DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as date");
+            }else{
+                $search[] = \DB::raw("'All' as date");
+            }
+
+            $totalUniqueSkuRecords = \DB::table("log_scraper");
+
+            if(!empty($startDate)) {
+                $totalUniqueSkuRecords->whereDate('created_at'," >= " , $startDate);   
+            }
+
+            if(!empty($endDate)) {
+                $totalUniqueSkuRecords->whereDate('created_at'," <= " , $endDate);   
+                $totalUniqueSkuRecords->groupBy(\DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d")'));
+            }
+            
+            $totalUniqueSkuRecords->select($search);
+            $summeryRecords = $totalUniqueSkuRecords->get();
+
             $response = request()->except(['page']);
+            if(empty($response['columns'])) {
+                $response['columns'] = [];
+            }
 
         } else {
             $response = '';
             $paginate = (Setting::get('pagination') * 10);
+
+
             $logs = LogScraper::orderby('updated_at', 'desc')->paginate($paginate);
 
         }
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('scrap.partials.scraped_url_data', compact('logs', 'response'))->render(),
+                'tbody' => view('scrap.partials.scraped_url_data', compact('logs', 'response','summeryRecords'))->render(),
                 'links' => (string)$logs->render(),
                 'count' => $logs->total(),
             ], 200);
         }
 
-        return view('scrap.scraped_url', compact('logs', 'response'));
+        return view('scrap.scraped_url', compact('logs', 'response','summeryRecords'));
     }
 
     public function getProductsToScrape()
@@ -764,4 +819,188 @@ class ScrapController extends Controller
         return response()->json($productsToPush);
 
     }
+
+    public function genericScraper(Request $request)
+    {
+        $query = Scraper::query();
+
+        if($request->global != null){
+            $query = $query->where('scraper_name', 'LIKE', "%{$request->global}%")
+                    ->orWhere('product_url_selector', 'LIKE', "%{$request->global}%")
+                    ->orWhere('designer_url_selector', 'LIKE', "%{$request->global}%")
+                    ->orWhere('starting_urls', 'LIKE', "%{$request->global}%")
+                    ->orWhere('run_gap', 'LIKE', "%{$request->global}%")
+                    ->orWhere('time_out', 'LIKE', "%{$request->global}%")
+                    ->orWhereHas('mainSupplier', function ($qu) use ($request) {
+                        $qu->where('supplier', 'LIKE', "%{$request->global}%");
+                    });
+        }
+
+        if($request->scraper_name != null){
+            $query = $query->where('scraper_name', 'LIKE', "%{$request->scraper_name}%");
+        }
+
+        if($request->run_gap_search != null){
+            $query = $query->where('run_gap', 'LIKE', "%{$request->run_gap_search}%");
+        }
+
+        if($request->time_out_search != null){
+            $query = $query->where('time_out', 'LIKE', "%{$request->time_out_search}%");
+        }
+
+        if($request->starting_url_search != null){
+            $query = $query->where('starting_urls', 'LIKE', "%{$request->starting_url_search}%");
+        }
+
+        if($request->designer_url_search != null){
+            $query = $query->where('designer_url_selector', 'LIKE', "%{$request->designer_url_search}%");
+        }
+
+        if($request->product_url_search != null){
+            $query = $query->where('product_url_selector', 'LIKE', "%{$request->product_url_search}%");
+        }
+
+        if($request->supplier_name != null){
+            $query = $query->whereHas('mainSupplier', function ($qu) use ($request) {
+                        $qu->where('supplier', 'LIKE', "%{$request->supplier_name}%");
+                    });
+
+        }
+
+
+        $suppliers = Supplier::where('supplier_status_id',1)->get();
+        $scrapers = $query->paginate(25)->appends(request()->except(['page']));;
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('scrap.partials.supplier-scraper-data', compact('scrapers','suppliers'))->render(),
+                'links' => (string)$scrapers->render(),
+                'count' => $scrapers->total(),
+            ], 200);
+        }
+
+        
+        
+        return view('scrap.supplier-scraper',compact('scrapers','suppliers'));
+    }
+
+    public function genericScraperSave(Request $request){
+        
+        if($request->id){
+            $scraper = Scraper::find($request->id);    
+        }else{
+            $scraper = new Scraper; 
+            $scraper->scraper_name = $request->name;
+            $scraper->supplier_id = $request->supplier_id; 
+        }
+        
+
+        $scraper->run_gap = $request->run_gap;
+        $scraper->time_out = $request->time_out;
+        $scraper->starting_urls = $request->starting_url;
+        $scraper->product_url_selector = $request->product_url_selector;
+        $scraper->designer_url_selector = $request->designer_url;
+        $scraper->save();
+
+        if ($request->ajax()) {
+        return response()->json(['success'],200);
+        }
+
+        return redirect()->back()->with('message', 'Scraper Saved');
+    }
+
+    public function genericMapping($id)
+    {
+       $scraper = Scraper::find($id);
+       $mappings = ScraperMapping::where('scrapers_id',$id)->get();
+       return view('scrap.generic-scraper-mapping',compact('scraper','mappings','id'));
+    }
+
+    public function genericMappingSave(Request $request)
+    {
+            $id = $request->id;
+            $select = $request->select;
+            $count = count($select);
+            $functions = $request->functions;
+            $parameter = $request->parameter;
+            $selector = $request->selector;
+
+            for ($i=0; $i < $count; $i++) {
+                if($select[$i] != null){
+                    $updateMapping = ScraperMapping::where('scrapers_id',$id)->where('field_name',$select[$i])->first();
+                    if($updateMapping != null){
+                        $mapping = $updateMapping;
+                    }else{
+                        $mapping = new ScraperMapping;
+                    }
+                    if($selector[$i] == null){
+                        $selector[$i] = '';
+                    }
+                    if($functions[$i] == null){
+                        $functions[$i] = '';
+                    }
+                    if($parameter[$i] == null){
+                        $parameter[$i] = '';
+                    }
+                    
+                    $mapping->field_name = $select[$i];
+                    $mapping->scrapers_id = $id;
+                    $mapping->selector = $selector[$i];
+                    $mapping->function = $functions[$i];
+                    $mapping->parameter = $parameter[$i];
+                    $mapping->save();
+                } 
+            } 
+
+            return response()->json(['success'],200);      
+    }
+
+    public function sendScrapDetails()
+    {
+       
+       $scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
+       
+       if($scraper == null){
+            return response()->json(['message' => 'No Scraper Present'], 400);
+       }
+        $startingURLs = explode("\n", str_replace("\r", "", $scraper->starting_urls));
+        
+        $maps = ScraperMapping::where('scrapers_id',$scraper->id)->get();
+       
+        foreach ($maps as $map) {
+            $mapArray[]  = array($map->field_name => array('selector' => $map->selector,'function' => $map->function , 'parameters' => $map->parameter));
+        }
+
+        if(!isset($mapArray)){
+            $mapArray = [];
+        }
+
+        $scraper->start_time = now();
+        $scraper->save();
+
+       $json = json_encode(array("website" => $scraper->scraper_name , "timeout" => $scraper->time_out , "starting_urls" => $startingURLs , "designer_url_selector" => $scraper->designer_url_selector, "product_url_selector" => $scraper->product_url_selector,"map" => $mapArray));
+
+       return $json;
+
+    }
+
+    public function recieveScrapDetails(Request $request){
+        $id = $request->id;
+        $scraper = Scraper::find($id);
+        if($scraper == null){
+            return response()->json(['message' => 'No Scraper Present'], 400);
+        }
+        $scraper->end_time = now();
+        $scraper->save();
+
+        return response()->json(['success'],200);   
+    }
+
+    public function genericMappingDelete(Request $request){
+        $id = $request->id;
+        $mapping = ScraperMapping::find($id);
+        $mapping->delete();
+        return response()->json(['success'],200);   
+    }
 }
+
