@@ -70,6 +70,7 @@
 <div id="display-area"></div>
 @include("template.partials.list-template")
 @include("template.partials.create-form-template")
+@include("template.partials.edit-form-template")
 @include("partials.modals.large-image-modal")
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/1.0.5/jsrender.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
@@ -89,6 +90,19 @@
 
     function normalImg(){
         $('#imageExpand').modal('hide');
+    }
+	
+	function editTemplate(id,name,image,numberImage,checkbox){
+		$('#id').val(id);
+    	$('#name').val(name);
+    	$('#imagePreview').css('background-image', 'url("' + image + '")');
+		if(checkbox == 1){
+    		$('#auto').prop("checked", true);
+    	}else{
+    		$('#auto').prop("checked", false);
+    	}
+    	$('#number').val(numberImage);
+		$('#product-template-edit-modal').modal('show');
     }
 </script>
 

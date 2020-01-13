@@ -842,6 +842,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/', 'TemplatesController@index')->name('templates');
         Route::get('response', 'TemplatesController@response');
         Route::post('create', 'TemplatesController@create');
+        Route::post('edit', 'TemplatesController@edit');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
     });
 

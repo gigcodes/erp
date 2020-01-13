@@ -75,6 +75,12 @@ class SetTemplatesForProduct extends Command
                     $productTemplate->product_title = $product->name;
                     $productTemplate->brand_id = $product->brand;
                     $productTemplate->currency = 'eur';
+                    if(empty($product->price)){
+                        $product->price = 0;
+                    }
+                    if(empty($product->price_eur_discounted)){
+                        $product->price_eur_discounted = 0;
+                    }
                     $productTemplate->price = $product->price;
                     $productTemplate->discounted_price = $product->price_eur_discounted; 
                     $productTemplate->product_id = $product->id;
