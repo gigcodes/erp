@@ -61,6 +61,7 @@ use App\Console\Commands\ResetDailyPlanner;
 use App\Console\Commands\SkuErrorCount;
 use App\Console\Commands\ImageBarcodeGenerator;
 use App\Console\Commands\UpdateImageBarcodeGenerator;
+use App\Console\Commands\SetTemplatesForProduct;
 
 //use App\Console\Commands\SaveProductsImages;
 
@@ -176,6 +177,7 @@ class Kernel extends ConsoleKernel
         UpdateImageBarcodeGenerator::class,
         SyncCustomersFromMagento::class,
         NumberOfImageCroppedCheck::class,
+        SetTemplatesForProduct::class,
     ];
 
     /**
@@ -325,6 +327,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:daily-planner-report')->dailyAt('22:00')->timezone('Asia/Kolkata');
         $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');
 
+        $schedule->command('template:product')->dailyAt('22:00')->timezone('Asia/Kolkata');
 
         $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
 

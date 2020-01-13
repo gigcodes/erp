@@ -843,6 +843,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/', 'TemplatesController@index')->name('templates');
         Route::get('response', 'TemplatesController@response');
         Route::post('create', 'TemplatesController@create');
+        Route::post('edit', 'TemplatesController@edit');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
     });
 
@@ -1361,5 +1362,10 @@ Route::get('scrap-logs', 'ScrapLogsController@index');
 Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
 Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
+Route::prefix('google')->middleware('auth')->group(function () {
+    Route::resource('search', 'GoogleSearchController');
+    Route::get('/search', 'GoogleSearchController@index')->name('google.search');
+    Route::get('keyword/markPriority','GoogleSearchController@markPriority')->name('google.keyword.priority');
+});
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');

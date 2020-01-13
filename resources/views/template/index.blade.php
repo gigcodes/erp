@@ -61,7 +61,7 @@
         </div>
     </div>
     <br>
-    <div class="row" style="margin:auto;">
+    <div class="col-lg-12 margin-tb">
 		<div class="col-md-12" id="page-view-result">
 
 		</div>
@@ -70,6 +70,8 @@
 <div id="display-area"></div>
 @include("template.partials.list-template")
 @include("template.partials.create-form-template")
+@include("template.partials.edit-form-template")
+@include("partials.modals.large-image-modal")
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/1.0.5/jsrender.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -80,6 +82,28 @@
 		bodyView : $("#product-template-page"),
 		baseUrl : "<?php echo url("/"); ?>"
 	});
+
+	function bigImg(img){
+        $('#large-image').attr('src',img);
+        $('#imageExpand').modal('show');
+    }
+
+    function normalImg(){
+        $('#imageExpand').modal('hide');
+    }
+	
+	function editTemplate(id,name,image,numberImage,checkbox){
+		$('#id').val(id);
+    	$('#name').val(name);
+    	$('#imagePreview').css('background-image', 'url("' + image + '")');
+		if(checkbox == 1){
+    		$('#auto').prop("checked", true);
+    	}else{
+    		$('#auto').prop("checked", false);
+    	}
+    	$('#number').val(numberImage);
+		$('#product-template-edit-modal').modal('show');
+    }
 </script>
 
 @endsection
