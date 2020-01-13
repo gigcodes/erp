@@ -70,12 +70,8 @@
                 </form>
             </div>
             <div class="pull-right">
-                <?php 
-                    $params = request()->all();
-                    $params['select_all'] = request()->get('select_all') == 'true' ? 'false' : 'true';
-                ?>
-                <a class="btn btn-secondary" href="{{route('vendor.index', $params)}}">{{request()->get('select_all') == 'true' ? 'Unselect All' : 'Select All'}}</a>
-                <button type="button" class="btn btn-secondary emailToAllModal" >Bulk Email</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
             </div>
@@ -169,6 +165,7 @@
     @include('vendors.partials.vendor-modals')
     {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')
+    @include('vendors.partials.modal-conference')
 
     <div id="reminderModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -821,8 +818,6 @@
         minLength: 1,
        
         });
-    });
-
 
 
        $(document).ready(function() {

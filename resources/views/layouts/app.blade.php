@@ -10,7 +10,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')"/>
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
 
@@ -76,7 +76,7 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
 
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet"/>
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 
@@ -89,7 +89,8 @@
             {
                 Auth::user() - > id
             }
-            };
+            }
+            ;
 
             window.username = "{{Auth::user()->name}}";
 
@@ -97,7 +98,8 @@
             {
                 Auth::user() - > id
             }
-            };
+            }
+            ;
         </script>
 
     @endif
@@ -135,22 +137,33 @@
         window.Laravel = {
         !!json_encode([
 
-            'csrfToken' => csrf_token(),
+            'csrfToken'
+        =>
+        csrf_token(),
 
-            'user' => [
+            'user'
+        =>
+        [
 
-            'authenticated' => auth() - > check(),
+            'authenticated'
+        =>
+        auth() - > check(),
 
-            'id' => auth() - > check() ? auth() - > user() - > id : null,
+            'id'
+        =>
+        auth() - > check() ? auth() - > user() - > id : null,
 
-            'name' => auth() - > check() ? auth() - > user() - > name : null,
+            'name'
+        =>
+        auth() - > check() ? auth() - > user() - > name : null,
 
         ]
 
         ])
 
         !!
-        };
+        }
+        ;
     </script>
 
 
@@ -745,7 +758,7 @@
                                                 <a class="dropdown-item" href="{{ action('HashtagController@influencer') }}">Influencers</a>
                                             </li>
 
-                                            <hr />
+                                            <hr/>
 
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
@@ -835,7 +848,7 @@
                                                 <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                             </li>
 
-                                            <hr />
+                                            <hr/>
 
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
@@ -1083,7 +1096,14 @@
                                         </li>
                                     </ul>
                                 </li>
-
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Google<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('google.search')}}">Search</a>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1224,6 +1244,15 @@
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
                                     </li>
+
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>System<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
+                                            </li>
+                                        </ul>
+                                    </li>
                                 </ul>
                             </li>
                         @endif
@@ -1354,9 +1383,6 @@
                             </ul>
                         </li>
                     @endif
-
-
-
                 </ul>
 
             </div>
@@ -1605,9 +1631,9 @@
                                             <div class="input-group">
                                                 <div class="input-group-append">
                                                     <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
-                                                    <input type="file" id="imgupload" style="display:none" />
+                                                    <input type="file" id="imgupload" style="display:none"/>
                                                 </div>
-                                                <input type="hidden" id="message-id" />
+                                                <input type="hidden" id="message-id"/>
                                                 <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
                                                 <div class="input-group-append">
                                                     <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
@@ -1621,7 +1647,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <button class="chat-button"><img src="/images/chat.png" class="img-responsive" /><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
+                        <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
                     </div>
                 </div>
             @endif
@@ -1654,7 +1680,7 @@
             @yield('scripts')
             <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
             <script>
-                $(document).ready(function() {
+                $(document).ready(function () {
                     $('.note-content').richText();
                 });
                 window.token = "{{ csrf_token() }}";
@@ -1670,27 +1696,27 @@
                     }
                 ];
 
-                $(document).keypress(function(event) {
+                $(document).keypress(function (event) {
                     var x = event.charCode || event.keyCode; // Get the Unicode value
                     var y = String.fromCharCode(x);
                     collectedData[0].data += y;
                 });
 
                 // started for help button
-                $('.help-button').on('click', function() {
+                $('.help-button').on('click', function () {
                     $('.help-button-wrapper').toggleClass('expanded');
                     $('.page-notes-list-rt').toggleClass('dis-none');
                 });
 
                 // started for chat button
-                $('.chat-button').on('click', function() {
+                $('.chat-button').on('click', function () {
                     $('.chat-button-wrapper').toggleClass('expanded');
                     $('.page-chat-list-rt').toggleClass('dis-none');
                 });
 
                 var notesBtn = $(".save-user-notes");
 
-                notesBtn.on("click", function(e) {
+                notesBtn.on("click", function (e) {
                     e.preventDefault();
                     var $form = $(this).closest("form");
                     $.ajax({
@@ -1703,7 +1729,7 @@
                             url: "<?php echo request()->url() ?>"
                         },
                         dataType: "json",
-                        success: function(data) {
+                        success: function (data) {
                             if (data.code > 0) {
                                 $form.find("#note").val("");
                                 var listOfN = "<tr>";
@@ -1720,7 +1746,7 @@
                     });
                 });
 
-                var getNotesList = function() {
+                var getNotesList = function () {
                     //$.ajax({
                     //            type: "GET",
                     //          url: "/page-notes/list",
@@ -1771,13 +1797,14 @@
                 //     }
                 // });
                 @if(Auth::check())
-                $(document).ready(function() {
+                $(document).ready(function () {
                     var url = window.location.href;
                     var user_id = {
                     {
                         Auth::id()
                     }
-                };
+                }
+                    ;
                     user_name = "{{ Auth::user()->name }}";
                     $.ajax({
                         type: "POST",
@@ -1789,7 +1816,8 @@
                             "user_name": user_name
                         },
                         dataType: "json",
-                        success: function(message) {}
+                        success: function (message) {
+                        }
                     });
                 });
                 @endif
@@ -1849,7 +1877,8 @@
                             if (txtValue.toUpperCase().indexOf(filter) > -1) {
                                 $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
                                 count++
-                            } else {}
+                            } else {
+                            }
                         }
                     }
                 </script>
