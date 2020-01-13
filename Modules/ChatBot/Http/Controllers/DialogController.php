@@ -358,7 +358,10 @@ class DialogController extends Controller
         $previousNode = $request->get("previous_node", 0);
         if ($previousNode > 0) {
             $params["previous_sibling"] = $previousNode;
+        }else{
+        	$params["previous_sibling"] = 0;
         }
+        $params["response_type"] = "standard";
 
         $dialog = ChatbotDialog::create($params);
 

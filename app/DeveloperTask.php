@@ -52,7 +52,7 @@ class DeveloperTask extends Model
 
     public function assignedUser()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'assigned_to', 'id');
     }
 
     public function submitter()
