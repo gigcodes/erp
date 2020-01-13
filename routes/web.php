@@ -325,6 +325,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/productapprover/isFinal/{product}', 'ProductApproverController@isFinal')->name('productapprover.isfinal');
 
     Route::get('/productinventory/in/stock', 'ProductInventoryController@instock')->name('productinventory.instock');
+    Route::post('/productinventory/in/stock/update-field', 'ProductInventoryController@updateField')->name('productinventory.instock.update-field');
     Route::get('/productinventory/in/delivered', 'ProductInventoryController@inDelivered')->name('productinventory.indelivered');
     Route::get('/productinventory/in/stock/instruction-create', 'ProductInventoryController@instructionCreate')->name('productinventory.instruction.create');
     Route::post('/productinventory/in/stock/instruction', 'ProductInventoryController@instruction')->name('productinventory.instruction');
