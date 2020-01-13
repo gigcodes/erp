@@ -1359,3 +1359,5 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
+
+Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
