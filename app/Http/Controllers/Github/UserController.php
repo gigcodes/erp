@@ -23,10 +23,32 @@ class UserController extends Controller
     }
 
 
+    private function refreshUsersForOrganization(){
+        $url = "https://api.github.com/orgs/". getenv('GITHUB_ORG_ID') ."/members";
+        $response = $this->client->get($url);
+        $users = json_decode($response->getBody()->getContents());
+        $returnUser = [];
+        foreach ($users as $user) {
+            $dbUser = [
+                'id' => $user->id,
+                'username' => $user->login,
+            ];
 
-    public function listUsers()
+            GithubUser::updateOrCreate(
+                [
+                    'id' => $user->id
+                ],
+                $dbUser
+            );
+            $returnUser[] = $dbUser;
+        }
+        return $returnUser;
+    }
+
+    public function listOrganizationUsers()
     {
-        return view('github.users');
+        $users = $this->refreshUsersForOrganization();
+        return view('github.org_users', ['users' => $users]);
     }
 
     private function refreshUsersForRespository(string $repositoryName)
@@ -90,6 +112,6 @@ class UserController extends Controller
         $name = Route::current()->parameter('name');
         $users = $this->refreshUsersForRespository($name);
         
-        return view('github.users', ['users' => $users]);
+        return view('github.repository_users', ['users' => $users]);
     }
 }

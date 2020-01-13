@@ -1348,7 +1348,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::prefix('github')->group(function () {
         Route::get('/repos', 'Github\RepositoryController@listRepositories');
         Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
-        Route::get('/users', 'Github\UserController@listUsers');
+        Route::get('/users', 'Github\UserController@listOrganizationUsers');
         Route::get('/groups', 'Github\GroupController@listGroups');
     });
 });

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<h2 class="text-center">Groups</h2>
+<h2 class="text-center">Users</h2>
 <div class="container">
     <table class="table table-bordered">
         <thead>
@@ -11,10 +11,10 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($groups as $group)
+            @foreach($users as $user)
             <tr>
-                <td>{{$group['id']}}</th>
-                <th>{{$group['name']}}</th>
+                <td>{{$user['id']}}</th>
+                <th>{{$user['username']}}</th>
             </tr>
             @endforeach
         </tbody>
