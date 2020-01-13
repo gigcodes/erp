@@ -845,5 +845,56 @@
         }
       }
     }
+
+    $(document).on("dblclick",".text-editable",function(){
+      
+      var val = $(this).html();
+      var fieldName = $(this).data("field-name");
+      var productId = $(this).data("product-id");
+      
+      $(this).replaceWith('<input type="text" name="'+fieldName+'" data-field-name="'+fieldName+'" data-product-id="'+productId+'" class="editable-input form-control" value=\"' + val + '\" />');
+      $(this).trigger("focus");
+    });
+
+    $(document).on('blur', '.editable-input', function(){
+    
+      var $this = $(this);
+      var val = $this.val();
+      var fieldName = $this.data("field-name");
+      var productId = $this.data("product-id");
+
+      if(val == "N/A") {
+         alert("Please Enter Correct Value");
+         $this.replaceWith('<span class="text-editable" data-field-name="'+fieldName+'" data-product-id="'+productId+'">' + val + '</span>');
+         return false;
+      }
+
+      $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type: "post",
+          url: '<?php echo route("productinventory.instock.update-field"); ?>',
+          data: {
+              "id": productId,
+              "field_name": fieldName,
+              "field_value" : val
+          },
+          dataType: "json",
+          success: function(response) {
+              if (response.code != 200) {
+                  toastr['error'](response.message);
+              } else {
+                  toastr['success']('Success!');
+                  $this.replaceWith('<span class="text-editable" data-field-name="'+fieldName+'" data-product-id="'+productId+'">' + val + '</span>');
+              }
+          },
+          error: function() {
+              toastr['error']('Can not store value please review!');
+          }
+      });
+
+    });
+
   </script>
 @endsection

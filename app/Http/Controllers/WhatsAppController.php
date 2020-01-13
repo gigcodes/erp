@@ -1926,12 +1926,12 @@ class WhatsAppController extends FindByNumberController
                     $params[ 'issue_id' ] = $request->get('issue_id');
                     //$issue                  = Issue::find($request->get('issue_id'));
                     $issue = DeveloperTask::find($request->get('issue_id'));
-                    $params[ 'erp_user' ] = $issue->responsible_user_id;
+                    $params[ 'erp_user' ] = $issue->assigned_to;
                     $params[ 'approved' ] = 1;
                     $params[ 'status' ] = 2;
 
 
-                    $number = User::find($issue->responsible_user_id);
+                    $number = User::find($issue->assigned_to);
 
                     if (!$number) {
                         return response()->json(['message' => null]);
