@@ -195,11 +195,11 @@ class VendorController extends Controller
 
       $users = User::all();
 
-      
+      $replies = \App\Reply::where("model","Vendor")->whereNull("deleted_at")->pluck("reply","id")->toArray();
 
        if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('vendors.partials.data', compact('vendors'))->render(),
+                'tbody' => view('vendors.partials.data', compact('vendors','replies'))->render(),
                 'links' => (string)$vendors->render()
             ], 200);
         }
@@ -209,7 +209,8 @@ class VendorController extends Controller
         'vendor_categories' => $vendor_categories,
         'term'    => $term,
         'orderby'    => $orderby,
-          'users' => $users
+          'users' => $users,
+          'replies' => $replies
       ]);
     }
 
@@ -850,5 +851,41 @@ class VendorController extends Controller
         $vendor->save();
 
         return response()->json(['is_blocked' => $vendor->is_blocked]);
+    }
+
+    public function addReply(Request $request)
+    {
+      $reply = $request->get("reply");
+      $autoReply = [];
+      // add reply from here 
+      if(!empty($reply)) {
+        
+        $autoReply = \App\Reply::updateOrCreate(
+            ['reply' => $reply, 'model' => 'Vendor', "category_id" => 1],
+            ['reply' => $reply]
+        );
+
+      }
+
+      return response()->json(["code" => 200, 'data' => $autoReply]);
+    }
+
+    public function deleteReply(Request $request)
+    {
+      $id = $request->get("id");
+
+      if($id > 0) {
+          $autoReply = \App\Reply::where("id", $id)->first();
+          if($autoReply) {
+             $autoReply->delete();
+          }
+      }
+
+      return response()->json(["code" => 200 , "data" => \App\Reply::where("model","Vendor")
+        ->whereNull("deleted_at")
+        ->pluck("reply","id")
+        ->toArray()
+      ]);
+
     }
 }

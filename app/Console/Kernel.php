@@ -207,6 +207,10 @@ class Kernel extends ConsoleKernel
         //This will run every fifteen minutes checking if new mail is recieved for email importer...
         $schedule->command('excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
 
+        //This will run every fifteen minutes checking if new mail is recieved form supplier email importer...
+        $schedule->command('supplier-excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
+
+
         //Flag customer if they have a complaint
         $schedule->command('flag:customers-with-complaints')->daily();
 
@@ -348,8 +352,8 @@ class Kernel extends ConsoleKernel
         // need to run this both cron every minutes
         $schedule->command('cronschedule:update')->everyMinute();
         $schedule->command('erpevents:run')->everyMinute();
-        $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
-        $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
+      //  $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
+      //  $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
 
         //Sync customer from magento to ERP
         $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();

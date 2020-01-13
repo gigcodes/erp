@@ -2,25 +2,57 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use App\AssetsCategory;
+use Illuminate\Database\Eloquent\Model;
 
 class AssetsManager extends Model
 {
 
-  //use SoftDeletes;
-  protected $table = 'assets_manager';
+    //use SoftDeletes;
+    protected $table = 'assets_manager';
 
-  protected $casts = [
-      'notes' => 'array'
-  ];
+    protected $casts = [
+        'notes' => 'array',
+    ];
 
-  protected $fillable = [
-    'name', 'asset_type', 'category_id', 'purchase_type', 'payment_cycle', 'amount', 'archived','password','provider_name','location','currency'];
+    protected $fillable = [
+        'name', 'capacity', 'asset_type', 'category_id', 'purchase_type', 'payment_cycle', 'amount', 'archived', 'password', 'provider_name', 'location', 'currency','usage'];
 
-  public function category()
+    public function category()
     {
-        return $this->hasOne(AssetsCategory::class,'id','category_id');
+        return $this->hasOne(AssetsCategory::class, 'id', 'category_id');
     }
-  
+
+    public static function assertTypeList()
+    {
+        return [
+            ""     => "-- Assert Type --",
+            "Hard" => "Hard",
+            "Soft" => "Soft",
+        ];
+    }
+
+    public static function purchaseTypeList()
+    {
+        return [
+            ""             => "-- Purchase Type --",
+            "Owned"        => "Owned",
+            "Rented"       => "Rented",
+            "Subscription" => "Subscription",
+        ];
+    }
+
+    public static function paymentCycleList()
+    {
+        return [
+            ""          => "-- Payment Cycle --",
+            "Daily"     => "Daily",
+            "Weekly"    => "Weekly",
+            "Bi-Weekly" => "Bi-Weekly",
+            "Monthly"   => "Monthly",
+            "Yearly"    => "Yearly",
+            "One time"  => "One time",
+        ];
+    }
+
 }

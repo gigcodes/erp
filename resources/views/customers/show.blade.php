@@ -234,6 +234,12 @@
         text-align: center;
         padding: 2!important;
       }
+      .mic-button-input{
+        width: 50px;
+      }
+      .mic-active {
+        background-color: red; 
+      }
   </style>
   {{--new chat--}}
   <style>
@@ -1676,7 +1682,7 @@
           </div>
 
           <div class="form-group flex-fill mr-3">
-            <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
+            <textarea id="message-body" class="form-control mb-3 message-strong" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
 
             <input type="hidden" name="screenshot_path" value="" id="screenshot_path" />
             <input type="hidden" name="status" value="1" />
@@ -1685,7 +1691,6 @@
 
 
           </div>
-
           {{-- <div class="form-group">
             <div class="upload-btn-wrapper">
               <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
@@ -1693,7 +1698,10 @@
             </div>
           </div> --}}
         </div>
-
+        <div class="d-flex">
+          <div class="upload-btn-wrapper" id="root">
+          </div>
+        </div>
         <div class="pb-4 mt-3">
           <div class="row">
             <div class="col-md-8">
@@ -2660,7 +2668,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.min.js" integrity="sha256-Y1rRlwTzT5K5hhCBfAFWABD4cU13QGuRN6P5apfWzVs=" crossorigin="anonymous"></script>
-
+  <script type="text/javascript" src="<?php echo env("DOMAIN_NODE_SPEECH_TO_TEXT"); ?>/scripts/bundle.js"></script>
   <script type="text/javascript">
       $(document).ready(function () {
           $('.chat-history-load-communication-modal').trigger('click');
