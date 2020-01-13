@@ -1362,6 +1362,7 @@ Route::get('scrap-logs', 'ScrapLogsController@index');
 Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
 Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
+
 Route::prefix('google')->middleware('auth')->group(function () {
     Route::resource('search', 'GoogleSearchController');
     Route::get('/search', 'GoogleSearchController@index')->name('google.search');
