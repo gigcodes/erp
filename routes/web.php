@@ -414,6 +414,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');
     Route::post('supplier/reminder', 'SupplierController@updateReminder');
+    Route::post('supplier/excel-import', 'SupplierController@excelImport');
     Route::post('vendor/reminder', 'VendorController@updateReminder');
     Route::post('customer/add-note/{id}', 'CustomerController@addNote');
     Route::post('supplier/add-note/{id}', 'SupplierController@addNote');

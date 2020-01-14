@@ -48,14 +48,14 @@
                     $countError = 0;
                     $countPending = 0;
                   @endphp
-
+                  
                   @foreach($email['alert'] as $alert)
                     @php
-                    if($alert = 'Excel import process'){
+                    if($alert == 'Excel import process'){
                       $countPending++;
-                    }elseif($alert = 'Excel import created'){
+                    }elseif($alert == 'Excel import created'){
                       $countSucess++;
-                    }elseif($alert = 'Excel import error'){
+                    }elseif($alert == 'Excel import error'){
                       $countError++;
                     }
                     @endphp

@@ -2067,13 +2067,16 @@ class PurchaseController extends Controller
                             $filename = explode('.',end($filename));
                             if(end($filename) == 'xlsx' || end($filename) == 'xls'){
                                 $log = LogExcelImport::where('supplier_email',$supplier->email)->where('filename',$filename[0])->first();
-                                if($log->status == 1){
-                                    $alert[] = 'Excel import process';
-                                }elseif($log->status == 2){
-                                    $alert[] = 'Excel import created';
-                                }else{
-                                    $alert[] = 'Excel import error';
-                                }   
+                                if($log != null){
+                                    if($log->status == 1){
+                                        $alert[] = 'Excel import process';
+                                    }elseif($log->status == 2){
+                                        $alert[] = 'Excel import created';
+                                    }elseif($log->status == 0){
+                                        $alert[] = 'Excel import error';
+                                    }
+
+                                }
                             }
                         }
                     }
@@ -2554,13 +2557,16 @@ class PurchaseController extends Controller
                                 $filename = explode('.',end($filename));
                                 if(end($filename) == 'xlsx' || end($filename) == 'xls'){
                                     $log = LogExcelImport::where('supplier_email',$supplier->email)->where('filename',$filename[0])->first();
-                                    if($log->status == 1){
-                                        $alert = 'Excel import process';
-                                    }elseif($log->status == 2){
-                                        $alert = 'Excel import created';
-                                    }else{
-                                        $alert = 'Excel import error';
-                                    }   
+                                    if($log != null){
+                                        if($log->status == 1){
+                                            $alert = 'Excel import process';
+                                        }elseif($log->status == 2){
+                                            $alert = 'Excel import created';
+                                        }else{
+                                            $alert = 'Excel import error';
+                                        }
+                                    }
+                                       
                                 }
                             }
                         }
@@ -2568,7 +2574,7 @@ class PurchaseController extends Controller
                             $alert = '';
                         }
                         $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attach . "' /><button type='submit' class='btn-link'>Attachment</button>
-                        <button type='button' class='btn-danger' onclick='processExcel()'>".$alert."</button></form>";
+                        <button type='button' class='btn-danger' onclick='processExcel(".$email->id.",/'".$attach."/')'>".$alert."</button></form>";
                     }
                 } else {
                     $content = "$email->message <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attachment . "' /><button type='submit' class='btn-link'>Attachment</button></form>";

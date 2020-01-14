@@ -457,11 +457,14 @@
                             </h4>
                         </div>
                         <div id="collapse-excel" class="panel-collapse collapse">
-                            <div class="panel-body" id="note_list">
-                                
-                            </div>
+
                             <div class="panel-footer">
-                                <input name="add_new_remark" id="add_new_remark" type="file" placeholder="Type new remark..." class="form-control add-new-remark">
+                                <form action="/supplier/excel-import" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                <input name="excel_file" type="file" class="form-control">
+                                <input type="hidden" name="id" value="{{ $supplier->id }}">
+                                <button type="submit" class="btn btn-secondary">Submit</button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -1903,8 +1906,26 @@
             $("#count_images").html(images.length);
             $('#productGroupDetails').modal('show');
         });
-        function processExcel(){
-            alert('hello');
+        function processExcel(id,attachment){
+            $.ajax({
+                url: '/supplier/excel-import',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{csrf_token()}}",
+                    'email_id' : id,
+                    'attachment' : attachment,
+                    'id' : "{{ $supplier-> id }}",
+                },
+            })
+            .done(function() {
+                console.log("success");
+            })
+            .fail(function() {
+                console.log("error");
+            })
+            
+            
         }  
     </script>
 @endsection

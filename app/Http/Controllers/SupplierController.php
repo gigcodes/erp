@@ -26,6 +26,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\ProductQuicksellGroup;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\SupplierBrandCountHistory;
+use seo2websites\ErpExcelImporter\ErpExcelImporter;
 
 class SupplierController extends Controller
 {
@@ -1080,5 +1081,30 @@ class SupplierController extends Controller
 
         // Still here? Return an error
         return response()->json(['error' => 'Supplier not found'], 403);
-    }    
+    }
+
+    public function excelImport(Request $request)
+        {
+          dd($request);
+          if($request->file('excel_file')){
+              $file = $request->file('excel_file');
+
+              if($file->getClientOriginalExtension() == 'xls' || $file->getClientOriginalExtension() == 'xlsx'){
+                //Save file
+                $path = "email-attachments/" . $file->getClientOriginalName();
+                $file->move($path,$file->getClientOriginalName());
+                $supplier = Supplier::find($request->id);
+                if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                  $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                  $excel = ErpExcelImporter::excelFileProcess($file->getClientOriginalName(),$excel,$supplier->email);
+                  return redirect()->back()->withSuccess('File Processed For Import'); 
+                }else{
+                  return redirect()->back()->withErrors('Excel Importer Not Found');
+                }
+
+              }else{
+                return redirect()->back()->withErrors('Please Use Excel FIle');; 
+              }
+            }
+        }    
 }
