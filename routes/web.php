@@ -13,7 +13,10 @@
 
 Auth::routes();
 
-Route::get('/test/test', 'TextController@index');
+
+Route::get('/test/test', function(){
+    return session()->all();
+});
 Route::get('create-media-image', 'CustomerController@testImage');
 
 
@@ -843,6 +846,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/', 'TemplatesController@index')->name('templates');
         Route::get('response', 'TemplatesController@response');
         Route::post('create', 'TemplatesController@create');
+        Route::post('edit', 'TemplatesController@edit');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
     });
 
@@ -1357,6 +1361,12 @@ Route::group(['middleware' => 'auth'], function () {
 
 Route::prefix('chat-bot')->middleware('auth')->group(function () {
     Route::get('/connection', 'ChatBotController@connection');
+});
+
+Route::prefix('google')->middleware('auth')->group(function () {
+    Route::resource('search', 'GoogleSearchController');
+    Route::get('/search', 'GoogleSearchController@index')->name('google.search');
+    Route::get('keyword/markPriority','GoogleSearchController@markPriority')->name('google.keyword.priority');
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
