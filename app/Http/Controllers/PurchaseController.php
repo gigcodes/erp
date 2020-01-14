@@ -2574,7 +2574,7 @@ class PurchaseController extends Controller
                             $alert = '';
                         }
                         $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attach . "' /><button type='submit' class='btn-link'>Attachment</button>
-                        <button type='button' class='btn-danger' onclick='processExcel(".$email->id.",/'".$attach."/')'>".$alert."</button></form>";
+                        <button type='button' class='btn-secondary' onclick='processExcel(".$email->id.")' id='email".$email->id."' data-attached='" . $attach . "' >".$alert."</button></form>";
                     }
                 } else {
                     $content = "$email->message <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attachment . "' /><button type='submit' class='btn-link'>Attachment</button></form>";

@@ -62,7 +62,7 @@ class FetchEmails extends Command
       $imap->connect();
 
       // $supplier = Supplier::find($request->supplier_id);
-      $suppliers = Supplier::whereIn('id',[2])->get();
+      $suppliers = Supplier::whereHas('Agents')->orWhereNotNull('email')->get();
 
       dump(count($suppliers));
 

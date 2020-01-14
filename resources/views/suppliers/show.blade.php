@@ -1906,7 +1906,8 @@
             $("#count_images").html(images.length);
             $('#productGroupDetails').modal('show');
         });
-        function processExcel(id,attachment){
+        function processExcel(id){
+            attachment = $('#email'+id).attr('data-attached');
             $.ajax({
                 url: '/supplier/excel-import',
                 type: 'POST',
@@ -1919,10 +1920,10 @@
                 },
             })
             .done(function() {
-                console.log("success");
+                alert('Added For Import');
             })
             .fail(function() {
-                console.log("error");
+                alert('Error During Import');
             })
             
             

@@ -1085,7 +1085,18 @@ class SupplierController extends Controller
 
     public function excelImport(Request $request)
         {
-          dd($request);
+          
+          if($request->attachment){
+              $supplier = Supplier::find($request->id);
+             $file = explode('/',$request->attachment);
+             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                  $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                  $excel = ErpExcelImporter::excelFileProcess(end($file),$excel,$supplier->email);
+                  return response()->json(['success' => 'File Processed For Import'], 200);
+              }else{
+                return response()->json(['error' => 'File Couldnt Process For Import'], 200);
+              }
+          }
           if($request->file('excel_file')){
               $file = $request->file('excel_file');
 
