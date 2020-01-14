@@ -39,30 +39,30 @@ class GoogleAffiliateController extends Controller
                 
 				$keywords  = HashTag::query()
                                 ->where('priority', '1')
-								->where('platforms_id', $this->platformsId)
-								->where('hashtag', 'LIKE', "%{$request->term}%")
+                                ->where('platforms_id', $this->platformsId)
+                                ->where('hashtag', 'LIKE', "%{$request->term}%")
                                 ->orderBy($sortBy, $orderBy)
-								->paginate(Setting::get('pagination'));
+                                ->paginate(Setting::get('pagination'));
 
                 $queryString = 'term=' . $request->term . '&priority=' . $request->priority . '&';
 			}
 			else if($request->priority == 'on'){
-				$keywords = HashTag::where('priority',1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
-            
+                $keywords = HashTag::where('priority',1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
+
                 $queryString = 'priority=' . $request->priority . '&';
 			}
 			else if($request->term != null){
-				$keywords  = HashTag::query()
-								->where('hashtag', 'LIKE', "%{$request->term}%")
-								->where('platforms_id', $this->platformsId)
+                $keywords  = HashTag::query()
+                                ->where('hashtag', 'LIKE', "%{$request->term}%")
+                                ->where('platforms_id', $this->platformsId)
                                 ->orderBy($sortBy, $orderBy)
-								->paginate(Setting::get('pagination'));
-                
+                                ->paginate(Setting::get('pagination'));
+
                 $queryString = 'term=' . $request->term . '&';
 			}
 
 		} else {
-			$keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
+            $keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
 		}
 
 		return view('google.affiliate.index', compact('keywords', 'queryString', 'orderBy')); 
@@ -192,7 +192,7 @@ class GoogleAffiliateController extends Controller
                 }
                 else {
                     // Retrieve instagram post or initiate new
-                    $affiliateResults = Affiliate::firstOrNew(['location' => $postJson[ 'URL' ]]);
+                    $affiliateResults = Affiliates::firstOrNew(['location' => $postJson[ 'URL' ]]);
 
                     $affiliateResults->hashtag_id = $keywords->id;
                     $affiliateResults->caption = $postJson[ 'description' ];
