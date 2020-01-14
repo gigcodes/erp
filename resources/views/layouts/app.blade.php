@@ -841,6 +841,19 @@
                                         </ul>
                                     </li>
                                 @endif
+
+                                @if(auth()->user()->isAdmin())
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>LiveChat, Inc.<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('VisitorController@index') }}">LiveChat Visitor Log</a>
+                                                <a class="dropdown-item" href="{{ action('LiveChatController@setting') }}">LiveChat Settings</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                @endif
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -1117,6 +1130,15 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
+                                    </li>
+
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>System<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
+                                            </li>
+                                        </ul>
                                     </li>
                                 </ul>
                             </li>
