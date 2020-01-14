@@ -1375,6 +1375,11 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::resource('search', 'GoogleSearchController');
     Route::get('/search', 'GoogleSearchController@index')->name('google.search');
     Route::get('keyword/markPriority','GoogleSearchController@markPriority')->name('google.keyword.priority');
+
+    Route::resource('/affiliate/keyword', 'GoogleAffiliateController');
+    Route::get('/affiliate/keyword', 'GoogleAffiliateController@index')->name('google.affiliate.keyword');
+    Route::get('/affiliate/keyword-priority','GoogleAffiliateController@markPriority')->name('google.affiliate.keyword.priority');
+    Route::get('/affiliate/results', 'GoogleAffiliateController@searchResults')->name('google.affiliate.results');
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
