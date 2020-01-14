@@ -85,21 +85,11 @@
         {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
 
         <script>
-            window.userid = {
-            {
-                Auth::user() - > id
-            }
-            }
-            ;
+            window.userid = "{{Auth::user()->id}}";
 
             window.username = "{{Auth::user()->name}}";
 
-            loggedinuser = {
-            {
-                Auth::user() - > id
-            }
-            }
-            ;
+            loggedinuser = "{{Auth::user()->id}}";
         </script>
 
     @endif
@@ -134,36 +124,7 @@
     @yield("styles")
 
     <script>
-        window.Laravel = {
-        !!json_encode([
-
-            'csrfToken'
-        =>
-        csrf_token(),
-
-            'user'
-        =>
-        [
-
-            'authenticated'
-        =>
-        auth() - > check(),
-
-            'id'
-        =>
-        auth() - > check() ? auth() - > user() - > id : null,
-
-            'name'
-        =>
-        auth() - > check() ? auth() - > user() - > name : null,
-
-        ]
-
-        ])
-
-        !!
-        }
-        ;
+        window.Laravel = '{{!!json_encode(['csrfToken'=>csrf_token(),'user'=>['authenticated'=>auth()->check(),'id'=>auth()->check() ? auth()->user()->id : null,'name'=>auth()->check() ? auth()->user()-> name : null,]])!!}';
     </script>
 
 
@@ -1793,12 +1754,7 @@
                 @if(Auth::check())
                 $(document).ready(function () {
                     var url = window.location.href;
-                    var user_id = {
-                    {
-                        Auth::id()
-                    }
-                }
-                    ;
+                    var user_id = "{{Auth::id()}}";
                     user_name = "{{ Auth::user()->name }}";
                     $.ajax({
                         type: "POST",

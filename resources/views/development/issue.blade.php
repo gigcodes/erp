@@ -100,6 +100,9 @@
                     <div class="col-md-2">
                         <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
                     </div>
+                    <div class="col-md-2">
+                        <input type="text" name="language" id="language_query" placeholder="Language" class="form-control" value="{{ (!empty(app('request')->input('language'))  ? app('request')->input('language') : '') }}">
+                    </div>
                     @if($title == 'devtask')
                         <div class="col-md-2">
                             <select name="task_status[]" class="form-control multiselect" multiple>
@@ -221,7 +224,7 @@
                     <tr class="add-new-issue">
                         <form action="{{ route('development.issue.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
-                            <td colspan="12">
+                            <td colspan="14">
                                 <div class="row">
                                     <div class="col-md-2">
                                         <select class="form-control d-inline select2" name="module" id="module" style="width: 150px !important;">
@@ -277,7 +280,9 @@
                     <th width="5%">Assigned To</th>
                     <th width="5%">Responsible User</th>
                     <th width="5%">Resolved</th>
+                    <th width="5%">Master Developer</th>
                     <th width="5%">Cost</th>
+                    <th width="5%">Language</th>
                 </tr>
                 @foreach ($issues as $key => $issue)
                     @if(auth()->user()->isAdmin())
@@ -381,16 +386,31 @@
                                 @endif
                             </td>
                             <td>
+                                <select class="form-control assign-master-user" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
+                                    <option value="">Select...</option>
+                                    @foreach($users as $id=>$name)
+                                        @if( isset($issue->masterUser->id) && (int) $issue->masterUser->id == $id )
+                                            <option value="{{$id}}" selected>{{ $name }}</option>
+                                        @else
+                                            <option value="{{$id}}">{{ $name }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td>
                                 @if($issue->cost > 0)
                                     {{ $issue->cost }}
                                 @else
                                     <input type="text" name="cost" id="cost_{{$issue->id}}" placeholder="Amount..." class="form-control save-cost" data-id="{{$issue->id}}">
                                 @endif
                             </td>
+                            <td>
+                                <input type="text" name="cost" id="language_{{$issue->id}}" placeholder="Language..." class="form-control save-language" value="<?php echo $issue->language; ?>" data-id="{{$issue->id}}">
+                            </td>
                         </tr>
                         <tr>
                             <td>&nbsp;</td>
-                            <td colspan="11">
+                            <td colspan="13">
                                 <div id="collapse_{{$issue->id}}" class="panel-collapse collapse">
                                     <div class="panel-body">
                                         <div class="messageList" id="message_list_{{$issue->id}}">
@@ -473,16 +493,26 @@
                                     @endif
                                 </td>
                                 <td>
+                                    @if($issue->masterUser)
+                                        {{ $issue->masterUser->name  }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                                <td>
                                     @if($issue->cost > 0)
                                         {{ $issue->cost }}
                                     @else
                                         <input type="text" name="cost" id="cost_{{$issue->id}}" placeholder="Amount..." class="form-control save-cost" data-id="{{$issue->id}}">
                                     @endif
                                 </td>
+                                <td>
+                                    <?php echo $issue->language; ?>
+                                </td>
                             </tr>
                             <tr>
                                 <td>&nbsp;</td>
-                                <td colspan="11">
+                                <td colspan="13">
                                     <div id="collapse_{{$issue->id}}" class="panel-collapse collapse">
                                         <div class="panel-body">
                                             <div class="messageList" id="message_list_{{$issue->id}}">
@@ -694,6 +724,11 @@
             $(".multiselect").multiselect({
                 nonSelectedText:'Please Select'
             });
+            /*$.each($(".resolve-issue"),function(k,v){
+                if (!$(v).hasClass("select2-hidden-accessible")) {
+                    $(v).select2({width:"100%"});
+                }
+            });*/
             $('.infinite-scroll').jscroll({
                 debug: true,
                 autoTrigger: true,
@@ -708,6 +743,12 @@
                         var current_page = next_page.find("span").html();
                         $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
                     }
+
+                    /*$.each($(".resolve-issue"),function(k,v){
+                        if (!$(v).hasClass("select2-hidden-accessible")) {
+                            $(v).select2({tags:true});
+                        }
+                    });*/
                 }
             });
 
@@ -885,6 +926,30 @@
             });
 
         });
+
+        $(document).on('change', '.assign-master-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+
+            if (userId == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@assignUser')}}",
+                data: {
+                    master_user_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Master User assigned successfully!", "Message")
+                }
+            });
+
+        });
+
+        
+
         $(document).on('keyup', '.save-cost', function (event) {
             if (event.keyCode != 13) {
                 return;
@@ -903,6 +968,26 @@
                 }
             });
         });
+
+        $(document).on('focusout', '.save-language', function (event) {
+            
+            let id = $(this).attr('data-id');
+            let language = $(this).val();
+
+            $.ajax({
+                url: "{{action('DevelopmentController@saveLanguage')}}",
+                data: {
+                    language: language,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Language updated successfully!", "Message")
+                }
+            });
+        });
+
+        
+
         {{--$(document).on('change', '.resolve-issue', function (event) {--}}
         {{--let id = $(this).data('id');--}}
         {{--let status = $(this).val();--}}

@@ -403,18 +403,27 @@ class DevelopmentController extends Controller
         if ($request->get('subject') != '') {
             $issues = $issues->where(function ($query) use ($request) {
                 $subject = $request->get('subject');
-                $query->where('id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%");
+                $query->where('developer_tasks.id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%");
             });
         }
+
+        if ($request->get('language') != '') {
+            $issues = $issues->where('language','LIKE', "%".$request->get('language')."%");
+        }
+
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id  FROM `chat_messages` where issue_id > 0 GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+        $issues = $issues->select("developer_tasks.*");
+        
 
         // Set variables with modules and users
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
 
         // Hide resolved
-        if ((int)$request->show_resolved !== 1) {
+        /*if ((int)$request->show_resolved !== 1) {
             $issues = $issues->where('is_resolved', 0);
-        }
+        }*/
 
         if (!auth()->user()->isAdmin()) {
             $issues = $issues->where(function($q){
@@ -424,7 +433,7 @@ class DevelopmentController extends Controller
 
         // category filter start count
         $issuesGroups = clone($issues);
-        $issuesGroups = $issuesGroups->where('status', 'Planned')->groupBy("user_id")->select([\DB::raw("count(id) as total_product"),"user_id"])->pluck("total_product","user_id")->toArray();
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy("developer_tasks.user_id")->select([\DB::raw("count(developer_tasks.id) as total_product"),"developer_tasks.user_id"])->pluck("total_product","user_id")->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
         
         $userModel = \App\User::whereIn("id",$userIds)->pluck("name","id")->toArray();
@@ -442,7 +451,7 @@ class DevelopmentController extends Controller
 
         // category filter start count
         $issuesGroups = clone($issues);
-        $issuesGroups = $issuesGroups->where('status', 'In Progress')->groupBy("user_id")->select([\DB::raw("count(id) as total_product"),"user_id"])->pluck("total_product","user_id")->toArray();
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy("user_id")->select([\DB::raw("count(developer_tasks.id) as total_product"),"developer_tasks.user_id"])->pluck("total_product","user_id")->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
         
         $userModel = \App\User::whereIn("id",$userIds)->pluck("name","id")->toArray();
@@ -463,9 +472,9 @@ class DevelopmentController extends Controller
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
         }
         if ($request->order == 'create_asc') {
-            $issues = $issues->orderBy('created_at', 'ASC')->with('communications');
+            $issues = $issues->orderBy('developer_tasks.created_at', 'ASC')->with('communications');
         } else {
-            $issues = $issues->orderBy('created_at', 'DESC')->with('communications');
+            $issues = $issues->orderBy('developer_tasks.created_at', 'DESC')->with('communications');
         }
 
         $issues = $issues->paginate(Setting::get('pagination'));
@@ -1163,9 +1172,14 @@ class DevelopmentController extends Controller
 
     public function assignUser(Request $request)
     {
+        $masterUserId = $request->get("master_user_id",0);
         // $issue = Issue::find($request->get('issue_id'));
         $issue = DeveloperTask::find($request->get('issue_id'));
-        $issue->assigned_to = $request->get('assigned_to');
+        if($masterUserId > 0) {
+            $issue->master_user_id = $masterUserId;
+        }else{
+            $issue->assigned_to = $request->get('assigned_to');
+        }
         $issue->save();
 
         return response()->json([
@@ -1471,5 +1485,16 @@ class DevelopmentController extends Controller
 
         $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames"))->render();
         return json_encode(compact("html", "status"));
+    }
+
+    public function saveLanguage(Request $request)
+    {
+        $issue = DeveloperTask::find($request->get('issue_id'));
+        $issue->language = $request->get('language');
+        $issue->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 }
