@@ -282,7 +282,7 @@
                                             <strong class="same-color" style="text-decoration: underline;">Composition</strong>
                                             <br/>
                                             <span class="same-color flex-column">
-                                                {{ strtoupper($product->composition) }}
+                                                {{ strtoupper($product->commonComposition($product->category , $product->composition)) }}
                                             </span>
                                         </p>
 

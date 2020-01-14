@@ -41,7 +41,14 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use App\SimplyDutyCategory;
+use App\HsCodeGroup;
+use App\HsCodeGroupsCategoriesComposition;
+use App\HsCode;
+use App\HsCodeSetting;
+use App\SimplyDutyCountry;
 use seo2websites\GoogleVision\LogGoogleVision;
+
 
 class ProductController extends Controller
 {
@@ -2470,5 +2477,163 @@ class ProductController extends Controller
         $product = Product::find($id);
 
         return response()->json(['success' => 'success', 200]);
+    }
+
+    public function hsCodeIndex(Request $request){
+
+        if($request->category || $request->keyword){
+            $products = Product::select('composition','category')->where('composition', 'LIKE', '%' . request('keyword') . '%')->where('category',$request->category[0])->groupBy('composition')->get();
+          
+           foreach ($products as $product) {
+
+            if($product->category != null){
+                $categoryTree = CategoryController::getCategoryTree($product->category);
+               if(is_array($categoryTree)){
+                
+                    $childCategory = implode(' > ',$categoryTree);
+               }
+              
+               $cat = Category::findOrFail($request->category[0]);
+               $parentCategory = $cat->title;
+               
+               if($product->composition != null){
+                    if($request->group == 'on'){
+                        $composition = strip_tags($product->composition);
+                        $compositions[] = str_replace(['&nbsp;','/span>'],' ',$composition);
+                    }else{
+                       if($product->isGroupExist($product->category,$product->composition,$parentCategory,$childCategory)){
+                            $composition = strip_tags($product->composition);
+                            $compositions[] = str_replace(['&nbsp;','/span>'],' ',$composition);
+
+                        } 
+                    }
+                    
+               }
+              
+            }
+               
+        }
+        if(!isset($compositions)){
+            $compositions = [];
+            $childCategory = '';
+            $parentCategory = '';
+        }
+         $keyword = $request->keyword;
+         $groupSelected = $request->group;   
+        
+        }else{
+            $keyword = '';
+            $compositions = [];
+            $childCategory = '';
+            $parentCategory = '';
+            $groupSelected = '';
+        }
+        $selected_categories = $request->category ? $request->category : 1;
+
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2','id' => 'category_value'])
+            ->selected($selected_categories)
+            ->renderAsDropdown();
+        $hscodes = SimplyDutyCategory::all();    
+        $categories = Category::all();
+        $groups = HsCodeGroup::all();
+        $cate = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
+        $pendingCategory = Category::all()->except($cate);
+        $pendingCategoryCount = $pendingCategory->count();
+        $setting = HsCodeSetting::first();
+        $countries = SimplyDutyCountry::all();
+        
+        return view('products.hscode', compact('keyword','compositions','childCategory','parentCategory','category_selection','hscodes','categories','groups','groupSelected','pendingCategoryCount','setting','countries'));
+    }
+
+    public function saveGroupHsCode(Request $request)
+    {
+        $name = $request->name;
+        $compositions = $request->compositions; 
+        $key = HsCodeSetting::first();
+        if($key == null){
+            return response()->json(['Please Update the Hscode Setting']);
+        }
+        $api = $key->key;
+        $fromCountry = $key->from_country;
+        $destinationCountry = $key->destination_country;
+        if($api == null || $fromCountry == null || $destinationCountry == null){
+            return response()->json(['Please Update the Hscode Setting']);
+        }
+        $category = Category::select('id','title')->where('id',$request->category)->first();
+        $categoryId = $category->id;
+
+
+        $hscodeSearchString = str_replace(['&gt;','>'],'', $name.' '.$category->title.' '.$request->composition);
+
+        $hscodeSearchString = urlencode($hscodeSearchString);
+
+        $searchString = 'https://www.api.simplyduty.com/api/classification/get-hscode?APIKey='.$api.'&fullDescription='.$hscodeSearchString.'&originCountry='.$fromCountry.'&destinationCountry='.$destinationCountry.'&getduty=false';
+        
+        $ch = curl_init();
+
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $searchString);
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch); 
+
+        $categories = json_decode($output);
+        
+        if(!isset($categories->HSCode)){
+
+            return response()->json(['Something is wrong with the API. Please check the balance.']);
+
+        }else{
+
+
+            if($categories->HSCode != null){
+
+                $hscode = new HsCode();
+                $hscode->code = $categories->HSCode;
+                $hscode->description = urldecode($hscodeSearchString);
+                $hscode->save();
+
+                if($request->existing_group != null){
+                    $group = HsCodeGroup::find($request->existing_group);
+                }else{
+                    $group = new HsCodeGroup();
+                    $group->hs_code_id = $hscode->id;
+                    $group->name = $name.' > '.$category->title;
+                    $group->composition = $request->composition;
+                    $group->save();
+                }
+                
+                $id = $group->id;
+
+                foreach ($compositions as $composition) {
+                    $comp = new HsCodeGroupsCategoriesComposition();
+                    $comp->hs_code_group_id = $id;
+                    $comp->category_id = $categoryId;
+                    $comp->composition = $composition;
+                    $comp->save();
+                }
+            }
+        }
+        
+
+        return response()->json(['Hscode Generated successfully'], 200);
+    }
+
+    public function editGroup(Request $request)
+    {
+
+        $group = HsCodeGroup::find($request->id);
+        $group->hs_code_id = $request->hscode;
+        $group->name = $request->name;
+        $group->composition = $request->composition;
+        $group->save();
+
+        return response()->json(['success' => 'success'], 200);
     }
 }
