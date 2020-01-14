@@ -7,6 +7,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\ProductHelper;
 use App\Loggers\LogListMagento;
+use App\HsCodeGroupsCategoriesComposition;
+use App\SimplyDutyCategory;
 
 class MagentoSoapHelper
 {
@@ -162,6 +164,9 @@ class MagentoSoapHelper
             // Set SKU
             $sku = $product->sku . $product->color;
 
+             //Getting Hscode Attribute    
+            
+            
             // Create a new product reference for this size
             $reference = new ProductReference;
             $reference->product_id = $product->id;
@@ -191,13 +196,14 @@ class MagentoSoapHelper
                 'special_price' => $product->price_eur_special,
                 'additional_attributes' => [
                     'single_data' => [
-                        ['key' => 'composition', 'value' => $product->composition,],
+                        ['key' => 'composition', 'value' => $product->commonComposition($product->category,$product->composition),],
                         ['key' => 'color', 'value' => $product->color,],
                         ['key' => 'sizes', 'value' => $size,],
                         ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
                         ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
                         ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
                         ['key' => 'flashsales', 'value' => 0],
+                        ['key' => 'hscode', 'value' => $product->hsCode($product->category,$product->composition),],
                     ]
                 ]
             );
@@ -241,13 +247,14 @@ class MagentoSoapHelper
             'configurable_attributes' => array(155),
             'additional_attributes' => [
                 'single_data' => [
-                    ['key' => 'composition', 'value' => $product->composition,],
+                    ['key' => 'composition', 'value' => $product->commonComposition($product->category,$product->composition),],
                     ['key' => 'color', 'value' => $product->color,],
                     ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
                     ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
                     ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
                     ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
                     ['key' => 'flashsales', 'value' => 0],
+                    ['key' => 'hscode', 'value' => $product->hsCode($product->category,$product->composition),],
                 ]
             ]
         );
@@ -288,13 +295,15 @@ class MagentoSoapHelper
             'special_price' => $product->price_eur_special,
             'additional_attributes' => [
                 'single_data' => [
-                    ['key' => 'composition', 'value' => ucwords($product->composition),],
+                    ['key' => 'composition', 'value' => ucwords($product->commonComposition($product->category,$product->composition)),],
                     ['key' => 'color', 'value' => ucwords($product->color),],
                     ['key' => 'measurement', 'value' => $measurement,],
                     ['key' => 'country_of_manufacture', 'value' => ucwords($product->made_in),],
                     ['key' => 'brands', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
                     ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
                     ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0]
+                    ['key' => 'hscode', 'value' => $product->hsCode($product->category,$product->composition),]
+                       
                 ]
             ]
         );
