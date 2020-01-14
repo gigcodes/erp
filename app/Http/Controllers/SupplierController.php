@@ -1081,6 +1081,7 @@ class SupplierController extends Controller
 
         // Still here? Return an error
         return response()->json(['error' => 'Supplier not found'], 403);
+
     }
 
     public function excelImport(Request $request)
@@ -1118,4 +1119,14 @@ class SupplierController extends Controller
               }
             }
         }    
+    
+
+    public function languageTranslate(Request $request) 
+    {
+      $supplier = Supplier::find($request->id);
+      $supplier->language = $request->language;
+      $supplier->save();
+      return response()->json(['success' => 'Supplier language updated'], 200);
+    }
+
 }

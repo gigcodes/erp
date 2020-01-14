@@ -246,8 +246,8 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <select class="form-control select2" name="responsible_user_id" id="responsible_user_id">
-                                            <option value="">Responsible User...</option>
+                                        <select class="form-control select2" name="assigned_to" id="assigned_to">
+                                            <option value="">Assigned To...</option>
                                             @foreach($users as $id=>$user)
                                                 <option value="{{$id}}">{{ $user }}</option>
                                             @endforeach
@@ -275,7 +275,7 @@
                     <th width="5%">Est Completion Time</th>
                     {{--<th width="5%">Submitted By</th>--}}
                     <th width="5%">Assigned To</th>
-                    <th width="5%">Corrected By</th>
+                    <th width="5%">Responsible User</th>
                     <th width="5%">Resolved</th>
                     <th width="5%">Cost</th>
                 </tr>
@@ -339,12 +339,11 @@
                                 </div>
                             </td>
                             {{--<td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }} </td>--}}
-
                             <td>
-                                <select class="form-control assign-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">
+                                <select class="form-control assign-user" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">
                                     <option value="">Select...</option>
                                     @foreach($users as $id=>$name)
-                                        @if( isset($issue->responsibleUser->id) && (int) $issue->responsibleUser->id == $id )
+                                        @if( isset($issue->assignedUser->id) && (int) $issue->assignedUser->id == $id )
                                             <option value="{{$id}}" selected>{{ $name }}</option>
                                         @else
                                             <option value="{{$id}}">{{ $name }}</option>
@@ -356,7 +355,7 @@
                                 <select class="form-control set-responsible-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">
                                     <option value="">Select...</option>
                                     @foreach($users as $id=>$name)
-                                        @if( isset($issue->assignedUser->id) && (int) $issue->assignedUser->id == $id )
+                                        @if( isset($issue->responsibleUser->id) && (int) $issue->responsibleUser->id == $id )
                                             <option value="{{$id}}" selected>{{ $name }}</option>
                                         @else
                                             <option value="{{$id}}">{{ $name }}</option>
@@ -446,14 +445,6 @@
                                 <td>&nbsp;</td>
                                 {{--<td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }}</td>--}}
                                 <td>
-                                    @if($issue->responsibleUser)
-                                        {{ $issue->responsibleUser->name  }}
-                                    @else
-                                        N/A
-                                    @endif
-
-                                </td>
-                                <td>
                                     @if($issue->assignedUser)
                                         {{ $issue->assignedUser->name }}
                                     @else
@@ -461,7 +452,14 @@
                                     @endif
 
                                 </td>
+                                <td>
+                                    @if($issue->responsibleUser)
+                                        {{ $issue->responsibleUser->name  }}
+                                    @else
+                                        N/A
+                                    @endif
 
+                                </td>
                                 <td>
                                     @if($issue->is_resolved)
                                         <strong>Resolved</strong>
@@ -856,9 +854,9 @@
             }
 
             $.ajax({
-                url: "{{action('DevelopmentController@assignUser')}}",
+                url: "{{action('DevelopmentController@assignResponsibleUser')}}",
                 data: {
-                    user_id: userId,
+                    responsible_user_id: userId,
                     issue_id: id
                 },
                 success: function () {
@@ -876,9 +874,9 @@
             }
 
             $.ajax({
-                url: "{{action('DevelopmentController@assignResponsibleUser')}}",
+                url: "{{action('DevelopmentController@assignUser')}}",
                 data: {
-                    responsible_user_id: userId,
+                    assigned_to: userId,
                     issue_id: id
                 },
                 success: function () {

@@ -497,6 +497,10 @@ class DevelopmentController extends Controller
             $issues = $issues->where('responsible_user_id', $request->get('responsible_user'));
         }
 
+        if ((int)$request->get('assigned_to') > 0) {
+            $issues = $issues->where('assigned_to', $request->get('assigned_to'));
+        }
+
         if ((int)$request->get('corrected_by') > 0) {
             $issues = $issues->where('user_id', $request->get('corrected_by'));
         }
@@ -548,7 +552,7 @@ class DevelopmentController extends Controller
                 $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
                 $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
             })
-            ->where('responsible_user_id', $user_id)
+            ->where('assigned_to', $user_id)
             ->where('is_resolved', '0');
 
         if (auth()->user()->isAdmin()) {
@@ -572,7 +576,7 @@ class DevelopmentController extends Controller
     {
         $priority = $request->get('priority', null);
         //get all user task
-        $issues = DeveloperTask::where('responsible_user_id', $request->get('user_id', 0))->pluck('id')->toArray();
+        $issues = DeveloperTask::where('assigned_to', $request->get('user_id', 0))->pluck('id')->toArray();
 
         //delete old priority
         \App\ErpPriority::whereIn('model_id', $issues)->where('model_type', '=', DeveloperTask::class)->delete();
@@ -590,7 +594,7 @@ class DevelopmentController extends Controller
                     $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
                     $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
                 })
-                ->where('responsible_user_id', $request->get('user_id', 0))
+                ->where('assigned_to', $request->get('user_id', 0))
                 ->where('is_resolved', '0')
                 ->orderBy('erp_priorities.id')
                 ->get();
@@ -757,19 +761,19 @@ class DevelopmentController extends Controller
         }
 
         //$issue = Issue::create($data);
-        $responsibleUser = $request->get('responsible_user_id', 0);
+        /*$responsibleUser = $request->get('responsible_user_id', 0);
         if (empty($responsibleUser)) {
             $responsibleUser = Auth::id();
-        }
+        }*/
 
         $task = new DeveloperTask;
         $task->priority = $request->input('priority');
         $task->subject = $request->input('subject');
         $task->task = $request->input('issue');
-        $task->responsible_user_id = $responsibleUser;
-        $task->assigned_to = $request->get('responsible_user_id', 0);
+        $task->responsible_user_id = 0;
+        $task->assigned_to = $request->get('assigned_to', 0);
         $task->module_id = $module->id;
-        $task->user_id = $responsibleUser;
+        $task->user_id = 0;
         $task->assigned_by = Auth::id();
         $task->created_by = Auth::id();
         $task->reference = $reference;
@@ -1161,7 +1165,7 @@ class DevelopmentController extends Controller
     {
         // $issue = Issue::find($request->get('issue_id'));
         $issue = DeveloperTask::find($request->get('issue_id'));
-        $issue->user_id = $request->get('user_id');
+        $issue->assigned_to = $request->get('assigned_to');
         $issue->save();
 
         return response()->json([
@@ -1175,7 +1179,7 @@ class DevelopmentController extends Controller
         //$issue = Issue::find($request->get('issue_id'));
         //$issue->responsible_user_id = $request->get('responsible_user_id');
         $issue->assigned_by = \Auth::id();
-        $issue->assigned_to = $request->get('responsible_user_id');
+        $issue->responsible_user_id = $request->get('responsible_user_id');
         $issue->save();
 
         return response()->json([
@@ -1453,7 +1457,7 @@ class DevelopmentController extends Controller
     {
         $status = "ok";
         // Get all developers
-        $users = Helpers::getUserArray(User::role('Developer')->get());
+        $users = Helpers::getUserArray(User::role('Admin')->get());
         //$users = Helpers::getUsersByRoleName('Developer');
         // Get all task types
         $tasksTypes = TaskTypes::all();
