@@ -34,27 +34,30 @@ class SyncController extends Controller
     {
         $groups = $this->refreshGithubGroups();
 
-        
+
         $this->refreshUsersForOrganization();
         $repositories = $this->refreshGithubRepos();
 
-        $userAccessesToDelete=[];
+        $updatedUserAccess = [];
         foreach ($repositories as $repository) {
             $accessIds = $this->refreshUserAccessForRepository($repository->id, $repository->name);
-            $userAccessesToDelete = array_merge($userAccessesToDelete, $accessIds);
+            $updatedUserAccess = array_merge($updatedUserAccess, $accessIds);
         }
-        GithubRepositoryUser::whereNotIn('id', $userAccessesToDelete)->delete();
+        GithubRepositoryUser::whereNotIn('id', $updatedUserAccess)->delete();
 
-
-        /*
+        $updatedTeamAccessIds = [];
         foreach ($groups as $group) {
-            $this->refreshUserAccessInTeam($group->id);
+            $updatedIds =  $this->refreshUserAccessInTeam($group->id);
+            $updatedTeamAccessIds = array_merge($updatedTeamAccessIds, $updatedIds);
         }
+        GithubGroupMember::whereNotIn('id', $updatedTeamAccessIds)->delete();
 
+        $updatedRepositoryAccess = [];
         foreach ($groups as $group) {
-            $this->refreshRepositoryForTeam($group->id);
+            $updatedIds = $this->refreshRepositoryForTeam($group->id);
+            $updatedRepositoryAccess = array_merge($updatedRepositoryAccess, $updatedIds);
         }
-        */
+        GithubRepositoryGroup::whereNotIn('id', $updatedRepositoryAccess)->delete();
     }
 
     private function refreshGithubRepos()
@@ -221,7 +224,7 @@ class SyncController extends Controller
             },
             $updates
         );
-        GithubGroupMember::whereNotIn('id', $updatedIds)->delete();
+        return $updatedIds;
     }
 
     private function refreshRepositoryForTeam($teamId)
@@ -258,11 +261,11 @@ class SyncController extends Controller
         }
 
         $updatedIds = array_map(
-            function($update){
+            function ($update) {
                 return $update->id;
             },
             $updates
         );
-        GithubRepositoryGroup::whereNotIn('id', $updatedIds)->delete();
+        return $updatedIds;
     }
 }
