@@ -27,23 +27,25 @@
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">WhatsApp History</h2>
                     <div class="pull-left">
-                        {{--                        <form action="{{ route('whatsapp.config.history', $id) }}" method="GET" class="form-inline align-items-start">
-                                                    <div class="form-group mr-3 mb-3">
-                                                        <input name="term" type="text" class="form-control global" id="term"
-                                                               value="{{ isset($term) ? $term : '' }}"
-                                                               placeholder="number , text, priority">
-                                                    </div>
-                                                    <div class="form-group ml-3">
-                                                        <div class='input-group date' id='filter-date'>
-                                                            <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
+                        <form action="{{ route('whatsapp.config.history', $id) }}" method="GET"
+                              class="form-inline align-items-start">
+                            <div class="form-group mr-3 mb-3">
+                                <input name="term" type="text" class="form-control global" id="term"
+                                       value="{{ isset($term) ? $term : '' }}"
+                                       placeholder="number , text, priority">
+                            </div>
+                            <div class="form-group ml-3">
+                                <div class='input-group date' id='filter-date'>
+                                    <input type='text' class="form-control global" name="date"
+                                           value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date"/>
 
-                                                            <span class="input-group-addon">
+                                    <span class="input-group-addon">
                                                             <span class="glyphicon glyphicon-calendar"></span>
                                                           </span>
-                                                        </div>
-                                                    </div>
-                                                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-                                                </form>--}}
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+                        </form>
                     </div>
                 </div>
             </div>

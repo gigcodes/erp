@@ -28,7 +28,7 @@
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="/js/generic.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{{--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
 
     @yield('link-css')
     <script>
@@ -36,13 +36,15 @@
         Laravel.csrfToken = "{{csrf_token()}}";
         window.Laravel = Laravel;
     </script>
-    <script>
-        // $('.readmore').readmore({
-        //     speed: 75,
-        //     moreLink: '<a href="#">Read more</a>',
-        //     lessLink: '<a href="#">Read less</a>'
-        // });
-    </script>
+{{--I/m geting error in console thats why commented--}}
+
+{{--    <script>--}}
+{{--        $('.readmore').readmore({--}}
+{{--            speed: 75,--}}
+{{--            moreLink: '<a href="#">Read more</a>',--}}
+{{--            lessLink: '<a href="#">Read less</a>'--}}
+{{--        });--}}
+{{--    </script>--}}
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script> --}}

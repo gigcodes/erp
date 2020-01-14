@@ -26,7 +26,7 @@
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">WhatsApp Queue</h2>
                     <div class="pull-left">
-{{--                        <form action="{{ route('whatsapp.config.history', $id) }}" method="GET" class="form-inline align-items-start">
+                        <form action="{{ route('whatsapp.config.history', $id) }}" method="GET" class="form-inline align-items-start">
                             <div class="form-group mr-3 mb-3">
                                 <input name="term" type="text" class="form-control global" id="term"
                                        value="{{ isset($term) ? $term : '' }}"
@@ -42,8 +42,9 @@
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-                            <button onclick="deleteAllQueues()" class="btn btn-sm">Delete All</button>
-                        </form>--}}
+
+                        </form>
+                        <button onclick="deleteAllQueues()" class="btn btn-danger">Delete All</button>
                     </div>
                 </div>
             </div>
