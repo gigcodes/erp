@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Marketing;
 use App\ImQueue;
 use App\Marketing\WhatsappConfig;
 use App\Http\Controllers\Controller;
+use App\Services\Whatsapp\ChatApi\ChatApi;
 use Illuminate\Http\Request;
 use App\Setting;
 use Validator;
@@ -197,6 +198,9 @@ class WhatsappConfigController extends Controller
         $term  = $request->term;
         $date  = $request->date;
         $config = WhatsappConfig::find($id);
+        $number = $config->number;
+        $provider = $config->provider;
+
         if($config->provider === 'py-whatsapp'){
 
             $data = ImQueue::whereNotNull('sent_at')->where('number_from', $config->number)->orderBy('sent_at', 'desc');
@@ -209,9 +213,11 @@ class WhatsappConfigController extends Controller
                 $data = $data->whereDate('send_after', request('date'));
             }
             $data = $data->get();
+        }elseif ($config->provider === 'Chat-API'){
+            $data = ChatApi::chatHistory($config->number);
         }
 
-        return view('marketing.whatsapp-configs.history', compact('data', 'id', 'term', 'date'));
+        return view('marketing.whatsapp-configs.history', compact('data', 'id', 'term', 'date', 'number', 'provider'));
     }
 
     /**
@@ -221,11 +227,14 @@ class WhatsappConfigController extends Controller
      * @param Request $request
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
+
     public function queue ($id, Request $request) {
-/*        dd($request->all());*/
+
         $term  = $request->term;
         $date  = $request->date;
         $config = WhatsappConfig::find($id);
+        $number = $config->number;
+        $provider = $config->provider;
         if($config->provider === 'py-whatsapp'){
 
             $data = ImQueue::whereNull('sent_at')->where('number_from', $config->number)->orderBy('created_at', 'desc');
@@ -238,8 +247,12 @@ class WhatsappConfigController extends Controller
                 $data = $data->whereDate('send_after', request('date'));
             }
             $data = $data->get();
+        }elseif ($config->provider === 'Chat-API'){
+            $data = ChatApi::chatQueue($config->number);
+/*            dd($data);*/
         }
-        return view('marketing.whatsapp-configs.queue', compact('data', 'id', 'term', 'date'));
+
+        return view('marketing.whatsapp-configs.queue', compact('data', 'id', 'term', 'date', 'number', 'provider'));
     }
 
     /**

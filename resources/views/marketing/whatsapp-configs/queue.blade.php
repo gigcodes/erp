@@ -26,7 +26,7 @@
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">WhatsApp Queue</h2>
                     <div class="pull-left">
-                        <form action="{{ route('whatsapp.config.history', $id) }}" method="GET" class="form-inline align-items-start">
+{{--                        <form action="{{ route('whatsapp.config.history', $id) }}" method="GET" class="form-inline align-items-start">
                             <div class="form-group mr-3 mb-3">
                                 <input name="term" type="text" class="form-control global" id="term"
                                        value="{{ isset($term) ? $term : '' }}"
@@ -43,7 +43,7 @@
                             </div>
                             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                             <button onclick="deleteAllQueues()" class="btn btn-sm">Delete All</button>
-                        </form>
+                        </form>--}}
                     </div>
                 </div>
             </div>
@@ -86,22 +86,54 @@
             </tr>
             </thead>
             <tbody>
-            @foreach($data as $value)
+            @if($provider === 'py-whatsapp')
+                @foreach($data as $value)
+                    <tr>
+                        <td>{{$value->number_to}}</td>
+                        <td>{{$value->number_from}}</td>
+                        <td>{{$value->provider}}</td>
+                        <td>{{$value->freq}}</td>
+                        <td>{{$value->text}}</td>
+                        <td>{{$value->priority}}</td>
+                        <td>{{$value->marketing_message_type_id}}</td>
+                        <td>{{$value->send_after}}</td>
+                        <td>{{$value->sent_at}}</td>
+                        <td>
+                            <button onclick="deleteQueue({{ $value->id }})" class="btn btn-sm">Delete</button>
+                        </td>
+                    </tr>
+                @endforeach
+            @else
+                @foreach($data["first100"] as $value)
+                    <tr>
+                        <td>{{$value["chatId"]}}</td>
+                        <td>{{$number}}</td>
+                        <td></td>
+                        <td></td>
+                        <td>{{$value["body"]}}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>&</td>
+                    </tr>
+                @endforeach
+
+            @endif
+{{--            @foreach($data["first100"] as $value)
                 <tr>
-                    <td>{{$value->number_to}}</td>
-                    <td>{{$value->number_from}}</td>
-                    <td>{{$value->provider}}</td>
-                    <td>{{$value->freq}}</td>
-                    <td>{{$value->text}}</td>
-                    <td>{{$value->priority}}</td>
-                    <td>{{$value->marketing_message_type_id}}</td>
-                    <td>{{$value->send_after}}</td>
-                    <td>{{$value->sent_at}}</td>
-                    <td>
-                        <button onclick="deleteQueue({{ $value->id }})" class="btn btn-sm">Delete</button>
-                    </td>
+                    <td>{{$value["chatId"]}}</td>
+                    <td>{{$number}}</td>
+                    <td></td>
+                    <td></td>
+                    <td>{{$value["body"]}}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>&</td>
                 </tr>
-            @endforeach
+            @endforeach--}}
             </tbody>
         </table>
     </div>
