@@ -10,9 +10,9 @@
             <table id="table" class="table table-striped">
                 <thead>
                 <tr>
-                    <th width="16%"><a href="/google/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=posted_at&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Date</a></th>
-                    <th width="16%"><a href="/google/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=hashtag&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Keyword</a></th>
-                    <th width="26%"><a href="/google/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=location&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Location</a></th>
+                    <th width="16%"><a href="/google/search/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=posted_at&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Date</a></th>
+                    <th width="16%"><a href="/google/search/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=hashtag&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Keyword</a></th>
+                    <th width="26%"><a href="/google/search/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=location&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Location</a></th>
                     <th width="42%">Post</th>
                 </tr>
                 <tr>
@@ -63,8 +63,8 @@
                 if(queryString != ''){
                     queryString = '?' + queryString;
                 }
-
-                window.location.href = '/google/results' + queryString;
+                
+                window.location.href = '/google/search/results' + queryString;
             });
         });
     </script>

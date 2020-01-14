@@ -1372,10 +1372,10 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
 
 Route::prefix('google')->middleware('auth')->group(function () {
-    Route::resource('search', 'GoogleSearchController');
-    Route::get('/search', 'GoogleSearchController@index')->name('google.search');
-    Route::get('keyword/markPriority','GoogleSearchController@markPriority')->name('google.keyword.priority');
-    Route::get('/results', 'GoogleSearchController@searchResults')->name('google.results');
+    Route::resource('/search/keyword', 'GoogleSearchController');
+    Route::get('/search/keyword-priority','GoogleSearchController@markPriority')->name('google.search.keyword.priority');
+    Route::get('/search/keyword', 'GoogleSearchController@index')->name('google.search.keyword');
+    Route::get('/search/results', 'GoogleSearchController@searchResults')->name('google.search.results');
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
