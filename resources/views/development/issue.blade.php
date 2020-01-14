@@ -117,6 +117,7 @@
                             <option {{$request->get('order')== "" ? 'selected' : ''}} value="create">Order by date descending</option>
                             <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="">Order by priority</option>
                             <option {{$request->get('order')== "create_asc" ? 'selected' : ''}} value="create">Order by date</option>
+                            <option {{$request->get('order')== "communication_desc" ? 'selected' : ''}} value="communication_desc">Order by Communication</option>
                         </select>
                     </div>
                     <div class="col-md-1">

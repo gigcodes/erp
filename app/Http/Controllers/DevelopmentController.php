@@ -374,6 +374,7 @@ class DevelopmentController extends Controller
 
     public function issueTaskIndex(Request $request, $type)
     {
+        $request->input("order",$request->get("order","communication_desc"));
         // Load issues
         $issues = DeveloperTask::where('task_type_id', $type == 'issue' ? '3' : '1');
 
@@ -471,11 +472,16 @@ class DevelopmentController extends Controller
         if ($request->order == 'priority') {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
         }
+        
         if ($request->order == 'create_asc') {
-            $issues = $issues->orderBy('developer_tasks.created_at', 'ASC')->with('communications');
+            $issues = $issues->orderBy('developer_tasks.created_at', 'ASC');
+        } else if ($request->order == 'communication_desc') {
+            $issues = $issues->orderBy('chat_messages.id', 'DESC');
         } else {
-            $issues = $issues->orderBy('developer_tasks.created_at', 'DESC')->with('communications');
+            $issues = $issues->orderBy('developer_tasks.created_at', 'DESC');
         }
+
+        $issues =  $issues->with('communications');
 
         $issues = $issues->paginate(Setting::get('pagination'));
 
