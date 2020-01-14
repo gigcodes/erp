@@ -48,6 +48,9 @@ Route::resource('product-location', 'ProductLocationController');
 Route::prefix('product')->middleware('auth')->group(static function () {
     Route::get('manual-crop/assign-products', 'Products\ManualCroppingController@assignProductsToUser');
     Route::resource('manual-crop', 'Products\ManualCroppingController');
+    Route::get('hscode', 'ProductController@hsCodeIndex');
+    Route::post('hscode/save-group', 'ProductController@saveGroupHsCode')->name('hscode.save.group');
+    Route::post('hscode/edit-group', 'ProductController@editGroup')->name('hscode.edit.group');
 });
 
 Route::prefix('logging')->middleware('auth')->group(static function () {
@@ -1131,6 +1134,11 @@ Route::middleware('auth')->group(function () {
     //Simple duty category
     Route::get('duty/category', 'SimplyDutyCategoryController@index')->name('simplyduty.category.index');
     Route::get('duty/category/update', 'SimplyDutyCategoryController@getCategoryFromApi')->name('simplyduty.category.update');
+
+    Route::get('duty/hscode', 'HsCodeController@index')->name('simplyduty.hscode.index');
+    
+    Route::post('duty/setting', 'HsCodeController@saveKey')->name('simplyduty.hscode.key');
+        
 
     //Simple Duty Currency
     Route::get('duty/currency', 'SimplyDutyCurrencyController@index')->name('simplyduty.currency.index');
