@@ -3,7 +3,7 @@
 @section('content')
 <h2 class="text-center">Github Repositories</h2>
 <div class="container">
-    <table class="table table-bordered">
+    <table id="repository-table" class="table table-bordered">
         <thead>
             <tr>
                 <th>Serial Number</th>
@@ -29,3 +29,4 @@
 
 </div>
 @endsection
+

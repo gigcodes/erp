@@ -15,7 +15,7 @@ class GithubUser extends Model
     ];
 
     public function platformUser(){
-        return $this->hasOne('App\User');
+        return $this->belongsTo('App\User', 'user_id', 'id');
     }
 
     public function repositories(){
@@ -27,7 +27,6 @@ class GithubUser extends Model
             'id',
             'github_repositories_id'
         );
-        
     }
 
 }

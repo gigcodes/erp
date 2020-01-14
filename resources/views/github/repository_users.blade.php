@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<h2 class="text-center">Users</h2>
+<h2 class="text-center">{{ $repoName }} users</h2>
 <div class="container">
     <table class="table table-bordered">
         <thead>
@@ -14,9 +14,9 @@
         <tbody>
             @foreach($users as $user)
             <tr>
-                <td>{{$user['id']}}</td>
-                <td>{{$user['username']}}</td>
-                <td>{{$user['rights']}}</td>
+                <td>{{$user->id}}</td>
+                <td>{{$user->username}}</td>
+                <td>{{$user->pivot->rights}}</td>
             </tr>
             @endforeach
         </tbody>

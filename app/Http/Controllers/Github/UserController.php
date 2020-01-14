@@ -7,121 +7,74 @@ use App\Github\GithubRepositoryUser;
 use App\Github\GithubUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\User;
 use GuzzleHttp\Client;
 use Route;
 
 class UserController extends Controller
 {
 
-    private $client;
-
-    function __construct()
-    {
-        $this->client = new Client([
-            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
-        ]);
-    }
-
-
-    private function refreshUsersForOrganization(){
-        $url = "https://api.github.com/orgs/". getenv('GITHUB_ORG_ID') ."/members";
-        $response = $this->client->get($url);
-        $users = json_decode($response->getBody()->getContents());
-        $returnUser = [];
-        foreach ($users as $user) {
-            $dbUser = [
-                'id' => $user->id,
-                'username' => $user->login,
-            ];
-
-            $updatedUser = GithubUser::updateOrCreate(
-                [
-                    'id' => $user->id
-                ],
-                $dbUser
-            );
-            $returnUser[] = $updatedUser;
-        }
-        return $returnUser;
-    }
-
     public function listOrganizationUsers()
     {
-        $this->refreshUsersForOrganization();
-        $users = GithubUser::with('repositories')->get();
-        return view('github.org_users', ['users' => $users]);
-    }
+        $platformUsers = User::all(['id', 'name', 'email']);
 
-    public function repositoryNames($user){
-        return array_map(
-            function ($repository){
-                return $repository->name;
-            },
-            $user->repositories->toArray()
+        $users = GithubUser::with('repositories', 'platformUser')->get();
+        return view(
+            'github.org_users',
+            [
+                'users' => $users,
+                'platformUsers' => $platformUsers
+            ]
         );
     }
 
-    private function refreshUsersForRespository(string $repositoryName)
+    public function linkUser(Request $request)
     {
+        $bodyContent = $request->getContent();
+        $jsonDecodedBody = json_decode($bodyContent);
 
-        $githubRepository = GithubRepository::where('name', $repositoryName)->first();
+        $userId = $jsonDecodedBody->user_id;
+        $githubUserId = $jsonDecodedBody->github_user_id;
 
-        $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID') . "/" . $repositoryName . "/collaborators";
-        $response = $this->client->get($url);
-
-        $users = json_decode($response->getBody()->getContents());
-
-        $returnUsers = [];
-        foreach ($users as $user) {
-            $dbUser = [
-                'id' => $user->id,
-                'username' => $user->login,
-            ];
-
-            GithubUser::updateOrCreate(
+        if (!$userId || !$githubUserId) {
+            return response()->json(
                 [
-                    'id' => $user->id
+                    'error' => 'Missing parameters',
                 ],
-                $dbUser
+                400
             );
+        }
 
-            $rights = null;
-            if ($user->permissions->admin == true) {
-                $rights = 'admin';
-            } else if ($user->permissions->push == true) {
-                $rights = 'push';
-            } else if ($user->permissions->pull == true) {
-                $rights = 'pull';
-            }
-
-
-
-            GithubRepositoryUser::updateOrCreate(
+        $githubUser = GithubUser::find($githubUserId);
+        if($githubUser){
+            $githubUser->user_id = $userId;
+            $githubUser->save();
+            return response()->json(
                 [
-                    'github_users_id' => $user->id,
-                    'github_repositories_id' => $githubRepository->id
-                ],
-                [
-                    'github_users_id' => $user->id,
-                    'github_repositories_id' => $githubRepository->id,
-                    'rights' => $rights
+                    'message' => 'Saved user',
                 ]
             );
-
-            $returnUsers[] = [
-                'id' => $user->id,
-                'username' => $user->login,
-                'rights' => $rights
-            ];
         }
-        return $returnUsers;
+
+        return response()->json(
+            [
+                'error' => 'Unable to find user',
+            ],
+            404
+        );
     }
 
     public function listUsersOfRepository()
     {
         $name = Route::current()->parameter('name');
-        $users = $this->refreshUsersForRespository($name);
-        
-        return view('github.repository_users', ['users' => $users]);
+        //$users = $this->refreshUsersForRespository($name);
+        $users = GithubRepository::where('name', $name)->first()->users;
+        return view(
+            'github.repository_users',
+            [
+                'users' => $users,
+                'repoName' => $name
+            ]
+        );
     }
 }

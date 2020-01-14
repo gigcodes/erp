@@ -17,13 +17,12 @@ class GithubRepository extends Model
 
     public function users()
     {
-        return $this->hasManyThrough(
+        return $this->belongsToMany(
             'App\Github\GithubUser',
-            'App\Github\GithubRepositoryUser',
+            'github_repository_users',
             'github_repositories_id',
-            'id',
-            'id',
-            'id'
-        );
+            'github_users_id'
+        )
+        ->withPivot(['rights']);
     }
 }

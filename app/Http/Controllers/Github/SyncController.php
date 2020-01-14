@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use DateTime;
 use GuzzleHttp\Client;
+use Route;
 
 class SyncController extends Controller
 {
@@ -58,6 +59,8 @@ class SyncController extends Controller
             $updatedRepositoryAccess = array_merge($updatedRepositoryAccess, $updatedIds);
         }
         GithubRepositoryGroup::whereNotIn('id', $updatedRepositoryAccess)->delete();
+
+        return redirect('/github/sync');
     }
 
     private function refreshGithubRepos()

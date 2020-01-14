@@ -1352,5 +1352,6 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/groups', 'Github\GroupController@listGroups');
         Route::get('/sync', 'Github\SyncController@index');
         Route::get('/sync/start', 'Github\SyncController@startSync');
+        Route::post('/linkUser', 'Github\UserController@linkUser');
     });
 });
