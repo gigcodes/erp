@@ -35,6 +35,7 @@ use Chumper\Zipper\Zipper;
 use Dompdf\Exception;
 use FacebookAds\Object\ProductFeed;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -1247,6 +1248,88 @@ class ProductController extends Controller
             'result' => $result[ 1 ],
             'status' => 'updated'
         ]);
+    }
+
+    public function updateMagentoProduct(Request $request){
+        $product = Product::find($request->update_product_id);
+        
+        if($product->status_id==12){
+            //////      Update Local Product    //////
+            $product->name=$request->name;
+            $product->price=$request->price;
+            $product->price_eur_special=$request->price_eur_special;
+            $product->price_eur_discounted=$request->price_eur_discounted;
+            $product->price_inr=$request->price_inr;
+            $product->price_inr_special=$request->price_inr_special;
+            $product->price_inr_discounted=$request->price_inr_discounted;
+            $product->lmeasurement=$request->lmeasurement;
+            $product->hmeasurement=$request->hmeasurement;
+            $product->dmeasurement=$request->dmeasurement;
+            $product->composition=$request->composition;
+            $product->updated_at=time();
+
+            if($product->update()){
+                ///////     Update Magento Product  //////
+
+                $options   = array(
+                    'trace'              => true,
+                    'connection_timeout' => 120,
+                    'wsdl_cache'         => WSDL_CACHE_NONE,
+                );
+
+                $proxy     = new \SoapClient(config('magentoapi.url'), $options);
+                $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
+
+                $sku = $request->sku . $request->color;
+                try {
+                    $magento_product = json_decode(json_encode($proxy->catalogProductInfo($sessionId, $sku)), true);
+
+                    if($magento_product){
+                        $productData = array(
+                            'name'                  => $product->name,
+                            'description'           => '<p></p>',
+                            'short_description'     => $product->short_description,
+                            'price'                 => $product->price_eur_special,
+                            // Same price than configurable product, no price change
+                            'special_price'         => $product->price_eur_discounted,
+                            'additional_attributes' => array(
+                                'single_data' => array(
+                                    array( 'key' => 'msrp', 'value' => $product->price, ),
+                                    array( 'key' => 'composition', 'value' => $product->composition, ),
+                                    array( 'key' => 'color', 'value' => $product->color, ),
+                                    array( 'key' => 'sizes', 'value' => $size, ),
+                                    array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+                                ),
+                            ),
+                        );
+
+                        $result = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
+
+                        $messages="Product updated successfully";
+                        return Redirect::Back()
+                                ->with('success',$messages);
+                    }else{
+                        $messages[]="Sorry! Product not found in magento";
+                        return Redirect::Back()
+                                ->withErrors($messages);
+                    }
+                } catch (\Exception $e) {
+                    $error_message = $e->getMessage();
+                }
+            }else{
+                $messages[]="Sorry! Please try again";
+                return Redirect::Back()
+                                ->withErrors($messages);
+            }
+            
+        }else{
+
+            $messages[]="not magento product";
+            return Redirect::Back()
+                                ->withErrors($messages);
+        }
+        
+        return Redirect::Back();
     }
 
     public function approveProduct(Request $request, $id)
