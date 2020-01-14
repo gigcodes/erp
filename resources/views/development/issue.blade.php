@@ -55,14 +55,14 @@
         <div class="col-md-12">
             <form action="{{ url("development/list/$title") }}" method="get">
                 <div class="row">
-                    <div class="col-md-1">
+                    <!-- <div class="col-md-1">
                         <select class="form-control" name="submitted_by" id="submitted_by">
                             <option value="">Submitted by</option>
                             @foreach($users as $id=>$user)
                                 <option {{$request->get('submitted_by')==$id ? 'selected' : ''}} value="{{$id}}">{{ $user }}</option>
                             @endforeach
                         </select>
-                    </div>
+                    </div> -->
                     <div class="col-md-1">
                         <select class="form-control" name="assigned_to" id="assigned_to">
                             <option value="">Assigned To</option>
@@ -103,15 +103,9 @@
                     <div class="col-md-2">
                         <input type="text" name="language" id="language_query" placeholder="Language" class="form-control" value="{{ (!empty(app('request')->input('language'))  ? app('request')->input('language') : '') }}">
                     </div>
-                    @if($title == 'devtask')
-                        <div class="col-md-2">
-                            <select name="task_status[]" class="form-control multiselect" multiple>
-                                <option value="Planned" {{ in_array('Planned', request()->get('task_status', [])) ? 'selected' : '' }}>Planned</option>
-                                <option value="In Progress" {{ in_array('In Progress', request()->get('task_status', [])) ? 'selected' : '' }}>In Progress</option>
-                                <option value="Done" {{ in_array('Done', request()->get('task_status', [])) ? 'selected' : '' }}>Done</option>
-                            </select>
-                        </div>
-                    @endif
+                    <div class="col-md-2">
+                        <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', []),["class" => "form-control multiselect","multiple" => true]); ?>
+                    </div>
                     <div class="col-md-1">
                         <select name="order" id="order_query" class="form-control">
                             <option {{$request->get('order')== "" ? 'selected' : ''}} value="create">Order by date descending</option>
@@ -377,13 +371,7 @@
                                     {{--<option {{ $issue->is_resolved==0 ? 'selected' : '' }} value="0">Not Resolved</option>--}}
                                     {{--<option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>--}}
                                     {{--</select>--}}
-
-                                    <select name="task_status" id="{{$issue->id}}" class="form-control resolve-issue" onchange="resolveIssue(this,'<?php echo $issue->id; ?>')">
-                                        <option value="">Please Select</option>
-                                        <option value="Planned" {{ (!empty($issue->status) && $issue->status ==  'Planned' ? 'selected' : '') }}>Planned</option>
-                                        <option value="In Progress" {{ (!empty($issue->status) && $issue->status  ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
-                                        <option value="Done" {{ (!empty($issue->status) && $issue->status ==   'Done' ? 'selected' : '') }}>Done</option>
-                                    </select>
+                                    <?php echo Form::select("task_status",$statusList,$issue->status,["class" => "form-control resolve-issue","onchange" => "resolveIssue(this,".$issue->id.")"]); ?>
                                 @endif
                             </td>
                             <td>
@@ -417,7 +405,7 @@
                                         <div class="messageList" id="message_list_{{$issue->id}}">
                                             @foreach($issue->messages as $message)
                                                 <p>
-                                                    <strong>{{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}</strong>
+                                                    <strong>Send To : <?php echo $message->sendTaskUsername(); ?> AT {{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}</strong>
                                                 </p>
                                                 {!! nl2br($message->message) !!}
                                                 <hr/>
@@ -425,8 +413,18 @@
                                         </div>
                                     </div>
                                     <div class="panel-footer">
-                                        <textarea class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}"></textarea>
-                                        <button type="submit" id="submit_message" class="btn btn-secondary ml-3 send-message" data-id="{{$issue->id}}" style="float: right;margin-top: 2%;">Submit</button>
+                                        <div class="row">
+                                            <textarea class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}"></textarea>
+                                        </div>
+                                        <div class="row" style="padding-top: 5px;">
+                                            <?php echo Form::select("send_message_".$issue->id,[
+                                                "to_developer" => "Send To Developer",
+                                                "to_master" => "Send To Master Developer"
+                                            ],null,["class" => "form-control send-message-number"]); ?>
+                                        </div>
+                                        <div class="row">
+                                            <button type="submit" id="submit_message" class="btn btn-secondary ml-3 send-message" data-id="{{$issue->id}}" style="float: right;margin-top: 2%;">Submit</button>
+                                        </div>
                                     </div>
                                 </div>
                             </td>
@@ -725,11 +723,6 @@
             $(".multiselect").multiselect({
                 nonSelectedText:'Please Select'
             });
-            /*$.each($(".resolve-issue"),function(k,v){
-                if (!$(v).hasClass("select2-hidden-accessible")) {
-                    $(v).select2({width:"100%"});
-                }
-            });*/
             $('.infinite-scroll').jscroll({
                 debug: true,
                 autoTrigger: true,
@@ -757,13 +750,19 @@
                 tags: true
             });
 
+            $.each($(".resolve-issue"),function(k,v){
+                if (!$(v).hasClass("select2-hidden-accessible")) {
+                    $(v).select2({width:"100%", tags:true});
+                }
+            });
+
             $('#priority_user_id').select2({
                 tags: true,
                 width: '100%'
             });
 
             $('.estimate-time').datetimepicker({
-                format: 'Y-MM-DD HH:mm'
+                format: 'HH:mm'
             });
         });
 
@@ -851,6 +850,7 @@
             }*/
 
             var textBox = $(this).closest(".panel-footer").find(".send-message-textbox");
+            var sendToStr  = $(this).closest(".panel-footer").find(".send-message-number").val();
 
             let issueId = textBox.attr('data-id');
             let message = textBox.val();
@@ -865,10 +865,11 @@
                 url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
                 type: 'POST',
                 data: {
-                    issue_id: issueId,
-                    message: message,
-                    _token: "{{csrf_token()}}",
-                    status: 2
+                    "issue_id": issueId,
+                    "message": message,
+                    "sendTo" : sendToStr,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2
                 },
                 dataType: "json",
                 success: function (response) {
