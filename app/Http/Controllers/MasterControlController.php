@@ -27,6 +27,10 @@ use Illuminate\Support\Facades\DB;
 use App\CroppedImageReference;
 use App\Helpers\StatusHelper;
 use Cache;
+use App\Vendor;
+use App\ChatMessage;
+use App\Customer;
+
 
 
 class MasterControlController extends Controller
@@ -102,11 +106,46 @@ class MasterControlController extends Controller
             return DB::select($sqlScrapedProductsInStock);
         });
 
-      
-        $resultScrapedProductsInStock = Cache::get( 'result_scraped_product_in_stock' );
-
-
+      $resultScrapedProductsInStock = Cache::get( 'result_scraped_product_in_stock' );
         
+        //Getting All chats
+        $chat = ChatMessage::where('created_at','>=', Carbon::now()->subDay()->toDateTimeString());
+
+        $vendorChats = $chat->select('vendor_id')->whereNotNull('vendor_id')->groupBy('vendor_id')->get()->toArray();
+        foreach ($vendorChats as $vendorChat) {
+            $vendorArrays[] = $vendorChat['vendor_id'];
+        }
+        
+        $customerChats = $chat->select('customer_id')->whereNotNull('customer_id')->groupBy('customer_id')->get()->toArray();
+        foreach ($customerChats as $customerChat) {
+            $customerArrays[] = $customerChat['customer_id'];
+        }
+        
+        $supplierChats = $chat->select('supplier_id')->whereNotNull('supplier_id')->groupBy('supplier_id')->get()->toArray();
+        foreach ($supplierChats as $supplierChat) {
+            $supplierArrays[] = $supplierChat['supplier_id'];
+        }
+
+        if(!isset($vendorArrays)){
+            $vendorArrays = [];
+        }
+
+        if(!isset($customerArrays)){
+            $customerArrays = [];
+        }
+
+        if(!isset($supplierArrays)){
+            $supplierArrays = [];
+        }
+
+        $vendors = Vendor::whereIn('id',$vendorArrays)->get();
+
+        $customers = Customer::select('name','phone')->whereIn('id',$customerArrays)->get();
+        
+        $suppliers = Supplier::whereIn('id',$supplierArrays)->get();
+        
+        $replies = \App\Reply::where("model","Vendor")->whereNull("deleted_at")->pluck("reply","id")->toArray();
+
      return view('mastercontrol.index', [
         'start' => $start, 
         'end' => $end , 
@@ -117,7 +156,10 @@ class MasterControlController extends Controller
         'resultScrapedProductsInStock' => $resultScrapedProductsInStock,
         'cropReferenceWeekCount' => $cropReferenceWeekCount,
         'cropReferenceDailyCount' => $cropReferenceDailyCount,
-
+        'chatSuppliers' => $suppliers,
+        'chatCustomers' => $customers,
+        'chatVendors' => $vendors,
+        'replies' => $replies,
     ]);
     }
 
