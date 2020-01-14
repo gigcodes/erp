@@ -1352,6 +1352,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/groups', 'Github\GroupController@listGroups');
         Route::get('/sync', 'Github\SyncController@index');
         Route::get('/sync/start', 'Github\SyncController@startSync');
+        Route::get('/repos/{name}/users/{username}/remove', 'Github\UserController@removeUserFromRepository');
         Route::post('/linkUser', 'Github\UserController@linkUser');
+        Route::post('/modifyUserAccess', 'Github\UserController@modifyUserAccess');
     });
 });
