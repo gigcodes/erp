@@ -374,7 +374,7 @@ class DevelopmentController extends Controller
 
     public function issueTaskIndex(Request $request, $type)
     {
-        $request->request->add(["order" => $request->get("order","communication_desc")]);
+        //$request->request->add(["order" => $request->get("order","communication_desc")]);
         // Load issues
         $issues = DeveloperTask::where('developer_tasks.task_type_id', $type == 'issue' ? '3' : '1');
 

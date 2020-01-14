@@ -738,11 +738,11 @@
                         $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
                     }
 
-                    /*$.each($(".resolve-issue"),function(k,v){
+                    $.each($(".resolve-issue"),function(k,v){
                         if (!$(v).hasClass("select2-hidden-accessible")) {
-                            $(v).select2({tags:true});
+                            $(v).select2({width:"100%", tags:true});
                         }
-                    });*/
+                    });
                 }
             });
 
