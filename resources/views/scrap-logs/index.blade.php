@@ -69,8 +69,7 @@
 				success: function(data) {
 						$("tbody").empty();
 						$.each(data.file_list, function(i,row){
-							var foldername = row['foldername'].replace('/','@');
-							$("tbody").append("<tr><td>"+i+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+foldername+ '@' +row['filename']+"' target='_blank'>"+row['filename']+"</a></td></tr>");
+							$("tbody").append("<tr><td>"+i+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a></td></tr>");
 						});
 					}
 			});

@@ -21,8 +21,7 @@ class ScrapLogsController extends Controller
     	$searchVal = $searchVal != "null" ? $searchVal : "";
     	$dateVal = $dateVal != "null" ? $dateVal : "";
 		$file_list = [];
-		//$files = File::allFiles(public_path(env('SCRAP_LOGS_FOLDER'))); 
-		$files = File::allFiles(env('SCRAP_LOGS_FOLDER')); 
+		$files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
 		$date = empty($dateVal )? Carbon::now()->format('d') : sprintf("%02d", $dateVal);
 		if($date == 01) 
 		{
@@ -41,9 +40,8 @@ class ScrapLogsController extends Controller
 		return  response()->json(["file_list" => $file_list]);
     }
 
-    public function fileView($filepath) {
-    	$originalPath = str_replace('@', '/', $filepath);
-		$path = env('SCRAP_LOGS_FOLDER') . '/' . $originalPath;
+    public function fileView($filename, $foldername) {
+		$path = env('SCRAP_LOGS_FOLDER') . '/' . $foldername . '/' . $filename;
     	return response()->file($path);
     }
     
