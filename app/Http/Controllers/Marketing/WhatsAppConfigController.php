@@ -187,6 +187,8 @@ class WhatsappConfigController extends Controller
     }
 
     /**
+     * Show history page
+     *
      * @param $id
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
@@ -210,5 +212,63 @@ class WhatsappConfigController extends Controller
         }
 
         return view('marketing.whatsapp-configs.history', compact('data', 'id', 'term', 'date'));
+    }
+
+    /**
+     * Show queue page
+     *
+     * @param $id
+     * @param Request $request
+     * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function queue ($id, Request $request) {
+/*        dd($request->all());*/
+        $term  = $request->term;
+        $date  = $request->date;
+        $config = WhatsappConfig::find($id);
+        if($config->provider === 'py-whatsapp'){
+
+            $data = ImQueue::whereNull('sent_at')->where('number_from', $config->number)->orderBy('created_at', 'desc');
+            if (request('term') != null) {
+                $data = $data->where('number_to', 'LIKE', "%{$request->term}%");
+                $data = $data->orWhere('text', 'LIKE', "%{$request->term}%");
+                $data = $data->orWhere('priority', 'LIKE', "%{$request->term}%");
+            }
+            if (request('date') != null) {
+                $data = $data->whereDate('send_after', request('date'));
+            }
+            $data = $data->get();
+        }
+        return view('marketing.whatsapp-configs.queue', compact('data', 'id', 'term', 'date'));
+    }
+
+    /**
+     * Delete single queue
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy_queue (Request $request) {
+
+        $config = ImQueue::findorfail($request->id);
+        $config->delete();
+        return Response::json(array(
+            'success' => true,
+            'message' => 'WhatsApp Config Deleted'
+        ));
+
+    }
+
+    /**
+     * Delete all queues
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy_queue_all () {
+        $config = ImQueue::truncate();
+        return Response::json(array(
+            'success' => true,
+            'message' => 'WhatsApp Configs Deleted'
+        ));
     }
 }

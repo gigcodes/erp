@@ -32,6 +32,7 @@
     <button onclick="deleteConfig({{ $whatsAppConfig->id }})" class="btn btn-sm">Delete</button>
     @endif
     <a href="{{route('whatsapp.config.history', $whatsAppConfig->id)}}" title="History"><i class="fa fa-history" aria-hidden="true"></i></a>
+    <a href="{{route('whatsapp.config.queue', $whatsAppConfig->id)}}" title="Queue"><i class="fa fa-list" aria-hidden="true"></i></a>
   </td>
 </tr>
 
