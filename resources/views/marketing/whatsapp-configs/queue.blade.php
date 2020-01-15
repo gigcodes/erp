@@ -26,7 +26,8 @@
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">WhatsApp Queue</h2>
                     <div class="pull-left">
-                        <form action="{{ route('whatsapp.config.history', $id) }}" method="GET" class="form-inline align-items-start">
+                        <form action="{{ route('whatsapp.config.queue', $id) }}" method="GET"
+                              class="form-inline align-items-start">
                             <div class="form-group mr-3 mb-3">
                                 <input name="term" type="text" class="form-control global" id="term"
                                        value="{{ isset($term) ? $term : '' }}"
@@ -34,17 +35,22 @@
                             </div>
                             <div class="form-group ml-3">
                                 <div class='input-group date' id='filter-date'>
-                                    <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
+                                    <input type='text' class="form-control global" name="date"
+                                           value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date"/>
 
                                     <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
                                   </span>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                            <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
 
                         </form>
-                        <button onclick="deleteAllQueues()" class="btn btn-danger">Delete All</button>
+                        @if($provider === 'py-whatsapp')
+                            <button onclick="deleteAllQueues()" class="btn btn-danger">Delete All</button>
+                        @else
+                                <a name="del_queues" href="{{route("whatsapp.config.delete_all_queues", $id)}}" class="btn btn-danger">Delete All Queues</a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -116,25 +122,25 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td>&</td>
+                        <td></td>
                     </tr>
                 @endforeach
 
             @endif
-{{--            @foreach($data["first100"] as $value)
-                <tr>
-                    <td>{{$value["chatId"]}}</td>
-                    <td>{{$number}}</td>
-                    <td></td>
-                    <td></td>
-                    <td>{{$value["body"]}}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>&</td>
-                </tr>
-            @endforeach--}}
+            {{--            @foreach($data["first100"] as $value)
+                            <tr>
+                                <td>{{$value["chatId"]}}</td>
+                                <td>{{$number}}</td>
+                                <td></td>
+                                <td></td>
+                                <td>{{$value["body"]}}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>&</td>
+                            </tr>
+                        @endforeach--}}
             </tbody>
         </table>
     </div>
@@ -148,47 +154,47 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
 
-    function deleteQueue(config_id) {
-        event.preventDefault();
-        if (confirm("Are you sure?")) {
-            $.ajax({
-                type: "POST",
-                url: "{{ route('whatsapp.config.delete_queue') }}",
-                data: {"_token": "{{ csrf_token() }}", "id": config_id},
-                dataType: "json",
-                success: function (message) {
-                    alert('Deleted Queue');
-                    location.reload(true);
-                }, error: function () {
-                    alert('Something went wrong');
-                }
+        function deleteQueue(config_id) {
+            event.preventDefault();
+            if (confirm("Are you sure?")) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('whatsapp.config.delete_queue') }}",
+                    data: {"_token": "{{ csrf_token() }}", "id": config_id},
+                    dataType: "json",
+                    success: function (message) {
+                        alert('Deleted Queue');
+                        location.reload(true);
+                    }, error: function () {
+                        alert('Something went wrong');
+                    }
 
-            });
+                });
+            }
+            return false;
+
         }
-        return false;
 
-    }
+        function deleteAllQueues(config_id) {
+            event.preventDefault();
+            if (confirm("Are you sure?")) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('whatsapp.config.delete_all') }}",
+                    data: {"_token": "{{ csrf_token() }}", "id": config_id},
+                    dataType: "json",
+                    success: function (message) {
+                        alert('Deleted All Queues');
+                        location.reload(true);
+                    }, error: function () {
+                        alert('Something went wrong');
+                    }
 
-    function deleteAllQueues(config_id) {
-        event.preventDefault();
-        if (confirm("Are you sure?")) {
-            $.ajax({
-                type: "POST",
-                url: "{{ route('whatsapp.config.delete_all') }}",
-                data: {"_token": "{{ csrf_token() }}", "id": config_id},
-                dataType: "json",
-                success: function (message) {
-                    alert('Deleted All Queues');
-                    location.reload(true);
-                }, error: function () {
-                    alert('Something went wrong');
-                }
+                });
+            }
+            return false;
 
-            });
         }
-        return false;
-
-    }
 
     </script>
 @endsection

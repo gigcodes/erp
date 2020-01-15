@@ -1336,10 +1336,9 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
     Route::post('whatsapp-config/edit', 'WhatsappConfigController@edit')->name('whatsapp.config.edit');
     Route::post('whatsapp-config/delete', 'WhatsappConfigController@destroy')->name('whatsapp.config.delete');
     Route::get('whatsapp-queue/{id}','WhatsappConfigController@queue')->name('whatsapp.config.queue');
-/*    Route::get('whatsapp-queue/{id}','WhatsappConfigController@queue')->name('whatsapp.config.queue');*/
-    Route::post('whatsapp-queue/delete','WhatsappConfigController@destroy_queue')->name('whatsapp.config.delete_queue');
-    Route::post('whatsapp-queue/delete_all','WhatsappConfigController@destroy_queue_all')->name('whatsapp.config.delete_all');
-    Route::post('whatsapp-queue/delete_all','WhatsappConfigController@destroy_queue_all')->name('whatsapp.config.delete_all');
+    Route::post('whatsapp-queue/delete','WhatsappConfigController@destroyQueue')->name('whatsapp.config.delete_queue');
+    Route::post('whatsapp-queue/delete_all','WhatsappConfigController@destroyQueueAll')->name('whatsapp.config.delete_all');
+    Route::get('whatsapp-queue/delete_queues/{id}','WhatsappConfigController@clearMessagesQueue')->name('whatsapp.config.delete_all_queues');
 
 
     // Marketing Platform

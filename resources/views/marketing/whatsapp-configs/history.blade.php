@@ -100,7 +100,7 @@
                         <td>{{$value->marketing_message_type_id}}</td>
                         <td>{{$value->send_after}}</td>
                         <td>{{$value->sent_at}}</td>
-                        <td>&</td>
+                        <td></td>
                     </tr>
                 @endforeach
             @else
@@ -115,7 +115,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td>&</td>
+                        <td></td>
                     </tr>
                 @endforeach
 
