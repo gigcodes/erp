@@ -171,6 +171,46 @@ var parentDialog = function(ele) {
 
 var searchForDialog = function(ele) {
     var dialogBox = ele.find(".search-dialog");
+    var intentOrEntityBox = ele.find(".search-alias");
+    intentOrEntityBox.select2({
+        placeholder: "Enter entity or intent",
+        width: "100%",
+        tags: true,
+        allowClear: true,
+    }).on("change.select2", function(e) {
+        var selectedIntentOrEntity = e.target.value;
+        if (selectedIntentOrEntity !== "" && !allSuggestedOptions.hasOwnProperty(selectedIntentOrEntity)) {
+            var isEntity = selectedIntentOrEntity.match("^@") ? true : selectedIntentOrEntity.match("^#") ? false : undefined;
+            if (!(isEntity === undefined)) {
+                allSuggestedOptions[selectedIntentOrEntity] = selectedIntentOrEntity
+                selectedIntentOrEntity = selectedIntentOrEntity.slice(1, selectedIntentOrEntity.length);
+                $.ajax({
+                    type: "post",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: isEntity ? "/chatbot/keyword" : "/chatbot/question",
+                    data: isEntity ? { keyword: selectedIntentOrEntity } : { value: selectedIntentOrEntity },
+                    dataType: "json",
+                    success: function(response) {
+                        var successMessage = isEntity ? "Entity Created Successfully" : "Intent Created SuccessFully"
+                        toastr["success"](successMessage);
+                    },
+                    error: function() {
+                        toastr["error"]("Could not add intent/entity!");
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Invalid intent/entity format. Entities should be prefixed with @ and intents should be prefixed with #");
+                var aliasTemplate = $.templates("#search-alias-template");
+                var aliasTemplateHtml = aliasTemplate.render({
+                    "allSuggestedOptions": allSuggestedOptions
+                });
+                $("#leaf-editor-model").find(".search-alias").html(aliasTemplateHtml);
+            }
+        }
+    });
     if (dialogBox.length > 0) {
         dialogBox.select2({
             placeholder: "Enter dialog name or create new one",
