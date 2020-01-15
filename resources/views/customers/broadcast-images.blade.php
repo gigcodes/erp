@@ -34,7 +34,7 @@
     </form> --}}
 
     <div class="pull-right">
-      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendAllModal">Create Broadcast</button>
+      <!-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendAllModal">Create Broadcast</button> -->
       <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#uploadImagesModal">Upload Images</button>
     </div>
 
@@ -49,7 +49,7 @@
 <div class="row">
   @foreach ($broadcast_images as $image)
   <div class="col-md-3 col-xs-6 text-center mb-5">
-    <img src="{{ $image->hasMedia(config('constants.media_tags')) ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '#no-image' }}" class="img-responsive grid-image" alt="" />
+    <img src="{{ $image->hasMedia(config('constants.media_tags')) ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '#no-image' }}" class="img-responsive grid-image" alt="" onclick="sendBroadCastAll({{ $image->id }})" />
 
     @if ($image->products)
       <span class="badge">Linked</span>
@@ -106,5 +106,10 @@
       $('#linked_images').val(JSON.stringify(images_selection));
       console.log(images_selection);
     });
+
+    function sendBroadCastAll(id){
+      $('#broadcast_image').val(id);
+      $('#sendAllModal').modal('show');
+    }
   </script>
 @endsection

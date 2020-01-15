@@ -20,6 +20,12 @@
                    <?php echo Form::text("no_of_images",0,["class" => "form-control no_of_images"]); ?>
                 </div>
              </div>
+             <div class="form-group row">
+                <label for="no_of_images" class="col-sm-3 col-form-label">Auto generate for products</label>
+                <div class="col-sm-6">
+                   <?php echo Form::checkbox("auto_generate_product",null,null, array("class" => "form-control auto_generate_product")); ?>
+                </div>
+             </div>
              <div class="form-group row show-product-image"> </div>
              <div class="form-group row">
               <div class="col-sm-3 imgUp">

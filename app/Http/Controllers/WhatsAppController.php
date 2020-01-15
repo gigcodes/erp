@@ -999,11 +999,73 @@ class WhatsAppController extends FindByNumberController
         return response("success", 200);
     }
 
+    public static function translate($source, $target, $text)
+    {
+        // Request translation
+        $response = self::requestTranslation($source, $target, $text);
+
+        // Clean translation
+        $translation = self::getSentencesFromJSON($response);
+
+        return $translation;
+    }
+
+    protected static function getSentencesFromJSON($json)
+    {
+        $sentencesArray = json_decode($json, true);
+        $sentences = "";
+        if(!$sentencesArray)
+        {
+            throw new \Exception("Google detected unusual traffic from your computer network, try again later (2 - 48 hours)");
+        }
+        foreach ($sentencesArray["sentences"] as $s)
+        {
+            $sentences .= isset($s["trans"]) ? $s["trans"] : '';
+        }
+        return $sentences;
+    }
+
+    protected static function requestTranslation($source, $target, $text)
+    {
+        //Free Google Translate Api
+        $url = "https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qca&dt=rm&dt=bd&dj=1&ie=UTF-8"; //
+        $fields = array(
+            'sl' => urlencode($source),
+            'tl' => urlencode($target),
+            'q' => urlencode($text)
+        );
+
+        if(strlen($fields['q'])>=5000)
+            throw new \Exception("Maximum number of characters exceeded: 5000");
+        
+        // URL-ify the data for the POST
+        $fields_string = "";
+        foreach ($fields as $key => $value) {
+            $fields_string .= $key . '=' . $value . '&';
+        }
+        rtrim($fields_string, '&');
+        // Open connection
+        $ch = curl_init();
+        // Set the url, number of POST vars, POST data
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, count($fields));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'AndroidTranslate/5.3.0.RC02.130475354-53000263 5.1 phone TRANSLATE_OPM5_TEST_1');
+        // Execute post
+        $result = curl_exec($ch);
+        // Close connection
+        curl_close($ch);
+        return $result;
+    }
+
     public function webhook(Request $request, GuzzleClient $client)
     {
         // Get json object
-        $data = $request->json()->all();
-
+        $data = $request->json()->all();       
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
 
@@ -1016,7 +1078,6 @@ class WhatsAppController extends FindByNumberController
         if (!array_key_exists('messages', $data)) {
             return response('ACK', 200);
         }
-
         // Loop over messages
         foreach ($data[ 'messages' ] as $chatapiMessage) {
             // Convert false and true text to false and true
@@ -1032,7 +1093,6 @@ class WhatsAppController extends FindByNumberController
             $instanceId = $data[ 'instanceId' ];
             $text = $chatapiMessage[ 'body' ];
             $contentType = $chatapiMessage[ 'type' ];
-            $originalMessage = $text;
             $numberPath = substr($from, 0, 3) . '/' . substr($from, 3, 1);
 
             // Check if message already exists
@@ -1055,7 +1115,17 @@ class WhatsAppController extends FindByNumberController
             $dubbizle = $this->findDubbizleByNumber($searchNumber);
             $contact = $this->findContactByNumber($searchNumber);
             $customer = $this->findCustomerByNumber($searchNumber);
-
+            if(!empty($supplier)) 
+            {
+                $supplierDetails = Supplier::find($supplier->id);
+                $language = $supplierDetails->language;
+                if($language !=null)
+                {
+                    $result = self::translate($language, 'en', $text);
+                    $text = $result.' -- '.$text;
+                }
+            }
+            $originalMessage = $text;
             // Set params
             $params = [
                 'number' => $from,
@@ -1926,12 +1996,12 @@ class WhatsAppController extends FindByNumberController
                     $params[ 'issue_id' ] = $request->get('issue_id');
                     //$issue                  = Issue::find($request->get('issue_id'));
                     $issue = DeveloperTask::find($request->get('issue_id'));
-                    $params[ 'erp_user' ] = $issue->responsible_user_id;
+                    $params[ 'erp_user' ] = $issue->assigned_to;
                     $params[ 'approved' ] = 1;
                     $params[ 'status' ] = 2;
 
 
-                    $number = User::find($issue->responsible_user_id);
+                    $number = User::find($issue->assigned_to);
 
                     if (!$number) {
                         return response()->json(['message' => null]);
@@ -3191,6 +3261,16 @@ class WhatsAppController extends FindByNumberController
         if ($message->message != '') {
 
             if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old') {
+                if($context == 'supplier')
+                {
+                    $supplierDetails = Supplier::find($message->supplier_id);
+                    $language = $supplierDetails->language;
+                    if($language !=null)
+                    {
+                        $result = self::translate('en', $language, $message->message);
+                        $message->message = $result;
+                    }
+                }
                 $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
             } else {
                 $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number ?? $defCustomer, $message->message, null, $message->id);
@@ -3270,16 +3350,10 @@ class WhatsAppController extends FindByNumberController
 
     public function sendToAll(Request $request, $validate = true)
     {
-        //dd($request);
         set_time_limit(0);
         if ($validate) {
             $this->validate($request, [
-                // 'message'         => 'required_without:images,linked_images',
-                // 'images'          => 'required_without:message|mimetypes:image/jpeg,image/png',
-                // 'images.*'        => 'required_without:message|mimetypes:image/jpeg,image/png',
-                'file' => 'sometimes|mimes:xlsx,xls',
                 'sending_time' => 'required|date',
-                'whatsapp_number' => 'required_with:file',
                 'frequency' => 'required|numeric',
                 'rating' => 'sometimes|nullable|numeric',
                 'gender' => 'sometimes|nullable|string',
@@ -3287,42 +3361,40 @@ class WhatsAppController extends FindByNumberController
         }
         $frequency = $request->frequency;
 
-        if ($request->moduletype == 'customers') {
-            $content[ 'message' ] = $request->body;
+        // if ($request->moduletype == 'customers') {
+        //     $content[ 'message' ] = $request->body;
 
-            foreach (json_decode($request->images) as $key => $image) {
-                $media = Media::find($image);
+        //     foreach (json_decode($request->images) as $key => $image) {
+        //         $media = Media::find($image);
 
-                $content[ 'image' ][ $key ][ 'key' ] = $media->getKey();
-                $content[ 'image' ][ $key ][ 'url' ] = $media->getUrl();
-            }
-        } else {
-            $content[ 'message' ] = $request->message;
+        //         $content[ 'image' ][ $key ][ 'key' ] = $media->getKey();
+        //         $content[ 'image' ][ $key ][ 'url' ] = $media->getUrl();
+        //     }
+        // } else {
+        //     $content[ 'message' ] = $request->message;
 
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $key => $image) {
-                    $media = MediaUploader::fromSource($image)->upload();
-                    $content[ 'image' ][ $key ][ 'key' ] = $media->getKey();
-                    $content[ 'image' ][ $key ][ 'url' ] = $media->getUrl();
-                }
-            }
-        }
+        //     if ($request->hasFile('images')) {
+        //         foreach ($request->file('images') as $key => $image) {
+        //             $media = MediaUploader::fromSource($image)->upload();
+        //             $content[ 'image' ][ $key ][ 'key' ] = $media->getKey();
+        //             $content[ 'image' ][ $key ][ 'url' ] = $media->getUrl();
+        //         }
+        //     }
+        // }
 
-        if ($request->linked_images != '') {
-            foreach (json_decode($request->linked_images) as $key => $id) {
-                $broadcast_image = BroadcastImage::find($id);
-
+        if ($request->image_id != '') {
+            $broadcast_image = BroadcastImage::find($request->image_id);
                 if ($broadcast_image->hasMedia(config('constants.media_tags'))) {
                     foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $key2 => $brod_image) {
-                        $content[ 'linked_images' ][ $key + $key2 ][ 'key' ] = $brod_image->getKey();
-                        $content[ 'linked_images' ][ $key + $key2 ][ 'url' ] = $brod_image->getUrl();
+                        $content[ 'image' ][ 'url' ] = $brod_image->getUrl();
+                        $content[ 'image' ]['key'] = $brod_image->getKey();
                     }
                 }
 
-            }
-            // $content['linked_images'] = json_decode($request->linked_images);
+            
+            
         }
-
+        
         if ($request->to_all || $request->moduletype == 'customers') {
             // Create empty array for checking numbers
             $arrCustomerNumbers = [];
@@ -3421,15 +3493,17 @@ class WhatsAppController extends FindByNumberController
                                 ];
 
                                 $priority = null; // Priority for broadcast messages, now the same as for normal messages
-                                if ($request->linked_images != null) {
-                                    if ($content[ 'linked_images' ] != null) {
+                                if ($request->image_id != null) {
+                                    
+                                    if ($content[ 'image' ] != null) {
+                                        
                                         //Saving Message In Chat Message
                                         $chatMessage = ChatMessage::create($params);
-                                        foreach ($content[ 'linked_images' ] as $url) {
+                                        foreach ($content as $url) {
                                             //Attach image to chat message
-                                            $chatMessage->attachMedia($url[ 'key' ], config('constants.media_tags'));
-
-                                            $send = InstantMessagingHelper::scheduleMessage($customer->phone, $customer->broadcast_number, $request->message, $url[ 'url' ], $priority, $now);
+                                            $chatMessage->attachMedia($url['key'], config('constants.media_tags'));
+                                            $priority = 1;
+                                            $send = InstantMessagingHelper::scheduleMessage($customer->phone, $customer->broadcast_number,$request->message, $url[ 'url' ], $priority, $now);
                                             if ($send != false) {
                                                 $now->addMinutes($minutes);
                                                 $now = InstantMessagingHelper::broadcastSendingTimeCheck($now);

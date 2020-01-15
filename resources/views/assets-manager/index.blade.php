@@ -45,6 +45,7 @@
           <tr>
             <th width="5%">ID</th>
             <th>Name</th>
+            <th>Capacity</th>
             <th>Password</th>
             <th width="10%">Asset Type</th>
             <th width="15%">Category</th>
@@ -64,6 +65,7 @@
             <tr>
               <td>{{ $asset->id }}</td>
               <td>{{ $asset->name }}</td>
+              <td>{{ $asset->capacity }}</td>
               <td>{{ $asset->password }}</td>
               <td>{{ $asset->asset_type }}</td>
               <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
@@ -117,8 +119,8 @@
       $('#asset_purchase_type').val(asset.purchase_type);
       $('#asset_payment_cycle').val(asset.payment_cycle);
       $('#asset_amount').val(asset.amount);
-      console.log($('#usage'));
       $('#usage').val(asset.usage);
+      $('#capacity').val(asset.capacity);
     });
 
     $(document).on('click', '.make-remark', function(e) {
