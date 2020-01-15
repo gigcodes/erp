@@ -56,9 +56,9 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
     @if(Auth::user())
         <script>
-            window.userid = {{Auth::user()->id}};
+            window.userid = "{{Auth::user()->id}}";
             window.username = "{{Auth::user()->name}}";
-            loggedinuser = {{Auth::user()->id}};
+            loggedinuser = "{{Auth::user()->id}}";
         </script>
     @endif
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
