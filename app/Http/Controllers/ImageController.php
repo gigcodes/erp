@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Redirect;
 use App\Images;
 use Image;
 use Storage;
@@ -574,5 +576,33 @@ class ImageController extends Controller
       }
 
       return response()->download($path);
+    }
+
+    public function imageQueue(Request $request){
+      $validator=Validator::make($request->all(), [
+        'search_term' =>'required|string|min:3|max:60'
+      ]);
+
+      if($validator->fails()) {
+          return Redirect::Back()
+              ->withErrors($validator)
+              ->withInput($request->all());
+      }
+
+      $new=new \App\SearchQueue;
+      $new->search_type='image';
+      $new->model_name='App\Images';
+      $new->search_term=$request->search_term;
+      $new->created_at=$new->updated_at=time();
+
+      if($new->save()){
+        $messages['success']="new search queue added successfuly";
+        return Redirect::Back()
+              ->with('messages',$messages);
+      }else{
+        $messages['danger']="Sorry! Please try again";
+        return Redirect::Back()
+              ->with('messages',$messages);
+      }
     }
 }

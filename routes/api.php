@@ -94,3 +94,5 @@ Route::post('google/search-results', 'GoogleSearchController@apiPost');
 Route::get('scraper/next','ScrapController@sendScrapDetails');
 Route::post('scraper/endtime','ScrapController@recieveScrapDetails');
 
+Route::get('search/{type}', 'SearchQueueController@index');
+

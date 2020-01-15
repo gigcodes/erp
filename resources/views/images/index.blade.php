@@ -6,7 +6,7 @@
 
 <div class="row">
   <div class="col-12 margin-tb mb-3">
-    <h2 class="page-heading">Image Grid</h2>
+    <h2 class="page-heading">LifeStyle Image Grid</h2>
 
     <form action="{{ route('image.grid') }}" method="GET" class="form-inline align-items-start">
       <div class="form-group mr-3 mb-3">
@@ -26,8 +26,8 @@
         <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
       </div>
 
-      <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-      <a href="{{url()->current()}}" class="btn btn-image"><img src="/images/clear-filters.png"/></a>
+      <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>
+      <a href="{{url()->current()}}" class="btn btn-image"><img src="{{asset('/images/clear-filters.png')}}"/></a>
     </form>
 
     {{-- <strong>Sort By</strong>
@@ -40,6 +40,7 @@
     <div class="pull-right btn-group">
       <a href="{{ route('attachImages', ['images']) }}" class="btn btn-secondary">Attach Images</a>
       <a href class="btn btn-secondary" data-toggle="modal" data-target="#imageModal">Upload</a>
+      <a href class="btn btn-secondary" data-toggle="modal" data-target="#queueModal">Image Queue</a>
     </div>
 
     <div id="imageModal" class="modal fade" role="dialog">
@@ -87,6 +88,38 @@
 
       </div>
     </div>
+
+    <!---   Image Queue Modal  !-->
+    <div id="queueModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Add Image Queue</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+
+          <form action="{{ route('image.queue') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-body">
+              <div class="form-group">
+                <label>Search Term</label>
+                <input type="text" name="search_term" class="form-control" required />
+                @if ($errors->has('search_term'))
+                    <div class="alert alert-danger">{{$errors->first('search_term')}}</div>
+                @endif
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Save</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
   @endif
   </div>
 </div>
@@ -103,12 +136,12 @@
   <div class="col-md-3 col-xs-6 text-center mb-5">
     <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive grid-image" alt="" />
 
-    <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="/images/view.png" /></a>
+    <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="{{asset('/images/view.png')}}" /></a>
     @if(auth()->user()->checkPermission('social-create'))
-      <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="/images/edit.png" /></a>
+      <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="{{asset('/images/edit.png')}}" /></a>
 
       {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $image->id],'style'=>'display:inline']) !!}
-        <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+        <button type="submit" class="btn btn-image"><img src="{{asset('/images/delete.png')}}" /></button>
       {!! Form::close() !!}
     @endif
 

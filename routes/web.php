@@ -594,6 +594,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('images/grid/make/set', 'ImageController@set')->name('image.grid.set');
     Route::post('images/grid/make/set/download', 'ImageController@setDownload')->name('image.grid.set.download');
     Route::post('images/grid/update/schedule', 'ImageController@updateSchedule')->name('image.grid.update.schedule');
+    Route::post('images/searchQueue', 'ImageController@imageQueue')->name('image.queue');
 
     Route::post('leads/save-leave-message', 'LeadsController@saveLeaveMessage')->name('leads.message.save');
 
