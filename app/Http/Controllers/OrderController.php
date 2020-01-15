@@ -8,7 +8,7 @@ use App\Helpers;
 use App\Order;
 use App\OrderProduct;
 use App\Product;
-use App\ReadOnly\OrderStatus as OrderStatus;
+use App\OrderStatus;
 use App\User;
 use App\Leads;
 use App\Message;
@@ -45,6 +45,7 @@ use App\Mail\OrderInvoicePDF;
 use App\Mail\OrderConfirmation;
 use Illuminate\Support\Facades\Mail;
 use Dompdf\Dompdf;
+use App\Helpers\OrderHelper;
 
 use App\Services\BlueDart\BlueDart;
 use App\DeliveryApproval;
@@ -52,6 +53,7 @@ use App\Waybill;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \SoapClient;
+
 
 class OrderController extends Controller {
 
@@ -227,7 +229,7 @@ class OrderController extends Controller {
 		}
 
 		$orders = (new Order())->newQuery()->with('customer');
-
+		
 
 
 		if(empty($term))
@@ -255,7 +257,7 @@ class OrderController extends Controller {
 		}
 
 		$statusFilterList =  clone($orders);
-
+		
 		$orders = $orders->leftJoin("order_products as op","op.order_id","orders.id")
 		->leftJoin("products as p","p.sku","op.sku")->leftJoin("brands as b","b.id","p.brand");
 
@@ -268,7 +270,7 @@ class OrderController extends Controller {
 
 
 		$users  = Helpers::getUserArray( User::all() );
-		$order_status_list = (new OrderStatus)->all();
+		$order_status_list = OrderHelper::getStatus();
 
 		if ($sortby != 'communication' && $sortby != 'action' && $sortby != 'due') {
 			$orders = $orders->orderBy('is_priority', 'DESC')->orderBy($sortby, $orderby);
@@ -277,60 +279,9 @@ class OrderController extends Controller {
 		}
 
 		$statusFilterList = $statusFilterList->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"order_status")->get()->toArray();
-
+		
 		$orders_array = $orders->paginate(500);
-//		$orders_array = $orders->paginate(Setting::get('pagination'));
-
-		// if ($sortby == 'communication') {
-		// 	if ($orderby == 'asc') {
-		// 		$orders_array = array_values(array_sort($orders_array, function ($value) {
-		// 				return $value['communication']['created_at'];
-		// 		}));
-		//
-		// 		$orders_array = array_reverse($orders_array);
-		// 	} else {
-		// 		$orders_array = array_values(array_sort($orders_array, function ($value) {
-		// 				return $value['communication']['created_at'];
-		// 		}));
-		// 	}
-		// }
-
-		// if ($sortby == 'action') {
-		// 	if ($orderby == 'asc') {
-		// 		$orders_array = array_values(array_sort($orders_array, function ($value) {
-		// 				return $value['action']['status'];
-		// 		}));
-		//
-		// 		$orders_array = array_reverse($orders_array);
-		// 	} else {
-		// 		$orders_array = array_values(array_sort($orders_array, function ($value) {
-		// 				return $value['action']['status'];
-		// 		}));
-		// 	}
-		// }
-		//
-		// if ($sortby == 'due') {
-		// 	if ($orderby == 'asc') {
-		// 		$orders_array = array_values(array_sort($orders_array, function ($value) {
-		// 				return $value['action']['completion_date'];
-		// 		}));
-		//
-		// 		$orders_array = array_reverse($orders_array);
-		// 	} else {
-		// 		$orders_array = array_values(array_sort($orders_array, function ($value) {
-		// 				return $value['action']['completion_date'];
-		// 		}));
-		// 	}
-		// }
-
-		// $currentPage = LengthAwarePaginator::resolveCurrentPage();
-		// $perPage = 10;
-		// $currentItems = array_slice($orders_array, $perPage * ($currentPage - 1), $perPage);
-		//
-		// $orders_array = new LengthAwarePaginator($currentItems, count($orders_array), $perPage, $currentPage, [
-		// 	'path'	=> LengthAwarePaginator::resolveCurrentPath()
-		// ]);
-
+		
 		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
 	}
 
@@ -712,7 +663,7 @@ class OrderController extends Controller {
 			}
 		}
 
-		if ($order->order_status == 'Proceed without Advance' && $order->order_type == 'online') {
+		if ($order->order_status == OrderHelper::$proceedWithOutAdvance && $order->order_type == 'online') {
 			$product_names = '';
 			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
 				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
@@ -748,7 +699,7 @@ class OrderController extends Controller {
 				'type'				=> 'initial-advance',
 				'method'			=> 'whatsapp'
 			]);
-		} elseif ($order->order_status == 'Prepaid') {
+		} elseif ($order->order_status == OrderHelper::$prepaid) {
 			$auto_message = AutoReply::where('type', 'auto-reply')->where('keyword', 'prepaid-order-confirmation')->first()->reply;
 			$requestData = new Request();
 			$requestData->setMethod('POST');
@@ -767,7 +718,7 @@ class OrderController extends Controller {
 				'type'				=> 'online-confirmation',
 				'method'			=> 'whatsapp'
 			]);
-		} elseif ($order->order_status == 'Refund to be processed') {
+		} elseif ($order->order_status == OrderHelper::$refundToBeProcessed) {
 			$refund = Refund::where('order_id', $order->id)->first();
 
 			if (!$refund) {
@@ -998,7 +949,7 @@ class OrderController extends Controller {
 			}
 		}
 
-		if (!$order->is_sent_initial_advance() && $order->order_status == 'Proceed without Advance' && $order->order_type == 'online') {
+		if (!$order->is_sent_initial_advance() && $order->order_status == OrderHelper::$proceedWithOutAdvance && $order->order_type == 'online') {
 			$product_names = '';
 			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
 				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
@@ -1498,7 +1449,7 @@ class OrderController extends Controller {
 		$order->save();
 
 		// if ($order->auto_messaged == 0) {
-		if (!$order->is_sent_initial_advance() && $order->order_status == 'Proceed without Advance' && $order->order_type == 'online') {
+		if (!$order->is_sent_initial_advance() && $order->order_status == OrderHelper::$proceedWithOutAdvance && $order->order_type == 'online') {
 			$product_names = '';
 			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
 				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
@@ -2099,6 +2050,7 @@ public function createProductOnMagento(Request $request, $id){
 		$id = $request->get("id");
 		$status = $request->get("status");
 
+
 		if(!empty($id) && !empty($status)) {
 			$order = \App\Order::where("id", $id)->first();
 			if($order) {
@@ -2107,7 +2059,23 @@ public function createProductOnMagento(Request $request, $id){
 			}
 		}
 
-		return response()->json(["code" => 200]);
+		$statuss = OrderStatus::find($status);
+		if($statuss->magento_status != null){
+			$options   = array(
+			'trace'              => true,
+			'connection_timeout' => 120,
+			'wsdl_cache'         => WSDL_CACHE_NONE,
+			);
+			$size = '';
+			$proxy     = new \SoapClient( config( 'magentoapi.url' ), $options );
+			$sessionId = $proxy->login( config( 'magentoapi.user' ), config( 'magentoapi.password' ) );
+			
+			$orderlist = $proxy->salesOrderAddComment( $sessionId, $order->order_id , $statuss->magento_status);
+		}
+		
+		
+		return response()->json('Sucess',200);
+		
 
 	}
 
