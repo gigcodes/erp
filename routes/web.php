@@ -1344,6 +1344,10 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
     Route::post('broadcast/global/save','BroadcastController@saveGlobalValues')->name('broadcast.global.save');
     Route::post('broadcast/enable/count','BroadcastController@getCustomerCountEnable')->name('broadcast.enable.count');
 });
+Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function() {
+    Route::get('coupons','CouponController@index')->name('coupons.index');
+    Route::post('coupons/store','CouponController@store')->name('coupons.store');
+});
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
 Route::group(['middleware' => 'auth'], function () {
