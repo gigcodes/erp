@@ -242,8 +242,8 @@ class Kernel extends ConsoleKernel
             $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
             $tasks = Task::where('is_statutory', 0)->whereNotNull('is_verified')->get();
 
-            if ($benchmark['for_date'] != date('Y-m-d')) {
-                $benchmark['for_date'] = date('Y-m-d');
+            if ($benchmark[ 'for_date' ] != date('Y-m-d')) {
+                $benchmark[ 'for_date' ] = date('Y-m-d');
                 Benchmark::create($benchmark);
             }
 
@@ -355,17 +355,12 @@ class Kernel extends ConsoleKernel
         // need to run this both cron every minutes
         $schedule->command('cronschedule:update')->everyMinute();
         $schedule->command('erpevents:run')->everyMinute();
-<<<<<<< HEAD
-        //        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '07:00')->withoutOverlapping();
-        //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->between('23:00', '07:00')->withoutOverlapping();
+        
         $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
         $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
-      //  $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
-      //  $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
-=======
         $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->withoutOverlapping();
 //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->withoutOverlapping();
->>>>>>> master
+
 
         // HUBSTAFF
         // update user list
