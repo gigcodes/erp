@@ -76,7 +76,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('crop-references', 'CroppedImageReferenceController@index');
     Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
     Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
+
+    Route::get('/magento/status', 'MagentoController@addStatus');
+    Route::post('/magento/status/save', 'MagentoController@saveStatus')->name('magento.save.status');
+
     Route::post('crop-references-grid/reject', 'CroppedImageReferenceController@rejectCropImage');
+
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
@@ -631,6 +636,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/issue/estimate_date/assign', 'DevelopmentController@saveEstimateTime');
     Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
     Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');
+    Route::get('development/issue/language/assign', 'DevelopmentController@saveLanguage');
     Route::post('development/{id}/assignIssue', 'DevelopmentController@issueAssign')->name('development.issue.assign');
     Route::delete('development/{id}/issueDestroy', 'DevelopmentController@issueDestroy')->name('development.issue.destroy');
     Route::get('development/overview', 'DevelopmentController@overview')->name('development.overview');
