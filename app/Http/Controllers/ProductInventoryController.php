@@ -928,4 +928,23 @@ class ProductInventoryController extends Controller
 		return response()->json(["code" => 1]);
 
 	}
+
+	public function updateField(Request $request)
+	{
+		$id = $request->get("id");
+		$fieldName = $request->get("field_name","");
+		$fieldValue = $request->get("field_value","");
+
+		if($id > 0 && !empty($fieldValue) && !empty($fieldName)) {
+			$product = \App\Product::where("id", $id)->first();
+			if($product) {
+				$product->$fieldName = $fieldValue;
+				$product->save();
+				return response()->json(["code"=> 200,"message" => $fieldName." updated successfully"]);
+			}
+		}
+
+		return response()->json(["code" => 500,"message" => "Oops, Required field is missing"]);
+
+	}
 }

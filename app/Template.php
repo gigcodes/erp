@@ -11,5 +11,6 @@ class Template extends Model
     protected $fillable = [
         'name',
         'no_of_images',
+        'auto_generate_product',
     ];
 }

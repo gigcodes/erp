@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\ScraperMapping;
 
 class Scraper extends Model
 {
@@ -18,6 +19,21 @@ class Scraper extends Model
     public function scraperParent()
     {
         return $this->hasOne('App\Scraper', "supplier_id", "parent_supplier_id");
+    }
+
+    public function supplier()
+    {
+        return $this->hasOne('App\Scraper', "id", "supplier_id");
+    }
+
+    public function mainSupplier()
+    {
+        return $this->hasOne('App\Supplier', "id", "supplier_id");
+    }
+
+    public function mapping()
+    {
+        return $this->hasMany('App\ScraperMapping', "scrapers_id", "id");
     }
 
 }

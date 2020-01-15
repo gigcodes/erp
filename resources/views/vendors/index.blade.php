@@ -44,7 +44,7 @@
                 <form class="form-inline" action="{{ route('vendor.index') }}" method="GET">
                     <div class="form-group" style="width: 441px; margin-right: 10px;">
                        <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
-                            <?php 
+                            <?php
                                 if (request()->get('term')) {
                                     echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
                                 }
@@ -70,12 +70,8 @@
                 </form>
             </div>
             <div class="pull-right">
-                <?php 
-                    $params = request()->all();
-                    $params['select_all'] = request()->get('select_all') == 'true' ? 'false' : 'true';
-                ?>
-                <a class="btn btn-secondary" href="{{route('vendor.index', $params)}}">{{request()->get('select_all') == 'true' ? 'Unselect All' : 'Select All'}}</a>
-                <button type="button" class="btn btn-secondary emailToAllModal" >Bulk Email</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
             </div>
@@ -156,7 +152,7 @@
             </thead>
 
             <tbody id="vendor-body">
-                  
+
             @include('vendors.partials.data')
 
                      </tbody>
@@ -169,6 +165,7 @@
     @include('vendors.partials.vendor-modals')
     {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')
+    @include('vendors.partials.modal-conference')
 
     <div id="reminderModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -361,7 +358,7 @@
             },
             minimumInputLength: 1,
             templateResult: function (customer) {
-                
+
                 if (customer.name) {
                     return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
                 }
@@ -595,7 +592,7 @@
 
                 html += '</div>';
 
-                $("#email-list-history").find(".modal-body").html(html); 
+                $("#email-list-history").find(".modal-body").html(html);
                 $("#email-list-history").modal("show");
             }).fail(function (response) {
                 console.log(response);
@@ -633,7 +630,7 @@
                             $(thiss).attr('disabled', true);
                         }
                     }).done(function (response) {
-                        thiss.closest('tr').find('.chat_messages').html(thiss.siblings('input').val()); 
+                        thiss.closest('tr').find('.chat_messages').html(thiss.siblings('input').val());
                         $(thiss).siblings('input').val('');
 
                         $(thiss).attr('disabled', false);
@@ -778,135 +775,134 @@
       });
 
           $(document).ready(function() {
-        src = "{{ route('vendor.index') }}";
-        $(".search").autocomplete({
-        source: function(request, response) {
-            id = $('#id').val();
-            name = $('#name').val();
-            email = $('#email').val();
-            phone = $('#phone').val();
-            address = $('#address').val();
-            category = $('#category').val();
+              src = "{{ route('vendor.index') }}";
+              $(".search").autocomplete({
+                  source: function (request, response) {
+                      id = $('#id').val();
+                      name = $('#name').val();
+                      email = $('#email').val();
+                      phone = $('#phone').val();
+                      address = $('#address').val();
+                      category = $('#category').val();
 
-            $.ajax({
-                url: src,
-                dataType: "json",
-                data: {
-                    id : id,
-                    name : name,
-                    phone : phone,
-                    email : email,
-                    address : address,
-                    category : category,
-                },
-                beforeSend: function() {
-                       $("#loading-image").show();
-                },
-            
-            }).done(function (data) {
-                 $("#loading-image").hide();
-                console.log(data);
-                $("#vendor-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-                $(".select2-quick-reply").select2({});
-                
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
-            });
-        },
-        minLength: 1,
-       
-        });
-    });
+                      $.ajax({
+                          url: src,
+                          dataType: "json",
+                          data: {
+                              id: id,
+                              name: name,
+                              phone: phone,
+                              email: email,
+                              address: address,
+                              category: category,
+                          },
+                          beforeSend: function () {
+                              $("#loading-image").show();
+                          },
 
+                      }).done(function (data) {
+                          $("#loading-image").hide();
+                          console.log(data);
+                          $("#vendor-table tbody").empty().html(data.tbody);
+                          if (data.links.length > 10) {
+                              $('ul.pagination').replaceWith(data.links);
+                          } else {
+                              $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                          }
+                          $(".select2-quick-reply").select2({});
+
+                      }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                          alert('No response from server');
+                      });
+                  },
+                  minLength: 1,
+
+              });
 
 
-       $(document).ready(function() {
-        src = "{{ route('vendor.index') }}";
-        $("#search_id").autocomplete({
-        source: function(request, response) {
-            $.ajax({
-                url: src,
-                dataType: "json",
-                data: {
-                    term : request.term
-                },
-                beforeSend: function() {
-                       $("#loading-image").show();
-                },
-            
-            }).done(function (data) {
-                $("#loading-image").hide();
-                $("#vendor-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-                $(".select2-quick-reply").select2({});
-                
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
-            });
-        },
-        minLength: 1,
-       
-        });
-         });
+              $(document).ready(function () {
+                  src = "{{ route('vendor.index') }}";
+                  $("#search_id").autocomplete({
+                      source: function (request, response) {
+                          $.ajax({
+                              url: src,
+                              dataType: "json",
+                              data: {
+                                  term: request.term
+                              },
+                              beforeSend: function () {
+                                  $("#loading-image").show();
+                              },
 
-     $(document).on("change",".quickComment",function(e){
+                          }).done(function (data) {
+                              $("#loading-image").hide();
+                              $("#vendor-table tbody").empty().html(data.tbody);
+                              if (data.links.length > 10) {
+                                  $('ul.pagination').replaceWith(data.links);
+                              } else {
+                                  $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                              }
+                              $(".select2-quick-reply").select2({});
 
-        var message = $(this).val();
+                          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                              alert('No response from server');
+                          });
+                      },
+                      minLength: 1,
 
-        if($.isNumeric(message) == false){
-            $.ajax({
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                url: "/vendor/reply/add",
-                dataType: "json",
-                method : "POST",
-                data: {reply : message}
-            }).done(function (data) {
+                  });
+              });
 
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
-            });
-        }
-        $(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
+              $(document).on("change", ".quickComment", function (e) {
 
-     });  
+                  var message = $(this).val();
 
-     $(".select2-quick-reply").select2({tags:true});
+                  if ($.isNumeric(message) == false) {
+                      $.ajax({
+                          headers: {
+                              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                          },
+                          url: "/vendor/reply/add",
+                          dataType: "json",
+                          method: "POST",
+                          data: {reply: message}
+                      }).done(function (data) {
 
-     $(document).on("click",".delete_quick_comment",function(e){
-        var deleteAuto = $(this).closest(".d-flex").find(".quickComment").find("option:selected").val();
-        if(typeof deleteAuto != "undefined") {
-            $.ajax({
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                url: "/vendor/reply/delete",
-                dataType: "json",
-                method : "GET",
-                data: {id : deleteAuto}
-            }).done(function (data) {
-                if(data.code == 200) {
-                    $(".quickComment").empty();
-                    $.each(data.data,function(k,v) {
-                        $(".quickComment").append("<option value='"+k+"'>"+v+"</option>");
-                    });
-                    $(".quickComment").select2({tags:true});
-                }
+                      }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                          alert('No response from server');
+                      });
+                  }
+                  $(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
 
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
-            });
-        }
-     });
+              });
+
+              $(".select2-quick-reply").select2({tags: true});
+
+              $(document).on("click", ".delete_quick_comment", function (e) {
+                  var deleteAuto = $(this).closest(".d-flex").find(".quickComment").find("option:selected").val();
+                  if (typeof deleteAuto != "undefined") {
+                      $.ajax({
+                          headers: {
+                              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                          },
+                          url: "/vendor/reply/delete",
+                          dataType: "json",
+                          method: "GET",
+                          data: {id: deleteAuto}
+                      }).done(function (data) {
+                          if (data.code == 200) {
+                              $(".quickComment").empty();
+                              $.each(data.data, function (k, v) {
+                                  $(".quickComment").append("<option value='" + k + "'>" + v + "</option>");
+                              });
+                              $(".quickComment").select2({tags: true});
+                          }
+
+                      }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                          alert('No response from server');
+                      });
+                  }
+              });
+          });
     </script>
 @endsection

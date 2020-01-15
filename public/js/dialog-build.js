@@ -117,13 +117,38 @@ var previousDialog =  function(ele) {
         dialogBox.select2({
             placeholder: "Enter previous dialog name",
             width: "100%",
+            allowClear: true
         });
     }    
 };
 
+var previousDialogSearch = function(ele,parentId)
+{
+    $.ajax({
+        type: "get",
+        url: '/chatbot/dialog/search',
+        data: {
+            "parent_id": parentId
+        },
+        dataType: "json",
+        success: function(response) {
+            ele.find(".previous-dialog-node").empty().select2({
+                data: response.items,
+                placeholder: "Enter previous dialog name",
+                width: "100%",
+                allowClear: true
+            });
+        },
+        error: function() {
+            toastr['error']('Can not store intent name please review!');
+        }
+    });
+}
+
 var parentDialog = function(ele) {
 	var parentDialog = ele.find(".parent-dialog-node");
 	if (parentDialog.length > 0) {
+        previousDialogSearch(ele,0);
         parentDialog.select2({
             placeholder: "Enter Parent dialog name , leave empty if not needed",
             width: "100%",
@@ -139,28 +164,53 @@ var parentDialog = function(ele) {
             }
         }).on("change.select2", function() {
             var $this = $(this);
-            $.ajax({
-                type: "get",
-                url: '/chatbot/dialog/search',
-                data: {
-                    "parent_id": $this.val()
-                },
-                dataType: "json",
-                success: function(response) {
-                    ele.find(".previous-dialog-node").empty().select2({
-					    data: response.items
-					});
-                },
-                error: function() {
-                    toastr['error']('Can not store intent name please review!');
-                }
-            });
+            previousDialogSearch(ele,$this.val());
         });
     }
 };
 
 var searchForDialog = function(ele) {
     var dialogBox = ele.find(".search-dialog");
+    var intentOrEntityBox = ele.find(".search-alias");
+    intentOrEntityBox.select2({
+        placeholder: "Enter entity or intent",
+        width: "100%",
+        tags: true,
+        allowClear: true,
+    }).on("change.select2", function(e) {
+        var selectedIntentOrEntity = e.target.value;
+        if (selectedIntentOrEntity !== "" && !allSuggestedOptions.hasOwnProperty(selectedIntentOrEntity)) {
+            var isEntity = selectedIntentOrEntity.match("^@") ? true : selectedIntentOrEntity.match("^#") ? false : undefined;
+            if (!(isEntity === undefined)) {
+                allSuggestedOptions[selectedIntentOrEntity] = selectedIntentOrEntity
+                selectedIntentOrEntity = selectedIntentOrEntity.slice(1, selectedIntentOrEntity.length);
+                $.ajax({
+                    type: "post",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: isEntity ? "/chatbot/keyword" : "/chatbot/question",
+                    data: isEntity ? { keyword: selectedIntentOrEntity } : { value: selectedIntentOrEntity },
+                    dataType: "json",
+                    success: function(response) {
+                        var successMessage = isEntity ? "Entity Created Successfully" : "Intent Created SuccessFully"
+                        toastr["success"](successMessage);
+                    },
+                    error: function() {
+                        toastr["error"]("Could not add intent/entity!");
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Invalid intent/entity format. Entities should be prefixed with @ and intents should be prefixed with #");
+                var aliasTemplate = $.templates("#search-alias-template");
+                var aliasTemplateHtml = aliasTemplate.render({
+                    "allSuggestedOptions": allSuggestedOptions
+                });
+                $("#leaf-editor-model").find(".search-alias").html(aliasTemplateHtml);
+            }
+        }
+    });
     if (dialogBox.length > 0) {
         dialogBox.select2({
             placeholder: "Enter dialog name or create new one",
