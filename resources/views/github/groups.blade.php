@@ -8,6 +8,8 @@
             <tr>
                 <th>Id</th>
                 <th>Name</th>
+                <th>Members</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -15,6 +17,14 @@
             <tr>
                 <td>{{$group['id']}}</td>
                 <td>{{$group['name']}}</td>
+                <td>
+                    @foreach($group->users as $user)
+                        <span class="badge badge-pill badge-light">{{$user->username}}</span>
+                    @endforeach
+                </td>
+                <td>
+                    <a href="/github/groups/{{ $group['id'] }}">Details</a>
+                </td>
             </tr>
             @endforeach
         </tbody>
