@@ -10,7 +10,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')"/>
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
 
@@ -34,13 +34,6 @@
         let Laravel = {};
         Laravel.csrfToken = "{{csrf_token()}}";
         window.Laravel = Laravel;
-    </script>
-    <script>
-        jQuery('.readmore').readmore({
-            speed: 75,
-            moreLink: '<a href="#">Read more</a>',
-            lessLink: '<a href="#">Read less</a>'
-        });
     </script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
@@ -66,7 +59,7 @@
     <script src="{{ asset('js/bootstrap-notify.js') }}"></script>
 
     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-    <script src="{{ asset('js/calls.js') }}"></script>
+        <script src="{{ asset('js/calls.js') }}"></script>
     @endif
 
     <script src="{{ asset('js/custom.js') }}"></script>
@@ -76,35 +69,24 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
 
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet"/>
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 
     @if(Auth::user())
+        {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
+        <script>
+            window.userid = "{{Auth::user()->id}}";
 
-    {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
+            window.username = "{{Auth::user()->name}}";
 
-    <script>
-        window.userid = {
-            {
-                Auth::user() - > id
-            }
-        };
-
-        window.username = "{{Auth::user()->name}}";
-
-        loggedinuser = {
-            {
-                Auth::user() - > id
-            }
-        };
-    </script>
-
+            loggedinuser = "{{Auth::user()->id}}";
+        </script>
     @endif
 
 
 
-    <!-- Fonts -->
+<!-- Fonts -->
 
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
 
@@ -123,7 +105,9 @@
     {{-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> --}}
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.3/css/bootstrap-slider.min.css">
+    <link rel="stylesheet"
+
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.3/css/bootstrap-slider.min.css">
 
     <link href="https://unpkg.com/tabulator-tables@4.0.5/dist/css/tabulator.min.css" rel="stylesheet">
 
@@ -132,25 +116,7 @@
     @yield("styles")
 
     <script>
-        window.Laravel = {
-            !!json_encode([
-
-                'csrfToken' => csrf_token(),
-
-                'user' => [
-
-                    'authenticated' => auth() - > check(),
-
-                    'id' => auth() - > check() ? auth() - > user() - > id : null,
-
-                    'name' => auth() - > check() ? auth() - > user() - > name : null,
-
-                ]
-
-            ])
-
-            !!
-        };
+        window.Laravel = '{{!!json_encode(['csrfToken'=>csrf_token(),'user'=>['authenticated'=>auth()->check(),'id'=>auth()->check() ? auth()->user()->id : null,'name'=>auth()->check() ? auth()->user()-> name : null,]])!!}';
     </script>
 
 
@@ -166,10 +132,12 @@
       });
     </script> --}}
 
-    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
+                @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
 
-    <script>
+            <script>
+
         initializeTwilio();
+
     </script>
 
     @endif
@@ -183,108 +151,112 @@
 
 <body>
 
-    <div class="modal fade" id="instructionAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Instruction Reminder</h3>
-                </div>
-                <div class="modal-body">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <a href="" id="instructionAlertUrl" class="btn btn-secondary mx-auto">OK</a>
-                </div>
+<div class="modal fade" id="instructionAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Instruction Reminder</h3>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <a href="" id="instructionAlertUrl" class="btn btn-secondary mx-auto">OK</a>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="modal fade" id="developerAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Developer Task Reminder</h3>
-                </div>
-                <div class="modal-body">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <a href="" id="developerAlertUrl" class="btn btn-secondary mx-auto">OK</a>
-                </div>
+<div class="modal fade" id="developerAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Developer Task Reminder</h3>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <a href="" id="developerAlertUrl" class="btn btn-secondary mx-auto">OK</a>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="modal fade" id="masterControlAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Master Control Alert</h3>
-                </div>
-                <div class="modal-body">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <a href="" id="masterControlAlertUrl" class="btn btn-secondary mx-auto">OK</a>
-                </div>
+<div class="modal fade" id="masterControlAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Master Control Alert</h3>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <a href="" id="masterControlAlertUrl" class="btn btn-secondary mx-auto">OK</a>
             </div>
         </div>
     </div>
+</div>
 
-    {{-- <div id="fb-root"></div> --}}
-
-
-    <div class="notifications-container">
-
-        <div class="stack-container stacked" id="leads-notification"></div>
-
-        <div class="stack-container stacked" id="orders-notification"></div>
-
-        {{-- <div class="stack-container stacked" id="messages-notification"></div> --}}
-
-        <div class="stack-container stacked" id="tasks-notification"></div>
-
-    </div>
+{{-- <div id="fb-root"></div> --}}
 
 
-    <div id="app">
+<div class="notifications-container">
 
-        <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
+    <div class="stack-container stacked" id="leads-notification"></div>
 
-            <!--<div class="container container-wide">-->
+    <div class="stack-container stacked" id="orders-notification"></div>
 
-            <div class="container-fluid">
+    {{-- <div class="stack-container stacked" id="messages-notification"></div> --}}
 
-                <a class="navbar-brand" href="{{ url('/task') }}">
+    <div class="stack-container stacked" id="tasks-notification"></div>
 
-                    {{ config('app.name', 'Laravel') }}
-
-                </a>
-
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-
-                    <span class="navbar-toggler-icon"></span>
-
-                </button>
+</div>
 
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+<div id="app">
 
-                    <!-- Left Side Of Navbar -->
+    <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
 
-                    <ul class="navbar-nav mr-auto">
+        <!--<div class="container container-wide">-->
+
+        <div class="container-fluid">
+
+            <a class="navbar-brand" href="{{ url('/task') }}">
+
+                {{ config('app.name', 'Laravel') }}
+
+            </a>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+
+                    aria-controls="navbarSupportedContent" aria-expanded="false"
+
+                    aria-label="{{ __('Toggle navigation') }}">
+
+                <span class="navbar-toggler-icon"></span>
+
+            </button>
 
 
-                    </ul>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+                <!-- Left Side Of Navbar -->
+
+                <ul class="navbar-nav mr-auto">
 
 
-                    <!-- Right Side Of Navbar -->
+                </ul>
 
-                    <ul class="navbar-nav ml-auto " style="text-align: center;">
 
-                        <!-- Authentication Links -->
+                <!-- Right Side Of Navbar -->
 
-                        @guest
+                <ul class="navbar-nav ml-auto " style="text-align: center;">
+
+                    <!-- Authentication Links -->
+
+                    @guest
 
                         <li class="nav-item">
 
@@ -298,7 +270,7 @@
 
                         </li>--}}
 
-                        @else
+                    @else
 
 
 
@@ -324,7 +296,7 @@
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productselection.index') }}">Selections Grid</a>
                                                 @if(auth()->user()->checkPermission('productselection-create'))
-                                                <a class="dropdown-item" href="{{ route('productselection.create') }}">Add New</a>
+                                                    <a class="dropdown-item" href="{{ route('productselection.create') }}">Add New</a>
                                                 @endif
                                                 <a class="dropdown-item" href="{{ url('/excel-importer') }}">Excel Import </a>
                                                 <a class="dropdown-item" href="{{ url('/excel-importer/mapping') }}">Add Mapping For Master </a>
@@ -360,7 +332,7 @@
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Attribute<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 @if(auth()->user()->checkPermission('productlister-list'))
-                                                <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Attribute edit page</a>
+                                                    <a class="dropdown-item" href="{{ route('products.listing') }}?cropped=on">Attribute edit page</a>
                                                 @endif
                                                 <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on">Approved listing</a>
                                                 <a class="dropdown-item" href="{{ action('ProductController@approvedListing') }}?cropped=on&status_id=2">Listings awaiting scraping</a>
@@ -395,15 +367,15 @@
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Quick Sell<span class="caret"></span></a>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
-                                            </ul>
-                                        </li>
-                                        <li class="nav-item dropdown dropdown-submenu">
-                                            <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
-                                        </li>
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Quick Sell<span class="caret"></span></a>
+                                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                    <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
+                                                </ul>
+                                            </li>
+                                            <li class="nav-item dropdown dropdown-submenu">
+                                                <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
+                                            </li>
                                         @endif
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
@@ -514,6 +486,7 @@
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers - unread</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
+                                            <a class="dropdown-item" href="{{ action('VisitorController@index') }}">Livechat Visitor Logs</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -736,299 +709,16 @@
                                     </a>
                                 </li>
                                 @if(auth()->user()->isAdmin())
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramPostsController@grid') }}">Instagram Posts (Grid)</a>
-                                            <a class="dropdown-item" href="{{ action('InstagramPostsController@index') }}">Instagram Posts</a>
-                                            <a class="dropdown-item" href="{{ action('HashtagController@influencer') }}">Influencers</a>
-                                        </li>
-
-                                        <hr />
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('instagram/hashtag') }}">Hashtags</a>
-                                        </li>
-
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag monitoring & manual Commenting</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments (Notifications)</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Location</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">Keywords For comments</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">Processed Comments</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">All Competitors On Instagram</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comments Statistics</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customers followers</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags Used by top customers.</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign </a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
-                                        </li>
-
-                                        <hr />
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('instagram/hashtag') }}">Hashtags</a>
-                                        </li>
-
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag monitoring & manual Commenting</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments (Notifications)</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Location</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">Keywords For comments</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">Processed Comments</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">All Competitors On Instagram</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comments Statistics</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customers followers</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags Used by top customers.</a>
-                                        </li>
-
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign </a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
-                                        </li>
-
-                                    </ul>
-                                </li>
-                                @endif
-
-                                @if(auth()->user()->isAdmin())
                                     <li class="nav-item dropdown dropdown-submenu">
-                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>LiveChat, Inc.<span class="caret"></span></a>
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('VisitorController@index') }}">LiveChat Visitor Log</a>
-                                                <a class="dropdown-item" href="{{ action('LiveChatController@setting') }}">LiveChat Settings</a>
+                                                <a class="dropdown-item" href="{{ action('InstagramPostsController@grid') }}">Instagram Posts (Grid)</a>
+                                                <a class="dropdown-item" href="{{ action('InstagramPostsController@index') }}">Instagram Posts</a>
+                                                <a class="dropdown-item" href="{{ action('HashtagController@influencer') }}">Influencers</a>
                                             </li>
 
-                                            <hr />
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ url('instagram/hashtag') }}">Hashtags</a>
-                                            </li>
-
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag monitoring & manual Commenting</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments (Notifications)</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Location</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">Keywords For comments</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">Processed Comments</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">All Competitors On Instagram</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comments Statistics</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customers followers</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags Used by top customers.</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign </a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
-                                            </li>
-
-                                            <hr />
+                                            <hr/>
 
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
@@ -1232,29 +922,29 @@
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">SEO<span class="caret">
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
-                                                <li class="nav-item dropdown dropdown-submenu">
-                                                    <a class="dropdown-item" href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back Link Details</a>
-                                                    <a class="dropdown-item" href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken Link Details</a>
-                                                    <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">Analytics Data</a>
-                                                    <a class="dropdown-item" href="{{ action('AnalyticsController@customerBehaviourByPage') }}">Customer Behaviour By Page</a>
-                                                    <a class="dropdown-item" href="{{ action('SERankingController@getSites') }}">SE Ranking</a>
-                                                    <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
-                                                    <a class="dropdown-item" href="{{ action('ProductController@getSupplierScrappingInfo') }}">Supplier Scrapping Info</a>
-                                                    <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">New Dev Task Planner</a>
-                                                </li>
-                                            </ul>
+                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                              <a class="dropdown-item" href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back Link Details</a>
+                                              <a class="dropdown-item" href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken Link Details</a>
+                                              <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">Analytics Data</a>
+                                              <a class="dropdown-item" href="{{ action('AnalyticsController@customerBehaviourByPage') }}">Customer Behaviour By Page</a>
+                                              <a class="dropdown-item" href="{{ action('SERankingController@getSites') }}">SE Ranking</a>
+                                              <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
+                                              <a class="dropdown-item" href="{{ action('ProductController@getSupplierScrappingInfo') }}">Supplier Scrapping Info</a>
+                                              <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">New Dev Task Planner</a>
+                                          </li>
+                                      </ul>
                                 </li>
 
                                 <!-- mailchimp -->
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">MailChimp<span class="caret">
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
-                                                <li class="nav-item dropdown dropdown-submenu">
-                                                    <a href="{{ route('manage.mailchimp') }}">Manage MailChimp</a>
+                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                              <a href="{{ route('manage.mailchimp') }}">Manage MailChimp</a>
 
-                                                </li>
-                                            </ul>
+                                          </li>
+                                      </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Chatbot<span class="caret"></span></a>
@@ -1315,73 +1005,74 @@
                             </ul>
                         </li>
                         @if(auth()->user()->isAdmin())
-                        <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cash Flow<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
-                                        </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
+                                <ul class="dropdown-menu multi-level">
+                                    {{-- Sub Menu Product --}}
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cash Flow<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('cashflow.index') }}">Cash Flow</a>
+                                            </li>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('voucher.index') }}">Convience Voucher</a>
-                                        </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('voucher.index') }}">Convience Voucher</a>
+                                            </li>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
-                                        </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('cashflow.mastercashflow') }}">Master Cash Flow</a>
+                                            </li>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>
-                                        </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('dailycashflow.index') }}">Daily Cash Flow</a>
+                                            </li>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('budget.index') }}">Budget</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
-                                        </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('budget.index') }}">Budget</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
+                                            </li>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('budget.index') }}">Hubstaff</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('page-notes') }}">Page Notes</a>
-                                        </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('budget.index') }}">Hubstaff</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('page-notes') }}">Page Notes</a>
+                                            </li>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
-                                        </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
+                                            </li>
 
-                                    </ul>
-                                </li>
-                                @if(auth()->user()->isAdmin())
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('lawyer.index')}}"> Lawyers</a>
-                                        </li>
+                                        </ul>
+                                    </li>
+                                    @if(auth()->user()->isAdmin())
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('lawyer.index')}}"> Lawyers</a>
+                                                </li>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('case.index')}}">Cases</a>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('case.index')}}">Cases</a>
+                                                </li>
+                                            </ul>
                                         </li>
-                                    </ul>
-                                </li>
-                                @endif
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Old Issues<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('/old/') }}">Old Info</a>
-                                        </li>
+                                    @endif
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Old Issues<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/old/') }}">Old Info</a>
+                                            </li>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('/old/?type=1') }}">Old Out going</a>
-                                        </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/old/?type=1') }}">Old Out going</a>
+                                            </li>
+
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ url('/old/?type=2') }}">Old Incoming</a>
                                             </li>
@@ -1444,22 +1135,22 @@
                                     <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>
                                 </li>
                                 @if(auth()->user()->isAdmin())
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
-                                </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
+                                    </li>
 
-                                @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 65 || Auth::id() == 90)
-                                <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
-                                <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
-                                <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
-                                @endif
+                                    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 65 || Auth::id() == 90)
+                                        <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
+                                        <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
+                                        <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
+                                    @endif
 
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
-                                </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
+                                    </li>
                                 @endif
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Product<span class="caret"></span></a>
@@ -1470,7 +1161,8 @@
 
                                         <li class="nav-item dropdown">
 
-                                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                                 Development<span class="caret"></span>
                                             </a>
 
@@ -1495,9 +1187,9 @@
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
                                         </li>
                                         @if(auth()->user()->checkPermission('category-edit'))
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a>
-                                        </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a>
+                                            </li>
                                         @endif
                                     </ul>
                                 </li>
@@ -1505,9 +1197,9 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customer<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         @if(auth()->user()->isAdmin())
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('task_category.index')}}">Task Category</a>
-                                        </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('task_category.index')}}">Task Category</a>
+                                            </li>
                                         @endif
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('reply.index')}}">Quick Replies</a>
@@ -1535,30 +1227,27 @@
                             <ul class="dropdown-menu multi-level" id="search_container">
                             </ul>
                         </li>
+                    @endif
 
-                        <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Hubstaff <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Hubstaff <span class="caret"></span></a>
+                        <ul class="dropdown-menu multi-level">
+                            {{-- Sub Menu Product --}}
 
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ url('hubstaff/members')  }}">Members</a>
-                                </li>
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ url('hubstaff/members')  }}">Members</a>
+                            </li>
 
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ url('hubstaff/projects') }}">Projects</a>
-                                </li>
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ url('hubstaff/projects') }}">Projects</a>
+                            </li>
 
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ url('hubstaff/tasks') }}">Tasks</a>
-                                </li>
-                            </ul>
-                        </li>
-                        @endif
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ url('hubstaff/tasks') }}">Tasks</a>
+                            </li>
+                        </ul>
+                    </li>
 
-
-
-                    </ul>
                     <!------    System Menu     !-------->
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">System <span class="caret"></span></a>
@@ -1575,105 +1264,108 @@
 
             </div>
 
-        </nav>
+        </div>
 
-        @if (Auth::check())
+    </nav>
+
+    @if (Auth::check())
 
         @if(1 == 2 && auth()->user()->isAdmin())
-        <div class="float-container developer-float hidden-xs hidden-sm">
-            @php
-            $lukas_pending_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', '!=', 'Done')->count();
-            $lukas_completed_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', 'Done')->count();
-            $rishab_pending_devtasks_count = \App\DeveloperTask::where('user_id', 65)->where('status', '!=', 'Done')->count();
-            $rishab_completed_devtasks_count = \App\DeveloperTask::where('user_id', 65)->where('status', 'Done')->count();
-            @endphp
+            <div class="float-container developer-float hidden-xs hidden-sm">
+                @php
+                    $lukas_pending_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', '!=', 'Done')->count();
+                    $lukas_completed_devtasks_count = \App\DeveloperTask::where('user_id', 3)->where('status', 'Done')->count();
+                    $rishab_pending_devtasks_count = \App\DeveloperTask::where('user_id', 65)->where('status', '!=', 'Done')->count();
+                    $rishab_completed_devtasks_count = \App\DeveloperTask::where('user_id', 65)->where('status', 'Done')->count();
+                @endphp
 
-            <a href="{{ route('development.index') }}">
-                <span class="badge badge-task-pending">L-{{ $lukas_pending_devtasks_count }}</span>
-            </a>
+                <a href="{{ route('development.index') }}">
+                    <span class="badge badge-task-pending">L-{{ $lukas_pending_devtasks_count }}</span>
+                </a>
 
-            <a href="{{ route('development.index') }}">
-                <span class="badge badge-task-completed">L-{{ $lukas_completed_devtasks_count }}</span>
-            </a>
+                <a href="{{ route('development.index') }}">
+                    <span class="badge badge-task-completed">L-{{ $lukas_completed_devtasks_count }}</span>
+                </a>
 
-            <a href="{{ route('development.index') }}">
-                <span class="badge badge-task-other">R-{{ $rishab_pending_devtasks_count }}</span>
-            </a>
+                <a href="{{ route('development.index') }}">
+                    <span class="badge badge-task-other">R-{{ $rishab_pending_devtasks_count }}</span>
+                </a>
 
-            <a href="{{ route('development.index') }}">
-                <span class="badge badge-task-other right completed">R-{{ $rishab_completed_devtasks_count }}</span>
-            </a>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickDevelopmentModal">+ DEVELOPMENT</button>
-        </div>
+                <a href="{{ route('development.index') }}">
+                    <span class="badge badge-task-other right completed">R-{{ $rishab_completed_devtasks_count }}</span>
+                </a>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickDevelopmentModal">+ DEVELOPMENT</button>
+            </div>
 
-        <div class="float-container instruction-float hidden-xs hidden-sm">
-            @php
-            $pending_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNull('completed_at')->count();
-            $completed_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNotNull('completed_at')->count();
-            $sushil_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->where('assigned_to', 7)->whereNull('completed_at')->count();
-            $andy_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->where('assigned_to', 56)->whereNull('completed_at')->count();
-            @endphp
+            <div class="float-container instruction-float hidden-xs hidden-sm">
+                @php
+                    $pending_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNull('completed_at')->count();
+                    $completed_instructions_count = \App\Instruction::where('assigned_to', Auth::id())->whereNotNull('completed_at')->count();
+                    $sushil_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->where('assigned_to', 7)->whereNull('completed_at')->count();
+                    $andy_pending_instructions_count = \App\Instruction::where('assigned_from', Auth::id())->where('assigned_to', 56)->whereNull('completed_at')->count();
+                @endphp
 
-            <a href="{{ route('instruction.index') }}">
-                <span class="badge badge-task-pending">{{ $pending_instructions_count }}</span>
-            </a>
+                <a href="{{ route('instruction.index') }}">
+                    <span class="badge badge-task-pending">{{ $pending_instructions_count }}</span>
+                </a>
 
-            <a href="{{ route('instruction.index') }}#verify-instructions">
-                <span class="badge badge-task-completed">{{ $completed_instructions_count }}</span>
-            </a>
+                <a href="{{ route('instruction.index') }}#verify-instructions">
+                    <span class="badge badge-task-completed">{{ $completed_instructions_count }}</span>
+                </a>
 
-            <a href="{{ route('instruction.list') }}">
-                <span class="badge badge-task-other">S-{{ $sushil_pending_instructions_count }}</span>
-            </a>
+                <a href="{{ route('instruction.list') }}">
+                    <span class="badge badge-task-other">S-{{ $sushil_pending_instructions_count }}</span>
+                </a>
 
-            <a href="{{ route('instruction.list') }}">
-                <span class="badge badge-task-other right">A-{{ $andy_pending_instructions_count }}</span>
-            </a>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickInstructionModal">+ INSTRUCTION</button>
-        </div>
+                <a href="{{ route('instruction.list') }}">
+                    <span class="badge badge-task-other right">A-{{ $andy_pending_instructions_count }}</span>
+                </a>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickInstructionModal">+ INSTRUCTION</button>
+            </div>
 
-        <div class="float-container hidden-xs hidden-sm">
-            @php
-            $pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
-            $completed_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNotNull('is_completed')->count();
-            $sushil_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 7)->whereNull('is_completed')->count();
-            $andy_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 56)->whereNull('is_completed')->count();
-            @endphp
+            <div class="float-container hidden-xs hidden-sm">
+                @php
+                    $pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
+                    $completed_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNotNull('is_completed')->count();
+                    $sushil_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 7)->whereNull('is_completed')->count();
+                    $andy_pending_tasks_count = \App\Task::where('is_statutory', 0)->where('assign_to', 56)->whereNull('is_completed')->count();
+                @endphp
 
-            <a href="/#1">
-                <span class="badge badge-task-pending">{{ $pending_tasks_count }}</span>
-            </a>
+                <a href="/#1">
+                    <span class="badge badge-task-pending">{{ $pending_tasks_count }}</span>
+                </a>
 
-            <a href="/#3">
-                <span class="badge badge-task-completed">{{ $completed_tasks_count }}</span>
-            </a>
+                <a href="/#3">
+                    <span class="badge badge-task-completed">{{ $completed_tasks_count }}</span>
+                </a>
 
-            <a href="{{ route('task.list') }}">
-                <span class="badge badge-task-other">S-{{ $sushil_pending_tasks_count }}</span>
-            </a>
+                <a href="{{ route('task.list') }}">
+                    <span class="badge badge-task-other">S-{{ $sushil_pending_tasks_count }}</span>
+                </a>
 
-            <a href="{{ route('task.list') }}">
-                <span class="badge badge-task-other right">A-{{ $andy_pending_tasks_count }}</span>
-            </a>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
-        </div>
+                <a href="{{ route('task.list') }}">
+                    <span class="badge badge-task-other right">A-{{ $andy_pending_tasks_count }}</span>
+                </a>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
+            </div>
         @endif
 
         @include('partials.modals.quick-task')
         @include('partials.modals.quick-instruction')
         @include('partials.modals.quick-development-task')
         @php
-        $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
+            $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
         @endphp
         @if($liveChatUsers != '' && $liveChatUsers != null)
             @include('partials.chat')
         @endif
+    @endif
 
-        <main class="container">
+    <main class="container">
 
-            <!-- Showing fb like page div to all pages  -->
+        <!-- Showing fb like page div to all pages  -->
 
-            {{-- @if(Auth::check())
+    {{-- @if(Auth::check())
 
      <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
 
@@ -1681,85 +1373,55 @@
 
 
 
-            <!-- End of fb page like  -->
+    <!-- End of fb page like  -->
 
 
 
-            @yield('content')
+        @yield('content')
 
-        </main>
+    </main>
 
-        <div class="col-md-12">
-            @yield('large_content')
-        </div>
-
+    <div class="col-md-12">
+        @yield('large_content')
     </div>
 
-    @if(Auth::check())
-    <div class="help-button-wrapper">
-        <div class="col-md-10 page-notes-list-rt dis-none">
-            <div class="help-list well well-lg">
-                <form action="<?php echo route("createPageNote"); ?>">
-                    <div class="form-group">
-                        <label for="note">Notes:</label>
-                        <textarea class="form-control" name="note" id="note"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="category_id">Category:</label>
-                        <?php
-                        $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
-                        ?>
-                        {!! Form::select('category_id', ['' => "-- select --"] + $category, null, ['class'=>'form-control', 'id'=> 'category_id']) !!}
-                    </div>
-                    <button type="button" class="btn btn-secondary ml-3 save-user-notes">Submit</button>
-                </form>
-                <table class="table table-fixed-page-notes page-notes-header-fixed" style="min-width: 402px;">
-                    <thead>
-                        <tr>
-                            <th class="col-xs-1" scope="col">#</th>
-                            <th class="col-xs-3" scope="col">Note</th>
-                            <th class="col-xs-3" scope="col">Category</th>
-                            <th class="col-xs-2" scope="col">Created By</th>
-                            <th class="col-xs-3" scope="col">Created At</th>
-                        </tr>
-                    </thead>
-                    <tbody class="page-notes-list">
+</div>
 
-                    </tbody>
-                </table>
-                <div class="col-md-8 page-notes-list-rt dis-none">
-                    <div class="well">
-                        <textarea class="note-content" name="note_content"></textarea>
-                    </div>
-                </div>
-                <div class="col-md-5">
-                    <button class="help-button"><span>+</span></button>
-                </div>
+@if(Auth::check())
+    <div class="help-button-wrapper">
+        <div class="col-md-8 page-notes-list-rt dis-none">
+            <div class="well">
+                <textarea class="note-content" name="note_content"></textarea>
             </div>
-            @if($liveChatUsers != '' && $liveChatUsers != null)
-            <div class="chat-button-wrapper">
-                <div class="col-md-9 page-chat-list-rt dis-none">
-                    <div class="help-list well well-lg">
-                        <div class="row">
-                            <div class="col-md-4 chat" style="margin-top : 0px !important;">
-                                <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
-                                    <div class="card-header">
-                                        <div class="input-group">
-                                            {{-- <input type="text" placeholder="Search..." name="" class="form-control search">
+        </div>
+        <div class="col-md-5">
+            <button class="help-button"><span>+</span></button>
+        </div>
+    </div>
+    @if($liveChatUsers != '' && $liveChatUsers != null)
+        <div class="chat-button-wrapper">
+            <div class="col-md-9 page-chat-list-rt dis-none">
+                <div class="help-list well well-lg">
+                    <div class="row">
+                        <div class="col-md-4 chat" style="margin-top : 0px !important;">
+                            <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
+                                <div class="card-header">
+                                    <div class="input-group">
+                                        {{-- <input type="text" placeholder="Search..." name="" class="form-control search">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text search_btn"><i class="fa fa-search"></i></span>
                                         </div> --}}
-                                        </div>
                                     </div>
-                                    <div class="card-body contacts_body">
-                                        @php
+                                </div>
+                                <div class="card-body contacts_body">
+                                    @php
                                         $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
                                         $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
-                                        @endphp
-                                        <ul class="contacts" id="customer-list-chat">
-                                            @foreach ($chatIds as $chatId)
+                                    @endphp
+                                    <ul class="contacts" id="customer-list-chat">
+                                        @foreach ($chatIds as $chatId)
                                             @php
-                                            $customer = \App\Customer::where('id',$chatId->customer_id)->first();
+                                                $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
                                             @endphp
                                             <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
                                                 <div class="d-flex bd-highlight">
@@ -1768,87 +1430,95 @@
                                                         <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
                                                     </div>
                                                     <div class="user_info">
-                                                        <span>{{ $customer->name }}</span>
-                                                        <p>{{ $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p>
+                                                        <span>{{  $customer->name }}</span>
+                                                        <p>{{  $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p>
                                                     </div>
                                                     @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
                                                 </div>
                                             </li>
 
-                                            @endforeach
+                                        @endforeach
 
-                                        </ul>
-                                    </div>
-                                    <div class="card-footer"></div>
+                                    </ul>
                                 </div>
+                                <div class="card-footer"></div>
                             </div>
-                            <div class="col-md-8 chat">
-                                <div class="card_chat">
-                                    <div class="card-header msg_head">
-                                        <div class="d-flex bd-highlight">
-                                            <div class="img_cont">
-                                                <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                        </div>
+                        <div class="col-md-8 chat">
+                            <div class="card_chat">
+                                <div class="card-header msg_head">
+                                    <div class="d-flex bd-highlight">
+                                        <div class="img_cont">
+                                            <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
 
-                                            </div>
-                                            <div class="user_info" id="user_name">
-                                                {{-- <span>Chat with Khalid</span>
-                                            <p>1767 Messages</p> --}}
-                                            </div>
-                                            <div class="video_cam">
-                                                <span><i class="fa fa-video"></i></span>
-                                                <span><i class="fa fa-phone"></i></span>
-                                            </div>
                                         </div>
-                                        <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
-                                        <div class="action_menu">
-                                            {{-- <ul>
+                                        <div class="user_info" id="user_name">
+                                            {{-- <span>Chat with Khalid</span>
+                                            <p>1767 Messages</p> --}}
+                                        </div>
+                                        <div class="video_cam">
+                                            <span><i class="fa fa-video"></i></span>
+                                            <span><i class="fa fa-phone"></i></span>
+                                        </div>
+                                    </div>
+                                    <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
+                                    <div class="action_menu">
+                                        {{-- <ul>
                                             <li><i class="fa fa-user-circle"></i> View profile</li>
                                             <li><i class="fa fa-users"></i> Add to close friends</li>
                                             <li><i class="fa fa-plus"></i> Add to group</li>
                                             <li><i class="fa fa-ban"></i> Block</li>
                                         </ul> --}}
-                                        </div>
                                     </div>
-                                    <div class="card-body msg_card_body" id="message-recieve">
+                                </div>
+                                <div class="card-body msg_card_body" id="message-recieve">
 
-                                    </div>
-                                    <div class="card-footer">
-                                        <div class="input-group">
-                                            <div class="input-group-append">
-                                                <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
-                                                <input type="file" id="imgupload" style="display:none" />
-                                            </div>
-                                            <input type="hidden" id="message-id" />
-                                            <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
-                                            <div class="input-group-append">
-                                                <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="input-group">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
+                                            <input type="file" id="imgupload" style="display:none"/>
+                                        </div>
+                                        <div class="card-footer">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
+                                                    <input type="file" id="imgupload" style="display:none"/>
+                                                </div>
+                                                <input type="hidden" id="message-id"/>
+                                                <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <button class="chat-button"><img src="/images/chat.png" class="img-responsive" /><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
+
                 </div>
             </div>
-            @endif
-            @endif
+            <div class="col-md-3">
+                <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
+            </div>
+        </div>
+    @endif
+@endif
 
-            <!-- Scripts -->
+<!-- Scripts -->
 
-            {{-- @include('partials.chat') --}}
-
-
-
-            <!-- Like page plugin script  -->
+{{-- @include('partials.chat') --}}
 
 
 
-            {{-- <script>(function(d, s, id) {
+<!-- Like page plugin script  -->
+
+
+
+{{-- <script>(function(d, s, id) {
 
   var js, fjs = d.getElementsByTagName(s)[0];
 
@@ -1862,209 +1532,209 @@
 
 }(document, 'script', 'facebook-jssdk'));</script> --}}
 
-            @yield('scripts')
-            <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
-            <script>
-                $(document).ready(function() {
-                    $('.note-content').richText();
-                });
-                window.token = "{{ csrf_token() }}";
+@yield('scripts')
+<script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
+<script>
+    $(document).ready(function () {
+        $('.note-content').richText();
+    });
+    window.token = "{{ csrf_token() }}";
 
-                var url = window.location;
-                window.collectedData = [{
-                        type: 'key',
-                        data: ''
-                    },
-                    {
-                        type: 'mouse',
-                        data: []
-                    }
-                ];
+    var url = window.location;
+    window.collectedData = [
+        {
+            type: 'key',
+            data: ''
+        },
+        {
+            type: 'mouse',
+            data: []
+        }
+    ];
 
-                $(document).keypress(function(event) {
-                    var x = event.charCode || event.keyCode; // Get the Unicode value
-                    var y = String.fromCharCode(x);
-                    collectedData[0].data += y;
-                });
+    $(document).keypress(function (event) {
+        var x = event.charCode || event.keyCode;  // Get the Unicode value
+        var y = String.fromCharCode(x);
+        collectedData[0].data += y;
+    });
 
-                // started for help button
-                $('.help-button').on('click', function() {
-                    $('.help-button-wrapper').toggleClass('expanded');
-                    $('.page-notes-list-rt').toggleClass('dis-none');
-                });
+    // started for help button
+    $('.help-button').on('click', function () {
+        $('.help-button-wrapper').toggleClass('expanded');
+        $('.page-notes-list-rt').toggleClass('dis-none');
+    });
 
-                // started for chat button
-                $('.chat-button').on('click', function() {
-                    $('.chat-button-wrapper').toggleClass('expanded');
-                    $('.page-chat-list-rt').toggleClass('dis-none');
-                });
+    // started for chat button
+    $('.chat-button').on('click', function () {
+        $('.chat-button-wrapper').toggleClass('expanded');
+        $('.page-chat-list-rt').toggleClass('dis-none');
+    });
 
-                var notesBtn = $(".save-user-notes");
+    var notesBtn = $(".save-user-notes");
 
-                notesBtn.on("click", function(e) {
-                    e.preventDefault();
-                    var $form = $(this).closest("form");
-                    $.ajax({
-                        type: "POST",
-                        url: $form.attr("action"),
-                        data: {
-                            _token: window.token,
-                            note: $form.find("#note").val(),
-                            category_id: $form.find("#category_id").val(),
-                            url: "<?php echo request()->url() ?>"
-                        },
-                        dataType: "json",
-                        success: function(data) {
-                            if (data.code > 0) {
-                                $form.find("#note").val("");
-                                var listOfN = "<tr>";
-                                listOfN += "<td scope='row'>" + data.notes.id + "</td>";
-                                listOfN += "<td>" + data.notes.note + "</td>";
-                                listOfN += "<td>" + data.notes.category_name + "</td>";
-                                listOfN += "<td>" + data.notes.name + "</td>";
-                                listOfN += "<td>" + data.notes.created_at + "</td>";
-                                listOfN += "</tr>";
+    notesBtn.on("click", function (e) {
+        e.preventDefault();
+        var $form = $(this).closest("form");
+        $.ajax({
+            type: "POST",
+            url: $form.attr("action"),
+            data: {
+                _token: window.token,
+                note: $form.find("#note").val(),
+                category_id: $form.find("#category_id").val(),
+                url: "<?php echo request()->url() ?>"
+            },
+            dataType: "json",
+            success: function (data) {
+                if (data.code > 0) {
+                    $form.find("#note").val("");
+                    var listOfN = "<tr>";
+                    listOfN += "<td scope='row'>" + data.notes.id + "</td>";
+                    listOfN += "<td>" + data.notes.note + "</td>";
+                    listOfN += "<td>" + data.notes.category_name + "</td>";
+                    listOfN += "<td>" + data.notes.name + "</td>";
+                    listOfN += "<td>" + data.notes.created_at + "</td>";
+                    listOfN += "</tr>";
 
-                                $(".page-notes-list").prepend(listOfN);
-                            }
-                        },
-                    });
-                });
-
-                var getNotesList = function() {
-                    //$.ajax({
-                    //            type: "GET",
-                    //          url: "/page-notes/list",
-                    //        data: {
-                    //          _token: window.token,
-                    //        url: "<?php echo request()->url() ?>"
-                    //  },
-                    //            dataType: "json",
-                    //          success: function (data) {
-                    //            if (data.code > 0) {
-                    //              var listOfN = "";
-                    //            $.each(data.notes, function (k, v) {
-                    //              listOfN += "<tr>";
-                    //            listOfN += "<td scope='row'>" + v.id + "</td>";
-                    //          listOfN += "<td>" + v.note + "</td>";
-                    //        listOfN += "<td>" + v.category_name + "</td>";
-                    //      listOfN += "<td>" + v.name + "</td>";
-                    //    listOfN += "<td>" + v.created_at + "</td>";
-                    //  listOfN += "</tr>";
-                    //                    });
-                    //
-                    //                  $(".page-notes-list").prepend(listOfN);
-                    //            }
-                    //      },
-                    //});
+                    $(".page-notes-list").prepend(listOfN);
                 }
+            },
+        });
+    });
 
-                if ($(".help-button-wrapper").length > 0) {
-                    getNotesList();
+    var getNotesList = function () {
+        //$.ajax({
+//            type: "GET",
+        //          url: "/page-notes/list",
+        //        data: {
+        //          _token: window.token,
+        //        url: "<?php echo request()->url() ?>"
+        //  },
+//            dataType: "json",
+        //          success: function (data) {
+        //            if (data.code > 0) {
+        //              var listOfN = "";
+        //            $.each(data.notes, function (k, v) {
+        //              listOfN += "<tr>";
+        //            listOfN += "<td scope='row'>" + v.id + "</td>";
+        //          listOfN += "<td>" + v.note + "</td>";
+        //        listOfN += "<td>" + v.category_name + "</td>";
+        //      listOfN += "<td>" + v.name + "</td>";
+        //    listOfN += "<td>" + v.created_at + "</td>";
+        //  listOfN += "</tr>";
+//                    });
+//
+        //                  $(".page-notes-list").prepend(listOfN);
+        //            }
+        //      },
+        //});
+    }
+
+    if ($(".help-button-wrapper").length > 0) {
+        getNotesList();
+    }
+
+
+    // $(document).click(function() {
+    //     if (collectedData[0].data.length > 10) {
+    //         let data_ = collectedData[0].data;
+    //         let type_ = collectedData[0].type;
+    //
+    //         $.ajax({
+    //             url: "/track",
+    //             type: 'post',
+    //             csrf: token,
+    //             data: {
+    //                 url: url,
+    //                 item: type_,
+    //                 data: data_
+    //             }
+    //         });
+    //     }
+    // });
+    @if(Auth::check())
+    $(document).ready(function () {
+        var url = window.location.href;
+        var user_id = "{{ Auth::id() }}";
+        user_name = "{{ Auth::user()->name }}";
+        $.ajax({
+            type: "POST",
+            url: "/api/userLogs",
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "url": url,
+                "user_id": user_id,
+                "user_name": user_name
+            },
+            dataType: "json",
+            success: function (message) {
+            }
+        });
+    });
+    @endif
+</script>
+@if ( !empty($_SERVER['HTTP_HOST']) && !stristr($_SERVER['HTTP_HOST'], '.mac') )
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+        gtag('config', 'UA-147736165-1');
+    </script>
+@endif
+<script>
+    function filterFunction() {
+        var input, filter, ul, li, a, i;
+        //getting search values
+        input = document.getElementById("search");
+        //String to upper for search
+        filter = input.value.toUpperCase();
+        //Getting Values From DOM
+        a = document.querySelectorAll("#navbarSupportedContent a");
+        //Class to open bar
+        $("#search_li").addClass('open');
+        //Close when search becomes zero
+        if (a.length == 0) {
+            $("#search_li").removeClass('open');
+        }
+        //Limiting Search Count
+        count = 1;
+        //Empty Existing Values
+        $("#search_container").empty();
+
+        //Getting All Values
+        for (i = 0; i < a.length; i++) {
+            txtValue = a[i].textContent || a[i].innerText;
+            href = a[i].href;
+            //If value doesnt have link
+            if (href == "#" || href == '' || href.indexOf('#') > -1) {
+                continue;
+            }
+            //Removing old search Result From DOM
+            if (a[i].getAttribute('class') != null && a[i].getAttribute('class') != '') {
+                if (a[i].getAttribute('class').indexOf('old_search') > -1) {
+                    continue;
                 }
+            }
+            //break when count goes above 30
+            if (count > 30) {
+                break;
+            }
+            //Pusing values to DOM Search Input
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
+                count++
+            } else {
+            }
+        }
+    }
 
-
-                // $(document).click(function() {
-                //     if (collectedData[0].data.length > 10) {
-                //         let data_ = collectedData[0].data;
-                //         let type_ = collectedData[0].type;
-                //
-                //         $.ajax({
-                //             url: "/track",
-                //             type: 'post',
-                //             csrf: token,
-                //             data: {
-                //                 url: url,
-                //                 item: type_,
-                //                 data: data_
-                //             }
-                //         });
-                //     }
-                // });
-                @if(Auth::check())
-                $(document).ready(function() {
-                    var url = window.location.href;
-                    var user_id = {
-                        {
-                            Auth::id()
-                        }
-                    };
-                    user_name = "{{ Auth::user()->name }}";
-                    $.ajax({
-                        type: "POST",
-                        url: "/api/userLogs",
-                        data: {
-                            "_token": "{{ csrf_token() }}",
-                            "url": url,
-                            "user_id": user_id,
-                            "user_name": user_name
-                        },
-                        dataType: "json",
-                        success: function(message) {}
-                    });
-                });
-                @endif
-            </script>
-            @if ( !empty($_SERVER['HTTP_HOST']) && !stristr($_SERVER['HTTP_HOST'], '.mac') )
-            <!-- Global site tag (gtag.js) - Google Analytics -->
-            <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
-            <script>
-                window.dataLayer = window.dataLayer || [];
-
-                function gtag() {
-                    dataLayer.push(arguments);
-                }
-
-                gtag('js', new Date());
-                gtag('config', 'UA-147736165-1');
-            </script>
-            <script>
-                function filterFunction() {
-                    var input, filter, ul, li, a, i;
-                    //getting search values
-                    input = document.getElementById("search");
-                    //String to upper for search
-                    filter = input.value.toUpperCase();
-                    //Getting Values From DOM
-                    a = document.querySelectorAll("#navbarSupportedContent a");
-                    //Class to open bar
-                    $("#search_li").addClass('open');
-                    //Close when search becomes zero
-                    if (a.length == 0) {
-                        $("#search_li").removeClass('open');
-                    }
-                    //Limiting Search Count
-                    count = 1;
-                    //Empty Existing Values
-                    $("#search_container").empty();
-
-                    //Getting All Values
-                    for (i = 0; i < a.length; i++) {
-                        txtValue = a[i].textContent || a[i].innerText;
-                        href = a[i].href;
-                        //If value doesnt have link
-                        if (href == "#" || href == '' || href.indexOf('#') > -1) {
-                            continue;
-                        }
-                        //Removing old search Result From DOM
-                        if (a[i].getAttribute('class') != null && a[i].getAttribute('class') != '') {
-                            if (a[i].getAttribute('class').indexOf('old_search') > -1) {
-                                continue;
-                            }
-                        }
-                        //break when count goes above 30
-                        if (count > 30) {
-                            break;
-                        }
-                        //Pusing values to DOM Search Input
-                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
-                            count++
-                        } else {}
-                    }
-                }
-            </script>
-            @endif
+</script>
 
 </body>
 
