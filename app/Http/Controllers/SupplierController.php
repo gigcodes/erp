@@ -1098,17 +1098,23 @@ class SupplierController extends Controller
                 return response()->json(['error' => 'File Couldnt Process For Import'], 200);
               }
           }
+
           if($request->file('excel_file')){
               $file = $request->file('excel_file');
-
               if($file->getClientOriginalExtension() == 'xls' || $file->getClientOriginalExtension() == 'xlsx'){
-                //Save file
-                $path = "email-attachments/" . $file->getClientOriginalName();
+                
+                //SAve FIle
+                if (!file_exists(storage_path('app/files/email-attachments/file/'))) {
+                  mkdir(storage_path('app/files/email-attachments/file/'), 0777, true);
+                } 
+
+                $path = storage_path('app/files/email-attachments/file/');
                 $file->move($path,$file->getClientOriginalName());
+                $filePath = '/file/'.$file->getClientOriginalName();
                 $supplier = Supplier::find($request->id);
                 if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                   $excel = $supplier->getSupplierExcelFromSupplierEmail();
-                  $excel = ErpExcelImporter::excelFileProcess($file->getClientOriginalName(),$excel,$supplier->email);
+                  $excel = ErpExcelImporter::excelFileProcess($filePath,$excel,$supplier->email);
                   return redirect()->back()->withSuccess('File Processed For Import'); 
                 }else{
                   return redirect()->back()->withErrors('Excel Importer Not Found');
