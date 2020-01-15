@@ -36,12 +36,12 @@
                 </div>
             <?php } ?>
           </div>
-        <?php } else  { 
+        <?php } else  {
           echo "Sorry , No data available";
         } ?>
       </div>
     </div>
-   
+
     <div class="collapse" id="categoryFilterCount">
       <div class="card card-body">
         <?php if(!empty($countCategory)) { ?>
@@ -59,11 +59,11 @@
                 </div>
             <?php } ?>
           </div>
-        <?php } else  { 
+        <?php } else  {
           echo "Sorry , No data available";
-        } ?>  
+        } ?>
       </div>
-    </div> 
+    </div>
      </br>
     <div class="collapse" id="suppliersFilterCount">
       <div class="card card-body">
@@ -82,9 +82,9 @@
                 </div>
             <?php } ?>
           </div>
-        <?php } else  { 
+        <?php } else  {
           echo "Sorry , No data available";
-        } ?>  
+        } ?>
       </div>
     </div>
   </div>
@@ -121,6 +121,7 @@
             <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
             <p>Id : {{ $product->id }}</p>
             <p>Title : {{ $product->name }} </p>
+            <p>Category : {{ isset($product->product_category->title ) ? $product->product_category->title : ''}} </p>
             <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>
             <p>Price EUR Special : {{ $product->price_eur_special }}</p>
             <p>Price INR Special : {{ $product->price_inr_special }}</p>

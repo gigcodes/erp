@@ -15,7 +15,7 @@
                         <?php 
 
                             foreach ($templateArr as $template) {
-                                $media = $template->getMedia(config('constants.media_tags'))->first();
+                                $media = $template->lastMedia(config('constants.media_tags'));
                                 echo '<option value="'.$template->id.'" data-image="'.(($media) ? $media->getUrl() : "").'" data-no-of-images="'.$template->no_of_images.'">'.$template->name.'</option>';
                             }
                        ?>

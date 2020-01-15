@@ -1122,6 +1122,18 @@
                                     </li>
                                 @endif
 
+                                @if(auth()->user()->isAdmin())
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>LiveChat, Inc.<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('VisitorController@index') }}">LiveChat Visitor Log</a>
+                                                <a class="dropdown-item" href="{{ action('LiveChatController@setting') }}">LiveChat Settings</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                @endif
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -1370,37 +1382,51 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('/old/?type=1') }}">Old Out going</a>
                                         </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/old/?type=2') }}">Old Incoming</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Duty<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('simplyduty.category.index') }}">SimplyDuty Categories</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('simplyduty.currency.index') }}">SimplyDuty Currency</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('simplyduty.country.index') }}">SimplyDuty Country</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('simplyduty.calculation') }}">SimplyDuty Calculation</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('simplyduty.hscode.index') }}">HsCode</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('ProductController@hsCodeIndex') }}">HsCode Generator</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('assets-manager.index') }}">Assets Manager</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
+                                    </li>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('/old/?type=2') }}">Old Incoming</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Duty<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('simplyduty.category.index') }}">SimplyDuty Categories</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('simplyduty.currency.index') }}">SimplyDuty Currency</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('simplyduty.country.index') }}">SimplyDuty Country</a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('simplyduty.calculation') }}">SimplyDuty Calculation</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('assets-manager.index') }}">Assets Manager</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
-                                </li>
-                            </ul>
-                        </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>System<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
                         @endif
 
                         <li class="nav-item dropdown">
@@ -1533,8 +1559,19 @@
 
 
                     </ul>
+                    <!------    System Menu     !-------->
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">System <span class="caret"></span></a>
+                        <ul class="dropdown-menu multi-level">
+                            {{-- Sub Menu Product --}}
 
-                </div>
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('jobs.list')}}">Queue</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                </ul>
 
             </div>
 
@@ -1629,8 +1666,7 @@
         $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
         @endphp
         @if($liveChatUsers != '' && $liveChatUsers != null)
-        @include('partials.chat')
-        @endif
+            @include('partials.chat')
         @endif
 
         <main class="container">
