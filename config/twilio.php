@@ -6,4 +6,5 @@ return [
   'caller_id' => ['+441133204112','+918000401700','+441970800033'],
   'webrtc_app_sid' => 'AP2d6f00d645c34b9dafd7539dafc583ab',
   'default_caller_id' => '+918000401700',
+  'conference_sid' => 'EHf1e04dc8c9a92887c24416e504fae008',
 ];

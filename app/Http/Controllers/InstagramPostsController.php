@@ -58,6 +58,9 @@ class InstagramPostsController extends Controller
             ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id')
             ->select(['instagram_posts.*','hash_tags.hashtag']);
 
+        //Ignore google search result from DB
+        $instagramPosts->where('source', '!=', 'google');
+        
         // Apply hashtag filter
         if (!empty($request->hashtag)) {
             $instagramPosts->where('hash_tags.hashtag', str_replace('#', '', $request->hashtag));

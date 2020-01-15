@@ -421,9 +421,20 @@
                         </div>
                     </div>
 
-
                 </form>
-
+                <div class="row">
+                    <div class="col">
+                        <select name="autoTranslate" id="autoTranslate" class="form-control input-sm mb-3">
+                            <option value="">Translations Languages</option>
+                            <option value="fr" {{ $supplier->language === 'fr'  ? 'selected' : '' }}>French</option>
+                            <option value="de" {{ $supplier->language === 'de'  ? 'selected' : '' }}>German</option>
+                            <option value="it" {{ $supplier->language === 'it'  ? 'selected' : '' }}>Italian</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-xs btn-secondary" id="auto-translate">Add translation language</button>
+                    </div>
+                </div>
             </div>
             <div id="notes" class="mt-3">
                 <div class="panel-group">
@@ -1885,5 +1896,33 @@
             $('#productGroupDetails').modal('show');
         });
 
+        $(document).on('click', '#auto-translate', function (e) {
+            e.preventDefault();
+            var supplier_id = {{ $supplier->id }};
+            var language = $("#autoTranslate").val();
+            let self = $(this);
+            $.ajax({
+                url: "/supplier/language-translate/"+supplier_id,
+                method:"PUT",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                  },
+                data:{id:supplier_id, language:language },
+                cache: false,
+                beforeSend: function () {
+                    $(self).text('Saving...');
+                },
+                success: function(res) {
+                    $(self).removeClass('btn-secondary');
+                    $(self).addClass('btn-success');
+
+                    setTimeout(function () {
+                        $(self).text('Add translation language');
+                        $(self).addClass('btn-secondary');
+                        $(self).removeClass('btn-success');
+                    }, 2000);
+                }
+            })
+        });
     </script>
 @endsection
