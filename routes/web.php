@@ -1348,11 +1348,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::prefix('github')->group(function () {
         Route::get('/repos', 'Github\RepositoryController@listRepositories');
         Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
+        Route::get('/repos/{name}/users/add', 'Github\UserController@addUserToRepositoryForm');
+        Route::post('/add_user_to_repo', 'Github\UserController@addUserToRepository');
         Route::get('/users', 'Github\UserController@listOrganizationUsers');
+        Route::get('/users/{userId}', 'Github\UserController@userDetails');
         Route::get('/groups', 'Github\GroupController@listGroups');
         Route::get('/sync', 'Github\SyncController@index');
         Route::get('/sync/start', 'Github\SyncController@startSync');
-        Route::get('/repos/{name}/users/{username}/remove', 'Github\UserController@removeUserFromRepository');
+        Route::get('/repo_user_access/{id}/remove', 'Github\UserController@removeUserFromRepository');
         Route::post('/linkUser', 'Github\UserController@linkUser');
         Route::post('/modifyUserAccess', 'Github\UserController@modifyUserAccess');
     });

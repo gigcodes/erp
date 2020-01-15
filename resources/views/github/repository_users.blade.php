@@ -3,7 +3,7 @@
 @section('content')
 <h2 class="text-center">{{ $repoName }} users</h2>
 <div class="text-right">
-    <a href="#" class="btn btn-primary">Add User</a>
+    <a href="/github/repos/{{ $repoName }}/users/add" class="btn btn-primary">Add User</a>
 </div>
 <div class="container">
     <table class="table table-bordered">
@@ -20,15 +20,9 @@
             <tr>
                 <td>{{$user->id}}</td>
                 <td>{{$user->username}}</td>
+                <td>{{$user->pivot->rights}}</td>
                 <td>
-                    <select onchange="modifyAccess({{$user->username}}, this.value)">
-                        <option value="admin" {{$user->pivot->rights == 'admin' ? 'selected' : ''}} >Admin</option>
-                        <option value="push" {{$user->pivot->rights == 'push' ? 'selected' : ''}} >Push</option>
-                        <option value="pull" {{$user->pivot->rights == 'pull' ? 'selected' : ''}}>Pull</option>
-                    </select>
-                </td>
-                <td>
-                    <a class="btn btn-sm btn-primary" href="{{ url('github/repos/'.$repoName.'/users/'.$user->username.'/remove')}}">Remove</a>
+                    <a class="btn btn-sm btn-primary" href="{{ url('github/repo_user_access/'.$user->pivot->id.'/remove')}}">Remove</a>
                 </td>
             </tr>
             @endforeach
@@ -56,7 +50,7 @@
             var dataObj = {
                 user_name: userId,
                 access: access,
-                repository_name : "{{ $repoName }}",
+                repository_name: "{{ $repoName }}",
                 _token: "{{csrf_token()}}"
             };
 

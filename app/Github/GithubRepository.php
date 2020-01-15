@@ -23,6 +23,7 @@ class GithubRepository extends Model
             'github_repositories_id',
             'github_users_id'
         )
-        ->withPivot(['rights']);
+            ->withPivot(['id','rights']);
     }
+
 }

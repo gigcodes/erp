@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Facades\Input;
 use Route;
 
 class UserController extends Controller
@@ -125,18 +126,65 @@ class UserController extends Controller
         ]);
     }
 
-    public function removeUserFromRepository(){
+    public function removeUserFromRepository()
+    {
 
-        $name = Route::current()->parameter('name');
-        $username = Route::current()->parameter('username');
+        $id = Route::current()->parameter('id');
 
-        print_r($name);
-        print_r($username);
-        exit;
+        $repositoryUser = GithubRepositoryUser::find($id);
 
-        $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID')  . "/" . $name . "/collaborators/" . $username;
+        $user = $repositoryUser->githubUser;
+        $repository = $repositoryUser->githubRepository;
+
+        $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID')  . "/" . $repository->name . "/collaborators/" . $user->username;
         $this->client->delete($url);
 
-        return redirect('/github/repos/'.$name.'/users');
+        $repositoryUser->delete();
+
+        return redirect()->back();
+    }
+
+    public function userDetails()
+    {
+        $id = Route::current()->parameter('userId');
+
+        $userDetails = GithubUser::getUserDetails($id);
+
+        return view('github.user_details', ['userDetails' => $userDetails]);
+    }
+
+    public function addUserToRepositoryForm()
+    {
+        $repositoryName = Route::current()->parameter('name');
+
+        $githubUsers = GithubUser::all();
+
+        $users = [];
+        foreach ($githubUsers as $user) {
+            $users[$user->username] = $user->username;
+        }
+
+        return view('github.add_user_to_repo', ['users' => $users]);
+    }
+
+    public function addUserToRepository(){
+        $repositoryName = Input::get('repo_name');
+        $username = Input::get('username');
+        $permission = Input::get('permission');
+
+        //https://api.github.com/repos/:owner/:repo/collaborators/:username
+        $url = 'https://api.github.com/repos/' . getenv('GITHUB_ORG_ID') . '/' . $repositoryName . '/collaborators/' . $username;
+        $this->client->put(
+            $url,
+            [
+                RequestOptions::JSON => [
+                    'permission' => $permission
+                ]
+            ]
+        );
+
+        // cannot update the database still as the above will raise and invitation
+
+        return redirect('/github/repos/'.$repositoryName.'/users');
     }
 }

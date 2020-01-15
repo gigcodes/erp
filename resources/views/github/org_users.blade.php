@@ -10,6 +10,7 @@
                 <th>Name</th>
                 <th>App User</th>
                 <th>Repositories</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -31,6 +32,9 @@
                     @foreach($user->repositories as $repository)
                     <span class="badge badge-pill badge-light">{{$repository->name}}</span>
                     @endforeach
+                </td>
+                <td>
+                    <a href="/github/users/{{$user->id}}">Details</a>
                 </td>
             </tr>
             @endforeach
