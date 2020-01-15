@@ -1552,7 +1552,7 @@ class ProductController extends Controller
         $brandGroups = clone($products);
         $brandGroups = $brandGroups->groupBy("brand")->select([\DB::raw("count(id) as total_product"),"brand"])->pluck("total_product","brand")->toArray();
         $brandIds = array_values(array_filter(array_keys($brandGroups)));
-        
+
         $brandsModel = \App\Brand::whereIn("id",$brandIds)->pluck("name","id")->toArray();
 
         $countBrands = [];
@@ -1570,7 +1570,7 @@ class ProductController extends Controller
         $categoryGroups = clone($products);
         $categoryGroups = $categoryGroups->groupBy("category")->select([\DB::raw("count(id) as total_product"),"category"])->pluck("total_product","category")->toArray();
         $categoryIds = array_values(array_filter(array_keys($categoryGroups)));
-        
+
         $categoryModel = \App\Category::whereIn("id",$categoryIds)->pluck("title","id")->toArray();
 
         $countCategory = [];
@@ -1597,7 +1597,7 @@ class ProductController extends Controller
                                             ->toArray();
             $suppliersIds = array_values(array_filter(array_keys($suppliersGroups)));
             $suppliersModel = \App\Supplier::whereIn("id",$suppliersIds)->pluck("supplier","id")->toArray();
-            
+
             if(!empty($suppliersGroups)) {
                 foreach ($suppliersGroups as $key => $count) {
                     $countSuppliers[] = [
@@ -1610,7 +1610,7 @@ class ProductController extends Controller
         }
 
         // select fields..
-        $products = $products->select(['products.id', 'name', 'short_description', 'color', 'sku', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
+        $products = $products->select(['products.id', 'name', 'short_description', 'color', 'sku', 'products.category', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
 
         if ($request->get('is_on_sale') == 'on') {
             $products = $products->where('is_on_sale', 1);
@@ -1816,20 +1816,20 @@ class ProductController extends Controller
             if($vision != null){
                $keywords = preg_split('/[\n,]+/',$vision->response);
                $countKeywords = count($keywords);
-               for ($i=0; $i < $countKeywords; $i++) { 
+               for ($i=0; $i < $countKeywords; $i++) {
                     if (strpos($keywords[$i], 'Object') !== false) {
                             $key = str_replace('Object: ','',$keywords[$i]);
                             $value = str_replace('Score (confidence): ','',$keywords[$i+1]);
-                            $output[] = array($key => $value); 
+                            $output[] = array($key => $value);
                     }
                }
             }
             if(isset($output)){
                $image->setAttribute('objects', json_encode($output));
             }else{
-              $image->setAttribute('objects', '');  
+              $image->setAttribute('objects', '');
             }
-            
+
         }
 
         // Get category
@@ -1877,16 +1877,16 @@ class ProductController extends Controller
             'd_measurement' => $product->dmeasurement,
             'category' => "$parent $child",
             '' => '',
-        ]);  
+        ]);
         }
-    }    
+    }
 
 
     public function saveImage(Request $request)
     {
         // Find the product or fail
         $product = Product::findOrFail($request->get('product_id'));
-        
+
         // Check if this product is being cropped
         if ($product->status_id != StatusHelper::$isBeingCropped) {
             return response()->json([
@@ -1905,7 +1905,7 @@ class ProductController extends Controller
             $product->attachMedia($media, config('constants.media_gallery_tag'));
             $product->crop_count = $product->crop_count + 1;
             $product->save();
-            
+
 
 
             $imageReference = new CroppedImageReference();
@@ -1917,7 +1917,7 @@ class ProductController extends Controller
             $imageReference->product_id = $product->id;
             $imageReference->save();
 
-            
+
             //Get the last image of the product
             $productMediacount = $product->media()->count();
             //CHeck number of products in Crop Reference Grid
@@ -1932,7 +1932,7 @@ class ProductController extends Controller
                 $product->save();
             }
 
-            
+
             // get the status as per crop
             if ($product->category > 0) {
                 $category = \App\Category::find($product->category);
@@ -2483,19 +2483,19 @@ class ProductController extends Controller
 
         if($request->category || $request->keyword){
             $products = Product::select('composition','category')->where('composition', 'LIKE', '%' . request('keyword') . '%')->where('category',$request->category[0])->groupBy('composition')->get();
-          
+
            foreach ($products as $product) {
 
             if($product->category != null){
                 $categoryTree = CategoryController::getCategoryTree($product->category);
                if(is_array($categoryTree)){
-                
+
                     $childCategory = implode(' > ',$categoryTree);
                }
-              
+
                $cat = Category::findOrFail($request->category[0]);
                $parentCategory = $cat->title;
-               
+
                if($product->composition != null){
                     if($request->group == 'on'){
                         $composition = strip_tags($product->composition);
@@ -2505,13 +2505,13 @@ class ProductController extends Controller
                             $composition = strip_tags($product->composition);
                             $compositions[] = str_replace(['&nbsp;','/span>'],' ',$composition);
 
-                        } 
+                        }
                     }
-                    
+
                }
-              
+
             }
-               
+
         }
         if(!isset($compositions)){
             $compositions = [];
@@ -2519,8 +2519,8 @@ class ProductController extends Controller
             $parentCategory = '';
         }
          $keyword = $request->keyword;
-         $groupSelected = $request->group;   
-        
+         $groupSelected = $request->group;
+
         }else{
             $keyword = '';
             $compositions = [];
@@ -2533,7 +2533,7 @@ class ProductController extends Controller
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2','id' => 'category_value'])
             ->selected($selected_categories)
             ->renderAsDropdown();
-        $hscodes = SimplyDutyCategory::all();    
+        $hscodes = SimplyDutyCategory::all();
         $categories = Category::all();
         $groups = HsCodeGroup::all();
         $cate = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
@@ -2541,14 +2541,14 @@ class ProductController extends Controller
         $pendingCategoryCount = $pendingCategory->count();
         $setting = HsCodeSetting::first();
         $countries = SimplyDutyCountry::all();
-        
+
         return view('products.hscode', compact('keyword','compositions','childCategory','parentCategory','category_selection','hscodes','categories','groups','groupSelected','pendingCategoryCount','setting','countries'));
     }
 
     public function saveGroupHsCode(Request $request)
     {
         $name = $request->name;
-        $compositions = $request->compositions; 
+        $compositions = $request->compositions;
         $key = HsCodeSetting::first();
         if($key == null){
             return response()->json(['Please Update the Hscode Setting']);
@@ -2568,7 +2568,7 @@ class ProductController extends Controller
         $hscodeSearchString = urlencode($hscodeSearchString);
 
         $searchString = 'https://www.api.simplyduty.com/api/classification/get-hscode?APIKey='.$api.'&fullDescription='.$hscodeSearchString.'&originCountry='.$fromCountry.'&destinationCountry='.$destinationCountry.'&getduty=false';
-        
+
         $ch = curl_init();
 
         // set url
@@ -2581,10 +2581,10 @@ class ProductController extends Controller
         $output = curl_exec($ch);
 
         // close curl resource to free up system resources
-        curl_close($ch); 
+        curl_close($ch);
 
         $categories = json_decode($output);
-        
+
         if(!isset($categories->HSCode)){
 
             return response()->json(['Something is wrong with the API. Please check the balance.']);
@@ -2608,7 +2608,7 @@ class ProductController extends Controller
                     $group->composition = $request->composition;
                     $group->save();
                 }
-                
+
                 $id = $group->id;
 
                 foreach ($compositions as $composition) {
@@ -2620,7 +2620,7 @@ class ProductController extends Controller
                 }
             }
         }
-        
+
 
         return response()->json(['Hscode Generated successfully'], 200);
     }
