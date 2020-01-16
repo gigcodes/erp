@@ -77,14 +77,11 @@
                 <!-- <th style="">ID</th> -->
                 <th style="">Number to</th>
                 <th style="">Number from</th>
-                <th style="">Provider</th>
-                <th style="">Freq</th>
                 <th style="">Text</th>
                 <th style="">Priority</th>
                 <th style="">Marketing message type</th>
                 <th style="">Send after</th>
                 <th>Sent at</th>
-                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -95,7 +92,7 @@
                         <td>{{$value->number_from}}</td>
                         <td>{{$value->provider}}</td>
                         <td>{{$value->freq}}</td>
-                        <td>{{$value->text}}</td>
+                        <td>{{$value->text}}<br><img src="{{$value->image}}" alt="" width="100px"></td>
                         <td>{{$value->priority}}</td>
                         <td>{{$value->marketing_message_type_id}}</td>
                         <td>{{$value->send_after}}</td>
@@ -108,10 +105,7 @@
                     <tr>
                         <td>{{$value["chatId"]}}</td>
                         <td>{{$number}}</td>
-                        <td></td>
-                        <td></td>
-                        <td>{{$value["chatId"]}}</td>
-                        <td></td>
+                        <td>{{$value["body"]}}</td>
                         <td></td>
                         <td></td>
                         <td></td>

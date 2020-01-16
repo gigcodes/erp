@@ -7,5 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class ImQueue extends Model
 {
     protected $fillable = ['id', 'im_client','number_to','number_from','text','image','priority','send_after','sent_at','marketing_message_type_id'];
-     
+
+    public function marketingMessageTypes()
+    {
+        return $this->hasOne(MarketingMessageType::class,'id','marketing_message_type_id');
+    }
 }

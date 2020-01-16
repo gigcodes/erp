@@ -237,7 +237,7 @@ class WhatsappConfigController extends Controller
         $provider = $config->provider;
         if ($config->provider === 'py-whatsapp') {
 
-            $data = ImQueue::whereNull('sent_at')->where('number_from', $config->number)->orderBy('created_at', 'desc');
+            $data = ImQueue::whereNull('sent_at')->with('marketingMessageTypes')->where('number_from', $config->number)->orderBy('created_at', 'desc');
             if (request('term') != null) {
                 $data = $data->where('number_to', 'LIKE', "%{$request->term}%");
                 $data = $data->orWhere('text', 'LIKE', "%{$request->term}%");
@@ -251,7 +251,7 @@ class WhatsappConfigController extends Controller
             $data = ChatApi::chatQueue($config->number);
 
         }
-
+/*        dd($data);*/
         return view('marketing.whatsapp-configs.queue', compact('data', 'id', 'term', 'date', 'number', 'provider'));
     }
 
@@ -294,9 +294,11 @@ class WhatsappConfigController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroyQueueAll()
+    public function destroyQueueAll(Request $request)
     {
-        $config = ImQueue::truncate();
+/*        dd($request->id);*/
+
+        $config = ImQueue::where('number_from', $request->id)->delete();
         return Response::json(array(
             'success' => true,
             'message' => 'WhatsApp Configs Deleted'

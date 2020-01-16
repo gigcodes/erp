@@ -2,6 +2,7 @@
 
 namespace App\Marketing;
 
+use App\MarketingMessageType;
 use Illuminate\Database\Eloquent\Model;
 use App\Customer;
 use App\ImQueue;
@@ -34,5 +35,9 @@ class WhatsappConfig extends Model
     public function imQueueLastMessagePending()
     {
         return $this->hasMany(ImQueue::class,'number_from','number')->whereNull('sent_at');
+    }
+    public function marketingMessageTypes()
+    {
+        return $this->hasOne(MarketingMessageType::class,'marketing_message_type_id','id');
     }
 }

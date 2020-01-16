@@ -177,4 +177,23 @@ class ChatApi
 
         return $result;
     }
+
+    public static function sendMessage($data)
+    {
+        $token = config("apiwha.instances")[0]['token'];
+        $instanceId = config("apiwha.instances")[0]['instance_id'];
+
+        $json = json_encode($data); // Encode data to JSON
+// URL for request POST /message
+        $url = "https://api.chat-api.com/instance$instanceId/sendMessage?token=".$token;
+// Make a POST request
+        $options = stream_context_create(['http' => [
+            'method'  => 'POST',
+            'header'  => 'Content-type: application/json',
+            'content' => $json
+        ]
+        ]);
+// Send a request
+        $result = file_get_contents($url, false, $options);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CheckScrapersLog;
 use App\Console\Commands\DocumentReciever;
 use App\Console\Commands\DoubleFProductDetailScraper;
 use App\Console\Commands\DoubleFScraper;
@@ -180,6 +181,7 @@ class Kernel extends ConsoleKernel
         SyncCustomersFromMagento::class,
         NumberOfImageCroppedCheck::class,
         SetTemplatesForProduct::class,
+        CheckScrapersLog::class,
     ];
 
     /**
@@ -366,6 +368,7 @@ class Kernel extends ConsoleKernel
 
         //Sync customer from magento to ERP
         $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
+        $schedule->command('checkScrapersLog')->dailyAt('12:00');
     }
 
     /**

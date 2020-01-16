@@ -47,9 +47,14 @@
 
                         </form>
                         @if($provider === 'py-whatsapp')
-                            <button onclick="deleteAllQueues()" class="btn btn-danger">Delete All</button>
+                            @if(isset($data[0]))
+                                <button onclick="deleteAllQueues('{{$data[0]['number_from']}}')" class="btn btn-danger">
+                                    Delete All
+                                </button>
+                            @endif
                         @else
-                                <a name="del_queues" href="{{route("whatsapp.config.delete_all_queues", $id)}}" class="btn btn-danger">Delete All Queues</a>
+                            <a name="del_queues" href="{{route("whatsapp.config.delete_all_queues", $id)}}"
+                               class="btn btn-danger">Delete All Queues</a>
                         @endif
                     </div>
                 </div>
@@ -82,13 +87,10 @@
                 <!-- <th style="">ID</th> -->
                 <th style="">Number to</th>
                 <th style="">Number from</th>
-                <th style="">Provider</th>
-                <th style="">Freq</th>
                 <th style="">Text</th>
                 <th style="">Priority</th>
                 <th style="">Marketing message type</th>
                 <th style="">Send after</th>
-                <th>Sent at</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -98,13 +100,10 @@
                     <tr>
                         <td>{{$value->number_to}}</td>
                         <td>{{$value->number_from}}</td>
-                        <td>{{$value->provider}}</td>
-                        <td>{{$value->freq}}</td>
                         <td>{{$value->text}}</td>
                         <td>{{$value->priority}}</td>
-                        <td>{{$value->marketing_message_type_id}}</td>
+                        <td>{{$value->marketingMessageTypes->name}}</td>
                         <td>{{$value->send_after}}</td>
-                        <td>{{$value->sent_at}}</td>
                         <td>
                             <button onclick="deleteQueue({{ $value->id }})" class="btn btn-sm">Delete</button>
                         </td>
@@ -115,8 +114,6 @@
                     <tr>
                         <td>{{$value["chatId"]}}</td>
                         <td>{{$number}}</td>
-                        <td></td>
-                        <td></td>
                         <td>{{$value["body"]}}</td>
                         <td></td>
                         <td></td>
@@ -185,7 +182,7 @@
                     dataType: "json",
                     success: function (message) {
                         alert('Deleted All Queues');
-                        location.reload(true);
+                        window.location.href = "/marketing/whatsapp-config";
                     }, error: function () {
                         alert('Something went wrong');
                     }
