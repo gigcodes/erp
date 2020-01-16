@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\ScrapRemark;
 use App\ScrapStatistics;
 use App\Services\Whatsapp\ChatApi\ChatApi;
 use Illuminate\Console\Command;
@@ -64,10 +65,11 @@ class CheckScrapersLog extends Command
                                     'body' => $message, // Message
                                 ];
                                 ChatApi::sendMessage($data);
-                                ScrapStatistics::create([
-                                    'supplier' => $suplier->scraper_name,
-                                    'type' => 'EXISTING_SCRAP_PRODUCT',
-                                    'description' => $message
+                                ScrapRemark::create([
+                                    'scraper_name' => $suplier->scraper_name,
+                                    'scrap_id' => 0,
+                                    'module_type' => '',
+                                    'remark' => $message
                                 ]);
                             }
 
