@@ -13,7 +13,10 @@ class SupplierSearchController extends Controller
         $selectedBrand = Brand::where('id', $request->input('brand'))->get()->first();
         $brands = Brand::whereNotNull('magento_id')->get()->all();
     	$supplier = Supplier::whereNotNull('scraped_brands_raw')->get()->all();
-        $requestBrand = $selectedBrand->name;
+        $requestBrand = '';
+        if(!empty($request->input('brand')))
+            $requestBrand = $selectedBrand->name;
+
         if(!empty($request->supplier) && !empty($request->brand)) {
             $supplier = Supplier::where('supplier', 'like', '%' . $request->supplier . '%')->where('scraped_brands_raw', 'like', '%' . $selectedBrand->name . '%')->get()->all();
         } elseif (!empty($request->brand)) {
