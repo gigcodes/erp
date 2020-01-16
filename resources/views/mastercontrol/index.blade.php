@@ -21,23 +21,9 @@
           <h2 class="page-heading">Master Control - {{ date('Y-m-d') }}</h2>
 
           <div class="pull-left">
-            <form class="form-inline" action="{{ route('mastercontrol.index') }}" method="GET">
-              <div class="form-group ml-3">
-                <input type="text" value="" name="range_start" hidden/>
-                <input type="text" value="" name="range_end" hidden/>
-                <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                  <i class="fa fa-calendar"></i>&nbsp;
-                  <span></span> <i class="fa fa-caret-down"></i>
-                </div>
-              </div>
-
-              <button type="submit" class="btn btn-secondary ml-3">Submit</button>
-            </form>
           </div>
 
           <div class="pull-right mt-4">
-            {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button> --}}
-            {{-- <a class="btn btn-secondary" href="{{ route('customer.create') }}">+</a> --}}
           </div>
       </div>
   </div>
@@ -240,6 +226,217 @@
                 <td colspan="7" class="sub-table"><div class="table"></div>
                 </td>
               </tr>
+              <tr>
+                <td>Recent Customer Chats</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table">
+                  <div class="table">
+                    <table>
+                      <tr>
+                        <th width="25%">Name</th>
+                        <th width="25%">Phone</th>
+                        <th width="50%">Send</th>
+                        <th width="40%">Communication</th>
+                      </tr>
+                      @foreach($chatCustomers as $customer)
+                      <tr>
+                        <td width="25%">{{ $customer->name }}</td>
+                        <td width="25%">{{ $customer->phone }}</td>
+                        <td width="60%">
+                          <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-flex">
+                                    <input type="text" class="form-control" name="customer" placeholder="Message" value="" id="textAreaCustomer{{ $customer->id }}">
+                                    <button class="btn btn-sm btn-image send-message" data-customerid="{{ $customer->id }}" data-type="customer"><img src="/images/filled-sent.png"/></button>
+                                </div>
+                           </div>
+                           <div style="margin-top:5px;" class="col-md-6">
+                                <div class="d-flex">
+                                    <select name="quickCategory" class="quickCategory form-control input-sm mb-3" data-type="customer" data-id="{{ $customer->id }}">
+                                    <option value="">Select Category</option>
+                                    @foreach($reply_categories as $category)
+                                        <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="quickComment" id="quickCommentCustomer{{ $customer->id }}" class="form-control input-sm" onchange="messageToTextArea(this,'customer',{{ $customer->id }})">
+                                    <option value="">Quick Reply</option>
+                                </select>
+                                </div>
+                            </div> 
+                           </div>
+                        </td>
+                        <td width="40%" class="table-hover-cell  @if(isset($customer->whatsappAll[0])) @if($customer->whatsappAll[0]->status == 0) text-danger @endif @endif" style="word-break: break-all;">
+                          <span class="td-full-container">
+                            <div class="chat_messages expand-row ">
+                                @if(isset($customer->whatsappAll[0])) 
+                                <span class="chat-mini-container"> 
+                                {{ strlen($customer->whatsappAll[0]->message) > 10 ? substr($customer->whatsappAll[0]->message , 0, 10) : $customer->whatsappAll[0]->message }}
+                                </span>
+                                <span class="chat-full-container hidden">
+                                  {{ $customer->whatsappAll[0]->message }}
+                                </span>
+                                @endif
+                            </div>
+                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="customer" data-id="{{ $customer->id }}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
+                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
+                        </span>
+                        </td>
+                      </tr>
+                      @endforeach
+
+                    </table>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Recent Vendors Chats</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table">
+                  <div class="table">
+                    <table>
+                      <tr>
+                        <th width="25%">Name</th>
+                        <th width="25%">Phone</th>
+                        <th width="50%">Send</th>
+                        <th width="40%">Communication</th>
+                      </tr>
+                      @foreach($chatVendors as $vendor)
+                      <tr>
+                        <td width="25%">{{ $vendor->name }}</td>
+                        <td width="25%">{{ $vendor->phone }}</td>
+                        <td width="50%">
+                          <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-flex">
+                                    <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="textAreaVendor{{ $vendor->id }}">
+                                    <button class="btn btn-sm btn-image send-message" data-vendorid="{{ $vendor->id }}" data-type="vendor"><img src="/images/filled-sent.png"/></button>
+                                </div>
+                           </div>
+                           <div style="margin-top:5px;" class="col-md-6">
+                                <div class="d-flex">
+                                    <select name="quickCategory" class="quickCategory form-control input-sm mb-3" data-type="vendor" data-id="{{ $vendor->id }}">
+                                    <option value="">Select Category</option>
+                                    @foreach($reply_categories as $category)
+                                        <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="quickComment" id="quickCommentVendor{{ $vendor->id }}" class="form-control input-sm" onchange="messageToTextArea(this,'vendor',{{ $vendor->id }})">
+                                    <option value="">Quick Reply</option>
+                                </select>
+                                </div>
+                            </div> 
+                           </div>
+                        </td>
+                        <td width="40%" class="table-hover-cell  @if(isset($vendor->chat_messages[0])) @if($vendor->chat_messages[0]->status == 0) text-danger @endif @endif" style="word-break: break-all;">
+                          <span class="td-full-container">
+                            <div class="chat_messages expand-row">
+                              <span class="chat-mini-container"> 
+                                @if(isset($vendor->chat_messages[0])) 
+                                {{ strlen($vendor->chat_messages[0]->message) > 10 ? substr($vendor->chat_messages[0]->message , 0, 10) : $vendor->chat_messages[0]->message }}
+                                @endif
+                              </span>
+                               <span class="chat-full-container hidden">
+                                {{ $vendor->chat_messages[0]->message }}
+                               </span>
+                            </div>
+                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
+                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
+                        </span>
+                        </td>
+                      </tr>
+                      @endforeach
+                    </table>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Recent Supplier Chats</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table">
+                  <div class="table">
+                    <table>
+                      <tr>
+                        <th width="25%">Name</th>
+                        <th width="25%">Phone</th>
+                        <th width="50%">Send</th>
+                        <th width="40%">Communication</th>
+                      </tr>
+                      @foreach($chatSuppliers as $supplier)
+                      <tr>
+                        <td width="25%">{{ $supplier->supplier }}</td>
+                        <td width="25%">{{ $supplier->phone }}</td>
+                        <td width="50%">
+                          <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-flex">
+                                    <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="textAreaSupplier{{ $supplier->id }}">
+                                    <button class="btn btn-sm btn-image send-message" data-supplierid="{{ $supplier->id }}" data-type="supplier"><img src="/images/filled-sent.png"/></button>
+                                </div>
+                           </div>
+                           <div style="margin-top:5px;" class="col-md-6">
+                                <div class="d-flex">
+                                    <select name="quickCategory" class="quickCategory form-control input-sm mb-3" data-type="supplier" data-id="{{ $supplier->id }}">
+                                    <option value="">Select Category</option>
+                                    @foreach($reply_categories as $category)
+                                        <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="quickComment" id="quickCommentSupplier{{ $supplier->id }}" class="form-control input-sm" onchange="messageToTextArea(this,'supplier',{{ $supplier->id }})">
+                                    <option value="">Quick Reply</option>
+                                </select>
+                                </div>
+                            </div> 
+                           </div>
+                        </td>
+                        <td width="40%" class="table-hover-cell  @if(isset($supplier->whatsappAll[0])) @if($supplier->whatsappAll[0]->status == 0) text-danger @endif @endif" style="word-break: break-all;">
+                          <span class="td-full-container">
+                            <div class="chat_messages expand-row">
+                                @if(isset($supplier->whatsappAll[0]))
+                                 <span class="chat-mini-container"> 
+                                 {{ strlen($supplier->whatsappAll[0]->message) > 10 ? substr($supplier->whatsappAll[0]->message , 0, 10) : $supplier->whatsappAll[0]->message }}
+                                 </span>
+                                 <span class="chat-full-container hidden">
+                                  {{ $supplier->whatsappAll[0]->message }}
+                                 </span>
+                                @endif
+                            </div>
+
+                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
+                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
+                        </span>
+                        </td>
+                      </tr>
+                      @endforeach
+                    </table>
+                  </div>
+                </td>
+              </tr>
+
+
               <tr>
                 <td>Crop Reference Grid</td>
                 <td></td>
@@ -720,96 +917,111 @@
     </div>
 
   
+<div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <div id="email-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Email Communication</h4>
+                    <input type="text" name="search_email_pop"  class="form-control search_email_pop" placeholder="Search Email" style="width: 200px;">
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     @include('customers.zoomMeeting');
 
 @endsection
 
 @section('scripts')
-  {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script> --}}
+  
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script type="text/javascript">
+  
+  $(document).on('click', '.send-message', function () {
 
-   
+            var thiss = $(this);
+            var data = new FormData();
+            var type = $(this).attr('data-type');
+            if(type == 'vendor'){
+              var vendor_id = $(this).data('vendorid');
+              send_url = '/whatsapp/sendMessage/vendor';
+              data.append("vendor_id", vendor_id);
+            }else if(type == 'customer'){
+              send_url = '/whatsapp/sendMessage/customer';
+              var customerId = $(this).attr('data-customerid');
+              data.append("customer_id", customerId); 
+            }else if(type == 'supplier'){
+              send_url = '/whatsapp/sendMessage/supplier';
+              var supplierId = $(this).attr('data-supplierid');
+              data.append("supplier_id", supplierId);  
+            }
+            
+            var message = $(this).siblings('input').val();
+
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: send_url,
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        thiss.closest('tr').find('.chat_messages').html(thiss.siblings('input').val());
+                        $(thiss).siblings('input').val('');
+
+                        $(thiss).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
+
+
+ 
+
   $(document).ready(function() {
     $("body").tooltip({ selector: '[data-toggle=tooltip]' });
   });
 
- 
-
-    $(document).on('click', '.quick-shortcut-button', function(e) {
-      e.preventDefault();
-
-      var customer_id = $(this).parent().find('input[name="customer_id"]').val();
-      var instruction = $(this).parent().find('input[name="instruction"]').val();
-      var category_id = $(this).parent().find('input[name="category_id"]').val();
-      var assigned_to = $(this).parent().find('input[name="assigned_to"]').val();
-      var thiss = $(this);
-      var text = $(this).text();
-
-      $.ajax({
-        type: "POST",
-        url: "{{ route('instruction.store') }}",
-        data: {
-          _token: "{{ csrf_token() }}",
-          customer_id: customer_id,
-          instruction: instruction,
-          category_id: category_id,
-          assigned_to: assigned_to,
-        },
-        beforeSend: function() {
-          $(thiss).text('Loading...');
-        }
-      }).done(function(response) {
-        $(thiss).text(text);
-      }).fail(function(response) {
-        $(thiss).text(text);
-
-        alert('Could not execute shortcut!');
-
-        console.log(response);
-      });
-    });
-
-    let r_s = '{{ $start }}';
-    let r_e = '{{ $end }}';
-
-    let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(1, 'days');
-    let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
-
-    jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
-    jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
-
-    function cb(start, end) {
-        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-    }
-
-    $('#reportrange').daterangepicker({
-        startDate: start,
-        maxYear: 1,
-        endDate: end,
-        ranges: {
-            'Today': [moment(), moment()],
-            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-            'This Month': [moment().startOf('month'), moment().endOf('month')],
-            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-        }
-    });
-
-    cb(start, end);
-
-    $(function() {
+ $(document).ready(function() {
     $(".sub-table").find(".table").hide();
-    $("table").click(function(event) {
-        event.stopPropagation();
+    $(".table").click(function() {
         var $target = $(event.target);
         if ( $target.closest("td").attr("colspan") > 1 ) {
             $target.slideUp();
@@ -818,6 +1030,54 @@
         }                    
     });
     });
- 
-  </script>
+
+ $('.quickCategory').on('change', function () {
+            var type = $(this).attr('data-type');
+            var id = $(this).attr('data-id');
+            if(type == 'customer'){
+              name = 'Customer';
+            }else if(type == 'vendor'){
+              name = 'Vendor';
+            }else if(type == 'supplier'){
+              name = 'Supplier';
+            }
+  
+            var replies = JSON.parse($(this).val());
+            $('#quickComment'+name+id).empty();
+
+            $('#quickComment'+name+id).append($('<option>', {
+                value: '',
+                text: 'Quick Reply'
+            }));
+
+            replies.forEach(function (reply) {
+                $('#quickComment'+name+id).append($('<option>', {
+                    value: reply.reply,
+                    text: reply.reply
+                }));
+            });
+        });
+
+ function messageToTextArea(text,type,id){
+    if(type == 'customer'){
+              name = 'Customer';
+    }else if(type == 'vendor'){
+      name = 'Vendor';
+    }else if(type == 'supplier'){
+      name = 'Supplier';
+    }
+    $('#textArea'+name+id).val(text.value);
+ }
+
+ $(document).on('click', '.expand-row', function () {
+            var selection = window.getSelection();
+            if (selection.toString().length === 0) {
+                $(this).find('.chat-mini-container').toggleClass('hidden');
+                $(this).find('.chat-full-container').toggleClass('hidden');
+            }
+        });
+
+</script>
+
+
 @endsection

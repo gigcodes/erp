@@ -32,7 +32,6 @@ use App\ChatMessage;
 use App\Customer;
 
 
-
 class MasterControlController extends Controller
 {
     /**
@@ -106,22 +105,27 @@ class MasterControlController extends Controller
             return DB::select($sqlScrapedProductsInStock);
         });
 
-      $resultScrapedProductsInStock = Cache::get( 'result_scraped_product_in_stock' );
-        
+      
+        $resultScrapedProductsInStock = Cache::get( 'result_scraped_product_in_stock' );
+
         //Getting All chats
         $chat = ChatMessage::where('created_at','>=', Carbon::now()->subDay()->toDateTimeString());
 
-        $vendorChats = $chat->select('vendor_id')->whereNotNull('vendor_id')->groupBy('vendor_id')->get()->toArray();
+        $chatCustomers = clone $chat;
+
+        $chatSuppliers = clone $chat;
+
+        $vendorChats = $chat->select('vendor_id')->whereNotNull('vendor_id')->orderBy('created_at','desc')->groupBy('vendor_id')->get()->toArray();
         foreach ($vendorChats as $vendorChat) {
             $vendorArrays[] = $vendorChat['vendor_id'];
         }
         
-        $customerChats = $chat->select('customer_id')->whereNotNull('customer_id')->groupBy('customer_id')->get()->toArray();
+        $customerChats = $chatCustomers->select('customer_id')->whereNotNull('customer_id')->orderBy('created_at','desc')->groupBy('customer_id')->get()->toArray();
         foreach ($customerChats as $customerChat) {
             $customerArrays[] = $customerChat['customer_id'];
         }
         
-        $supplierChats = $chat->select('supplier_id')->whereNotNull('supplier_id')->groupBy('supplier_id')->get()->toArray();
+        $supplierChats = $chatSuppliers->select('supplier_id')->whereNotNull('supplier_id')->orderBy('created_at','desc')->groupBy('supplier_id')->get()->toArray();
         foreach ($supplierChats as $supplierChat) {
             $supplierArrays[] = $supplierChat['supplier_id'];
         }
@@ -138,14 +142,22 @@ class MasterControlController extends Controller
             $supplierArrays = [];
         }
 
-        $vendors = Vendor::whereIn('id',$vendorArrays)->get();
-
-        $customers = Customer::select('name','phone')->whereIn('id',$customerArrays)->get();
         
-        $suppliers = Supplier::whereIn('id',$supplierArrays)->get();
-        
-        $replies = \App\Reply::where("model","Vendor")->whereNull("deleted_at")->pluck("reply","id")->toArray();
+        $vendorPlaceholders = implode(',',array_fill(0, count($vendorArrays), '?'));
 
+        $customerPlaceholders = implode(',',array_fill(0, count($customerArrays), '?'));
+
+        $supplierPlaceholders = implode(',',array_fill(0, count($supplierArrays), '?'));
+        
+        $vendors = Vendor::whereIn('id',$vendorArrays)->orderByRaw("field(id,{$vendorPlaceholders})", $vendorArrays)->get();
+
+        $customers = Customer::select('id','name','phone')->whereIn('id',$customerArrays)->orderByRaw("field(id,{$customerPlaceholders})", $customerArrays)->get();
+        
+        $suppliers = Supplier::whereIn('id',$supplierArrays)->orderByRaw("field(id,{$supplierPlaceholders})", $supplierArrays)->get();
+        
+        $reply_categories = ReplyCategory::all();
+
+        
      return view('mastercontrol.index', [
         'start' => $start, 
         'end' => $end , 
@@ -159,7 +171,8 @@ class MasterControlController extends Controller
         'chatSuppliers' => $suppliers,
         'chatCustomers' => $customers,
         'chatVendors' => $vendors,
-        'replies' => $replies,
+        'reply_categories' => $reply_categories,
+
     ]);
     }
 
