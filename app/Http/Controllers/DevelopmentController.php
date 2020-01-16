@@ -13,7 +13,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-
 use App\TasksHistory;
 use App\TaskTypes;
 use App\DeveloperTask;
@@ -24,13 +23,13 @@ use App\DeveloperCost;
 use App\PushNotification;
 use App\User;
 use App\Helpers;
-use App\HubstaffMember;
-use App\HubstaffProject;
-use App\HubstaffTask;
+use App\Hubstaff\HubstaffMember;
+use App\Hubstaff\HubstaffProject;
+use App\Hubstaff\HubstaffTask;
 use App\Issue;
 use Exception;
+use FacebookAds\Http\Exception\ClientException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Response;
 use Storage;
@@ -45,12 +44,10 @@ class DevelopmentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
     public function __construct()
     {
         //  $this->middleware( 'permission:developer-tasks', [ 'except' => [ 'issueCreate', 'issueStore', 'moduleStore' ] ] );
     }
-
     /*public function index_bkup(Request $request)
     {
         // Set required data
@@ -58,33 +55,28 @@ class DevelopmentController extends Controller
         $start = $request->range_start ? "$request->range_start 00:00" : '2018-01-01 00:00';
         $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
         $id = null;
-
         // Set initial variables
         $progressTasks = new DeveloperTask();
         $plannedTasks = new DeveloperTask();
         $completedTasks = new DeveloperTask();
-
         // For non-admins get tasks assigned to the user
         if (!Auth::user()->hasRole('Admin')) {
             $progressTasks = DeveloperTask::where('user_id', Auth::id());
             $plannedTasks = DeveloperTask::where('user_id', Auth::id());
             $completedTasks = DeveloperTask::where('user_id', Auth::id());
         }
-
         // Get tasks for specific user if you are admin
         if (Auth::user()->hasRole('Admin') && (int)$request->user > 0) {
             $progressTasks = DeveloperTask::where('user_id', $user);
             $plannedTasks = DeveloperTask::where('user_id', $user);
             $completedTasks = DeveloperTask::where('user_id', $user);
         }
-
         // Filter by date
         if ($request->get('range_start') != '') {
             $progressTasks = $progressTasks->whereBetween('created_at', [$start, $end]);
             $plannedTasks = $plannedTasks->whereBetween('created_at', [$start, $end]);
             $completedTasks = $completedTasks->whereBetween('created_at', [$start, $end]);
         }
-
         // Filter by ID
         if ($request->get('id')) {
             $progressTasks = $progressTasks->where(function ($query) use ($request) {
@@ -100,33 +92,24 @@ class DevelopmentController extends Controller
                 $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
             });
         }
-
         // Get all data with user and messages
         $plannedTasks = $plannedTasks->where('status', 'Planned')->orderBy('created_at')->with(['user', 'messages'])->get();
         $completedTasks = $completedTasks->where('status', 'Done')->orderBy('created_at')->with(['user', 'messages'])->get();
         $progressTasks = $progressTasks->where('status', 'In Progress')->orderBy('created_at')->with(['user', 'messages'])->get();
-
         // Get all modules
         $modules = DeveloperModule::all();
-
         // Get all developers
         $users = Helpers::getUserArray(User::role('Developer')->get());
-
         // Get all task types
         $tasksTypes = TaskTypes::all();
-
         // Create empty array for module names
         $moduleNames = [];
-
         // Loop over all modules and store them
         foreach ($modules as $module) {
             $moduleNames[ $module->id ] = $module->name;
         }
-
         $times = [];
-
         $priority  = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
-
         return view('development.index', [
             'times' => $times,
             'users' => $users,
@@ -142,11 +125,9 @@ class DevelopmentController extends Controller
             'priority' => $priority,
         ]);
     }*/
-
     public function taskListByUserId(Request $request)
     {
         $user_id = $request->get('user_id', 0);
-
         $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
             ->leftJoin('erp_priorities', function ($query) {
                 $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
@@ -154,33 +135,26 @@ class DevelopmentController extends Controller
             })
             ->where('user_id', $user_id)
             ->where('status', '!=', 'Done');
-
         if (auth()->user()->isAdmin()) {
             $issues = $issues->whereIn('developer_tasks.id', $request->get('selected_issue', []));
         } else {
             $issues = $issues->whereNotNull('erp_priorities.id');
         }
-
         $issues = $issues->orderBy('erp_priorities.id')->get();
-
         foreach ($issues as &$value) {
             $value->module = $value->developerModule->name;
             $value->created_by = User::where('id', $value->created_by)->value('name');
         }
         unset($value);
-
         return response()->json($issues);
     }
-
     public function setTaskPriority(Request $request)
     {
         $priority = $request->get('priority', null);
         //get all user task
         $developerTask = DeveloperTask::where('user_id', $request->get('user_id', 0))->pluck('id')->toArray();
-
         //delete old priority
         \App\ErpPriority::whereIn('model_id', $developerTask)->where('model_type', '=', DeveloperTask::class)->delete();
-
         if (!empty($priority)) {
             foreach ((array) $priority as $model_id) {
                 \App\ErpPriority::create([
@@ -188,7 +162,6 @@ class DevelopmentController extends Controller
                     'model_type' => DeveloperTask::class
                 ]);
             }
-
             $developerTask = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
                 ->join('erp_priorities', function ($query) {
                     $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
@@ -198,7 +171,6 @@ class DevelopmentController extends Controller
                 ->where('status', '!=', 'Done')
                 ->orderBy('erp_priorities.id')
                 ->get();
-
             $message = "";
             $i = 1;
             foreach ($developerTask as $value) {
@@ -210,15 +182,11 @@ class DevelopmentController extends Controller
                 $requestData->setMethod('POST');
                 $params = [];
                 $params['user_id'] = $request->get('user_id', 0);
-
                 $string = "";
-
                 if (!empty($request->get('global_remarkes', null))) {
                     $string .= $request->get('global_remarkes') . "\n";
                 }
-
                 $string .= "Task Priority is : \n" . $message;
-
                 $params['message'] = $string;
                 $params['status'] = 2;
                 $requestData->request->add($params);
@@ -229,44 +197,37 @@ class DevelopmentController extends Controller
             'status' => 'success'
         ]);
     }
-
     public function index(Request $request)
     {
         //        //$this->issueTaskIndex( $request,'task');
         //        return Redirect::to('/development/list/task');
-
         // Set required data
         $user = $request->user ?? Auth::id();
         $start = $request->range_start ? "$request->range_start 00:00" : '2018-01-01 00:00';
         $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
         $id = null;
-
         // Set initial variables
         $progressTasks = new DeveloperTask();
         $plannedTasks = new DeveloperTask();
         $completedTasks = new DeveloperTask();
-
         // For non-admins get tasks assigned to the user
         if (!Auth::user()->hasRole('Admin')) {
             $progressTasks = DeveloperTask::where('user_id', Auth::id());
             $plannedTasks = DeveloperTask::where('user_id', Auth::id());
             $completedTasks = DeveloperTask::where('user_id', Auth::id());
         }
-
         // Get tasks for specific user if you are admin
         if (Auth::user()->hasRole('Admin') && (int) $request->user > 0) {
             $progressTasks = DeveloperTask::where('user_id', $user);
             $plannedTasks = DeveloperTask::where('user_id', $user);
             $completedTasks = DeveloperTask::where('user_id', $user);
         }
-
         // Filter by date
         if ($request->get('range_start') != '') {
             $progressTasks = $progressTasks->whereBetween('created_at', [$start, $end]);
             $plannedTasks = $plannedTasks->whereBetween('created_at', [$start, $end]);
             $completedTasks = $completedTasks->whereBetween('created_at', [$start, $end]);
         }
-
         // Filter by ID
         if ($request->get('id')) {
             $progressTasks = $progressTasks->where(function ($query) use ($request) {
@@ -282,29 +243,22 @@ class DevelopmentController extends Controller
                 $query->where('id', $id)->orWhere('subject', 'LIKE', "%$id%");
             });
         }
-
         // Get all data with user and messages
         $plannedTasks = $plannedTasks->where('status', 'Planned')->orderBy('created_at')->with(['user', 'messages'])->get();
         $completedTasks = $completedTasks->where('status', 'Done')->orderBy('created_at')->with(['user', 'messages'])->get();
         $progressTasks = $progressTasks->where('status', 'In Progress')->orderBy('created_at')->with(['user', 'messages'])->get();
-
         // Get all modules
         $modules = DeveloperModule::all();
-
         // Get all developers
         $users = Helpers::getUserArray(User::role('Developer')->get());
-
         // Get all task types
         $tasksTypes = TaskTypes::all();
-
         // Create empty array for module names
         $moduleNames = [];
-
         // Loop over all modules and store them
         foreach ($modules as $module) {
             $moduleNames[$module->id] = $module->name;
         }
-
         $times = [];
         return view('development.index', [
             'times' => $times,
@@ -321,7 +275,6 @@ class DevelopmentController extends Controller
             'title' => 'Dev'
         ]);
     }
-
     public function moveTaskToProgress(Request $request)
     {
         $task = DeveloperTask::find($request->get('task_id'));
@@ -332,24 +285,20 @@ class DevelopmentController extends Controller
         $task->estimate_time = $date . ' ' . "$hour:$minutes:00 ";
         $task->start_time = Carbon::now()->toDateTimeString();
         $task->save();
-
         return response()->json([
             'status' => 'success'
         ]);
     }
-
     public function completeTask(Request $request)
     {
         $task = DeveloperTask::find($request->get('task_id'));
         $task->status = 'Done';
         $task->end_time = Carbon::now()->toDateTimeString();
         $task->save();
-
         return response()->json([
             'status' => 'success'
         ]);
     }
-
     public function relistTask(Request $request)
     {
         $task = DeveloperTask::find($request->get('task_id'));
@@ -358,19 +307,16 @@ class DevelopmentController extends Controller
         $task->start_time = null;
         $task->estimate_time = null;
         $task->save();
-
         return response()->json([
             'status' => 'success'
         ]);
     }
-
     public function updateAssignee(Request $request)
     {
         $task = DeveloperTask::find($request->get('task_id'));
         $old_assignee = $task->user_id;
         $task->user_id = $request->get('user_id');
         $task->save();
-
         $task_history = new TasksHistory;
         $task_history->date_time = date('Y-m-d H:i:s');
         $task_history->task_id = $request->get('task_id');
@@ -382,64 +328,69 @@ class DevelopmentController extends Controller
             'success'
         ]);
     }
-
     public function issueTaskIndex(Request $request, $type)
     {
+        //$request->request->add(["order" => $request->get("order","communication_desc")]);
         // Load issues
-        $issues = DeveloperTask::where('task_type_id', $type == 'issue' ? '3' : '1');
-
+        $issues = DeveloperTask::where('developer_tasks.task_type_id', $type == 'issue' ? '3' : '1');
         if ((int) $request->get('submitted_by') > 0) {
-            $issues = $issues->where('created_by', $request->get('submitted_by'));
+            $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
         }
         if ((int) $request->get('responsible_user') > 0) {
-            $issues = $issues->where('responsible_user_id', $request->get('responsible_user'));
+            $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
         }
-
         if ((int) $request->get('corrected_by') > 0) {
-            $issues = $issues->where('user_id', $request->get('corrected_by'));
+            $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
         }
-
-        if ((int)$request->get('assigned_to') > 0) {
-            $issues = $issues->where('assigned_to', $request->get('assigned_to'));
+        if ((int) $request->get('assigned_to') > 0) {
+            $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
         }
-
         if ($request->get('module')) {
-            $issues = $issues->where('module_id', $request->get('module'));
+            $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
         }
-
         if (!empty($request->get('task_status', []))) {
-            $issues = $issues->whereIn('status', $request->get('task_status'));
+            $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         }
-
+        $whereCondition = "";
         if ($request->get('subject') != '') {
+            $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
             $issues = $issues->where(function ($query) use ($request) {
                 $subject = $request->get('subject');
-                $query->where('id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%");
+                $query->where('developer_tasks.id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%")->orWhere("task", "LIKE", "%$subject%")
+                    ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
             });
         }
+        if ($request->get('language') != '') {
+            $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
+        }
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+        $issues = $issues->select("developer_tasks.*");
 
         // Set variables with modules and users
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
-
+        $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
+        $statusList = array_merge([
+            "" => "Select Status",
+            "Planned" => "Planned",
+            "In Progress" => "In Progress",
+            "Done" => "Done"
+        ], $statusList);
         // Hide resolved
-        if ((int) $request->show_resolved !== 1) {
+        /*if ((int)$request->show_resolved !== 1) {
             $issues = $issues->where('is_resolved', 0);
-        }
-
+        }*/
         if (!auth()->user()->isAdmin()) {
             $issues = $issues->where(function ($q) {
                 $q->where("assigned_to", auth()->user()->id)->orWhere("responsible_user_id", auth()->user()->id);
             });
         }
-
         // category filter start count
         $issuesGroups = clone ($issues);
-        $issuesGroups = $issuesGroups->where('status', 'Planned')->groupBy("user_id")->select([\DB::raw("count(id) as total_product"), "user_id"])->pluck("total_product", "user_id")->toArray();
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to"])->pluck("total_product", "assigned_to")->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
-
         $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
-
         $countPlanned = [];
         if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
@@ -450,14 +401,12 @@ class DevelopmentController extends Controller
                 ];
             }
         }
-
         // category filter start count
         $issuesGroups = clone ($issues);
-        $issuesGroups = $issuesGroups->where('status', 'In Progress')->groupBy("user_id")->select([\DB::raw("count(id) as total_product"), "user_id"])->pluck("total_product", "user_id")->toArray();
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to"])->pluck("total_product", "assigned_to")->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
 
         $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
-
         $countInProgress = [];
         if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
@@ -468,21 +417,21 @@ class DevelopmentController extends Controller
                 ];
             }
         }
-
         // Sort
         if ($request->order == 'priority') {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
         }
+
         if ($request->order == 'create_asc') {
-            $issues = $issues->orderBy('created_at', 'ASC')->with('communications');
+            $issues = $issues->orderBy('developer_tasks.created_at', 'ASC');
+        } else if ($request->order == 'communication_desc') {
+            $issues = $issues->orderBy('chat_messages.id', 'DESC');
         } else {
-            $issues = $issues->orderBy('created_at', 'DESC')->with('communications');
+            $issues = $issues->orderBy('developer_tasks.created_at', 'DESC');
         }
-
+        $issues =  $issues->with('communications');
         $issues = $issues->paginate(Setting::get('pagination'));
-
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
-
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
@@ -492,56 +441,46 @@ class DevelopmentController extends Controller
             'priority' => $priority,
             'countPlanned' => $countPlanned,
             'countInProgress' => $countInProgress,
+            'statusList' => $statusList
         ]);
     }
-
     public function issueIndex(Request $request)
     {
         $issues = new Issue;
-
         if ((int) $request->get('submitted_by') > 0) {
             $issues = $issues->where('submitted_by', $request->get('submitted_by'));
         }
         if ((int) $request->get('responsible_user') > 0) {
             $issues = $issues->where('responsible_user_id', $request->get('responsible_user'));
         }
-
-        if ((int)$request->get('assigned_to') > 0) {
+        if ((int) $request->get('assigned_to') > 0) {
             $issues = $issues->where('assigned_to', $request->get('assigned_to'));
         }
-
-        if ((int)$request->get('corrected_by') > 0) {
+        if ((int) $request->get('corrected_by') > 0) {
             $issues = $issues->where('user_id', $request->get('corrected_by'));
         }
-
         if ($request->get('module')) {
             $issues = $issues->where('module', $request->get('module'));
         }
-
         if ($request->get('subject') != '') {
             $issues = $issues->where(function ($query) use ($request) {
                 $subject = $request->get('subject');
                 $query->where('id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%");
             });
         }
-
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
-
         // Hide resolved
         if ((int) $request->show_resolved !== 1) {
             $issues = $issues->where('is_resolved', 0);
         }
-
         // Sort
         if ($request->order == 'create') {
             $issues = $issues->orderBy('created_at', 'DESC')->with('communications')->get();
         } else {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications')->get();
         }
-
         $priority = \App\ErpPriority::where('model_type', '=', Issue::class)->pluck('model_id')->toArray();
-
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
@@ -551,11 +490,9 @@ class DevelopmentController extends Controller
             'priority' => $priority,
         ]);
     }
-
     public function listByUserId(Request $request)
     {
         $user_id = $request->get('user_id', 0);
-
         $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
             ->leftJoin('erp_priorities', function ($query) {
                 $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
@@ -563,33 +500,26 @@ class DevelopmentController extends Controller
             })
             ->where('assigned_to', $user_id)
             ->where('is_resolved', '0');
-
         if (auth()->user()->isAdmin()) {
             $issues = $issues->whereIn('developer_tasks.id', $request->get('selected_issue', []));
         } else {
             $issues = $issues->whereNotNull('erp_priorities.id');
         }
-
         $issues = $issues->orderBy('erp_priorities.id')->get();
-
         foreach ($issues as &$value) {
             $value->module = $value->developerModule ? $value->developerModule->name : 'Not Specified';
             $value->submitted_by = ($value->submitter) ? $value->submitter->name : "";
         }
         unset($value);
-
         return response()->json($issues);
     }
-
     public function setPriority(Request $request)
     {
         $priority = $request->get('priority', null);
         //get all user task
         $issues = DeveloperTask::where('assigned_to', $request->get('user_id', 0))->pluck('id')->toArray();
-
         //delete old priority
         \App\ErpPriority::whereIn('model_id', $issues)->where('model_type', '=', DeveloperTask::class)->delete();
-
         if (!empty($priority)) {
             foreach ((array) $priority as $model_id) {
                 \App\ErpPriority::create([
@@ -597,7 +527,6 @@ class DevelopmentController extends Controller
                     'model_type' => DeveloperTask::class
                 ]);
             }
-
             $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
                 ->join('erp_priorities', function ($query) {
                     $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
@@ -607,29 +536,22 @@ class DevelopmentController extends Controller
                 ->where('is_resolved', '0')
                 ->orderBy('erp_priorities.id')
                 ->get();
-
             $message = '';
-
             $i = 1;
             foreach ($issues as $value) {
                 $message .= $i . " : #ISSUE-" . $value->id . "-" . $value->subject . "\n";
                 $i++;
             }
-
             if (!empty($message)) {
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $params = [];
                 $params['user_id'] = $request->get('user_id', 0);
-
                 $string = "";
-
                 if (!empty($request->get('global_remarkes', null))) {
                     $string .= $request->get('global_remarkes') . "\n";
                 }
-
                 $string .= "Issue Priority is : \n" . $message;
-
                 $params['message'] = $string;
                 $params['status'] = 2;
                 $requestData->request->add($params);
@@ -640,7 +562,6 @@ class DevelopmentController extends Controller
             'status' => 'success'
         ]);
     }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -650,7 +571,6 @@ class DevelopmentController extends Controller
     {
         //
     }
-
     public function issueCreate()
     {
         return view('development.issue-create');
@@ -712,7 +632,7 @@ class DevelopmentController extends Controller
 
             if ($hubstaffUserId) {
                 $body['assignee_id'] = $hubstaffUserId;
-            }else{
+            } else {
                 $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
             }
 
@@ -761,13 +681,11 @@ class DevelopmentController extends Controller
             'status' => 'required',
             'hubstaff_project' => 'required'
         ]);
-
         $data = $request->except('_token');
-        $data[ 'user_id' ] = $request->user_id ? $request->user_id : Auth::id();
+        $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
         //$data[ 'responsible_user_id' ] = $request->user_id ? $request->user_id : Auth::id();
-        $data[ 'created_by' ] = Auth::id();
+        $data['created_by'] = Auth::id();
         //$data[ 'submitted_by' ] = Auth::id();
-
         $module = $request->get('module_id');
         if (!empty($module)) {
             $module = DeveloperModule::find($module);
@@ -778,9 +696,7 @@ class DevelopmentController extends Controller
                 $data['module_id'] = $module->id;
             }
         }
-
         $task = DeveloperTask::create($data);
-
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
@@ -789,11 +705,9 @@ class DevelopmentController extends Controller
                 $task->attachMedia($media, config('constants.media_tags'));
             }
         }
-
         $requestData = new Request();
         $requestData->setMethod('POST');
         $requestData->request->add(['issue_id' => $task->id, 'message' => $request->input('task'), 'status' => 1]);
-
         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
         // if ($task->status == 'Done') {
         //   NotificationQueueController::createNewNotification([
@@ -843,23 +757,17 @@ class DevelopmentController extends Controller
         if ($request->ajax()) {
             return response()->json(['task' => $task]);
         }
-
         return redirect(url('development/list/devtask'))->with('success', 'You have successfully added task!');
     }
-
     public function issueStore(Request $request)
     {
-
         $this->validate($request, [
             'priority' => 'required|integer',
             'issue' => 'required|min:3'
         ]);
-
         $data = $request->except('_token');
-
         $module = $request->get('module');
         if ($request->response == 1) {
-
             $reference = md5(strtolower($request->reference));
             //Check if reference exist
             $existReference = DeveloperTask::where('reference', $reference)->first();
@@ -867,12 +775,9 @@ class DevelopmentController extends Controller
                 return redirect()->back()->withErrors(['Issue Already Created!']);
             }
         }
-
         if (!isset($reference)) {
             $reference = null;
         }
-
-
         $module = DeveloperModule::find($module);
         if (!$module) {
             $module = new DeveloperModule();
@@ -880,13 +785,11 @@ class DevelopmentController extends Controller
             $module->save();
             $data['module'] = $module->id;
         }
-
         //$issue = Issue::create($data);
         /*$responsibleUser = $request->get('responsible_user_id', 0);
         if (empty($responsibleUser)) {
             $responsibleUser = Auth::id();
         }*/
-
         $task = new DeveloperTask;
         $task->priority = $request->input('priority');
         $task->subject = $request->input('subject');
@@ -900,13 +803,9 @@ class DevelopmentController extends Controller
         $task->reference = $reference;
         $task->status = 'Issue';
         $task->task_type_id = 3;
-
         $task->save();
-
-
         //$issue->submitted_by = Auth::user()->id;
         //$issue->save();
-
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
@@ -915,109 +814,79 @@ class DevelopmentController extends Controller
                 $task->attachMedia($media, config('constants.media_tags'));
             }
         }
-
         $requestData = new Request();
         $requestData->setMethod('POST');
         $requestData->request->add(['issue_id' => $task->id, 'message' => $request->input('issue'), 'status' => 1]);
-
         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
-
         return redirect()->back()->with('success', 'You have successfully submitted an issue!');
     }
-
     public function moduleStore(Request $request)
     {
         $this->validate($request, [
             'name' => 'required|string|min:3'
         ]);
-
         $data = $request->except('_token');
-
         DeveloperModule::create($data);
-
         return redirect()->back()->with('success', 'You have successfully submitted an issue!');
     }
-
     public function commentStore(Request $request)
     {
         $this->validate($request, [
             'message' => 'required|string|min:3'
         ]);
-
         $data = $request->except('_token');
         $data['user_id'] = Auth::id();
-
         DeveloperComment::create($data);
-
         return redirect()->back()->with('success', 'You have successfully wrote a comment!');
     }
-
     public function costStore(Request $request)
     {
         $this->validate($request, [
             'amount' => 'required|numeric',
             'paid_date' => 'required'
         ]);
-
         $data = $request->except('_token');
-
         DeveloperCost::create($data);
-
         return redirect()->back()->with('success', 'You have successfully added payment!');
     }
-
     public function awaitingResponse(Request $request, $id)
     {
         $comment = DeveloperComment::find($id);
         $comment->status = 1;
         $comment->save();
-
         return response('success');
     }
-
     public function issueAssign(Request $request, $id)
     {
         $this->validate($request, [
             'user_id' => 'required|integer'
         ]);
-
         $issue = Issue::find($id);
         $task = new DeveloperTask;
-
         $task->priority = $issue->priority;
         $task->task = $issue->issue;
         $task->user_id = $request->user_id;
         $task->status = 'Planned';
-
         $task->save();
-
         foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
             $task->attachMedia($image, config('constants.media_tags'));
         }
-
         $issue->user_id = $request->user_id;
         $issue->save();
         $issue->delete();
-
         return redirect()->back()->with('success', 'You have successfully assigned the issue!');
     }
-
     public function moduleAssign(Request $request, $id)
     {
         $this->validate($request, [
             'user_id' => 'required|integer'
         ]);
-
         $module = DeveloperTask::find($id);
-
         $module->user_id = $request->user_id;
         $module->module = 0;
-
         $module->save();
-
         return redirect()->route('development.index')->with('success', 'You have successfully assigned the module!');
     }
-
     /**
      * Display the specified resource.
      *
@@ -1028,7 +897,6 @@ class DevelopmentController extends Controller
     {
         //
     }
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -1039,7 +907,6 @@ class DevelopmentController extends Controller
     {
         //
     }
-
     /**
      * Update the specified resource in storage.
      *
@@ -1055,13 +922,10 @@ class DevelopmentController extends Controller
             'cost' => 'sometimes||nullable|integer',
             'status' => 'required'
         ]);
-
         $data = $request->except('_token');
         $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
-
         $task = DeveloperTask::find($id);
         $task->update($data);
-
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
@@ -1070,37 +934,28 @@ class DevelopmentController extends Controller
                 $task->attachMedia($media, config('constants.media_tags'));
             }
         }
-
         return redirect()->route('development.index')->with('success', 'You have successfully updated task!');
     }
-
     public function updateCost(Request $request, $id)
     {
         $task = DeveloperTask::find($id);
-
         if ($task->user_id == Auth::id()) {
             $task->cost = $request->cost;
             $task->save();
         }
-
         return response('success');
     }
-
     public function updateStatus(Request $request, $id)
     {
         $task = DeveloperTask::find($id);
         $task->status = $request->status;
-
         if ($request->status == 'In Progress') {
             $task->start_time = Carbon::now();
         }
-
         if ($request->status == 'Done') {
             $task->end_time = Carbon::now();
         }
-
         $task->save();
-
         // if ($task->status == 'Done' && $task->completed == 0) {
         //   NotificationQueueController::createNewNotification([
         //     'message' => 'New Task to Verify',
@@ -1122,59 +977,45 @@ class DevelopmentController extends Controller
         //     'role' => '',
         //   ]);
         // }
-
         return response('success');
     }
-
     public function updateTask(Request $request, $id)
     {
         $task = DeveloperTask::find($id);
         $task->task = $request->task;
         $task->save();
-
         return response('success');
     }
-
     public function updatePriority(Request $request, $id)
     {
         $task = DeveloperTask::find($id);
         $task->priority = $request->priority;
         $task->save();
-
         return response()->json([
             'priority' => $task->priority
         ]);
     }
-
     public function verify(Request $request, $id)
     {
         $task = DeveloperTask::find($id);
         $task->completed = 1;
         $task->save();
-
         $notifications = PushNotification::where('model_type', 'App\DeveloperTask')->where('model_id', $task->id)->where('isread', 0)->get();
-
         foreach ($notifications as $notification) {
             $notification->isread = 1;
             $notification->save();
         }
-
         if ($request->ajax()) {
             return response('success');
         }
-
         return redirect()->route('development.index')->with('success', 'You have successfully verified the task!');
     }
-
     public function verifyView(Request $request)
     {
         $task = DeveloperTask::find($request->id);
-
         PushNotification::where('model_type', 'App\DeveloperTask')->where('model_id', $request->id)->delete();
-
         if ($request->tab) {
             $message = 'New Task to Verify';
-
             // NotificationQueueController::createNewNotification([
             //   'message' => $message,
             //   'timestamps' => ['+10 minutes'],
@@ -1194,11 +1035,9 @@ class DevelopmentController extends Controller
             //   'sent_to' => 56,
             //   'role' => '',
             // ]);
-
             return redirect(url("/development#task_$request->id"));
         } else {
             $message = 'New Task Remark';
-
             if ($request->user == Auth::id()) {
                 // NotificationQueueController::createNewNotification([
                 //   'message' => $message,
@@ -1230,9 +1069,7 @@ class DevelopmentController extends Controller
                 //   'role' => '',
                 // ]);
             }
-
             return redirect(url("/development?user=$request->user#task_$task->id"));
-
             // if ($task->status == 'Done' && $task->completed == 1) {
             // } elseif ($task->status == 'Done' && $task->completed == 0) {
             //   return redirect(url("/development#task_$request->id"));
@@ -1241,7 +1078,6 @@ class DevelopmentController extends Controller
             // }
         }
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -1253,47 +1089,41 @@ class DevelopmentController extends Controller
         $task = DeveloperTask::find($id);
         $task->development_details()->delete();
         $task->delete();
-
         if ($request->ajax()) {
             return response('success');
         }
-
         return redirect()->route('development.index')->with('success', 'You have successfully archived the task!');
     }
-
     public function issueDestroy($id)
     {
         DeveloperTask::find($id)->delete();
-
         return redirect()->route('development.issue.index')->with('success', 'You have successfully archived the issue!');
     }
-
     public function moduleDestroy($id)
     {
         $module = DeveloperModule::find($id);
-
         foreach ($module->tasks as $task) {
             $task->module_id = '';
             $task->save();
         }
-
         $module->delete();
-
         return redirect()->route('development.index')->with('success', 'You have successfully archived the module!');
     }
-
     public function assignUser(Request $request)
     {
+        $masterUserId = $request->get("master_user_id", 0);
         // $issue = Issue::find($request->get('issue_id'));
         $issue = DeveloperTask::find($request->get('issue_id'));
-        $issue->assigned_to = $request->get('assigned_to');
+        if ($masterUserId > 0) {
+            $issue->master_user_id = $masterUserId;
+        } else {
+            $issue->assigned_to = $request->get('assigned_to');
+        }
         $issue->save();
-
         return response()->json([
             'status' => 'success'
         ]);
     }
-
     public function assignResponsibleUser(Request $request)
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
@@ -1302,26 +1132,21 @@ class DevelopmentController extends Controller
         $issue->assigned_by = \Auth::id();
         $issue->responsible_user_id = $request->get('responsible_user_id');
         $issue->save();
-
         return response()->json([
             'status' => 'success'
         ]);
     }
-
     public function saveAmount(Request $request)
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
         $issue->cost = $request->get('cost');
         $issue->save();
-
         return response()->json([
             'status' => 'success'
         ]);
     }
-
     public function resolveIssue(Request $request)
     {
-
         $issue = DeveloperTask::find($request->get('issue_id'));
         //$issue = Issue::find($request->get('issue_id'));
         //$issue->is_resolved = $request->get('is_resolved');
@@ -1330,26 +1155,21 @@ class DevelopmentController extends Controller
             $issue->responsible_user_id = $issue->assigned_to;
             $issue->is_resolved = 1;
         }
-
         $issue->save();
-
         return response()->json([
             'status' => 'success'
         ]);
     }
-
     public function saveEstimateTime(Request $request)
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
         //$issue = Issue::find($request->get('issue_id'));
         $issue->estimate_time = $request->get('estimate_time');
         $issue->save();
-
         return response()->json([
             'status' => 'success'
         ]);
     }
-
     public function updateValues(Request $request)
     {
         $task = DeveloperTask::find($request->get('id'));
@@ -1375,12 +1195,10 @@ class DevelopmentController extends Controller
             }
         }
         $task->save();
-
         return response()->json([
             'status' => 'success'
         ]);
     }
-
     public function overview(Request $request)
     {
         // Get status
@@ -1391,7 +1209,6 @@ class DevelopmentController extends Controller
         $task_type = 1;
         $taskTypes = TaskTypes::all();
         $users = Helpers::getUsersByRoleName('Developer');
-
         if (!empty($request->get('task_type'))) {
             $task_type = $request->get('task_type');
             //$issues = $issues->where('submitted_by', $request->get('submitted_by'));
@@ -1404,7 +1221,6 @@ class DevelopmentController extends Controller
             $status = $request->get('task_status');
             $task_type = $request->get('task_type');
         }
-
         return view('development.overview', [
             'taskTypes' => $taskTypes,
             'users' => $users,
@@ -1412,7 +1228,6 @@ class DevelopmentController extends Controller
             'task_type' => $task_type,
         ]);
     }
-
     public function taskDetail($taskId)
     {
         // Get tasks
@@ -1422,19 +1237,15 @@ class DevelopmentController extends Controller
             ->leftjoin('users', 'users.id', '=', 'developer_tasks.user_id')
             ->leftjoin('users AS u', 'u.id', '=', 'developer_tasks.created_by')
             ->first();
-
         // Get subtasks
         $subtasks = DeveloperTask::where('developer_tasks.parent_id', $taskId)->get();
-
         // Get comments
         $comments = DeveloperTaskComment::where('task_id', $taskId)
             ->join('users', 'users.id', '=', 'developer_task_comments.user_id')
             ->get();
-
         //Get Attachments
         $attachments = TaskAttachment::where('task_id', $taskId)->get();
         $developers = Helpers::getUserArray(User::role('Developer')->get());
-
         // Return view
         return view('development.task_detail', [
             'task' => $task,
@@ -1444,17 +1255,14 @@ class DevelopmentController extends Controller
             'attachments' => $attachments,
         ]);
     }
-
     public function taskComment(Request $request)
     {
         $response = array();
         $this->validate($request, [
             'comment' => 'required|string|min:1'
         ]);
-
         $data = $request->except('_token');
         $data['user_id'] = Auth::id();
-
         $created = DeveloperTaskComment::create($data);
         if ($created) {
             $response['status'] = 'ok';
@@ -1465,20 +1273,15 @@ class DevelopmentController extends Controller
             $response['msg'] = 'Error';
         }
     }
-
     public function changeTaskStatus(Request $request)
     {
-
         if (!empty($request->input('task_id'))) {
-
             $task = DeveloperTask::find($request->input('task_id'));
             $task->status = $request->input('status');
             $task->save();
-
             return response()->json(['success']);
         }
     }
-
     public function makeDirectory($path, $mode = 0777, $recursive = false, $force = false)
     {
         if ($force) {
@@ -1487,7 +1290,6 @@ class DevelopmentController extends Controller
             return mkdir($path, $mode, $recursive);
         }
     }
-
     public function uploadAttachDocuments(Request $request)
     {
         $task_id = $request->input('task_id');
@@ -1500,7 +1302,6 @@ class DevelopmentController extends Controller
                 //                if (!file_exists($path)) {
                 //                    $this->makeDirectory($path);
                 //                }
-
                 $dirname = public_path() . '/uploads/developer-task/' . $new_id;
                 if (file_exists($dirname)) {
                     $dirname2 = public_path() . '/uploads/developer-task/' . $new_id . '/' . $task_id;
@@ -1510,19 +1311,15 @@ class DevelopmentController extends Controller
                 } else {
                     mkdir($dirname, 0777);
                 }
-
                 $media = MediaUploader::fromSource($image)->toDirectory("developer-task/$new_id/$task_id")->upload();
                 $task->attachMedia($media, config('constants.media_tags'));
             }
         }
         if (!empty($request->file('attached_document'))) {
-
             foreach ($request->file('attached_document') as $file) {
-
                 $name = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('images/task_files/'), $name);
                 $filepath[] = 'images/task_files/' . $name;
-
                 $task_attachment = new TaskAttachment;
                 $task_attachment->task_id = $task_id;
                 $task_attachment->name = $name;
@@ -1533,27 +1330,21 @@ class DevelopmentController extends Controller
             return redirect(url("/development/task-detail/$task_id"));
         }
     }
-
     public function downloadFile(Request $request)
     {
         $file_name = $request->input('file_name');
         //PDF file is stored under project/public/download/info.pdf
         $file = public_path() . "/images/task_files/" . $file_name;
-
         $ext = substr($file_name, strrpos($file_name, '.') + 1);
-
         $headers = array();
         if ($ext == 'pdf') {
             $headers = array(
                 'Content-Type: application/pdf',
             );
-
             //$download_file = $file_name.'.pdf';
         }
-
         return Response::download($file, $file_name, $headers);
     }
-
     //    public function downloadFile($path) {
     //        if (file_exists($path) && is_file($path)) {
     //            // file exist
@@ -1572,7 +1363,6 @@ class DevelopmentController extends Controller
     //            die('Error: The file ' . basename($path) . ' does not exist!');
     //        }
     //    }
-
     public function openNewTaskPopup(Request $request)
     {
         $status = "ok";
@@ -1592,8 +1382,16 @@ class DevelopmentController extends Controller
         //Get hubstaff projects
         $projects = HubstaffProject::all();
 
-
         $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames", "projects"))->render();
         return json_encode(compact("html", "status"));
+    }
+    public function saveLanguage(Request $request)
+    {
+        $issue = DeveloperTask::find($request->get('issue_id'));
+        $issue->language = $request->get('language');
+        $issue->save();
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 }
