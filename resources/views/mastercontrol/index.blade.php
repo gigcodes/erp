@@ -249,27 +249,39 @@
                       <tr>
                         <td width="25%">{{ $customer->name }}</td>
                         <td width="25%">{{ $customer->phone }}</td>
-                        <td width="50%">
+                        <td width="60%">
                           <div class="row">
                             <div class="col-md-6">
                                 <div class="d-flex">
-                                    <input type="text" class="form-control quick-message-field" name="customer" placeholder="Message" value="">
+                                    <input type="text" class="form-control" name="customer" placeholder="Message" value="" id="textAreaCustomer{{ $customer->id }}">
                                     <button class="btn btn-sm btn-image send-message" data-customerid="{{ $customer->id }}" data-type="customer"><img src="/images/filled-sent.png"/></button>
                                 </div>
                            </div>
                            <div style="margin-top:5px;" class="col-md-6">
                                 <div class="d-flex">
-                                    <?php echo Form::select("quickComment",["" => "--Auto Reply--"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]); ?>
-                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
+                                    <select name="quickCategory" class="quickCategory form-control input-sm mb-3" data-type="customer" data-id="{{ $customer->id }}">
+                                    <option value="">Select Category</option>
+                                    @foreach($reply_categories as $category)
+                                        <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="quickComment" id="quickCommentCustomer{{ $customer->id }}" class="form-control input-sm" onchange="messageToTextArea(this,'customer',{{ $customer->id }})">
+                                    <option value="">Quick Reply</option>
+                                </select>
                                 </div>
                             </div> 
                            </div>
                         </td>
                         <td width="40%" class="table-hover-cell  @if(isset($customer->whatsappAll[0])) @if($customer->whatsappAll[0]->status == 0) text-danger @endif @endif" style="word-break: break-all;">
                           <span class="td-full-container">
-                            <div class="chat_messages">
+                            <div class="chat_messages expand-row ">
                                 @if(isset($customer->whatsappAll[0])) 
+                                <span class="chat-mini-container"> 
                                 {{ strlen($customer->whatsappAll[0]->message) > 10 ? substr($customer->whatsappAll[0]->message , 0, 10) : $customer->whatsappAll[0]->message }}
+                                </span>
+                                <span class="chat-full-container hidden">
+                                  {{ $customer->whatsappAll[0]->message }}
+                                </span>
                                 @endif
                             </div>
                             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="customer" data-id="{{ $customer->id }}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
@@ -311,24 +323,36 @@
                           <div class="row">
                             <div class="col-md-6">
                                 <div class="d-flex">
-                                    <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+                                    <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="textAreaVendor{{ $vendor->id }}">
                                     <button class="btn btn-sm btn-image send-message" data-vendorid="{{ $vendor->id }}" data-type="vendor"><img src="/images/filled-sent.png"/></button>
                                 </div>
                            </div>
                            <div style="margin-top:5px;" class="col-md-6">
                                 <div class="d-flex">
-                                    <?php echo Form::select("quickComment",["" => "--Auto Reply--"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]); ?>
-                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
+                                    <select name="quickCategory" class="quickCategory form-control input-sm mb-3" data-type="vendor" data-id="{{ $vendor->id }}">
+                                    <option value="">Select Category</option>
+                                    @foreach($reply_categories as $category)
+                                        <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="quickComment" id="quickCommentVendor{{ $vendor->id }}" class="form-control input-sm" onchange="messageToTextArea(this,'vendor',{{ $vendor->id }})">
+                                    <option value="">Quick Reply</option>
+                                </select>
                                 </div>
                             </div> 
                            </div>
                         </td>
                         <td width="40%" class="table-hover-cell  @if(isset($vendor->chat_messages[0])) @if($vendor->chat_messages[0]->status == 0) text-danger @endif @endif" style="word-break: break-all;">
                           <span class="td-full-container">
-                            <div class="chat_messages">
+                            <div class="chat_messages expand-row">
+                              <span class="chat-mini-container"> 
                                 @if(isset($vendor->chat_messages[0])) 
                                 {{ strlen($vendor->chat_messages[0]->message) > 10 ? substr($vendor->chat_messages[0]->message , 0, 10) : $vendor->chat_messages[0]->message }}
                                 @endif
+                              </span>
+                               <span class="chat-full-container hidden">
+                                {{ $vendor->chat_messages[0]->message }}
+                               </span>
                             </div>
                             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
                             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
@@ -368,22 +392,35 @@
                           <div class="row">
                             <div class="col-md-6">
                                 <div class="d-flex">
-                                    <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+                                    <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="textAreaSupplier{{ $supplier->id }}">
                                     <button class="btn btn-sm btn-image send-message" data-supplierid="{{ $supplier->id }}" data-type="supplier"><img src="/images/filled-sent.png"/></button>
                                 </div>
                            </div>
                            <div style="margin-top:5px;" class="col-md-6">
                                 <div class="d-flex">
-                                    <?php echo Form::select("quickComment",["" => "--Auto Reply--"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]); ?>
-                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
+                                    <select name="quickCategory" class="quickCategory form-control input-sm mb-3" data-type="supplier" data-id="{{ $supplier->id }}">
+                                    <option value="">Select Category</option>
+                                    @foreach($reply_categories as $category)
+                                        <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="quickComment" id="quickCommentSupplier{{ $supplier->id }}" class="form-control input-sm" onchange="messageToTextArea(this,'supplier',{{ $supplier->id }})">
+                                    <option value="">Quick Reply</option>
+                                </select>
                                 </div>
                             </div> 
                            </div>
                         </td>
                         <td width="40%" class="table-hover-cell  @if(isset($supplier->whatsappAll[0])) @if($supplier->whatsappAll[0]->status == 0) text-danger @endif @endif" style="word-break: break-all;">
                           <span class="td-full-container">
-                            <div class="chat_messages">
-                                @if(isset($supplier->whatsappAll[0])) {{ strlen($supplier->whatsappAll[0]->message) > 10 ? substr($supplier->whatsappAll[0]->message , 0, 10) : $supplier->whatsappAll[0]->message }}
+                            <div class="chat_messages expand-row">
+                                @if(isset($supplier->whatsappAll[0]))
+                                 <span class="chat-mini-container"> 
+                                 {{ strlen($supplier->whatsappAll[0]->message) > 10 ? substr($supplier->whatsappAll[0]->message , 0, 10) : $supplier->whatsappAll[0]->message }}
+                                 </span>
+                                 <span class="chat-full-container hidden">
+                                  {{ $supplier->whatsappAll[0]->message }}
+                                 </span>
                                 @endif
                             </div>
 
@@ -794,7 +831,53 @@
     });
     });
 
+ $('.quickCategory').on('change', function () {
+            var type = $(this).attr('data-type');
+            var id = $(this).attr('data-id');
+            if(type == 'customer'){
+              name = 'Customer';
+            }else if(type == 'vendor'){
+              name = 'Vendor';
+            }else if(type == 'supplier'){
+              name = 'Supplier';
+            }
+  
+            var replies = JSON.parse($(this).val());
+            $('#quickComment'+name+id).empty();
 
- 
-  </script>
+            $('#quickComment'+name+id).append($('<option>', {
+                value: '',
+                text: 'Quick Reply'
+            }));
+
+            replies.forEach(function (reply) {
+                $('#quickComment'+name+id).append($('<option>', {
+                    value: reply.reply,
+                    text: reply.reply
+                }));
+            });
+        });
+
+ function messageToTextArea(text,type,id){
+    if(type == 'customer'){
+              name = 'Customer';
+    }else if(type == 'vendor'){
+      name = 'Vendor';
+    }else if(type == 'supplier'){
+      name = 'Supplier';
+    }
+    $('#textArea'+name+id).val(text.value);
+ }
+
+ $(document).on('click', '.expand-row', function () {
+            var selection = window.getSelection();
+            if (selection.toString().length === 0) {
+                $(this).find('.chat-mini-container').toggleClass('hidden');
+                $(this).find('.chat-full-container').toggleClass('hidden');
+            }
+        });
+
+</script>
+
+
 @endsection

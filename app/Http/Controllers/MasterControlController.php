@@ -155,7 +155,7 @@ class MasterControlController extends Controller
         
         $suppliers = Supplier::whereIn('id',$supplierArrays)->orderByRaw("field(id,{$supplierPlaceholders})", $supplierArrays)->get();
         
-        $replies = \App\Reply::where("model","Vendor")->whereNull("deleted_at")->pluck("reply","id")->toArray();
+        $reply_categories = ReplyCategory::all();
 
         
      return view('mastercontrol.index', [
@@ -171,7 +171,7 @@ class MasterControlController extends Controller
         'chatSuppliers' => $suppliers,
         'chatCustomers' => $customers,
         'chatVendors' => $vendors,
-        'replies' => $replies,
+        'reply_categories' => $reply_categories,
 
     ]);
     }
