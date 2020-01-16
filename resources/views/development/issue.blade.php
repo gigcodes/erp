@@ -55,14 +55,14 @@
         <div class="col-md-12">
             <form action="{{ url("development/list/$title") }}" method="get">
                 <div class="row">
-                    <div class="col-md-1">
+                    <!-- <div class="col-md-1">
                         <select class="form-control" name="submitted_by" id="submitted_by">
                             <option value="">Submitted by</option>
                             @foreach($users as $id=>$user)
                                 <option {{$request->get('submitted_by')==$id ? 'selected' : ''}} value="{{$id}}">{{ $user }}</option>
                             @endforeach
                         </select>
-                    </div>
+                    </div> -->
                     <div class="col-md-1">
                         <select class="form-control" name="assigned_to" id="assigned_to">
                             <option value="">Assigned To</option>
@@ -100,20 +100,18 @@
                     <div class="col-md-2">
                         <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
                     </div>
-                    @if($title == 'devtask')
-                        <div class="col-md-2">
-                            <select name="task_status[]" class="form-control multiselect" multiple>
-                                <option value="Planned" {{ in_array('Planned', request()->get('task_status', [])) ? 'selected' : '' }}>Planned</option>
-                                <option value="In Progress" {{ in_array('In Progress', request()->get('task_status', [])) ? 'selected' : '' }}>In Progress</option>
-                                <option value="Done" {{ in_array('Done', request()->get('task_status', [])) ? 'selected' : '' }}>Done</option>
-                            </select>
-                        </div>
-                    @endif
+                    <div class="col-md-2">
+                        <input type="text" name="language" id="language_query" placeholder="Language" class="form-control" value="{{ (!empty(app('request')->input('language'))  ? app('request')->input('language') : '') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', []),["class" => "form-control multiselect","multiple" => true]); ?>
+                    </div>
                     <div class="col-md-1">
                         <select name="order" id="order_query" class="form-control">
                             <option {{$request->get('order')== "" ? 'selected' : ''}} value="create">Order by date descending</option>
                             <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="">Order by priority</option>
                             <option {{$request->get('order')== "create_asc" ? 'selected' : ''}} value="create">Order by date</option>
+                            <option {{$request->get('order')== "communication_desc" ? 'selected' : ''}} value="communication_desc">Order by Communication</option>
                         </select>
                     </div>
                     <div class="col-md-1">
@@ -131,6 +129,7 @@
                    
                     <div class="col-md-1">
                         <a class="btn btn-secondary d-inline priority_model_btn">Priority</a>
+                        <a class="btn btn-secondary d-inline priority_model_head_dev_btn">Priority Bjorn</a>
                     </div>
                 </div>
                 <div class="row" style="margin-top: 10px;">
@@ -221,7 +220,7 @@
                     <tr class="add-new-issue">
                         <form action="{{ route('development.issue.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
-                            <td colspan="12">
+                            <td colspan="14">
                                 <div class="row">
                                     <div class="col-md-2">
                                         <select class="form-control d-inline select2" name="module" id="module" style="width: 150px !important;">
@@ -277,7 +276,9 @@
                     <th width="5%">Assigned To</th>
                     <th width="5%">Responsible User</th>
                     <th width="5%">Resolved</th>
+                    <th width="5%">Master Developer</th>
                     <th width="5%">Cost</th>
+                    <th width="5%">Language</th>
                 </tr>
                 @foreach ($issues as $key => $issue)
                     @if(auth()->user()->isAdmin())
@@ -329,11 +330,8 @@
                             <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }} </td>
                             <td data-id="{{ $issue->id }}">
                                 <div class="form-group">
-                                    <div class='input-group date estimate-time'>
-                                        <input style="min-width: 145px;" placeholder="Time" value="{{ $issue->estimate_time }}" type="text" class="form-control" name="estimate_time_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_completion_{{$issue->id}}">
-                                        <span class="input-group-addon">
-                                            <i class="fa fa-calendar"></i>
-                                        </span>
+                                    <div class='input-group estimate_minutes'>
+                                        <input style="min-width: 145px;" placeholder="Estimation minutes" value="{{ $issue->estimate_minutes }}" type="text" class="form-control" name="estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_minutes_{{$issue->id}}">
                                     </div>
                                     <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button>
                                 </div>
@@ -371,14 +369,20 @@
                                     {{--<option {{ $issue->is_resolved==0 ? 'selected' : '' }} value="0">Not Resolved</option>--}}
                                     {{--<option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>--}}
                                     {{--</select>--}}
-
-                                    <select name="task_status" id="{{$issue->id}}" class="form-control resolve-issue" onchange="resolveIssue(this,'<?php echo $issue->id; ?>')">
-                                        <option value="">Please Select</option>
-                                        <option value="Planned" {{ (!empty($issue->status) && $issue->status ==  'Planned' ? 'selected' : '') }}>Planned</option>
-                                        <option value="In Progress" {{ (!empty($issue->status) && $issue->status  ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
-                                        <option value="Done" {{ (!empty($issue->status) && $issue->status ==   'Done' ? 'selected' : '') }}>Done</option>
-                                    </select>
+                                    <?php echo Form::select("task_status",$statusList,$issue->status,["class" => "form-control resolve-issue","onchange" => "resolveIssue(this,".$issue->id.")"]); ?>
                                 @endif
+                            </td>
+                            <td>
+                                <select class="form-control assign-master-user" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
+                                    <option value="">Select...</option>
+                                    @foreach($users as $id=>$name)
+                                        @if( isset($issue->masterUser->id) && (int) $issue->masterUser->id == $id )
+                                            <option value="{{$id}}" selected>{{ $name }}</option>
+                                        @else
+                                            <option value="{{$id}}">{{ $name }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
                             </td>
                             <td>
                                 @if($issue->cost > 0)
@@ -387,25 +391,41 @@
                                     <input type="text" name="cost" id="cost_{{$issue->id}}" placeholder="Amount..." class="form-control save-cost" data-id="{{$issue->id}}">
                                 @endif
                             </td>
+                            <td>
+                                <input type="text" name="cost" id="language_{{$issue->id}}" placeholder="Language..." class="form-control save-language" value="<?php echo $issue->language; ?>" data-id="{{$issue->id}}">
+                            </td>
                         </tr>
                         <tr>
                             <td>&nbsp;</td>
-                            <td colspan="11">
+                            <td colspan="13">
                                 <div id="collapse_{{$issue->id}}" class="panel-collapse collapse">
                                     <div class="panel-body">
                                         <div class="messageList" id="message_list_{{$issue->id}}">
                                             @foreach($issue->messages as $message)
                                                 <p>
-                                                    <strong>{{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}</strong>
+                                                    <strong>
+                                                        <?php echo !empty($message->sendTaskUsername()) ? "Send To : ".$message->sendTaskUsername() : ""; ?>
+                                                        <?php echo !empty($message->sendername()) ? "From : ".$message->sendername() : ""; ?>
+                                                        At {{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}</strong>
                                                 </p>
-                                                {!! nl2br($message->message) !!}
+                                                {!! nl2br($message->message) !!} 
                                                 <hr/>
                                             @endforeach
                                         </div>
                                     </div>
                                     <div class="panel-footer">
-                                        <textarea class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}"></textarea>
-                                        <button type="submit" id="submit_message" class="btn btn-secondary ml-3 send-message" data-id="{{$issue->id}}" style="float: right;margin-top: 2%;">Submit</button>
+                                        <div class="row">
+                                            <textarea class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}"></textarea>
+                                        </div>
+                                        <div class="row" style="padding-top: 5px;">
+                                            <?php echo Form::select("send_message_".$issue->id,[
+                                                "to_developer" => "Send To Developer",
+                                                "to_master" => "Send To Master Developer"
+                                            ],null,["class" => "form-control send-message-number"]); ?>
+                                        </div>
+                                        <div class="row">
+                                            <button type="submit" id="submit_message" class="btn btn-secondary ml-3 send-message" data-id="{{$issue->id}}" style="float: right;margin-top: 2%;">Submit</button>
+                                        </div>
                                     </div>
                                 </div>
                             </td>
@@ -473,16 +493,26 @@
                                     @endif
                                 </td>
                                 <td>
+                                    @if($issue->masterUser)
+                                        {{ $issue->masterUser->name  }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
+                                <td>
                                     @if($issue->cost > 0)
                                         {{ $issue->cost }}
                                     @else
                                         <input type="text" name="cost" id="cost_{{$issue->id}}" placeholder="Amount..." class="form-control save-cost" data-id="{{$issue->id}}">
                                     @endif
                                 </td>
+                                <td>
+                                    <?php echo $issue->language; ?>
+                                </td>
                             </tr>
                             <tr>
                                 <td>&nbsp;</td>
-                                <td colspan="11">
+                                <td colspan="13">
                                     <div id="collapse_{{$issue->id}}" class="panel-collapse collapse">
                                         <div class="panel-body">
                                             <div class="messageList" id="message_list_{{$issue->id}}">
@@ -708,11 +738,23 @@
                         var current_page = next_page.find("span").html();
                         $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
                     }
+
+                    $.each($(".resolve-issue"),function(k,v){
+                        if (!$(v).hasClass("select2-hidden-accessible")) {
+                            $(v).select2({width:"100%", tags:true});
+                        }
+                    });
                 }
             });
 
             $('.select2').select2({
                 tags: true
+            });
+
+            $.each($(".resolve-issue"),function(k,v){
+                if (!$(v).hasClass("select2-hidden-accessible")) {
+                    $(v).select2({width:"100%", tags:true});
+                }
             });
 
             $('#priority_user_id').select2({
@@ -721,7 +763,7 @@
             });
 
             $('.estimate-time').datetimepicker({
-                format: 'Y-MM-DD HH:mm'
+                format: 'HH:mm'
             });
         });
 
@@ -771,6 +813,7 @@
             $(this).closest('tr').remove();
         });
         $('.priority_model_btn').click(function () {
+            $("#priority_user_id").show();
             $("#priority_user_id").val('');
             $(".show_task_priority").html('');
             <?php if (auth()->user()->isAdmin()) { ?>
@@ -779,7 +822,18 @@
             getPriorityTaskList('{{auth()->user()->id}}');
             <?php } ?>
             $('#priority_model').modal('show');
+        });
+
+        $('.priority_model_head_dev_btn').click(function () {
+            $("#priority_user_id").hide();
+            $(".show_task_priority").html('');
+            <?php if (auth()->user()->isAdmin()) { ?>
+                getPriorityTaskList(2);
+            <?php } ?>
+            $('#priority_model').modal('show');
         })
+
+        
 
         $('#priority_user_id').change(function () {
             getPriorityTaskList($(this).val())
@@ -809,6 +863,7 @@
             }*/
 
             var textBox = $(this).closest(".panel-footer").find(".send-message-textbox");
+            var sendToStr  = $(this).closest(".panel-footer").find(".send-message-number").val();
 
             let issueId = textBox.attr('data-id');
             let message = textBox.val();
@@ -823,10 +878,11 @@
                 url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
                 type: 'POST',
                 data: {
-                    issue_id: issueId,
-                    message: message,
-                    _token: "{{csrf_token()}}",
-                    status: 2
+                    "issue_id": issueId,
+                    "message": message,
+                    "sendTo" : sendToStr,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2
                 },
                 dataType: "json",
                 success: function (response) {
@@ -885,6 +941,30 @@
             });
 
         });
+
+        $(document).on('change', '.assign-master-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+
+            if (userId == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@assignUser')}}",
+                data: {
+                    master_user_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Master User assigned successfully!", "Message")
+                }
+            });
+
+        });
+
+        
+
         $(document).on('keyup', '.save-cost', function (event) {
             if (event.keyCode != 13) {
                 return;
@@ -903,6 +983,26 @@
                 }
             });
         });
+
+        $(document).on('focusout', '.save-language', function (event) {
+            
+            let id = $(this).attr('data-id');
+            let language = $(this).val();
+
+            $.ajax({
+                url: "{{action('DevelopmentController@saveLanguage')}}",
+                data: {
+                    language: language,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Language updated successfully!", "Message")
+                }
+            });
+        });
+
+        
+
         {{--$(document).on('change', '.resolve-issue', function (event) {--}}
         {{--let id = $(this).data('id');--}}
         {{--let status = $(this).val();--}}
@@ -937,16 +1037,16 @@
 
         $(document).on('click', '.estimate-time-change', function () {
             let issueId = $(this).data('id');
-            let estimate_time = $("#estimate_completion_" + issueId).val();
+            let estimate_minutes = $("#estimate_minutes_" + issueId).val();
 
             $.ajax({
-                url: "{{action('DevelopmentController@saveEstimateTime')}}",
+                url: "{{action('DevelopmentController@saveEstimateMinutes')}}",
                 data: {
-                    estimate_time: estimate_time,
+                    estimate_minutes: estimate_minutes,
                     issue_id: issueId
                 },
                 success: function () {
-                    toastr["success"]("Time updated successfully!", "Message")
+                    toastr["success"]("Estimate Minutes updated successfully!", "Message")
                 }
             });
 
