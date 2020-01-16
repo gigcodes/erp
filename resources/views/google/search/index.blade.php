@@ -89,7 +89,7 @@ input:checked + .slider:before {
             <div class="row">
                 <div class="col-md-6">
                     
-                    <form action="{{ route('google.search') }}" method="GET">
+                    <form action="{{ route('google.search.keyword') }}" method="GET">
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-md-5">
@@ -110,26 +110,25 @@ input:checked + .slider:before {
                 </div>
                 <div class="col-md-6">
                      
-               <form method="post" action="{{ action('GoogleSearchController@store') }}">
-                @csrf
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="name">Keyword</label>
-                            <input type="text" name="name" id="name" placeholder="sololuxuryindia" class="form-control">
+                    <form method="post" action="{{ action('GoogleSearchController@store') }}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="name">Keyword</label>
+                                <input type="text" name="name" id="name" placeholder="sololuxuryindia" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Add?</label>
+                                <button class="btn-block btn btn-default">Add Keyword</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Add?</label>
-                            <button class="btn-block btn btn-default">Add Keyword</button>
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" name="platform_id" value="2">
-            </form>
+                    <input type="hidden" name="platform_id" value="2">
+                    </form>
 
-            
                 </div>
             </div>
             
@@ -139,7 +138,7 @@ input:checked + .slider:before {
             <table class="table-striped table-bordered table table-sm">
                 <tr>
                     <th>S.N</th>
-                    <th><a href="/google/search{{ ($queryString) ? '?'.$queryString : '?' }}sortby=keyword{{ ($orderBy == 'DESC') ? '&orderby=ASC' : '' }}">Keyword</a></th>
+                    <th><a href="/google/search/keyword{{ ($queryString) ? '?'.$queryString : '?' }}sortby=keyword{{ ($orderBy == 'DESC') ? '&orderby=ASC' : '' }}">Keyword</a></th>
                     <th>Actions</th>
                     <th>Priority</th>
                 </tr>
@@ -167,7 +166,6 @@ input:checked + .slider:before {
                               @endif
                               <span class="slider round"></span>
                             </label>
-                            <!-- <button onclick="runCommand({{ $keyword->id }})">Run Command</button> -->
                         </td>
                     </tr>
                 @endforeach
@@ -189,7 +187,7 @@ input:checked + .slider:before {
             if(this.checked) {
                $.ajax({
                     type: 'GET',
-                    url: '{{ route('google.keyword.priority') }}',
+                    url: '{{ route('google.search.keyword.priority') }}',
                     data: {
                         id:id,
                         type: 1
@@ -212,7 +210,7 @@ input:checked + .slider:before {
             }else{
                  $.ajax({
                     type: 'GET',
-                    url: '{{ route('google.keyword.priority') }}',
+                    url: '{{ route('google.search.keyword.priority') }}',
                     data: {
                         id:id,
                         type: 0
@@ -223,31 +221,5 @@ input:checked + .slider:before {
             }
         });
 
-        function runCommand(id) {
-             $.ajax({
-                    type: 'POST',
-                    url: '{{ route('hashtag.command') }}',
-                    data: {
-                        id:id,
-                         _token: "{{ csrf_token() }}"
-                    },beforeSend: function() {
-                       $("#loading-image").show();
-                    },success: function (data) {
-                      $("#loading-image").hide();
-                        if(data.status == 'error'){
-                           alert('Something went wrong'); 
-                           location.reload(true);
-                           
-                        }else{
-                           alert('Hashtag Added To Fetch Post');  
-
-                        }
-                      
-                    },
-                    error: function (data) {
-                       alert('Something went wrong');
-                    }
-                        });
-        }
     </script>
 @endsection

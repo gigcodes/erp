@@ -380,4 +380,42 @@ function sendMessage(){
 // 	$('#imgupload').trigger('click');
 // }
 
+
+
+
+function sendImage() {
+	$('#imgupload').trigger('click');
+}
+
+$(document).ready(function() {
+	$('#imgupload').on('change', function(){
+	    id = $('#message-id').val();
+		file = $('#imgupload').prop('files')[0];
+		var fd = new FormData();
+			fd.append("id", id);
+			fd.append("file", file);
+			fd.append("_token", "{{ csrf_token() }}" );
+		var scrolled=0;
+	    $.ajax({
+	    	url: "{{ route('livechat.upload.file') }}",
+	    	type: 'POST',
+	    	dataType: 'json',
+	    	data: fd,
+			cache: false,
+	        contentType: false,
+	        processData: false,
+	        success: function(data){
+	        	//alert(data);
+				// chat_message = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'+data.filename+' uploaded<br><a href="'+data.fileCDNPath+'" target="_blank">'+data.fileCDNPath+'</a><span class="msg_time"></span></div></div>';
+				// $('#message-recieve').append(chat_message);
+				// //$('#message').val('');
+				// scrolled=scrolled+300;
+				// $(".cover").animate({
+				// 	scrollTop:  scrolled
+				// });	        	
+	        }
+	    });
+	});
+});
+
 </script>
