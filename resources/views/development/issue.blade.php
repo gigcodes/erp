@@ -274,7 +274,7 @@
                     <th width="5%">Est Completion Time</th>
                     {{--<th width="5%">Submitted By</th>--}}
                     <th width="5%">Assigned To</th>
-                    <th width="5%">Responsible User</th>
+                    <th width="5%">Corrected By</th>
                     <th width="5%">Resolved</th>
                     <th width="5%">Master Developer</th>
                     <th width="5%">Cost</th>
