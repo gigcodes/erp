@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 
 class Vendor extends Model
 {
@@ -87,5 +88,10 @@ class Vendor extends Model
     public function emails()
     {
         return $this->hasMany('App\Email', 'model_id', 'id');
+    }
+
+    public function whatsappLastTwentyFourHours()
+    {
+        return $this->hasMany('App\ChatMessage')->where('created_at','>=', Carbon::now()->subDay()->toDateTimeString())->orderBy('id','desc');
     }
 }

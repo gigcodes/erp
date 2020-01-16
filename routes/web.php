@@ -426,6 +426,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');
     Route::post('supplier/reminder', 'SupplierController@updateReminder');
+    Route::post('supplier/excel-import', 'SupplierController@excelImport');
     Route::post('vendor/reminder', 'VendorController@updateReminder');
     Route::post('customer/add-note/{id}', 'CustomerController@addNote');
     Route::post('supplier/add-note/{id}', 'SupplierController@addNote');
@@ -791,6 +792,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendor/reply/add', 'VendorController@addReply')->name('vendor.reply.add');
     Route::get('vendor/reply/delete', 'VendorController@deleteReply')->name('vendor.reply.delete');
     Route::post('vendor/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendor.email.send.bulk');
+    Route::post('vendor/create-user', 'VendorController@createUser')->name('vendor.create.user');
+    
     Route::post('vendor/send/email', 'VendorController@sendEmail')->name('vendor.email.send');
     Route::get('vendor/email/inbox', 'VendorController@emailInbox')->name('vendor.email.inbox');
     Route::post('vendor/product', 'VendorController@productStore')->name('vendor.product.store');
