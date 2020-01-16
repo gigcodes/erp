@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\HubstaffMember;
+use App\Hubstaff\HubstaffMember;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
