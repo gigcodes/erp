@@ -19,14 +19,14 @@
             @endphp
             <div class="form-group">
               <strong>User:</strong>
-              <select class="form-control" name="user_id" required>
+              <select class="form-control" name="assigned_to" required>
                 @foreach ($quick_dev_users_array as $id => $name)
-                  <option value="{{ $id }}" {{ old('user_id') == $id ? 'selected' : '' }}>{{ $name }}</option>
+                  <option value="{{ $id }}" {{ old('assigned_to') == $id ? 'selected' : '' }}>{{ $name }}</option>
                 @endforeach
              </select>
 
-              @if ($errors->has('user_id'))
-                  <div class="alert alert-danger">{{$errors->first('user_id')}}</div>
+              @if ($errors->has('assigned_to'))
+                  <div class="alert alert-danger">{{$errors->first('assigned_to')}}</div>
               @endif
             </div>
           @endif

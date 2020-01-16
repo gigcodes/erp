@@ -13,7 +13,7 @@ class DeveloperTask extends Model
 
     protected $fillable = [
         'user_id', 'module_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_time', 'end_time', 'task_type_id', 'parent_id', 'created_by', 'submitted_by',
-        'responsible_user_id','assigned_to','assigned_by'
+        'responsible_user_id','assigned_to','assigned_by','language','master_user_id'
     ];
 
     public function user()
@@ -52,7 +52,7 @@ class DeveloperTask extends Model
 
     public function assignedUser()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'assigned_to', 'id');
     }
 
     public function submitter()
@@ -67,5 +67,10 @@ class DeveloperTask extends Model
 
     public function countUserTaskFromReference($id){
         return $this->whereNotNull('reference')->where('responsible_user_id',$id)->count();
+    }
+
+    public function masterUser()
+    {
+        return $this->belongsTo(User::class, 'master_user_id', 'id');
     }
 }

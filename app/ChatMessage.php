@@ -182,4 +182,24 @@ class ChatMessage extends Model
         }
 
     }
+
+    public function taskUser()
+    {
+        return $this->hasOne("\App\User","id","erp_user");
+    }
+
+    public function sendTaskUsername()
+    {
+        $name = "";
+
+        if($this->erp_user > 0) {
+            $taskUser = $this->taskUser;
+            if($taskUser) {
+                $name = $taskUser->name;
+            }
+        }
+
+        return $name; 
+    }
+
 }

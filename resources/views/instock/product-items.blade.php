@@ -21,18 +21,19 @@
 <div class="row">
   @foreach ($products as $product)
   <div class="col-md-3 col-xs-6 text-left">
-    <a href="{{ route('products.show', $product->id) }}">
-      <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
-          ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
-          : ''
-        }}" class="img-responsive grid-image" alt="" />
+      <a href="{{ route('products.show', $product->id) }}">
+        <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
+            ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+            : ''
+          }}" class="img-responsive grid-image" alt="" />
+      </a>  
       <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
       <p class="transist_status_{{$product->id}}">Transist Status : {{ $product->purchase_status }}</p>
       <p class="location_{{$product->id}}">Location : {{ ($product->location) ? $product->location : "" }}</p>
       <p>Sku : {{ $product->sku }}</p>
       <p>Id : {{ $product->id }}</p>
-      <p>Size : {{ $product->size}}</p>
-      <p>Price : {{ $product->price_special }}</p>
+      <p>Size : <span class="text-editable" data-field-name="size" data-product-id="{{ $product->id }}">{{ $product->size}}</span></p>
+      <p>Price : <span class="text-editable" data-field-name="price_inr_special" data-product-id="{{ $product->id }}">{{ ($product->price_inr_special > 0) ? $product->price_inr_special : "N/A" }}</span></p>
 
       <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-instruction" title="Create Dispatch / Location Change"><img src="/images/support.png"></button>
       <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-instruction-history" title="Product Location History"><img src="/images/remark.png"></button>

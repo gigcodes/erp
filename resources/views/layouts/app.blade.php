@@ -35,13 +35,6 @@
         Laravel.csrfToken = "{{csrf_token()}}";
         window.Laravel = Laravel;
     </script>
-    <script>
-        jQuery('.readmore').readmore({
-            speed: 75,
-            moreLink: '<a href="#">Read more</a>',
-            lessLink: '<a href="#">Read less</a>'
-        });
-    </script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script> --}}
@@ -81,19 +74,14 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 
     @if(Auth::user())
-
         {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
-
         <script>
-
-            window.userid = {{Auth::user()->id}};
+            window.userid = "{{Auth::user()->id}}";
 
             window.username = "{{Auth::user()->name}}";
 
-            loggedinuser = {{Auth::user()->id}};
-
+            loggedinuser = "{{Auth::user()->id}}";
         </script>
-
     @endif
 
 
@@ -128,25 +116,7 @@
     @yield("styles")
 
     <script>
-
-        window.Laravel = {!! json_encode([
-
-            'csrfToken'=> csrf_token(),
-
-            'user'=> [
-
-                'authenticated' => auth()->check(),
-
-                'id' => auth()->check() ? auth()->user()->id : null,
-
-                'name' => auth()->check() ? auth()->user()->name : null,
-
-                ]
-
-            ])
-
-        !!};
-
+        window.Laravel = '{{!!json_encode(['csrfToken'=>csrf_token(),'user'=>['authenticated'=>auth()->check(),'id'=>auth()->check() ? auth()->user()->id : null,'name'=>auth()->check() ? auth()->user()-> name : null,]])!!}';
     </script>
 
 
@@ -162,13 +132,13 @@
       });
     </script> --}}
 
-    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
+                @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
 
-        <script>
+            <script>
 
-            initializeTwilio();
+        initializeTwilio();
 
-        </script>
+    </script>
 
     @endif
 
@@ -410,7 +380,7 @@
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                               
+
                                                 <a class="dropdown-item" href="{{ url('scrap/statistics') }}">Statistics</a>
                                                 <a class="dropdown-item" href="{{ url('scrap/generic-scraper') }}">Generic Supplier Scraper</a>
                                                 <a class="dropdown-item" href="{{ action('CategoryController@brandMinMaxPricing') }}">Min/Max Pricing</a>
@@ -477,7 +447,7 @@
                                         </li>
                                     </ul>
                                 </li>
-                                 <li class="nav-item dropdown dropdown-submenu">
+                                <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Crop Reference<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
@@ -497,11 +467,14 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Logs<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
+                                            <a class="dropdown-item" href="{{ action('ScrapLogsController@index') }}">Scrap Logs</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                             <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
                                         </li>
                                     </ul>
                                 </li>
-                                
+
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -841,6 +814,19 @@
                                         </ul>
                                     </li>
                                 @endif
+
+                                @if(auth()->user()->isAdmin())
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>LiveChat, Inc.<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('VisitorController@index') }}">LiveChat Visitor Log</a>
+                                                <a class="dropdown-item" href="{{ action('LiveChatController@setting') }}">LiveChat Settings</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                @endif
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Facebook<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -1110,6 +1096,12 @@
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('simplyduty.calculation') }}">SimplyDuty Calculation</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('simplyduty.hscode.index') }}">HsCode</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('ProductController@hsCodeIndex') }}">HsCode Generator</a>
+                                            </li>
                                         </ul>
                                     </li>
                                     <li class="nav-item">
@@ -1117,6 +1109,15 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
+                                    </li>
+
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>System<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
+                                            </li>
+                                        </ul>
                                     </li>
                                 </ul>
                             </li>
@@ -1250,6 +1251,18 @@
                         </ul>
                     </li>
 
+                    <!------    System Menu     !-------->
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">System <span class="caret"></span></a>
+                        <ul class="dropdown-menu multi-level">
+                            {{-- Sub Menu Product --}}
+
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('jobs.list')}}">Queue</a>
+                            </li>
+                        </ul>
+                    </li>
+
                 </ul>
 
             </div>
@@ -1346,7 +1359,7 @@
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
         @endphp
-       @if($liveChatUsers != '' && $liveChatUsers != null)
+        @if($liveChatUsers != '' && $liveChatUsers != null)
             @include('partials.chat')
         @endif
     @endif
@@ -1470,10 +1483,18 @@
                                             <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
                                             <input type="file" id="imgupload" style="display:none"/>
                                         </div>
-                                        <input type="hidden" id="message-id"/>
-                                        <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
-                                        <div class="input-group-append">
-                                            <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
+                                        <div class="card-footer">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
+                                                    <input type="file" id="imgupload" style="display:none" />
+                                                </div>
+                                                <input type="hidden" id="message-id" />
+                                                <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1517,7 +1538,7 @@
 @yield('scripts')
 <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('.note-content').richText();
     });
     window.token = "{{ csrf_token() }}";
@@ -1634,15 +1655,20 @@
     //         });
     //     }
     // });
-    @if (Auth::check())
+    @if(Auth::check())
     $(document).ready(function () {
         var url = window.location.href;
-        var user_id = {{ Auth::id() }};
+        var user_id = "{{ Auth::id() }}";
         user_name = "{{ Auth::user()->name }}";
         $.ajax({
             type: "POST",
             url: "/api/userLogs",
-            data: {"_token": "{{ csrf_token() }}", "url": url, "user_id": user_id, "user_name": user_name},
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "url": url,
+                "user_id": user_id,
+                "user_name": user_name
+            },
             dataType: "json",
             success: function (message) {
             }

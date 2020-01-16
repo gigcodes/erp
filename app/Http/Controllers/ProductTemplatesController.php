@@ -7,6 +7,7 @@ use File;
 use Illuminate\Http\Request;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\Setting;
 
 class ProductTemplatesController extends Controller
 {
@@ -28,7 +29,7 @@ class ProductTemplatesController extends Controller
                                 ->toArray();
             
             if (!empty($productIdsArr)) {
-                $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();                
+                $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();               
             }
         }
         $templateArr = \App\Template::all();
@@ -37,7 +38,7 @@ class ProductTemplatesController extends Controller
 
     public function response()
     {
-        $records = \App\ProductTemplate::orderBy("id", "desc")->paginate(5);
+        $records = \App\ProductTemplate::orderBy("id", "desc")->paginate(Setting::get('pagination')); 
         return response()->json([
             "code" => 1,
             "result" => $records,
@@ -69,7 +70,7 @@ class ProductTemplatesController extends Controller
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $image) {
                     $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
-                    $template->attachMedia($media, config('constants.media_tags'));
+                    $template->attachMedia($media,'template-image');
                 }
             }
         }
@@ -117,6 +118,7 @@ class ProductTemplatesController extends Controller
         $records->where("product_templates.is_processed", "=", 0);
 
         $record = $records->orderBy("product_templates.id", "asc")->first();
+
         $data = [];
         if ($record) {
             $data = [
@@ -129,9 +131,9 @@ class ProductTemplatesController extends Controller
                 "productCurrency" => $record->currency,
             ];
 
-            if ($record->hasMedia(config('constants.media_tags'))) {
+            if ($record->hasMedia('template-image')) {
                 $images = [];
-                foreach ($record->getMedia(config('constants.media_tags')) as $i => $media) {
+                foreach ($record->getMedia('template-image') as $i => $media) {
                     $images[] = $media->getUrl();
                 }
                 $data[ "image" ] = $images;
@@ -160,7 +162,7 @@ class ProductTemplatesController extends Controller
                 if ($request->post('image')) {
                     $image = base64_decode($request->post('image'));
                     $media = MediaUploader::fromString($image)->toDirectory(date('Y/m/d'))->useFilename('product-template-' . $id)->upload();
-                    $template->attachMedia($media, config('constants.media_tags'));
+                    $template->attachMedia($media,'template-image');
                     $template->is_processed = 1;
                     $template->save();
 
@@ -170,6 +172,13 @@ class ProductTemplatesController extends Controller
                     $broadcastImage->save();
                     $broadcastImage->attachMedia($media, config('constants.media_tags'));
 
+                    //Save Product For Image In Mediable
+                    if($template->product_id != null){
+                        $product = Product::find($template->product_id);
+                        $tag = 'template_'.$template->template_no;
+                        $product->attachMedia($media, $tag);
+                    }
+                    
                     return response()->json(["code" => 1, "message" => "Product template updated successfully"]);
                 }
             } else {
