@@ -129,6 +129,7 @@
                    
                     <div class="col-md-1">
                         <a class="btn btn-secondary d-inline priority_model_btn">Priority</a>
+                        <a class="btn btn-secondary d-inline priority_model_head_dev_btn">Priority Bjorn</a>
                     </div>
                 </div>
                 <div class="row" style="margin-top: 10px;">
@@ -329,11 +330,8 @@
                             <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }} </td>
                             <td data-id="{{ $issue->id }}">
                                 <div class="form-group">
-                                    <div class='input-group date estimate-time'>
-                                        <input style="min-width: 145px;" placeholder="Time" value="{{ $issue->estimate_time }}" type="text" class="form-control" name="estimate_time_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_completion_{{$issue->id}}">
-                                        <span class="input-group-addon">
-                                            <i class="fa fa-calendar"></i>
-                                        </span>
+                                    <div class='input-group estimate_minutes'>
+                                        <input style="min-width: 145px;" placeholder="Estimation minutes" value="{{ $issue->estimate_minutes }}" type="text" class="form-control" name="estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_minutes_{{$issue->id}}">
                                     </div>
                                     <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button>
                                 </div>
@@ -405,9 +403,12 @@
                                         <div class="messageList" id="message_list_{{$issue->id}}">
                                             @foreach($issue->messages as $message)
                                                 <p>
-                                                    <strong>Send To : <?php echo $message->sendTaskUsername(); ?> AT {{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}</strong>
+                                                    <strong>
+                                                        <?php echo !empty($message->sendTaskUsername()) ? "Send To : ".$message->sendTaskUsername() : ""; ?>
+                                                        <?php echo !empty($message->sendername()) ? "From : ".$message->sendername() : ""; ?>
+                                                        At {{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}</strong>
                                                 </p>
-                                                {!! nl2br($message->message) !!}
+                                                {!! nl2br($message->message) !!} 
                                                 <hr/>
                                             @endforeach
                                         </div>
@@ -812,6 +813,7 @@
             $(this).closest('tr').remove();
         });
         $('.priority_model_btn').click(function () {
+            $("#priority_user_id").show();
             $("#priority_user_id").val('');
             $(".show_task_priority").html('');
             <?php if (auth()->user()->isAdmin()) { ?>
@@ -820,7 +822,18 @@
             getPriorityTaskList('{{auth()->user()->id}}');
             <?php } ?>
             $('#priority_model').modal('show');
+        });
+
+        $('.priority_model_head_dev_btn').click(function () {
+            $("#priority_user_id").hide();
+            $(".show_task_priority").html('');
+            <?php if (auth()->user()->isAdmin()) { ?>
+                getPriorityTaskList(2);
+            <?php } ?>
+            $('#priority_model').modal('show');
         })
+
+        
 
         $('#priority_user_id').change(function () {
             getPriorityTaskList($(this).val())
@@ -1024,16 +1037,16 @@
 
         $(document).on('click', '.estimate-time-change', function () {
             let issueId = $(this).data('id');
-            let estimate_time = $("#estimate_completion_" + issueId).val();
+            let estimate_minutes = $("#estimate_minutes_" + issueId).val();
 
             $.ajax({
-                url: "{{action('DevelopmentController@saveEstimateTime')}}",
+                url: "{{action('DevelopmentController@saveEstimateMinutes')}}",
                 data: {
-                    estimate_time: estimate_time,
+                    estimate_minutes: estimate_minutes,
                     issue_id: issueId
                 },
                 success: function () {
-                    toastr["success"]("Time updated successfully!", "Message")
+                    toastr["success"]("Estimate Minutes updated successfully!", "Message")
                 }
             });
 

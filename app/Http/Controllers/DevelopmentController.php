@@ -439,7 +439,7 @@ class DevelopmentController extends Controller
 
         if (!auth()->user()->isAdmin()) {
             $issues = $issues->where(function($q){
-                $q->where("assigned_to",auth()->user()->id)->orWhere("responsible_user_id",auth()->user()->id);
+                $q->where("developer_tasks.assigned_to",auth()->user()->id)->orWhere("developer_tasks.responsible_user_id",auth()->user()->id);
             });
         }
 
@@ -1260,6 +1260,20 @@ class DevelopmentController extends Controller
         ]);
     }
 
+    public function saveEstimateMinutes(Request $request)
+    {
+        $issue = DeveloperTask::find($request->get('issue_id'));
+        //$issue = Issue::find($request->get('issue_id'));
+        $issue->estimate_minutes = $request->get('estimate_minutes');
+        $issue->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    
+
     public function updateValues(Request $request)
     {
         $task = DeveloperTask::find($request->get('id'));
@@ -1488,7 +1502,7 @@ class DevelopmentController extends Controller
     {
         $status = "ok";
         // Get all developers
-        $users = Helpers::getUserArray(User::role('Admin')->get());
+        $users = Helpers::getUserArray(User::role('Developer')->get());
         //$users = Helpers::getUsersByRoleName('Developer');
         // Get all task types
         $tasksTypes = TaskTypes::all();

@@ -1214,7 +1214,7 @@ class WhatsAppController extends FindByNumberController
             if ($user) {
                 // Add user ID to params
                 $params[ 'user_id' ] = $user->id;
-
+                //dd($params[ 'message' ]);
                 // Check for task
                 if ($params[ 'message' ] != '' && (preg_match_all("/#([\d]+)/i", $params[ 'message' ], $match))) {
                     // If task is found
@@ -1623,6 +1623,7 @@ class WhatsAppController extends FindByNumberController
                 $m = new ChatMessage();
                 $message = str_replace('#ISSUE-', '', $originalMessage);
                 $m->issue_id = explode(' ', $message)[ 0 ];
+                $m->user_id = isset($user->id) ? $user->id : null;
                 $m->message = $originalMessage;
                 $m->save();
             }
@@ -1631,6 +1632,7 @@ class WhatsAppController extends FindByNumberController
                 $m = new ChatMessage();
                 $message = str_replace('#DEVTASK-', '', $originalMessage);
                 $m->developer_task_id = explode(' ', $message)[ 0 ];
+                $m->user_id = isset($user->id) ? $user->id : null;
                 $m->message = $originalMessage;
                 $m->save();
             }
@@ -1993,7 +1995,7 @@ class WhatsAppController extends FindByNumberController
                     $module_id = $request->dubbizle_id;
                 } elseif ($context == 'issue') {
 
-                    $sendTo = $request->get('send_to',"to_developer");
+                    $sendTo = $request->get('sendTo',"to_developer");
 
                     $params[ 'issue_id' ] = $request->get('issue_id');
                     //$issue                  = Issue::find($request->get('issue_id'));
@@ -2008,6 +2010,8 @@ class WhatsAppController extends FindByNumberController
                     }
 
                     $params[ 'erp_user' ] = $userId;
+                    $params[ 'user_id' ]  = $data['user_id'];
+                    $params[ 'sent_to_user_id' ] = $userId;
                     $params[ 'approved' ] = 1;
                     $params[ 'status' ] = 2;
 
