@@ -62,21 +62,22 @@ class UploadTasksToHubstaff extends Command
     {
         $tasks = DB::table('tasks')
             ->whereNull('is_completed')
+            ->where('hubstaff_task_id', '=', 0)
             ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'tasks.assign_to')
             ->select(['tasks.id', 'tasks.task_subject as summary', 'hubstaff_members.hubstaff_user_id as assignee_id'])
             ->get()
             ->toArray();
 
         $tasks = array_map(
-            function($task){
-                $task->summary = '#'.$task->id. ' => '.$task->summary;
+            function ($task) {
+                $task->summary = '#' . $task->id . ' => ' . $task->summary;
                 return $task;
             },
             $tasks
         );
 
         echo "Total tasks: " . sizeof($tasks) . PHP_EOL;
-        $this->uploadTasks($tasks);
+        $this->uploadTasks($tasks, 'tasks');
         echo "UPLOADED TASKS" . PHP_EOL;
     }
 
@@ -84,16 +85,17 @@ class UploadTasksToHubstaff extends Command
     {
         $assignedTasks = DB::table('developer_tasks')
             ->whereIn('status', ['Discussing', 'In Progress', 'Issue', 'Planned'])
+            ->where('hubstaff_task_id', '=', 0)
             ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'developer_tasks.user_id')
             ->select(['developer_tasks.id', 'developer_tasks.subject as summary', 'developer_tasks.task_type_id', 'hubstaff_members.hubstaff_user_id as assignee_id'])
             ->get()
             ->toArray();
 
-        $assignedTasks =array_map(
-            function($task){
+        $assignedTasks = array_map(
+            function ($task) {
                 $summary = '#';
-                if($task->task_type_id == 1){
-                    $summary .= 'DEVTASK-'.$task->id.' => '.$task->summary;
+                if ($task->task_type_id == 1) {
+                    $summary .= 'DEVTASK-' . $task->id . ' => ' . $task->summary;
                 }
                 $task->summary = $summary;
                 return $task;
@@ -102,16 +104,24 @@ class UploadTasksToHubstaff extends Command
         );
 
         echo "Total Dev tasks: " . sizeof($assignedTasks) . PHP_EOL;
-        $this->uploadTasks($assignedTasks);
+        $this->uploadTasks($assignedTasks, 'developer_tasks');
         echo "UPLOADED DEVELOPER TASKS";
     }
 
-    private function uploadTasks($tasks)
+    private function uploadTasks($tasks, $tableName)
     {
         foreach ($tasks as $index => $task) {
             $taskId = $this->uploadTask($task);
             if ($taskId) {
                 echo "(" . ($index + 1) . "/" . sizeof($tasks) . ") Created Hubstaff Task: " . $taskId . ' for task: ' . $task->id . PHP_EOL;
+
+                DB::table($tableName)
+                    ->where('id', '=', $task->id)
+                    ->update(
+                        [
+                            'hubstaff_task_id' => $taskId
+                        ]
+                    );
             } else {
                 echo "(" . ($index + 1) . "/" . sizeof($tasks) . ")Failed to create task for task ID: " . $task->id . PHP_EOL;
             }
@@ -154,7 +164,7 @@ class UploadTasksToHubstaff extends Command
                     );
                 }
             }
-            echo $e->getMessage().PHP_EOL;
+            echo $e->getMessage() . PHP_EOL;
         }
         return false;
     }
