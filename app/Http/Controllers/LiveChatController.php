@@ -547,4 +547,153 @@ class LiveChatController extends Controller
 		
 		
 	// }
+
+
+	
+	/**
+	* function to upload file/image to liveshatinc
+	* upload file to livechatinc using their agent /action/upload_file api which will respond with livechatinc CDN url for file uploaded
+	* https://api.livechatinc.com/v3.1/agent/action/upload_file
+	*
+	* @param request
+	*   
+	* @return - response livechatinc CDN url for the file. If error return false
+	*/
+	function uploadFileToLiveChatInc(Request $request){
+		//To try with static file from local file, uncomment below
+		//$filename = 'delete-red-cross.png';
+		//$fileURL = public_path() . '/images/' . $filename;
+		$uploadedFile = $request->file('file');
+		$mimeType = $uploadedFile->getMimeType();
+		$filename = $uploadedFile->getClientOriginalName();
+
+		$postURL = 'https://api.livechatinc.com/v3.1/agent/action/upload_file';
+
+		//echo 'File: ' . $fileURL . ', MType: ' . mime_content_type($fileURL) .'<br>';
+		//$postData = array('file' => curl_file_create($fileURL, mime_content_type($fileURL), basename($fileURL)));
+		//echo 'File: ' . $filename . ', MType: ' . $mimeType;
+
+		$postData = array('file' => curl_file_create($uploadedFile, $mimeType, $filename));
+		
+		$result = self::curlCall($postURL, $postData, 'multipart/form-data');
+		if($result['err']){
+			// echo "ERROR 1:<br>";
+			// print_r($result['err']);
+			return false;
+		}
+		else{
+			$response = json_decode($result['response']);
+			if(isset($response->error)){
+				// echo "ERROR 2:<br>";
+				// print_r($response);				
+				return false;
+			}
+			else{
+				// echo "SUCSESS:<BR>";
+				// print_r($response);
+				return ['CDNPath' => $response->url, 'filename' => $filename];
+			}
+		}
+	}
+
+	/**
+	* curlCall function to make a curl call
+	*
+	* @param 
+	*   URL - url that we need to access and make curl call,
+	*   method - curl call method - GET, POST etc
+	*   contentType - Content-Type value to set in headers
+	*   data - data that has to be sent in curl call. This can be optional if GET
+	* @return - response from curl call, array(response, err)
+	*/
+	function curlCall($URL, $data=false, $contentType='application/json', $method='POST'){
+		$curl = curl_init();
+
+		$curlData = array(
+			CURLOPT_URL => $URL,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => "",
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_HTTPHEADER => array(
+				"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
+				"Content-Type: " . $contentType
+			)
+		);
+
+		if($method == 'POST'){
+			$curlData[CURLOPT_POST] = 1;
+		}
+		else{
+			$curlData[CURLOPT_CUSTOMREQUEST] = $method;
+		}
+
+		if($data){
+			$curlData[CURLOPT_POSTFIELDS] = $data;
+		}
+
+		curl_setopt_array($curl, $curlData);
+		$response = curl_exec($curl);
+		$err = curl_error($curl);
+		curl_close($curl);
+
+		return array('response' => $response, 'err' => $err);
+	}
+
+	/**
+	* CDN URL got after uploading file to livechatinc will expire in 24hrs unless its used in sent_event api
+	* send the CDN URL to livechatinc using sent_event api to keep the CDN URL alive
+	* https://developers.livechatinc.com/docs/messaging/agent-chat-api/#file
+	* https://developers.livechatinc.com/docs/messaging/agent-chat-api/#send-event
+	*/
+	function sendFileToLiveChatInc(Request $request){
+		$chatId = $request->id;
+		//Get Thread ID From Customer Live Chat
+		$customer = CustomerLiveChat::where('customer_id', $chatId)->first();
+		if($customer != '' && $customer != null){
+			$thread = $customer->thread;
+		}
+		else{
+			return response()->json(['status' => 'errors', 'errorMsg' => 'Thread not found'], 200);
+		}
+
+		$fileUploadResult = self::uploadFileToLiveChatInc($request);
+
+		if(!$fileUploadResult){ //There is some error, we didn't get the CDN file path
+			//return false;
+			return response()->json(['status' => 'errors', 'errorMsg' => 'Error uploading file'], 200);
+		}
+		else{
+			$fileCDNPath = $fileUploadResult['CDNPath'];
+			$filename = $fileUploadResult['filename'];
+		}
+
+		$postData = array('chat_id' => $thread, 'event' => array('type' => 'file', 'url' => $fileCDNPath, 'recipients' => 'all',));
+		$postData = json_encode($postData);
+
+		$postURL = 'https://api.livechatinc.com/v3.1/agent/action/send_event';
+
+		$result = self::curlCall($postURL, $postData, 'multipart/json');
+		if($result['err']){
+			// echo "ERROR 1:<br>";
+			// print_r($result['err']);
+			//return false;
+			return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
+		}
+		else{
+			$response = json_decode($result['response']);
+			if(isset($response->error)){
+				// echo "ERROR 2:<br>";
+				// print_r($response);				
+				return response()->json(['status' => 'errors', $response], 403);
+			}
+			else{
+				// echo "SUCSESS:<BR>";
+				// print_r($response);
+				//return $response->url;
+				return response()->json(['status' => 'success', 'filename' => $filename, 'fileCDNPath' => $fileCDNPath, 'responseData' => $response], 200);
+			}
+		}
+	}
 }
