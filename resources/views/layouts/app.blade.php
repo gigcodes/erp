@@ -467,7 +467,10 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Logs<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
+                                            <a class="dropdown-item" href="{{ action('ScrapLogsController@index') }}">Scrap Logs</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                             <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -966,7 +969,22 @@
                                         </li>
                                     </ul>
                                 </li>
-
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Google<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Search<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.search.keyword')}}">Keywords</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.search.results')}}">Search Results</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
