@@ -45,35 +45,38 @@ class CheckScrapersLog extends Command
         $counter = 0;
         foreach (File::allFiles($root) as $file) {
             $needed = explode('-', $file->getFilename());
-            $day = explode('.', $needed[1]);
-            if ($day[0] === $yesterdayDate) {
-                $filePath = $root . '/' . $file->getRelativePath() . '/' . $needed[0] . '-' . $day[0] . '.' . $day[1];
-                $result = File::get($filePath);
-                if (empty($result) ||
-                    (strpos($result, 'exception') || strpos($result, 'Exception')) ||
-                    (strpos($result, 'error') || strpos($result, 'Error'))) {
-                    $suplier = \App\Scraper::where("scraper_name", $needed[0])->first();
-                    if(!is_null($suplier)){
-                        $user = \App\User::where("id", $suplier->id)->first();
-                        if (!is_null($user)){
-                            $whatsappNumber = $user->whatsapp_number;
-                            $message = 'scraper log file ' . $filePath . ' has issue.';
-                            $data = [
-                                'phone' => $whatsappNumber, // Receivers phone
-                                'body' => $message, // Message
-                            ];
-                            ChatApi::sendMessage($data);
-                            ScrapStatistics::create([
-                                'supplier' => $suplier->scraper_name,
-                                'type' => 'EXISTING_SCRAP_PRODUCT',
-                                'description' => $message
-                            ]);
+            if(isset($needed[1])){
+                $day = explode('.', $needed[1]);
+                if ($day[0] === $yesterdayDate) {
+                    $filePath = $root . '/' . $file->getRelativePath() . '/' . $needed[0] . '-' . $day[0] . '.' . $day[1];
+                    $result = File::get($filePath);
+                    if (empty($result) ||
+                        (strpos($result, 'exception') || strpos($result, 'Exception')) ||
+                        (strpos($result, 'error') || strpos($result, 'Error'))) {
+                        $suplier = \App\Scraper::where("scraper_name", $needed[0])->first();
+                        if(!is_null($suplier)){
+                            $user = \App\User::where("id", $suplier->id)->first();
+                            if (!is_null($user)){
+                                $whatsappNumber = $user->whatsapp_number;
+                                $message = 'scraper log file ' . $filePath . ' has issue.';
+                                $data = [
+                                    'phone' => $whatsappNumber, // Receivers phone
+                                    'body' => $message, // Message
+                                ];
+                                ChatApi::sendMessage($data);
+                                ScrapStatistics::create([
+                                    'supplier' => $suplier->scraper_name,
+                                    'type' => 'EXISTING_SCRAP_PRODUCT',
+                                    'description' => $message
+                                ]);
+                            }
+
                         }
 
                     }
-
                 }
             }
+
         }
     }
 }
