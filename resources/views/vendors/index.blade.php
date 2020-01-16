@@ -28,6 +28,7 @@
             top: 50%;
             left: 50%;
             margin: -50px 0px 0px -50px;
+            z-index: 60;
         }
 
   </style>
@@ -276,6 +277,24 @@
         </div>
 
       </div>
+    </div>
+
+    <div class="modal fade" id="createUser" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+               
+                    <div class="modal-body">
+                        <button class="btn btn-secondary" id="vendor_id">Create ERP User from Vendor</button>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -903,6 +922,37 @@
                       });
                   }
               });
+          });
+
+        function createUserFromVendor(id){
+            $('#vendor_id').attr('data-id', id);
+            $('#createUser').modal('show');   
+        }
+
+         $(document).on("click", "#vendor_id", function () {
+            $('#createUser').modal('hide');
+            id = $(this).attr('data-id');
+                $.ajax({
+                          headers: {
+                              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                          },
+                          url: "/vendor/create-user",
+                          dataType: "json",
+                          method: "POST",
+                          data: {id: id},
+                          beforeSend: function () {
+                              $("#loading-image").show();
+                          },
+                      }).done(function (data) {
+                        $("#loading-image").hide();
+                          if (data.code == 200) {
+                              alert(data.data);
+                          }
+
+                      }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                          $("#loading-image").hide(); 
+                          alert('No response from server');
+                      });
           });
     </script>
 @endsection
