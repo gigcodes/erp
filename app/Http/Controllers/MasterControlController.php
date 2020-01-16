@@ -107,57 +107,136 @@ class MasterControlController extends Controller
 
       
         $resultScrapedProductsInStock = Cache::get( 'result_scraped_product_in_stock' );
-
-        //Getting All chats
+      
+        
+        
         $chat = ChatMessage::where('created_at','>=', Carbon::now()->subDay()->toDateTimeString());
-
-        $chatCustomers = clone $chat;
-
-        $chatSuppliers = clone $chat;
-
-        $vendorChats = $chat->select('vendor_id')->whereNotNull('vendor_id')->orderBy('created_at','desc')->groupBy('vendor_id')->get()->toArray();
-        foreach ($vendorChats as $vendorChat) {
-            $vendorArrays[] = $vendorChat['vendor_id'];
-        }
+           
         
-        $customerChats = $chatCustomers->select('customer_id')->whereNotNull('customer_id')->orderBy('created_at','desc')->groupBy('customer_id')->get()->toArray();
-        foreach ($customerChats as $customerChat) {
-            $customerArrays[] = $customerChat['customer_id'];
-        }
-        
-        $supplierChats = $chatSuppliers->select('supplier_id')->whereNotNull('supplier_id')->orderBy('created_at','desc')->groupBy('supplier_id')->get()->toArray();
-        foreach ($supplierChats as $supplierChat) {
-            $supplierArrays[] = $supplierChat['supplier_id'];
-        }
+        //Getting Customer Chat  
+        Cache::remember('result_customer_chat', 5, function() use ($chat) {
+            
+           $chatCustomers = clone $chat;
 
-        if(!isset($vendorArrays)){
-            $vendorArrays = [];
-        }
+            $customerChats = $chatCustomers->select('customer_id')->whereNotNull('customer_id')->whereNotNull('number')->orderBy('created_at','desc')->groupBy('customer_id')->get()->toArray();
+            foreach ($customerChats as $customerChat) {
+                $customerArrays[] = $customerChat['customer_id'];
+            }
+            if(!isset($customerArrays)){
+              $customerArrays = [];
+            }
 
-        if(!isset($customerArrays)){
-            $customerArrays = [];
-        }
+             $customerPlaceholders = implode(',',array_fill(0, count($customerArrays), '?'));
 
-        if(!isset($supplierArrays)){
+
+            if($customerPlaceholders == ''){
+              $customers = [];
+            }else{
+              $customers = Customer::select('id','name','phone')->whereIn('id',$customerArrays)->orderByRaw("field(id,{$customerPlaceholders})", $customerArrays)->get();
+            }
+
+            return $customers;
+        });
+
+        $customers = Cache::get( 'result_customer_chat' );
+
+
+        //Getting Supplier Chat  
+        Cache::remember('result_supplier_chat', 5, function() use ($chat){
+            
+           $chatSuppliers = clone $chat;
+
+           $supplierChats = $chatSuppliers->select('supplier_id')->whereNotNull('supplier_id')->orderBy('created_at','desc')->groupBy('supplier_id')->get()->toArray();
+            foreach ($supplierChats as $supplierChat) {
+                $supplierArrays[] = $supplierChat['supplier_id'];
+            }
+
+            if(!isset($supplierArrays)){
             $supplierArrays = [];
+            }
+
+            $supplierPlaceholders = implode(',',array_fill(0, count($supplierArrays), '?'));
+            
+            if($supplierPlaceholders == ''){
+            $suppliers = [];
+        }else{
+            $suppliers = Supplier::whereIn('id',$supplierArrays)->orderByRaw("field(id,{$supplierPlaceholders})", $supplierArrays)->get();
         }
 
-        
-        $vendorPlaceholders = implode(',',array_fill(0, count($vendorArrays), '?'));
+            return $suppliers;
+        });
 
-        $customerPlaceholders = implode(',',array_fill(0, count($customerArrays), '?'));
+        $suppliers = Cache::get( 'result_supplier_chat' );
 
-        $supplierPlaceholders = implode(',',array_fill(0, count($supplierArrays), '?'));
-        
-        $vendors = Vendor::whereIn('id',$vendorArrays)->orderByRaw("field(id,{$vendorPlaceholders})", $vendorArrays)->get();
 
-        $customers = Customer::select('id','name','phone')->whereIn('id',$customerArrays)->orderByRaw("field(id,{$customerPlaceholders})", $customerArrays)->get();
-        
-        $suppliers = Supplier::whereIn('id',$supplierArrays)->orderByRaw("field(id,{$supplierPlaceholders})", $supplierArrays)->get();
-        
-        $reply_categories = ReplyCategory::all();
+        //Getting Vendor Chat  
+        Cache::remember('result_vendor_chat', 5, function() use ($chat){
 
-        
+          $vendorChats = $chat->select('vendor_id')->whereNotNull('vendor_id')->orderBy('created_at','desc')->groupBy('vendor_id')->get()->toArray();
+          foreach ($vendorChats as $vendorChat) {
+            $vendorArrays[] = $vendorChat['vendor_id'];
+          }
+          if(!isset($vendorArrays)){
+            $vendorArrays = [];
+          }
+
+          $vendorPlaceholders = implode(',',array_fill(0, count($vendorArrays), '?'));
+
+          if($vendorPlaceholders == ''){
+            $vendors = [];
+          }else{
+            $vendors = Vendor::whereIn('id',$vendorArrays)->orderByRaw("field(id,{$vendorPlaceholders})", $vendorArrays)->get();
+          }
+
+          return $vendors;
+
+        });
+
+        $vendors = Cache::get( 'result_vendor_chat' );
+
+        Cache::remember('reply_categories', 15, function() use ($chat) {
+            return $reply_categories = ReplyCategory::all();
+        });
+
+        $reply_categories = Cache::get( 'reply_categories' );
+
+        Cache::remember('vendorReplier', 15, function() use ($chat) {
+          return $vendorReplier = \App\Reply::where("model","Vendor")->whereNull("deleted_at")->pluck("reply","id")->toArray();
+        });
+
+        $vendorReplier = Cache::get( 'vendorReplier' );
+
+        Cache::remember('supplierReplier', 15, function() use ($chat) {
+            return $supplierReplier = \App\Reply::where("model","Supplier")->whereNull("deleted_at")->pluck("reply","id")->toArray();
+        });
+
+        $supplierReplier = Cache::get( 'supplierReplier' );
+
+        // For ajax
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('mastercontrol.partials.data', 
+                 [
+                    'start' => $start, 
+                    'end' => $end , 
+                    'cropReference' => $cropReference,
+                    'pendingCropReferenceProducts' => $pendingCropReferenceProducts , 
+                    'pendingCropReferenceCategory' => $pendingCropReferenceCategory,
+                    'productStats' => $productStats,
+                    'resultScrapedProductsInStock' => $resultScrapedProductsInStock,
+                    'cropReferenceWeekCount' => $cropReferenceWeekCount,
+                    'cropReferenceDailyCount' => $cropReferenceDailyCount,
+                    'chatSuppliers' => $suppliers,
+                    'chatCustomers' => $customers,
+                    'chatVendors' => $vendors,
+                    'reply_categories' => $reply_categories,
+                    'vendorReplier' => $vendorReplier,
+                    'supplierReplier' => $supplierReplier,
+
+                ])->render()
+            ], 200);
+        }
+
      return view('mastercontrol.index', [
         'start' => $start, 
         'end' => $end , 
@@ -172,7 +251,8 @@ class MasterControlController extends Controller
         'chatCustomers' => $customers,
         'chatVendors' => $vendors,
         'reply_categories' => $reply_categories,
-
+        'vendorReplier' => $vendorReplier,
+        'supplierReplier' => $supplierReplier,
     ]);
     }
 
