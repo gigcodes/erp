@@ -88,6 +88,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\RunErpEvents;
+use App\Console\Commands\GetOrdersFromnMagento;
 use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -175,6 +176,7 @@ class Kernel extends ConsoleKernel
         VisitorLogs::class,
         ImageBarcodeGenerator::class,
         UpdateImageBarcodeGenerator::class,
+        GetOrdersFromnMagento::class,
         SyncCustomersFromMagento::class,
         NumberOfImageCroppedCheck::class,
         SetTemplatesForProduct::class,
@@ -202,6 +204,10 @@ class Kernel extends ConsoleKernel
 
         //Get list of schedule and put list in cron jobs table
         $schedule->command('schedule:list')->daily();
+
+
+        //Get Orders From Magento 
+        $schedule->command('getorders:magento')->everyFiveMinutes()->withoutOverlapping();
 
         //This will run every  five minutes checking and making keyword-customer relationship...
         $schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();

@@ -76,7 +76,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('crop-references', 'CroppedImageReferenceController@index');
     Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
     Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
+
+    Route::get('/magento/status', 'MagentoController@addStatus');
+    Route::post('/magento/status/save', 'MagentoController@saveStatus')->name('magento.save.status');
+
     Route::post('crop-references-grid/reject', 'CroppedImageReferenceController@rejectCropImage');
+
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
@@ -817,8 +822,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/deleteBrandCount', 'SupplierController@deleteSupplierBrandCount')->name('supplier.brand.count.delete');
 
     // Get supplier brands and raw brands
-    Route::get('supplier/get-brands-and-rawbrands', 'SupplierController@getScrapedBrandAndBrandRaw')->name('supplier.brands.rawbrands.list');
+    Route::get('supplier/get-scraped-brands', 'SupplierController@getScrapedBrandAndBrandRaw')->name('supplier.scrapedbrands.list');
     // Update supplier brands and raw brands
+    Route::post('supplier/update-scraped-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.scrapedbrands.update');
+    // Remove particular scrap brand from scraped brands
+    Route::post('supplier/remove-scraped-brands', 'SupplierController@removeScrapedBrand')->name('supplier.scrapedbrands.remove');
+    
     Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
 
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
@@ -898,6 +907,8 @@ Route::post('livechat/sendFile','LiveChatController@sendFile')->name('livechat.s
 Route::post('livechat/getUserList','LiveChatController@getUserList')->name('livechat.get.userlist');
 
 /* ---------------------------------------------------------------------------------- */
+
+Route::post('livechat/send-file','LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/incomingNew', 'WhatsAppController@incomingMessageNew');
@@ -1371,12 +1382,17 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
     Route::get('/connection', 'ChatBotController@connection');
 });
 
+Route::get('scrap-logs', 'ScrapLogsController@index');
+Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
+Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
+Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
 
 Route::prefix('google')->middleware('auth')->group(function () {
-    Route::resource('search', 'GoogleSearchController');
-    Route::get('/search', 'GoogleSearchController@index')->name('google.search');
-    Route::get('keyword/markPriority','GoogleSearchController@markPriority')->name('google.keyword.priority');
+    Route::resource('/search/keyword', 'GoogleSearchController');
+    Route::get('/search/keyword-priority','GoogleSearchController@markPriority')->name('google.search.keyword.priority');
+    Route::get('/search/keyword', 'GoogleSearchController@index')->name('google.search.keyword');
+    Route::get('/search/results', 'GoogleSearchController@searchResults')->name('google.search.results');
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');

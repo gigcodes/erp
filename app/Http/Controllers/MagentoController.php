@@ -15,6 +15,7 @@ use App\AutoReply;
 use App\Product;
 use Carbon\Carbon;
 use Validator;
+use App\OrderStatus;
 
 class MagentoController extends Controller {
 	/**
@@ -431,5 +432,19 @@ class MagentoController extends Controller {
 		}
 
 		return $result;
+	}
+
+	public function addStatus(){
+		$orderStatusList = OrderStatus::all();
+		return view('magento.status',compact('orderStatusList'));
+	}
+
+	public function saveStatus(Request $request){
+		
+		$status = OrderStatus::find($request->id);
+		$status->magento_status = $request->status;
+		$status->save();
+
+		return response()->json(['success'], 200);
 	}
 }
