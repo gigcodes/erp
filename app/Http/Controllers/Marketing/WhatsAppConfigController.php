@@ -296,8 +296,6 @@ class WhatsappConfigController extends Controller
      */
     public function destroyQueueAll(Request $request)
     {
-/*        dd($request->id);*/
-
         $config = ImQueue::where('number_from', $request->id)->delete();
         return Response::json(array(
             'success' => true,
