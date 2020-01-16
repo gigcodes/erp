@@ -1993,7 +1993,7 @@ class WhatsAppController extends FindByNumberController
                     $module_id = $request->dubbizle_id;
                 } elseif ($context == 'issue') {
 
-                    $sendTo = $request->get('send_to',"to_developer");
+                    $sendTo = $request->get('sendTo',"to_developer");
 
                     $params[ 'issue_id' ] = $request->get('issue_id');
                     //$issue                  = Issue::find($request->get('issue_id'));
