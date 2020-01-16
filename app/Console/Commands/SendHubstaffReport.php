@@ -52,11 +52,7 @@ class SendHubstaffReport extends Command
         //
         $userPastHour =  $this->getActionsForPastHour();
 
-        echo print_r($userPastHour, true);
-
         $userToday = $this->getActionsForToday();
-
-        echo print_r($userToday, true);
 
         $users = DB::table('users')
             ->join('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
@@ -80,9 +76,7 @@ class SendHubstaffReport extends Command
 
         $message = implode(PHP_EOL, $report);
 
-        //echo print_r($report, true);
-        //TODO: need to change this number
-        ChatMessage::sendWithChatApi('919925580082',null, $message);
+        ChatMessage::sendWithChatApi('971502609192',null, $message);
     }
 
     private function formatSeconds($seconds)
@@ -94,10 +88,12 @@ class SendHubstaffReport extends Command
 
     private function getActionsForPastHour()
     {
-        $stop =  gmdate("c");
+        $stop =  date("c");
         $time   = strtotime($stop);
         $time   = $time - (60 * 60); //one hour
-        $start = gmdate("c", $time);
+        $start = date("c", $time);
+
+        return;
 
         $response = $this->doHubstaffOperationWithAccessToken(
             function ($accessToken) use ($start, $stop) {
@@ -132,11 +128,11 @@ class SendHubstaffReport extends Command
     private function getActionsForToday()
     {
 
-        $now = gmdate('Y-m-d H:i:s');
+        $now = date('Y-m-d H:i:s');
         $time   = strtotime($now);
-        $start = gmdate('Y-m-d', $time);
+        $start = date('Y-m-d', $time);
         $time = $time + (24 * 60 * 60);
-        $stop = gmdate('Y-m-d', $time);
+        $stop = date('Y-m-d', $time);
 
         //https://api.hubstaff.com/v2/organizations/:organization_id/activities/daily?date[start]=2020-01-08T00:00:00+0&date[stop]=2020-01-08T05:30:00+0
         $response = $this->doHubstaffOperationWithAccessToken(
