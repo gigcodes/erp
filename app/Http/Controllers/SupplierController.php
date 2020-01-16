@@ -81,6 +81,40 @@ class SupplierController extends Controller
         if ($supplier_status_id != '') {
             $typeWhereClause .= ' AND supplier_status_id=' . $supplier_status_id;
         }
+        if(!empty($request->brand)) {
+          $brands = array();
+          $references = array();
+          foreach ($request->brand as $key => $value) {
+             $selecteBrandById = Brand::where('id',$value)->get()->first();
+             if(!empty($selecteBrandById->name)) {
+              array_push($brands, $selecteBrandById->name);
+             }
+             if(!empty($selecteBrandById->references)) {
+               array_push($references, $selecteBrandById->references);
+             }
+          }
+          $filterBrands = implode("|", $brands);
+          $filterReferences = str_replace(";", "|",implode("|", $references));
+          if(!empty($filterBrands)) {
+            $typeWhereClause .= ' AND brands RLIKE "'.$filterBrands.'"';
+            $typeWhereClause .= 'OR scraped_brands RLIKE "'.$filterBrands.'"';
+            $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$filterBrands.'"'; 
+          }
+          if (!empty($filterReferences)) {
+            $typeWhereClause .= ' OR brands RLIKE "'.$filterReferences.'"';
+            $typeWhereClause .= 'OR scraped_brands RLIKE "'.$filterReferences.'"';
+            $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$filterReferences.'"'; 
+          }
+
+        } else {
+            if(!empty($request->scrapedBrand))
+            {
+              $scrapedBrands = implode("|", $request->scrapedBrand);
+              $typeWhereClause .= ' AND brands RLIKE "'.$scrapedBrands.'"';
+              $typeWhereClause .= 'OR scraped_brands RLIKE "'.$scrapedBrands.'"';
+              $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$scrapedBrands.'"'; 
+            }
+        }
 
         $suppliers = DB::select('
 									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name,
@@ -140,6 +174,14 @@ class SupplierController extends Controller
         //SELECT supplier_status_id, COUNT(*) AS number_of_products FROM suppliers WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id
         $statistics = DB::select('SELECT supplier_status_id, ss.name, COUNT(*) AS number_of_products FROM suppliers s LEFT join supplier_status ss on ss.id = s.supplier_status_id WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id');
 
+        $brands = Brand::whereNotNull('magento_id')->get()->all();
+        $scrapedBrandsRaw = Supplier::whereNotNull('scraped_brands_raw')->get()->all();
+        $rawBrands = array();
+        foreach ($scrapedBrandsRaw as $key => $value) {
+           array_push($rawBrands, array_unique(array_filter(array_column(json_decode($value->scraped_brands_raw, true), 'name'))));
+        }
+        $scrapedBrands = array_unique(array_reduce($rawBrands, 'array_merge',[]));
+
         return view('suppliers.index', [
             'suppliers' => $suppliers,
             'suppliers_all' => $suppliers_all,
@@ -153,7 +195,9 @@ class SupplierController extends Controller
             'supplier_status_id' => $supplier_status_id,
             'count' => $supplierscnt,
             'statistics' => $statistics,
-            'total' => 0
+            'total' => 0,
+            'brands' => $brands,
+            'scrapedBrands' => $scrapedBrands
         ]);
     }
 

@@ -41,7 +41,7 @@
                 </div>
 
                   <div class="form-group ml-3">
-                      <input type="text" name="source" id="source" placeholder="Source..">
+                      <input type="text" class="form-control" name="source" id="source" placeholder="Source..">
                   </div>
 
                 <div class="form-group ml-3">
@@ -66,6 +66,26 @@
 {{--                  <div class="form-group ml-3">--}}
 {{--                      <select name="status" id=""></select>--}}
 {{--                  </div>--}}
+
+                      <div class="form-group mr-3" style="padding-top: 10px">
+                        <select class="form-control select-multiple2" name="brand[]" data-placeholder="Select brand.." multiple>
+                          <optgroup label="Brands">
+                            @foreach ($brands as $key => $value)
+                              <option value="{{ $value->id }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $value->name }}</option>
+                            @endforeach
+                        </optgroup>
+                        </select>
+                      </div>
+
+                      <div class="form-group mr-3" style="padding-top: 10px">
+                        <select class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
+                          <optgroup label="Brands">
+                            @foreach ($scrapedBrands as $key => $value)
+                              <option value="{{ $value }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $value }}</option>
+                            @endforeach
+                        </optgroup>
+                        </select>
+                      </div>
 
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
               </form>
@@ -813,6 +833,11 @@
                 brandUpdateSupplierId = 0;
             }
         });
+      });
+
+      $(document).ready(function() {
+        $(".select-multiple").multiselect();
+        $(".select-multiple2").select2();
       });
   </script>
 @endsection
