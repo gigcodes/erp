@@ -187,8 +187,8 @@ class HubstaffController extends Controller
                     if ($shouldRetryOnRefresh) {
                         return $this->updateProjectOnHubstaff(
                             $hubstaffProjectId,
-                            $hubstaffProjectName,
-                            $hubstaffProjectDescription,
+                            isset($hubstaffProjectName) ? $hubstaffProjectName : '',
+                            isset($hubstaffProjectDescription) ? $hubstaffProjectDescription : '',
                             false
                         );
                     }
@@ -207,8 +207,8 @@ class HubstaffController extends Controller
 
         if ($this->updateProjectOnHubstaff(
             $hubstaffProjectId,
-            $projectName,
-            $projectDescription
+            isset($projectName) ? $projectName : '',
+            isset($projectDescription) ? $projectDescription : ''
         )) {
             $project = HubstaffProject::find($projectId);
             $project->editProject($projectName, $projectDescription);
