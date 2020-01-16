@@ -712,208 +712,8 @@
                 </div>
                 </td>
               </tr>
-               <tr>
-                <td>Recent Vendor Chats</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td colspan="7" class="sub-table">
-                  <div class="table">
-                    <table>
-                   <tr>
-                    <th width="25%">Name</th>
-                    <th width="25%">Phone</th>
-                    <th width="50%">Send</th>
-                    <th width="40%">Communication</th>
-                   </tr>
-                   @foreach($chatVendors as $vendor)
-                   <tr>
-                    <td>{{ $vendor->name }}</td>
-                    <td>{{ $vendor->phone }}</td>
-                    <td>
-                       <div class="row">
-                            <div class="col-md-6">
-                                <div class="d-flex">
-                                    <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
-                                    <button class="btn btn-sm btn-image send-message" data-vendorid="{{ $vendor->id }}"><img src="/images/filled-sent.png"/></button>
-                                </div>
-                           </div>
-                           <div style="margin-top:5px;" class="col-md-6">
-                                <div class="d-flex">
-                                    <?php echo Form::select("quickComment",["" => "--Auto Reply--"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]); ?>
-                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
-                                </div>
-                            </div> 
-                        </div>
-                    </td>
-                    <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
-                        <span class="td-full-container">
-                            <div class="chat_messages">
-                                @if(isset($vendor->chat_messages[0])) {{ $vendor->chat_messages[0]->message }} @endif
-                                @if(isset($vendor->message)) {{ $vendor->message }} @endif    
-                            </div>
-                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
-                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
-                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
-                            <button type="button" class="btn btn-xs btn-image load-email-modal" title="Load Email" data-id="{{$vendor->id}}"><i class="fa fa-envelope-square"></i></button>
-                        </span>
-                    </td>
-                   </tr>
-                   @endforeach
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Recent Customer Chats</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td colspan="7" class="sub-table">
-                  <div class="table">
-                    <table>
-                   <tr>
-                    <th width="25%">Name</th>
-                    <th width="25%">Phone</th>
-                    <th width="50%">Send</th>
-                    <th width="40%">Communication</th>
-                   </tr>
-                   @foreach($chatCustomers as $customer)
-                   <tr>
-                    <td>{{ $customer->name }}</td>
-                    <td>{{ $customer->phone }}</td>
-                    <td>
-                       <div class="row">
-                            <div class="col-md-6">
-                                <div class="d-flex">
-                                    <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
-                                    <button class="btn btn-sm btn-image send-message" data-vendorid="{{ $customer->id }}"><img src="/images/filled-sent.png"/></button>
-                                </div>
-                           </div>
-                           <div style="margin-top:5px;" class="col-md-6">
-                                <div class="d-flex">
-                                    <?php echo Form::select("quickComment",["" => "--Auto Reply--"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]); ?>
-                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
-                                </div>
-                            </div> 
-                        </div>
-                    </td>
-                    <td class="table-hover-cell {{ $customer->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
-                        <span class="td-full-container">
-                            <div class="chat_messages">
-                                @if(isset($customer->chat_messages[0])) {{ $customer->chat_messages[0]->message }} @endif
-                                @if(isset($customer->message)) {{ $customer->message }} @endif    
-                            </div>
-                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="customer" data-id="{{$customer->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
-                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
-                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
-                            <button type="button" class="btn btn-xs btn-image load-email-modal" title="Load Email" data-id="{{$customer->id}}"><i class="fa fa-envelope-square"></i></button>
-                        </span>
-                    </td>
-                   </tr>
-                   @endforeach
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Recent Supplier Chats</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td colspan="7" class="sub-table">
-                  <div class="table">
-                    <table>
-                   <tr>
-                    <th width="25%">Name</th>
-                    <th width="25%">Phone</th>
-                    <th width="50%">Send</th>
-                    <th width="40%">Communication</th>
-                   </tr>
-                   @foreach($chatSuppliers as $supplier)
-                   <tr>
-                    <td>{{ $supplier->name }}</td>
-                    <td>{{ $supplier->phone }}</td>
-                    <td>
-                       <div class="row">
-                            <div class="col-md-6">
-                                <div class="d-flex">
-                                    <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
-                                    <button class="btn btn-sm btn-image send-message" data-vendorid="{{ $supplier->id }}"><img src="/images/filled-sent.png"/></button>
-                                </div>
-                           </div>
-                           <div style="margin-top:5px;" class="col-md-6">
-                                <div class="d-flex">
-                                    <?php echo Form::select("quickComment",["" => "--Auto Reply--"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]); ?>
-                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
-                                </div>
-                            </div> 
-                        </div>
-                    </td>
-                    <td class="table-hover-cell {{ $supplier->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
-                        <span class="td-full-container">
-                            <div class="chat_messages">
-                                @if(isset($supplier->chat_messages[0])) {{ $supplier->chat_messages[0]->message }} @endif
-                                @if(isset($supplier->message)) {{ $supplier->message }} @endif    
-                            </div>
-                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
-                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
-                            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
-                            <button type="button" class="btn btn-xs btn-image load-email-modal" title="Load Email" data-id="{{$supplier->id}}"><i class="fa fa-envelope-square"></i></button>
-                        </span>
-                    </td>
-                   </tr>
-                   @endforeach
-                  </div>
-                </td>
-              </tr>
            </tbody>
         </table>
-        
-        <div id="chat-list-history" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Communication</h4>
-                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
-                </div>
-                <div class="modal-body" style="background-color: #999999;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-        </div>
-
-        <div id="email-list-history" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Email Communication</h4>
-                    <input type="text" name="search_email_pop"  class="form-control search_email_pop" placeholder="Search Email" style="width: 200px;">
-                </div>
-                <div class="modal-body" style="background-color: #999999;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-        </div>
     </div>
 
   
@@ -959,7 +759,6 @@
   <script type="text/javascript">
   
   $(document).on('click', '.send-message', function () {
-
             var thiss = $(this);
             var data = new FormData();
             var type = $(this).attr('data-type');
@@ -978,10 +777,8 @@
             }
             
             var message = $(this).siblings('input').val();
-
             data.append("message", message);
             data.append("status", 1);
-
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
@@ -998,11 +795,9 @@
                     }).done(function (response) {
                         thiss.closest('tr').find('.chat_messages').html(thiss.siblings('input').val());
                         $(thiss).siblings('input').val('');
-
                         $(thiss).attr('disabled', false);
                     }).fail(function (errObj) {
                         $(thiss).attr('disabled', false);
-
                         alert("Could not send message");
                         console.log(errObj);
                     });
@@ -1011,14 +806,10 @@
                 alert('Please enter a message first');
             }
         });
-
-
  
-
   $(document).ready(function() {
     $("body").tooltip({ selector: '[data-toggle=tooltip]' });
   });
-
  $(document).ready(function() {
     $(".sub-table").find(".table").hide();
     $(".table").click(function() {
@@ -1030,7 +821,6 @@
         }                    
     });
     });
-
  $('.quickCategory').on('change', function () {
             var type = $(this).attr('data-type');
             var id = $(this).attr('data-id');
@@ -1044,12 +834,10 @@
   
             var replies = JSON.parse($(this).val());
             $('#quickComment'+name+id).empty();
-
             $('#quickComment'+name+id).append($('<option>', {
                 value: '',
                 text: 'Quick Reply'
             }));
-
             replies.forEach(function (reply) {
                 $('#quickComment'+name+id).append($('<option>', {
                     value: reply.reply,
@@ -1057,7 +845,6 @@
                 }));
             });
         });
-
  function messageToTextArea(text,type,id){
     if(type == 'customer'){
               name = 'Customer';
@@ -1068,7 +855,6 @@
     }
     $('#textArea'+name+id).val(text.value);
  }
-
  $(document).on('click', '.expand-row', function () {
             var selection = window.getSelection();
             if (selection.toString().length === 0) {
@@ -1076,8 +862,8 @@
                 $(this).find('.chat-full-container').toggleClass('hidden');
             }
         });
-
 </script>
 
 
 @endsection
+
