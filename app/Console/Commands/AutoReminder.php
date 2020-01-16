@@ -7,6 +7,7 @@ use App\Customer;
 use App\ChatMessage;
 use App\CronJobReport;
 use Carbon\Carbon;
+use App\Helpers\OrderHelper;
 
 class AutoReminder extends Command
 {
@@ -53,9 +54,9 @@ class AutoReminder extends Command
       ];
 
       $customers = Customer::with(['Orders' => function ($query) {
-        $query->where('order_status', 'Proceed without Advance')->where('auto_messaged', 1)->latest();
+        $query->where('order_status', OrderHelper::$proceedWithOutAdvance)->where('auto_messaged', 1)->latest();
       }])->whereHas('Orders', function ($query) {
-        $query->where('order_status', 'Proceed without Advance')->where('auto_messaged', 1)->latest();
+        $query->where('order_status', OrderHelper::$proceedWithOutAdvance)->where('auto_messaged', 1)->latest();
       })->get()->toArray();
 
       foreach ($customers as $customer) {

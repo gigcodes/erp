@@ -1993,15 +1993,26 @@ class WhatsAppController extends FindByNumberController
                     $module_id = $request->dubbizle_id;
                 } elseif ($context == 'issue') {
 
+                    $sendTo = $request->get('send_to',"to_developer");
+
                     $params[ 'issue_id' ] = $request->get('issue_id');
                     //$issue                  = Issue::find($request->get('issue_id'));
                     $issue = DeveloperTask::find($request->get('issue_id'));
-                    $params[ 'erp_user' ] = $issue->assigned_to;
+
+                    $userId  = $issue->assigned_to;
+                    
+                    if($sendTo == "to_master") {
+                       if($issue->master_user_id > 0) {
+                          $userId  = $issue->master_user_id;
+                       }
+                    }
+
+                    $params[ 'erp_user' ] = $userId;
                     $params[ 'approved' ] = 1;
                     $params[ 'status' ] = 2;
 
 
-                    $number = User::find($issue->assigned_to);
+                    $number = User::find($userId);
 
                     if (!$number) {
                         return response()->json(['message' => null]);
