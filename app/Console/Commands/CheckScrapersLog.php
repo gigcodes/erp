@@ -57,7 +57,7 @@ class CheckScrapersLog extends Command
                         if(!is_null($suplier)){
                             $user = \App\User::where("id", $suplier->scraper_made_by)->first();
                             if (!is_null($user)){
-                                $whatsappNumber = $user->whatsapp_number;
+                                $whatsappNumber = $user->phone;
                                 $message = 'scraper log file ' . $filePath . ' has issue.';
                                 $data = [
                                     'phone' => $whatsappNumber, // Receivers phone
