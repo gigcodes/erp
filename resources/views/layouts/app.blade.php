@@ -469,6 +469,9 @@
                                     <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
+                                    <a class="dropdown-item" href="{{url('/supplier-search')}}">Suppliers Search</a>
+                                </li>
+                                <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">

@@ -1368,3 +1368,5 @@ Route::prefix('google')->middleware('auth')->group(function () {
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
+
+Route::get('/supplier-search', 'SupplierSearchController@index');
