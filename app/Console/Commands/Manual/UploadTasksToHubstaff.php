@@ -115,6 +115,7 @@ class UploadTasksToHubstaff extends Command
             } else {
                 echo "(" . ($index + 1) . "/" . sizeof($tasks) . ")Failed to create task for task ID: " . $task->id . PHP_EOL;
             }
+            sleep(5);
         }
     }
 
