@@ -426,6 +426,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');
     Route::post('supplier/reminder', 'SupplierController@updateReminder');
+    Route::post('supplier/excel-import', 'SupplierController@excelImport');
     Route::post('vendor/reminder', 'VendorController@updateReminder');
     Route::post('customer/add-note/{id}', 'CustomerController@addNote');
     Route::post('supplier/add-note/{id}', 'SupplierController@addNote');
@@ -791,6 +792,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendor/reply/add', 'VendorController@addReply')->name('vendor.reply.add');
     Route::get('vendor/reply/delete', 'VendorController@deleteReply')->name('vendor.reply.delete');
     Route::post('vendor/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendor.email.send.bulk');
+    Route::post('vendor/create-user', 'VendorController@createUser')->name('vendor.create.user');
+    
     Route::post('vendor/send/email', 'VendorController@sendEmail')->name('vendor.email.send');
     Route::get('vendor/email/inbox', 'VendorController@emailInbox')->name('vendor.email.inbox');
     Route::post('vendor/product', 'VendorController@productStore')->name('vendor.product.store');
@@ -821,8 +824,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/deleteBrandCount', 'SupplierController@deleteSupplierBrandCount')->name('supplier.brand.count.delete');
 
     // Get supplier brands and raw brands
-    Route::get('supplier/get-brands-and-rawbrands', 'SupplierController@getScrapedBrandAndBrandRaw')->name('supplier.brands.rawbrands.list');
+    Route::get('supplier/get-scraped-brands', 'SupplierController@getScrapedBrandAndBrandRaw')->name('supplier.scrapedbrands.list');
     // Update supplier brands and raw brands
+    Route::post('supplier/update-scraped-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.scrapedbrands.update');
+    // Remove particular scrap brand from scraped brands
+    Route::post('supplier/remove-scraped-brands', 'SupplierController@removeScrapedBrand')->name('supplier.scrapedbrands.remove');
+    
     Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
 
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
@@ -1377,12 +1384,17 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
     Route::get('/connection', 'ChatBotController@connection');
 });
 
+Route::get('scrap-logs', 'ScrapLogsController@index');
+Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
+Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
+Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
 
 Route::prefix('google')->middleware('auth')->group(function () {
-    Route::resource('search', 'GoogleSearchController');
-    Route::get('/search', 'GoogleSearchController@index')->name('google.search');
-    Route::get('keyword/markPriority','GoogleSearchController@markPriority')->name('google.keyword.priority');
+    Route::resource('/search/keyword', 'GoogleSearchController');
+    Route::get('/search/keyword-priority','GoogleSearchController@markPriority')->name('google.search.keyword.priority');
+    Route::get('/search/keyword', 'GoogleSearchController@index')->name('google.search.keyword');
+    Route::get('/search/results', 'GoogleSearchController@searchResults')->name('google.search.results');
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');

@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\DB;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Webklex\IMAP\Client;
+use App\Role;
+use Hash;
 
 class VendorController extends Controller
 {
@@ -297,7 +299,7 @@ class VendorController extends Controller
         'category_id'   => 'sometimes|nullable|numeric',
         'name'          => 'required|string|max:255',
         'address'       => 'sometimes|nullable|string',
-        'phone'         => 'sometimes|nullable|numeric',
+        'phone'         => 'required|nullable|numeric',
         'email'         => 'sometimes|nullable|email',
         'social_handle' => 'sometimes|nullable',
         'website'       => 'sometimes|nullable',
@@ -309,9 +311,43 @@ class VendorController extends Controller
         'account_swift' => 'sometimes|nullable|max:255'
       ]);
 
-      $data = $request->except('_token');
+      $data = $request->except(['_token','create_user']);
 
       Vendor::create($data);
+
+      if($request->create_user == 'on'){
+        if($request->email != null){
+          $userEmail = User::where('email',$request->email)->first();
+        }else{
+          $userEmail = null;
+        }
+        $userPhone = User::where('phone',$request->phone)->first();
+        if($userEmail == null && $userPhone == null){
+          $user = new User;
+          $user->name = str_replace(' ', '_', $request->name);
+          if($request->email == null){
+            $email = str_replace(' ', '_', $request->name).'@solo.com';
+          }else{
+            $email = explode('@',$request->email);
+            $email = $email[0].'@solo.com';
+          }
+          $password = str_random(10);
+          $user->email = $email;
+          $user->password = Hash::make($password);
+          $user->phone = $request->phone;
+          $user->save();
+          $role = Role::where('name','Developer')->first();
+          $user->roles()->sync($role->id);
+          $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.amourint.com/ username: '.$email.' password:  '.$password.'';
+          app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($request->phone, '', $message);
+        }else{
+          return redirect()->route('vendor.index')->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');
+        }
+        
+
+      }
+
+
 
       return redirect()->route('vendor.index')->withSuccess('You have successfully saved a vendor!');
     }
@@ -887,5 +923,36 @@ class VendorController extends Controller
         ->toArray()
       ]);
 
+    }
+
+    public function createUser(Request $request)
+    {
+        $vendor = Vendor::find($request->id);
+        //Check If User Exist
+        $userEmail = User::where('email',$vendor->email)->first();
+        $userPhone = User::where('phone',$vendor->phone)->first();
+        if($userEmail == null && $userPhone == null){
+          $user = new User;
+          $user->name = str_replace(' ', '_', $vendor->name);
+          if($vendor->email == null){
+            $email = str_replace(' ', '_', $vendor->name).'@solo.com';
+          }else{
+            $email = explode('@',$vendor->email);
+            $email = $email[0].'@solo.com';
+          }
+          $password = str_random(10);
+          $user->email = $email;
+          $user->password = Hash::make($password);
+          $user->phone = $vendor->phone;
+          $user->save();
+          $role = Role::where('name','Developer')->first();
+          $user->roles()->sync($role->id);
+          $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.amourint.com/ username: '.$email.' password:  '.$password.'';
+          app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($vendor->phone, '', $message);
+          return response()->json(["code" => 200 , "data" => "User Created"]);
+        }else{
+          return response()->json(["code" => 200 , "data" => "Couldn't Create User Email or Phone Already Exist"]);
+        }
+        
     }
 }
