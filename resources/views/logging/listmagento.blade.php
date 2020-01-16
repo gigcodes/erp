@@ -34,8 +34,6 @@
         </div>
     </div>
 
-    @include('partials.flash_messages')
-
     <div class="col-md-12">
         <div class="panel panel-default">
 
@@ -119,6 +117,14 @@
                                 <label for="title">Name</label>
                                 <input name="name" type="text" class="form-control" id="update_name" value="" required>
                             </div>
+                            <div class="form-group col-md-12">
+                                <label for="title">Short Description</label>
+                                <textarea name="short_description" class="form-control" id="update_short_description"></textarea>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="title">Size</label>
+                                <input name="size" type="text" class="form-control" id="update_size" value="">
+                            </div>
                             <div class="form-group col-md-4">
                                 <label for="title">Price</label>
                                 <input name="price" type="text" class="form-control" id="update_price" value="" required>
@@ -144,12 +150,8 @@
                                 <input name="price_inr_discounted" type="text" class="form-control" id="update_price_inr_discounted" value="" required>
                             </div>
                             <div class="form-group col-md-12">
-                                <label for="title">Composition</label>
-                                <input name="composition" type="text" class="form-control" id="update_composition" value="" required>
-                            </div>
-                            <div class="form-group col-md-12">
                                 <label for="title">Measurement Type</label>
-                                <input name="measurement_size_type" type="text" class="form-control" id="update_measurement_size_type" value="" required>
+                                <input name="measurement_size_type" type="text" class="form-control" id="update_measurement_size_type" value="">
                             </div>
                             <div class="form-group col-md-4">
                                 <label for="title">L Measurement</label>
@@ -162,6 +164,44 @@
                             <div class="form-group col-md-4">
                                 <label for="title">D Measurement</label>
                                 <input name="dmeasurement" type="text" class="form-control" id="update_dmeasurement" value="">
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="title">Composition</label>
+                                <input name="composition" type="text" class="form-control" id="update_composition" value="" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="title">Made In</label>
+                                <input name="made_in" type="text" class="form-control" id="update_made_in" value="">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="title">Brand</label>
+                                <select name="brand" class="form-control" id="update_brand">
+                                    <option value=""></option>
+                                    @foreach($brands as $brand)
+                                        <option value="{{$brand->id}}">{{$brand->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="title">Category</label>
+                                <select name="category" class="form-control" id="update_category">
+                                    <option value=""></option>
+                                    @foreach($categories as $cat)
+                                        <option value="{{$cat->id}}">{{$cat->title}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="title">Supplier</label>
+                                <input name="supplier" type="text" class="form-control" id="update_supplier">
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="title">Supplier Link</label>
+                                <input name="supplier_link" type="text" class="form-control" id="update_supplier_link">
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="title">Product Link</label>
+                                <input name="product_link" type="text" class="form-control" id="update_product_link">
                             </div>
                     </div>
                     <div class="modal-footer">
@@ -180,42 +220,14 @@
 
 @section('scripts')
     <script type="text/javascript">
-        $(document).ready(function () {
-            $('#product_id,#sku,#brand,#category').on('blur', function () {
-                $.ajax({
-                    url: '/logging/list-magento',
-                    dataType: "json",
-                    data: {
-                        product_id: $('#product_id').val(),
-                        sku: $('#sku').val(),
-                        brand: $('#brand').val(),
-                        category: $('#category').val()
-                    },
-                    beforeSend: function () {
-                        $("#loading-image").show();
-                    },
-                }).done(function (data) {
-                    $("#loading-image").hide();
-                    console.log(data);
-                    $("#log-table tbody").empty().html(data.tbody);
-                    if (data.links.length > 10) {
-                        $('ul.pagination').replaceWith(data.links);
-                    } else {
-                        $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                    }
-                }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                    $("#loading-image").hide();
-                    alert(thrownError);
-                    alert('No response from server');
-                });
-            });
-        });
-
+        
         $(document).on("click", ".update_modal", function () {
             var detail = $(this).data('id');
 
             $("#update_product_id").val(detail['product_id']);
             $("#update_name").val(detail['name']);
+            $("#update_short_description").val(detail['short_description']);
+            $("#update_size").val(detail['size']);
             //$("#update_color").val(detail['color']);
             $("#update_price").val(detail['price']);
             $("#update_price_eur_special").val(detail['price_eur_special']);
@@ -225,11 +237,29 @@
             $("#update_price_inr_special").val(detail['price_inr_special']);
             $("#update_price_inr_discounted").val(detail['price_inr_discounted']);
             
-            $("#update_composition").val(detail['composition']);
             $("#update_measurement_size_type").val(detail['measurement_size_type']);
             $("#update_lmeasurement").val(detail['lmeasurement']);
             $("#update_hmeasurement").val(detail['hmeasurement']);
             $("#update_dmeasurement").val(detail['dmeasurement']);
+
+            $("#update_composition").val(detail['composition']);
+            $("#update_made_in").val(detail['made_in']);
+            $("#update_brand").val(detail['brand']);
+            $("#update_category").val(detail['category']);
+            $("#update_supplier").val(detail['supplier']);
+            $("#update_supplier_link").val(detail['supplier_link']);
+            $("#update_product_link").val(detail['product_link']);
         });
     </script>
+    @if (Session::has('errors'))
+        <script>
+            toastr["error"]("{{ $errors->first() }}", "Message")
+        </script>
+    @endif
+    @if (Session::has('success'))
+        <script>
+            toastr["success"]("{{Session::get('success')}}", "Message")
+        </script>
+    @endif
+
 @endsection

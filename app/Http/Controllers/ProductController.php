@@ -1260,24 +1260,33 @@ class ProductController extends Controller
     public function updateMagentoProduct(Request $request){
         $product = Product::find($request->update_product_id);
         
-        if($product->status_id==12){
-            //////      Update Local Product    //////
-            $product->name=$request->name;
-            $product->price=$request->price;
-            $product->price_eur_special=$request->price_eur_special;
-            $product->price_eur_discounted=$request->price_eur_discounted;
-            $product->price_inr=$request->price_inr;
-            $product->price_inr_special=$request->price_inr_special;
-            $product->price_inr_discounted=$request->price_inr_discounted;
-            $product->lmeasurement=$request->lmeasurement;
-            $product->hmeasurement=$request->hmeasurement;
-            $product->dmeasurement=$request->dmeasurement;
-            $product->composition=$request->composition;
-            $product->updated_at=time();
+        //////      Update Local Product    //////
+        $product->name=$request->name;
+        $product->price=$request->price;
+        $product->price_eur_special=$request->price_eur_special;
+        $product->price_eur_discounted=$request->price_eur_discounted;
+        $product->price_inr=$request->price_inr;
+        $product->price_inr_special=$request->price_inr_special;
+        $product->price_inr_discounted=$request->price_inr_discounted;
+        $product->measurement_size_type=$request->measurement_size_type;
+        $product->lmeasurement=$request->lmeasurement;
+        $product->hmeasurement=$request->hmeasurement;
+        $product->dmeasurement=$request->dmeasurement;
+        $product->composition=$request->composition;
+        $product->size=$request->size;
+        $product->short_description=$request->short_description;
+        $product->made_in=$request->made_in;
+        $product->brand=$request->brand;
+        $product->category=$request->category;
+        $product->supplier=$request->supplier;
+        $product->supplier_link=$request->supplier_link;
+        $product->product_link=$request->product_link;
+        $product->updated_at=time();
 
-            if($product->update()){
+        //echo "<pre>";print_r($request->all());exit;
+        if($product->update()){
+            if($product->status_id==12){
                 ///////     Update Magento Product  //////
-
                 $options   = array(
                     'trace'              => true,
                     'connection_timeout' => 120,
@@ -1287,51 +1296,116 @@ class ProductController extends Controller
                 $proxy     = new \SoapClient(config('magentoapi.url'), $options);
                 $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
-                $sku = $request->sku . $request->color;
+                $sku = $product->sku . $product->color;
                 try {
                     $magento_product = json_decode(json_encode($proxy->catalogProductInfo($sessionId, $sku)), true);
-
                     if($magento_product){
-                        $productData = array(
-                            'name'                  => $product->name,
-                            'description'           => '<p></p>',
-                            'short_description'     => $product->short_description,
-                            'price'                 => $product->price_eur_special,
-                            // Same price than configurable product, no price change
-                            'special_price'         => $product->price_eur_discounted,
-                            'additional_attributes' => array(
-                                'single_data' => array(
-                                    array( 'key' => 'msrp', 'value' => $product->price, ),
-                                    array( 'key' => 'composition', 'value' => $product->composition, ),
-                                    array( 'key' => 'color', 'value' => $product->color, ),
-                                    array( 'key' => 'sizes', 'value' => $size, ),
-                                    array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
-                                ),
-                            ),
-                        );
+                        if(!empty($product->size)) {
+                            $associated_skus = [];
+                            $new_variations = 0;
+                            $sizes_array = explode(',', $product->size);
+                            $categories = CategoryController::getCategoryTreeMagentoIds($product->category);
 
-                        $result = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
+                            //////      Add new Variations  //////
+                            foreach ($sizes_array as $key2 => $size) {
+                                $error_message = '';
+                
+                                try {
+                                  $simple_product = json_decode(json_encode($proxy->catalogProductInfo($sessionId, $sku . '-' . $size)), true);
+                                  //echo "<pre>";print_r($simple_product);
+                                } catch (\Exception $e) {
+                                  $error_message = $e->getMessage();
+                                }
+                
+                                if ($error_message == 'Product not exists.') {
+                                  // CREATE VARIATION
+                                  $productData = array(
+                                              'categories'            => $categories,
+                                              'name'                  => $product->name,
+                                              'description'           => '<p></p>',
+                                              'short_description'     => $product->short_description,
+                                              'website_ids'           => array(1),
+                                              // Id or code of website
+                                              'status'                => $magento_product['status'],
+                                              // 1 = Enabled, 2 = Disabled
+                                              'visibility'            => 1,
+                                              // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+                                              'tax_class_id'          => 2,
+                                              // Default VAT
+                                              'weight'                => 0,
+                                              'stock_data' => array(
+                                                  'use_config_manage_stock' => 1,
+                                                  'manage_stock' => 1,
+                                              ),
+                                              'price'                 => $product->price_eur_special,
+                                              // Same price than configurable product, no price change
+                                              'special_price'         => $product->price_eur_discounted,
+                                              'additional_attributes' => array(
+                                                  'single_data' => array(
+                                                      array( 'key' => 'msrp', 'value' => $product->price, ),
+                                                      array( 'key' => 'composition', 'value' => $product->composition, ),
+                                                      array( 'key' => 'color', 'value' => $product->color, ),
+                                                      array( 'key' => 'sizes', 'value' => $size, ),
+                                                      array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+                                                      array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
+                                                  ),
+                                              ),
+                                          );
+                                          // Creation of product simple
+                                          $result            = $proxy->catalogProductCreate( $sessionId, 'simple', 14, $sku . '-' . $size, $productData );
+                                          $new_variations = 1;
+                
+                
+                                } else {
+                                  // SIMPLE PRODUCT EXISTS
+                                  $status = $simple_product['status'];
+                                  // 1 = Enabled, 2 = Disabled
+                
+                                  if ($status == 2) {
+                                    // $product->isFinal = 0;
+                                  } else {
+                                    // $product->isFinal = 1;
+                                  }
+                                }
+                                $associated_skus[] = $sku . '-' . $size;
+                              }
 
-                        $messages="Product updated successfully";
-                        return Redirect::Back()
-                                ->with('success',$messages);
+                              if ($new_variations == 1) {
+                                // IF THERE WAS NEW VARIATION CREATED, UPDATED THE MAIN PRODUCT
+                                /**
+                                       * Configurable product
+                                       */
+                                      $productData = array(
+                                          'associated_skus' => $associated_skus,
+                                      );
+                                      // Creation of configurable product
+                                      $result = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
+                              }
+                            $messages="Product updated successfully";
+                            return Redirect::Back()
+                                    ->with('success',$messages);
+                        }else{
+                            $messages[]="Sorry! No sizes found for magento update";
+                            return Redirect::Back()
+                                    ->withErrors($messages);
+                        }
                     }else{
                         $messages[]="Sorry! Product not found in magento";
                         return Redirect::Back()
                                 ->withErrors($messages);
                     }
                 } catch (\Exception $e) {
-                    $error_message = $e->getMessage();
+                    $messages[] = $e->getMessage();
+                    return Redirect::Back()
+                                ->withErrors($messages);
                 }
             }else{
-                $messages[]="Sorry! Please try again";
+                $messages="Product updated successfuly";
                 return Redirect::Back()
-                                ->withErrors($messages);
+                                    ->with('success',$messages);
             }
-            
         }else{
-
-            $messages[]="not magento product";
+            $messages[]="Sorry! Please try again";
             return Redirect::Back()
                                 ->withErrors($messages);
         }

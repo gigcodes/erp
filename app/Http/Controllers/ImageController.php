@@ -596,13 +596,13 @@ class ImageController extends Controller
       $new->created_at=$new->updated_at=time();
 
       if($new->save()){
-        $messages['success']="new search queue added successfuly";
+        $messages="new search queue added successfuly";
         return Redirect::Back()
-              ->with('messages',$messages);
+              ->with('success',$messages);
       }else{
-        $messages['danger']="Sorry! Please try again";
+        $messages[]="Sorry! Please try again";
         return Redirect::Back()
-              ->with('messages',$messages);
+              ->withErrors($messages);
       }
     }
 }

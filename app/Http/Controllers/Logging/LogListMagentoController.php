@@ -9,6 +9,18 @@ use App\Http\Controllers\Controller;
 
 class LogListMagentoController extends Controller
 {
+    protected function get_brands(){
+        $brands=\App\Brand::all();
+
+        return $brands;
+    }
+    
+    protected function get_categories(){
+        $categories=\App\Category::all();
+
+        return $categories;
+    }
+
     public function index(Request $request)
     {
         //echo "<pre>";print_r($request->all());exit;
@@ -51,6 +63,8 @@ class LogListMagentoController extends Controller
 
         // Show results
         return view('logging.listmagento', compact('logListMagentos','filters'))
-                                ->with('success',\Request::Session()->get("success"));
+                                ->with('success',\Request::Session()->get("success"))
+                                ->with('brands',$this->get_brands())
+                                ->with('categories',$this->get_categories());
     }
 }

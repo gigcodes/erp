@@ -189,16 +189,14 @@
     });
   });
 </script>
-{{-- <script>
-  // var searchSuggestions = ;
-  var image_array = [];
-
-  $('#product-search').autocomplete({
-    source: function(request, response) {
-      var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
-
-      response(results.slice(0, 10));
-    }
-  });
-</script> --}}
+@if (Session::has('errors'))
+    <script>
+        toastr["error"]("{{ $errors->first() }}", "Message")
+    </script>
+@endif
+@if (Session::has('success'))
+    <script>
+        toastr["success"]("{{Session::get('success')}}", "Message")
+    </script>
+@endif
 @endsection

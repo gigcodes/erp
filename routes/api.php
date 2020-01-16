@@ -95,4 +95,5 @@ Route::get('scraper/next','ScrapController@sendScrapDetails');
 Route::post('scraper/endtime','ScrapController@recieveScrapDetails');
 
 Route::get('search/{type}', 'SearchQueueController@index');
+Route::post('search/{type}', 'SearchQueueController@upload_content');
 
