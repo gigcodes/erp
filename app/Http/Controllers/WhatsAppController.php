@@ -1623,6 +1623,7 @@ class WhatsAppController extends FindByNumberController
                 $m = new ChatMessage();
                 $message = str_replace('#ISSUE-', '', $originalMessage);
                 $m->issue_id = explode(' ', $message)[ 0 ];
+                $m->user_id = isset($user->id) ? $user->id : null;
                 $m->message = $originalMessage;
                 $m->save();
             }
@@ -1631,6 +1632,7 @@ class WhatsAppController extends FindByNumberController
                 $m = new ChatMessage();
                 $message = str_replace('#DEVTASK-', '', $originalMessage);
                 $m->developer_task_id = explode(' ', $message)[ 0 ];
+                $m->user_id = isset($user->id) ? $user->id : null;
                 $m->message = $originalMessage;
                 $m->save();
             }
@@ -2008,6 +2010,8 @@ class WhatsAppController extends FindByNumberController
                     }
 
                     $params[ 'erp_user' ] = $userId;
+                    $params[ 'user_id' ]  = $data['user_id'];
+                    $params[ 'sent_to_user_id' ] = $userId;
                     $params[ 'approved' ] = 1;
                     $params[ 'status' ] = 2;
 

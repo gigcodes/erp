@@ -635,6 +635,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');
     Route::get('development/issue/user/resolve', 'DevelopmentController@resolveIssue');
     Route::get('development/issue/estimate_date/assign', 'DevelopmentController@saveEstimateTime');
+    Route::get('development/issue/estimate_minutes/assign', 'DevelopmentController@saveEstimateMinutes');
     Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
     Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');
     Route::get('development/issue/language/assign', 'DevelopmentController@saveLanguage');
