@@ -1036,21 +1036,21 @@ class SupplierController extends Controller
         
         $supplier = Supplier::find($supplierId);
         if ($supplier->scraped_brands != ''){
-          $scrapedBrands = array_filter(explode(',', $supplier->scraped_brands));
+            $scrapedBrands = array_filter(explode(',', $supplier->scraped_brands));
           
-          sort($scrapedBrands);
+            sort($scrapedBrands);
         }
         else {
-          $scrapedBrands = array();
+            $scrapedBrands = array();
         }
 
         if ($supplier->scraped_brands_raw != ''){
-          $rawBrands = array_unique(array_filter(array_column(json_decode($supplier->scraped_brands_raw, true), 'name')));
+            $rawBrands = array_unique(array_filter(array_column(json_decode($supplier->scraped_brands_raw, true), 'name')));
           
-          sort($rawBrands);
+            sort($rawBrands);
         }
         else{
-          $rawBrands = array();
+            $rawBrands = array();
         }
 
         return response()->json(['scrapedBrands' => $scrapedBrands, 'scrapedBrandsRaw' => $rawBrands], 200);
@@ -1065,14 +1065,14 @@ class SupplierController extends Controller
     public function updateScrapedBrandFromBrandRaw(Request $request)
     {
         $supplierId = $request->id;
-        $newBrandData = implode(',', $request->newBrandData);
+        $newBrandData = ($request->newBrandData) ? $request->newBrandData : array();
         
         // Get Supplier model
         $supplier = Supplier::find($supplierId);
 
         // Do we have a result?
         if ($supplier != null) {
-            $supplier->scraped_brands = $newBrandData;
+            $supplier->scraped_brands = implode(',', $newBrandData);
             $supplier->save();
 
             return response()->json(['success' => 'Supplier brand updated'], 200);
@@ -1080,7 +1080,50 @@ class SupplierController extends Controller
 
         // Still here? Return an error
         return response()->json(['error' => 'Supplier not found'], 403);
-    }    
+    }
+
+    /**
+    * Remove particular scraped brand from scrapped brands for a supplier
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return json response with status, updated brand list, raw brand list
+    */
+    public function removeScrapedBrand(Request $request)
+    {
+        $supplierId = $request->id;
+        $removeBrandData = $request->removeBrandData;
+        
+        // Get Supplier model
+        $supplier = Supplier::find($supplierId);
+
+        // Do we have a result?
+        if ($supplier != null) {
+            if ($supplier->scraped_brands != ''){
+                $scrapedBrands = array_filter(explode(',', $supplier->scraped_brands));
+              
+                $newBrandData = array_diff($scrapedBrands, array($removeBrandData));
+                sort($newBrandData);
+            }
+            else {
+                $newBrandData = array();
+            }
+            if ($supplier->scraped_brands_raw != ''){
+                $rawBrands = array_unique(array_filter(array_column(json_decode($supplier->scraped_brands_raw, true), 'name')));
+                sort($rawBrands);
+            }
+            else{
+                $rawBrands = array();
+            }
+
+            $supplier->scraped_brands = implode(',', $newBrandData);
+            $supplier->save();
+
+            return response()->json(['scrapedBrands' => $newBrandData, 'scrapedBrandsRaw' => $rawBrands, 'success' => 'Scraped brand removed'], 200);
+        }
+
+        // Still here? Return an error
+        return response()->json(['error' => 'Supplier not found'], 403);
+    }
 
     public function languageTranslate(Request $request) 
     {
