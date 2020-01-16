@@ -129,7 +129,7 @@
                    
                     <div class="col-md-1">
                         <a class="btn btn-secondary d-inline priority_model_btn">Priority</a>
-                        <a class="btn btn-secondary d-inline priority_model_head_dev_btn">Priority Bjorn</a>
+                        <!-- <a class="btn btn-secondary d-inline priority_model_head_dev_btn">Priority Bjorn</a> -->
                     </div>
                 </div>
                 <div class="row" style="margin-top: 10px;">
