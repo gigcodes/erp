@@ -35,13 +35,6 @@
         Laravel.csrfToken = "{{csrf_token()}}";
         window.Laravel = Laravel;
     </script>
-    <script>
-        jQuery('.readmore').readmore({
-            speed: 75,
-            moreLink: '<a href="#">Read more</a>',
-            lessLink: '<a href="#">Read less</a>'
-        });
-    </script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script> --}}
@@ -81,27 +74,14 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 
     @if(Auth::user())
-
         {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
-
         <script>
-            window.userid = {
-            {
-                Auth::user() - > id
-            }
-            }
-            ;
+            window.userid = "{{Auth::user()->id}}";
 
             window.username = "{{Auth::user()->name}}";
 
-            loggedinuser = {
-            {
-                Auth::user() - > id
-            }
-            }
-            ;
+            loggedinuser = "{{Auth::user()->id}}";
         </script>
-
     @endif
 
 
@@ -125,7 +105,9 @@
     {{-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> --}}
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.3/css/bootstrap-slider.min.css">
+    <link rel="stylesheet"
+
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.3/css/bootstrap-slider.min.css">
 
     <link href="https://unpkg.com/tabulator-tables@4.0.5/dist/css/tabulator.min.css" rel="stylesheet">
 
@@ -134,36 +116,7 @@
     @yield("styles")
 
     <script>
-        window.Laravel = {
-        !!json_encode([
-
-            'csrfToken'
-        =>
-        csrf_token(),
-
-            'user'
-        =>
-        [
-
-            'authenticated'
-        =>
-        auth() - > check(),
-
-            'id'
-        =>
-        auth() - > check() ? auth() - > user() - > id : null,
-
-            'name'
-        =>
-        auth() - > check() ? auth() - > user() - > name : null,
-
-        ]
-
-        ])
-
-        !!
-        }
-        ;
+        window.Laravel = '{{!!json_encode(['csrfToken'=>csrf_token(),'user'=>['authenticated'=>auth()->check(),'id'=>auth()->check() ? auth()->user()->id : null,'name'=>auth()->check() ? auth()->user()-> name : null,]])!!}';
     </script>
 
 
@@ -179,11 +132,13 @@
       });
     </script> --}}
 
-    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
+                @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
 
-        <script>
-            initializeTwilio();
-        </script>
+            <script>
+
+        initializeTwilio();
+
+    </script>
 
     @endif
 
@@ -274,7 +229,11 @@
 
             </a>
 
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+
+                    aria-controls="navbarSupportedContent" aria-expanded="false"
+
+                    aria-label="{{ __('Toggle navigation') }}">
 
                 <span class="navbar-toggler-icon"></span>
 
@@ -511,7 +470,10 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Logs<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
+                                            <a class="dropdown-item" href="{{ action('ScrapLogsController@index') }}">Scrap Logs</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                             <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -530,6 +492,7 @@
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unread">Customers - unread</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
+                                            <a class="dropdown-item" href="{{ action('VisitorController@index') }}">Livechat Visitor Logs</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -851,96 +814,6 @@
                                                 <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                             </li>
 
-                                            <hr/>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramController@index') }}">Dashboard</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ url('instagram/hashtag') }}">Hashtags</a>
-                                            </li>
-
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('HashtagController@showGrid', 'sololuxury') }}">Hashtag monitoring & manual Commenting</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('HashtagController@showNotification') }}">Recent Comments (Notifications)</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramController@showPosts') }}">All Posts</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('TargetLocationController@index') }}">Target Location</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('KeywordsController@index') }}">Keywords For comments</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('HashtagController@showProcessedComments') }}">Processed Comments</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('CompetitorPageController@index') }}?via=instagram">All Competitors On Instagram</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramAutoCommentsController@index') }}">Quick Reply</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="{{ action('UsersAutoCommentHistoriesController@index') }}">Bulk Commenting</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('AutoCommentHistoryController@index') }}">Auto Comments Statistics</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramProfileController@index') }}">Customers followers</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramProfileController@edit', 1) }}">#tags Used by top customers.</a>
-                                            </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ action('InstagramController@accounts') }}">Accounts</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.ads.schedules')}}">Ad Schedules</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.ad.create')}}">Create New Ad</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.ad.adset.create')}}">Create New Adset</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.ad.campaign.create')}}">Create New Campaign </a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.get-post.page')}}">See Posts</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.post.page')}}">Post to Page</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.report')}}">Ad Reports</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('social.adCreative.report')}}">Ad Creative Reports</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
-                                            </li>
-
                                         </ul>
                                     </li>
                                 @endif
@@ -1055,29 +928,29 @@
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">SEO<span class="caret">
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
-                                                <li class="nav-item dropdown dropdown-submenu">
-                                                    <a class="dropdown-item" href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back Link Details</a>
-                                                    <a class="dropdown-item" href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken Link Details</a>
-                                                    <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">Analytics Data</a>
-                                                    <a class="dropdown-item" href="{{ action('AnalyticsController@customerBehaviourByPage') }}">Customer Behaviour By Page</a>
-                                                    <a class="dropdown-item" href="{{ action('SERankingController@getSites') }}">SE Ranking</a>
-                                                    <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
-                                                    <a class="dropdown-item" href="{{ action('ProductController@getSupplierScrappingInfo') }}">Supplier Scrapping Info</a>
-                                                    <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">New Dev Task Planner</a>
-                                                </li>
-                                            </ul>
+                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                              <a class="dropdown-item" href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back Link Details</a>
+                                              <a class="dropdown-item" href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken Link Details</a>
+                                              <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">Analytics Data</a>
+                                              <a class="dropdown-item" href="{{ action('AnalyticsController@customerBehaviourByPage') }}">Customer Behaviour By Page</a>
+                                              <a class="dropdown-item" href="{{ action('SERankingController@getSites') }}">SE Ranking</a>
+                                              <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
+                                              <a class="dropdown-item" href="{{ action('ProductController@getSupplierScrappingInfo') }}">Supplier Scrapping Info</a>
+                                              <a class="dropdown-item" href="{{ action('NewDevTaskController@index') }}">New Dev Task Planner</a>
+                                          </li>
+                                      </ul>
                                 </li>
 
                                 <!-- mailchimp -->
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="seoMenu" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">MailChimp<span class="caret">
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
-                                                <li class="nav-item dropdown dropdown-submenu">
-                                                    <a href="{{ route('manage.mailchimp') }}">Manage MailChimp</a>
+                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="seoMenu">
+                                          <li class="nav-item dropdown dropdown-submenu">
+                                              <a href="{{ route('manage.mailchimp') }}">Manage MailChimp</a>
 
-                                                </li>
-                                            </ul>
+                                          </li>
+                                      </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Chatbot<span class="caret"></span></a>
@@ -1102,8 +975,16 @@
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Google<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('google.search')}}">Search</a>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Search<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.search.keyword')}}">Keywords</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.search.results')}}">Search Results</a>
+                                                </li>
+                                            </ul>
                                         </li>
                                     </ul>
                                 </li>
@@ -1233,6 +1114,12 @@
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('simplyduty.calculation') }}">SimplyDuty Calculation</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ route('simplyduty.hscode.index') }}">HsCode</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('ProductController@hsCodeIndex') }}">HsCode Generator</a>
+                                            </li>
                                         </ul>
                                     </li>
                                     <li class="nav-item">
@@ -1295,7 +1182,8 @@
 
                                         <li class="nav-item dropdown">
 
-                                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                                 Development<span class="caret"></span>
                                             </a>
 
@@ -1360,26 +1248,39 @@
                             <ul class="dropdown-menu multi-level" id="search_container">
                             </ul>
                         </li>
-
-                        <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Hubstaff <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Product --}}
-
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ url('hubstaff/members')  }}">Members</a>
-                                </li>
-
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ url('hubstaff/projects') }}">Projects</a>
-                                </li>
-
-                                <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ url('hubstaff/tasks') }}">Tasks</a>
-                                </li>
-                            </ul>
-                        </li>
                     @endif
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Hubstaff <span class="caret"></span></a>
+                        <ul class="dropdown-menu multi-level">
+                            {{-- Sub Menu Product --}}
+
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ url('hubstaff/members')  }}">Members</a>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ url('hubstaff/projects') }}">Projects</a>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ url('hubstaff/tasks') }}">Tasks</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!------    System Menu     !-------->
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">System <span class="caret"></span></a>
+                        <ul class="dropdown-menu multi-level">
+                            {{-- Sub Menu Product --}}
+
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{route('jobs.list')}}">Queue</a>
+                            </li>
+                        </ul>
+                    </li>
+
                 </ul>
 
             </div>
@@ -1487,9 +1388,9 @@
 
     {{-- @if(Auth::check())
 
-<div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
+     <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
 
-@endif --}}
+     @endif --}}
 
 
 
@@ -1509,128 +1410,104 @@
 
 @if(Auth::check())
     <div class="help-button-wrapper">
-        <div class="col-md-10 page-notes-list-rt dis-none">
-            <div class="help-list well well-lg">
-                <form action="<?php echo route("createPageNote"); ?>">
-                    <div class="form-group">
-                        <label for="note">Notes:</label>
-                        <textarea class="form-control" name="note" id="note"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="category_id">Category:</label>
-                        <?php
-                        $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
-                        ?>
-                        {!! Form::select('category_id', ['' => "-- select --"] + $category, null, ['class'=>'form-control', 'id'=> 'category_id']) !!}
-                    </div>
-                    <button type="button" class="btn btn-secondary ml-3 save-user-notes">Submit</button>
-                </form>
-                <table class="table table-fixed-page-notes page-notes-header-fixed" style="min-width: 402px;">
-                    <thead>
-                    <tr>
-                        <th class="col-xs-1" scope="col">#</th>
-                        <th class="col-xs-3" scope="col">Note</th>
-                        <th class="col-xs-3" scope="col">Category</th>
-                        <th class="col-xs-2" scope="col">Created By</th>
-                        <th class="col-xs-3" scope="col">Created At</th>
-                    </tr>
-                    </thead>
-                    <tbody class="page-notes-list">
-
-                    </tbody>
-                </table>
-                <div class="col-md-8 page-notes-list-rt dis-none">
-                    <div class="well">
-                        <textarea class="note-content" name="note_content"></textarea>
-                    </div>
-                </div>
-                <div class="col-md-5">
-                    <button class="help-button"><span>+</span></button>
-                </div>
+        <div class="col-md-8 page-notes-list-rt dis-none">
+            <div class="well">
+                <textarea class="note-content" name="note_content"></textarea>
             </div>
-            @if($liveChatUsers != '' && $liveChatUsers != null)
-                <div class="chat-button-wrapper">
-                    <div class="col-md-9 page-chat-list-rt dis-none">
-                        <div class="help-list well well-lg">
-                            <div class="row">
-                                <div class="col-md-4 chat" style="margin-top : 0px !important;">
-                                    <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
-                                        <div class="card-header">
-                                            <div class="input-group">
-                                                {{-- <input type="text" placeholder="Search..." name="" class="form-control search">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text search_btn"><i class="fa fa-search"></i></span>
-                                            </div> --}}
-                                            </div>
-                                        </div>
-                                        <div class="card-body contacts_body">
-                                            @php
-                                                $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
-                                                $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
-                                            @endphp
-                                            <ul class="contacts" id="customer-list-chat">
-                                                @foreach ($chatIds as $chatId)
-                                                    @php
-                                                        $customer = \App\Customer::where('id',$chatId->customer_id)->first();
-                                                    @endphp
-                                                    <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
-                                                        <div class="d-flex bd-highlight">
-                                                            <div class="img_cont">
-                                                                <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
-                                                                <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
-                                                            </div>
-                                                            <div class="user_info">
-                                                                <span>{{ $customer->name }}</span>
-                                                                <p>{{ $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p>
-                                                            </div>
-                                                            @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
-                                                        </div>
-                                                    </li>
-
-                                                @endforeach
-
-                                            </ul>
-                                        </div>
-                                        <div class="card-footer"></div>
+        </div>
+        <div class="col-md-5">
+            <button class="help-button"><span>+</span></button>
+        </div>
+    </div>
+    @if($liveChatUsers != '' && $liveChatUsers != null)
+        <div class="chat-button-wrapper">
+            <div class="col-md-9 page-chat-list-rt dis-none">
+                <div class="help-list well well-lg">
+                    <div class="row">
+                        <div class="col-md-4 chat" style="margin-top : 0px !important;">
+                            <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
+                                <div class="card-header">
+                                    <div class="input-group">
+                                        {{-- <input type="text" placeholder="Search..." name="" class="form-control search">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text search_btn"><i class="fa fa-search"></i></span>
+                                        </div> --}}
                                     </div>
                                 </div>
-                                <div class="col-md-8 chat">
-                                    <div class="card_chat">
-                                        <div class="card-header msg_head">
-                                            <div class="d-flex bd-highlight">
-                                                <div class="img_cont">
-                                                    <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                <div class="card-body contacts_body">
+                                    @php
+                                        $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
+                                        $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
+                                    @endphp
+                                    <ul class="contacts" id="customer-list-chat">
+                                        @foreach ($chatIds as $chatId)
+                                            @php
+                                                $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
+                                            @endphp
+                                            <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
+                                                <div class="d-flex bd-highlight">
+                                                    <div class="img_cont">
+                                                        <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                                        <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
+                                                    </div>
+                                                    <div class="user_info">
+                                                        <span>{{  $customer->name }}</span>
+                                                        <p>{{  $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p>
+                                                    </div>
+                                                    @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
+                                                </div>
+                                            </li>
 
-                                                </div>
-                                                <div class="user_info" id="user_name">
-                                                    {{-- <span>Chat with Khalid</span>
-                                                <p>1767 Messages</p> --}}
-                                                </div>
-                                                <div class="video_cam">
-                                                    <span><i class="fa fa-video"></i></span>
-                                                    <span><i class="fa fa-phone"></i></span>
-                                                </div>
-                                            </div>
-                                            <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
-                                            <div class="action_menu">
-                                                {{-- <ul>
-                                                <li><i class="fa fa-user-circle"></i> View profile</li>
-                                                <li><i class="fa fa-users"></i> Add to close friends</li>
-                                                <li><i class="fa fa-plus"></i> Add to group</li>
-                                                <li><i class="fa fa-ban"></i> Block</li>
-                                            </ul> --}}
-                                            </div>
+                                        @endforeach
+
+                                    </ul>
+                                </div>
+                                <div class="card-footer"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-8 chat">
+                            <div class="card_chat">
+                                <div class="card-header msg_head">
+                                    <div class="d-flex bd-highlight">
+                                        <div class="img_cont">
+                                            <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+
                                         </div>
-                                        <div class="card-body msg_card_body" id="message-recieve">
+                                        <div class="user_info" id="user_name">
+                                            {{-- <span>Chat with Khalid</span>
+                                            <p>1767 Messages</p> --}}
+                                        </div>
+                                        <div class="video_cam">
+                                            <span><i class="fa fa-video"></i></span>
+                                            <span><i class="fa fa-phone"></i></span>
+                                        </div>
+                                    </div>
+                                    <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
+                                    <div class="action_menu">
+                                        {{-- <ul>
+                                            <li><i class="fa fa-user-circle"></i> View profile</li>
+                                            <li><i class="fa fa-users"></i> Add to close friends</li>
+                                            <li><i class="fa fa-plus"></i> Add to group</li>
+                                            <li><i class="fa fa-ban"></i> Block</li>
+                                        </ul> --}}
+                                    </div>
+                                </div>
+                                <div class="card-body msg_card_body" id="message-recieve">
 
+                                </div>
+                                <div class="card-footer">
+                                    <div class="input-group">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
+                                            <input type="file" id="imgupload" style="display:none"/>
                                         </div>
                                         <div class="card-footer">
                                             <div class="input-group">
                                                 <div class="input-group-append">
-                                                    <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
-                                                    <input type="file" id="imgupload" style="display:none"/>
+                                                    <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
+                                                    <input type="file" id="imgupload" style="display:none" />
                                                 </div>
-                                                <input type="hidden" id="message-id"/>
+                                                <input type="hidden" id="message-id" />
                                                 <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
                                                 <div class="input-group-append">
                                                     <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
@@ -1640,27 +1517,29 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
-                    </div>
+
                 </div>
-            @endif
-            @endif
+            </div>
+            <div class="col-md-3">
+                <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
+            </div>
+        </div>
+    @endif
+@endif
 
-        <!-- Scripts -->
+<!-- Scripts -->
 
-            {{-- @include('partials.chat') --}}
-
-
-
-        <!-- Like page plugin script  -->
+{{-- @include('partials.chat') --}}
 
 
 
-            {{-- <script>(function(d, s, id) {
+<!-- Like page plugin script  -->
+
+
+
+{{-- <script>(function(d, s, id) {
 
   var js, fjs = d.getElementsByTagName(s)[0];
 
@@ -1674,211 +1553,208 @@
 
 }(document, 'script', 'facebook-jssdk'));</script> --}}
 
-            @yield('scripts')
-            <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
-            <script>
-                $(document).ready(function () {
-                    $('.note-content').richText();
-                });
-                window.token = "{{ csrf_token() }}";
+@yield('scripts')
+<script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
+<script>
+    $(document).ready(function () {
+        $('.note-content').richText();
+    });
+    window.token = "{{ csrf_token() }}";
 
-                var url = window.location;
-                window.collectedData = [{
-                    type: 'key',
-                    data: ''
-                },
-                    {
-                        type: 'mouse',
-                        data: []
-                    }
-                ];
+    var url = window.location;
+    window.collectedData = [
+        {
+            type: 'key',
+            data: ''
+        },
+        {
+            type: 'mouse',
+            data: []
+        }
+    ];
 
-                $(document).keypress(function (event) {
-                    var x = event.charCode || event.keyCode; // Get the Unicode value
-                    var y = String.fromCharCode(x);
-                    collectedData[0].data += y;
-                });
+    $(document).keypress(function (event) {
+        var x = event.charCode || event.keyCode;  // Get the Unicode value
+        var y = String.fromCharCode(x);
+        collectedData[0].data += y;
+    });
 
-                // started for help button
-                $('.help-button').on('click', function () {
-                    $('.help-button-wrapper').toggleClass('expanded');
-                    $('.page-notes-list-rt').toggleClass('dis-none');
-                });
+    // started for help button
+    $('.help-button').on('click', function () {
+        $('.help-button-wrapper').toggleClass('expanded');
+        $('.page-notes-list-rt').toggleClass('dis-none');
+    });
 
-                // started for chat button
-                $('.chat-button').on('click', function () {
-                    $('.chat-button-wrapper').toggleClass('expanded');
-                    $('.page-chat-list-rt').toggleClass('dis-none');
-                });
+    // started for chat button
+    $('.chat-button').on('click', function () {
+        $('.chat-button-wrapper').toggleClass('expanded');
+        $('.page-chat-list-rt').toggleClass('dis-none');
+    });
 
-                var notesBtn = $(".save-user-notes");
+    var notesBtn = $(".save-user-notes");
 
-                notesBtn.on("click", function (e) {
-                    e.preventDefault();
-                    var $form = $(this).closest("form");
-                    $.ajax({
-                        type: "POST",
-                        url: $form.attr("action"),
-                        data: {
-                            _token: window.token,
-                            note: $form.find("#note").val(),
-                            category_id: $form.find("#category_id").val(),
-                            url: "<?php echo request()->url() ?>"
-                        },
-                        dataType: "json",
-                        success: function (data) {
-                            if (data.code > 0) {
-                                $form.find("#note").val("");
-                                var listOfN = "<tr>";
-                                listOfN += "<td scope='row'>" + data.notes.id + "</td>";
-                                listOfN += "<td>" + data.notes.note + "</td>";
-                                listOfN += "<td>" + data.notes.category_name + "</td>";
-                                listOfN += "<td>" + data.notes.name + "</td>";
-                                listOfN += "<td>" + data.notes.created_at + "</td>";
-                                listOfN += "</tr>";
+    notesBtn.on("click", function (e) {
+        e.preventDefault();
+        var $form = $(this).closest("form");
+        $.ajax({
+            type: "POST",
+            url: $form.attr("action"),
+            data: {
+                _token: window.token,
+                note: $form.find("#note").val(),
+                category_id: $form.find("#category_id").val(),
+                url: "<?php echo request()->url() ?>"
+            },
+            dataType: "json",
+            success: function (data) {
+                if (data.code > 0) {
+                    $form.find("#note").val("");
+                    var listOfN = "<tr>";
+                    listOfN += "<td scope='row'>" + data.notes.id + "</td>";
+                    listOfN += "<td>" + data.notes.note + "</td>";
+                    listOfN += "<td>" + data.notes.category_name + "</td>";
+                    listOfN += "<td>" + data.notes.name + "</td>";
+                    listOfN += "<td>" + data.notes.created_at + "</td>";
+                    listOfN += "</tr>";
 
-                                $(".page-notes-list").prepend(listOfN);
-                            }
-                        },
-                    });
-                });
-
-                var getNotesList = function () {
-                    //$.ajax({
-                    //            type: "GET",
-                    //          url: "/page-notes/list",
-                    //        data: {
-                    //          _token: window.token,
-                    //        url: "<?php echo request()->url() ?>"
-                    //  },
-                    //            dataType: "json",
-                    //          success: function (data) {
-                    //            if (data.code > 0) {
-                    //              var listOfN = "";
-                    //            $.each(data.notes, function (k, v) {
-                    //              listOfN += "<tr>";
-                    //            listOfN += "<td scope='row'>" + v.id + "</td>";
-                    //          listOfN += "<td>" + v.note + "</td>";
-                    //        listOfN += "<td>" + v.category_name + "</td>";
-                    //      listOfN += "<td>" + v.name + "</td>";
-                    //    listOfN += "<td>" + v.created_at + "</td>";
-                    //  listOfN += "</tr>";
-                    //                    });
-                    //
-                    //                  $(".page-notes-list").prepend(listOfN);
-                    //            }
-                    //      },
-                    //});
+                    $(".page-notes-list").prepend(listOfN);
                 }
+            },
+        });
+    });
 
-                if ($(".help-button-wrapper").length > 0) {
-                    getNotesList();
+    var getNotesList = function () {
+        //$.ajax({
+//            type: "GET",
+        //          url: "/page-notes/list",
+        //        data: {
+        //          _token: window.token,
+        //        url: "<?php echo request()->url() ?>"
+        //  },
+//            dataType: "json",
+        //          success: function (data) {
+        //            if (data.code > 0) {
+        //              var listOfN = "";
+        //            $.each(data.notes, function (k, v) {
+        //              listOfN += "<tr>";
+        //            listOfN += "<td scope='row'>" + v.id + "</td>";
+        //          listOfN += "<td>" + v.note + "</td>";
+        //        listOfN += "<td>" + v.category_name + "</td>";
+        //      listOfN += "<td>" + v.name + "</td>";
+        //    listOfN += "<td>" + v.created_at + "</td>";
+        //  listOfN += "</tr>";
+//                    });
+//
+        //                  $(".page-notes-list").prepend(listOfN);
+        //            }
+        //      },
+        //});
+    }
+
+    if ($(".help-button-wrapper").length > 0) {
+        getNotesList();
+    }
+
+
+    // $(document).click(function() {
+    //     if (collectedData[0].data.length > 10) {
+    //         let data_ = collectedData[0].data;
+    //         let type_ = collectedData[0].type;
+    //
+    //         $.ajax({
+    //             url: "/track",
+    //             type: 'post',
+    //             csrf: token,
+    //             data: {
+    //                 url: url,
+    //                 item: type_,
+    //                 data: data_
+    //             }
+    //         });
+    //     }
+    // });
+    @if(Auth::check())
+    $(document).ready(function () {
+        var url = window.location.href;
+        var user_id = "{{ Auth::id() }}";
+        user_name = "{{ Auth::user()->name }}";
+        $.ajax({
+            type: "POST",
+            url: "/api/userLogs",
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "url": url,
+                "user_id": user_id,
+                "user_name": user_name
+            },
+            dataType: "json",
+            success: function (message) {
+            }
+        });
+    });
+    @endif
+</script>
+@if ( !empty($_SERVER['HTTP_HOST']) && !stristr($_SERVER['HTTP_HOST'], '.mac') )
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+        gtag('config', 'UA-147736165-1');
+    </script>
+    <script>
+        function filterFunction() {
+            var input, filter, ul, li, a, i;
+            //getting search values
+            input = document.getElementById("search");
+            //String to upper for search
+            filter = input.value.toUpperCase();
+            //Getting Values From DOM
+            a = document.querySelectorAll("#navbarSupportedContent a");
+            //Class to open bar
+            $("#search_li").addClass('open');
+            //Close when search becomes zero
+            if (a.length == 0) {
+                $("#search_li").removeClass('open');
+            }
+            //Limiting Search Count
+            count = 1;
+            //Empty Existing Values
+            $("#search_container").empty();
+
+            //Getting All Values
+            for (i = 0; i < a.length; i++) {
+                txtValue = a[i].textContent || a[i].innerText;
+                href = a[i].href;
+                //If value doesnt have link
+                if (href == "#" || href == '' || href.indexOf('#') > -1) {
+                    continue;
                 }
-
-
-                // $(document).click(function() {
-                //     if (collectedData[0].data.length > 10) {
-                //         let data_ = collectedData[0].data;
-                //         let type_ = collectedData[0].type;
-                //
-                //         $.ajax({
-                //             url: "/track",
-                //             type: 'post',
-                //             csrf: token,
-                //             data: {
-                //                 url: url,
-                //                 item: type_,
-                //                 data: data_
-                //             }
-                //         });
-                //     }
-                // });
-                @if(Auth::check())
-                $(document).ready(function () {
-                    var url = window.location.href;
-                    var user_id = {
-                    {
-                        Auth::id()
+                //Removing old search Result From DOM
+                if (a[i].getAttribute('class') != null && a[i].getAttribute('class') != '') {
+                    if (a[i].getAttribute('class').indexOf('old_search') > -1) {
+                        continue;
                     }
                 }
-                    ;
-                    user_name = "{{ Auth::user()->name }}";
-                    $.ajax({
-                        type: "POST",
-                        url: "/api/userLogs",
-                        data: {
-                            "_token": "{{ csrf_token() }}",
-                            "url": url,
-                            "user_id": user_id,
-                            "user_name": user_name
-                        },
-                        dataType: "json",
-                        success: function (message) {
-                        }
-                    });
-                });
-                @endif
-            </script>
-        @if ( !empty($_SERVER['HTTP_HOST']) && !stristr($_SERVER['HTTP_HOST'], '.mac') )
-            <!-- Global site tag (gtag.js) - Google Analytics -->
-                <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
-                <script>
-                    window.dataLayer = window.dataLayer || [];
+                //break when count goes above 30
+                if (count > 30) {
+                    break;
+                }
+                //Pusing values to DOM Search Input
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
+                    count++
+                } else {
+                }
+            }
+        }
 
-                    function gtag() {
-                        dataLayer.push(arguments);
-                    }
-
-                    gtag('js', new Date());
-                    gtag('config', 'UA-147736165-1');
-                </script>
-                <script>
-                    function filterFunction() {
-                        var input, filter, ul, li, a, i;
-                        //getting search values
-                        input = document.getElementById("search");
-                        //String to upper for search
-                        filter = input.value.toUpperCase();
-                        //Getting Values From DOM
-                        a = document.querySelectorAll("#navbarSupportedContent a");
-                        //Class to open bar
-                        $("#search_li").addClass('open');
-                        //Close when search becomes zero
-                        if (a.length == 0) {
-                            $("#search_li").removeClass('open');
-                        }
-                        //Limiting Search Count
-                        count = 1;
-                        //Empty Existing Values
-                        $("#search_container").empty();
-
-                        //Getting All Values
-                        for (i = 0; i < a.length; i++) {
-                            txtValue = a[i].textContent || a[i].innerText;
-                            href = a[i].href;
-                            //If value doesnt have link
-                            if (href == "#" || href == '' || href.indexOf('#') > -1) {
-                                continue;
-                            }
-                            //Removing old search Result From DOM
-                            if (a[i].getAttribute('class') != null && a[i].getAttribute('class') != '') {
-                                if (a[i].getAttribute('class').indexOf('old_search') > -1) {
-                                    continue;
-                                }
-                            }
-                            //break when count goes above 30
-                            if (count > 30) {
-                                break;
-                            }
-                            //Pusing values to DOM Search Input
-                            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                                $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
-                                count++
-                            } else {
-                            }
-                        }
-                    }
-                </script>
+    </script>
 @endif
 
 </body>
