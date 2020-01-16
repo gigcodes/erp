@@ -8,6 +8,8 @@ use App\CronJobReport;
 use Carbon\Carbon;
 use Webklex\IMAP\Client;
 use Illuminate\Console\Command;
+use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use seo2websites\ErpExcelImporter\ExcelImporter;
 
 class FetchEmails extends Command
 {
@@ -77,15 +79,7 @@ class FetchEmails extends Command
         ]
       ];
 
-      // if ($request->type == 'inbox') {
-      //   $inbox_name = 'INBOX';
-      //   $direction = 'from';
-      //   $type = 'incoming';
-      // } else {
-      //   $inbox_name = 'INBOX.Sent';
-      //   $direction = 'to';
-      //   $type = 'outgoing';
-      // }
+      
 
       foreach ($suppliers as $supplier) {
         foreach ($types as $type) {
@@ -126,13 +120,28 @@ class FetchEmails extends Command
                     }
 
                     if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
-                      dump('NEW EMAIL');
+                      dump('NEW EMAIL First');
                       $attachments_array = [];
                       $attachments = $email->getAttachments();
 
-                      $attachments->each(function ($attachment) use (&$attachments_array) {
+                      $attachments->each(function ($attachment) use (&$attachments_array,$supplier) {
+                        $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
                         file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
                         $path = "email-attachments/" . $attachment->name;
+
+                        if($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls'){
+                          if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                            $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                            ErpExcelImporter::excelFileProcess($attachment->name,$excel,$supplier->email);
+                          }
+                        }elseif ($attachment->getExtension() == 'zip') {
+                          if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                            $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                            $attachments = ErpExcelImporter::excelZipProcess($attachment,$attachment->name,$excel,$supplier->email,$attachments_array);
+                            $attachments_array = $attachments;
+                          }
+                        }
+
                         $attachments_array[] = $path;
                       });
 
@@ -169,14 +178,29 @@ class FetchEmails extends Command
                     }
 
                     if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
-                      dump('NEW EMAIL');
+                      dump('NEW EMAIL Second');
 
                       $attachments_array = [];
                       $attachments = $email->getAttachments();
 
-                      $attachments->each(function ($attachment) use (&$attachments_array) {
+                      $attachments->each(function ($attachment) use (&$attachments_array,$supplier) {
+                        $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
                         file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
                         $path = "email-attachments/" . $attachment->name;
+
+                        if($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls'){
+                          if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                            $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                            ErpExcelImporter::excelFileProcess($attachment->name,$excel,$supplier->email);
+                          }
+                        }elseif ($attachment->getExtension() == 'zip') {
+                          if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                            $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                            $attachments = ErpExcelImporter::excelZipProcess($attachment,$attachment->name,$excel,$supplier->email,$attachments_array);
+                            $attachments_array = $attachments;
+                          }
+                        }
+
                         $attachments_array[] = $path;
                       });
 
@@ -216,14 +240,29 @@ class FetchEmails extends Command
                 }
 
                 if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
-                  dump('NEW EMAIL');
+                  dump('NEW EMAIL third');
 
                   $attachments_array = [];
                   $attachments = $email->getAttachments();
 
-                  $attachments->each(function ($attachment) use (&$attachments_array) {
+                  $attachments->each(function ($attachment) use (&$attachments_array,$supplier) {
+                    $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
+                  
                     file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
                     $path = "email-attachments/" . $attachment->name;
+
+                    if($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls'){
+                      if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                        $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                        ErpExcelImporter::excelFileProcess($attachment->name,$excel,$supplier->email);
+                      }
+                    }elseif ($attachment->getExtension() == 'zip') {
+                      if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                        $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                        $attachments = ErpExcelImporter::excelZipProcess($attachment,$attachment->name,$excel,$supplier->email,$attachments_array);
+                        $attachments_array = $attachments;
+                      }
+                    } 
                     $attachments_array[] = $path;
                   });
 
@@ -267,15 +306,32 @@ class FetchEmails extends Command
               }
 
               if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
-                dump('NEW EMAIL');
+                //dump('NEW EMAIL fourth');
 
                 $attachments_array = [];
                 $attachments = $email->getAttachments();
-
-                $attachments->each(function ($attachment) use (&$attachments_array) {
+                
+                $attachments->each(function ($attachment) use (&$attachments_array,$supplier) {
+                  $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
                   file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
                   $path = "email-attachments/" . $attachment->name;
+                  
+                  if($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls'){
+                    if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                    $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                    ErpExcelImporter::excelFileProcess($attachment->name,$excel,$supplier->email);
+                    }
+                  }elseif ($attachment->getExtension() == 'zip') {
+                    if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                    $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                    $attachments = ErpExcelImporter::excelZipProcess($attachment,$attachment->name,$excel,$supplier->email,$attachments_array);
+                    $attachments_array = $attachments;
+                    }
+                  } 
+                  
                   $attachments_array[] = $path;
+                  
+                  
                 });
 
                 $params = [

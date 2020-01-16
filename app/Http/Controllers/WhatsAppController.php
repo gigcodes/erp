@@ -1214,7 +1214,7 @@ class WhatsAppController extends FindByNumberController
             if ($user) {
                 // Add user ID to params
                 $params[ 'user_id' ] = $user->id;
-
+                //dd($params[ 'message' ]);
                 // Check for task
                 if ($params[ 'message' ] != '' && (preg_match_all("/#([\d]+)/i", $params[ 'message' ], $match))) {
                     // If task is found
