@@ -70,8 +70,10 @@ class SendHubstaffReport extends Command
                 ? $this->formatSeconds($userToday[$user->hubstaff_user_id])
                 : '0');
 
-            $message = $user->name . ' ' .  $pastHour . ' ' . $today;
-            $report[] = $message;
+            if($today != '0'){
+                $message = $user->name . ' ' .  $pastHour . ' ' . $today;
+                $report[] = $message;
+            }
         }
 
         $message = implode(PHP_EOL, $report);
