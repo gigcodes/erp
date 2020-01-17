@@ -228,5 +228,10 @@ class Customer extends Model
        return $this->hasOne(ImQueue::class,'number_to','phone')->where('sent_at','2002-02-02 02:02:02')->latest();
     }
 
+    public function receivedLastestMessage()
+    {
+        return $this->hasOne('App\ChatMessage','customer_id','id')->whereNotNull('number')->latest();
+    }
+
     
 }

@@ -9,7 +9,9 @@ class ScrapRemark extends Model
     protected $fillable = [
         'user_name',
         'scraper_name',
-        'remark'
+        'remark',
+        'scrap_id',
+        'module_type'
     ];
 
     public function scraps()

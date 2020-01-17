@@ -26,6 +26,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\ProductQuicksellGroup;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\SupplierBrandCountHistory;
+use seo2websites\ErpExcelImporter\ErpExcelImporter;
 
 class SupplierController extends Controller
 {
@@ -1080,7 +1081,53 @@ class SupplierController extends Controller
 
         // Still here? Return an error
         return response()->json(['error' => 'Supplier not found'], 403);
+
+
     }
+
+    public function excelImport(Request $request)
+        {
+          
+          if($request->attachment){
+              $supplier = Supplier::find($request->id);
+             $file = explode('/',$request->attachment);
+             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                  $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                  $excel = ErpExcelImporter::excelFileProcess(end($file),$excel,$supplier->email);
+                  return response()->json(['success' => 'File Processed For Import'], 200);
+              }else{
+                return response()->json(['error' => 'File Couldnt Process For Import'], 200);
+              }
+          }
+
+          if($request->file('excel_file')){
+              $file = $request->file('excel_file');
+              if($file->getClientOriginalExtension() == 'xls' || $file->getClientOriginalExtension() == 'xlsx'){
+                
+                //SAve FIle
+                if (!file_exists(storage_path('app/files/email-attachments/file/'))) {
+                  mkdir(storage_path('app/files/email-attachments/file/'), 0777, true);
+                } 
+
+                $path = storage_path('app/files/email-attachments/file/');
+                $file->move($path,$file->getClientOriginalName());
+                $filePath = '/file/'.$file->getClientOriginalName();
+                $supplier = Supplier::find($request->id);
+                if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                  $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                  $excel = ErpExcelImporter::excelFileProcess($filePath,$excel,$supplier->email);
+                  return redirect()->back()->withSuccess('File Processed For Import'); 
+                }else{
+                  return redirect()->back()->withErrors('Excel Importer Not Found');
+                }
+
+              }else{
+                return redirect()->back()->withErrors('Please Use Excel FIle');; 
+              }
+            }
+        }    
+    
+
 
     /**
     * Remove particular scraped brand from scrapped brands for a supplier
@@ -1125,6 +1172,7 @@ class SupplierController extends Controller
         return response()->json(['error' => 'Supplier not found'], 403);
     }
 
+
     public function languageTranslate(Request $request) 
     {
       $supplier = Supplier::find($request->id);
@@ -1132,4 +1180,5 @@ class SupplierController extends Controller
       $supplier->save();
       return response()->json(['success' => 'Supplier language updated'], 200);
     }
+
 }
