@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\HashTag;
 use App\Setting;
 use App\Affiliates;
+use App\Mail\AffiliateEmail;
+use Illuminate\Support\Facades\Mail;
 
 class GoogleAffiliateController extends Controller
 {
@@ -303,5 +305,49 @@ class GoogleAffiliateController extends Controller
 
         // Return google search results
         return $affiliateResults;
+    }
+
+    public function flag(Request $request)
+    {
+        $affiliates = Affiliates::find($request->id);
+
+        if ($affiliates->is_flagged == 0) {
+            $affiliates->is_flagged = 1;
+        } else {
+            $affiliates->is_flagged = 0;
+        }
+
+        $affiliates->save();
+
+        return response()->json(['is_flagged' => $affiliates->is_flagged]);
+    }
+
+    public function emailSend(Request $request)
+    {
+        $this->validate($request, [
+            'subject' => 'required|min:3|max:255',
+            'message' => 'required'
+        ]);
+        \Log::info($request);
+        $affiliates = Affiliates::find($request->affiliate_id);
+        \Log::info($affiliates);
+        Mail::to($affiliates->emailaddress)->send(new AffiliateEmail($request->subject, $request->message));
+
+
+        $params = [
+            'model_id' => $affiliates->id,
+            'model_type' => Affiliates::class,
+            'from' => 'affiliate@amourint.com',
+            'to' => $affiliates->emailaddress,
+            'send' => 1,
+            'subject' => $request->subject,
+            'message' => $request->message,
+            'template' => 'customer-simple',
+            'additional_data' => ''
+        ];
+
+        Email::create($params);
+
+        return redirect()->route('affiliates.index', $customer->id)->withSuccess('You have successfully sent an email!');
     }
 }

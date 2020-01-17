@@ -1,3 +1,4 @@
+ @include('google.affiliate.partials.modal-email')
 @foreach($posts as $key=>$post)
     <tr>
         <td>{{ date('d-M-Y H:i:s', strtotime($post->posted_at)) }}</td>
@@ -5,7 +6,19 @@
         <td>
         	{{ $post->title }}
 			<br>
+             @if ($post->is_flagged == 1)
+              <button type="button" class="btn btn-image flag-supplier" data-id="{{ $post->id }}"><img src="/images/flagged.png" /></button>
+            @else
+              <button type="button" class="btn btn-image flag-supplier" data-id="{{ $post->id }}"><img src="/images/unflagged.png" /></button>
+            @endif
 			<button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $post->id }}"><img src="/images/remark.png" /></button>
+            <br>
+            <span class="text-muted">
+              <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $post->id }}">{{ $post->emailaddress }}</a>
+              @if ($post->has_error == 1)
+                <span class="text-danger">!!!</span>
+              @endif
+            </span>
         </td>
         <td>{{ $post->address }}</td>
         <td style="word-break:break-all; white-space: normal; line-height:190%">
@@ -50,3 +63,40 @@
         </td>
     </tr>
 @endforeach
+<script type="text/javascript">
+     $(document).on('click', '.flag-supplier', function() {
+      var affiliate_id = $(this).data('id');
+      var thiss = $(this);
+
+      $.ajax({
+        type: "POST",
+        url: "{{ route('affiliate.flag') }}",
+        data: {
+          _token: "{{ csrf_token() }}",
+          id: affiliate_id
+        },
+        beforeSend: function() {
+          $(thiss).text('Flagging...');
+        }
+      }).done(function(response) {
+        if (response.is_flagged == 1) {
+          $(thiss).html('<img src="/images/flagged.png" />');
+        } else {
+          $(thiss).html('<img src="/images/unflagged.png" />');
+        }
+
+      }).fail(function(response) {
+        $(thiss).html('<img src="/images/unflagged.png" />');
+
+        alert('Could not flag supplier!');
+
+        console.log(response);
+      });
+    });
+
+    $(document).on('click', '.send-supplier-email', function() {
+      var id = $(this).data('id');
+
+      $('#emailSendModal').find('input[name="affiliate_id"]').val(id);
+    });
+</script>
