@@ -27,6 +27,20 @@
                     @endif
 
                     <div class="form-group">
+                        <label for="repository_id">Repository:</label>
+                        <br>
+                        <select style="width:100%" class="form-control select2" id="repository_id" name="repository_id">
+                            @foreach ($respositories as $repository)
+                                <option value="{{ $repository->id }}" {{ $repository->id == $defaultRepositoryId ? 'selected' : '' }}>{{ $repository->name }}</option>
+                            @endforeach
+                        </select>
+
+                        @if ($errors->has('repository_id'))
+                            <div class="alert alert-danger">{{$errors->first('repository_id')}}</div>
+                        @endif
+                    </div>
+
+                    <div class="form-group">
                         <strong>Attach files:</strong>
                         <input type="file" name="images[]" class="form-control" multiple>
                         @if ($errors->has('images'))
