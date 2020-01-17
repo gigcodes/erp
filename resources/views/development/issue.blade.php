@@ -105,7 +105,6 @@
                     <th width="5%">Date Created</th>
                     <th width="5%">Est Completion Time</th>
                     <th width="5%">Assigned To</th>
-                    <th width="5%">Corrected By</th>
                     <th width="5%">Resolved</th>
                     <th width="5%">Master Developer</th>
                     <th width="5%">Cost</th>
@@ -126,6 +125,8 @@
     @include("development.partials.assign-issue-modal")
     @include("development.partials.assign-priority-modal")
     @include("development.partials.chat-list-history-modal")
+    @include("development.partials.upload-document-modal")
+    @include("partials.plain-modal")
 
 @endsection
 
@@ -134,6 +135,7 @@
     <script src="/js/jquery-ui.js"></script>
     <script src="/js/jquery.jscroll.min.js"></script>
     <script src="/js/bootstrap-multiselect.min.js"></script>
+    <script src="/js/bootstrap-filestyle.min.js"></script>
     <script>
         $(document).ready(function () {
             
@@ -162,16 +164,22 @@
                         $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
                     }
 
-                    $.each($(".resolve-issue"),function(k,v){
+
+                    $.each($("select.resolve-issue"),function(k,v){
                         if (!$(v).hasClass("select2-hidden-accessible")) {
                             $(v).select2({width:"100%", tags:true});
                         }
                     });
+                    $('select.select2').select2({
+                        tags: true,
+                        width: "100%"
+                    });
                 }
             });
 
-            $('.select2').select2({
-                tags: true
+            $('select.select2').select2({
+                tags: true,
+                width: "100%"
             });
 
             $.each($(".resolve-issue"),function(k,v){
@@ -180,7 +188,7 @@
                 }
             });
 
-            $('#priority_user_id').select2({
+            $('select#priority_user_id').select2({
                 tags: true,
                 width: '100%'
             });
@@ -236,27 +244,17 @@
             $(this).closest('tr').remove();
         });
         $('.priority_model_btn').click(function () {
-            $("#priority_user_id").show();
             $("#priority_user_id").val('');
             $(".show_task_priority").html('');
             <?php if (auth()->user()->isAdmin()) { ?>
-            getPriorityTaskList($('#priority_user_id').val());
+                $("#priority_user_id").show();
+                getPriorityTaskList($('#priority_user_id').val());
             <?php } else { ?>
-            getPriorityTaskList('{{auth()->user()->id}}');
+                $("#priority_user_id").hide();
+                getPriorityTaskList('{{auth()->user()->id}}');
             <?php } ?>
             $('#priority_model').modal('show');
         });
-
-        $('.priority_model_head_dev_btn').click(function () {
-            $("#priority_user_id").hide();
-            $(".show_task_priority").html('');
-            <?php if (auth()->user()->isAdmin()) { ?>
-                getPriorityTaskList(2);
-            <?php } ?>
-            $('#priority_model').modal('show');
-        })
-
-        
 
         $('#priority_user_id').change(function () {
             getPriorityTaskList($(this).val())
@@ -271,6 +269,7 @@
                 data: $(this).serialize(),
                 success: function (response) {
                     toastr['success']('Priority successfully update!!', 'success');
+                    $('#priority_model').modal('hide');
                 },
                 error: function () {
                     alert('There was error loading priority task list data');
@@ -548,7 +547,7 @@
                     if (resp.status == 'ok') {
                         $("body").append(resp.html);
                         $('#newTaskModal').modal('show');
-                        $('.select2').select2({tags: true});
+                        $('select.select2').select2({tags: true});
                     }
                 }
             });
@@ -572,6 +571,56 @@
             });
         }
 
+        console.log($('#filecount'));
+
+        $('#filecount').filestyle({htmlIcon: '<span class="oi oi-random"></span>',badge: true, badgeName: "badge-danger"});
+
+        $(document).on("click",".upload-document-btn",function() {
+            var id = $(this).data("id");
+            $("#upload-document-modal").find("#hidden-identifier").val(id);    
+            $("#upload-document-modal").modal("show");
+        });
+
+        $(document).on("submit","#upload-task-documents",function(e) {
+            e.preventDefault();
+            var form = $(this);
+            var postData = new FormData(form[0]);
+            $.ajax({
+                method : "post",
+                url: "{{action('DevelopmentController@uploadDocument')}}",
+                data: postData,
+                processData: false,
+                contentType: false,
+                dataType: "json",
+                success: function (response) {
+                    if(response.code == 200) {
+                        toastr["success"]("Status updated!", "Message")
+                        $("#upload-document-modal").modal("hide");
+                    }else{
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        $(document).on("click",".list-document-btn",function() {
+            var id = $(this).data("id");
+            $.ajax({
+                method : "GET",
+                url: "{{action('DevelopmentController@getDocument')}}",
+                data: {id : id},
+                dataType: "json",
+                success: function (response) {
+                    if(response.code == 200) {
+                        $("#blank-modal").find(".modal-title").html("Document List");
+                        $("#blank-modal").find(".modal-body").html(response.data);
+                        $("#blank-modal").modal("show");
+                    }else{
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
 
     </script>
 @endsection

@@ -1254,6 +1254,7 @@
                     data: $(this).serialize(),
                     success: function (response) {
                         toastr['success']('Priority successfully update!!', 'success');
+                        $('#priority_model').modal('hide');
                     },
                     error: function () {
                         alert('There was error loading priority task list data');

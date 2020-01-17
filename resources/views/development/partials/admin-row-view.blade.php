@@ -5,6 +5,8 @@
                 <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>
             @endif
         </a>
+        <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
+        <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
     </td>
     <td style="vertical-align: middle;">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</td>
     <td style="vertical-align: middle;">{{ $issue->subject ?? 'N/A' }}</td>
@@ -54,22 +56,10 @@
     </td>
     {{--<td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }} </td>--}}
     <td>
-        <select class="form-control assign-user" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">
+        <select class="form-control assign-user select2" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">
             <option value="">Select...</option>
             @foreach($users as $id=>$name)
                 @if( isset($issue->assignedUser->id) && (int) $issue->assignedUser->id == $id )
-                    <option value="{{$id}}" selected>{{ $name }}</option>
-                @else
-                    <option value="{{$id}}">{{ $name }}</option>
-                @endif
-            @endforeach
-        </select>
-    </td>
-    <td>
-        <select class="form-control set-responsible-user" data-id="{{$issue->id}}" name="user" id="user_{{$issue->id}}">
-            <option value="">Select...</option>
-            @foreach($users as $id=>$name)
-                @if( isset($issue->responsibleUser->id) && (int) $issue->responsibleUser->id == $id )
                     <option value="{{$id}}" selected>{{ $name }}</option>
                 @else
                     <option value="{{$id}}">{{ $name }}</option>
@@ -85,7 +75,7 @@
         @endif
     </td>
     <td>
-        <select class="form-control assign-master-user" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
+        <select class="form-control assign-master-user select2" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
             <option value="">Select...</option>
             @foreach($users as $id=>$name)
                 @if( isset($issue->masterUser->id) && (int) $issue->masterUser->id == $id )

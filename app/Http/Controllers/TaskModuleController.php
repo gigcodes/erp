@@ -372,22 +372,24 @@ class TaskModuleController extends Controller {
 	public function taskListByUserId(Request $request)
     {
         $user_id = $request->get('user_id' , 0);
+        $selected_issue = $request->get('selected_issue' , []);
 
         $issues = Task::select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.assign_from')
                         ->leftJoin('erp_priorities', function($query){
                             $query->on('erp_priorities.model_id', '=', 'tasks.id');
                             $query->where('erp_priorities.model_type', '=', Task::class);
-                        })
-                        ->where('assign_to', $user_id)
-                        ->whereNull('is_verified');
+                        })->whereNull('is_verified');
 
         if (auth()->user()->isAdmin()) {
-            $issues = $issues->whereIn('tasks.id', $request->get('selected_issue' , []));
+            $issues = $issues->where(function($q) use ($selected_issue, $user_id) {
+            	$user_id = is_null($user_id) ? 0 : $user_id;
+            	$q->whereIn('tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
+            });
         } else {
             $issues = $issues->whereNotNull('erp_priorities.id');
         }
 
-        $issues = $issues->orderBy('erp_priorities.id')->get();
+        $issues = $issues->groupBy('tasks.id')->orderBy('erp_priorities.id')->get();
 
         foreach ($issues as &$value) {
             $value->created_by = User::where('id', $value->assign_from)->value('name');
@@ -400,29 +402,32 @@ class TaskModuleController extends Controller {
     public function setTaskPriority(Request $request)
     {
         $priority = $request->get('priority', null);
+        $user_id = $request->get('user_id', 0);
         //get all user task
-        $developerTask = Task::where('assign_to', $request->get('user_id', 0))->pluck('id')->toArray();
+        //$developerTask = Task::where('assign_to', $user_id)->pluck('id')->toArray();
         
         //delete old priority
-        \App\ErpPriority::whereIn('model_id', $developerTask)->where('model_type', '=', Task::class)->delete();
+        \App\ErpPriority::where('user_id', $user_id)->where('model_type', '=', Task::class)->delete();
         
         if (!empty($priority)) {
             foreach ((array)$priority as $model_id) {
                 \App\ErpPriority::create([
                     'model_id' => $model_id, 
-                    'model_type' => Task::class
+                    'model_type' => Task::class,
+                    'user_id' => $user_id
                 ]);
             }
 
             $developerTask = Task::select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.assign_from')
-			                        ->join('erp_priorities', function($query){
+			                        ->join('erp_priorities', function($query) use ($user_id){
+			                        	$user_id = is_null($user_id) ? 0 : $user_id;
 			                            $query->on('erp_priorities.model_id', '=', 'tasks.id');
 			                            $query->where('erp_priorities.model_type', '=', Task::class);
+			                            $query->where('user_id', $user_id);
 			                        })
-			                        ->where('assign_to', $request->get('user_id', 0))
 			                        ->whereNull('is_verified')
 			                        ->orderBy('erp_priorities.id')
-			                        ->get();
+			                        ->get();                      
 
             $message = "";
             $i = 1;
@@ -436,7 +441,7 @@ class TaskModuleController extends Controller {
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $params = [];
-                $params['user_id'] = $request->get('user_id', 0);
+                $params['user_id'] = $user_id;
 
                 $string = "";
 

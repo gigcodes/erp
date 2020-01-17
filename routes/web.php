@@ -606,6 +606,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post( 'development/task/assign-task', 'DevelopmentController@updateAssignee' );
     Route::post( 'development/task/relist-task', 'DevelopmentController@relistTask' );
     Route::post( 'development/task/update-status', 'DevelopmentController@changeTaskStatus' );
+    Route::post( 'development/task/upload-document', 'DevelopmentController@uploadDocument' );
+    Route::get( 'development/task/get-document', 'DevelopmentController@getDocument' );
+    
 
     Route::resource( 'task-types', 'TaskTypesController' );
 

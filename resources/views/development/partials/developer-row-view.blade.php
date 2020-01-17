@@ -5,6 +5,8 @@
                 <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>
             @endif
         </a>
+        <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
+        <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
     </td>
     <td><a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</a></td>
     <td>{{ $issue->subject }}</td>
@@ -38,13 +40,6 @@
             {{ $issue->assignedUser->name }}
         @else
             Unassigned
-        @endif
-    </td>
-    <td>
-        @if($issue->responsibleUser)
-            {{ $issue->responsibleUser->name  }}
-        @else
-            N/A
         @endif
     </td>
     <td>
