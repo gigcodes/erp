@@ -96,23 +96,23 @@ class SupplierController extends Controller
           $filterBrands = implode("|", $brands);
           $filterReferences = str_replace(";", "|",implode("|", $references));
           if(!empty($filterBrands)) {
-            $typeWhereClause .= ' AND brands RLIKE "'.$filterBrands.'"';
+            $typeWhereClause .= ' AND (brands RLIKE "'.$filterBrands.'"';
             $typeWhereClause .= 'OR scraped_brands RLIKE "'.$filterBrands.'"';
-            $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$filterBrands.'"'; 
+            $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$filterBrands.'")'; 
           }
           if (!empty($filterReferences)) {
-            $typeWhereClause .= ' OR brands RLIKE "'.$filterReferences.'"';
+            $typeWhereClause .= ' OR (brands RLIKE "'.$filterReferences.'"';
             $typeWhereClause .= 'OR scraped_brands RLIKE "'.$filterReferences.'"';
-            $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$filterReferences.'"'; 
+            $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$filterReferences.'")'; 
           }
 
         } else {
             if(!empty($request->scrapedBrand))
             {
               $scrapedBrands = implode("|", $request->scrapedBrand);
-              $typeWhereClause .= ' AND brands RLIKE "'.$scrapedBrands.'"';
+              $typeWhereClause .= ' AND (brands RLIKE "'.$scrapedBrands.'"';
               $typeWhereClause .= 'OR scraped_brands RLIKE "'.$scrapedBrands.'"';
-              $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$scrapedBrands.'"'; 
+              $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$scrapedBrands.'")'; 
             }
         }
 
@@ -179,6 +179,7 @@ class SupplierController extends Controller
         $rawBrands = array();
         foreach ($scrapedBrandsRaw as $key => $value) {
            array_push($rawBrands, array_unique(array_filter(array_column(json_decode($value->scraped_brands_raw, true), 'name'))));
+           array_push($rawBrands, array_unique(array_filter(explode(",", $value->scraped_brands))));
         }
         $scrapedBrands = array_unique(array_reduce($rawBrands, 'array_merge',[]));
 
