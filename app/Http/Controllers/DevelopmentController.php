@@ -439,7 +439,7 @@ class DevelopmentController extends Controller
 
         if (!auth()->user()->isAdmin()) {
             $issues = $issues->where(function($q){
-                $q->where("developer_tasks.assigned_to",auth()->user()->id)->orWhere("developer_tasks.responsible_user_id",auth()->user()->id);
+                $q->where("developer_tasks.assigned_to",auth()->user()->id);
             });
         }
 

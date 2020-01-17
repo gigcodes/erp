@@ -1,5 +1,14 @@
 <tr>
+    <td>
+        <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
+            @if($issue->is_resolved==0)
+                <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>
+            @endif
+        </a>
+    </td>
     <td><a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</a></td>
+    <td>{{ $issue->subject }}</td>
+    <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
     <td>
         {{ $issue->task }}
         @if ($issue->getMedia(config('constants.media_tags'))->first())
@@ -22,9 +31,6 @@
             </div>
         </div>
     </td>
-    <td>{{ $issue->subject }}</td>
-    <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
-    <td>{{ $issue->task }}</td>
     <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
     <td>&nbsp;</td>
     <td>
@@ -72,24 +78,27 @@
     </td>
     </tr>
     <tr>
-    <td>&nbsp;</td>
-    <td colspan="13">
-        <div id="collapse_{{$issue->id}}" class="panel-collapse collapse">
-            <div class="panel-body">
-                <div class="messageList" id="message_list_{{$issue->id}}">
-                    @foreach($issue->messages as $message)
-                        <p>
-                            <strong>{{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}</strong>
-                        </p>
-                        {!! nl2br($message->message) !!}
-                        <hr/>
-                    @endforeach
+        <td colspan="14">
+            <div id="collapse_{{$issue->id}}" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="messageList" id="message_list_{{$issue->id}}">
+                        @foreach($issue->messages as $message)
+                            <p>
+                                <strong>
+                                    <?php echo !empty($message->sendTaskUsername()) ? "To : ".$message->sendTaskUsername() : ""; ?>
+                                    <?php echo !empty($message->sendername()) ? "From : ".$message->sendername() : ""; ?>
+                                    At {{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}
+                                </strong>
+                            </p>
+                            {!! nl2br($message->message) !!}
+                            <hr/>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <textarea class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}"></textarea>
+                    <button type="submit" id="submit_message" class="btn btn-secondary ml-3 send-message" data-id="{{$issue->id}}" style="float: right;margin-top: 2%;">Submit</button>
                 </div>
             </div>
-            <div class="panel-footer">
-                <textarea class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}"></textarea>
-                <button type="submit" id="submit_message" class="btn btn-secondary ml-3 send-message" data-id="{{$issue->id}}" style="float: right;margin-top: 2%;">Submit</button>
-            </div>
-        </div>
-    </td>
+        </td>
     </tr>

@@ -47,7 +47,7 @@
     <td data-id="{{ $issue->id }}">
         <div class="form-group">
             <div class='input-group estimate_minutes'>
-                <input style="min-width: 145px;" placeholder="Estimation minutes" value="{{ $issue->estimate_minutes }}" type="text" class="form-control" name="estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_minutes_{{$issue->id}}">
+                <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->estimate_minutes }}" type="text" class="form-control" name="estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_minutes_{{$issue->id}}">
             </div>
             <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button>
         </div>
@@ -81,10 +81,6 @@
         @if($issue->is_resolved)
             <strong>Resolved</strong>
         @else
-            {{--<select name="resolved" id="resolved_{{$issue->id}}" style="display: none;" class="form-control resolve-issue" data-id="{{$issue->id}}">--}}
-            {{--<option {{ $issue->is_resolved==0 ? 'selected' : '' }} value="0">Not Resolved</option>--}}
-            {{--<option {{ $issue->is_resolved==1 ? 'selected' : '' }} value="1">Resolved</option>--}}
-            {{--</select>--}}
             <?php echo Form::select("task_status",$statusList,$issue->status,["class" => "form-control resolve-issue","onchange" => "resolveIssue(this,".$issue->id.")"]); ?>
         @endif
     </td>
@@ -120,7 +116,7 @@
                     @foreach($issue->messages as $message)
                         <p>
                             <strong>
-                                <?php echo !empty($message->sendTaskUsername()) ? "Send To : ".$message->sendTaskUsername() : ""; ?>
+                                <?php echo !empty($message->sendTaskUsername()) ? "To : ".$message->sendTaskUsername() : ""; ?>
                                 <?php echo !empty($message->sendername()) ? "From : ".$message->sendername() : ""; ?>
                                 At {{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}</strong>
                         </p>

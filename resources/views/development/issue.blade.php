@@ -114,7 +114,7 @@
                 @foreach ($issues as $key => $issue)
                     @if(auth()->user()->isAdmin())
                         @include("development.partials.admin-row-view")
-                    @else if($issue->created_by == Auth::user()->id || $issue->user_id == Auth::user()->id || $issue->responsible_user_id == Auth::user()->id)
+                    @elseif($issue->created_by == Auth::user()->id || $issue->user_id == Auth::user()->id || $issue->responsible_user_id == Auth::user()->id)
                         @include("development.partials.developer-row-view")
                     @endif
                 @endforeach
