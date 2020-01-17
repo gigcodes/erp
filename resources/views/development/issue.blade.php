@@ -405,7 +405,7 @@
             });
         });
 
-        $(document).on('focusout', '.save-language', function (event) {
+        $(document).on('change', '.save-language', function (event) {
             
             let id = $(this).attr('data-id');
             let language = $(this).val();

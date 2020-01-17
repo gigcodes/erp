@@ -499,6 +499,8 @@ class DevelopmentController extends Controller
 
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
+        $languages = \App\DeveloperLanguage::get()->pluck("name","id")->toArray();
+
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
@@ -508,7 +510,8 @@ class DevelopmentController extends Controller
             'priority' => $priority,
             'countPlanned' => $countPlanned,
             'countInProgress' => $countInProgress,
-            'statusList' => $statusList
+            'statusList' => $statusList,
+            'languages' => $languages
         ]);
 
 
@@ -1528,9 +1531,21 @@ class DevelopmentController extends Controller
 
     public function saveLanguage(Request $request)
     {
-        $issue = DeveloperTask::find($request->get('issue_id'));
-        $issue->language = $request->get('language');
-        $issue->save();
+        $language = $request->get('language');
+
+        if(!empty(trim($language))) {
+            if(!is_numeric($language)) {
+                $languageModal = \App\DeveloperLanguage::updateOrCreate(
+                    ['name' => $language],
+                    ['name' => $language]
+                );
+            }
+
+            $issue = DeveloperTask::find($request->get('issue_id'));
+            $issue->language = isset($languageModal->id) ? $languageModal->id : $language;
+            $issue->save();
+        }
+        
 
         return response()->json([
             'status' => 'success'

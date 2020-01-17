@@ -94,7 +94,7 @@
         @endif
     </td>
     <td>
-        <input type="text" name="cost" id="language_{{$issue->id}}" placeholder="Language..." class="form-control save-language" value="<?php echo $issue->language; ?>" data-id="{{$issue->id}}">
+        <?php echo Form::select("language",["" => "N/A"] + $languages, $issue->language , ["class" => "form-control save-language select2", "data-id" => $issue->id , "id" => "language_".$issue->id]) ?>
     </td>
 </tr>
 <tr>

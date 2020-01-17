@@ -38,7 +38,7 @@
             <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
         </div>
         <div class="col-md-2">
-            <input type="text" name="language" id="language_query" placeholder="Language" class="form-control" value="{{ (!empty(app('request')->input('language'))  ? app('request')->input('language') : '') }}">
+            <?php echo Form::select("language",["" => "N/A"] + $languages, app('request')->input('language') , ["class" => "form-control select2", "id" => "language_query"]) ?>
         </div>
         <div class="col-md-2">
             <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', []),["class" => "form-control multiselect","multiple" => true]); ?>
