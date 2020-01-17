@@ -660,7 +660,7 @@ class DevelopmentController extends Controller
      */
     private function createBranchOnGithub($repositoryId, $taskId, $taskTitle,  $branchName = 'master')
     {
-        $newBranchName = 'DEVTASK#' . $taskId . '/' . preg_replace('/\s/', '', $taskTitle);
+        $newBranchName = 'DEVTASK-' . $taskId . '/' . preg_replace('/\s/', '', $taskTitle);
 
         // get the master branch SHA
         // https://api.github.com/repositories/:repoId/branches/master
