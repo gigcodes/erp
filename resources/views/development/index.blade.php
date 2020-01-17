@@ -442,7 +442,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ $task->estimate_time }}</td>
+                                <td>{{ $task->estimate_minutes }}</td>
                                 <td>
                                     <button class="btn btn-secondary btn-xs complete-task" data-id="{{ $task->id }}">Mark Complete</button>
                                     <button class="btn btn-secondary btn-xs relist-task" data-id="{{ $task->id }}">Re-list Task</button>
@@ -831,6 +831,7 @@
             $('#cost_field').val(task.cost);
             $('#status_field').val(task.status);
             $('#estimate_time_field').val(task.estimate_time);
+            $('#estimate_minutes').val(task.estimate_minutes);
             $('#start_time_field').val(task.start_time);
             $('#end_time_field').val(task.end_time);
 

@@ -225,17 +225,13 @@
           </div>
 
           <div class="form-group">
-            <strong>Estimate Time:</strong>
-            <div class='input-group date' id='estimate_time'>
-              <input type='text' class="form-control" name="estimate_time" id="estimate_time_field" value="{{ date('Y-m-d H:i') }}" />
-
-              <span class="input-group-addon">
-                <span class="glyphicon glyphicon-calendar"></span>
-              </span>
+            <strong>Estimate minutes:</strong>
+            <div class='input-group' id='estimate_minutes'>
+              <input type='text' class="form-control" name="estimate_minutes" id="estimate_minutes_field" value="" />
             </div>
 
-            @if ($errors->has('estimate_time'))
-                <div class="alert alert-danger">{{$errors->first('estimate_time')}}</div>
+            @if ($errors->has('estimate_minutes'))
+                <div class="alert alert-danger">{{$errors->first('estimate_minutes')}}</div>
             @endif
           </div>
 

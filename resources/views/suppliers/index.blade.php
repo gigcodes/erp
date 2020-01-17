@@ -375,7 +375,10 @@
                               <div id="brandRawList"></div>
                             </div>
                           </td>
-                          <td id="selectedBrands">
+                          <td>
+                            <div style="overflow-y: scroll; height: 250px">
+                              <div id="selectedBrands"></div>
+                            </div>
                           </td>
                         </tr>
                     </tbody>
@@ -773,6 +776,46 @@
 
       // });
 
+      //function to display existing scraped brands
+      function showScrapedBrands(scrapedBrands){
+        var existingScrapedBrands = '';
+        if (scrapedBrands.length > 0) {
+          var delImg = "{{ asset('images/delete-red-cross.png') }}";
+          $.each(scrapedBrands, function( index, value ) {
+            existingScrapedBrands += '<li style="display: block; margin: 3px 0;"><div style="display: block; width:85%; float:left;">' + value + '</div><div style="display: block; width:15%; float:left; padding-left:10px;"><img src="' + delImg + '" class="removeExistingBrand" data-value="' + value + '" alt="Remove scraped brand" style="cursor: pointer; width: 12px;"></div></li>';
+          });
+          existingScrapedBrands = '<ul style="list-style:none; margin:0; padding:0;">' + existingScrapedBrands + '</ul>';
+        }
+
+        $('#selectedBrands').html(existingScrapedBrands);
+      }
+
+      //function to display raw scraped brands
+      function showRawScrapedBrands(scrapedBrands, rawScrapedBrands){
+        var rawBrands = '';
+        var existingBrandCnt = 0;
+        if (rawScrapedBrands.length > 0) {
+          $.each(rawScrapedBrands, function( index, value ) {
+            rawBrands += '<input type="checkbox" class="newBrandSelection" name="newBrands[]" value="' + value + '"';
+            if (scrapedBrands.indexOf(value) > -1){
+              rawBrands += ' checked ';
+              existingBrandCnt++;
+            }
+            rawBrands += ' style="margin-right:10px">' + value + '<br>';
+          });
+
+          var selectAllBrands = '<input type="checkbox" class="selectAllScrapedBrands" name="selectAllScrapBrands" style="margin-right:10px"';
+          if (rawScrapedBrands.length == existingBrandCnt) {
+            selectAllBrands += ' checked ';
+          }
+          selectAllBrands += '>Select All<br>';
+
+          rawBrands = selectAllBrands + ' ' + rawBrands
+        }
+        
+        $('#brandRawList').html(rawBrands);
+      }
+
       //Show selected brand and raw brands after opening the update brand modal
       var brandUpdateSupplierId = 0;
       $('.update-brand').on('click', function() {
@@ -783,31 +826,28 @@
         $('#brandRawList').html('');
         $('#selectedBrands').html('');
         $.ajax({
-            url: "{{ route('supplier.brands.rawbrands.list') }}",
+            url: "{{ route('supplier.scrapedbrands.list') }}",
             type: 'GET',
             data: {
                 id: brandUpdateSupplierId
             },
             success: function(data) {
-                var rawBrands = '';
-                if (data.scrapedBrandsRaw.length > 0) {
-                  $.each(data.scrapedBrandsRaw, function( index, value ) {
-                    rawBrands += '<input type="checkbox" class="newBrandSelection" name="newBrands[]" value="' + value + '"';
-                    rawBrands += (data.scrapedBrands.indexOf(value) > -1) ? ' checked ' : '';
-                    rawBrands += ' style="margin-right:10px">' + value + '<br>';
-                  });
-                }
-                $('#brandRawList').html(rawBrands);
-                $('#selectedBrands').html(data.scrapedBrands.join(', '));
+                showScrapedBrands(data.scrapedBrands);
+                showRawScrapedBrands(data.scrapedBrands, data.scrapedBrandsRaw);
             }
         });
       });
+
+      //Select / unselect all scraped brands
+      $('#brandRawList').on('click', '.selectAllScrapedBrands', function(){
+          $('.newBrandSelection').prop('checked', $(this).prop('checked'));
+      })
 
       //Send selected brands to backend and update supplier brands
       $('#doUpdateBrand').on('click', function() {
         $('#doUpdateBrand').prop('disabled', true);
 
-        //Get selected brands
+        //Send data to server and close modal
         var newBrands = [];
         $('.newBrandSelection').each(function(){
           if($(this).prop('checked') == true){
@@ -815,9 +855,9 @@
           }
         });
 
-        //Send data to server and close modal
+        //ajax call coming here...
         $.ajax({
-            url: "{{ route('supplier.brands.update') }}",
+            url: "{{ route('supplier.scrapedbrands.update') }}",
             type: 'POST',
             data: {
                 id: brandUpdateSupplierId,
@@ -827,9 +867,7 @@
             success: function() {
                 alert('Brands updated successfully');
                 $('#updateBrand').modal('hide');
-
                 $('#doUpdateBrand').prop('disabled', false);
-
                 brandUpdateSupplierId = 0;
             }
         });
@@ -838,6 +876,26 @@
       $(document).ready(function() {
         $(".select-multiple").multiselect();
         $(".select-multiple2").select2();
+      //Delete Srcaped brands
+      $('#selectedBrands').on('click', '.removeExistingBrand', function(){
+        var removeBrand = $(this).data('value');
+        if(confirm('Are you sure to remove ' + removeBrand + '?')){
+          //call delete function
+          $.ajax({
+              url: "{{ route('supplier.scrapedbrands.remove') }}",
+              type: 'POST',
+              data: {
+                  id: brandUpdateSupplierId,
+                  removeBrandData: removeBrand,
+                  _token: "{{ csrf_token() }}"
+              },            
+              success: function(data) {
+                  showScrapedBrands(data.scrapedBrands);
+                  showRawScrapedBrands(data.scrapedBrands, data.scrapedBrandsRaw);
+                  alert('Brands removed successfully');
+              }
+          });
+        }
       });
   </script>
 @endsection

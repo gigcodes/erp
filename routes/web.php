@@ -426,6 +426,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/test', 'CustomerController@customerstest');
     Route::post('customer/reminder', 'CustomerController@updateReminder');
     Route::post('supplier/reminder', 'SupplierController@updateReminder');
+    Route::post('supplier/excel-import', 'SupplierController@excelImport');
     Route::post('vendor/reminder', 'VendorController@updateReminder');
     Route::post('customer/add-note/{id}', 'CustomerController@addNote');
     Route::post('supplier/add-note/{id}', 'SupplierController@addNote');
@@ -634,6 +635,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');
     Route::get('development/issue/user/resolve', 'DevelopmentController@resolveIssue');
     Route::get('development/issue/estimate_date/assign', 'DevelopmentController@saveEstimateTime');
+    Route::get('development/issue/estimate_minutes/assign', 'DevelopmentController@saveEstimateMinutes');
     Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
     Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');
     Route::get('development/issue/language/assign', 'DevelopmentController@saveLanguage');
@@ -791,6 +793,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendor/reply/add', 'VendorController@addReply')->name('vendor.reply.add');
     Route::get('vendor/reply/delete', 'VendorController@deleteReply')->name('vendor.reply.delete');
     Route::post('vendor/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendor.email.send.bulk');
+    Route::post('vendor/create-user', 'VendorController@createUser')->name('vendor.create.user');
+    
     Route::post('vendor/send/email', 'VendorController@sendEmail')->name('vendor.email.send');
     Route::get('vendor/email/inbox', 'VendorController@emailInbox')->name('vendor.email.inbox');
     Route::post('vendor/product', 'VendorController@productStore')->name('vendor.product.store');
@@ -821,8 +825,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/deleteBrandCount', 'SupplierController@deleteSupplierBrandCount')->name('supplier.brand.count.delete');
 
     // Get supplier brands and raw brands
-    Route::get('supplier/get-brands-and-rawbrands', 'SupplierController@getScrapedBrandAndBrandRaw')->name('supplier.brands.rawbrands.list');
+    Route::get('supplier/get-scraped-brands', 'SupplierController@getScrapedBrandAndBrandRaw')->name('supplier.scrapedbrands.list');
     // Update supplier brands and raw brands
+    Route::post('supplier/update-scraped-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.scrapedbrands.update');
+    // Remove particular scrap brand from scraped brands
+    Route::post('supplier/remove-scraped-brands', 'SupplierController@removeScrapedBrand')->name('supplier.scrapedbrands.remove');
+    
     Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
 
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
@@ -1339,9 +1347,15 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
 {
     // Whats App Config
     Route::get('whatsapp-config','WhatsappConfigController@index')->name('whatsapp.config.index');
+    Route::get('whatsapp-history/{id}','WhatsappConfigController@history')->name('whatsapp.config.history');
     Route::post('whatsapp-config/store', 'WhatsappConfigController@store')->name('whatsapp.config.store');
     Route::post('whatsapp-config/edit', 'WhatsappConfigController@edit')->name('whatsapp.config.edit');
     Route::post('whatsapp-config/delete', 'WhatsappConfigController@destroy')->name('whatsapp.config.delete');
+    Route::get('whatsapp-queue/{id}','WhatsappConfigController@queue')->name('whatsapp.config.queue');
+    Route::post('whatsapp-queue/delete','WhatsappConfigController@destroyQueue')->name('whatsapp.config.delete_queue');
+    Route::post('whatsapp-queue/delete_all/','WhatsappConfigController@destroyQueueAll')->name('whatsapp.config.delete_all');
+    Route::get('whatsapp-queue/delete_queues/{id}','WhatsappConfigController@clearMessagesQueue')->name('whatsapp.config.delete_all_queues');
+
 
     // Marketing Platform
     Route::get('platforms','MarketingPlatformController@index')->name('platforms.index');
