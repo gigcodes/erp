@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Github\GithubBranchState;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 
@@ -61,7 +62,30 @@ class LoadBranchState extends Command
             }
         }
 
-        echo print_r($comparisons, true);
+        foreach($comparisons as $repoId => $branches){
+            $branchNames = [];
+            foreach($branches as $branchName => $comparison){
+                GithubBranchState::updateOrCreate(
+                    [
+                        'repository_id' => $repoId,
+                        'branch_name' => $branchName
+                    ],
+                    [
+                        'repository_id' => $repoId,
+                        'branch_name' => $branchName,
+                        'ahead_by' => $comparison['ahead_by'],
+                        'behind_by' => $comparison['behind_by']
+                    ]
+                );
+                $branchNames[] = $branchName;
+            }
+            GithubBranchState
+                ::where('repository_id', $repoId)
+                ->whereNotIn('branch_name', $branchNames)
+                ->delete();
+        }
+
+        //echo print_r($comparisons, true);
     }
 
     private function getAllRepositoriesIds()
