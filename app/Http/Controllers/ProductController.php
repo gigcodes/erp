@@ -1565,14 +1565,21 @@ class ProductController extends Controller
                 ];
             }
         }
+        $filtered_category = json_decode($request->category, true);
+        
+        $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'data-placeholder' => 'Select Category..'])
+            ->selected($filtered_category)
+            ->renderAsDropdown();
+
+        //dd($category_selection);    
+        
 
         // category filter start count
         $categoryGroups = clone($products);
         $categoryGroups = $categoryGroups->groupBy("category")->select([\DB::raw("count(id) as total_product"),"category"])->pluck("total_product","category")->toArray();
         $categoryIds = array_values(array_filter(array_keys($categoryGroups)));
 
-        $categoryModel = \App\Category::whereIn("id",$categoryIds)->pluck("title","id")->toArray();
-
+        $categoryModel = \DB::table('categories')->whereIn("id",$categoryIds)->pluck("title","id")->toArray();
         $countCategory = [];
         if(!empty($categoryGroups) && !empty($categoryModel)) {
             foreach ($categoryGroups as $key => $count) {
@@ -1638,14 +1645,10 @@ class ProductController extends Controller
             return response()->json(['html' => $html, 'products_count' => $products_count]);
         }
 
-        $filtered_category = json_decode($request->category, true);
         $brand = $request->brand;
         $message_body = $request->message ? $request->message : '';
         $sending_time = $request->sending_time ?? '';
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'multiple' => 'multiple', 'data-placeholder' => 'Select Category..'])
-            ->selected($filtered_category)
-            ->renderAsDropdown();
-
+           
         $locations = \App\ProductLocation::pluck("name", "name");
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 

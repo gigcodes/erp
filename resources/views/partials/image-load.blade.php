@@ -121,7 +121,17 @@
             <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
             <p>Id : {{ $product->id }}</p>
             <p>Title : {{ $product->name }} </p>
-            <p>Category : {{ isset($product->product_category->title ) ? $product->product_category->title : ''}} </p>
+          </a>
+            <p>Category : @php
+                $render = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list update-product', 'data-placeholder' => 'Select Category..' , 'data-id' => $product->id ])
+                ->selected($product->product_category->id)
+                ->renderAsDropdown();
+                @endphp
+                @if($render)
+                    {!! $render !!}
+                @endif
+            </p>
+            <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
             <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>
             <p>Price EUR Special : {{ $product->price_eur_special }}</p>
             <p>Price INR Special : {{ $product->price_inr_special }}</p>
