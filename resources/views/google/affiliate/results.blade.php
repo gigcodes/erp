@@ -45,7 +45,7 @@
         }
     </style>
 
-    <div id="makeRemarkModal" class="modal fade" role="dialog">
+    <div id="affiliateRemarkModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -53,15 +53,15 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <div class="list-unstyled" id="remark-list">
+                    <div class="list-unstyled" id="affiliate-remark-list">
 
                     </div>  
-                    <form id="add-remark">
+                    <form id="affiliate-add-remark">
                         <input type="hidden" name="id" value="">
                         <div class="form-group">
                             <textarea rows="2" name="remark" class="form-control" placeholder="Start the Remark"></textarea>
                         </div>
-                        <button type="button" class="btn btn-secondary btn-block mt-2" id="addRemarkButton">Add</button>
+                        <button type="button" class="btn btn-secondary btn-block mt-2" id="buttonAddRemark">Add</button>
                     </form>
                 </div>
 
@@ -98,7 +98,6 @@ $(document).ready(function () {
         window.location.href = '/google/affiliate/results' + queryString;
     });
 
-
     $(document).on('click', '.expand-row', function() {
         var selection = window.getSelection();
         if (selection.toString().length === 0) {
@@ -111,7 +110,7 @@ $(document).ready(function () {
         e.preventDefault();
 
         var id = $(this).data('id');
-        $('#add-remark input[name="id"]').val(id);
+        $('#affiliate-add-remark input[name="id"]').val(id);
         $.ajax({
             type: 'GET',
             url: '{{ route('task.gettaskremark') }}',
@@ -126,13 +125,13 @@ $(document).ready(function () {
                 html+=' <p> '+value.remark+' <br> <small>By ' + value.user_name + ' updated on '+ moment(value.created_at).format('DD-M H:mm') +' </small></p>';
                 html+"<hr>";
             });
-            $("#makeRemarkModal").find('#remark-list').html(html);
+            $("#affiliateRemarkModal").find('#affiliate-remark-list').html(html);
         });
     });
 
-    $('#addRemarkButton').on('click', function() {
-        var id = $('#add-remark input[name="id"]').val();
-        var remark = $('#add-remark').find('textarea[name="remark"]').val();
+    $('#buttonAddRemark').on('click', function() {
+        var id = $('#affiliate-add-remark input[name="id"]').val();
+        var remark = $('#affiliate-add-remark').find('textarea[name="remark"]').val();
 
         $.ajax({
             type: 'POST',
@@ -144,9 +143,9 @@ $(document).ready(function () {
                 _token: "{{ csrf_token() }}"
             },
         }).done(response => {
-            $('#add-remark').find('textarea[name="remark"]').val('');
+            $('#affiliate-add-remark').find('textarea[name="remark"]').val('');
             var html =' <p> '+ remark +' <br> <small>By You updated on '+ moment().format('DD-M H:mm') +' </small></p>';
-            $("#makeRemarkModal").find('#remark-list').append(html);
+            $("#affiliateRemarkModal").find('#affiliate-remark-list').append(html);
         }).fail(function(response) {
             console.log(response);
             alert('Could not post remarks');

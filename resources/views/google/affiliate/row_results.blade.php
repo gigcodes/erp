@@ -4,21 +4,23 @@
         <td>{{ date('d-M-Y H:i:s', strtotime($post->posted_at)) }}</td>
         <td>{{ $post->hashTags->hashtag }}</td>
         <td>
-        	{{ $post->title }}
-			<br>
-             @if ($post->is_flagged == 1)
-              <button type="button" class="btn btn-image flag-supplier" data-id="{{ $post->id }}"><img src="/images/flagged.png" /></button>
-            @else
-              <button type="button" class="btn btn-image flag-supplier" data-id="{{ $post->id }}"><img src="/images/unflagged.png" /></button>
-            @endif
-			<button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $post->id }}"><img src="/images/remark.png" /></button>
-            <br>
+        	  {{ $post->title }}
+            @if ($post->emailaddress != '')
+			      <br>
             <span class="text-muted">
               <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $post->id }}">{{ $post->emailaddress }}</a>
               @if ($post->has_error == 1)
                 <span class="text-danger">!!!</span>
               @endif
             </span>
+            @endif
+            <br>
+            @if ($post->is_flagged == 1)
+                <button type="button" class="btn btn-image flag-supplier" data-id="{{ $post->id }}"><img src="/images/flagged.png" /></button>
+            @else
+                <button type="button" class="btn btn-image flag-supplier" data-id="{{ $post->id }}"><img src="/images/unflagged.png" /></button>
+            @endif
+			      <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#affiliateRemarkModal" data-id="{{ $post->id }}"><img src="/images/remark.png" /></button>
         </td>
         <td>{{ $post->address }}</td>
         <td style="word-break:break-all; white-space: normal; line-height:190%">
@@ -30,9 +32,6 @@
         	@endif
         	@if ($post->location != '')
         	<img src="{{ asset('images/url_128.png') }}" alt="" style="width: 18px;"> <a style="word-break:break-all; white-space: normal;" href="{{ $post->location }}" target="_blank">{{ $post->location }}</a><br>
-        	@endif
-        	@if ($post->emailaddress != '')
-        	<img src="{{ asset('images/email_128.png') }}" alt="" style="width: 18px;"> {{ $post->emailaddress }}<br>
         	@endif
         	@if ($post->facebook != '')
         	<img src="{{ asset('images/facebook_128.png') }}" alt="" style="width: 18px;"> <a style="word-break:break-all; white-space: normal;" href="{{ $post->facebook }}" target="_blank">{{ $post->facebook }}</a><br>
@@ -54,12 +53,12 @@
         	@endif
         </td>
         <td class="expand-row">
-			<div class="td-mini-container">
-				{{ strlen($post->caption) > 30 ? substr($post->caption, 0, 30).'...' : $post->caption }}
-			</div>
-			<div class="td-full-container hidden">
-				{{ $post->caption }}
-			</div>
+            <div class="td-mini-container">
+                {{ strlen($post->caption) > 30 ? substr($post->caption, 0, 30).'...' : $post->caption }}
+            </div>
+            <div class="td-full-container hidden">
+                {{ $post->caption }}
+            </div>
         </td>
     </tr>
 @endforeach
