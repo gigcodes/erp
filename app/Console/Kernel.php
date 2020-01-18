@@ -360,6 +360,9 @@ class Kernel extends ConsoleKernel
 
         //Sync customer from magento to ERP
         $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
+
+        // Github
+        $schedule->command('github:load_branch_state')->hourly();
     }
 
     /**
