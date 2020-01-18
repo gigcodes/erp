@@ -1451,10 +1451,13 @@
     </div>
     @if($liveChatUsers != '' && $liveChatUsers != null)
         <div class="chat-button-wrapper">
-            <div class="col-md-9 page-chat-list-rt dis-none">
+            <div class="chat-button-float">
+                <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
+            </div>
+            <div class="col-md-12 page-chat-list-rt dis-none">
                 <div class="help-list well well-lg">
                     <div class="row">
-                        <div class="col-md-4 chat" style="margin-top : 0px !important;">
+                        <div class="col-md-3 chat" style="margin-top : 0px !important;">
                             <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
                                 <div class="card-header">
                                     <div class="input-group">
@@ -1474,7 +1477,7 @@
                                             @php
                                                 $customer =  \App\Customer::where('id',$chatId->customer_id)->first();
                                             @endphp
-                                            <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
+                                            <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
                                                 <div class="d-flex bd-highlight">
                                                     <div class="img_cont">
                                                         <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
@@ -1495,7 +1498,7 @@
                                 <div class="card-footer"></div>
                             </div>
                         </div>
-                        <div class="col-md-8 chat">
+                        <div class="col-md-6 chat">
                             <div class="card_chat">
                                 <div class="card-header msg_head">
                                     <div class="d-flex bd-highlight">
@@ -1527,10 +1530,10 @@
                                 </div>
                                 <div class="card-footer">
                                     <div class="input-group">
-                                        <div class="input-group-append">
+                                        {{-- <div class="input-group-append">
                                             <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
                                             <input type="file" id="imgupload" style="display:none"/>
-                                        </div>
+                                        </div> --}}
                                         <div class="card-footer">
                                             <div class="input-group">
                                                 <div class="input-group-append">
@@ -1548,12 +1551,34 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-3 customer-info">
+                            <div class="chat-righbox">
+                                <div class="title">General Info</div>
+                                <div id="chatCustomerInfo"></div>
+
+                            </div>
+                            <div class="chat-righbox">
+                                <div class="title">Visited Pages</div>
+                                <div id="chatVisitedPages">
+                                    
+                                </div>
+                            </div>
+                            <div class="chat-righbox">
+                                <div class="title">Additional info</div>
+                                <div class="line-spacing" id="chatAdditionalInfo">
+                                    
+                                </div>
+                            </div>
+                            <div class="chat-righbox">
+                                <div class="title">Technology</div>
+                                <div class="line-spacing" id="chatTechnology">
+                                    
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
-            </div>
-            <div class="col-md-3">
-                <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
             </div>
         </div>
     @endif
