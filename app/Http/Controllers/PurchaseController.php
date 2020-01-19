@@ -754,6 +754,7 @@ class PurchaseController extends Controller
         $perPage = Setting::get('pagination');
         $currentItems = array_slice($new_products, $perPage * ($currentPage - 1), $perPage);
 
+        $totalSku = count($new_products);
         $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);
@@ -779,8 +780,8 @@ class PurchaseController extends Controller
             'activSuppliers' => $activSuppliers,
             //'category_filter' => $category_filter,
             'categoryFilter' => $categoryFilter,
-            'suppliers' => $suppliers
-
+            'suppliers' => $suppliers,
+            'totalSku' => $totalSku
         ]);
     }
 
