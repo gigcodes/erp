@@ -1358,6 +1358,7 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
+
         //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
         $term = $request->input('term');
@@ -1404,9 +1405,11 @@ class ProductController extends Controller
         }
 
         if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
+
             $category_children = [];
 
             foreach ($request->category as $category) {
+
                 $is_parent = Category::isParent($category);
 
                 if ($is_parent) {
@@ -1431,12 +1434,14 @@ class ProductController extends Controller
             }
 
             $products = $products->whereIn('category', $category_children);
+
+
         }
 
-        if ($request->price_min != null) {
+        if ($request->price_min != null && $request->price_min != 0) {
             $products = $products->where('price_inr_special', '>=', $request->price_min);
         }
-
+        
         if ($request->price_max != null) {
             $products = $products->where('price_inr_special', '<=', $request->price_max);
         }
@@ -1565,7 +1570,13 @@ class ProductController extends Controller
                 ];
             }
         }
-        $filtered_category = json_decode($request->category, true);
+        if($request->category){
+            try {
+               $filtered_category = $request->category[0]; 
+            } catch (\Exception $e) {
+                $filtered_category = 1;
+            }
+        }
         
         $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'data-placeholder' => 'Select Category..'])
             ->selected($filtered_category)
