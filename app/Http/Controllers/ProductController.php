@@ -1358,6 +1358,11 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
+        if($model_type == 'customer'){
+            $customerId = $model_id;
+        }else{
+             $customerId = null;
+        }
         //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
         $term = $request->input('term');
@@ -1632,7 +1637,8 @@ class ProductController extends Controller
                 'model_type' => $model_type,
                 'countBrands' => $countBrands,
                 'countCategory' => $countCategory,
-                'countSuppliers' => $countSuppliers
+                'countSuppliers' => $countSuppliers,
+                'customerId' => $customerId,
             ])->render();
 
             return response()->json(['html' => $html, 'products_count' => $products_count]);
@@ -1652,7 +1658,7 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
 
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers'));
+        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers','customerId'));
     }
 
 
@@ -2547,11 +2553,7 @@ class ProductController extends Controller
 
     public function saveGroupHsCode(Request $request)
     {
-        if($request->string){
-
-        }else{
-            
-        }
+        dd($request);
         $name = $request->name;
         $compositions = $request->compositions;
         $key = HsCodeSetting::first();
@@ -2569,8 +2571,6 @@ class ProductController extends Controller
 
 
         $hscodeSearchString = str_replace(['&gt;','>'],'', $name.' '.$category->title.' '.$request->composition);
-
-        dd($hscodeSearchString);
 
         $hscode = HsCode::where('description',$hscodeSearchString)->first();
 

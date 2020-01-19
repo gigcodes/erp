@@ -21,7 +21,7 @@
             <div class="">
 
                 <!--roletype-->
-                <h2 class="page-heading">Attach Images to Message (<span id="products_count">{{ $products_count }}</span>)</h2>
+                <h2 class="page-heading">Attach Images to Message (<span id="products_count">{{ $products_count }}</span>) @if($customerId != null) {{ \App\Customer::find($customerId)->name }} @endif</h2>
 
                 <!--pending products count-->
                 @if(auth()->user()->isAdmin())
