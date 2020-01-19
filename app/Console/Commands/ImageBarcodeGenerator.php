@@ -64,11 +64,11 @@ class ImageBarcodeGenerator extends Command
             $whereString = " where p.id = " . $productId . " ";
         }
 
-        $productQuery = \DB::select('select p.id, count(*) as total_image,(select count(*) from mediables as m2 where m2.mediable_id = p.id and m2.tag  = "barcode" group by m2.mediable_id ) as total_barcode from products as p
+        $productQuery = \DB::select('select p.id, count(*) as total_image,(select count(*) from mediables as m2 where m2.mediable_id = p.id and m2.tag  = "barcode" group by m2.mediable_id ) as total_barcode,p.stock from products as p
         left join mediables as md on md.mediable_id  = p.id and md.tag  = "gallery"
         left join media as m on m.id  = md.media_id
         ' . $whereString . '
-        group by p.id having (total_image != total_barcode or total_barcode is null) limit 100');
+        group by p.id having (total_image != total_barcode or total_barcode is null) order by p.stock desc limit 100');
 
         if (!empty($productQuery)) {
             foreach ($productQuery as $res) {
