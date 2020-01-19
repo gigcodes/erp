@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Cache;
 use App\UserLog;
+use Redirect;
 
 
 class User extends Authenticatable
@@ -164,6 +165,7 @@ class User extends Authenticatable
     {
         if($name == '/'){
             $genUrl = 'mastercontrol';
+            header("Location: /development/list/devtask");
         }else{
             $url = explode('/', $name);
             $model = $url[ 0 ];
