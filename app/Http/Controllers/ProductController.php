@@ -1576,6 +1576,8 @@ class ProductController extends Controller
             } catch (\Exception $e) {
                 $filtered_category = 1;
             }
+        }else{
+            $filtered_category = 1;
         }
         
         $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'data-placeholder' => 'Select Category..'])
