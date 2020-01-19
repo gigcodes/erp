@@ -162,20 +162,23 @@ class User extends Authenticatable
      */
     public function hasPermission($name)
     {
-
-        $url = explode('/', $name);
-        $model = $url[ 0 ];
-        $actions = end($url);
-        if ($model != '') {
-            if ($model == $actions) {
-                $genUrl = $model . '-list';
+        if($name == '/'){
+            $genUrl = 'mastercontrol';
+        }else{
+            $url = explode('/', $name);
+            $model = $url[ 0 ];
+            $actions = end($url);
+            if ($model != '') {
+                if ($model == $actions) {
+                    $genUrl = $model . '-list';
+                } else {
+                    $genUrl = $model . '-' . $actions;
+                }
             } else {
-                $genUrl = $model . '-' . $actions;
+                return true;
             }
-        } else {
-            return true;
         }
-
+        
         $permission = Permission::where('route', $genUrl)->first();
 
         if (empty($permission)) {
