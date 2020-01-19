@@ -18,6 +18,9 @@
         .dis-none {
             display: none;
         }
+        .margin-top-set {
+            margin-top: 5px;
+        }
     </style>
 @endsection
 
@@ -25,7 +28,7 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Purchase {{ $page == 'canceled-refunded' ? 'Canceled / Refunded' : ($page == 'delivered' ? 'Delivered' : ($page == 'ordered' ? 'Ordered' : ( $page == 'non_ordered' ? 'Non Ordered' : ''))) }} Grid</h2>
+            <h2 class="page-heading">Purchase {{ $page == 'canceled-refunded' ? 'Canceled / Refunded' : ($page == 'delivered' ? 'Delivered' : ($page == 'ordered' ? 'Ordered' : ( $page == 'non_ordered' ? 'Non Ordered' : ''))) }} Grid <?php echo isset($totalSku) ? "(".$totalSku.")" : ""; ?></h2>
         </div>
     </div>
 
@@ -191,8 +194,12 @@
                                     <option value="{{$sup->id}}"> {{ $sup->product_id != '' ? '* ' : ''}} {{$sup->supplier}}</option>
                                 @endforeach
                             </select>
-                            <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message">
-                            <input type="button" class="btn btn-xs btn-secondary" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG({{ $product['id'] }}, '{{ $product['size'] }}');">
+                            <input type="text" name="message" id="message_{{$product['id']}}" placeholder="whatsapp message..." class="form-control send-message margin-top-set">
+                            <?php 
+                                $productID = $product['id']; 
+                                $productSize = $product['size'];
+                            ?>
+                            <input type="button" class="btn btn-xs btn-secondary margin-top-set" id="btnmsg_{{$product['id']}}" name="send" value="SendMSG" onclick="sendMSG('{{ $productID }}', '{{ $productSize }}');">
                             <div class="supplier_msg_con" style="margin-top: 10px;">
                                 <?php foreach ($product[ 'supplier_msg' ] as $supplier_msg) { ?>
                                 <b>{{$supplier_msg['supplier']}}</b>
