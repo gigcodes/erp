@@ -123,8 +123,14 @@
             <p>Title : {{ $product->name }} </p>
           </a>
             <p>Category : @php
+                if(!isset($product->product_category)){
+                  $id = 1;
+                }else{
+                  $id = $product->product_category->id;
+                }
+
                 $render = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list update-product', 'data-placeholder' => 'Select Category..' , 'data-id' => $product->id ])
-                ->selected($product->product_category->id)
+                ->selected($id)
                 ->renderAsDropdown();
                 @endphp
                 @if($render)
