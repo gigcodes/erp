@@ -88,7 +88,7 @@ class ImageBarcodeGenerator extends Command
                             $fontSize = 50;
 
                             $brand_name    = $product->brands->name ?? '';
-                            $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_special;
+                            $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_inr_special;
                             $special_price = ($special_price > 0) ? $special_price : "";
                             $auto_message  = $brand_name . "\n" . $product->name . "\n" . $special_price;
 
