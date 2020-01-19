@@ -2547,6 +2547,11 @@ class ProductController extends Controller
 
     public function saveGroupHsCode(Request $request)
     {
+        if($request->string){
+
+        }else{
+            
+        }
         $name = $request->name;
         $compositions = $request->compositions;
         $key = HsCodeSetting::first();
@@ -2564,6 +2569,14 @@ class ProductController extends Controller
 
 
         $hscodeSearchString = str_replace(['&gt;','>'],'', $name.' '.$category->title.' '.$request->composition);
+
+        dd($hscodeSearchString);
+
+        $hscode = HsCode::where('description',$hscodeSearchString)->first();
+
+        if($hscode != null){
+            return response()->json(['HsCode Already exist']);
+        }
 
         $hscodeSearchString = urlencode($hscodeSearchString);
 

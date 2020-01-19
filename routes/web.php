@@ -1168,6 +1168,12 @@ Route::middleware('auth')->group(function () {
     Route::get('duty/calculation', 'SimplyDutyCalculationController@index')->name('simplyduty.calculation.index');
     Route::post('duty/calculation', 'SimplyDutyCalculationController@calculation')->name('simplyduty.calculation');
 
+    //Simply Duty Common
+    Route::get('hscode/most-common', 'HsCodeController@mostCommon')->name('hscode.mostcommon.index');
+
+    //Simply Duty Common
+    Route::get('hscode/most-common-category', 'HsCodeController@mostCommonByCategory')->name('hscode.mostcommon.category');
+
     Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
 
     Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
