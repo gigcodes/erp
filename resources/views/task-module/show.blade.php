@@ -16,6 +16,9 @@
             height: 450px;
             overflow-y: scroll;
         }
+        .dis-none {
+            display: none;
+        }
     </style>
 @endsection
 
@@ -146,7 +149,7 @@
                                 <option value="0">Other Task</option>
                                 <option value="1">Statutory Task</option>
                                 <option value="2">Calendar Task</option>
-                                <option value="3">Appointment Task</option>
+                                <option value="3">Discussion Task</option>
                             </select>
                         </div>
 
@@ -258,14 +261,18 @@
 
                     <div class="col-xs-4" style="display: none;" id="appointment-container">
                         <div class="form-group">
+                            <?php echo Form::select("task_id",["0" => "-- Add New --"] + \App\Task::where("is_statutory",3)->where("task_subject","!=","''")->get()->pluck("task_subject","id")->toArray(),null,[
+                                "class" => "form-control select2-task-disscussion"
+                            ]); ?>
+                        </div>
+                        <div class="form-group">
                             <input type="text" class="form-control input-sm" name="note[]" placeholder="Note" value="">
                         </div>
-
                         <div id="note-container">
 
                         </div>
-
                         <button type="button" class="btn btn-xs btn-secondary" id="addNoteButton">Add Note</button>
+                        <button type="button" class="btn btn-xs btn-secondary dis-none" id="saveNewNotes">Save New Notes</button>
                     </div>
 
                     <div class="col-xs-12 text-center">
@@ -402,7 +409,6 @@
                                 {{-- <th width="5%">Assigned To</th> --}}
                                 <th width="20%">Communication</th>
                                 <th width="20%">Send Message</th>
-                                {{-- <th>Remarks</th> --}}
                                 <th width="10%">Action</th>
                             </tr>
                             </thead>
@@ -515,7 +521,7 @@
                                             @if (isset($task->message))
                                                 <div class="d-flex justify-content-between">
                                               <span class="td-mini-container">
-                                                {{ strlen($task->message) > 32 ? substr($task->message, 0, 29) . '...' : $task->message }}
+                                                {{ strlen($task->message) > 32 ? substr($task->message, 0, 32) . '...' : $task->message }}
                                               </span>
 
                                                     <span class="td-full-container hidden">
@@ -592,11 +598,6 @@
                                                 <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}"><img src="/images/unflagged.png"/></button>
                                             @endif
                                         </div>
-
-
-                                        {{-- <a href id="add-new-remark-btn" class="add-task" data-toggle="modal" data-target="#add-new-remark_{{$task->id}}" data-id="{{$task->id}}">Add</a>
-                                        <span> | </span>
-                                        <a href id="view-remark-list-btn" class="view-remark  {{ $task->remark ? 'text-danger' : '' }}" data-toggle="modal" data-target="#view-remark-list" data-id="{{$task->id}}">View</a> --}}
                                     </td>
                                 </tr>
                             @endforeach
@@ -2477,5 +2478,48 @@
                 });
             }
         });
+
+        $(document).on("change",".select2-task-disscussion",function() {
+            var $this = $(this);
+                if($this.val() != 0) {
+                     $.ajax({
+                        type: 'GET',
+                        url: "{{ route('task.json.details') }}",
+                        data: {task_id : $this.val()},
+                        dataType : "json"
+                    }).done(function (response) {
+                        if(response.code == 200) {
+                             $("#saveNewNotes").removeClass("dis-none");   
+                        }else{
+                            alert(response.message);
+                            $("#saveNewNotes").addClass("dis-none");
+                        }
+                    }).fail(function (response) {
+                        alert('Could not update!!');
+                    });
+                }else{
+                    $("#saveNewNotes").addClass("dis-none");
+                }
+        });
+
+        $(document).on("click","#saveNewNotes",function() {
+            var $this = $(this);
+            $.ajax({
+                beforeSend : function() {
+                    toastr['info']('Sending data!!', 'info');
+                },
+                type: 'POST',
+                url: "{{ route('task.json.saveNotes') }}",
+                data: $("#taskCreateForm").serialize(),
+                dataType: "json"
+            }).done(function (response) {
+                if(response.code == 200) {
+                    //toastr['success']('Success!!', 'success');
+                    location.reload();
+                }
+            }).fail(function (response) {
+                alert('Could not update!!');
+            });
+        });    
     </script>
 @endsection
