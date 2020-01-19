@@ -1358,11 +1358,13 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
+
         if($model_type == 'customer'){
             $customerId = $model_id;
         }else{
              $customerId = null;
         }
+
         //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
         $term = $request->input('term');
@@ -1409,9 +1411,11 @@ class ProductController extends Controller
         }
 
         if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
+
             $category_children = [];
 
             foreach ($request->category as $category) {
+
                 $is_parent = Category::isParent($category);
 
                 if ($is_parent) {
@@ -1436,12 +1440,14 @@ class ProductController extends Controller
             }
 
             $products = $products->whereIn('category', $category_children);
+
+
         }
 
-        if ($request->price_min != null) {
+        if ($request->price_min != null && $request->price_min != 0) {
             $products = $products->where('price_inr_special', '>=', $request->price_min);
         }
-
+        
         if ($request->price_max != null) {
             $products = $products->where('price_inr_special', '<=', $request->price_max);
         }
@@ -1570,14 +1576,29 @@ class ProductController extends Controller
                 ];
             }
         }
+        if($request->category){
+            try {
+               $filtered_category = $request->category[0]; 
+            } catch (\Exception $e) {
+                $filtered_category = 1;
+            }
+        }else{
+            $filtered_category = 1;
+        }
+        
+        $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'data-placeholder' => 'Select Category..'])
+            ->selected($filtered_category)
+            ->renderAsDropdown();
+
+        //dd($category_selection);    
+        
 
         // category filter start count
         $categoryGroups = clone($products);
         $categoryGroups = $categoryGroups->groupBy("category")->select([\DB::raw("count(id) as total_product"),"category"])->pluck("total_product","category")->toArray();
         $categoryIds = array_values(array_filter(array_keys($categoryGroups)));
 
-        $categoryModel = \App\Category::whereIn("id",$categoryIds)->pluck("title","id")->toArray();
-
+        $categoryModel = \DB::table('categories')->whereIn("id",$categoryIds)->pluck("title","id")->toArray();
         $countCategory = [];
         if(!empty($categoryGroups) && !empty($categoryModel)) {
             foreach ($categoryGroups as $key => $count) {
@@ -1644,14 +1665,10 @@ class ProductController extends Controller
             return response()->json(['html' => $html, 'products_count' => $products_count]);
         }
 
-        $filtered_category = json_decode($request->category, true);
         $brand = $request->brand;
         $message_body = $request->message ? $request->message : '';
         $sending_time = $request->sending_time ?? '';
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'multiple' => 'multiple', 'data-placeholder' => 'Select Category..'])
-            ->selected($filtered_category)
-            ->renderAsDropdown();
-
+           
         $locations = \App\ProductLocation::pluck("name", "name");
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 

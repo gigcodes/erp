@@ -12,6 +12,9 @@
             display: table;
             table-layout: fixed;
         }
+        .update-product + .select2-container--default{
+            width: 60% !important;
+        }
     </style>
 @endsection
 
@@ -248,6 +251,9 @@
     <?php $stage = new \App\Stage(); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
+
+        $(".select-multiple2").select2();
+        
         var image_array = [];
         //var all_product_ids = [<?= implode(',', $all_product_ids) ?>];
         $(document).ready(function () {
@@ -658,6 +664,23 @@
             return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
         }
 
+        $( ".update-product" ).change(function() {
+            product_id = $(this).attr('data-id');
+            category = $(this).val();
+            $.ajax({
+                url: '/products/'+product_id+'/updateCategory',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category : category
+                },
+                success: function(result){
+                    console.log(result)
+             }
+         });
+        });        
+        
     </script>
 
 @endsection
