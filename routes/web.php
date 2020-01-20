@@ -307,6 +307,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/set-priority', 'TaskModuleController@setTaskPriority')->name('task.set.priority');
     Route::resource('task', 'TaskModuleController');
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
+    Route::get('task/get/details', 'TaskModuleController@getDetails')->name('task.json.details');
+    Route::post('task/get/save-notes', 'TaskModuleController@saveNotes')->name('task.json.saveNotes');
     Route::post('task_category/{id}/approve', 'TaskCategoryController@approve');
     Route::resource('task_category', 'TaskCategoryController');
     Route::post('task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup')->name('task.add.whatsapp.group');
@@ -606,6 +608,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post( 'development/task/assign-task', 'DevelopmentController@updateAssignee' );
     Route::post( 'development/task/relist-task', 'DevelopmentController@relistTask' );
     Route::post( 'development/task/update-status', 'DevelopmentController@changeTaskStatus' );
+    Route::post( 'development/task/upload-document', 'DevelopmentController@uploadDocument' );
+    Route::get( 'development/task/get-document', 'DevelopmentController@getDocument' );
+    
 
     Route::resource( 'task-types', 'TaskTypesController' );
 
@@ -830,6 +835,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/update-scraped-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.scrapedbrands.update');
     // Remove particular scrap brand from scraped brands
     Route::post('supplier/remove-scraped-brands', 'SupplierController@removeScrapedBrand')->name('supplier.scrapedbrands.remove');
+    // Copy scraped brands to brands
+    Route::post('supplier/copy-scraped-brands', 'SupplierController@copyScrapedBrandToBrand')->name('supplier.scrapedbrands.copy');
     
     Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
 
@@ -1167,6 +1174,12 @@ Route::middleware('auth')->group(function () {
     //Simple Duty Calculation
     Route::get('duty/calculation', 'SimplyDutyCalculationController@index')->name('simplyduty.calculation.index');
     Route::post('duty/calculation', 'SimplyDutyCalculationController@calculation')->name('simplyduty.calculation');
+
+    //Simply Duty Common
+    Route::get('hscode/most-common', 'HsCodeController@mostCommon')->name('hscode.mostcommon.index');
+
+    //Simply Duty Common
+    Route::get('hscode/most-common-category', 'HsCodeController@mostCommonByCategory')->name('hscode.mostcommon.category');
 
     Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
 

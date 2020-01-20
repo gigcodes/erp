@@ -186,10 +186,10 @@
                             $dns = str_replace(']"', '', $dns);
                         @endphp
 
-                        <div class="td-mini-container">
+                        <div class="td-mini-container brand-supplier-mini-{{ $supplier->id }}">
                             {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
                         </div>
-                        <div class="td-full-container hidden">
+                        <div class="td-full-container hidden brand-supplier-full-{{ $supplier->id }}">
                             {{ $dns }}
                         </div>
                     @else
@@ -275,9 +275,11 @@
                       <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
                       {!! Form::close() !!}
 
+                      @if ($supplier->scraped_brands_raw != '')
                       <button data-toggle="modal" data-target="#updateBrand" class="btn btn-image update-brand" data-id="{{ $supplier->id }}" title="Update Brands">
                       <img src="{{ asset('images/list-128x128.png') }}" alt="" style="width: 18px;">
                       </button>
+                      @endif
                   </div>
               </td>
             </tr>
@@ -365,7 +367,7 @@
                     <thead>
                       <tr>
                         <th width="50%">Pick Brands</th>
-                        <th width="50%">Existing Brands</th>
+                        <th width="50%">Existing Brands <img src="{{ asset('images/copy_256.png') }}" id="copyScrapedBrands" style="cursor: pointer; width: 18px; float: right;" alt="Copy" title="Copy selected scraped brands to brands"></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -778,64 +780,64 @@
 
       //function to display existing scraped brands
       function showScrapedBrands(scrapedBrands){
-        var existingScrapedBrands = '';
-        if (scrapedBrands.length > 0) {
-          var delImg = "{{ asset('images/delete-red-cross.png') }}";
-          $.each(scrapedBrands, function( index, value ) {
-            existingScrapedBrands += '<li style="display: block; margin: 3px 0;"><div style="display: block; width:85%; float:left;">' + value + '</div><div style="display: block; width:15%; float:left; padding-left:10px;"><img src="' + delImg + '" class="removeExistingBrand" data-value="' + value + '" alt="Remove scraped brand" style="cursor: pointer; width: 12px;"></div></li>';
-          });
-          existingScrapedBrands = '<ul style="list-style:none; margin:0; padding:0;">' + existingScrapedBrands + '</ul>';
-        }
+          var existingScrapedBrands = '';
+          if (scrapedBrands.length > 0) {
+              var delImg = "{{ asset('images/delete-red-cross.png') }}";
+              $.each(scrapedBrands, function( index, value ) {
+                  existingScrapedBrands += '<li style="display: block; margin: 3px 0;"><div style="display: block; width:85%; float:left;">' + value + '</div><div style="display: block; width:15%; float:left; padding-left:10px;"><img src="' + delImg + '" class="removeExistingBrand" data-value="' + value + '" alt="Remove scraped brand" style="cursor: pointer; width: 12px;"></div></li>';
+              });
+              existingScrapedBrands = '<ul style="list-style:none; margin:0; padding:0;">' + existingScrapedBrands + '</ul>';
+          }
 
-        $('#selectedBrands').html(existingScrapedBrands);
+          $('#selectedBrands').html(existingScrapedBrands);
       }
 
       //function to display raw scraped brands
       function showRawScrapedBrands(scrapedBrands, rawScrapedBrands){
-        var rawBrands = '';
-        var existingBrandCnt = 0;
-        if (rawScrapedBrands.length > 0) {
-          $.each(rawScrapedBrands, function( index, value ) {
-            rawBrands += '<input type="checkbox" class="newBrandSelection" name="newBrands[]" value="' + value + '"';
-            if (scrapedBrands.indexOf(value) > -1){
-              rawBrands += ' checked ';
-              existingBrandCnt++;
-            }
-            rawBrands += ' style="margin-right:10px">' + value + '<br>';
-          });
+          var rawBrands = '';
+          var existingBrandCnt = 0;
+          if (rawScrapedBrands.length > 0) {
+              $.each(rawScrapedBrands, function( index, value ) {
+                  rawBrands += '<input type="checkbox" class="newBrandSelection" name="newBrands[]" value="' + value + '"';
+                  if (scrapedBrands.indexOf(value) > -1){
+                    rawBrands += ' checked ';
+                    existingBrandCnt++;
+                  }
+                  rawBrands += ' style="margin-right:10px">' + value + '<br>';
+              });
 
-          var selectAllBrands = '<input type="checkbox" class="selectAllScrapedBrands" name="selectAllScrapBrands" style="margin-right:10px"';
-          if (rawScrapedBrands.length == existingBrandCnt) {
-            selectAllBrands += ' checked ';
+              var selectAllBrands = '<input type="checkbox" class="selectAllScrapedBrands" name="selectAllScrapBrands" style="margin-right:10px"';
+              if (rawScrapedBrands.length == existingBrandCnt) {
+                  selectAllBrands += ' checked ';
+              }
+              selectAllBrands += '>Select All<br>';
+
+              rawBrands = selectAllBrands + ' ' + rawBrands;
           }
-          selectAllBrands += '>Select All<br>';
-
-          rawBrands = selectAllBrands + ' ' + rawBrands
-        }
-        
-        $('#brandRawList').html(rawBrands);
+          
+          $('#brandRawList').html(rawBrands);
       }
 
       //Show selected brand and raw brands after opening the update brand modal
       var brandUpdateSupplierId = 0;
       $('.update-brand').on('click', function() {
-        brandUpdateSupplierId = $(this).data('id');
+          brandUpdateSupplierId = $(this).data('id');
 
-        $('#doUpdateBrand').prop('disabled', false);
+          $('#doUpdateBrand').prop('disabled', false);
 
-        $('#brandRawList').html('');
-        $('#selectedBrands').html('');
-        $.ajax({
-            url: "{{ route('supplier.scrapedbrands.list') }}",
-            type: 'GET',
-            data: {
-                id: brandUpdateSupplierId
-            },
-            success: function(data) {
-                showScrapedBrands(data.scrapedBrands);
-                showRawScrapedBrands(data.scrapedBrands, data.scrapedBrandsRaw);
-            }
-        });
+          $('#brandRawList').html('');
+          $('#selectedBrands').html('');
+          $.ajax({
+              url: "{{ route('supplier.scrapedbrands.list') }}",
+              type: 'GET',
+              data: {
+                  id: brandUpdateSupplierId
+              },
+              success: function(data) {
+                  showScrapedBrands(data.scrapedBrands);
+                  showRawScrapedBrands(data.scrapedBrands, data.scrapedBrandsRaw);
+              }
+          });
       });
 
       //Select / unselect all scraped brands
@@ -845,33 +847,15 @@
 
       //Send selected brands to backend and update supplier brands
       $('#doUpdateBrand').on('click', function() {
-        $('#doUpdateBrand').prop('disabled', true);
+          $('#doUpdateBrand').prop('disabled', true);
 
-        //Send data to server and close modal
-        var newBrands = [];
-        $('.newBrandSelection').each(function(){
-          if($(this).prop('checked') == true){
-            newBrands.push($(this).val());
-          }
-        });
-
-        //ajax call coming here...
-        $.ajax({
-            url: "{{ route('supplier.scrapedbrands.update') }}",
-            type: 'POST',
-            data: {
-                id: brandUpdateSupplierId,
-                newBrandData: newBrands,
-                _token: "{{ csrf_token() }}"
-            },            
-            success: function() {
-                alert('Brands updated successfully');
-                $('#updateBrand').modal('hide');
-                $('#doUpdateBrand').prop('disabled', false);
-                brandUpdateSupplierId = 0;
-            }
-        });
-      });
+          //Send data to server and close modal
+          var newBrands = [];
+          $('.newBrandSelection').each(function(){
+              if($(this).prop('checked') == true){
+                  newBrands.push($(this).val());
+              }
+          });
 
       $(document).ready(function() {
         $(".select-multiple").multiselect();
@@ -883,20 +867,61 @@
         if(confirm('Are you sure to remove ' + removeBrand + '?')){
           //call delete function
           $.ajax({
-              url: "{{ route('supplier.scrapedbrands.remove') }}",
+              url: "{{ route('supplier.scrapedbrands.update') }}",
               type: 'POST',
               data: {
                   id: brandUpdateSupplierId,
-                  removeBrandData: removeBrand,
+                  newBrandData: newBrands,
                   _token: "{{ csrf_token() }}"
               },            
-              success: function(data) {
-                  showScrapedBrands(data.scrapedBrands);
-                  showRawScrapedBrands(data.scrapedBrands, data.scrapedBrandsRaw);
-                  alert('Brands removed successfully');
+              success: function() {
+                  alert('Brands updated successfully');
+                  $('#updateBrand').modal('hide');
+                  $('#doUpdateBrand').prop('disabled', false);
+                  brandUpdateSupplierId = 0;
               }
           });
-        }
       });
+
+      //Delete Srcaped brands
+      $('#selectedBrands').on('click', '.removeExistingBrand', function(){
+          var removeBrand = $(this).data('value');
+          if(confirm('Are you sure to remove ' + removeBrand + '?')){
+              //call delete function
+              $.ajax({
+                  url: "{{ route('supplier.scrapedbrands.remove') }}",
+                  type: 'POST',
+                  data: {
+                      id: brandUpdateSupplierId,
+                      removeBrandData: removeBrand,
+                      _token: "{{ csrf_token() }}"
+                  },            
+                  success: function(data) {
+                      showScrapedBrands(data.scrapedBrands);
+                      showRawScrapedBrands(data.scrapedBrands, data.scrapedBrandsRaw);
+                      alert('Brands removed successfully');
+                  }
+              });
+          }
+      });
+
+      $('#copyScrapedBrands').on('click', function(){
+          if(confirm('Are you sure to copy brands?')){
+              //call copy function
+              $.ajax({
+                  url: "{{ route('supplier.scrapedbrands.copy') }}",
+                  type: 'POST',
+                  data: {
+                      id: brandUpdateSupplierId,
+                      _token: "{{ csrf_token() }}"
+                  },            
+                  success: function(data) {
+                      $('.brand-supplier-mini-' + brandUpdateSupplierId).html(data.mini);
+                      $('.brand-supplier-full-' + brandUpdateSupplierId).html(data.full);
+                      alert('Brands copied successfully');
+                  }
+              });
+          }
+      });      
   </script>
 @endsection

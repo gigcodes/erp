@@ -1150,6 +1150,12 @@
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ action('ProductController@hsCodeIndex') }}">HsCode Generator</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('HsCodeController@mostCommon') }}">Most Common</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('HsCodeController@mostCommonByCategory') }}">Most Common Category</a>
+                                            </li>
                                         </ul>
                                     </li>
                                     <li class="nav-item">

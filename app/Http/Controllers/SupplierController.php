@@ -118,7 +118,7 @@ class SupplierController extends Controller
         }
 
         $suppliers = DB::select('
-									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name,
+									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -1217,6 +1217,39 @@ class SupplierController extends Controller
         return response()->json(['error' => 'Supplier not found'], 403);
     }
 
+    /**
+    * copy selected scraped brands to brand for a supplier
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return json response with update status, brands
+    */
+    public function copyScrapedBrandToBrand(Request $request)
+    {
+        $supplierId = $request->id;
+        
+        // Get Supplier model
+        $supplier = Supplier::find($supplierId);
+
+        // Do we have a result?
+        if ($supplier != null) {
+            $selectedScrapedBrand = ($supplier->scraped_brands) ? $supplier->scraped_brands : '';
+            if ($selectedScrapedBrand != ''){
+                //We have got selected scraped brands, now store that in brands
+                $supplier->brands = '"['.$selectedScrapedBrand.']"';
+                $supplier->save();
+                
+                $miniScrapedBrand = strlen($selectedScrapedBrand) > 10 ? substr($selectedScrapedBrand, 0, 10) . '...' : $selectedScrapedBrand;
+
+                return response()->json(['success' => 'Supplier brand updated', 'mini' => $miniScrapedBrand, 'full' => $selectedScrapedBrand], 200);
+            }
+            else {
+                return response()->json(['error' => 'Scraped brands not selected for the supplier'], 403);
+            }
+        }
+
+        // Still here? Return an error
+        return response()->json(['error' => 'Supplier not found'], 403);
+    }
 
     public function languageTranslate(Request $request) 
     {

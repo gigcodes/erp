@@ -73,26 +73,32 @@ class TaskModuleController extends Controller {
 
                FROM (
                  SELECT * FROM tasks
-
                  LEFT JOIN (
-                   SELECT id as remark_id, taskid, remark as remark2
-                   FROM remarks
-									 WHERE module_type = "task"
-                 ) AS remarks
-                 ON tasks.id = remarks.taskid
-
-                 LEFT JOIN (SELECT id as message_id, task_id, message, status AS message_status, is_reminder AS message_is_reminder, user_id AS message_user_id, created_at as message_created_at FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 ORDER BY chat_messages.created_at DESC) AS chat_messages
-                 ON tasks.id = chat_messages.task_id
-
+                 	SELECT 
+                 		MAX(id) as max_id,
+                 		task_id as tk
+                 	FROM chat_messages 
+                 	WHERE chat_messages.status not in(7,8,9) 
+                 	GROUP BY task_id 
+                 	ORDER BY chat_messages.created_at DESC
+                  ) AS chat_messages_max ON chat_messages_max.tk = tasks.id
+                 LEFT JOIN (
+                 	SELECT 
+                 		id as message_id, 
+                 		task_id, 
+                 		message, 
+                 		status as message_status, 
+                 		sent as message_type, 
+                 		created_at as message_created_at, 
+                 		is_reminder AS message_is_reminder,
+                 		user_id AS message_user_id
+                 	FROM chat_messages 
+                 ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
                ) AS tasks
                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-							  AND (remark_id = (
-									SELECT MAX(id) FROM remarks WHERE taskid = tasks.id
-									) OR remark_id IS NULL)
-
-									AND (message_id = (
-										SELECT MAX(id) FROM chat_messages WHERE task_id = tasks.id
-										) OR message_id IS NULL)
+				  		AND (message_id = (
+							SELECT MAX(id) FROM chat_messages WHERE task_id = tasks.id
+							) OR message_id IS NULL)
                ORDER BY is_flagged DESC, message_created_at DESC;
 						');
 
@@ -139,18 +145,34 @@ class TaskModuleController extends Controller {
 
 		$data['task']['completed'] = DB::select('
                 SELECT *,
- 							 (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
-                (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
-                (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
-                (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = message_id) AS message_type,
-                (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as last_communicated_at
-
+ 				message_id,
+                message,
+                message_status,
+                message_type,
+                message_created_At as last_communicated_at
                 FROM (
                   SELECT * FROM tasks
-
-                  LEFT JOIN (SELECT MAX(id) as message_id, task_id, message, MAX(created_at) as message_created_At FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY task_id ORDER BY chat_messages.created_at DESC) AS chat_messages
-                  ON tasks.id = chat_messages.task_id
-
+                  LEFT JOIN (
+                 	SELECT 
+                 		MAX(id) as max_id,
+                 		task_id as tk
+                 	FROM chat_messages 
+                 	WHERE chat_messages.status not in(7,8,9) 
+                 	GROUP BY task_id 
+                 	ORDER BY chat_messages.created_at DESC
+                  ) AS chat_messages_max ON chat_messages_max.tk = tasks.id
+                 LEFT JOIN (
+                 	SELECT 
+                 		id as message_id, 
+                 		task_id, 
+                 		message, 
+                 		status as message_status, 
+                 		sent as message_type, 
+                 		created_at as message_created_At, 
+                 		is_reminder AS message_is_reminder,
+                 		user_id AS message_user_id
+                 	FROM chat_messages 
+                 ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
                 ) AS tasks
                 WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
                 ORDER BY last_communicated_at DESC;
@@ -223,22 +245,38 @@ class TaskModuleController extends Controller {
 
 		 $data['task']['statutory_not_completed'] = DB::select('
 	               SELECT *,
-								 (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
-	               (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
-	               (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) AS message_status,
-	               (SELECT mm4.sent FROM chat_messages mm4 WHERE mm4.id = message_id) AS message_type,
-	               (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as last_communicated_at
+				   message_id,
+	               message,
+	               message_status,
+	               message_type,
+	               message_created_At as last_communicated_at
 
 	               FROM (
 	                 SELECT * FROM tasks
-
-	                 LEFT JOIN (SELECT MAX(id) as message_id, task_id, message, MAX(created_at) as message_created_At FROM chat_messages WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 GROUP BY task_id ORDER BY chat_messages.created_at DESC) AS chat_messages
-	                 ON tasks.id = chat_messages.task_id
+	                 LEFT JOIN (
+	                 	SELECT 
+	                 		MAX(id) as max_id,
+	                 		task_id as tk
+	                 	FROM chat_messages 
+	                 	WHERE chat_messages.status not in(7,8,9) 
+	                 	GROUP BY task_id 
+	                 	ORDER BY chat_messages.created_at DESC
+	                  ) AS chat_messages_max ON chat_messages_max.tk = tasks.id
+	                 LEFT JOIN (
+	                 	SELECT 
+	                 		id as message_id, 
+	                 		task_id, 
+	                 		message, 
+	                 		status as message_status, 
+	                 		sent as message_type, 
+	                 		created_at as message_created_At, 
+	                 		is_reminder AS message_is_reminder,
+	                 		user_id AS message_user_id
+	                 	FROM chat_messages 
+	                 ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
 
 	               ) AS tasks
-	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $searchWhereClause . '
-	               ORDER BY last_communicated_at DESC;
-							');
+	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $searchWhereClause . ' ORDER BY last_communicated_at DESC;');
 							// dd($data['task']['statutory_completed']);
 
 							// foreach ($data['task']['statutory_completed'] as $task) {
@@ -356,6 +394,7 @@ class TaskModuleController extends Controller {
 
 		$openTask = \App\Task::join("users as u","u.id","tasks.assign_to")
 		->whereNull("tasks.is_completed")
+		->groupBy("tasks.assign_to")
 		->select(\DB::raw("count(u.id) as total"),"u.name as person")
 		->pluck("total","person");
 
@@ -372,22 +411,24 @@ class TaskModuleController extends Controller {
 	public function taskListByUserId(Request $request)
     {
         $user_id = $request->get('user_id' , 0);
+        $selected_issue = $request->get('selected_issue' , []);
 
         $issues = Task::select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.assign_from')
                         ->leftJoin('erp_priorities', function($query){
                             $query->on('erp_priorities.model_id', '=', 'tasks.id');
                             $query->where('erp_priorities.model_type', '=', Task::class);
-                        })
-                        ->where('assign_to', $user_id)
-                        ->whereNull('is_verified');
+                        })->whereNull('is_verified');
 
         if (auth()->user()->isAdmin()) {
-            $issues = $issues->whereIn('tasks.id', $request->get('selected_issue' , []));
+            $issues = $issues->where(function($q) use ($selected_issue, $user_id) {
+            	$user_id = is_null($user_id) ? 0 : $user_id;
+            	$q->whereIn('tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
+            });
         } else {
             $issues = $issues->whereNotNull('erp_priorities.id');
         }
 
-        $issues = $issues->orderBy('erp_priorities.id')->get();
+        $issues = $issues->groupBy('tasks.id')->orderBy('erp_priorities.id')->get();
 
         foreach ($issues as &$value) {
             $value->created_by = User::where('id', $value->assign_from)->value('name');
@@ -400,29 +441,32 @@ class TaskModuleController extends Controller {
     public function setTaskPriority(Request $request)
     {
         $priority = $request->get('priority', null);
+        $user_id = $request->get('user_id', 0);
         //get all user task
-        $developerTask = Task::where('assign_to', $request->get('user_id', 0))->pluck('id')->toArray();
+        //$developerTask = Task::where('assign_to', $user_id)->pluck('id')->toArray();
         
         //delete old priority
-        \App\ErpPriority::whereIn('model_id', $developerTask)->where('model_type', '=', Task::class)->delete();
+        \App\ErpPriority::where('user_id', $user_id)->where('model_type', '=', Task::class)->delete();
         
         if (!empty($priority)) {
             foreach ((array)$priority as $model_id) {
                 \App\ErpPriority::create([
                     'model_id' => $model_id, 
-                    'model_type' => Task::class
+                    'model_type' => Task::class,
+                    'user_id' => $user_id
                 ]);
             }
 
             $developerTask = Task::select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.assign_from')
-			                        ->join('erp_priorities', function($query){
+			                        ->join('erp_priorities', function($query) use ($user_id){
+			                        	$user_id = is_null($user_id) ? 0 : $user_id;
 			                            $query->on('erp_priorities.model_id', '=', 'tasks.id');
 			                            $query->where('erp_priorities.model_type', '=', Task::class);
+			                            $query->where('user_id', $user_id);
 			                        })
-			                        ->where('assign_to', $request->get('user_id', 0))
 			                        ->whereNull('is_verified')
 			                        ->orderBy('erp_priorities.id')
-			                        ->get();
+			                        ->get();                      
 
             $message = "";
             $i = 1;
@@ -436,7 +480,7 @@ class TaskModuleController extends Controller {
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $params = [];
-                $params['user_id'] = $request->get('user_id', 0);
+                $params['user_id'] = $user_id;
 
                 $string = "";
 
@@ -1347,10 +1391,43 @@ class TaskModuleController extends Controller {
 			return redirect()->back()->with('message', 'Participants Added To Group');
 		}
 
+	public function getDetails(Request $request)
+	{
 		
+		$task = \App\Task::where("id", $request->get("task_id",0))->first();
 
+		if($task) {
+			return response()->json(["code" => 200 , "data" => $task]);
+		}
 
+		return response()->json(["code" => 500 , "message" => "Sorry, no task found"]);
 
+	}
 
+	public function saveNotes(Request $request)
+	{
+		
+		$task = \App\Task::where("id", $request->get("task_id",0))->first();
+
+		if($task) {
+
+			if ($task->is_statutory == 3) {
+				foreach ($request->note as $note) {
+					if ($note != null) {
+						Remark::create([
+							'taskid'	=> $task->id,
+							'remark'	=> $note,
+							'module_type'	=> 'task-note'
+						]);
+					}
+				}
+			}
+
+			return response()->json(["code" => 200 , "data" => $task , "message" => "Note added!"]);
+		}
+
+		return response()->json(["code" => 500 , "message" => "Sorry, no task found"]);
+
+	}
 
 }
