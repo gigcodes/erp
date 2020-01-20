@@ -84,19 +84,14 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 
     @if(Auth::user())
-
         {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
-
         <script>
-
-            window.userid = {{Auth::user()->id}};
+            window.userid = "{{Auth::user()->id}}";
 
             window.username = "{{Auth::user()->name}}";
 
-            loggedinuser = {{Auth::user()->id}};
-
+            loggedinuser = "{{Auth::user()->id}}";
         </script>
-
     @endif
 
 
@@ -131,25 +126,7 @@
     @yield("styles")
 
     <script>
-
-        window.Laravel = {!! json_encode([
-
-            'csrfToken'=> csrf_token(),
-
-            'user'=> [
-
-                'authenticated' => auth()->check(),
-
-                'id' => auth()->check() ? auth()->user()->id : null,
-
-                'name' => auth()->check() ? auth()->user()->name : null,
-
-                ]
-
-            ])
-
-        !!};
-
+        window.Laravel = '{{!!json_encode(['csrfToken'=>csrf_token(),'user'=>['authenticated'=>auth()->check(),'id'=>auth()->check() ? auth()->user()->id : null,'name'=>auth()->check() ? auth()->user()-> name : null,]])!!}';
     </script>
 
 
@@ -165,13 +142,13 @@
       });
     </script> --}}
 
-    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
+                @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
 
-        <script>
+            <script>
 
-            initializeTwilio();
+        initializeTwilio();
 
-        </script>
+    </script>
 
     @endif
 
@@ -1161,6 +1138,12 @@
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ action('ProductController@hsCodeIndex') }}">HsCode Generator</a>
                                             </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('HsCodeController@mostCommon') }}">Most Common</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('HsCodeController@mostCommonByCategory') }}">Most Common Category</a>
+                                            </li>
                                         </ul>
                                     </li>
                                     <li class="nav-item">
@@ -1175,6 +1158,25 @@
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                    <!-- Github -->
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                        <a id="githubsubmenu" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Github<span class="caret"></span></a>
+                                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="githubsubmenu">
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/github/repos') }}">Repositories</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/github/users') }}">Users</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/github/groups') }}">Groups</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('/github/sync') }}">Synchronise from online</a>
                                             </li>
                                         </ul>
                                     </li>
@@ -1597,7 +1599,7 @@
 @yield('scripts')
 <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('.note-content').richText();
     });
     window.token = "{{ csrf_token() }}";
@@ -1714,15 +1716,20 @@
     //         });
     //     }
     // });
-    @if (Auth::check())
+    @if(Auth::check())
     $(document).ready(function () {
         var url = window.location.href;
-        var user_id = {{ Auth::id() }};
+        var user_id = "{{ Auth::id() }}";
         user_name = "{{ Auth::user()->name }}";
         $.ajax({
             type: "POST",
             url: "/api/userLogs",
-            data: {"_token": "{{ csrf_token() }}", "url": url, "user_id": user_id, "user_name": user_name},
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "url": url,
+                "user_id": user_id,
+                "user_name": user_name
+            },
             dataType: "json",
             success: function (message) {
             }
@@ -1743,55 +1750,55 @@
         gtag('js', new Date());
         gtag('config', 'UA-147736165-1');
     </script>
-    <script>
-        function filterFunction() {
-            var input, filter, ul, li, a, i;
-            //getting search values
-            input = document.getElementById("search");
-            //String to upper for search
-            filter = input.value.toUpperCase();
-            //Getting Values From DOM
-            a = document.querySelectorAll("#navbarSupportedContent a");
-            //Class to open bar
-            $("#search_li").addClass('open');
-            //Close when search becomes zero
-            if (a.length == 0) {
-                $("#search_li").removeClass('open');
-            }
-            //Limiting Search Count
-            count = 1;
-            //Empty Existing Values
-            $("#search_container").empty();
+@endif
+<script>
+    function filterFunction() {
+        var input, filter, ul, li, a, i;
+        //getting search values
+        input = document.getElementById("search");
+        //String to upper for search
+        filter = input.value.toUpperCase();
+        //Getting Values From DOM
+        a = document.querySelectorAll("#navbarSupportedContent a");
+        //Class to open bar
+        $("#search_li").addClass('open');
+        //Close when search becomes zero
+        if (a.length == 0) {
+            $("#search_li").removeClass('open');
+        }
+        //Limiting Search Count
+        count = 1;
+        //Empty Existing Values
+        $("#search_container").empty();
 
-            //Getting All Values
-            for (i = 0; i < a.length; i++) {
-                txtValue = a[i].textContent || a[i].innerText;
-                href = a[i].href;
-                //If value doesnt have link
-                if (href == "#" || href == '' || href.indexOf('#') > -1) {
+        //Getting All Values
+        for (i = 0; i < a.length; i++) {
+            txtValue = a[i].textContent || a[i].innerText;
+            href = a[i].href;
+            //If value doesnt have link
+            if (href == "#" || href == '' || href.indexOf('#') > -1) {
+                continue;
+            }
+            //Removing old search Result From DOM
+            if (a[i].getAttribute('class') != null && a[i].getAttribute('class') != '') {
+                if (a[i].getAttribute('class').indexOf('old_search') > -1) {
                     continue;
                 }
-                //Removing old search Result From DOM
-                if (a[i].getAttribute('class') != null && a[i].getAttribute('class') != '') {
-                    if (a[i].getAttribute('class').indexOf('old_search') > -1) {
-                        continue;
-                    }
-                }
-                //break when count goes above 30
-                if (count > 30) {
-                    break;
-                }
-                //Pusing values to DOM Search Input
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
-                    count++
-                } else {
-                }
+            }
+            //break when count goes above 30
+            if (count > 30) {
+                break;
+            }
+            //Pusing values to DOM Search Input
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
+                count++
+            } else {
             }
         }
+    }
 
-    </script>
-@endif
+</script>
 
 </body>
 
