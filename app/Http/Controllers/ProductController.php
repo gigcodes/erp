@@ -1507,12 +1507,12 @@ class ProductController extends Controller
 
                 $brand_id = \App\Brand::where('name', 'LIKE', "%$term%")->value('id');
                 if ($brand_id) {
-                    $products = $products->orWhere('brand', 'LIKE', "%$brand_id%");
+                    $query = $query->orWhere('brand', 'LIKE', "%$brand_id%");
                 }
 
                 $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
                 if ($category_id) {
-                    $products = $products->orWhere('category', $category_id);
+                    $query = $query->orWhere('category', $category_id);
                 }
 
             });
