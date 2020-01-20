@@ -1,0 +1,28 @@
+@extends('layouts.app')
+
+@section('content')
+
+<h2 class="text-center">Repositories for user: {{$userDetails['user']['username']}}</h2>
+<div class="container">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Rights</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($userDetails['repositories'] as $repository)
+            <tr>
+                <td>{{$repository['name']}}</td>
+                <td>{{$repository['rights']}}</td>
+                <td>
+                    <a href="/github/repos/{{$repository['id']}}/users/{{$userDetails['user']['username']}}/remove" class="btn btn-sm btn-primary">Revoke</a>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endsection

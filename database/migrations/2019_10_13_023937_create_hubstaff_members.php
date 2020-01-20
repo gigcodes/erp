@@ -20,6 +20,7 @@ class CreateHubstaffMembers extends Migration
 			$table->float('pay_rate', 8, 2);
 			$table->float('bill_rate', 8, 2);
             $table->string('currency')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

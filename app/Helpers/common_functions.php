@@ -56,3 +56,31 @@ function previous_sibling(array $elements, $previous_sibling = 0, &$branch = [])
 
     return $branch;
 }
+
+/**
+ * return all types of short message with postfix
+ * 
+ */
+
+function show_short_message($message, $size = 50, $postfix = "...")
+{
+    $message = trim($message);
+
+    $dot = "";
+    
+    if(strlen($message) > $size) {
+        $dot = $postfix;
+    }
+
+    return substr($message,0,$size).$dot;
+}
+
+/**
+ * key is using for to attach customer via session
+ * 
+ */
+
+function attach_customer_key()
+{
+    return "customer_list_".time()."_".auth()->user()->id;
+}
