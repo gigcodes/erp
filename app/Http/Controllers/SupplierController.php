@@ -108,6 +108,7 @@ class SupplierController extends Controller
           }
 
         } else {
+
             if(!empty($request->scrapedBrand))
             {
               $scrapedBrands = implode("|", $request->scrapedBrand);
@@ -162,8 +163,10 @@ class SupplierController extends Controller
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = Setting::get('pagination');
+        $perPage = 10;
+        $currentPage = 2;
         $currentItems = array_slice($suppliers, $perPage * ($currentPage - 1), $perPage);
-
+        
         $supplierscnt = count($suppliers);
         $suppliers = new LengthAwarePaginator($currentItems, count($suppliers), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath()
@@ -183,6 +186,8 @@ class SupplierController extends Controller
            array_push($rawBrands, array_unique(array_filter(explode(",", $value->scraped_brands))));
         }
         $scrapedBrands = array_unique(array_reduce($rawBrands, 'array_merge',[]));
+        $data = Setting::first();
+        $selectedBrands = json_decode($data->val, true);
 
         return view('suppliers.index', [
             'suppliers' => $suppliers,
@@ -199,7 +204,8 @@ class SupplierController extends Controller
             'statistics' => $statistics,
             'total' => 0,
             'brands' => $brands,
-            'scrapedBrands' => $scrapedBrands
+            'scrapedBrands' => $scrapedBrands,
+            'selectedBrands' => $selectedBrands
         ]);
     }
 
@@ -1257,6 +1263,20 @@ class SupplierController extends Controller
       $supplier->language = $request->language;
       $supplier->save();
       return response()->json(['success' => 'Supplier language updated'], 200);
+    }
+
+    public function manageScrapedBrands(Request $request)
+    {
+      $arr = [];
+      $data = Setting::first();
+      if(empty($data)) {
+        $brand['val'] = json_encode($request->selectedBrands);
+        Setting::create($brand);
+      } else {
+          $data->val = json_encode($request->selectedBrands);
+          $data->save();
+      }
+      return "Scraped Brands Raw removed from dropdown successfully";
     }
 
 }

@@ -1419,3 +1419,5 @@ Route::prefix('google')->middleware('auth')->group(function () {
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
 
+Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->name('manageScrapedBrands');
+

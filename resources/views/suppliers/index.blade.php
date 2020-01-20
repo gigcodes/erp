@@ -81,7 +81,8 @@
                         <select class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
                           <optgroup label="Brands">
                             @foreach ($scrapedBrands as $key => $value)
-                              <option value="{{ $value }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $value }}</option>
+                              <option value="{{ $value }}"@if(in_array($value, $selectedBrands)) disabled
+                            @endif> {{ $value}}</option>
                             @endforeach
                         </optgroup>
                         </select>
@@ -92,6 +93,7 @@
             </div>
 
             <div class="pull-right">
+                <button type="button" class="btn btn-secondary manage-scraped-brand-raw" data-toggle="modal" data-target="#manageScrapedBrandsRaw">Manage Scraped Brands Raw</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
                 <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</button>
             </div>
@@ -112,6 +114,7 @@
             <th width="10%">Address</th>
               <th>Source</th>
               <th>Designers</th>
+              <th>No.of Brands</th>
             <th width="10%">Social handle</th>
             {{-- <th>Agents</th> --}}
             {{-- <th width="5%">GST</th> --}}
@@ -196,6 +199,7 @@
                         N/A
                     @endif
                 </td>
+                <td>{{count(array_filter(explode(',',$supplier->brands)))}}</td>
               <td class="expand-row" style="word-break: break-all;">
                   <div class="td-mini-container">
                       {{ strlen($supplier->social_handle) > 10 ? substr($supplier->social_handle, 0, 10).'...' : $supplier->social_handle }}
@@ -393,6 +397,40 @@
             </div>
         </div>
     </div>
+
+    <div id="manageScrapedBrandsRaw"  class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Manage Scraped Brands Raw</h4>
+                </div>
+                <div class="modal-body">
+                  <table class="table table-bordered table-striped">
+                    <thead>
+                      <tr>
+                        <th width="50%">Pick ScrapedBrand Brands Raw To Hide Or Remove</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <td>
+                            <div style="overflow-y: scroll; height: 250px">
+                              @foreach ($scrapedBrands as $key => $value)
+                               <input type="checkbox" class="newBrandSelection" name="scrapedBrands[]" value="{{$value}}" style="margin-right:10px" {{ in_array($value, $selectedBrands) ? 'checked' : ''}}>{{ $value }}<br>
+                              @endforeach
+                            </div>
+                          </td>
+                        </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-default manageScrapedBrandsSave">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @include('customers.zoomMeeting');
 @endsection
 
@@ -409,7 +447,6 @@
              includeSelectAllOption: true
            });
         });
-
     $(document).on('click', '.set-reminder', function() {
         let supplierId = $(this).data('id');
         let frequency = $(this).data('frequency');
@@ -900,6 +937,26 @@
       $(document).ready(function() {
           $(".select-multiple").multiselect();
           $(".select-multiple2").select2();
+      }); 
+
+      $('.manageScrapedBrandsSave').on('click', function() {
+        $('#manageScrapedBrandsRaw').modal('toggle');
+          $.ajax({
+              url: "{{ route('manageScrapedBrands') }}",
+              type: 'POST',
+              data: {
+                  selectedBrands: $('.newBrandSelection:checked').serializeArray
+                  ().map(function(obj) { 
+                    return obj.value;
+                  }),
+                  _token: "{{ csrf_token() }}" 
+              },            
+              success: function(data) {
+                 alert(data);
+                 location.reload();
+              }
+          });
       });
+    
   </script>
 @endsection
