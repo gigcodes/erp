@@ -240,6 +240,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
 
 
+
     //	Route::resource('task','TaskController');
 
     // Instruction
@@ -938,9 +939,18 @@ Route::get('message/delete', 'WhatsAppController@delete');
 
 //Hubstaff
 Route::get('hubstaff/members', 'HubstaffController@index');
-Route::get('hubstaff/projects', 'HubstaffController@getProjects');
-Route::get('hubstaff/tasks', 'HubstaffController@getTasks');
+Route::post('hubstaff/linkuser', 'HubstaffController@linkUser');
 
+Route::get('hubstaff/projects', 'HubstaffController@getProjects');
+Route::get('hubstaff/projects/{id}', 'HubstaffController@editProject');
+Route::put('hubstaff/projects/edit', 'HubstaffController@editProjectData');
+Route::get('hubstaff/tasks', 'HubstaffController@getTasks');
+Route::get('hubstaff/tasks/add', 'HubstaffController@addTaskFrom');
+Route::put('hubstaff/tasks/editData', 'HubstaffController@editTask');
+Route::post('hubstaff/tasks/addData', 'HubstaffController@addTask');
+Route::get('hubstaff/tasks/{id}', 'HubstaffController@editTaskForm');
+Route::get('hubstaff/redirect', 'HubstaffController@redirect');
+Route::get('hubstaff/debug', 'HubstaffController@debug');
 
 /*
  * @date 1/13/2019

@@ -1739,55 +1739,55 @@
         gtag('js', new Date());
         gtag('config', 'UA-147736165-1');
     </script>
-    <script>
-        function filterFunction() {
-            var input, filter, ul, li, a, i;
-            //getting search values
-            input = document.getElementById("search");
-            //String to upper for search
-            filter = input.value.toUpperCase();
-            //Getting Values From DOM
-            a = document.querySelectorAll("#navbarSupportedContent a");
-            //Class to open bar
-            $("#search_li").addClass('open');
-            //Close when search becomes zero
-            if (a.length == 0) {
-                $("#search_li").removeClass('open');
-            }
-            //Limiting Search Count
-            count = 1;
-            //Empty Existing Values
-            $("#search_container").empty();
+@endif
+<script>
+    function filterFunction() {
+        var input, filter, ul, li, a, i;
+        //getting search values
+        input = document.getElementById("search");
+        //String to upper for search
+        filter = input.value.toUpperCase();
+        //Getting Values From DOM
+        a = document.querySelectorAll("#navbarSupportedContent a");
+        //Class to open bar
+        $("#search_li").addClass('open');
+        //Close when search becomes zero
+        if (a.length == 0) {
+            $("#search_li").removeClass('open');
+        }
+        //Limiting Search Count
+        count = 1;
+        //Empty Existing Values
+        $("#search_container").empty();
 
-            //Getting All Values
-            for (i = 0; i < a.length; i++) {
-                txtValue = a[i].textContent || a[i].innerText;
-                href = a[i].href;
-                //If value doesnt have link
-                if (href == "#" || href == '' || href.indexOf('#') > -1) {
+        //Getting All Values
+        for (i = 0; i < a.length; i++) {
+            txtValue = a[i].textContent || a[i].innerText;
+            href = a[i].href;
+            //If value doesnt have link
+            if (href == "#" || href == '' || href.indexOf('#') > -1) {
+                continue;
+            }
+            //Removing old search Result From DOM
+            if (a[i].getAttribute('class') != null && a[i].getAttribute('class') != '') {
+                if (a[i].getAttribute('class').indexOf('old_search') > -1) {
                     continue;
                 }
-                //Removing old search Result From DOM
-                if (a[i].getAttribute('class') != null && a[i].getAttribute('class') != '') {
-                    if (a[i].getAttribute('class').indexOf('old_search') > -1) {
-                        continue;
-                    }
-                }
-                //break when count goes above 30
-                if (count > 30) {
-                    break;
-                }
-                //Pusing values to DOM Search Input
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
-                    count++
-                } else {
-                }
+            }
+            //break when count goes above 30
+            if (count > 30) {
+                break;
+            }
+            //Pusing values to DOM Search Input
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
+                count++
+            } else {
             }
         }
+    }
 
-    </script>
-@endif
+</script>
 
 </body>
 
