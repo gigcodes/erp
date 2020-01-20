@@ -200,6 +200,20 @@
 
     @include('partials.flash_messages')
 
+    <?php
+      $query = http_build_query( Request::except( 'page' ) );
+      $query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
+    ?>
+
+    <div class="form-group position-fixed hidden-xs hidden-sm" style="top: 50px; left: 20px;">
+        Goto :
+        <select onchange="location.href = this.value;" class="form-control" id="page-goto">
+            @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
+                <option data-value="{{ $i }}" value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
+            @endfor
+        </select>
+    </div>
+    @include('partials.image-load-category-count')
     <div class="productGrid" id="productGrid">
         @include('partials.image-load')
     </div>
@@ -262,7 +276,8 @@
     </div>
     @include('partials.modals.category')
     <?php $stage = new \App\Stage(); ?>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+    <script src="/js/bootstrap-multiselect.min.js"></script>
+    <script src="/js/jquery.jscroll.min.js"></script>
     <script>
 
         $(".select-multiple2").select2();
@@ -270,6 +285,24 @@
         var image_array = [];
         //var all_product_ids = [<?= implode(',', $all_product_ids) ?>];
         $(document).ready(function () {
+            $('.infinite-scroll').jscroll({
+                autoTrigger: true,
+                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+                padding: 2500,
+                nextSelector: '.pagination li.active + li a',
+                contentSelector: 'div.infinite-scroll',
+                callback: function () {
+                   $('.lazy').Lazy({
+                        effect: 'fadeIn'
+                   });
+                   $('ul.pagination:visible:first').remove();
+                    var next_page = $('.pagination li.active + li a');
+                    var page_number = next_page.attr('href').split('page=');
+                    var current_page = page_number[1] - 1;
+                    $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
+                }
+            });
+
             $(".select-multiple").select2();
             //$(".select-multiple-cat").multiselect();
             $("body").tooltip({selector: '[data-toggle=tooltip]'});
@@ -281,7 +314,6 @@
                 var uldiv = $(this).siblings('span.select2').find('ul')
                 var count = uldiv.find('li').length - 1;
                 if (count == 0) {
-
                 } else {
                     uldiv.html('<li class="select2-selection__choice">' + count + ' item selected</li>');
                 }
@@ -459,12 +491,12 @@
         //   }
         // });
 
-        $(document).on('click', '.pagination a', function (e) {
+        /*$(document).on('click', '.pagination a', function (e) {
             e.preventDefault();
             var url = $(this).attr('href') + '&selected_products=' + JSON.stringify(image_array);
 
             getProducts(url);
-        });
+        });*/
 
         function getProducts(url) {
             $.ajax({
