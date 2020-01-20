@@ -78,6 +78,7 @@ class LoadHubstaffActivities extends Command
             ])
         );
 
+        echo "Got activities(count): ".sizeof($activities).PHP_EOL;
         foreach ($activities as $id => $data) {
             HubstaffActivity::updateOrCreate(
                 [
@@ -125,7 +126,6 @@ class LoadHubstaffActivities extends Command
                     'tracked' => $activity->tracked
                 );
             }
-
             return $activities;
         } catch (Exception $e) {
             echo $e->getMessage() . PHP_EOL;
