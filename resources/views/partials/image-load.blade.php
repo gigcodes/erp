@@ -122,20 +122,12 @@
             <p>Id : {{ $product->id }}</p>
             <p>Title : {{ $product->name }} </p>
           </a>
-            <p>Category : @php
-                if(!isset($product->product_category)){
-                  $id = 1;
-                }else{
-                  $id = $product->product_category->id;
-                }
-
-                $render = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list update-product', 'data-placeholder' => 'Select Category..' , 'data-id' => $product->id ])
-                ->selected($id)
-                ->renderAsDropdown();
-                @endphp
-                @if($render)
-                    {!! $render !!}
-                @endif
+            <p>Category : 
+                <select class="form-control select-multiple-cat-list update-product" data-id={{ $product->id }}>
+                  @foreach($categoryArray as $category)
+                  <option value="{{ $category['id'] }}" @if($category['id'] == $product->category) selected @endif >{{ $category['value'] }}</option>
+                  @endforeach
+                </select>
             </p>
             <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
             <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>

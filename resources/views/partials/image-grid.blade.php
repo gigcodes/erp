@@ -12,13 +12,24 @@
             display: table;
             table-layout: fixed;
         }
-        .update-product + .select2-container--default{
+        /*.update-product + .select2-container--default{
             width: 60% !important;
+        }*/
+
+        #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+            z-index: 60;
         }
     </style>
 @endsection
 
 @section('content')
+ <div id="myDiv">
+       <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+   </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="">
@@ -248,6 +259,7 @@
             </div>
         </div>
     </div>
+    @include('partials.modals.category')
     <?php $stage = new \App\Stage(); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script>
@@ -666,7 +678,40 @@
 
         $( ".update-product" ).change(function() {
             product_id = $(this).attr('data-id');
-            category = $(this).val();
+            category = $(this).find('option:selected').text();
+            category_id = $(this).val();
+            //Getting Scrapped Category
+            $.ajax({
+                url: '/products/'+product_id+'/originalCategory',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                },
+                success: function(result){
+                    if(result[0] == 'success'){
+                        $('#old_category').text(result[1]);
+                        $('#changed_category').text(category);
+                        $('#product_id').val(product_id);
+                        $('#category_id').val(category_id);
+                    }else{
+                        $('#old_category').text('');
+                        $('#changed_category').text(category);
+                        $('#product_id').val(product_id);
+                        $('#category_id').val(category_id);
+                        $('#categoryUpdate').modal('show');
+                    }
+                }
+            });
+
+            
+            $('#categoryUpdate').modal('show');
+            
+        });        
+        
+        function changeSelected(){
+            product_id = $('#product_id').val();
+            category = $('#category_id').val();
             $.ajax({
                 url: '/products/'+product_id+'/updateCategory',
                 type: 'POST',
@@ -675,12 +720,35 @@
                     _token: "{{ csrf_token() }}",
                     category : category
                 },
+                beforeSend: function () {
+                              $('#categoryUpdate').modal('hide');  
+                              $("#loading-image").show();
+                              $("#loading-image").hide();
+                          },
+                });
+        
+        }
+
+        function changeAll(){
+            product_id = $('#product_id').val();
+            category = $('#category_id').val();
+            $.ajax({
+                url: '/products/'+product_id+'/changeCategorySupplier',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category : category
+                },
+                beforeSend: function () {
+                              $('#categoryUpdate').modal('hide');  
+                              $("#loading-image").show();
+                          },
                 success: function(result){
-                    console.log(result)
+                     $("#loading-image").hide();
              }
          });
-        });        
-        
+        }
     </script>
 
 @endsection
