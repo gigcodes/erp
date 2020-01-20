@@ -1650,6 +1650,7 @@ class ProductController extends Controller
         $products = $products->paginate($perPageLimit);
         $products_count = $products->total();
         $all_product_ids = [];
+        $from  = request("from","");
         if ($request->ajax()) {
             $html = view('partials.image-load', [
                 'products' => $products,
@@ -1661,6 +1662,10 @@ class ProductController extends Controller
                 'countSuppliers' => $countSuppliers,
                 'customerId' => $customerId,
             ])->render();
+
+            if(!empty($from) && $from == "attach-image") {
+                return $html;
+            }
 
             return response()->json(['html' => $html, 'products_count' => $products_count]);
         }
