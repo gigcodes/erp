@@ -10,6 +10,8 @@ use App\Github\GithubUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\Input;
 use Route;
 
 class GroupController extends Controller
@@ -45,6 +47,74 @@ class GroupController extends Controller
                 'users' => $users
             ]
         );
+    }
+
+    public function addRepositoryForm($groupId)
+    {
+        $group = GithubGroup::find($groupId);
+        $existingRepositories = $group->repositories;
+
+        $repositoryIds = $existingRepositories->map(function ($repository) {
+            return $repository->id;
+        });
+
+        $repositories = GithubRepository::whereNotIn($repositoryIds)->get();
+    }
+
+    public function addUserForm($groupId)
+    {
+        $group = GithubGroup::find($groupId);
+        $existingUsers = $group->users;
+
+        $userIds = $existingUsers->map(function ($repository) {
+            return $repository->id;
+        });
+
+        $users = GithubUser::whereNotIn('id', $userIds)->get(['username']);
+
+        $userSelect = [];
+        foreach ($users as $user) {
+            $userSelect[$user->username] = $user->username;
+        }
+
+        return view(
+            'github.group_add_user',
+            [
+                'group' => $group,
+                'users' => $userSelect
+            ]
+        );
+    }
+
+    public function addUser(Request $request)
+    {
+
+        $validatedData = $request->validate([
+            'group_id' => 'required',
+            'role' => 'required',
+            'username' => 'required'
+        ]);
+
+        $groupId = Input::get('group_id');
+        $role = Input::get('role');
+        $username = Input::get('username');
+
+        $this->addUserToGroup($groupId, $username, $role);
+        return redirect()->back();
+    }
+
+    private function addUserToGroup($groupId, $username, $role)
+    {
+        // https://api.github.com/orgs/:org/teams/:team_slug/memberships/:username
+        $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/teams/" . $groupId . "/memberships/". $username;
+        
+        try{
+            $response = $this->client->put($url);
+            return true;
+        }catch(ClientException $e){
+
+        }
+        return false;
     }
 
     public function removeUsersFromGroup()

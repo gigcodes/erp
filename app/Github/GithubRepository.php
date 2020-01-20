@@ -34,4 +34,5 @@ class GithubRepository extends Model
             'id'
         );
     }
+
 }
