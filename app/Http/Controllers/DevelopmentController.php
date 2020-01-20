@@ -30,7 +30,6 @@ use App\Hubstaff\HubstaffTask;
 use App\Issue;
 use Exception;
 use GuzzleHttp\Exception\ClientException;
-use FacebookAds\Http\Exception\ClientException;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Response;
