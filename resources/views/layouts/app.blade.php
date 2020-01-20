@@ -651,6 +651,10 @@
                                             <a class="dropdown-item" href="{{ route('whatsapp.config.index') }}">WhatsApp Config</a>
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
+{{--
+                                            <a class="dropdown-item" href="{{ route('services') }}">Services</a>
+--}}
                                         </li>
                                     </ul>
                                 </li>
@@ -1157,6 +1161,10 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('services') }}">Services</a>
                                     </li>
 
                                     <li class="nav-item dropdown dropdown-submenu">
