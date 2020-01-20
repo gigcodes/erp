@@ -58,7 +58,50 @@ class GroupController extends Controller
             return $repository->id;
         });
 
-        $repositories = GithubRepository::whereNotIn($repositoryIds)->get();
+        $repositories = GithubRepository::whereNotIn('id',$repositoryIds)->get();
+
+        $repositorySelect = [];
+
+        foreach($repositories as $repository){
+            $repositorySelect[$repository->name] = $repository->name;
+        }
+
+        return view(
+            'github.group_add_repository',
+            [
+                'group' => $group,
+                'repositories' => $repositorySelect
+            ]
+        );
+    }
+
+    public function addRepository(Request $request){
+        $validatedData = $request->validate([
+            'group_id' => 'required',
+            'repository_name' => 'required',
+            'permission' => 'required'
+        ]);
+
+        $groupId = Input::get('group_id');
+        $repoName = Input::get('repository_name');
+        $permission = Input::get('permission');
+
+        $this->callApiToAddRepository($groupId, $repoName, $permission);
+        return redirect()->back();
+    }
+
+    private function callApiToAddRepository($groupId, $repoName, $permission){
+        // https://api.github.com/organizations/:org_id/team/:team_id/repos/:owner/:repo
+        $url = 'https://api.github.com/organizations/'. getenv('GITHUB_ORG_ID') .'/team/'.$groupId.'/repos/'. getenv('GITHUB_ORG_ID') .'/'.$repoName;
+
+        try{
+            $response = $this->client->put($url);
+            return true;
+        }catch(ClientException $e){
+
+        }
+        return false;
+
     }
 
     public function addUserForm($groupId)
@@ -105,8 +148,8 @@ class GroupController extends Controller
 
     private function addUserToGroup($groupId, $username, $role)
     {
-        // https://api.github.com/orgs/:org/teams/:team_slug/memberships/:username
-        $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/teams/" . $groupId . "/memberships/". $username;
+        // https://api.github.com/organizations/:org_id/team/:team_id/memberships/:username
+        $url = "https://api.github.com/organizations/" . getenv('GITHUB_ORG_ID') . "/team/" . $groupId . "/memberships/". $username;
         
         try{
             $response = $this->client->put($url);

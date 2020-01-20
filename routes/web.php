@@ -1430,10 +1430,12 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/users/{userId}', 'Github\UserController@userDetails');
         Route::get('/groups', 'Github\GroupController@listGroups');
         Route::post('/groups/users/add', 'Github\GroupController@addUser');
+        Route::post('/groups/repositories/add', 'Github\GroupController@addRepository');
         Route::get('/groups/{groupId}', 'Github\GroupController@groupDetails');
         Route::get('/groups/{groupId}/repos/{repoId}/remove', 'Github\GroupController@removeRepositoryFromGroup');
         Route::get('/groups/{groupId}/users/{userId}/remove', 'Github\GroupController@removeUsersFromGroup');
         Route::get('/groups/{groupId}/users/add', 'Github\GroupController@addUserForm');
+        Route::get('/groups/{groupId}/repositories/add', 'Github\GroupController@addRepositoryForm');
         Route::get('/sync', 'Github\SyncController@index');
         Route::get('/sync/start', 'Github\SyncController@startSync');
         Route::get('/repo_user_access/{id}/remove', 'Github\UserController@removeUserFromRepository');

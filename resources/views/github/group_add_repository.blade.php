@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
-<h2 class="text-center">Add user to repository</h2>
+<h2 class="text-center">Add repository to <i>{{ $group->name }}</i></h2>
 <div>
     {{Form::open(array('url' => '/github/add_user_to_repo', 'method' => 'POST'))}}
-    {{ Form::hidden('group_id', $groupId) }}
+    {{ Form::hidden('group_id', $group->id) }}
     <div class="form-group">
-        {{ Form::label('username', 'Users') }}
-        {{ Form::select('username', $users, null , array('class' => 'form-control'))  }}
+        {{ Form::label('repository_name', 'Repository') }}
+        {{ Form::select('repository_name', $repositories, null , array('class' => 'form-control'))  }}
     </div>
     <div class="form-group">
         {{ Form::label('permission', 'Permission') }}
