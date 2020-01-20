@@ -1576,12 +1576,12 @@ class ProductController extends Controller
 
                 $brand_id = \App\Brand::where('name', 'LIKE', "%$term%")->value('id');
                 if ($brand_id) {
-                    $products = $products->orWhere('brand', 'LIKE', "%$brand_id%");
+                    $query = $query->orWhere('brand', 'LIKE', "%$brand_id%");
                 }
 
                 $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
                 if ($category_id) {
-                    $products = $products->orWhere('category', $category_id);
+                    $query = $query->orWhere('category', $category_id);
                 }
 
             });
@@ -2449,8 +2449,20 @@ class ProductController extends Controller
 
     public function sendMessageSelectedCustomer(Request $request)
     {
-        $customerIds = $request->get('customers_id', '');
-        $customerIds = explode(',', $customerIds);
+        $token = request("customer_token","");
+        
+        if(!empty($token)) {
+            $customerIds = json_decode(session($token));
+            if(empty($customerIds)) {
+                $customerIds = [];
+            }
+        }
+        // if customer is not available then choose what it is before
+        if(empty($customerIds)) {
+            $customerIds = $request->get('customers_id', '');
+            $customerIds = explode(',', $customerIds);
+        }
+
         $brand = request()->get("brand", null);
         $category = request()->get("category", null);
         $numberOfProduts = request()->get("number_of_products", 10);

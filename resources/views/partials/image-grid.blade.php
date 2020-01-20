@@ -215,7 +215,7 @@
             $action =  route('broadcast.images.link');
         } else if ($model_type == 'customer') {
             $action =  route('attachImages.queue');
-        } else if ($model_type == 'selected_customer') {
+        } else if ($model_type == 'selected_customer' || $model_type == 'selected_customer_token') {
             $action =  route('whatsapp.send_selected_customer');
         } else if ($model_type == 'product-templates') {
             $action =  route('product.templates');
@@ -238,6 +238,7 @@
         <input type="hidden" name="screenshot_path" value="">
         <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' ? "$message_body" : '' }}">
         <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
+        <input type="hidden" name="customer_token" value="<?php echo ($model_type == 'selected_customer_token') ? $model_id : '' ?>">
         {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
         <input type="hidden" name="status" value="{{ $status }}">
