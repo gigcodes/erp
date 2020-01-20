@@ -876,6 +876,7 @@
       $(document).ready(function() {
         $(".select-multiple").multiselect();
         $(".select-multiple2").select2();
+      });
       //Delete Srcaped brands
       $('#selectedBrands').on('click', '.removeExistingBrand', function(){
         var removeBrand = $(this).data('value');
