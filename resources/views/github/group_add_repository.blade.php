@@ -3,7 +3,7 @@
 @section('content')
 <h2 class="text-center">Add repository to <i>{{ $group->name }}</i></h2>
 <div>
-    {{Form::open(array('url' => '/github/add_user_to_repo', 'method' => 'POST'))}}
+    {{Form::open(array('url' => '/github/groups/repositories/add', 'method' => 'POST'))}}
     {{ Form::hidden('group_id', $group->id) }}
     <div class="form-group">
         {{ Form::label('repository_name', 'Repository') }}

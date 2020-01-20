@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Input;
 use Route;
 
@@ -98,7 +99,7 @@ class GroupController extends Controller
             $response = $this->client->put($url);
             return true;
         }catch(ClientException $e){
-
+            //throw $e;
         }
         return false;
 
@@ -132,7 +133,7 @@ class GroupController extends Controller
     public function addUser(Request $request)
     {
 
-        $validatedData = $request->validate([
+       $validatedData = $request->validate([
             'group_id' => 'required',
             'role' => 'required',
             'username' => 'required'
@@ -152,10 +153,17 @@ class GroupController extends Controller
         $url = "https://api.github.com/organizations/" . getenv('GITHUB_ORG_ID') . "/team/" . $groupId . "/memberships/". $username;
         
         try{
-            $response = $this->client->put($url);
+            $response = $this->client->put(
+                $url,
+                [
+                    RequestOptions::BODY => json_encode([
+                        'role' => $role
+                    ])
+                ]
+            );
             return true;
         }catch(ClientException $e){
-
+            //throw $e;
         }
         return false;
     }
