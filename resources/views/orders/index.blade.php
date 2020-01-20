@@ -28,8 +28,8 @@
                     <select class="form-control select-multiple" name="status[]" multiple>
                       <option value="">Select a Status</option>
 
-                      @foreach ($order_status_list as $order_st)
-                        <option value="{{ $order_st }}" {{ isset($order_status) && in_array($order_st, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
+                      @foreach ($order_status_list as $id => $order_st)
+                        <option value="{{ $id }}" {{ isset($order_status) && in_array($order_st, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
                       @endforeach
                     </select>
                   </div>
@@ -64,7 +64,7 @@
           <?php foreach($statusFilterList as $listFilter) { ?>
             <div class="card">
                 <div class="card-header">
-                  <?php echo $listFilter["order_status"]; ?>
+                  <?php echo \App\Helpers\OrderHelper::getStatusNameById($listFilter["order_status"]); ?>
                 </div>
                 <div class="card-body">
                     <?php echo $listFilter["total"]; ?>
@@ -162,7 +162,16 @@
               </td>
               <td class="expand-row table-hover-cell">
                 <div class="form-group">
-                  <?php echo Form::select("order_status",["" => "N/A"] + $order_status_list, $order->order_status,["class"=> "form-control order-status-select select2","data-id"=> $order->id]); ?>
+
+                  <select data-placeholder="Order Status" class="form-control order-status-select select2" id="supplier" data-id={{$order->id}} >
+                            <optgroup label="Order Status">
+                              <option value="">Select Order Status</option>
+                                @foreach ($order_status_list as $id => $status)
+                                    
+                                    <option value="{{ $id }}" {{ $order->order_status == $id ? 'selected' : '' }}>{{ $status }}</option>
+                                @endforeach
+                            </optgroup>
+                        </select>
                 </div>
               </td>
               <td>{{ $order->advance_detail }}</td>
@@ -219,6 +228,7 @@
         $.ajax({
           url: "/order/change-status",
           type: "GET",
+          async : false,
           data : {
             id : $(this).data("id"),
             status : $(this).val()

@@ -459,6 +459,28 @@
                     </div>
                 </div>
             </div>
+            <div id="excel" class="mt-3">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" href="#collapse-excel">Excel Importer </a>
+                            </h4>
+                        </div>
+                        <div id="collapse-excel" class="panel-collapse collapse">
+
+                            <div class="panel-footer">
+                                <form action="/supplier/excel-import" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                <input name="excel_file" type="file" class="form-control">
+                                <input type="hidden" name="id" value="{{ $supplier->id }}">
+                                <button type="submit" class="btn btn-secondary">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="col-xs-12 col-md-4">
@@ -1924,5 +1946,32 @@
                 }
             })
         });
+          
+        function processExcel(id){
+            attachment = $('#email'+id).attr('data-attached');
+            $.ajax({
+                url: '/supplier/excel-import',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{csrf_token()}}",
+                    'email_id' : id,
+                    'attachment' : attachment,
+                    'id' : "{{ $supplier-> id }}",
+                },
+            })
+            .done(function() {
+                alert('Added For Import');
+            })
+            .fail(function() {
+                alert('Error During Import');
+            })
+            
+            
+        }  
+
+
+        
+
     </script>
 @endsection

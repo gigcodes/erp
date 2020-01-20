@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CheckScrapersLog;
 use App\Console\Commands\DocumentReciever;
 use App\Console\Commands\DoubleFProductDetailScraper;
 use App\Console\Commands\DoubleFScraper;
@@ -88,6 +89,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\RunErpEvents;
+use App\Console\Commands\GetOrdersFromnMagento;
 use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -175,9 +177,11 @@ class Kernel extends ConsoleKernel
         VisitorLogs::class,
         ImageBarcodeGenerator::class,
         UpdateImageBarcodeGenerator::class,
+        GetOrdersFromnMagento::class,
         SyncCustomersFromMagento::class,
         NumberOfImageCroppedCheck::class,
         SetTemplatesForProduct::class,
+        CheckScrapersLog::class,
     ];
 
     /**
@@ -203,15 +207,15 @@ class Kernel extends ConsoleKernel
         //Get list of schedule and put list in cron jobs table
         $schedule->command('schedule:list')->daily();
 
+
+        //Get Orders From Magento
+        $schedule->command('getorders:magento')->everyFiveMinutes()->withoutOverlapping();
+
         //This will run every  five minutes checking and making keyword-customer relationship...
         $schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();
 
         //This will run every fifteen minutes checking if new mail is recieved for email importer...
         $schedule->command('excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
-
-        //This will run every fifteen minutes checking if new mail is recieved form supplier email importer...
-        $schedule->command('supplier-excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
-
 
         //Flag customer if they have a complaint
         $schedule->command('flag:customers-with-complaints')->daily();
@@ -350,7 +354,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('cold-leads:move-to-customers')->daily();
 
 
-        $schedule->command('send:queue-pending-chat-messages')->cron('*/3 * * * *');
+        $schedule->command('send:queue-pending-chat-messages')->cron('*/3 * * * *')->between('07:30', '18:00')->withoutOverlapping(10);
 
         // need to run this both cron every minutes
         $schedule->command('cronschedule:update')->everyMinute();
@@ -363,6 +367,7 @@ class Kernel extends ConsoleKernel
 
         // Github
         $schedule->command('github:load_branch_state')->hourly();
+        $schedule->command('checkScrapersLog')->dailyAt('12:00');
     }
 
     /**

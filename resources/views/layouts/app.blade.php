@@ -28,6 +28,7 @@
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="/js/generic.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+{{--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
 
     @yield('link-css')
     <script>
@@ -35,6 +36,15 @@
         Laravel.csrfToken = "{{csrf_token()}}";
         window.Laravel = Laravel;
     </script>
+{{--I/m geting error in console thats why commented--}}
+
+{{--    <script>--}}
+{{--        $('.readmore').readmore({--}}
+{{--            speed: 75,--}}
+{{--            moreLink: '<a href="#">Read more</a>',--}}
+{{--            lessLink: '<a href="#">Read less</a>'--}}
+{{--        });--}}
+{{--    </script>--}}
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script> --}}
@@ -467,7 +477,10 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Logs<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
+                                            <a class="dropdown-item" href="{{ action('ScrapLogsController@index') }}">Scrap Logs</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                             <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -966,7 +979,22 @@
                                         </li>
                                     </ul>
                                 </li>
-
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Google<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Search<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.search.keyword')}}">Keywords</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.search.results')}}">Search Results</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1098,6 +1126,12 @@
                                             </li>
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ action('ProductController@hsCodeIndex') }}">HsCode Generator</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('HsCodeController@mostCommon') }}">Most Common</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ action('HsCodeController@mostCommonByCategory') }}">Most Common Category</a>
                                             </li>
                                         </ul>
                                     </li>

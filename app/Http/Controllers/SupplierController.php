@@ -26,6 +26,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\ProductQuicksellGroup;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\SupplierBrandCountHistory;
+use seo2websites\ErpExcelImporter\ErpExcelImporter;
 
 class SupplierController extends Controller
 {
@@ -83,7 +84,7 @@ class SupplierController extends Controller
         }
 
         $suppliers = DB::select('
-									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name,
+									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -1036,21 +1037,21 @@ class SupplierController extends Controller
         
         $supplier = Supplier::find($supplierId);
         if ($supplier->scraped_brands != ''){
-          $scrapedBrands = array_filter(explode(',', $supplier->scraped_brands));
+            $scrapedBrands = array_filter(explode(',', $supplier->scraped_brands));
           
-          sort($scrapedBrands);
+            sort($scrapedBrands);
         }
         else {
-          $scrapedBrands = array();
+            $scrapedBrands = array();
         }
 
         if ($supplier->scraped_brands_raw != ''){
-          $rawBrands = array_unique(array_filter(array_column(json_decode($supplier->scraped_brands_raw, true), 'name')));
+            $rawBrands = array_unique(array_filter(array_column(json_decode($supplier->scraped_brands_raw, true), 'name')));
           
-          sort($rawBrands);
+            sort($rawBrands);
         }
         else{
-          $rawBrands = array();
+            $rawBrands = array();
         }
 
         return response()->json(['scrapedBrands' => $scrapedBrands, 'scrapedBrandsRaw' => $rawBrands], 200);
@@ -1065,14 +1066,14 @@ class SupplierController extends Controller
     public function updateScrapedBrandFromBrandRaw(Request $request)
     {
         $supplierId = $request->id;
-        $newBrandData = implode(',', $request->newBrandData);
+        $newBrandData = ($request->newBrandData) ? $request->newBrandData : array();
         
         // Get Supplier model
         $supplier = Supplier::find($supplierId);
 
         // Do we have a result?
         if ($supplier != null) {
-            $supplier->scraped_brands = $newBrandData;
+            $supplier->scraped_brands = implode(',', $newBrandData);
             $supplier->save();
 
             return response()->json(['success' => 'Supplier brand updated'], 200);
@@ -1080,7 +1081,130 @@ class SupplierController extends Controller
 
         // Still here? Return an error
         return response()->json(['error' => 'Supplier not found'], 403);
-    }    
+
+
+    }
+
+    public function excelImport(Request $request)
+        {
+          
+          if($request->attachment){
+              $supplier = Supplier::find($request->id);
+             $file = explode('/',$request->attachment);
+             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                  $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                  $excel = ErpExcelImporter::excelFileProcess(end($file),$excel,$supplier->email);
+                  return response()->json(['success' => 'File Processed For Import'], 200);
+              }else{
+                return response()->json(['error' => 'File Couldnt Process For Import'], 200);
+              }
+          }
+
+          if($request->file('excel_file')){
+              $file = $request->file('excel_file');
+              if($file->getClientOriginalExtension() == 'xls' || $file->getClientOriginalExtension() == 'xlsx'){
+                
+                //SAve FIle
+                if (!file_exists(storage_path('app/files/email-attachments/file/'))) {
+                  mkdir(storage_path('app/files/email-attachments/file/'), 0777, true);
+                } 
+
+                $path = storage_path('app/files/email-attachments/file/');
+                $file->move($path,$file->getClientOriginalName());
+                $filePath = '/file/'.$file->getClientOriginalName();
+                $supplier = Supplier::find($request->id);
+                if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                  $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                  $excel = ErpExcelImporter::excelFileProcess($filePath,$excel,$supplier->email);
+                  return redirect()->back()->withSuccess('File Processed For Import'); 
+                }else{
+                  return redirect()->back()->withErrors('Excel Importer Not Found');
+                }
+
+              }else{
+                return redirect()->back()->withErrors('Please Use Excel FIle');; 
+              }
+            }
+        }    
+    
+
+
+    /**
+    * Remove particular scraped brand from scrapped brands for a supplier
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return json response with status, updated brand list, raw brand list
+    */
+    public function removeScrapedBrand(Request $request)
+    {
+        $supplierId = $request->id;
+        $removeBrandData = $request->removeBrandData;
+        
+        // Get Supplier model
+        $supplier = Supplier::find($supplierId);
+
+        // Do we have a result?
+        if ($supplier != null) {
+            if ($supplier->scraped_brands != ''){
+                $scrapedBrands = array_filter(explode(',', $supplier->scraped_brands));
+              
+                $newBrandData = array_diff($scrapedBrands, array($removeBrandData));
+                sort($newBrandData);
+            }
+            else {
+                $newBrandData = array();
+            }
+            if ($supplier->scraped_brands_raw != ''){
+                $rawBrands = array_unique(array_filter(array_column(json_decode($supplier->scraped_brands_raw, true), 'name')));
+                sort($rawBrands);
+            }
+            else{
+                $rawBrands = array();
+            }
+
+            $supplier->scraped_brands = implode(',', $newBrandData);
+            $supplier->save();
+
+            return response()->json(['scrapedBrands' => $newBrandData, 'scrapedBrandsRaw' => $rawBrands, 'success' => 'Scraped brand removed'], 200);
+        }
+
+        // Still here? Return an error
+        return response()->json(['error' => 'Supplier not found'], 403);
+    }
+
+    /**
+    * copy selected scraped brands to brand for a supplier
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return json response with update status, brands
+    */
+    public function copyScrapedBrandToBrand(Request $request)
+    {
+        $supplierId = $request->id;
+        
+        // Get Supplier model
+        $supplier = Supplier::find($supplierId);
+
+        // Do we have a result?
+        if ($supplier != null) {
+            $selectedScrapedBrand = ($supplier->scraped_brands) ? $supplier->scraped_brands : '';
+            if ($selectedScrapedBrand != ''){
+                //We have got selected scraped brands, now store that in brands
+                $supplier->brands = '"['.$selectedScrapedBrand.']"';
+                $supplier->save();
+                
+                $miniScrapedBrand = strlen($selectedScrapedBrand) > 10 ? substr($selectedScrapedBrand, 0, 10) . '...' : $selectedScrapedBrand;
+
+                return response()->json(['success' => 'Supplier brand updated', 'mini' => $miniScrapedBrand, 'full' => $selectedScrapedBrand], 200);
+            }
+            else {
+                return response()->json(['error' => 'Scraped brands not selected for the supplier'], 403);
+            }
+        }
+
+        // Still here? Return an error
+        return response()->json(['error' => 'Supplier not found'], 403);
+    }
 
     public function languageTranslate(Request $request) 
     {
@@ -1089,4 +1213,5 @@ class SupplierController extends Controller
       $supplier->save();
       return response()->json(['success' => 'Supplier language updated'], 200);
     }
+
 }

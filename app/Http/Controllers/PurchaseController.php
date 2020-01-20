@@ -51,6 +51,7 @@ use Auth;
 use Webklex\IMAP\Client;
 use App\Mail\ReplyToEmail;
 use App\Category;
+use App\LogExcelImport;
 
 class PurchaseController extends Controller
 {
@@ -753,6 +754,7 @@ class PurchaseController extends Controller
         $perPage = Setting::get('pagination');
         $currentItems = array_slice($new_products, $perPage * ($currentPage - 1), $perPage);
 
+        $totalSku = count($new_products);
         $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);
@@ -778,8 +780,8 @@ class PurchaseController extends Controller
             'activSuppliers' => $activSuppliers,
             //'category_filter' => $category_filter,
             'categoryFilter' => $categoryFilter,
-            'suppliers' => $suppliers
-
+            'suppliers' => $suppliers,
+            'totalSku' => $totalSku
         ]);
     }
 
@@ -2046,6 +2048,7 @@ class PurchaseController extends Controller
         $emails_array = [];
         $count = 0;
         foreach ($db_emails as $key2 => $email) {
+
             $dateCreated = $email->created_at->format('D, d M Y');
             $timeCreated = $email->created_at->format('H:i');
             $userName = null;
@@ -2054,7 +2057,35 @@ class PurchaseController extends Controller
             } elseif ($email->model instanceof Customer) {
                 $userName = $email->model->name;
             }
+            if($email->model_type == 'App\Supplier'){
+                $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
 
+                if (array_key_exists('attachment', $array)) {
+                    $attachment = json_decode($email->additional_data, true)[ 'attachment' ];
+                    if (is_array($attachment)) {
+                        foreach ($attachment as $attach) {
+                            $filename  = explode('/',$attach);
+                            $filename = explode('.',end($filename));
+                            if(end($filename) == 'xlsx' || end($filename) == 'xls'){
+                                $log = LogExcelImport::where('supplier_email',$supplier->email)->where('filename',$filename[0])->first();
+                                if($log != null){
+                                    if($log->status == 1){
+                                        $alert[] = 'Excel import process';
+                                    }elseif($log->status == 2){
+                                        $alert[] = 'Excel import created';
+                                    }elseif($log->status == 0){
+                                        $alert[] = 'Excel import error';
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(!isset($alert)){
+                $alert = [];
+            }
             $emails_array[ $count + $key2 ][ 'id' ] = $email->id;
             $emails_array[ $count + $key2 ][ 'subject' ] = $email->subject;
             $emails_array[ $count + $key2 ][ 'seen' ] = $email->seen;
@@ -2065,6 +2096,7 @@ class PurchaseController extends Controller
             $emails_array[ $count + $key2 ][ 'message' ] = $email->message;
             $emails_array[ $count + $key2 ][ 'cc' ] = $email->cc;
             $emails_array[ $count + $key2 ][ 'bcc' ] = $email->bcc;
+            $emails_array[ $count + $key2 ][ 'alert' ] = $alert;
             $emails_array[ $count + $key2 ][ 'replyInfo' ] = "On {
         $dateCreated} at {
         $timeCreated}, $userName <{
@@ -2516,11 +2548,34 @@ class PurchaseController extends Controller
 
             if (array_key_exists('attachment', $array)) {
                 $attachment = json_decode($email->additional_data, true)[ 'attachment' ];
-
                 if (is_array($attachment)) {
                     $content = $email->message;
                     foreach ($attachment as $attach) {
-                        $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attach . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
+                        if($email->model_type == 'App\Supplier'){
+                            $supplier = Supplier::find($email->model_id);
+                            if($supplier != null){
+                                $filename  = explode('/',$attach);
+                                $filename = explode('.',end($filename));
+                                if(end($filename) == 'xlsx' || end($filename) == 'xls'){
+                                    $log = LogExcelImport::where('supplier_email',$supplier->email)->where('filename',$filename[0])->first();
+                                    if($log != null){
+                                        if($log->status == 1){
+                                            $alert = 'Excel import process';
+                                        }elseif($log->status == 2){
+                                            $alert = 'Excel import created';
+                                        }else{
+                                            $alert = 'Excel import error';
+                                        }
+                                    }
+                                       
+                                }
+                            }
+                        }
+                        if(!isset($alert)){
+                            $alert = '';
+                        }
+                        $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attach . "' /><button type='submit' class='btn-link'>Attachment</button>
+                        <button type='button' class='btn-secondary' onclick='processExcel(".$email->id.")' id='email".$email->id."' data-attached='" . $attach . "' >".$alert."</button></form>";
                     }
                 } else {
                     $content = "$email->message <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attachment . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
