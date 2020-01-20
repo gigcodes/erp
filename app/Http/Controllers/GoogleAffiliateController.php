@@ -200,15 +200,15 @@ class GoogleAffiliateController extends Controller
                     $affiliateResults->title = $postJson[ 'title' ];
                     $affiliateResults->caption = $postJson[ 'description' ];
                     $affiliateResults->posted_at = ($postJson[ 'crawledAt' ]) ? date('Y-m-d H:i:s', strtotime($postJson[ 'crawledAt' ])) : date('Y-m-d H:i:s');
-                    $affiliateResults->address = $postJson[ 'address' ];
-                    $affiliateResults->facebook = $postJson[ 'facebook' ];
-                    $affiliateResults->instagram = $postJson[ 'instagram' ];
-                    $affiliateResults->twitter = $postJson[ 'twitter' ];
-                    $affiliateResults->youtube = $postJson[ 'youtube' ];
-                    $affiliateResults->linkedin = $postJson[ 'linkedin' ];
-                    $affiliateResults->pinterest = $postJson[ 'pinterest' ];
-                    $affiliateResults->phone = $postJson[ 'phone' ];
-                    $affiliateResults->emailaddress = $postJson[ 'emailaddress' ];
+                    $affiliateResults->address = (isset($postJson[ 'address' ])) ? $postJson[ 'address' ] : '';
+                    $affiliateResults->facebook = (isset($postJson[ 'facebook' ])) ? $postJson[ 'facebook' ] : '';
+                    $affiliateResults->instagram = (isset($postJson[ 'instagram' ])) ? $postJson[ 'instagram' ] : '';
+                    $affiliateResults->twitter = (isset($postJson[ 'twitter' ])) ? $postJson[ 'twitter' ] : '';
+                    $affiliateResults->youtube = (isset($postJson[ 'youtube' ])) ? $postJson[ 'youtube' ] : '';
+                    $affiliateResults->linkedin = (isset($postJson[ 'linkedin' ])) ? $postJson[ 'linkedin' ] : '';
+                    $affiliateResults->pinterest = (isset($postJson[ 'pinterest' ])) ? $postJson[ 'pinterest' ] : '';
+                    $affiliateResults->phone = (isset($postJson[ 'phone' ])) ? $postJson[ 'phone' ] : '';
+                    $affiliateResults->emailaddress = (isset($postJson[ 'emailaddress' ])) ? $postJson[ 'emailaddress' ] : '';
                     $affiliateResults->source = 'google';
                     $affiliateResults->save();                    
                 }
