@@ -1333,6 +1333,8 @@ class ProductController extends Controller
                return response()->json(['message','Category Is Not Present']); 
             }
             
+        }else{
+            return response()->json(['message','Category Is Not Present']); 
         }
         
     }
@@ -1347,7 +1349,10 @@ class ProductController extends Controller
                 $category = $product->scraped_products->properties['category'];
                 $referencesCategory = implode(' ',$category);
             }
+        }else{
+            return response()->json(['success','Scrapped Product Doesnt Not Exist']); 
         }
+
         if(isset($referencesCategory)){
 
             $productSupplier = $product->supplier;
@@ -1367,8 +1372,9 @@ class ProductController extends Controller
 
             //Add reference to category 
             $category = Category::find($cat);
+
             if($product->product_category != null){
-                $reference = $category->references.','.$product->product_category->title;
+                $reference = $category->references.','.$referencesCategory;
                 $category->references = $reference;
                 $category->save();
             }

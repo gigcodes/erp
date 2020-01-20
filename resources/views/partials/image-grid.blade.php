@@ -696,11 +696,10 @@
                         $('#product_id').val(product_id);
                         $('#category_id').val(category_id);
                     }else{
-                        $('#old_category').text('');
+                        $('#old_category').text('No Scraped Product Present');
                         $('#changed_category').text(category);
                         $('#product_id').val(product_id);
                         $('#category_id').val(category_id);
-                        $('#categoryUpdate').modal('show');
                     }
                 }
             });
