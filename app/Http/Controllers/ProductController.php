@@ -2365,8 +2365,20 @@ class ProductController extends Controller
 
     public function sendMessageSelectedCustomer(Request $request)
     {
-        $customerIds = $request->get('customers_id', '');
-        $customerIds = explode(',', $customerIds);
+        $token = request("customer_token","");
+        
+        if(!empty($token)) {
+            $customerIds = json_decode(session($token));
+            if(empty($customerIds)) {
+                $customerIds = [];
+            }
+        }
+        // if customer is not available then choose what it is before
+        if(empty($customerIds)) {
+            $customerIds = $request->get('customers_id', '');
+            $customerIds = explode(',', $customerIds);
+        }
+
         $brand = request()->get("brand", null);
         $category = request()->get("category", null);
         $numberOfProduts = request()->get("number_of_products", 10);
