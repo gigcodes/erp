@@ -332,10 +332,40 @@ margin-bottom: 15px !important;
 </style>
 
 <script>
-setInterval(function(){
-	getChatsWithoutRefresh();
-	getUserList();g
-}, 5000);
+var chatTimerObj = false;
+function openChatBox(show){
+	if(show){
+		getChatsWithoutRefresh();
+		getUserList();
+		chatTimerObj = setInterval(function(){
+			getChatsWithoutRefresh();
+			getUserList();
+		}, 5000);
+	}
+	else{
+		clearInterval(chatTimerObj);
+	}
+}
+
+$(window).on("blur focus", function(e) {
+    var prevType = $(this).data("prevType");
+    if (prevType != e.type) {
+        switch (e.type) {
+            case "blur":
+            	if(chatBoxOpen){
+            		openChatBox(false);
+            	}
+                break;
+            case "focus":
+            	if(chatBoxOpen){
+            		openChatBox(true);
+            	}
+                break;
+        }
+    }
+
+    $(this).data("prevType", e.type);
+})
 
 function formatAMPM(date) {
 	var hours = date.getHours();

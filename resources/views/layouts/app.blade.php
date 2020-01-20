@@ -1641,9 +1641,19 @@
     });
 
     // started for chat button
+    var chatBoxOpen = false;
     $('.chat-button').on('click', function () {
         $('.chat-button-wrapper').toggleClass('expanded');
         $('.page-chat-list-rt').toggleClass('dis-none');
+
+        if($('.chat-button-wrapper').hasClass('expanded')){
+            chatBoxOpen = true;
+            openChatBox(true);
+        }
+        else{
+            chatBoxOpen = false;
+            openChatBox(false);
+        }
     });
 
     var notesBtn = $(".save-user-notes");
