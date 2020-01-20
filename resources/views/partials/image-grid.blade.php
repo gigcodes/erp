@@ -479,12 +479,12 @@
         //   }
         // });
 
-        $(document).on('click', '.pagination a', function (e) {
+        /*$(document).on('click', '.pagination a', function (e) {
             e.preventDefault();
             var url = $(this).attr('href') + '&selected_products=' + JSON.stringify(image_array);
 
             getProducts(url);
-        });
+        });*/
 
         function getProducts(url) {
             $.ajax({
