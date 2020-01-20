@@ -23,7 +23,15 @@ class GithubRepository extends Model
             'github_repositories_id',
             'github_users_id'
         )
-            ->withPivot(['id','rights']);
+            ->withPivot(['id', 'rights']);
     }
 
+    public function branches()
+    {
+        return $this->hasMany(
+            'App\Github\GithubBranchState',
+            'repository_id',
+            'id'
+        );
+    }
 }
