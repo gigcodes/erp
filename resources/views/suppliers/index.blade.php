@@ -812,7 +812,7 @@
               }
               selectAllBrands += '>Select All<br>';
 
-              rawBrands = selectAllBrands + ' ' + rawBrands;
+              rawBrands = selectAllBrands + ' ' + rawBrands
           }
           
           $('#brandRawList').html(rawBrands);
@@ -857,15 +857,7 @@
               }
           });
 
-      $(document).ready(function() {
-        $(".select-multiple").multiselect();
-        $(".select-multiple2").select2();
-      });
-      //Delete Srcaped brands
-      $('#selectedBrands').on('click', '.removeExistingBrand', function(){
-        var removeBrand = $(this).data('value');
-        if(confirm('Are you sure to remove ' + removeBrand + '?')){
-          //call delete function
+          //ajax call coming here...
           $.ajax({
               url: "{{ route('supplier.scrapedbrands.update') }}",
               type: 'POST',
@@ -905,23 +897,9 @@
           }
       });
 
-      $('#copyScrapedBrands').on('click', function(){
-          if(confirm('Are you sure to copy brands?')){
-              //call copy function
-              $.ajax({
-                  url: "{{ route('supplier.scrapedbrands.copy') }}",
-                  type: 'POST',
-                  data: {
-                      id: brandUpdateSupplierId,
-                      _token: "{{ csrf_token() }}"
-                  },            
-                  success: function(data) {
-                      $('.brand-supplier-mini-' + brandUpdateSupplierId).html(data.mini);
-                      $('.brand-supplier-full-' + brandUpdateSupplierId).html(data.full);
-                      alert('Brands copied successfully');
-                  }
-              });
-          }
-      });      
+      $(document).ready(function() {
+          $(".select-multiple").multiselect();
+          $(".select-multiple2").select2();
+      });
   </script>
 @endsection
