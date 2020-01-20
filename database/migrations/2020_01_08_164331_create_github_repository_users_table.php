@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateHubstaffMembers extends Migration
+class CreateGithubRepositoryUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,14 @@ class CreateHubstaffMembers extends Migration
      */
     public function up()
     {
-         Schema::create('hubstaff_members', function (Blueprint $table) {
+        Schema::create('github_repository_users', function (Blueprint $table) {
+            //
             $table->increments('id');
-			$table->integer('hubstaff_user_id');
-			$table->integer('user_id');
-			$table->float('pay_rate', 8, 2);
-			$table->float('bill_rate', 8, 2);
-            $table->string('currency')->nullable();
-            $table->softDeletes();
+            $table->integer('github_repositories_id');
+            $table->integer('github_users_id');
+            $table->string('rights');
             $table->timestamps();
+
         });
     }
 
@@ -32,6 +31,8 @@ class CreateHubstaffMembers extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('hubstaff_members');
+        Schema::table('github_repository_users', function (Blueprint $table) {
+            $table->drop();
+        });
     }
 }
