@@ -701,6 +701,12 @@
                         $('#product_id').val(product_id);
                         $('#category_id').val(category_id);
                     }
+                },
+                error: function (){
+                    $('#old_category').text('No Scraped Product Present');
+                    $('#changed_category').text(category);
+                    $('#product_id').val(product_id);
+                    $('#category_id').val(category_id);
                 }
             });
 
