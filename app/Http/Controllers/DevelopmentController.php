@@ -1612,11 +1612,11 @@ class DevelopmentController extends Controller
         $respositories = GithubRepository::all();
 
 
-        $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames", "respositories", "defaultRepositoryId"))->render();
+        //$html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames", "respositories", "defaultRepositoryId"))->render();
         //Get hubstaff projects
         $projects = HubstaffProject::all();
 
-        $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames", "projects"))->render();
+        $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames", "respositories", "defaultRepositoryId", "projects"))->render();
         return json_encode(compact("html", "status"));
     }
     public function saveLanguage(Request $request)
