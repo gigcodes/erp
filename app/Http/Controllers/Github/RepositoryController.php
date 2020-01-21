@@ -64,9 +64,13 @@ class RepositoryController extends Controller
     public function getRepositoryDetails($repositoryId){
         $repository = GithubRepository::find($repositoryId);
         $branches = $repository->branches;
+
+        $currentBranch = exec('git rev-parse --abbrev-ref HEAD');
+
         return view('github.repository_settings', [
             'repository' => $repository,
-            'branches' => $branches
+            'branches' => $branches,
+            'current_branch' => $currentBranch
         ]);
 
 
