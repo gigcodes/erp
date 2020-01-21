@@ -70,9 +70,11 @@ class RepositoryController extends Controller
         $repository = GithubRepository::find($repositoryId);
         $branches = $repository->branches;
 
-        //TODO: should be replaced with a shell script
-        $currentBranch = exec('git rev-parse --abbrev-ref HEAD');
-
+        //$currentBranch = exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/get_current_deployment.sh');
+        
+        $currentBranch = exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh master');
+        
+        exit;
         return view('github.repository_settings', [
             'repository' => $repository,
             'branches' => $branches,

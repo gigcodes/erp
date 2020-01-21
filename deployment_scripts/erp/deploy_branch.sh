@@ -1,0 +1,3 @@
+BRANCH_NAME=$1;
+git checkout $BRANCH_NAME;
+echo $BRANCH_NAME;

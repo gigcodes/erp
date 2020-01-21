@@ -24,8 +24,11 @@
     }
     @endif
 </script>
-
-<h2 class="text-center">{{ $repository->name }} branches</h2>
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <h2 class="page-heading"><i>{{ $repository->name }}</i> branches</h2>
+    </div>
+</div>
 <div class="container">
     <table class="table table-bordered">
         <thead>
