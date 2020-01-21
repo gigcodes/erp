@@ -42,7 +42,7 @@ class MessageQueueController extends Controller
 
         $chatMessage = $chatMessage->select(["chat_messages.*", "c.phone", "c.whatsapp_number"]);
 
-        $chatMessage = $chatMessage->paginate($limit);
+        $chatMessage = $chatMessage->orderby("chat_messages.id","DESC")->paginate($limit);
 
         $itemsList = [];
 
