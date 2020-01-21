@@ -2497,7 +2497,7 @@ class WhatsAppController extends FindByNumberController
 
         if ($request->images) {
 
-            $imagesDecoded = json_decode($request->images);
+            $imagesDecoded = json_decode($request->images,true);
 
             if (!empty($request->send_pdf) && $request->send_pdf == 1) {
                 /*$temp_chat_message = ChatMessage::create($data);
@@ -2564,18 +2564,20 @@ class WhatsAppController extends FindByNumberController
                 }
 
             } else {
-                foreach (array_unique($imagesDecoded) as $image) {
-                    $media = Media::find($image);
-                    if (!empty($media)) {
-                        $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
-                        if (!$isExists) {
-                            // check first barcode image exist or not
-                            $barcode = Media::where("filename", $image)->orderBy("id", "desc")->first();
-                            if ($barcode) {
-                                $media = $barcode;
+                if(!empty($imagesDecoded)) {
+                    foreach (array_unique($imagesDecoded) as $image) {
+                        $media = Media::find($image);
+                        if (!empty($media)) {
+                            $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
+                            if (!$isExists) {
+                                // check first barcode image exist or not
+                                $barcode = Media::where("filename", $image)->orderBy("id", "desc")->first();
+                                if ($barcode) {
+                                    $media = $barcode;
+                                }
+                                // check first barcode exist end
+                                $chat_message->attachMedia($media, config('constants.media_tags'));
                             }
-                            // check first barcode exist end
-                            $chat_message->attachMedia($media, config('constants.media_tags'));
                         }
                     }
                 }
