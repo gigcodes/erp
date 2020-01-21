@@ -60,4 +60,21 @@ class RepositoryController extends Controller
             'repositories' => $repositories
         ]);
     }
+
+    public function getRepositoryDetails($repositoryId){
+        $repository = GithubRepository::find($repositoryId);
+        $branches = $repository->branches;
+
+        $currentBranch = exec('git rev-parse --abbrev-ref HEAD');
+
+        return view('github.repository_settings', [
+            'repository' => $repository,
+            'branches' => $branches,
+            'current_branch' => $currentBranch
+        ]);
+
+
+
+        //print_r($repository);
+    }
 }

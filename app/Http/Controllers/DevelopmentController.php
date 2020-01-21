@@ -164,7 +164,7 @@ class DevelopmentController extends Controller
         //$developerTask = DeveloperTask::where('user_id', $request->get('user_id', 0))->pluck('id')->toArray();
 
         //delete old priority
-        \App\ErpPriority::where("user_id",$user_id)->where('model_type', '=', DeveloperTask::class)->delete();
+        \App\ErpPriority::where("user_id", $user_id)->where('model_type', '=', DeveloperTask::class)->delete();
 
         if (!empty($priority)) {
             foreach ((array) $priority as $model_id) {
@@ -175,7 +175,7 @@ class DevelopmentController extends Controller
                 ]);
             }
             $developerTask = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
-                ->join('erp_priorities', function ($query) use($user_id) {
+                ->join('erp_priorities', function ($query) use ($user_id) {
                     $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
                     $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
                     $query->where('erp_priorities.user_id', '=', $user_id);
@@ -408,8 +408,8 @@ class DevelopmentController extends Controller
         }*/
 
         if (!auth()->user()->isAdmin()) {
-            $issues = $issues->where(function($q){
-                $q->where("developer_tasks.assigned_to",auth()->user()->id)->where('is_resolved', 0);
+            $issues = $issues->where(function ($q) {
+                $q->where("developer_tasks.assigned_to", auth()->user()->id)->where('is_resolved', 0);
             });
         }
         // category filter start count
@@ -462,7 +462,7 @@ class DevelopmentController extends Controller
         $issues = $issues->paginate(Setting::get('pagination'));
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
-        $languages = \App\DeveloperLanguage::get()->pluck("name","id")->toArray();
+        $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
         return view('development.issue', [
             'issues' => $issues,
@@ -527,7 +527,7 @@ class DevelopmentController extends Controller
     public function listByUserId(Request $request)
     {
         $user_id = $request->get('user_id', 0);
-        $selected_issue = $request->get('selected_issue', []); 
+        $selected_issue = $request->get('selected_issue', []);
 
         $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
             ->leftJoin('erp_priorities', function ($query) use ($user_id) {
@@ -536,7 +536,7 @@ class DevelopmentController extends Controller
             })->where('is_resolved', '0');
 
         if (auth()->user()->isAdmin()) {
-            $issues = $issues->where(function($q) use ($selected_issue , $user_id) {
+            $issues = $issues->where(function ($q) use ($selected_issue, $user_id) {
                 $user_id = is_null($user_id) ? 0 : $user_id;
                 $q->whereIn('developer_tasks.id', $selected_issue)->orWhere("erp_priorities.user_id", $user_id);
             });
@@ -561,7 +561,7 @@ class DevelopmentController extends Controller
         //get all user task
         $issues = DeveloperTask::where('assigned_to', $request->get('user_id', 0))->pluck('id')->toArray();
         //delete old priority
-        \App\ErpPriority::where("user_id",$user_id)->where('model_type', '=', DeveloperTask::class)->delete();
+        \App\ErpPriority::where("user_id", $user_id)->where('model_type', '=', DeveloperTask::class)->delete();
 
         if (!empty($priority)) {
             foreach ((array) $priority as $model_id) {
@@ -572,8 +572,8 @@ class DevelopmentController extends Controller
                 ]);
             }
 
-            $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by','developer_tasks.task_type_id')
-                ->join('erp_priorities', function ($query) use($user_id) {
+            $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by', 'developer_tasks.task_type_id')
+                ->join('erp_priorities', function ($query) use ($user_id) {
                     $query->on('erp_priorities.model_id', '=', 'developer_tasks.id');
                     $query->where('erp_priorities.model_type', '=', DeveloperTask::class);
                     $query->where('erp_priorities.user_id', '=', $user_id);
@@ -585,7 +585,7 @@ class DevelopmentController extends Controller
             $i = 1;
             foreach ($issues as $value) {
                 $mode  = ($value->task_type_id == 3) ? "#ISSUE-" : "#TASK-";
-                $message .= $i . " : ".$mode . $value->id . "-" . $value->subject . "\n";
+                $message .= $i . " : " . $mode . $value->id . "-" . $value->subject . "\n";
                 $i++;
             }
             if (!empty($message)) {
@@ -804,6 +804,12 @@ class DevelopmentController extends Controller
             $task->subject
         );
 
+        // UPDATE TASK WITH BRANCH NAME
+        if ($newBranchName) {
+            $task->github_branch_name = $newBranchName;
+            $task->save();
+        }
+
         if (is_string($newBranchName)) {
             $message = $request->input('task') . PHP_EOL . "A new branch " . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
         } else {
@@ -865,7 +871,7 @@ class DevelopmentController extends Controller
         }
         return redirect(url('development/list/devtask'))->with('success', 'You have successfully added task!');
     }
-    
+
     public function issueStore(Request $request)
     {
         $this->validate($request, [
@@ -1612,19 +1618,19 @@ class DevelopmentController extends Controller
         $respositories = GithubRepository::all();
 
 
-        $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames", "respositories", "defaultRepositoryId"))->render();
+        //$html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames", "respositories", "defaultRepositoryId"))->render();
         //Get hubstaff projects
         $projects = HubstaffProject::all();
 
-        $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames", "projects"))->render();
+        $html = view('development.ajax.add_new_task', compact("users", "tasksTypes", "modules", "moduleNames", "respositories", "defaultRepositoryId", "projects"))->render();
         return json_encode(compact("html", "status"));
     }
     public function saveLanguage(Request $request)
     {
         $language = $request->get('language');
 
-        if(!empty(trim($language))) {
-            if(!is_numeric($language)) {
+        if (!empty(trim($language))) {
+            if (!is_numeric($language)) {
                 $languageModal = \App\DeveloperLanguage::updateOrCreate(
                     ['name' => $language],
                     ['name' => $language]
@@ -1635,7 +1641,7 @@ class DevelopmentController extends Controller
             $issue->language = isset($languageModal->id) ? $languageModal->id : $language;
             $issue->save();
         }
-        
+
 
         return response()->json([
             'status' => 'success'
@@ -1645,14 +1651,14 @@ class DevelopmentController extends Controller
     public function uploadDocument(Request $request)
     {
 
-        $id = $request->get("developer_task_id",0);
-        $subject = $request->get("subject",null);
+        $id = $request->get("developer_task_id", 0);
+        $subject = $request->get("subject", null);
 
-        if($id > 0 && !empty($subject)) {
+        if ($id > 0 && !empty($subject)) {
 
             $devTask = DeveloperTask::find($id);
-            
-            if(!empty($devTask)) {
+
+            if (!empty($devTask)) {
 
                 $devDocuments = new \App\DeveloperTaskDocument;
                 $devDocuments->fill(request()->all());
@@ -1668,33 +1674,28 @@ class DevelopmentController extends Controller
                     }
                 }
 
-                return response()->json(["code" => 200 , "success" => "Done!"]);
+                return response()->json(["code" => 200, "success" => "Done!"]);
             }
 
-            return response()->json(["code" => 500 , "error" => "Oops, There is no record in database"]);
-
-
-        }else{
-            return response()->json(["code" => 500 , "error" => "Oops, Please fillup required fields"]);
+            return response()->json(["code" => 500, "error" => "Oops, There is no record in database"]);
+        } else {
+            return response()->json(["code" => 500, "error" => "Oops, Please fillup required fields"]);
         }
-
     }
 
     public function getDocument(Request $request)
     {
-        $id = $request->get("id",0);
+        $id = $request->get("id", 0);
 
-        if($id > 0) {
+        if ($id > 0) {
 
-            $devDocuments = \App\DeveloperTaskDocument::where("developer_task_id",$id)->get();
+            $devDocuments = \App\DeveloperTaskDocument::where("developer_task_id", $id)->get();
 
             $html = view('development.ajax.document-list', compact("devDocuments"))->render();
-            
-            return response()->json(["code" => 200 , "data" => $html]);
 
-        }else{
-            return response()->json(["code" => 500 , "error" => "Oops, id is required field"]);
+            return response()->json(["code" => 200, "data" => $html]);
+        } else {
+            return response()->json(["code" => 500, "error" => "Oops, id is required field"]);
         }
-
     }
 }
