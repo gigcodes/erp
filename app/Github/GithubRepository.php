@@ -32,7 +32,7 @@ class GithubRepository extends Model
             'App\Github\GithubBranchState',
             'repository_id',
             'id'
-        );
+        )->orderBy('last_commit_time', 'desc');
     }
 
 }
