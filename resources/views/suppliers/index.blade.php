@@ -81,8 +81,9 @@
                         <select class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
                           <optgroup label="Brands">
                             @foreach ($scrapedBrands as $key => $value)
-                              <option value="{{ $value }}"@if(in_array($value, $selectedBrands)) disabled
-                            @endif> {{ $value}}</option>
+                              @if(!in_array($value, $selectedBrands))
+                                <option value="{{ $value }}"> {{ $value}}</option>
+                              @endif
                             @endforeach
                         </optgroup>
                         </select>
