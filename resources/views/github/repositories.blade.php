@@ -1,7 +1,28 @@
 @extends('layouts.app')
 
 @section('content')
-<h2 class="text-center">Github Repositories</h2>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
+<script>
+    $(document).ready(function() {
+        $('#repository-table').DataTable({
+            "paging": false,
+            "ordering": true,
+            "info": false
+        });
+    });
+</script>
+<style>
+    #repository-table_filter {
+        text-align: right;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <h2 class="page-heading">Github Repositories ({{ sizeof($repositories) }})</h2>
+    </div>
+</div>
 <div class="container">
     <table id="repository-table" class="table table-bordered">
         <thead>
