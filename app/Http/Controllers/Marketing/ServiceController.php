@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 class ServiceController extends Controller
 {
     public function index() {
-        $data = Service::orderBy('id', 'desc')->paginate(5);
+        $data = Service::orderBy('id', 'desc')->paginate(15);
         return view('marketing.services.index', compact('data'));
     }
 
