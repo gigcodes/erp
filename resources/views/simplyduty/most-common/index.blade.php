@@ -119,7 +119,7 @@
                     $("#loading-image").hide();
                     $('#category_value').val('');
                     $('#combination').val('');
-                console.log(data);
+                $('#count').text(data.total)
                 $("#category-table tbody").empty().html(data.tbody);
                 if (data.links.length > 10) {
                     $('ul.pagination').replaceWith(data.links);
