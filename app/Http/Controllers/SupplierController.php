@@ -163,8 +163,6 @@ class SupplierController extends Controller
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = Setting::get('pagination');
-        $perPage = 10;
-        $currentPage = 2;
         $currentItems = array_slice($suppliers, $perPage * ($currentPage - 1), $perPage);
         
         $supplierscnt = count($suppliers);
