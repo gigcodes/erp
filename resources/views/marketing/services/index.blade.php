@@ -26,30 +26,6 @@
             <div class="row">
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Services</h2>
-                    {{--                    <div class="pull-left">
-                                            <form action="" method="GET"
-                                                  class="form-inline align-items-start">
-                                                <div class="form-group mr-3 mb-3">
-                                                    <input name="term" type="text" class="form-control global" id="term"
-                                                           value="{{ isset($term) ? $term : '' }}"
-                                                           placeholder="number , text, priority">
-                                                </div>
-                                                <div class="form-group ml-3">
-                                                    <div class='input-group date' id='filter-date'>
-                                                        <input type='text' class="form-control global" name="date"
-                                                               value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date"/>
-
-                                                        <span class="input-group-addon">
-                                                                                <span class="glyphicon glyphicon-calendar"></span>
-                                                                              </span>
-                                                    </div>
-                                                </div>
-                                                <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
-                                            </form>
-                                        </div>--}}
-                    {{--
-                                        <button type="button" class="btn btn-primary float-right">Create Service</button>
-                    --}}
                     <button style="display: none" type="button" class="btn btn-primary editModal" data-toggle="modal" data-target="#ModalCenter">
                         Edit
                     </button>
@@ -111,12 +87,12 @@
                         @csrf
                         <div class="form-group">
                             <label for="exampleInputEmail1">Name</label>
-                            <input required name="name" type="text" class="form-control" id="name"
+                            <input required name="name" type="text" class="form-control name"
                                    aria-describedby="emailHelp" placeholder="Enter name">
                         </div>
                         <div class="form-group">
                             <label for="exampleInputPassword1">Description</label>
-                            <textarea required name="description" class="form-control" id="textarea"
+                            <textarea required name="description" class="form-control textarea" id=""
                                       rows="5"></textarea>
                         </div>
                         <button id="btn" type="submit" class="btn btn-primary">Submit</button>
@@ -248,8 +224,8 @@
 
         $('#btn').on('click', function (e) {
             e.preventDefault();
-            var name = $('#name').val();
-            var text = $('#textarea').val();
+            var name = $('.name').val();
+            var text = $('.textarea').val();
             $.ajax({
                 url: '/marketing/services/store',
                 type: 'POST',
