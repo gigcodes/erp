@@ -7,8 +7,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use DateTime;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\RequestOptions;
+use Twilio\TwiML\Messaging\Body;
 
 class RepositoryController extends Controller
 {
@@ -61,10 +64,12 @@ class RepositoryController extends Controller
         ]);
     }
 
-    public function getRepositoryDetails($repositoryId){
+    public function getRepositoryDetails($repositoryId)
+    {
         $repository = GithubRepository::find($repositoryId);
         $branches = $repository->branches;
 
+        //TODO: should be replaced with a shell script
         $currentBranch = exec('git rev-parse --abbrev-ref HEAD');
 
         return view('github.repository_settings', [
@@ -76,5 +81,26 @@ class RepositoryController extends Controller
 
 
         //print_r($repository);
+    }
+
+    public function mergeBranch($id, $source, $destination)
+    {
+        $url = "https://api.github.com/repositories/" . $id . "/merges";
+
+        try {
+            $this->client->post(
+                $url,
+                [
+                    RequestOptions::BODY => json_encode([
+                        'base' => $destination,
+                        'head' => $source,
+                    ])
+                ]
+            );
+        } catch (Exception $e) {
+            print_r($e->getMessage());
+            return redirect(url('/github/repos/' . $id . '/branches'))->with('failure', 'Failed to Merge!');
+        }
+        return redirect(url('/github/repos/' . $id . '/branches'))->with('success', 'Branch Merged!');
     }
 }

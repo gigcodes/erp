@@ -32,10 +32,14 @@
                 </td>
                 <td>
                     <div>
-                        <a class="btn btn-sm btn-warning" href="#">Merge from master</a>
+                        <a class="btn btn-sm btn-warning" href="{{url('/github/repos/'.$repository->id.'/branch/master/'.$branch->branch_name.'/merge' )}}">
+                            Merge from master
+                        </a>
                     </div>
                     <div style="margin-top: 5px;">
-                        <a class="btn btn-sm btn-info" href="#">Merge into master</a>
+                        <a class="btn btn-sm btn-info" href="{{url('/github/repos/'.$repository->id.'/branch/'.$branch->branch_name.'/master/merge' )}}">
+                            Merge into master
+                        </a>
                     </div>
                 </td>
             </tr>

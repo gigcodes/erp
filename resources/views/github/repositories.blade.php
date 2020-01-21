@@ -19,8 +19,12 @@
                 <td>{{$repository['name']}}</td>
                 <td>{{$repository['updated_at']}}</td>
                 <td>
-                    <a href="{{ url('/github/repos/'.$repository['id'].'/settings') }}">Settings</a>
-                    <a href="{{ url('/github/repos/'.$repository['name'].'/users') }}">Users</a>
+                    <a href="{{ url('/github/repos/'.$repository['id'].'/branches') }}">
+                        <span title="Branches" class="glyphicon glyphicon-tasks"></span>
+                    </a>
+                    <a href="{{ url('/github/repos/'.$repository['name'].'/users') }}">
+                        <span title="Users" class="glyphicon glyphicon-user"></span>
+                    </a>
                 </td>
             </tr>
             @endforeach
