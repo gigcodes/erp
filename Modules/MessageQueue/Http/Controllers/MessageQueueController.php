@@ -24,12 +24,25 @@ class MessageQueueController extends Controller
      */
     public function records()
     {
+        $from  = request("from", "");
+        $to    = request("to", "");
+        $limit = request("limit", config('erp-customer.pagination'));
 
         $chatMessage = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
             ->where("is_queue", ">", 0)
-            ->where("customer_id", ">", 0)
-            ->select(["chat_messages.*","c.phone", "c.whatsapp_number"])
-            ->paginate(2);
+            ->where("customer_id", ">", 0);
+
+        if (!empty($from)) {
+            $chatMessage = $chatMessage->where("c.whatsapp_number", "like", "%" . $from . "%");
+        }
+
+        if (!empty($to)) {
+            $chatMessage = $chatMessage->where("c.phone", "like", "%" . $to . "%");
+        }
+
+        $chatMessage = $chatMessage->select(["chat_messages.*", "c.phone", "c.whatsapp_number"]);
+
+        $chatMessage = $chatMessage->paginate($limit);
 
         return response()->json([
             "code"       => 200,
@@ -58,11 +71,11 @@ class MessageQueueController extends Controller
 
         switch ($action) {
             case 'change_to_broadcast':
-                 if (!empty($ids) && is_array($ids)) {
+                if (!empty($ids) && is_array($ids)) {
                     \DB::update("update chat_messages as cm join customers as c on c.id = cm.customer_id join whatsapp_configs as wc
-                    on wc.number = c.broadcast_number set cm.is_queue = wc.id where cm.id in (".implode(",", $ids).");");   
+                    on wc.number = c.broadcast_number set cm.is_queue = wc.id where cm.id in (" . implode(",", $ids) . ");");
                     return response()->json(["code" => 200, "message" => "Deleted Successfully"]);
-                 }
+                }
                 break;
             case 'delete_records':
 

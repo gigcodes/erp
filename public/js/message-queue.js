@@ -14,6 +14,11 @@ var msQueue = {
         	e.preventDefault();
         	msQueue.getResults($(this).attr("href"));
         });
+
+        msQueue.config.bodyView.on("click",".btn-search-action",function(e) {
+            e.preventDefault();
+            msQueue.getResults();
+        });
         
         // delete product templates
         msQueue.config.bodyView.on("click",".btn-delete-template",function(e) {
@@ -26,7 +31,11 @@ var msQueue = {
 
         msQueue.config.bodyView.on("click",".btn-send-action",function(e) {
             e.preventDefault();
-            msQueue.submitForm($(this));
+            if(!confirm("Are you sure you want to perform this operation?")) {
+                return false;
+            }else {
+                msQueue.submitForm($(this));
+            }
         });
 
         msQueue.config.bodyView.on("click",".select-all-records",function(e) {
@@ -58,6 +67,7 @@ var msQueue = {
     	var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/message-queue/records",
             method: "get",
+            data : $(".message-search-handler").serialize()
         }
         this.sendAjax(_z, "showResults");
     },

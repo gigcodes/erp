@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 
 class SendQueuePendingChatMessages extends Command
 {
+    const BROADCAST_PRIORITY        = 8;
+    const MARKETING_MESSAGE_TYPE_ID = 3;
+
     /**
      * The name and signature of the console command.
      *
@@ -43,20 +46,36 @@ class SendQueuePendingChatMessages extends Command
         $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
 
         // if message is approve then only need to run the queue
-        if($approveMessage == 1) {
-            $chatMessage = ChatMessage::where('is_queue',">", 0)->limit(10)->get();
+        if ($approveMessage == 1) {
+            $chatMessage = ChatMessage::where('is_queue', ">", 0)->limit(10)->get();
             foreach ($chatMessage as $value) {
-
-                if($value->is_queue > 1) {
-                   $sendNumber = \DB::table("whatsapp_configs")->where("id",$value->is_queue)->first(); 
-                   \App\ImQueue::create([
-                        "im_client" => "whatsapp",
-                        "number_to" => $chatMessage->customer->phone,
-                        "number_from" => ($sendNumber) ? $sendNumber : $chatMessage->customer->whatsapp_number,
-                        "text" => $chatMessage->message
-                    ]); 
-                
-                }else{
+                // check first if message need to be send from broadcast
+                if ($value->is_queue > 1) {
+                    $sendNumber = \DB::table("whatsapp_configs")->where("id", $value->is_queue)->first();
+                    // if chat message has image then send as a multiple message
+                    if ($images = $value->getMedia(config('constants.media_tags'))) {
+                        foreach ($images as $k => $image) {
+                            \App\ImQueue::create([
+                                "im_client"                 => "whatsapp",
+                                "number_to"                 => $value->customer->phone,
+                                "number_from"               => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
+                                "text"                      => ($k == 0) ? $value->message : "",
+                                "image"                     => $image->getUrl(),
+                                "priority"                  => self::BROADCAST_PRIORITY,
+                                "marketing_message_type_id" => self::MARKETING_MESSAGE_TYPE_ID,
+                            ]);
+                        }
+                    } else {
+                        \App\ImQueue::create([
+                            "im_client"                 => "whatsapp",
+                            "number_to"                 => $value->customer->phone,
+                            "number_from"               => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
+                            "text"                      => $value->message,
+                            "priority"                  => self::BROADCAST_PRIORITY,
+                            "marketing_message_type_id" => self::MARKETING_MESSAGE_TYPE_ID,
+                        ]);
+                    }
+                } else {
                     $myRequest = new Request();
                     $myRequest->setMethod('POST');
                     $myRequest->request->add(['messageId' => $value->id]);
