@@ -186,7 +186,7 @@ class SupplierController extends Controller
            array_push($rawBrands, array_unique(array_filter(explode(",", $value->scraped_brands))));
         }
         $scrapedBrands = array_unique(array_reduce($rawBrands, 'array_merge',[]));
-        $data = Setting::first();
+        $data = Setting::where('type',"ScrapeBrandsRaw")->get()->first();
         $selectedBrands = json_decode($data->val, true);
 
         return view('suppliers.index', [
@@ -1268,8 +1268,9 @@ class SupplierController extends Controller
     public function manageScrapedBrands(Request $request)
     {
       $arr = [];
-      $data = Setting::first();
+      $data = Setting::where('type',"ScrapeBrandsRaw")->get()->first();
       if(empty($data)) {
+        $brand['type'] = "ScrapeBrandsRaw";
         $brand['val'] = json_encode($request->selectedBrands);
         Setting::create($brand);
       } else {
