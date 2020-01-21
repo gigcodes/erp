@@ -169,11 +169,14 @@
                 },
                 beforeSend: function () {
                     $("#loading-image").show();
-                    $("#category"+category).hide();
                 },
                 success: function(data) {
-                    $("#loading-image").hide();
-                    resetSearch();
+                    if(data.error){
+                        alert(data.error);
+                        $("#loading-image").hide();
+                    }else{
+                        resetSearch();
+                    }
                 },
                 error: function(xhr) { // if error occured
                     alert("Error occured.please try again");

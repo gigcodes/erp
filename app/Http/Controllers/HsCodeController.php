@@ -103,10 +103,11 @@ class HsCodeController extends Controller
 
                     $parentCategory = $product->product_category->title;
                     $name = $childCategory.' > '.$parentCategory;
+
                     $hscodeSearchString = str_replace(['&gt;','>'],'', $product->composition.' '.$name);
                     
                     $hscode = HsCode::where('description',$hscodeSearchString)->first();
-
+                    
                     if($hscode == null){
                         $productArray[] = $product->setAttribute('category_name', $name);
                         $count++;

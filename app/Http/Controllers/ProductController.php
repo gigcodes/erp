@@ -2614,7 +2614,7 @@ class ProductController extends Controller
         $hscode = HsCode::where('description',$hscodeSearchString)->first();
 
         if($hscode != null){
-            return response()->json(['HsCode Already exist']);
+            return response()->json(['error'=>'HsCode Already exist']);
         }
 
         $hscodeSearchString = urlencode($hscodeSearchString);
@@ -2639,7 +2639,7 @@ class ProductController extends Controller
 
         if(!isset($categories->HSCode)){
 
-            return response()->json(['Something is wrong with the API. Please check the balance.']);
+            return response()->json(['error'=>'Something is wrong with the API. Please check the balance.']);
 
         }else{
 
