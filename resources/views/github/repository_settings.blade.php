@@ -9,6 +9,8 @@
                 <th>Name</th>
                 <th>Behind By</th>
                 <th>Ahead By</th>
+                <th>Last Commit by</th>
+                <th>Last Updated</th>
                 <th>Deployment</th>
                 <th>Merge</th>
             </tr>
@@ -19,6 +21,8 @@
                 <td>{{$branch->branch_name}}</td>
                 <td>{{$branch->ahead_by}}</td>
                 <td>{{$branch->behind_by}}</td>
+                <td>{{$branch->last_commit_author_username}}</td>
+                <td>{{$branch->last_commit_time}}</td>
                 <td>
                     @if($branch->branch_name == $current_branch)
                     <span class="badge badge-pill badge-light">Deployed</span>
