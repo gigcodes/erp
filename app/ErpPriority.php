@@ -14,7 +14,7 @@ class ErpPriority extends Model
      * @var array $fillable
      */
     protected $fillable = array(
-        'model_id', 'model_type'
+        'model_id', 'model_type', 'user_id'
     );
 
 }

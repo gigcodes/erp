@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Cache;
 use App\UserLog;
+use Redirect;
 
 
 class User extends Authenticatable
@@ -162,20 +163,24 @@ class User extends Authenticatable
      */
     public function hasPermission($name)
     {
-
-        $url = explode('/', $name);
-        $model = $url[ 0 ];
-        $actions = end($url);
-        if ($model != '') {
-            if ($model == $actions) {
-                $genUrl = $model . '-list';
+        if($name == '/'){
+            $genUrl = 'mastercontrol';
+            header("Location: /development/list/devtask");
+        }else{
+            $url = explode('/', $name);
+            $model = $url[ 0 ];
+            $actions = end($url);
+            if ($model != '') {
+                if ($model == $actions) {
+                    $genUrl = $model . '-list';
+                } else {
+                    $genUrl = $model . '-' . $actions;
+                }
             } else {
-                $genUrl = $model . '-' . $actions;
+                return true;
             }
-        } else {
-            return true;
         }
-
+        
         $permission = Permission::where('route', $genUrl)->first();
 
         if (empty($permission)) {
