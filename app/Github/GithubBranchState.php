@@ -16,7 +16,9 @@ class GithubBranchState extends Model
         'repository_id',
         'branch_name',
         'ahead_by',
-        'behind_by'
+        'behind_by',
+        'last_commit_author_username',
+        'last_commit_time'
     ];
 
     /**
