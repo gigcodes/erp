@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<h2 class="text-center">Groups Details</h2>
+<h2 class="text-center">{{$group->name}}</h2>
 
 <ul class="nav nav-tabs">
     <li class="active"><a data-toggle="tab" href="#repositories">Repositories</a></li>
@@ -9,6 +9,9 @@
 </ul>
 <div class="tab-content">
     <div id="repositories" class="tab-pane fade in active">
+        <div class="text-right">
+            <a style="margin: 10px 0px" class="btn btn-sm btn-primary" href="{{ url('/github/groups/'.$group->id.'/repositories/add') }}">Add Repository</a>
+        </div>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -33,6 +36,9 @@
         </table>
     </div>
     <div id="members" class="tab-pane fade">
+        <div class="text-right">
+            <a style="margin: 10px 0px" class="btn btn-sm btn-primary" href="{{ url('/github/groups/'.$group->id.'/users/add') }}">Add User</a>
+        </div>
         <table class="table table-bordered">
             <thead>
                 <tr>

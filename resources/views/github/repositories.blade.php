@@ -19,7 +19,7 @@
                 <td>{{$repository['name']}}</td>
                 <td>{{$repository['updated_at']}}</td>
                 <td>
-                    <a href="#">Settings</a>
+                    <a href="{{ url('/github/repos/'.$repository['id'].'/settings') }}">Settings</a>
                     <a href="{{ url('/github/repos/'.$repository['name'].'/users') }}">Users</a>
                 </td>
             </tr>
@@ -29,4 +29,3 @@
 
 </div>
 @endsection
-

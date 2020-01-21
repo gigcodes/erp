@@ -147,7 +147,7 @@ class UploadTasksToHubstaff extends Command
                     ],
 
                     RequestOptions::BODY => json_encode([
-                        'summary' => $task->summary,
+                        'summary' => substr($task->summary, 0, 200),
                         'assignee_id' => isset($task->assignee_id) ? $task->assignee_id : getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID')
                     ])
                 ]
