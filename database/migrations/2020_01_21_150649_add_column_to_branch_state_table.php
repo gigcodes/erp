@@ -14,8 +14,7 @@ class AddColumnToBranchStateTable extends Migration
     public function up()
     {
         Schema::table('github_branch_states', function (Blueprint $table) {
-            $table->string('last_commit_author_name')->nullable();
-            $table->string('last_commit_author_email')->nullable();
+            $table->string('last_commit_author_username')->nullable();
             $table->dateTime('last_commit_time')->nullable();
         });
     }
@@ -29,8 +28,7 @@ class AddColumnToBranchStateTable extends Migration
     {
         Schema::table('github_branch_states', function (Blueprint $table) {
             //
-            $table->dropColumn('last_commit_author_name');
-            $table->dropColumn('last_commit_author_email');
+            $table->dropColumn('last_commit_author_username');
             $table->dropColumn('last_commit_time');
         });
     }
