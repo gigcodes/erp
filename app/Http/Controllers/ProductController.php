@@ -2553,7 +2553,6 @@ class ProductController extends Controller
 
     public function saveGroupHsCode(Request $request)
     {
-        dd($request);
         $name = $request->name;
         $compositions = $request->compositions;
         $key = HsCodeSetting::first();
@@ -2569,8 +2568,12 @@ class ProductController extends Controller
         $category = Category::select('id','title')->where('id',$request->category)->first();
         $categoryId = $category->id;
 
-
-        $hscodeSearchString = str_replace(['&gt;','>'],'', $name.' '.$category->title.' '.$request->composition);
+        if($request->composition){
+            $hscodeSearchString = str_replace(['&gt;','>'],'', $name.' '.$category->title.' '.$request->composition);
+        }else{
+            $hscodeSearchString = str_replace(['&gt;','>'],'', $name);    
+        }
+        
 
         $hscode = HsCode::where('description',$hscodeSearchString)->first();
 
@@ -2623,14 +2626,16 @@ class ProductController extends Controller
                 }
 
                 $id = $group->id;
-
-                foreach ($compositions as $composition) {
-                    $comp = new HsCodeGroupsCategoriesComposition();
-                    $comp->hs_code_group_id = $id;
-                    $comp->category_id = $categoryId;
-                    $comp->composition = $composition;
-                    $comp->save();
+                if($request->compositions){
+                    foreach ($compositions as $composition) {
+                        $comp = new HsCodeGroupsCategoriesComposition();
+                        $comp->hs_code_group_id = $id;
+                        $comp->category_id = $categoryId;
+                        $comp->composition = $composition;
+                        $comp->save();
+                    }
                 }
+                
             }
         }
 

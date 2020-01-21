@@ -9,7 +9,7 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Most Common Combinations (<span id="count">{{ $products->total() }}</span>)</h2>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary" onclick="createGroup()">Group</button>
+                <button type="button" class="btn btn-secondary" onclick="submitGroup()">Create Group</button>
                 <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/resend2.png"/></button>
             </div>
         </div>
@@ -56,7 +56,6 @@
         </table>
     </div>
     {!! $products->appends(Request::except('page'))->links() !!}
-@include('products.partials.group-hscode-modal')
 @endsection
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
@@ -146,6 +145,8 @@
 
         function submitGroup(){
         existing_group = $('#existing_group').val();
+        name = $('#name').val();
+        composition = $('#composition').val();
         var compositions = [];
             $.each($("input[name='composition']:checked"), function(){
                 compositions.push($(this).val());
@@ -154,24 +155,24 @@
             alert('Please Select Combinations');
         }else{
             $.each($("input[name='composition']:checked"), function(){
-                string = $(this).val();
+                name  = $(this).attr('data-name');
+                category =  $(this).attr('data-category');
                 src = "{{ route('hscode.save.group') }}";
                 $.ajax({
                 url: src,
                 type: "POST",
                 dataType: "json",
                 data: {
-                    string : string,
-                    existing_group : existing_group,
+                    name : name,
+                    category : category, 
                     "_token": "{{ csrf_token() }}",
                 },
                 beforeSend: function () {
-                    $('#groupModal').modal('hide');
                     $("#loading-image").show();
+                    $("#category"+category).hide();
                 },
                 success: function(data) {
-                    $('#groupModal').modal('hide');
-                    alert(data);
+                    $("#loading-image").hide();
                     resetSearch();
                 },
                 error: function(xhr) { // if error occured
@@ -180,7 +181,10 @@
 
                 });
 
-                });
+            });
+                
+
+               
         }
     }
 
@@ -188,7 +192,7 @@
             category = $(this).val();
             combination = $('#combination').val();
             $.ajax({
-                url: src,
+                url: "{{ route('hscode.mostcommon.index') }}",
                 dataType: "json",
                 data: {
                     category : category,

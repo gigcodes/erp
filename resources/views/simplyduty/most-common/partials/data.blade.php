@@ -18,11 +18,9 @@
             $name = $childCategory.' > '.$parentCategory->title;
         @endphp
 
-    <tr>
-        <input type="hidden" id="childCategory" value="{{ $name }}">
-        <td><input type="checkbox" class="form-control checkBoxClass" value="{{ $product['composition'] }} {{ $childCategory }} {{ $parentCategory->title }}" name="composition"></td>
-        <td>
-        {{ $name }}</td>
+    <tr id="category{{ $product['category'] }}">
+        <td><input type="checkbox" class="form-control checkBoxClass" name="composition" data-name="{{ $product['composition'] }} {{ $name }}" data-category="{{ $product['category'] }}"></td>
+        <td>{{ $name }}</td>
         <td>{{ $product['total'] }}</td>
         <td>{{ $product['composition'] }}</td>
     </tr>   
