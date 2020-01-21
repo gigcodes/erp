@@ -78,6 +78,7 @@ class LoadHubstaffActivities extends Command
             ])
         );
 
+        echo "Got activities(count): ".sizeof($activities).PHP_EOL;
         foreach ($activities as $id => $data) {
             HubstaffActivity::updateOrCreate(
                 [
@@ -85,7 +86,7 @@ class LoadHubstaffActivities extends Command
                 ],
                 [
                     'user_id' => $data['user_id'],
-                    'task_id' => $data['task_id'],
+                    'task_id' => is_null($data['task_id']) ? 0 : $data['task_id'] ,
                     'starts_at' => $data['starts_at'],
                     'tracked' => $data['tracked']
                 ]
@@ -100,6 +101,7 @@ class LoadHubstaffActivities extends Command
             $response = $this->doHubstaffOperationWithAccessToken(
                 function ($accessToken) use ($start, $stop) {
                     $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $start . '&time_slot[stop]=' . $stop;
+                    echo $url.PHP_EOL;
                     return $this->client->get(
                         $url,
                         [
@@ -125,7 +127,6 @@ class LoadHubstaffActivities extends Command
                     'tracked' => $activity->tracked
                 );
             }
-
             return $activities;
         } catch (Exception $e) {
             echo $e->getMessage() . PHP_EOL;

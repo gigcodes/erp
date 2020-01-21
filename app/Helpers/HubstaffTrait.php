@@ -3,8 +3,8 @@
 namespace App\Helpers;
 
 use Exception;
-use FacebookAds\Http\Exception\ClientException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Storage;
 
@@ -75,8 +75,10 @@ trait hubstaffTrait
             return $functionToDo($tokens->access_token);
         } catch (Exception $e) {
             if ($e instanceof ClientException) {
+                echo "Got error";
                 $this->refreshTokens();
                 if ($shouldRetry) {
+                    echo "Retrying";
                     return $functionToDo($tokens->access_token);
                 }
             } else {

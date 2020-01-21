@@ -280,11 +280,8 @@
     <script src="/js/jquery.jscroll.min.js"></script>
     <script>
 
-        $(".select-multiple2").select2();
-        
-        var image_array = [];
-        //var all_product_ids = [<?= implode(',', $all_product_ids) ?>];
-        $(document).ready(function () {
+        var infinteScroll = function() {
+
             $('.infinite-scroll').jscroll({
                 autoTrigger: true,
                 loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
@@ -303,6 +300,15 @@
                 }
             });
 
+        };
+
+        $(".select-multiple2").select2();
+        
+        var image_array = [];
+        //var all_product_ids = [<?= implode(',', $all_product_ids) ?>];
+        $(document).ready(function () {
+            
+            infinteScroll();
             $(".select-multiple").select2();
             //$(".select-multiple-cat").multiselect();
             $("body").tooltip({selector: '[data-toggle=tooltip]'});
@@ -390,6 +396,8 @@
                         $('.lazy').Lazy({
                             effect: 'fadeIn'
                         });
+
+                        infinteScroll();
 
                         if ($this.hasClass("has-all-selected") === false) {
                             $this.html("Deselect " + vcount);
@@ -498,7 +506,7 @@
             getProducts(url);
         });*/
 
-        function getProducts(url) {
+        /*function getProducts(url) {
             $.ajax({
                 url: url
             }).done(function (data) {
@@ -510,7 +518,7 @@
             }).fail(function () {
                 alert('Error loading more products');
             });
-        }
+        }*/
 
         $(document).on('click', '.attach-photo', function (e) {
             e.preventDefault();
@@ -588,6 +596,8 @@
                 $('.lazy').Lazy({
                     effect: 'fadeIn'
                 });
+                infinteScroll();
+
             }).fail(function () {
                 alert('Error searching for products');
             });
@@ -608,6 +618,7 @@
                 $('.lazy').Lazy({
                     effect: 'fadeIn'
                 });
+                infinteScroll();
             }).fail(function () {
                 alert('Error searching for products');
             });

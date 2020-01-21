@@ -10,6 +10,9 @@ use App\Github\GithubUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Facades\Input;
 use Route;
 
 class GroupController extends Controller
@@ -45,6 +48,124 @@ class GroupController extends Controller
                 'users' => $users
             ]
         );
+    }
+
+    public function addRepositoryForm($groupId)
+    {
+        $group = GithubGroup::find($groupId);
+        $existingRepositories = $group->repositories;
+
+        $repositoryIds = $existingRepositories->map(function ($repository) {
+            return $repository->id;
+        });
+
+        $repositories = GithubRepository::whereNotIn('id',$repositoryIds)->get();
+
+        $repositorySelect = [];
+
+        foreach($repositories as $repository){
+            $repositorySelect[$repository->name] = $repository->name;
+        }
+
+        return view(
+            'github.group_add_repository',
+            [
+                'group' => $group,
+                'repositories' => $repositorySelect
+            ]
+        );
+    }
+
+    public function addRepository(Request $request){
+        $validatedData = $request->validate([
+            'group_id' => 'required',
+            'repository_name' => 'required',
+            'permission' => 'required'
+        ]);
+
+        $groupId = Input::get('group_id');
+        $repoName = Input::get('repository_name');
+        $permission = Input::get('permission');
+
+        $this->callApiToAddRepository($groupId, $repoName, $permission);
+        return redirect()->back();
+    }
+
+    private function callApiToAddRepository($groupId, $repoName, $permission){
+        // https://api.github.com/organizations/:org_id/team/:team_id/repos/:owner/:repo
+        $url = 'https://api.github.com/organizations/'. getenv('GITHUB_ORG_ID') .'/team/'.$groupId.'/repos/'. getenv('GITHUB_ORG_ID') .'/'.$repoName;
+
+        try{
+            $response = $this->client->put($url);
+            return true;
+        }catch(ClientException $e){
+            //throw $e;
+        }
+        return false;
+
+    }
+
+    public function addUserForm($groupId)
+    {
+        $group = GithubGroup::find($groupId);
+        $existingUsers = $group->users;
+
+        $userIds = $existingUsers->map(function ($repository) {
+            return $repository->id;
+        });
+
+        $users = GithubUser::whereNotIn('id', $userIds)->get(['username']);
+
+        $userSelect = [];
+        foreach ($users as $user) {
+            $userSelect[$user->username] = $user->username;
+        }
+
+        return view(
+            'github.group_add_user',
+            [
+                'group' => $group,
+                'users' => $userSelect
+            ]
+        );
+    }
+
+    public function addUser(Request $request)
+    {
+
+       $validatedData = $request->validate([
+            'group_id' => 'required',
+            'role' => 'required',
+            'username' => 'required'
+        ]);
+
+        $groupId = Input::get('group_id');
+        $role = Input::get('role');
+        $username = Input::get('username');
+
+        $this->addUserToGroup($groupId, $username, $role);
+        return redirect()->back();
+    }
+
+    private function addUserToGroup($groupId, $username, $role)
+    {
+        // https://api.github.com/organizations/:org_id/team/:team_id/memberships/:username
+        $url = "https://api.github.com/organizations/" . getenv('GITHUB_ORG_ID') . "/team/" . $groupId . "/memberships/". $username;
+        
+        try{
+            $response = $this->client->put(
+                $url,
+                [
+                    RequestOptions::BODY => json_encode([
+                        'role' => $role
+                    ])
+                ]
+            );
+            return true;
+        }catch(ClientException $e){
+            //throw $e;
+        }
+        return false;
     }
 
     public function removeUsersFromGroup()
