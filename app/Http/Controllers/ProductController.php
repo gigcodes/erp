@@ -2487,13 +2487,14 @@ class ProductController extends Controller
             $product = $product->where("brand", $brand);
         }
 
-        if (!empty($category)) {
+        if (!empty($category) && $category != 1) {
             $toBeRun = true;
             $product = $product->where("category", $category);
         }
 
         if (!empty($quick_sell_groups)) {
             $toBeRun = true;
+            $quick_sell_groups = rtrim(ltrim($quick_sell_groups,","),",") ;
             $product = $product->whereRaw("(products.id in (select product_id from product_quicksell_groups where quicksell_group_id in (" . $quick_sell_groups . ") ))");
         }
 
