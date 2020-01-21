@@ -850,7 +850,7 @@
               }
               selectAllBrands += '>Select All<br>';
 
-              rawBrands = selectAllBrands + ' ' + rawBrands
+              rawBrands = selectAllBrands + ' ' + rawBrands;
           }
           
           $('#brandRawList').html(rawBrands);

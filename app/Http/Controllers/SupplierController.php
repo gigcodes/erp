@@ -187,7 +187,11 @@ class SupplierController extends Controller
         }
         $scrapedBrands = array_unique(array_reduce($rawBrands, 'array_merge',[]));
         $data = Setting::where('type',"ScrapeBrandsRaw")->get()->first();
-        $selectedBrands = json_decode($data->val, true);
+        if(!empty($data)) {
+          $selectedBrands = json_decode($data->val, true);
+        } else {
+          $selectedBrands = [];
+        }
 
         return view('suppliers.index', [
             'suppliers' => $suppliers,
