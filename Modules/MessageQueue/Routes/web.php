@@ -12,7 +12,7 @@
 */
 
 Route::prefix('message-queue')->group(function() {
-    Route::get('/', 'MessageQueueController@index');
+    Route::get('/', 'MessageQueueController@index')->name("message-queue.index");
     Route::prefix('records')->group(function() {
 		Route::get('/', 'MessageQueueController@records');
 		Route::post('action-handler','MessageQueueController@actionHandler');
