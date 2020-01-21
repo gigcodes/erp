@@ -9,7 +9,7 @@
 		        <th>Number From</th>
 		        <th>Message</th>
 		        <th>Created At</th>
-		        <th>Queue</th>
+		        <th>Attached</th>
 		        <th>Action</th>
 		      </tr>
 		    </thead>
@@ -22,7 +22,11 @@
 			        <td>{{:prop.whatsapp_number}}</td>
 			        <td>{{:prop.message}}</td>
 			        <td>{{:prop.created_at}}</td>
-			        <td>{{:prop.is_queue}}</td>
+			        <td>
+			        	{{props prop.mediaList}}
+			        		<img width="75px" heigh="75px" src="{{>prop}}">
+			        	{{/props}}
+			        </td>
 			        <td><button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button></td>
 			      </tr>
 			    {{/props}}  

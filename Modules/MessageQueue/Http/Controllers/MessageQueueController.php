@@ -44,9 +44,26 @@ class MessageQueueController extends Controller
 
         $chatMessage = $chatMessage->paginate($limit);
 
+        $itemsList = [];
+
+        foreach ($chatMessage->items() as $key => $items) {
+            //$inserted = $items->attribute();
+            $media = [];
+            if ($images = $items->getMedia(config('constants.attach_image_tag'))) {
+                foreach($images as $image) {
+                    $media[] = $image->getUrl(); 
+                }
+            }
+            $items->mediaList = $media;
+            $itemsList[] = $items;
+        }
+
+
+
+
         return response()->json([
             "code"       => 200,
-            "data"       => $chatMessage->items(),
+            "data"       => $itemsList,
             "pagination" => (string) $chatMessage->links(),
         ]);
     }
