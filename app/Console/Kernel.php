@@ -360,9 +360,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('cronschedule:update')->everyMinute();
         $schedule->command('erpevents:run')->everyMinute();
 
-        $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
-        $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
-        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->withoutOverlapping();
+//        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '7:00')->withoutOverlapping();
 //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->withoutOverlapping();
 
 
@@ -370,7 +368,7 @@ class Kernel extends ConsoleKernel
         // update user list
         $schedule->command('hubstaff:refresh_users')->hourly();
         // send hubstaff report
-        $schedule->command('hubstaff:send_report')->hourly()->between('7:00', '23:00');;
+        $schedule->command('hubstaff:send_report')->hourly()->between('7:00', '23:00');
 
         //Sync customer from magento to ERP
         $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
