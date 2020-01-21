@@ -13,7 +13,7 @@ class CreateMailinglistsTable extends Migration
      */
     public function up()
     {
-        Schema::create('mailinglist', function (Blueprint $table) {
+        Schema::create('mailinglists', function (Blueprint $table) {
             $table->increments('id');
             $table->string('website_id')->nullable();
             $table->integer('service_id');
