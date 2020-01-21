@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Github\GithubBranchState;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 
@@ -47,24 +48,24 @@ class LoadBranchState extends Command
         $repositoryIds = $this->getAllRepositoriesIds();
 
         $repoBranches = [];
-        foreach($repositoryIds as $repoId){
+        foreach ($repositoryIds as $repoId) {
             $branchNames = $this->getBranchNamesOfRepository($repoId);
-            if(sizeof($branchNames) > 0){
+            if (sizeof($branchNames) > 0) {
                 $repoBranches[$repoId] = $branchNames;
             }
         }
 
         $comparisons = [];
-        foreach($repoBranches as $repoId => $branches){
-            foreach($branches as $branch){
+        foreach ($repoBranches as $repoId => $branches) {
+            foreach ($branches as $branch) {
                 $comparison = $this->compareRepoBranches($repoId, $branch);
                 $comparisons[$repoId][$branch] = $comparison;
             }
         }
 
-        foreach($comparisons as $repoId => $branches){
+        foreach ($comparisons as $repoId => $branches) {
             $branchNames = [];
-            foreach($branches as $branchName => $comparison){
+            foreach ($branches as $branchName => $comparison) {
                 GithubBranchState::updateOrCreate(
                     [
                         'repository_id' => $repoId,
@@ -74,7 +75,10 @@ class LoadBranchState extends Command
                         'repository_id' => $repoId,
                         'branch_name' => $branchName,
                         'ahead_by' => $comparison['ahead_by'],
-                        'behind_by' => $comparison['behind_by']
+                        'behind_by' => $comparison['behind_by'],
+                        'last_commit_author_name' => $comparison['last_commit_author_name'],
+                        'last_commit_author_email' => $comparison['last_commit_author_email'],
+                        'last_commit_time' => $comparison['last_commit_time'],
                     ]
                 );
                 $branchNames[] = $branchName;
@@ -104,37 +108,41 @@ class LoadBranchState extends Command
         );
     }
 
-    private function getBranchNamesOfRepository(int $repoId){
+    private function getBranchNamesOfRepository(int $repoId)
+    {
         //https://api.github.com/repositories/:repoId/branches
-        $url = 'https://api.github.com/repositories/'.$repoId.'/branches';
+        $url = 'https://api.github.com/repositories/' . $repoId . '/branches';
         $response = $this->githubClient->get($url);
 
         $branches = json_decode($response->getBody()->getContents());
 
         $branchNames =  array_map(
-            function($branch){
+            function ($branch) {
                 return $branch->name;
             },
             $branches
         );
 
-        return array_filter($branchNames, function($name){
+        return array_filter($branchNames, function ($name) {
             return $name != 'master';
         });
     }
 
-    private function compareRepoBranches(int $repoId, string $branchName, string $base='master'){
+    private function compareRepoBranches(int $repoId, string $branchName, string $base = 'master')
+    {
         //https://api.github.com/repositories/:repoId/compare/:diff
 
-        $url = 'https://api.github.com/repositories/'.$repoId.'/compare/'.$base.'...'.$branchName;
+        $url = 'https://api.github.com/repositories/' . $repoId . '/compare/' . $base . '...' . $branchName;
         $response = $this->githubClient->get($url);
 
         $compare = json_decode($response->getBody()->getContents());
 
         return [
             'ahead_by' => $compare->ahead_by,
-            'behind_by' => $compare->behind_by
+            'behind_by' => $compare->behind_by,
+            'last_commit_author_name' => $compare->merge_base_commit->commit->author->name,
+            'last_commit_author_email' => $compare->merge_base_commit->commit->author->email,
+            'last_commit_time' => Carbon::parse($compare->merge_base_commit->commit->author->date)
         ];
-
     }
 }
