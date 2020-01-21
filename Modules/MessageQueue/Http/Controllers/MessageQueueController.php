@@ -85,6 +85,10 @@ class MessageQueueController extends Controller
                 }
 
                 break;
+            case 'delete_all':
+                    ChatMessage::where("is_queue",">",0)->delete();
+                    return response()->json(["code" => 200, "message" => "Deleted Successfully"]);
+                break;    
         }
 
         return response()->json(["code" => 500, "message" => "Oops, something went wrong"]);

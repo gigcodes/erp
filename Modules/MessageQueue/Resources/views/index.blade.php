@@ -22,7 +22,8 @@
 							    <select class="form-control" id="action-to-run">
 							    	<option value="">-- Select --</option>
 							    	<option value="change_to_broadcast">Change to Broadcast</option>
-							    	<option value="delete_records">Delete Records</option>	
+							    	<option value="delete_records">Delete Records</option>
+							    	<option value="delete_all">Delete All Records</option>	
 							    </select>
 						  	</div>
 						  	<div class="form-group">
