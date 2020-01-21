@@ -74,3 +74,13 @@ function show_short_message($message, $size = 50, $postfix = "...")
 
     return substr($message,0,$size).$dot;
 }
+
+/**
+ * key is using for to attach customer via session
+ * 
+ */
+
+function attach_customer_key()
+{
+    return "customer_list_".time()."_".auth()->user()->id;
+}
