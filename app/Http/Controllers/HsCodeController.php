@@ -85,8 +85,41 @@ class HsCodeController extends Controller
         }else{
 
          $productss = $query->select('*', DB::raw('count(*) as total'))
-                 ->where('category','>',3)->where('stock',1)->groupBy('category')->groupBy('composition')->orderBy('total','desc')->take(100)->get();
+                 ->where('category','>',3)->where('stock',1)->groupBy('category')->groupBy('composition')->orderBy('total','desc')->get();
+          }
+          
+          if($productss->count() != 0){
 
+            $count = 0;
+          foreach ($productss as $product) {
+                    if($count == 100){
+                        break;
+                    }
+
+                    $categoryTree = CategoryController::getCategoryTree($product->category);
+                    if(is_array($categoryTree)){
+                        $childCategory = implode(' > ',$categoryTree);
+                    }
+
+                    $parentCategory = $product->product_category->title;
+                    $name = $childCategory.' > '.$parentCategory;
+                    $hscodeSearchString = str_replace(['&gt;','>'],'', $product->composition.' '.$name);
+                    
+                    $hscode = HsCode::where('description',$hscodeSearchString)->first();
+
+                    if($hscode == null){
+                        $productArray[] = $product->setAttribute('category_name', $name);
+                        $count++;
+                    }
+                    
+                 }       
+
+          }      
+          
+
+        
+        if(!isset($productArray)){
+            $productArray = [];
         }
         
         $selected_categories = $request->category ? $request->category : 1;
@@ -95,7 +128,7 @@ class HsCodeController extends Controller
             ->selected($selected_categories)
             ->renderAsDropdown();
                      
-        $p = $productss->toArray();
+        $p = $productArray;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = Setting::get('pagination'); 
         
