@@ -11,6 +11,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Facades\Input;
 use Twilio\TwiML\Messaging\Body;
 
 class RepositoryController extends Controller
@@ -83,8 +84,12 @@ class RepositoryController extends Controller
         //print_r($repository);
     }
 
-    public function mergeBranch($id, $source, $destination)
+    public function mergeBranch($id)
     {
+
+        $source = Input::get('source');
+        $destination = Input::get('destination');
+
         $url = "https://api.github.com/repositories/" . $id . "/merges";
 
         try {
@@ -97,10 +102,20 @@ class RepositoryController extends Controller
                     ])
                 ]
             );
+            echo 'done';
         } catch (Exception $e) {
             print_r($e->getMessage());
-            return redirect(url('/github/repos/' . $id . '/branches'))->with('failure', 'Failed to Merge!');
+            return redirect(url('/github/repos/' . $id . '/branches'))->with(
+                [
+                    'message' => 'Failed to Merge!',
+                    'alert-type' => 'error'
+                ]
+            );
+            
         }
-        return redirect(url('/github/repos/' . $id . '/branches'))->with('success', 'Branch Merged!');
+        return redirect(url('/github/repos/' . $id . '/branches'))->with([
+            'message' => 'Branch merged successfully',
+            'alert-type' => 'success'
+        ]);
     }
 }

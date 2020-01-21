@@ -1425,7 +1425,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
         Route::get('/repos/{name}/users/add', 'Github\UserController@addUserToRepositoryForm');
         Route::get('/repos/{id}/branches', 'Github\RepositoryController@getRepositoryDetails');
-        Route::get('/repos/{id}/branch/{source}/{destination}/merge', 'Github\RepositoryController@mergeBranch');
+        Route::get('/repos/{id}/branch/merge', 'Github\RepositoryController@mergeBranch');
         Route::post('/add_user_to_repo', 'Github\UserController@addUserToRepository');
         Route::get('/users', 'Github\UserController@listOrganizationUsers');
         Route::get('/users/{userId}', 'Github\UserController@userDetails');
