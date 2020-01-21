@@ -360,9 +360,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('cronschedule:update')->everyMinute();
         $schedule->command('erpevents:run')->everyMinute();
 
-        $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
-        $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
-        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->withoutOverlapping();
+//        $schedule->command('barcode-generator-product:run')->everyFiveMinutes();
+//        $schedule->command('barcode-generator-product:update')->everyFiveMinutes();
+//        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->withoutOverlapping();
 //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->withoutOverlapping();
 
 
