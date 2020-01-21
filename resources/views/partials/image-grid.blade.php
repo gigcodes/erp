@@ -12,6 +12,9 @@
             display: table;
             table-layout: fixed;
         }
+        .update-product + .select2-container--default{
+            width: 60% !important;
+        }
     </style>
 @endsection
 
@@ -186,6 +189,20 @@
 
     @include('partials.flash_messages')
 
+    <?php
+      $query = http_build_query( Request::except( 'page' ) );
+      $query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
+    ?>
+
+    <div class="form-group position-fixed hidden-xs hidden-sm" style="top: 50px; left: 20px;">
+        Goto :
+        <select onchange="location.href = this.value;" class="form-control" id="page-goto">
+            @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
+                <option data-value="{{ $i }}" value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
+            @endfor
+        </select>
+    </div>
+    @include('partials.image-load-category-count')
     <div class="productGrid" id="productGrid">
         @include('partials.image-load')
     </div>
@@ -201,7 +218,7 @@
             $action =  route('broadcast.images.link');
         } else if ($model_type == 'customer') {
             $action =  route('attachImages.queue');
-        } else if ($model_type == 'selected_customer') {
+        } else if ($model_type == 'selected_customer' || $model_type == 'selected_customer_token') {
             $action =  route('whatsapp.send_selected_customer');
         } else if ($model_type == 'product-templates') {
             $action =  route('product.templates');
@@ -224,6 +241,7 @@
         <input type="hidden" name="screenshot_path" value="">
         <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' ? "$message_body" : '' }}">
         <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
+        <input type="hidden" name="customer_token" value="<?php echo ($model_type == 'selected_customer_token') ? $model_id : '' ?>">
         {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
         <input type="hidden" name="status" value="{{ $status }}">
@@ -246,11 +264,39 @@
         </div>
     </div>
     <?php $stage = new \App\Stage(); ?>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+    <script src="/js/bootstrap-multiselect.min.js"></script>
+    <script src="/js/jquery.jscroll.min.js"></script>
     <script>
+
+        var infinteScroll = function() {
+
+            $('.infinite-scroll').jscroll({
+                autoTrigger: true,
+                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+                padding: 2500,
+                nextSelector: '.pagination li.active + li a',
+                contentSelector: 'div.infinite-scroll',
+                callback: function () {
+                   $('.lazy').Lazy({
+                        effect: 'fadeIn'
+                   });
+                   $('ul.pagination:visible:first').remove();
+                    var next_page = $('.pagination li.active + li a');
+                    var page_number = next_page.attr('href').split('page=');
+                    var current_page = page_number[1] - 1;
+                    $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
+                }
+            });
+
+        };
+
+        $(".select-multiple2").select2();
+        
         var image_array = [];
         //var all_product_ids = [<?= implode(',', $all_product_ids) ?>];
         $(document).ready(function () {
+            
+            infinteScroll();
             $(".select-multiple").select2();
             //$(".select-multiple-cat").multiselect();
             $("body").tooltip({selector: '[data-toggle=tooltip]'});
@@ -262,7 +308,6 @@
                 var uldiv = $(this).siblings('span.select2').find('ul')
                 var count = uldiv.find('li').length - 1;
                 if (count == 0) {
-
                 } else {
                     uldiv.html('<li class="select2-selection__choice">' + count + ' item selected</li>');
                 }
@@ -339,6 +384,8 @@
                         $('.lazy').Lazy({
                             effect: 'fadeIn'
                         });
+
+                        infinteScroll();
 
                         if ($this.hasClass("has-all-selected") === false) {
                             $this.html("Deselect " + vcount);
@@ -440,14 +487,14 @@
         //   }
         // });
 
-        $(document).on('click', '.pagination a', function (e) {
+        /*$(document).on('click', '.pagination a', function (e) {
             e.preventDefault();
             var url = $(this).attr('href') + '&selected_products=' + JSON.stringify(image_array);
 
             getProducts(url);
-        });
+        });*/
 
-        function getProducts(url) {
+        /*function getProducts(url) {
             $.ajax({
                 url: url
             }).done(function (data) {
@@ -459,7 +506,7 @@
             }).fail(function () {
                 alert('Error loading more products');
             });
-        }
+        }*/
 
         $(document).on('click', '.attach-photo', function (e) {
             e.preventDefault();
@@ -537,6 +584,8 @@
                 $('.lazy').Lazy({
                     effect: 'fadeIn'
                 });
+                infinteScroll();
+
             }).fail(function () {
                 alert('Error searching for products');
             });
@@ -557,6 +606,7 @@
                 $('.lazy').Lazy({
                     effect: 'fadeIn'
                 });
+                infinteScroll();
             }).fail(function () {
                 alert('Error searching for products');
             });
@@ -658,6 +708,23 @@
             return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
         }
 
+        $( ".update-product" ).change(function() {
+            product_id = $(this).attr('data-id');
+            category = $(this).val();
+            $.ajax({
+                url: '/products/'+product_id+'/updateCategory',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category : category
+                },
+                success: function(result){
+                    console.log(result)
+             }
+         });
+        });        
+        
     </script>
 
 @endsection
