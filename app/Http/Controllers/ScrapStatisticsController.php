@@ -56,7 +56,7 @@ class ScrapStatisticsController extends Controller
             $activeSuppliers->where("scraper_type", $scrapeType);
         }
 
-        $activeSuppliers = $activeSuppliers->orderby('scraper_priority', 'desc')->get();
+        $activeSuppliers = $activeSuppliers->orderby('s.scraper_priority', 'desc')->get();
 
         // Get scrape data
         $sql = '
@@ -112,6 +112,8 @@ class ScrapStatisticsController extends Controller
         }
 
         $users = \App\User::all()->pluck("name", "id")->toArray();
+
+/*    dd($activeSuppliers);*/
 
         //echo '<pre>'; print_r($scrapeData); echo '</pre>';exit;
         // Return view

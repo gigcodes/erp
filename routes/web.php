@@ -607,7 +607,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post( 'development/task/update-status', 'DevelopmentController@changeTaskStatus' );
     Route::post( 'development/task/upload-document', 'DevelopmentController@uploadDocument' );
     Route::get( 'development/task/get-document', 'DevelopmentController@getDocument' );
-
+    
 
     Route::resource('task-types', 'TaskTypesController');
 
@@ -834,7 +834,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/remove-scraped-brands', 'SupplierController@removeScrapedBrand')->name('supplier.scrapedbrands.remove');
     // Copy scraped brands to brands
     Route::post('supplier/copy-scraped-brands', 'SupplierController@copyScrapedBrandToBrand')->name('supplier.scrapedbrands.copy');
-
+    
     Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
 
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
@@ -1434,3 +1434,30 @@ Route::prefix('google')->middleware('auth')->group(function () {
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
+
+Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->name('manageScrapedBrands');
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::prefix('github')->group(function () {
+        Route::get('/repos', 'Github\RepositoryController@listRepositories');
+        Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
+        Route::get('/repos/{name}/users/add', 'Github\UserController@addUserToRepositoryForm');
+        Route::get('/repos/{id}/settings', 'Github\RepositoryController@getRepositoryDetails');
+        Route::post('/add_user_to_repo', 'Github\UserController@addUserToRepository');
+        Route::get('/users', 'Github\UserController@listOrganizationUsers');
+        Route::get('/users/{userId}', 'Github\UserController@userDetails');
+        Route::get('/groups', 'Github\GroupController@listGroups');
+        Route::post('/groups/users/add', 'Github\GroupController@addUser');
+        Route::post('/groups/repositories/add', 'Github\GroupController@addRepository');
+        Route::get('/groups/{groupId}', 'Github\GroupController@groupDetails');
+        Route::get('/groups/{groupId}/repos/{repoId}/remove', 'Github\GroupController@removeRepositoryFromGroup');
+        Route::get('/groups/{groupId}/users/{userId}/remove', 'Github\GroupController@removeUsersFromGroup');
+        Route::get('/groups/{groupId}/users/add', 'Github\GroupController@addUserForm');
+        Route::get('/groups/{groupId}/repositories/add', 'Github\GroupController@addRepositoryForm');
+        Route::get('/sync', 'Github\SyncController@index');
+        Route::get('/sync/start', 'Github\SyncController@startSync');
+        Route::get('/repo_user_access/{id}/remove', 'Github\UserController@removeUserFromRepository');
+        Route::post('/linkUser', 'Github\UserController@linkUser');
+        Route::post('/modifyUserAccess', 'Github\UserController@modifyUserAccess');
+    });
+});
