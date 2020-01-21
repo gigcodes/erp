@@ -75,6 +75,10 @@ class SendQueuePendingChatMessages extends Command
                             "marketing_message_type_id" => self::MARKETING_MESSAGE_TYPE_ID,
                         ]);
                     }
+
+                    $value->is_queue = 0;
+                    $value->save();
+
                 } else {
                     $myRequest = new Request();
                     $myRequest->setMethod('POST');
