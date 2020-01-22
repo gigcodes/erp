@@ -119,6 +119,7 @@
                         <th>#</th>
                         <th>Supplier</th>
                         <th>Server</th>
+                        <th>Server ID</th>
                         <th>Run Time</th>
                         <th>Last Scraped</th>
                         <th>Stock</th>
@@ -134,7 +135,6 @@
                         <th>Next Step</th>
                         <th>Status</th>
                         <th>Functions</th>
-                        <th>View Log</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -187,6 +187,7 @@
                                 <?php } ?>
                             </td>
                             <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td>
+                            <td width="10%">{{ $supplier->server_id }}</td>
                             <td width="10%" style="text-right">
                                 {{ $supplier->scraper_start_time }}h
                             </td>
@@ -216,6 +217,7 @@
                             <td width="10%">
                                 <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
                                 <button type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
+                                <a class="btn  d-inline btn-image" href="{{url('scrap-logs/')}}" id="link" target="-blank"><img src="/images/view.png" /></a>
                             </td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
@@ -238,7 +240,7 @@
                                         <?php echo Form::select("scraper_made_by", ["" => "N/A"] + $users, $supplier->scraper_made_by, ["class" => "form-control scraper_made_by select2", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
-                                <td colspan="3">
+                                <td colspan="2">
                                     <label>Type:</label>
                                     <div class="form-group">
                                         <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), $supplier->scraper_type, ["class" => "form-control scraper_type select2", "style" => "width:100%;"]) ?>
@@ -256,8 +258,12 @@
                                         <?php echo Form::select("next_step_in_product_flow", [0 => "N/A"] + \App\Helpers\StatusHelper::getStatus(), $supplier->next_step_in_product_flow, ["class" => "form-control next_step_in_product_flow select2", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
-                                <td colspan="3">
-                                    <a class="btn  d-inline btn-image" href="{{url('scrap-logs/')}}" id="link" target="-blank"><img src="/images/view.png" /></a>
+                                <td colspan="2">
+                                    <label>Server Id:</label>
+                                    <div class="form-group">
+                                        <?php echo Form::text("server_id",$supplier->server_id, ["class" => "form-control server-id-update"]); ?>
+                                        <button class="btn btn-sm btn-image server-id-update-btn" data-vendorid="<?php echo $supplier->id; ?>"><img src="/images/filled-sent.png" style="cursor: default;"></button>
+                                    </div>
                                 </td>   
                                 <td colspan="2">
                                     <label>Status:</label>
@@ -547,6 +553,24 @@
                     search: id,
                     field: "parent_supplier_id",
                     field_value: tr.find(".parent_supplier_id").val()
+                },
+            }).done(function (response) {
+                toastr['success']('Data updated Successfully', 'success');
+            }).fail(function (response) {
+
+            });
+        });
+
+        $(document).on("click",".server-id-update-btn",function() {
+            var tr = $(this).closest("tr");
+            var id = tr.data("eleid");
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/statistics/update-field',
+                data: {
+                    search: id,
+                    field: "server_id",
+                    field_value: tr.find(".server-id-update").val()
                 },
             }).done(function (response) {
                 toastr['success']('Data updated Successfully', 'success');
