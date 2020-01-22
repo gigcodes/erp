@@ -375,7 +375,7 @@ class Kernel extends ConsoleKernel
 
         // Github
         $schedule->command('github:load_branch_state')->hourly();
-        $schedule->command('checkScrapersLog')->dailyAt('12:00');
+        $schedule->command('checkScrapersLog')->dailyAt('8:00');
     }
 
     /**
