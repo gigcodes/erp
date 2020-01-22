@@ -134,7 +134,7 @@
                         <th>Next Step</th>
                         <th>Status</th>
                         <th>Functions</th>
-                        <th>View Log</th>
+                        <th>Last log File</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -217,6 +217,7 @@
                                 <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
                                 <button type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                             </td>
+                            <td><a href="{{route('show.logFile', $supplier->scraper_name) }}"><i class="fa fa-clock-o" aria-hidden="true"></i></a></td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
                                 <td colspan="3">
