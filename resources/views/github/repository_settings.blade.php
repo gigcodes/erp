@@ -23,6 +23,13 @@
             break;
     }
     @endif
+
+    function confirmMergeToMaster(branchName, url) {
+        let result = confirm("Are you sure you want to merge "+branchName+" to master?");
+        if(result){
+            window.location.href = url;
+        }
+    }
 </script>
 <div class="row">
     <div class="col-lg-12 margin-tb">
@@ -67,9 +74,9 @@
                         </a>
                     </div>
                     <div style="margin-top: 5px;">
-                        <a class="btn btn-sm btn-secondary" href="{{url('/github/repos/'.$repository->id.'/branch/merge?destination=master&source='.urlencode($branch->branch_name))}}">
+                        <button class="btn btn-sm btn-secondary" onclick="confirmMergeToMaster('{{$branch->branch_name}}','{{url('/github/repos/'.$repository->id.'/branch/merge?destination=master&source='.urlencode($branch->branch_name))}}')">
                             Merge into master
-                        </a>
+                        </button>
                     </div>
                 </td>
             </tr>
