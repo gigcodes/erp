@@ -30,6 +30,9 @@
     </div>
 </div>
 <div class="container">
+    <div class="text-right">
+        <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch=master') }}">Deploy Master</a>
+    </div>
     <table class="table table-bordered">
         <thead>
             <tr>
