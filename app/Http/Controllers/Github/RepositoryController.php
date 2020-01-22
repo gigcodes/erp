@@ -86,10 +86,11 @@ class RepositoryController extends Controller
         //print_r($repository);
     }
 
-    public function deployBranch(){
+    public function deployBranch($repoId){
         $branch = Input::get('branch');
-        echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
-        echo exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch);
+        //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
+        exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch);
+        return redirect(url('/github/repos/'.$repoId.'/branches'));
     }
 
     public function mergeBranch($id)

@@ -1,3 +1,4 @@
-$CURRENT_PATH = $PWD;
-cd $CURRENT_PATH/..
+scriptPath="$(cd "$(dirname "$0")"; pwd)"
+cd $scriptPath;
+cd ..
 git rev-parse --abbrev-ref HEAD
