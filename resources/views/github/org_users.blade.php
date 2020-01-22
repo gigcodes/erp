@@ -1,7 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-<h2 class="text-center">All Github users</h2>
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <h2 class="page-heading">All Github users</h2>
+    </div>
+</div>
 <div class="container">
     <table class="table table-bordered">
         <thead>
