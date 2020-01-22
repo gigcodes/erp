@@ -1,7 +1,34 @@
 @extends('layouts.app')
 
 @section('content')
-<h2 class="text-center">{{ $repository->name }} branches</h2>
+
+<script>
+    @if(Session::has('message'))
+    var type = "{{ Session::get('alert-type', 'info') }}";
+    switch (type) {
+        case 'info':
+            toastr.info("{{ Session::get('message') }}");
+            break;
+
+        case 'warning':
+            toastr.warning("{{ Session::get('message') }}");
+            break;
+
+        case 'success':
+            toastr.success("{{ Session::get('message') }}");
+            break;
+
+        case 'error':
+            toastr.error("{{ Session::get('message') }}");
+            break;
+    }
+    @endif
+</script>
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <h2 class="page-heading"><i>{{ $repository->name }}</i> branches</h2>
+    </div>
+</div>
 <div class="container">
     <table class="table table-bordered">
         <thead>
@@ -32,10 +59,14 @@
                 </td>
                 <td>
                     <div>
-                        <a class="btn btn-sm btn-warning" href="#">Merge from master</a>
+                        <a class="btn btn-sm btn-warning" href="{{url('/github/repos/'.$repository->id.'/branch/merge?source=master&destination='.urlencode($branch->branch_name))}}">
+                            Merge from master
+                        </a>
                     </div>
                     <div style="margin-top: 5px;">
-                        <a class="btn btn-sm btn-info" href="#">Merge into master</a>
+                        <a class="btn btn-sm btn-info" href="{{url('/github/repos/'.$repository->id.'/branch/merge?destination=master&source='.urlencode($branch->branch_name))}}">
+                            Merge into master
+                        </a>
                     </div>
                 </td>
             </tr>

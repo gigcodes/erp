@@ -1,7 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-<h2 class="text-center">{{ $repoName }} users</h2>
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <h2 class="page-heading"><i>{{ $repoName }}</i> users ({{sizeof($users)}})</h2>
+    </div>
+</div>
 <div class="text-right">
     <a href="/github/repos/{{ $repoName }}/users/add" class="btn btn-primary">Add User</a>
 </div>

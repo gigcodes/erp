@@ -1070,6 +1070,7 @@ class ProductController extends Controller
 
     public function updateCategory(Request $request, $id)
     {
+
         $product = Product::find($id);
         $product->category = $request->category;
         $product->save();
@@ -1476,6 +1477,80 @@ class ProductController extends Controller
             ->with('success', 'Product deleted successfully');
     }
 
+    public function originalCategory($id)
+    {
+        $product = Product::find($id);
+        if(isset($product->scraped_products)){
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
+                $category = $product->scraped_products->properties['category'];
+                $cat = implode(' > ',$category);
+                return response()->json(['success',$cat]);
+
+            }else{
+               return response()->json(['message','Category Is Not Present']); 
+            }
+            
+        }else{
+            return response()->json(['message','Category Is Not Present']); 
+        }
+        
+    }
+
+    public function changeAllCategoryForAllSupplierProducts(Request $request, $id)
+    {
+        $cat = $request->category;
+        
+        $product = Product::find($id);
+        if($product->scraped_products){
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
+                $category = $product->scraped_products->properties['category'];
+                $referencesCategory = implode(' ',$category);
+            }
+        }else{
+            return response()->json(['success','Scrapped Product Doesnt Not Exist']); 
+        }
+
+        if(isset($referencesCategory)){
+
+            $productSupplier = $product->supplier;
+            $supplier = Supplier::where('supplier',$productSupplier)->first();
+            $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
+            foreach ($scrapedProducts as $scrapedProduct) {
+                $products = $scrapedProduct->properties['category'];
+                $list = implode(' ',$products);
+                if(strtolower($referencesCategory) == strtolower($list)){
+                    $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                }
+            }
+
+            if(!isset($scrapedProductSkuArray)){
+                $scrapedProductSkuArray = [];
+            }
+
+            //Add reference to category 
+            $category = Category::find($cat);
+
+            if($product->product_category != null){
+                $reference = $category->references.','.$referencesCategory;
+                $category->references = $reference;
+                $category->save();
+            }
+            
+            //Update products with sku 
+            if(count($scrapedProductSkuArray) != 0){
+                foreach ($scrapedProductSkuArray as $productSku) {
+                    $oldProduct = Product::where('sku',$productSku)->first();
+                    if($oldProduct != null){
+                        $oldProduct->category = $cat;
+                        $oldProduct->save();
+                    }
+                }
+            }
+
+            return response()->json(['success','Product Got Updated']); 
+        }
+    }
+
     public function attachProducts($model_type, $model_id, $type = null, $customer_id = null, Request $request)
     {
 
@@ -1743,7 +1818,7 @@ class ProductController extends Controller
             $filtered_category = 1;
         }
         
-        $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'data-placeholder' => 'Select Category..'])
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'data-placeholder' => 'Select Category..'])
             ->selected($filtered_category)
             ->renderAsDropdown();
 
@@ -1803,7 +1878,21 @@ class ProductController extends Controller
         if ($request->has("limit")) {
             $perPageLimit = ($request->get("limit") == "all") ? $products->get()->count() : $request->get("limit");
         }
-
+        $categoryAll = Category::where('parent_id',0)->get();
+        foreach ($categoryAll as $category) {
+            $categoryArray[] = array('id' => $category->id , 'value' => $category->title); 
+            $childs = Category::where('parent_id',$category->id)->get();
+            foreach ($childs as $child) {
+                $categoryArray[] = array('id' => $child->id , 'value' => $category->title.' '.$child->title);
+                $grandChilds = Category::where('parent_id',$child->id)->get();
+                if($grandChilds != null){
+                    foreach ($grandChilds as $grandChild) {
+                        $categoryArray[] = array('id' => $grandChild->id , 'value' => $category->title.' '.$child->title .' '.$grandChild->title);
+                    }
+                } 
+            }
+        }
+        
         $products = $products->paginate($perPageLimit);
         $products_count = $products->total();
         $all_product_ids = [];
@@ -1818,6 +1907,7 @@ class ProductController extends Controller
                 'countCategory' => $countCategory,
                 'countSuppliers' => $countSuppliers,
                 'customerId' => $customerId,
+                'categoryArray' => $categoryArray,
             ])->render();
 
             if(!empty($from) && $from == "attach-image") {
@@ -1836,8 +1926,8 @@ class ProductController extends Controller
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
-
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers','customerId'));
+        
+        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers','customerId','categoryArray'));
     }
 
 
