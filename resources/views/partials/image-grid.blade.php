@@ -297,10 +297,28 @@
                     var page_number = next_page.attr('href').split('page=');
                     var current_page = page_number[1] - 1;
                     $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
+                    categoryChange();
                 }
             });
 
         };
+
+        var categoryChange = function() 
+        {   
+
+            $("select.select-multiple-cat-list:not(.select2-hidden-accessible)").select2();
+            $('select.select-multiple-cat-list:not(.select2-hidden-accessible)').on('select2:close', function (evt) {
+                var uldiv = $(this).siblings('span.select2').find('ul')
+                var count = uldiv.find('li').length - 1;
+                if (count == 0) {
+                } else {
+                    uldiv.html('<li class="select2-selection__choice">' + count + ' item selected</li>');
+                }
+            });
+
+        };
+
+        categoryChange();
 
         $(".select-multiple2").select2();
         
@@ -315,16 +333,6 @@
             $('.lazy').Lazy({
                 effect: 'fadeIn'
             });
-            $(".select-multiple-cat-list").select2();
-            $('.select-multiple-cat-list').on('select2:close', function (evt) {
-                var uldiv = $(this).siblings('span.select2').find('ul')
-                var count = uldiv.find('li').length - 1;
-                if (count == 0) {
-                } else {
-                    uldiv.html('<li class="select2-selection__choice">' + count + ' item selected</li>');
-                }
-            });
-
             $(document).on("click",".select-all-same-page-btn",function(e){
                 e.preventDefault();
                 var $this = $(this);
@@ -720,7 +728,7 @@
             return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
         }
 
-        $( ".update-product" ).change(function() {
+        $(document).on('change', '.update-product', function () {    
             product_id = $(this).attr('data-id');
             category = $(this).find('option:selected').text();
             category_id = $(this).val();
