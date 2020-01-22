@@ -9,8 +9,21 @@ use App\Http\Controllers\Controller;
 
 class LogListMagentoController extends Controller
 {
+    protected function get_brands(){
+        $brands=\App\Brand::all();
+
+        return $brands;
+    }
+    
+    protected function get_categories(){
+        $categories=\App\Category::all();
+
+        return $categories;
+    }
+
     public function index(Request $request)
     {
+        //echo "<pre>";print_r($request->all());exit;
         // Get results
         $logListMagentos = LogListMagento::join('products', 'log_list_magentos.product_id', '=', 'products.id')
             ->join('brands', 'products.brand', '=', 'brands.id')
@@ -35,8 +48,10 @@ class LogListMagentoController extends Controller
         }
 
         // Get paginated result
+        $logListMagentos->select('log_list_magentos.*','products.*','brands.name as brand_name','categories.title as category_title');
         $logListMagentos = $logListMagentos->paginate(25);
 
+        //echo "<Pre>";print_r($logListMagentos);exit;
         // For ajax
         if ($request->ajax()) {
             return response()->json([
@@ -44,8 +59,12 @@ class LogListMagentoController extends Controller
                 'links' => (string)$logListMagentos->render()
             ], 200);
         }
+        $filters=$request->all();
 
         // Show results
-        return view('logging.listmagento', compact('logListMagentos'));
+        return view('logging.listmagento', compact('logListMagentos','filters'))
+                                ->with('success',\Request::Session()->get("success"))
+                                ->with('brands',$this->get_brands())
+                                ->with('categories',$this->get_categories());
     }
 }
