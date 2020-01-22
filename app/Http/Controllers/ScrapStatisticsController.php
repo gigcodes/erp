@@ -70,6 +70,7 @@ class ScrapStatisticsController extends Controller
                 sc.scraper_start_time,
                 sc.scraper_logic,
                 sc.scraper_made_by,
+                sc.server_id,
                 ls.website,
                 ls.ip_address,
                 COUNT(ls.id) AS total,

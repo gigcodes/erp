@@ -84,3 +84,13 @@ function attach_customer_key()
 {
     return "customer_list_".time()."_".auth()->user()->id;
 }
+
+/**
+ *  get scraper last log file name
+ */
+
+function get_server_last_log_file($screaperName = "",$serverId = "")
+{
+    $d = date('d',strtotime("-1 days"));
+    return "/scrap-logs/file-view/".$screaperName."-".$d.".log/".$serverId;
+}
