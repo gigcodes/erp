@@ -101,13 +101,13 @@
     </form>
     <div class="row">
         <div class="col-md-2">
-           Status Ok count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Ok')->where('supplier_status_id', 1)->count()}}
+            Status Ok count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Ok')->where('supplier_status_id', 1)->count()}}
         </div>
         <div class="col-md-2">
-           Status Rework count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Rework')->where('supplier_status_id', 1)->count()}}
+            Status Rework count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Rework')->where('supplier_status_id', 1)->count()}}
         </div>
         <div class="col-md-3">
-           Status In Process count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'In Process')->where('supplier_status_id', 1)->count()}}
+            Status In Process count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'In Process')->where('supplier_status_id', 1)->count()}}
         </div>
     </div>
     <?php $totalCountedUrl = 0; ?>
@@ -136,7 +136,6 @@
                         <th>Next Step</th>
                         <th>Status</th>
                         <th>Functions</th>
-                        <th>Last log File</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -222,7 +221,6 @@
                                 <button type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                                 <a class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                             </td>
-                            <td><a href="{{route('show.logFile', $supplier->scraper_name) }}"><i class="fa fa-clock-o" aria-hidden="true"></i></a></td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
                                 <td colspan="3">
@@ -268,7 +266,7 @@
                                         <?php echo Form::text("server_id",$supplier->server_id, ["class" => "form-control server-id-update"]); ?>
                                         <button class="btn btn-sm btn-image server-id-update-btn" data-vendorid="<?php echo $supplier->id; ?>"><img src="/images/filled-sent.png" style="cursor: default;"></button>
                                     </div>
-                                </td>   
+                                </td>
                                 <td colspan="2">
                                     <label>Status:</label>
                                     <div class="form-group">
@@ -276,7 +274,7 @@
                                     </div>
                                 </td>
                             </tr>
-                        @endif
+                    @endif
                     @endforeach
                 </table>
                 <?php /* no needed
