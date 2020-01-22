@@ -1515,6 +1515,13 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
+
+        if($model_type == 'customer'){
+            $customerId = $model_id;
+        }else{
+             $customerId = null;
+        }
+
         //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
         $term = $request->input('term');
@@ -1561,9 +1568,11 @@ class ProductController extends Controller
         }
 
         if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
+
             $category_children = [];
 
             foreach ($request->category as $category) {
+
                 $is_parent = Category::isParent($category);
 
                 if ($is_parent) {
@@ -1588,12 +1597,14 @@ class ProductController extends Controller
             }
 
             $products = $products->whereIn('category', $category_children);
+
+
         }
 
-        if ($request->price_min != null) {
+        if ($request->price_min != null && $request->price_min != 0) {
             $products = $products->where('price_inr_special', '>=', $request->price_min);
         }
-
+        
         if ($request->price_max != null) {
             $products = $products->where('price_inr_special', '<=', $request->price_max);
         }
@@ -1653,12 +1664,12 @@ class ProductController extends Controller
 
                 $brand_id = \App\Brand::where('name', 'LIKE', "%$term%")->value('id');
                 if ($brand_id) {
-                    $products = $products->orWhere('brand', 'LIKE', "%$brand_id%");
+                    $query = $query->orWhere('brand', 'LIKE', "%$brand_id%");
                 }
 
                 $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
                 if ($category_id) {
-                    $products = $products->orWhere('category', $category_id);
+                    $query = $query->orWhere('category', $category_id);
                 }
 
             });
@@ -1722,14 +1733,29 @@ class ProductController extends Controller
                 ];
             }
         }
+        if($request->category){
+            try {
+               $filtered_category = $request->category[0]; 
+            } catch (\Exception $e) {
+                $filtered_category = 1;
+            }
+        }else{
+            $filtered_category = 1;
+        }
+        
+        $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'data-placeholder' => 'Select Category..'])
+            ->selected($filtered_category)
+            ->renderAsDropdown();
+
+        //dd($category_selection);    
+        
 
         // category filter start count
         $categoryGroups = clone($products);
         $categoryGroups = $categoryGroups->groupBy("category")->select([\DB::raw("count(id) as total_product"),"category"])->pluck("total_product","category")->toArray();
         $categoryIds = array_values(array_filter(array_keys($categoryGroups)));
 
-        $categoryModel = \App\Category::whereIn("id",$categoryIds)->pluck("title","id")->toArray();
-
+        $categoryModel = \DB::table('categories')->whereIn("id",$categoryIds)->pluck("title","id")->toArray();
         $countCategory = [];
         if(!empty($categoryGroups) && !empty($categoryModel)) {
             foreach ($categoryGroups as $key => $count) {
@@ -1781,6 +1807,7 @@ class ProductController extends Controller
         $products = $products->paginate($perPageLimit);
         $products_count = $products->total();
         $all_product_ids = [];
+        $from  = request("from","");
         if ($request->ajax()) {
             $html = view('partials.image-load', [
                 'products' => $products,
@@ -1789,27 +1816,28 @@ class ProductController extends Controller
                 'model_type' => $model_type,
                 'countBrands' => $countBrands,
                 'countCategory' => $countCategory,
-                'countSuppliers' => $countSuppliers
+                'countSuppliers' => $countSuppliers,
+                'customerId' => $customerId,
             ])->render();
+
+            if(!empty($from) && $from == "attach-image") {
+                return $html;
+            }
 
             return response()->json(['html' => $html, 'products_count' => $products_count]);
         }
 
-        $filtered_category = json_decode($request->category, true);
         $brand = $request->brand;
         $message_body = $request->message ? $request->message : '';
         $sending_time = $request->sending_time ?? '';
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'multiple' => 'multiple', 'data-placeholder' => 'Select Category..'])
-            ->selected($filtered_category)
-            ->renderAsDropdown();
-
+           
         $locations = \App\ProductLocation::pluck("name", "name");
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
 
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers'));
+        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers','customerId'));
     }
 
 
@@ -2499,8 +2527,20 @@ class ProductController extends Controller
 
     public function sendMessageSelectedCustomer(Request $request)
     {
-        $customerIds = $request->get('customers_id', '');
-        $customerIds = explode(',', $customerIds);
+        $token = request("customer_token","");
+        
+        if(!empty($token)) {
+            $customerIds = json_decode(session($token));
+            if(empty($customerIds)) {
+                $customerIds = [];
+            }
+        }
+        // if customer is not available then choose what it is before
+        if(empty($customerIds)) {
+            $customerIds = $request->get('customers_id', '');
+            $customerIds = explode(',', $customerIds);
+        }
+
         $brand = request()->get("brand", null);
         $category = request()->get("category", null);
         $numberOfProduts = request()->get("number_of_products", 10);
@@ -2514,13 +2554,14 @@ class ProductController extends Controller
             $product = $product->where("brand", $brand);
         }
 
-        if (!empty($category)) {
+        if (!empty($category) && $category != 1) {
             $toBeRun = true;
             $product = $product->where("category", $category);
         }
 
         if (!empty($quick_sell_groups)) {
             $toBeRun = true;
+            $quick_sell_groups = rtrim(ltrim($quick_sell_groups,","),",") ;
             $product = $product->whereRaw("(products.id in (select product_id from product_quicksell_groups where quicksell_group_id in (" . $quick_sell_groups . ") ))");
         }
 
@@ -2704,6 +2745,7 @@ class ProductController extends Controller
 
     public function saveGroupHsCode(Request $request)
     {
+        dd($request);
         $name = $request->name;
         $compositions = $request->compositions;
         $key = HsCodeSetting::first();
@@ -2721,6 +2763,12 @@ class ProductController extends Controller
 
 
         $hscodeSearchString = str_replace(['&gt;','>'],'', $name.' '.$category->title.' '.$request->composition);
+
+        $hscode = HsCode::where('description',$hscodeSearchString)->first();
+
+        if($hscode != null){
+            return response()->json(['HsCode Already exist']);
+        }
 
         $hscodeSearchString = urlencode($hscodeSearchString);
 

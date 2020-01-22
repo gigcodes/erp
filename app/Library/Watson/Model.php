@@ -24,9 +24,9 @@ class Model
     const API_KEY = "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC";
 
     public static function getWorkspaceId()
-    {
-        return "19cf3225-f007-4332-8013-74443d36a3f7";
-    }
+{
+    return "19cf3225-f007-4332-8013-74443d36a3f7";
+}
 
     public static function getAssistantId()
     {
