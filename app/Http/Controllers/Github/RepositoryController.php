@@ -74,7 +74,7 @@ class RepositoryController extends Controller
         
        //exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh master');
         
-        exit;
+        //exit;
         return view('github.repository_settings', [
             'repository' => $repository,
             'branches' => $branches,
