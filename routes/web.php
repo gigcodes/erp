@@ -53,7 +53,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 });
 
 Route::prefix('logging')->middleware('auth')->group(static function () {
-    Route::get('list-magento', 'Logging\LogListMagentoController@index');
+    Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.laravel.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
@@ -141,6 +141,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/unlistMagento', 'ProductController@unlistMagento');
     Route::post('products/{id}/approveMagento', 'ProductController@approveMagento');
     Route::post('products/{id}/updateMagento', 'ProductController@updateMagento');
+    Route::post('products/updateMagentoProduct', 'ProductController@updateMagentoProduct')->name('product.update.magento');
     Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
     Route::post('products/{id}/originalCategory', 'ProductController@originalCategory');
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
@@ -595,6 +596,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('images/grid/make/set', 'ImageController@set')->name('image.grid.set');
     Route::post('images/grid/make/set/download', 'ImageController@setDownload')->name('image.grid.set.download');
     Route::post('images/grid/update/schedule', 'ImageController@updateSchedule')->name('image.grid.update.schedule');
+    Route::post('images/searchQueue', 'ImageController@imageQueue')->name('image.queue');
 
     Route::post('leads/save-leave-message', 'LeadsController@saveLeaveMessage')->name('leads.message.save');
 
