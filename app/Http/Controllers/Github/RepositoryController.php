@@ -86,6 +86,12 @@ class RepositoryController extends Controller
         //print_r($repository);
     }
 
+    public function deployBranch(){
+        $branch = Input::get('branch');
+        echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
+        //exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch);
+    }
+
     public function mergeBranch($id)
     {
 

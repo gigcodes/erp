@@ -54,17 +54,17 @@
                     @if($branch->branch_name == $current_branch)
                     <span class="badge badge-pill badge-light">Deployed</span>
                     @else
-                    <a class="btn btn-sm btn-primary" href="#">Deploy</a>
+                    <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch='.urlencode($branch->branch_name)) }}">Deploy</a>
                     @endif
                 </td>
                 <td>
                     <div>
-                        <a class="btn btn-sm btn-warning" href="{{url('/github/repos/'.$repository->id.'/branch/merge?source=master&destination='.urlencode($branch->branch_name))}}">
+                        <a class="btn btn-sm btn-secondary" href="{{url('/github/repos/'.$repository->id.'/branch/merge?source=master&destination='.urlencode($branch->branch_name))}}">
                             Merge from master
                         </a>
                     </div>
                     <div style="margin-top: 5px;">
-                        <a class="btn btn-sm btn-info" href="{{url('/github/repos/'.$repository->id.'/branch/merge?destination=master&source='.urlencode($branch->branch_name))}}">
+                        <a class="btn btn-sm btn-secondary" href="{{url('/github/repos/'.$repository->id.'/branch/merge?destination=master&source='.urlencode($branch->branch_name))}}">
                             Merge into master
                         </a>
                     </div>

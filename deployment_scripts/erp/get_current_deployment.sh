@@ -1,3 +1,3 @@
 $CURRENT_PATH = $PWD;
-cd /Users/applecustomer/development/sololux-erp/deployment_scripts/erp
+cd $CURRENT_PATH/..
 git rev-parse --abbrev-ref HEAD
