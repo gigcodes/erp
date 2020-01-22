@@ -15,4 +15,12 @@ class Images extends Model
   {
     return $this->belongsToMany('App\Tag', 'image_tags', 'image_id', 'tag_id');
   }
+
+  public function saveFromSearchQueues($path,$link,$filename){
+    if ( copy($link, $path.'/'.$filename) ) {
+        return true;
+    }else{
+        return false;
+    }
+  }
 }
