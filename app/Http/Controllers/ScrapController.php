@@ -1003,4 +1003,3 @@ class ScrapController extends Controller
         return response()->json(['success'],200);
     }
 }
-
