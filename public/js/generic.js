@@ -408,7 +408,10 @@ function createLead (thiss,dataSending) {
                 $('#add_lead').find('input[name="size"]').val(response.shoe_size);
                 
                 var showImageHtml = "";
-                
+                if(typeof response.price != "undefined" && response.price > 0) {
+                    showImageHtml += '<div class="col-sm-12" style="padding-bottom: 10px;"><span>Price : '+response.price+'</span></div>';
+                }
+
                 for (var i in response.media) {
                     showImageHtml += '<div class="col-sm-3" style="padding-bottom: 10px;">';
                     showImageHtml += '<div style="height:100px;"> <img src="'+response.media[i].url+'" width="100%" height="100%"></div>';

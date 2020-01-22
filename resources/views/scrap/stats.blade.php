@@ -53,7 +53,7 @@
 
     <div class="row mb-5">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Supplier Scrapping Info</h2>
+            <h2 class="page-heading">Supplier Scrapping Info <span class="total-info"></span></h2>
         </div>
     </div>
 
@@ -110,6 +110,7 @@
            Status In Process count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'In Process')->where('supplier_status_id', 1)->count()}}
         </div>
     </div>
+    <?php $totalCountedUrl = 0; ?>
     <div class="row no-gutters mt-3">
         <div class="col-md-12" id="plannerColumn">
             <div class="">
@@ -119,6 +120,7 @@
                         <th>#</th>
                         <th>Supplier</th>
                         <th>Server</th>
+                        <th>Server ID</th>
                         <th>Run Time</th>
                         <th>Last Scraped</th>
                         <th>Stock</th>
@@ -134,7 +136,6 @@
                         <th>Next Step</th>
                         <th>Status</th>
                         <th>Functions</th>
-                        <th>View Log</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -187,11 +188,13 @@
                                 <?php } ?>
                             </td>
                             <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td>
+                            <td width="10%">{{ $supplier->server_id }}</td>
                             <td width="10%" style="text-right">
                                 {{ $supplier->scraper_start_time }}h
                             </td>
                             <td width="10%">{!! !empty($data) ? str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($data->last_scrape_date))) : '' !!}</td>
                             <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
+                            <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
                             <td width="3%">{{ !empty($data) ? $data->total : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td>
@@ -216,6 +219,7 @@
                             <td width="10%">
                                 <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
                                 <button type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
+                                <a class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                             </td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
@@ -238,7 +242,7 @@
                                         <?php echo Form::select("scraper_made_by", ["" => "N/A"] + $users, $supplier->scraper_made_by, ["class" => "form-control scraper_made_by select2", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
-                                <td colspan="3">
+                                <td colspan="2">
                                     <label>Type:</label>
                                     <div class="form-group">
                                         <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), $supplier->scraper_type, ["class" => "form-control scraper_type select2", "style" => "width:100%;"]) ?>
@@ -256,8 +260,12 @@
                                         <?php echo Form::select("next_step_in_product_flow", [0 => "N/A"] + \App\Helpers\StatusHelper::getStatus(), $supplier->next_step_in_product_flow, ["class" => "form-control next_step_in_product_flow select2", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
-                                <td colspan="3">
-                                    <a class="btn  d-inline btn-image" href="{{url('scrap-logs/')}}" id="link" target="-blank"><img src="/images/view.png" /></a>
+                                <td colspan="2">
+                                    <label>Server Id:</label>
+                                    <div class="form-group">
+                                        <?php echo Form::text("server_id",$supplier->server_id, ["class" => "form-control server-id-update"]); ?>
+                                        <button class="btn btn-sm btn-image server-id-update-btn" data-vendorid="<?php echo $supplier->id; ?>"><img src="/images/filled-sent.png" style="cursor: default;"></button>
+                                    </div>
                                 </td>   
                                 <td colspan="2">
                                     <label>Status:</label>
@@ -327,6 +335,9 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script type="text/javascript">
+
+        $(".total-info").html("({{$totalCountedUrl}})");
+
         $(document).on("click", ".toggle-class", function () {
             $(".hidden_row_" + $(this).data("id")).toggleClass("dis-none");
         });
@@ -547,6 +558,24 @@
                     search: id,
                     field: "parent_supplier_id",
                     field_value: tr.find(".parent_supplier_id").val()
+                },
+            }).done(function (response) {
+                toastr['success']('Data updated Successfully', 'success');
+            }).fail(function (response) {
+
+            });
+        });
+
+        $(document).on("click",".server-id-update-btn",function() {
+            var tr = $(this).closest("tr");
+            var id = tr.data("eleid");
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/statistics/update-field',
+                data: {
+                    search: id,
+                    field: "server_id",
+                    field_value: tr.find(".server-id-update").val()
                 },
             }).done(function (response) {
                 toastr['success']('Data updated Successfully', 'success');

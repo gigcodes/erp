@@ -9,6 +9,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 use \App\ChatbotKeyword;
 use \App\ChatbotKeywordValue;
+use \App\ChatbotKeywordValueTypes;
 
 class KeywordController extends Controller
 {
@@ -90,11 +91,23 @@ class KeywordController extends Controller
 
             $chatbotKeyword->fill($params);
             $chatbotKeyword->save();
+            if ( $params["value"] != NULL) {
+                $chatbotKeywordValue = new ChatbotKeywordValue;
+                $chatbotKeywordValue->fill($params);
+                $chatbotKeywordValue->save();
+                
+                $valueType = [];
+                $valueType["chatbot_keyword_value_id"] =  $chatbotKeywordValue->id;
+                foreach ($params["type"] as $value) {
 
-            $chatbotKeywordValue = new ChatbotKeywordValue;
-            $chatbotKeywordValue->fill($params);
-            $chatbotKeywordValue->save();
-
+                    if($value != NULL) {
+                        $valueType["type"] = $value;
+                        $chatbotKeywordValueTypes = new ChatbotKeywordValueTypes;
+                        $chatbotKeywordValueTypes->fill($valueType);
+                        $chatbotKeywordValueTypes->save();
+                    }
+                }
+            }
             WatsonManager::pushKeyword($chatbotKeyword->id);
 
         }
