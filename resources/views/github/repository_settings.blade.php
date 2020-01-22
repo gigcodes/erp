@@ -73,8 +73,8 @@
             @foreach($branches as $branch)
             <tr>
                 <td>{{$branch->branch_name}}</td>
-                <td>{{$branch->ahead_by}}</td>
                 <td>{{$branch->behind_by}}</td>
+                <td>{{$branch->ahead_by}}</td>
                 <td>{{$branch->last_commit_author_username}}</td>
                 <td>{{$branch->last_commit_time}}</td>
                 <td>
