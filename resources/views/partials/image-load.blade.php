@@ -39,9 +39,17 @@
                     $id = $product->product_category->id;
                   }
 
-                  $render = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list update-product', 'data-placeholder' => 'Select Category..' , 'data-id' => $product->id ])
-                  ->selected($id)
-                  ->renderAsDropdown();
+                  if(!isset($renderCategory)) {
+                     $renderCategory = nestable()->make(\App\Category::all());
+                  }
+
+                  $render = $renderCategory->attr([
+                    'name' => 'category[]', 
+                    'class' => 'form-control select-multiple-cat-list update-product', 
+                    'data-placeholder' => 'Select Category..' , 
+                    'data-id' => $product->id 
+                  ])->selected($id)->renderAsDropdown();
+
                   @endphp
                   @if($render)
                       {!! $render !!}
