@@ -13,7 +13,7 @@ class AddNewTypesColumnInChatbotKeywordValuesTable extends Migration
      */
     public function up()
     {
-        Schema::create('chatbot_keyword_values', function (Blueprint $table) {
+        Schema::table('chatbot_keyword_values', function (Blueprint $table) {
             $table->enum('types', ['synonyms', 'patterns']);
         });
     }
