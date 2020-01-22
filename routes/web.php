@@ -1401,6 +1401,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist/delete/{id}/{email}', 'MailinglistController@delete')->name('mailingList.delete');
     Route::get('mailinglist/list/delete/{id}', 'MailinglistController@deleteList')->name('mailingList.delete.list');
     Route::post('mailinglist-create', 'MailinglistController@create')->name('mailingList.create');
+    Route::get('mailinglist-add-manual', 'MailinglistController@addManual')->name('mailinglist.add.manual');
     Route::post('addRemark', 'MailinglistController@addRemark')->name('mailingList.addRemark');
     Route::get('gettaskremark', 'MailinglistController@getBroadCastRemark')->name('mailingList.gets.remark');
 
