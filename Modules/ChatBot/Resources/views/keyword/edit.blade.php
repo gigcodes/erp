@@ -27,8 +27,26 @@
 					      <label for="value">Value</label>
 					      <?php echo Form::text("value", null, ["class" => "form-control", "id" => "value", "placeholder" => "Enter your value"]); ?>
 					    </div>
-					  </div>
-					  <button type="submit" class="btn btn-primary">Add Value</button>
+					</div>
+					<div class="form-row align-items-end">
+					    <div class="form-group col-md-2">
+						    <label for="type">Type</label>
+						    <?php echo Form::select("types",["synonyms" => "synonyms", "patterns" => "patterns"] ,null, ["class" => "form-control", "id" => "types"]); ?>
+					    </div>
+						<div class="form-group col-md-2">
+							<div class="row align-items-end" id="typeValue_1">
+								<div class="col-md-9">
+									<?php echo Form::text("type[]", null, ["class" => "form-control", "id" => "type", "placeholder" => "Enter value", "maxLength"=> 64]); ?>
+								</div>
+							</div>
+						</div>
+						<div class="form-group col-md-2" id="add-type-value-btn">
+				  	        <a href="javascript:;" class="btn btn-secondary btn-sm add-more-condition-btn">
+			                    <span class="glyphicon glyphicon-plus"></span> 
+			                </a>	
+			      	    </div>
+					</div>
+					<button type="submit" class="btn btn-primary">Add Value</button>
 				</form>
 	    	</div>
 		</div>
@@ -65,4 +83,30 @@
 		</div>
 	</div>
 </div>
+<script type="text/javascript">
+    var idValue=1;
+	$(".add-more-condition-btn").on("click", function(e){
+		idValue++;
+		var removeBtnId = '#typeValue_'+(idValue-1);
+		var selectedType = $(this).closest("form").find("select[name = 'types']").val();
+		if ( selectedType == "synonyms" || idValue<=5 ){
+			$(removeBtnId).append('<input type="button" value="-" class="btn btn-secondary" onclick="remove(this)"/>');
+		    $("<div class='form-group col-md-2' ><div class='row align-items-end' id='typeValue_"+idValue+"' ><div class='col-md-9'><label for='type'>&nbsp</label><input type='text' name='type[]' class='form-control' placeholder='Enter value' maxLength = 64/><div/></div></div>").insertBefore('#add-type-value-btn')
+		} else {
+			alert("maximum pattern value limit reached : 5")
+			idValue--;
+		}
+	});
+	$("#types").on("change", function(e) {
+		var typeValueCount = $(this).closest("form").find("input[name = 'type[]']").length;
+		if(e.target.value == 'patterns' && typeValueCount>5) {
+			alert('You are changing a synonym value to a pattern value. You currently have '+ typeValueCount+ ' synonyms associated with this value, but patterns may only have 5');
+			$(this).closest("form").find("select[name = 'types']").val('synonyms').change()
+			e.preventDefault();
+		}
+	});
+	function remove(ele) {
+		$(ele).parents('div.col-md-2').remove()
+	}
+</script>
 @endsection

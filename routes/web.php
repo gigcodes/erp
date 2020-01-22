@@ -142,6 +142,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/approveMagento', 'ProductController@approveMagento');
     Route::post('products/{id}/updateMagento', 'ProductController@updateMagento');
     Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
+    Route::post('products/{id}/originalCategory', 'ProductController@originalCategory');
+    Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::resource('products', 'ProductController');
     Route::resource('attribute-replacements', 'AttributeReplacementController');
     Route::post('products/bulk/update', 'ProductController@bulkUpdate')->name('products.bulk.update');
@@ -1394,9 +1396,12 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist', 'MailinglistController@index')->name('mailingList');
     Route::get('mailinglist/{id}', 'MailinglistController@show')->name('mailingList.single');
     Route::get('mailinglist/add/{id}/{email}', 'MailinglistController@addToList')->name('mailingList.add_to_list');
-    Route::get('mailinglist/delete/{email}', 'MailinglistController@delete')->name('mailingList.delete');
+    Route::get('mailinglist/delete/{id}/{email}', 'MailinglistController@delete')->name('mailingList.delete');
     Route::get('mailinglist/list/delete/{id}', 'MailinglistController@deleteList')->name('mailingList.delete.list');
     Route::post('mailinglist-create', 'MailinglistController@create')->name('mailingList.create');
+    Route::post('addRemark', 'MailinglistController@addRemark')->name('mailingList.addRemark');
+    Route::get('gettaskremark', 'MailinglistController@getBroadCastRemark')->name('mailingList.gets.remark');
+
     Route::get('services', 'ServiceController@index')->name('services');
     Route::post('services/store', 'ServiceController@store')->name('services.store');
     Route::post('services/destroy', 'ServiceController@destroy')->name('services.destroy');
@@ -1431,6 +1436,13 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::get('/search/keyword-priority','GoogleSearchController@markPriority')->name('google.search.keyword.priority');
     Route::get('/search/keyword', 'GoogleSearchController@index')->name('google.search.keyword');
     Route::get('/search/results', 'GoogleSearchController@searchResults')->name('google.search.results');
+
+    Route::resource('/affiliate/keyword', 'GoogleAffiliateController');
+    Route::get('/affiliate/keyword', 'GoogleAffiliateController@index')->name('google.affiliate.keyword');
+    Route::get('/affiliate/keyword-priority','GoogleAffiliateController@markPriority')->name('google.affiliate.keyword.priority');
+    Route::get('/affiliate/results', 'GoogleAffiliateController@searchResults')->name('google.affiliate.results');
+    Route::post('affiliate/flag', 'GoogleAffiliateController@flag')->name('affiliate.flag');
+    Route::post('affiliate/email/send', 'GoogleAffiliateController@emailSend')->name('affiliate.email.send');
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
@@ -1442,7 +1454,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/repos', 'Github\RepositoryController@listRepositories');
         Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
         Route::get('/repos/{name}/users/add', 'Github\UserController@addUserToRepositoryForm');
-        Route::get('/repos/{id}/settings', 'Github\RepositoryController@getRepositoryDetails');
+        Route::get('/repos/{id}/branches', 'Github\RepositoryController@getRepositoryDetails');
+        Route::get('/repos/{id}/branch/merge', 'Github\RepositoryController@mergeBranch');
         Route::post('/add_user_to_repo', 'Github\UserController@addUserToRepository');
         Route::get('/users', 'Github\UserController@listOrganizationUsers');
         Route::get('/users/{userId}', 'Github\UserController@userDetails');

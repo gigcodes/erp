@@ -1,7 +1,5 @@
 @extends('layouts.app')
-
 @section('styles')
-
     <link rel="stylesheet" type="text/css"
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet"
@@ -16,7 +14,6 @@
     </style>
 @endsection
 
-
 @section('content')
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
@@ -25,38 +22,16 @@
         <div class="col-lg-12 margin-tb">
             <div class="row">
                 <div class="col-lg-12 margin-tb">
-                    <h2 class="page-heading">Maililnglists</h2>
+                    <h2 class="page-heading">Mailing list</h2>
                     <div class="pull-left">
-{{--                        <form action="" method="GET"--}}
-{{--                              class="form-inline align-items-start">--}}
-{{--                            <div class="form-group mr-3 mb-3">--}}
-{{--                                <input name="term" type="text" class="form-control global" id="term"--}}
-{{--                                       value="{{ isset($term) ? $term : '' }}"--}}
-{{--                                       placeholder="number , text, priority">--}}
-{{--                            </div>--}}
-{{--                            <div class="form-group ml-3">--}}
-{{--                                <div class='input-group date' id='filter-date'>--}}
-{{--                                    <input type='text' class="form-control global" name="date"--}}
-{{--                                           value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date"/>--}}
-
-{{--                                    <span class="input-group-addon">--}}
-{{--                                                            <span class="glyphicon glyphicon-calendar"></span>--}}
-{{--                                                          </span>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                            <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>--}}
-{{--                        </form>--}}
                     </div>
                     <button class="btn btn-primary float-right" type="button" class="btn btn-primary"
-                            data-toggle="modal" data-target="#exampleModal">Create Mailinglist
+                            data-toggle="modal" data-target="#exampleModal">Create Mailing list
                     </button>
                 </div>
             </div>
         </div>
-
     </div>
-
-    <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -90,25 +65,8 @@
 
         </div>
     </div>
-
-    {{--    @if ($message = Session::get('success'))
-            <div class="alert alert-success">
-                <p>{{ $message }}</p>
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <strong>Whoops!</strong> There were some problems with your input.<br><br>
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif--}}
-
     <div class="table-responsive mt-3">
+        {{$list->links()}}
         <table class="table table-bordered" id="passwords-table">
             <thead>
             <tr>
@@ -133,8 +91,6 @@
         </table>
     </div>
 @endsection
-
-
 @section('scripts')
     <script>
         $('.save_list').click(function () {
@@ -156,5 +112,4 @@
             });
         })
     </script>
-
 @endsection
