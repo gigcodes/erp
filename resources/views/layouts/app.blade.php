@@ -1031,6 +1031,16 @@
                             </ul>
                         </li>
                         @if(auth()->user()->isAdmin())
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Queue<span class="caret"></span></a>
+                                <ul class="dropdown-menu multi-level">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endif
+                        @if(auth()->user()->isAdmin())
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">

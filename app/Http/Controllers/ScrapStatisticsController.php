@@ -113,6 +113,8 @@ class ScrapStatisticsController extends Controller
 
         $users = \App\User::all()->pluck("name", "id")->toArray();
 
+/*    dd($activeSuppliers);*/
+
         //echo '<pre>'; print_r($scrapeData); echo '</pre>';exit;
         // Return view
         return view('scrap.stats', compact('activeSuppliers', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown'));

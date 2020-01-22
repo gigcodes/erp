@@ -621,10 +621,9 @@ class LeadsController extends Controller
                     $params['message'] = "";//$auto_message;
                     $chat_message = ChatMessage::create($params);
 
-                    $mediaImage = $product->getMedia(config('constants.media_tags'))->first();
+                    $mediaImage = $product->getMedia(config('constants.attach_image_tag'))->first();
 
-                    $chat_message->attachMedia($mediaImage,  config('constants.media_tags'));
-
+                    //$chat_message->attachMedia($mediaImage,  config('constants.media_tags'));
                     // create text image to null first so no issue ahead
                     $textImage = null;
                     if($mediaImage) {
@@ -636,11 +635,19 @@ class LeadsController extends Controller
                       $textImage = self::createProductTextImage(
                         $mediaImage->getAbsolutePath(),
                         "instant_message_".$chat_message->id,
-                        $auto_message
+                        $auto_message,
+                        "545b62", 
+                        "40" , 
+                        true
                       );
 
-                      $chat_message->media_url = $textImage;
-                      $chat_message->save();
+                      if(!empty($textImage)) {
+                          $mediaPrice = MediaUploader::fromSource($textImage)
+                          ->toDirectory('chatmessage/'.floor($chat_message->id / config('constants.image_per_folder')))->upload();
+                          //$chat_message->media_url = $textImage;
+                          $chat_message->attachMedia($mediaPrice,  config('constants.media_tags'));
+                          $chat_message->save();
+                      }
 
                     }
                     // send message now
@@ -792,7 +799,7 @@ class LeadsController extends Controller
      *
      */
 
-    public static function createProductTextImage($path, $name = "", $text = "", $color = "545b62", $fontSize = "40")
+    public static function createProductTextImage($path, $name = "", $text = "", $color = "545b62", $fontSize = "40" , $abs = false)
     {
        $text = wordwrap(strtoupper($text), 24, "\n");
        $img = \IImage::make($path);
@@ -809,9 +816,17 @@ class LeadsController extends Controller
 
         $name = !empty($name) ? $name . "_watermarked" : time() . "_watermarked";
 
-        $path = 'uploads/' . $name . '.jpg';
+        if (!\File::isDirectory(public_path() . '/uploads/chat-price-image/')) {
+            \File::makeDirectory(public_path() . '/uploads/chat-price-image/', 0777, true, true);
+        }
+
+        $path = 'uploads/chat-price-image/' . $name . '.jpg';
 
         $img->save(public_path($path));
+
+        if($abs) {
+            return public_path($path);
+        }
 
         return url('/') . "/" . $path;
     }
