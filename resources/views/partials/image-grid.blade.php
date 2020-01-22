@@ -12,13 +12,24 @@
             display: table;
             table-layout: fixed;
         }
-        .update-product + .select2-container--default{
+        /*.update-product + .select2-container--default{
             width: 60% !important;
+        }*/
+
+        #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+            z-index: 60;
         }
     </style>
 @endsection
 
 @section('content')
+ <div id="myDiv">
+       <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+   </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="">
@@ -263,6 +274,7 @@
             </div>
         </div>
     </div>
+    @include('partials.modals.category')
     <?php $stage = new \App\Stage(); ?>
     <script src="/js/bootstrap-multiselect.min.js"></script>
     <script src="/js/jquery.jscroll.min.js"></script>
@@ -285,10 +297,28 @@
                     var page_number = next_page.attr('href').split('page=');
                     var current_page = page_number[1] - 1;
                     $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
+                    categoryChange();
                 }
             });
 
         };
+
+        var categoryChange = function() 
+        {   
+
+            $("select.select-multiple-cat-list:not(.select2-hidden-accessible)").select2();
+            $('select.select-multiple-cat-list:not(.select2-hidden-accessible)').on('select2:close', function (evt) {
+                var uldiv = $(this).siblings('span.select2').find('ul')
+                var count = uldiv.find('li').length - 1;
+                if (count == 0) {
+                } else {
+                    uldiv.html('<li class="select2-selection__choice">' + count + ' item selected</li>');
+                }
+            });
+
+        };
+
+        categoryChange();
 
         $(".select-multiple2").select2();
         
@@ -303,16 +333,6 @@
             $('.lazy').Lazy({
                 effect: 'fadeIn'
             });
-            $(".select-multiple-cat-list").select2();
-            $('.select-multiple-cat-list').on('select2:close', function (evt) {
-                var uldiv = $(this).siblings('span.select2').find('ul')
-                var count = uldiv.find('li').length - 1;
-                if (count == 0) {
-                } else {
-                    uldiv.html('<li class="select2-selection__choice">' + count + ' item selected</li>');
-                }
-            });
-
             $(document).on("click",".select-all-same-page-btn",function(e){
                 e.preventDefault();
                 var $this = $(this);
@@ -708,9 +728,47 @@
             return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
         }
 
-        $( ".update-product" ).change(function() {
+        $(document).on('change', '.update-product', function () {    
             product_id = $(this).attr('data-id');
-            category = $(this).val();
+            category = $(this).find('option:selected').text();
+            category_id = $(this).val();
+            //Getting Scrapped Category
+            $.ajax({
+                url: '/products/'+product_id+'/originalCategory',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                },
+                success: function(result){
+                    if(result[0] == 'success'){
+                        $('#old_category').text(result[1]);
+                        $('#changed_category').text(category);
+                        $('#product_id').val(product_id);
+                        $('#category_id').val(category_id);
+                    }else{
+                        $('#old_category').text('No Scraped Product Present');
+                        $('#changed_category').text(category);
+                        $('#product_id').val(product_id);
+                        $('#category_id').val(category_id);
+                    }
+                },
+                error: function (){
+                    $('#old_category').text('No Scraped Product Present');
+                    $('#changed_category').text(category);
+                    $('#product_id').val(product_id);
+                    $('#category_id').val(category_id);
+                }
+            });
+
+            
+            $('#categoryUpdate').modal('show');
+            
+        });        
+        
+        function changeSelected(){
+            product_id = $('#product_id').val();
+            category = $('#category_id').val();
             $.ajax({
                 url: '/products/'+product_id+'/updateCategory',
                 type: 'POST',
@@ -719,12 +777,35 @@
                     _token: "{{ csrf_token() }}",
                     category : category
                 },
+                beforeSend: function () {
+                              $('#categoryUpdate').modal('hide');  
+                              $("#loading-image").show();
+                              $("#loading-image").hide();
+                          },
+                });
+        
+        }
+
+        function changeAll(){
+            product_id = $('#product_id').val();
+            category = $('#category_id').val();
+            $.ajax({
+                url: '/products/'+product_id+'/changeCategorySupplier',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category : category
+                },
+                beforeSend: function () {
+                              $('#categoryUpdate').modal('hide');  
+                              $("#loading-image").show();
+                          },
                 success: function(result){
-                    console.log(result)
+                     $("#loading-image").hide();
              }
          });
-        });        
-        
+        }
     </script>
 
 @endsection

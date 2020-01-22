@@ -142,6 +142,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/approveMagento', 'ProductController@approveMagento');
     Route::post('products/{id}/updateMagento', 'ProductController@updateMagento');
     Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
+    Route::post('products/{id}/originalCategory', 'ProductController@originalCategory');
+    Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::resource('products', 'ProductController');
     Route::resource('attribute-replacements', 'AttributeReplacementController');
     Route::post('products/bulk/update', 'ProductController@bulkUpdate')->name('products.bulk.update');
@@ -1415,9 +1417,18 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::get('/search/keyword-priority','GoogleSearchController@markPriority')->name('google.search.keyword.priority');
     Route::get('/search/keyword', 'GoogleSearchController@index')->name('google.search.keyword');
     Route::get('/search/results', 'GoogleSearchController@searchResults')->name('google.search.results');
+
+    Route::resource('/affiliate/keyword', 'GoogleAffiliateController');
+    Route::get('/affiliate/keyword', 'GoogleAffiliateController@index')->name('google.affiliate.keyword');
+    Route::get('/affiliate/keyword-priority','GoogleAffiliateController@markPriority')->name('google.affiliate.keyword.priority');
+    Route::get('/affiliate/results', 'GoogleAffiliateController@searchResults')->name('google.affiliate.results');
+    Route::post('affiliate/flag', 'GoogleAffiliateController@flag')->name('affiliate.flag');
+    Route::post('affiliate/email/send', 'GoogleAffiliateController@emailSend')->name('affiliate.email.send');
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
+
+Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->name('manageScrapedBrands');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::prefix('github')->group(function () {
