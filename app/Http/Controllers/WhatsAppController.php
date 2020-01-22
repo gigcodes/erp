@@ -2564,7 +2564,7 @@ class WhatsAppController extends FindByNumberController
                 }
 
             } else {
-                if(!empty($imagesDecoded)) {
+                if(!empty($imagesDecoded) && is_array($imagesDecoded)) {
                     $medias = Media::whereIn("id",array_unique($imagesDecoded))->get();
                     if(!$medias->isEmpty()) {
                         foreach($medias as $media) {
