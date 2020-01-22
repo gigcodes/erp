@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Github;
 use App\Github\GithubRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Artisan;
 use Carbon\Carbon;
 use DateTime;
 use Exception;
@@ -112,6 +113,7 @@ class RepositoryController extends Controller
                 ]
             );
             echo 'done';
+            Artisan::call('github:load_branch_state');
         } catch (Exception $e) {
             print_r($e->getMessage());
             return redirect(url('/github/repos/' . $id . '/branches'))->with(
