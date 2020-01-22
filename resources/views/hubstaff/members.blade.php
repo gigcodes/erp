@@ -1,66 +1,90 @@
 @extends('layouts.app')
 
 @section('link-css')
-  <style type="text/css">
-    .form-group{
-      padding: 10px;
-    }
-  </style>
+<style type="text/css">
+  .form-group {
+    padding: 10px;
+  }
+</style>
 @endsection
 
 @section('content')
 
 @if(Session::has('message'))
-  <div class="alert alert-success alert-block" >
-    <button type="button" class="close" data-dismiss="alert">×</button> 
-        <strong>{{ Session::get('message') }}</strong>
-  </div>
+<div class="alert alert-success alert-block">
+  <button type="button" class="close" data-dismiss="alert">×</button>
+  <strong>{{ Session::get('message') }}</strong>
+</div>
 @endif
 
-    <h2 class="text-center">Users List from Hubstaff </h2>
+<h2 class="text-center">Users List from Hubstaff </h2>
 
-    <div class="container">
-        @if(!empty($members) && !$members['error'])
-            <div class="row">
-              <table class="table table-bordered">
-                <thead>
-                  <tr>
-                    <th>User ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                @foreach($members as $member)
-                  <tbody>
-                    <tr>
-                      <td>{{ $member->id }}</td>
-                      <td>{{ ucwords($member->name) }}</td>
-                      <td>{{ $member->email }}</td>
-                      <td>
-                        @if($member->status == "active")
-                          <span class="badge badge-success">Active</span>
-                        @else
-                          <span class="badge badge-danger">In active</span>
-                        @endif
-                      </td>
-                        <td>
-                            <select name="" id="">
-                                <option>Test User</option>
-                            </select>
-                        </td>
-                    </tr>
-                  </tbody>
-                @endforeach
-              </table>
-                <br>
-                <hr>
-            </div>
-          @else
-              <div style="text-align: center;color: red;font-size: 14px;">
-                  {{$members['error_description']}}
-              </div>
-          @endif
-    </div>
+<div class="container">
+  @if(!empty($members))
+  <div class="row">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>HubStaff Id</th>
+          <th>Hubstaff Email</th>
+          <th>User</th>
+
+        </tr>
+      </thead>
+      @foreach($members as $member)
+      <tbody>
+        <tr>
+          <td>{{ $member->hubstaff_user_id }}</td>
+          <td>{{ $member->email }}</td>
+          <td>
+            <select onchange="saveUser(this)">
+              <option value="unassigned">Unassigned</option>
+              @foreach($users as $user)
+              <option value="{{$user->id}}|{{ $member->hubstaff_user_id }}" <?= ($member->user_id == $user->id) ? 'selected' : '' ?>>{{$user->name}}</option>
+              @endforeach
+            </select>
+          </td>
+
+        </tr>
+      </tbody>
+      @endforeach
+    </table>
+    <br>
+    <hr>
+  </div>
+  @else
+  <div style="text-align: center;color: red;font-size: 14px;">
+    {{$members['error_description']}}
+  </div>
+  @endif
+</div>
 @endsection
+
+<script type="text/javascript">
+  function saveUser(a) {
+    var selectedValue = (a.value || a.options[a.selectedIndex].value); //crossbrowser solution =)
+    console.log('selectedValue', selectedValue);
+    if (selectedValue != 'unassigned') {
+      var splitValues = selectedValue.split('|');
+      var userId = splitValues[0];
+      var hubstaffUserId = splitValues[1];
+
+      var xhr = new XMLHttpRequest();
+      var url = "linkuser";
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          var json = JSON.parse(xhr.responseText);
+          console.log(json.email + ", " + json.password);
+        }
+      };
+      var data = JSON.stringify({
+        "user_id": userId,
+        "hubstaff_user_id": hubstaffUserId
+      });
+      xhr.send(data);
+    }
+
+  }
+</script>

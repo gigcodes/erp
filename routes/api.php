@@ -97,3 +97,6 @@ Route::post('scraper/endtime','ScrapController@recieveScrapDetails');
 Route::get('search/{type}', 'SearchQueueController@index');
 Route::post('search/{type}', 'SearchQueueController@upload_content');
 
+//Google affiliate search
+Route::get('google/affiliate/keywords', 'GoogleAffiliateController@getKeywordsApi');
+Route::post('google/affiliate/search-results', 'GoogleAffiliateController@apiPost');
