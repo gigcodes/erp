@@ -53,7 +53,7 @@
 
     <div class="row mb-5">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Supplier Scrapping Info</h2>
+            <h2 class="page-heading">Supplier Scrapping Info <span class="total-info"></span></h2>
         </div>
     </div>
 
@@ -110,6 +110,7 @@
            Status In Process count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'In Process')->where('supplier_status_id', 1)->count()}}
         </div>
     </div>
+    <?php $totalCountedUrl = 0; ?>
     <div class="row no-gutters mt-3">
         <div class="col-md-12" id="plannerColumn">
             <div class="">
@@ -193,6 +194,7 @@
                             </td>
                             <td width="10%">{!! !empty($data) ? str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($data->last_scrape_date))) : '' !!}</td>
                             <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
+                            <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
                             <td width="3%">{{ !empty($data) ? $data->total : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td>
@@ -333,6 +335,9 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script type="text/javascript">
+
+        $(".total-info").html("({{$totalCountedUrl}})");
+
         $(document).on("click", ".toggle-class", function () {
             $(".hidden_row_" + $(this).data("id")).toggleClass("dis-none");
         });
