@@ -1,6 +1,23 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    #branches-table_filter {
+        text-align: right;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
+<script>
+    $(document).ready(function() {
+        $('#branches-table').DataTable({
+            "paging": false,
+            "ordering": true,
+            "info": false
+        });
+    });
+</script>
 
 <script>
     @if(Session::has('message'))
@@ -25,8 +42,8 @@
     @endif
 
     function confirmMergeToMaster(branchName, url) {
-        let result = confirm("Are you sure you want to merge "+branchName+" to master?");
-        if(result){
+        let result = confirm("Are you sure you want to merge " + branchName + " to master?");
+        if (result) {
             window.location.href = url;
         }
     }
@@ -40,7 +57,7 @@
     <div class="text-right">
         <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch=master') }}">Deploy Master</a>
     </div>
-    <table class="table table-bordered">
+    <table id="branches-table" class="table table-bordered">
         <thead>
             <tr>
                 <th>Name</th>
