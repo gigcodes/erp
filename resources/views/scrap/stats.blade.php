@@ -101,13 +101,13 @@
     </form>
     <div class="row">
         <div class="col-md-2">
-           Status Ok count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Ok')->where('supplier_status_id', 1)->count()}}
+            Status Ok count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Ok')->where('supplier_status_id', 1)->count()}}
         </div>
         <div class="col-md-2">
-           Status Rework count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Rework')->where('supplier_status_id', 1)->count()}}
+            Status Rework count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Rework')->where('supplier_status_id', 1)->count()}}
         </div>
         <div class="col-md-3">
-           Status In Process count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'In Process')->where('supplier_status_id', 1)->count()}}
+            Status In Process count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'In Process')->where('supplier_status_id', 1)->count()}}
         </div>
     </div>
     <?php $totalCountedUrl = 0; ?>
@@ -266,7 +266,7 @@
                                         <?php echo Form::text("server_id",$supplier->server_id, ["class" => "form-control server-id-update"]); ?>
                                         <button class="btn btn-sm btn-image server-id-update-btn" data-vendorid="<?php echo $supplier->id; ?>"><img src="/images/filled-sent.png" style="cursor: default;"></button>
                                     </div>
-                                </td>   
+                                </td>
                                 <td colspan="2">
                                     <label>Status:</label>
                                     <div class="form-group">
@@ -274,7 +274,7 @@
                                     </div>
                                 </td>
                             </tr>
-                        @endif
+                    @endif
                     @endforeach
                 </table>
                 <?php /* no needed

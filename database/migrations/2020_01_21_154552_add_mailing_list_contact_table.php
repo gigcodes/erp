@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddNewColumnsInAssetsManagerTable extends Migration
+class AddMailingListContactTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddNewColumnsInAssetsManagerTable extends Migration
      */
     public function up()
     {
-        Schema::table('assets_manager', function (Blueprint $table) {
-//            $table->string('usage')->nullable()->after('currency');
+        Schema::create('list_contacts', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('list_id');
+            $table->unsignedInteger('customer_id');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class AddNewColumnsInAssetsManagerTable extends Migration
      */
     public function down()
     {
-        Schema::table('assets_manager', function (Blueprint $table) {
-            $table->dropColumn('usage');
-        });
+        Schema::dropIfExists('list_contacts');
     }
 }

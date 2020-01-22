@@ -1095,7 +1095,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/generic-scraper/mapping/save', 'ScrapController@genericMappingSave')->name('generic.mapping.save');
     Route::post('/generic-scraper/mapping/delete', 'ScrapController@genericMappingDelete')->name('generic.mapping.delete');
 
-    Route::get('/{name}', 'ScrapController@showProducts');
+    Route::get('/{name}', 'ScrapController@showProducts')->name('show.logFile');
 
 
 });
@@ -1390,6 +1390,25 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::post('broadcast/customer/list', 'BroadcastController@getCustomerBroadcastList')->name('broadcast.customer.list');
     Route::post('broadcast/global/save', 'BroadcastController@saveGlobalValues')->name('broadcast.global.save');
     Route::post('broadcast/enable/count', 'BroadcastController@getCustomerCountEnable')->name('broadcast.enable.count');
+    Route::get('broadcast/sendMessage/list','BroadcastController@broadCastSendMessage')->name('broadcast.message.send.list');
+    Route::post('broadcast/customer/list','BroadcastController@getCustomerBroadcastList')->name('broadcast.customer.list');
+    Route::post('broadcast/global/save','BroadcastController@saveGlobalValues')->name('broadcast.global.save');
+    Route::post('broadcast/enable/count','BroadcastController@getCustomerCountEnable')->name('broadcast.enable.count');
+
+    Route::get('mailinglist', 'MailinglistController@index')->name('mailingList');
+    Route::get('mailinglist/{id}', 'MailinglistController@show')->name('mailingList.single');
+    Route::get('mailinglist/add/{id}/{email}', 'MailinglistController@addToList')->name('mailingList.add_to_list');
+    Route::get('mailinglist/delete/{id}/{email}', 'MailinglistController@delete')->name('mailingList.delete');
+    Route::get('mailinglist/list/delete/{id}', 'MailinglistController@deleteList')->name('mailingList.delete.list');
+    Route::post('mailinglist-create', 'MailinglistController@create')->name('mailingList.create');
+    Route::post('addRemark', 'MailinglistController@addRemark')->name('mailingList.addRemark');
+    Route::get('gettaskremark', 'MailinglistController@getBroadCastRemark')->name('mailingList.gets.remark');
+
+    Route::get('services', 'ServiceController@index')->name('services');
+    Route::post('services/store', 'ServiceController@store')->name('services.store');
+    Route::post('services/destroy', 'ServiceController@destroy')->name('services.destroy');
+    Route::post('services/update', 'ServiceController@update')->name('services.update');
+
 });
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
