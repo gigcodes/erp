@@ -1002,26 +1002,5 @@ class ScrapController extends Controller
         $mapping->delete();
         return response()->json(['success'],200);
     }
-    public function showProducts($id)
-    {
-        $root = env('SCRAP_LOGS_FOLDER');
-        $arr = [];
-
-        foreach (File::allFiles($root) as $file) {
-            $needed = explode('-', $file->getFilename());
-            if ($needed[0] === $id) {
-                $filePath = $file->getRelativePath() . '/' . $file->getFilename();
-                array_push($arr, $filePath);
-            }
-        }
-
-        if (!empty($arr)) {
-            $fileLoc = $root . '/' . end($arr);
-            return response()->file($fileLoc);
-        } else {
-            return redirect()->back();
-        }
-
-    }
 }
 
