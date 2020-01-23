@@ -48,7 +48,12 @@ class DialogController extends Controller
 
         $chatbotDialog = ChatbotDialog::create($params);
 
-        WatsonManager::pushDialog($chatbotDialog->id);
+        $result        = json_decode(WatsonManager::pushDialog($chatbotDialog->id));
+        
+        if (property_exists($result, 'error')) {
+            ChatbotDialog::where("id", $chatbotDialog->id)->delete();
+            return response()->json(["code" => $result->code, "error" => $result->error]);
+        }
 
         return response()->json(["code" => 200, "data" => $chatbotDialog, "redirect" => route("chatbot.dialog.edit", [$chatbotDialog->id])]);
     }
