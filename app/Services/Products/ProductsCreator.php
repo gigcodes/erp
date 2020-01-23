@@ -128,15 +128,20 @@ class ProductsCreator
             // Update with scraped sizes
             if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) > 0) {
                 $sizes = $image->properties[ 'sizes' ];
+                $euSize = [];
 
                 // Loop over sizes and redactText
                 if (is_array($sizes) && $sizes > 0) {
                     foreach ($sizes as $size) {
-                        $allSize[] = ProductHelper::getRedactedText($size, 'composition');
+                        $helperSize = ProductHelper::getRedactedText($size, 'composition');
+                        $allSize[] = $helperSize;
+                        //find the eu size and update into the field
+                        $euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
                     }
                 }
 
                 $product->size = implode(',', $allSize);
+                $product->size_eu = implode(',', $euSize);
             }
 
             // Store measurement

@@ -155,11 +155,19 @@ class MagentoSoapHelper
 
         // Get all the sizes
         $arrSizes = explode(',', $product->size);
+        $hasEuSize = false;
+        $euArrSize = explode(',', $product->size_eu);
+        if(!empty($euArrSize)) {
+            $arrSizes = $euArrSize;
+            $hasEuSize = true;
+        }
 
         // Loop over each size and create a single (child) product
         foreach ($arrSizes as $size) {
             // Get correct size
-            $size = ProductHelper::getWebsiteSize($product->size_system, $size, $product->category);
+            if(!$hasEuSize){
+                $size = ProductHelper::getWebsiteSize($product->size_system, $size, $product->category);
+            }
 
             // Set SKU
             $sku = $product->sku . $product->color;
