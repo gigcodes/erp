@@ -582,7 +582,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
 
     // Social Media Image Module
-    Route::get('images/grid', 'ImageController@index')->name('image.grid');
+    Route::get('lifestyle/images/grid', 'ImageController@index')->name('image.grid');
     Route::post('images/grid', 'ImageController@store')->name('image.grid.store');
     Route::post('images/grid/attachImage', 'ImageController@attachImage')->name('image.grid.attach');
     Route::get('images/grid/approvedImages', 'ImageController@approved')->name('image.grid.approved');

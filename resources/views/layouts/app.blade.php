@@ -907,7 +907,7 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Images<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('image.grid') }}">Image Grid</a>
+                                            <a class="dropdown-item" href="{{ route('image.grid') }}">Lifestyle Image Grid</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
