@@ -421,6 +421,8 @@ class LiveChatController extends Controller
 			$customer->update();
 		}
 
+		$threadId = $customer->thread;
+
 		$messages = ChatMessage::where('customer_id',$chatId)->where('message_application_id',2)->get();
 		//getting customer name from chat
 		$customer = Customer::findorfail($chatId);
@@ -450,7 +452,7 @@ class LiveChatController extends Controller
 		
 		return response()->json([
 						'status' => 'success',
-						'data' => array('id' => $chatId ,'count' => $count, 'message' => $messagess , 'name' => $name, 'customerInfo' => $customerInfo),
+						'data' => array('id' => $chatId ,'count' => $count, 'message' => $messagess , 'name' => $name, 'customerInfo' => $customerInfo, 'threadId' => $threadId),
         			]);
 	}
 	
@@ -563,41 +565,49 @@ class LiveChatController extends Controller
 	* @return - response livechatinc object of customer information. If error return false
 	*/
 	function getLiveChatIncCustomer($email='', $out='JSON'){
+		$threadId = '';
 		if($email == '' && session()->has('chat_customer_id')){
 			$chatId = session()->get('chat_customer_id');
 			$messages = ChatMessage::where('customer_id',$chatId)->where('message_application_id', 2)->get();
 			//getting customer name from chat
 			$customer = Customer::findorfail($chatId);
 			$email = $customer->email;
-		}
-		$postURL = 'https://api.livechatinc.com/v3.1/agent/action/get_customers';
 
-		$postData = array('filters' => array('email' => array('values' => array($email))));
-		$postData = json_encode($postData);
-		
-		$returnVal = '';
-		$result = self::curlCall($postURL, $postData);
-		if($result['err']){
-			// echo "ERROR 1:<br>";
-			// print_r($result['err']);
-			$returnVal = false;
+			$liveChatCustomer = CustomerLiveChat::where('customer_id',$chatId)->first();
+			$threadId = $liveChatCustomer->thread;
 		}
-		else{
-			$response = json_decode($result['response']);
-			if(isset($response->error)){
-				// echo "ERROR 2:<br>";
-				// print_r($response);				
+
+		$returnVal = '';
+		if($email != ''){
+			$postURL = 'https://api.livechatinc.com/v3.1/agent/action/get_customers';
+
+			$postData = array('filters' => array('email' => array('values' => array($email))));
+			$postData = json_encode($postData);
+			
+			$returnVal = '';
+			$result = self::curlCall($postURL, $postData, 'application/json');
+			if($result['err']){
+				// echo "ERROR 1:<br>";
+				// print_r($result['err']);
 				$returnVal = false;
 			}
 			else{
-				// echo "SUCSESS:<BR>";
-				// print_r($response);
-				$returnVal = $response->customers[0];
+				$response = json_decode($result['response']);
+				if(isset($response->error)){
+					// echo "ERROR 2:<br>";
+					// print_r($response);				
+					$returnVal = false;
+				}
+				else{
+					// echo "SUCSESS:<BR>";
+					// print_r($response);
+					$returnVal = $response->customers[0];
+				}
 			}
 		}
 
 		if($out == 'JSON'){
-			return response()->json(['status' => 'success', 'customerInfo' => $returnVal], 200);
+			return response()->json(['status' => 'success', 'threadId' => $threadId, 'customerInfo' => $returnVal], 200);
 		}
 		else{
 			return $returnVal;
@@ -660,7 +670,7 @@ class LiveChatController extends Controller
 	*   data - data that has to be sent in curl call. This can be optional if GET
 	* @return - response from curl call, array(response, err)
 	*/
-	function curlCall($URL, $data=false, $contentType='application/json', $method='POST'){
+	function curlCall($URL, $data=false, $contentType=false, $defaultAuthorization=true, $method='POST'){
 		$curl = curl_init();
 
 		$curlData = array(
@@ -669,11 +679,7 @@ class LiveChatController extends Controller
 			CURLOPT_ENCODING => "",
 			CURLOPT_MAXREDIRS => 10,
 			CURLOPT_TIMEOUT => 30,
-			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-			CURLOPT_HTTPHEADER => array(
-				"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
-				"Content-Type: " . $contentType
-			)
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1
 		);
 
 		if($method == 'POST'){
@@ -682,7 +688,17 @@ class LiveChatController extends Controller
 		else{
 			$curlData[CURLOPT_CUSTOMREQUEST] = $method;
 		}
-
+		if($contentType){
+			$curlData[CURLOPT_HTTPHEADER] = [];
+			if($defaultAuthorization){
+				array_push($curlData[CURLOPT_HTTPHEADER], "Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13");
+			}
+			// $curlData[CURLOPT_HTTPHEADER] = array(
+			// 	"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
+			// 	"Content-Type: " . $contentType
+			// );
+			array_push($curlData[CURLOPT_HTTPHEADER], "Content-Type: " . $contentType);
+		}
 		if($data){
 			$curlData[CURLOPT_POSTFIELDS] = $data;
 		}
@@ -728,7 +744,7 @@ class LiveChatController extends Controller
 
 		$postURL = 'https://api.livechatinc.com/v3.1/agent/action/send_event';
 
-		$result = self::curlCall($postURL, $postData, 'multipart/json');
+		$result = self::curlCall($postURL, $postData, 'application/json');
 		if($result['err']){
 			// echo "ERROR 1:<br>";
 			// print_r($result['err']);

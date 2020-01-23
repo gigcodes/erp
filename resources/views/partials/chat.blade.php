@@ -329,12 +329,80 @@ margin-bottom: 15px !important;
 .chat-righbox .line-spacing{
 	line-height: 150%;
 }
+.typing-indicator{
+	background-color: #f5f6fa;
+	padding: 5px 5px 5px 15px;
+	font-style: italic;
+	font-size: 12px;
+	height:25px;
+}
 </style>
-
+<script src="https://cdn.livechatinc.com/accounts/accounts-sdk.min.js"></script>
 <script>
+
+var accessToken = '';
+var websocket = false;
+var wsUri = "wss://api.livechatinc.com/v3.1/agent/rtm/ws";
+const instance = AccountsSDK.init({
+	client_id: "babb4c2a30a83d68daf0ffc271ef1748",
+	// response_type: "code",
+	onIdentityFetched: (error, data) => {
+		if (error){
+			//console.log(error)
+		} 
+		if (data) {
+			//console.log("User authorized!");
+			// console.log(data);
+			accessToken = data.access_token;
+			setTimeout(instance, data.expires_in);
+			//console.log("License number: " + data.license);
+		}
+	}
+});
+
+function runWebSocket(chatId) {
+	websocket = new WebSocket(wsUri);
+
+	websocket.onopen = function(evt) {
+		pingSock();
+		websocket.send('{ "action": "login", "payload": { "token": "Bearer ' + accessToken + '" }}');
+	};
+
+	websocket.onmessage = function(evt) {
+		var evtDat = JSON.parse(evt.data);
+ 
+		if(evtDat.action == 'login' && evtDat.type == 'response' && evtDat.success == true){
+			websocket.send('{ "action": "send_typing_indicator", "payload": { "chat_id": "' +chatId + '", "is_typing": true }}');
+		}
+		if(evtDat.action == 'send_typing_indicator' && evtDat.type == 'response' && evtDat.success == true){
+			//user is typing.. show status in chat box
+			//$('#typing-indicator').html('typing...').delay(1000).html('');
+		}
+		if(evtDat.action == 'incoming_sneak_peek' && evtDat.type == 'push'){
+			//user is typing.. show status in chat box
+			$('#typing-indicator').html('typing...');
+			setTimeout( function() { $('#typing-indicator').html('') }, 1000);
+		}
+	};
+}
+
+var pingTimerObj = false;
+function pingSock() {
+	if (!websocket) return;
+	if (websocket.readyState !== 1) return;
+	websocket.send('{ "action": "ping" }');
+	pingTimerObj = setTimeout(pingSock, 15000); //ping every 15 seconds
+}
+
+var currentChatId = 0;
 var chatTimerObj = false;
 function openChatBox(show){
 	if(show){
+		//open socket
+		if(currentChatId != 0){
+			runWebSocket(currentChatId);
+		}
+
 		getChatsWithoutRefresh();
 		getUserList();
 		chatTimerObj = setInterval(function(){
@@ -344,6 +412,12 @@ function openChatBox(show){
 	}
 	else{
 		clearInterval(chatTimerObj);
+		clearInterval(pingTimerObj);
+
+		// Close the connection, if open.
+		if (websocket.readyState === WebSocket.OPEN) {
+			websocket.close();
+		}
 	}
 }
 
@@ -435,6 +509,10 @@ function getCustomerInfoOnLoad(){
 	    	$('#chatAdditionalInfo').html('');
 	    	$('#chatTechnology').html('');
 		}
+
+		if(data.threadId != ''){
+			currentChatId = data.threadId;
+		}
 	})
 	.fail(function() {
 		$('#chatCustomerInfo').html('');
@@ -447,6 +525,13 @@ function getCustomerInfoOnLoad(){
 getCustomerInfoOnLoad();
 
 function getChats(id){
+
+	// Close the connection, if open.
+	if (websocket.readyState === WebSocket.OPEN) {
+		clearInterval(pingTimerObj);
+		websocket.close();
+	}
+
 	$('#chatCustomerInfo').html('Fetcing Details...');
 	$('#chatVisitedPages').html('Fetcing Details...');
 	$('#chatAdditionalInfo').html('Fetcing Details...');
@@ -476,6 +561,12 @@ function getChats(id){
 				$('#chatAdditionalInfo').html('');
 				$('#chatTechnology').html('');
 			}
+
+			currentChatId = data.data.threadId;
+
+			//open socket
+			runWebSocket(data.data.threadId);
+			
     	//}
         console.log("success");
     })

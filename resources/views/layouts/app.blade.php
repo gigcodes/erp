@@ -1554,6 +1554,7 @@
                             <div class="card-body msg_card_body" id="message-recieve">
 
                             </div>
+                            <div class="typing-indicator" id="typing-indicator"></div>
                             <div class="card-footer">
                                 <div class="input-group">
                                     {{-- <div class="input-group-append">
