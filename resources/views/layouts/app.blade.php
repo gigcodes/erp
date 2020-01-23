@@ -625,6 +625,7 @@
                                             <a class="dropdown-item" href="{{ route('whatsapp.config.index') }}">WhatsApp Config</a>
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -990,6 +991,17 @@
                                                 </li>
                                             </ul>
                                         </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Affiliate<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.affiliate.keyword')}}">Keywords</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.affiliate.results')}}">Search Results</a>
+                                                </li>
+                                            </ul>
+                                        </li>                                        
                                     </ul>
                                 </li>
                             </ul>
@@ -1029,6 +1041,16 @@
                                 </li>
                             </ul>
                         </li>
+                        @if(auth()->user()->isAdmin())
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Queue<span class="caret"></span></a>
+                                <ul class="dropdown-menu multi-level">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endif
                         @if(auth()->user()->isAdmin())
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
@@ -1137,6 +1159,9 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('services') }}">Services</a>
                                 </li>
 
                                 <li class="nav-item dropdown dropdown-submenu">

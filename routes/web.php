@@ -53,7 +53,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 });
 
 Route::prefix('logging')->middleware('auth')->group(static function () {
-    Route::get('list-magento', 'Logging\LogListMagentoController@index');
+    Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.laravel.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
@@ -141,7 +141,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/unlistMagento', 'ProductController@unlistMagento');
     Route::post('products/{id}/approveMagento', 'ProductController@approveMagento');
     Route::post('products/{id}/updateMagento', 'ProductController@updateMagento');
+    Route::post('products/updateMagentoProduct', 'ProductController@updateMagentoProduct')->name('product.update.magento');
     Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
+    Route::post('products/{id}/originalCategory', 'ProductController@originalCategory');
+    Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::resource('products', 'ProductController');
     Route::resource('attribute-replacements', 'AttributeReplacementController');
     Route::post('products/bulk/update', 'ProductController@bulkUpdate')->name('products.bulk.update');
@@ -593,6 +596,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('images/grid/make/set', 'ImageController@set')->name('image.grid.set');
     Route::post('images/grid/make/set/download', 'ImageController@setDownload')->name('image.grid.set.download');
     Route::post('images/grid/update/schedule', 'ImageController@updateSchedule')->name('image.grid.update.schedule');
+    Route::post('images/searchQueue', 'ImageController@imageQueue')->name('image.queue');
 
     Route::post('leads/save-leave-message', 'LeadsController@saveLeaveMessage')->name('leads.message.save');
 
@@ -1092,7 +1096,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/generic-scraper/mapping/save', 'ScrapController@genericMappingSave')->name('generic.mapping.save');
     Route::post('/generic-scraper/mapping/delete', 'ScrapController@genericMappingDelete')->name('generic.mapping.delete');
 
-    Route::get('/{name}', 'ScrapController@showProducts');
+    Route::get('/{name}', 'ScrapController@showProducts')->name('show.logFile');
 
 
 });
@@ -1387,6 +1391,25 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::post('broadcast/customer/list', 'BroadcastController@getCustomerBroadcastList')->name('broadcast.customer.list');
     Route::post('broadcast/global/save', 'BroadcastController@saveGlobalValues')->name('broadcast.global.save');
     Route::post('broadcast/enable/count', 'BroadcastController@getCustomerCountEnable')->name('broadcast.enable.count');
+    Route::get('broadcast/sendMessage/list','BroadcastController@broadCastSendMessage')->name('broadcast.message.send.list');
+    Route::post('broadcast/customer/list','BroadcastController@getCustomerBroadcastList')->name('broadcast.customer.list');
+    Route::post('broadcast/global/save','BroadcastController@saveGlobalValues')->name('broadcast.global.save');
+    Route::post('broadcast/enable/count','BroadcastController@getCustomerCountEnable')->name('broadcast.enable.count');
+
+    Route::get('mailinglist', 'MailinglistController@index')->name('mailingList');
+    Route::get('mailinglist/{id}', 'MailinglistController@show')->name('mailingList.single');
+    Route::get('mailinglist/add/{id}/{email}', 'MailinglistController@addToList')->name('mailingList.add_to_list');
+    Route::get('mailinglist/delete/{id}/{email}', 'MailinglistController@delete')->name('mailingList.delete');
+    Route::get('mailinglist/list/delete/{id}', 'MailinglistController@deleteList')->name('mailingList.delete.list');
+    Route::post('mailinglist-create', 'MailinglistController@create')->name('mailingList.create');
+    Route::post('addRemark', 'MailinglistController@addRemark')->name('mailingList.addRemark');
+    Route::get('gettaskremark', 'MailinglistController@getBroadCastRemark')->name('mailingList.gets.remark');
+
+    Route::get('services', 'ServiceController@index')->name('services');
+    Route::post('services/store', 'ServiceController@store')->name('services.store');
+    Route::post('services/destroy', 'ServiceController@destroy')->name('services.destroy');
+    Route::post('services/update', 'ServiceController@update')->name('services.update');
+
 });
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
@@ -1416,16 +1439,26 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::get('/search/keyword-priority','GoogleSearchController@markPriority')->name('google.search.keyword.priority');
     Route::get('/search/keyword', 'GoogleSearchController@index')->name('google.search.keyword');
     Route::get('/search/results', 'GoogleSearchController@searchResults')->name('google.search.results');
+
+    Route::resource('/affiliate/keyword', 'GoogleAffiliateController');
+    Route::get('/affiliate/keyword', 'GoogleAffiliateController@index')->name('google.affiliate.keyword');
+    Route::get('/affiliate/keyword-priority','GoogleAffiliateController@markPriority')->name('google.affiliate.keyword.priority');
+    Route::get('/affiliate/results', 'GoogleAffiliateController@searchResults')->name('google.affiliate.results');
+    Route::post('affiliate/flag', 'GoogleAffiliateController@flag')->name('affiliate.flag');
+    Route::post('affiliate/email/send', 'GoogleAffiliateController@emailSend')->name('affiliate.email.send');
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
+
+Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->name('manageScrapedBrands');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::prefix('github')->group(function () {
         Route::get('/repos', 'Github\RepositoryController@listRepositories');
         Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
         Route::get('/repos/{name}/users/add', 'Github\UserController@addUserToRepositoryForm');
-        Route::get('/repos/{id}/settings', 'Github\RepositoryController@getRepositoryDetails');
+        Route::get('/repos/{id}/branches', 'Github\RepositoryController@getRepositoryDetails');
+        Route::get('/repos/{id}/branch/merge', 'Github\RepositoryController@mergeBranch');
         Route::post('/add_user_to_repo', 'Github\UserController@addUserToRepository');
         Route::get('/users', 'Github\UserController@listOrganizationUsers');
         Route::get('/users/{userId}', 'Github\UserController@userDetails');

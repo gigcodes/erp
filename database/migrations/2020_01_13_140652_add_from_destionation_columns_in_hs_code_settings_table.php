@@ -13,10 +13,10 @@ class AddFromDestionationColumnsInHsCodeSettingsTable extends Migration
      */
     public function up()
     {
-        Schema::table('hs_code_settings', function (Blueprint $table) {
-            $table->string('from_country')->nullable()->after('key');
-            $table->string('destination_country')->nullable()->after('key');
-        });
+//        Schema::table('hs_code_settings', function (Blueprint $table) {
+//            $table->string('from_country')->nullable()->after('key');
+//            $table->string('destination_country')->nullable()->after('key');
+//        });
     }
 
     /**

@@ -1,7 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-<h2 class="text-center">{{$group->name}}</h2>
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <h2 class="page-heading">{{$group->name}}</h2>
+    </div>
+</div>
 
 <ul class="nav nav-tabs">
     <li class="active"><a data-toggle="tab" href="#repositories">Repositories</a></li>
