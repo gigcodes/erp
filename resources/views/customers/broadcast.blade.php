@@ -63,24 +63,6 @@
                                    <div class="alert alert-danger">{{$errors->first('customer')}}</div>
                                @endif
                              </div> --}}
-                             <div class="form-group ml-3">
-                                  <select class="form-control" name="shoe_size_group">
-                                      <option value="">Select</option>
-                                      <?php foreach ($shoe_size_group as $shoe_size => $customerCount) {
-                                          echo '<option value="'.$shoe_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$shoe_size.' Size) '.$customerCount.' Customers</option>';
-                                      } ?>
-                                  </select>
-                              </div>
-                              <div class="form-group ml-3">
-                                  <select class="form-control" name="clothing_size_group">
-                                      <option value="">Select</option>
-                                      <?php foreach ($clothing_size_group as $clothing_size => $customerCount) {
-                                          echo '<option value="'.$clothing_size.'" '.($shoe_size == request()->get('shoe_size_group') ? 'selected' : '').'>('.$clothing_size.' Size) '.$customerCount.' Customers</option>';
-                                      } ?>
-                                  </select>
-                              </div>
-
-
                             {{-- </div>
                             <div class="col-md-4"> --}}
                                 <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png" /></button>
@@ -160,21 +142,10 @@
                           <strong>Group ID {{ $group_id }}</strong>
                           <br>
 
-                          {{ $group['message'] }}
-
-                          @if (count($group['image']) > 0)
-                            @foreach ($group['image'] as $image)
-                              <img src="{{ $image['url'] }}" class="img-responsive" style="width: 50px;" alt="">
-                            @endforeach
+                          @if($group['image'] != null)
+                             <img src="{{ $group['image'] }}" class="img-responsive" style="width: 50px;" alt="">
                           @endif
-
-                          @if (count($group['linked_images']) > 0)
-                            @foreach ($group['linked_images'] as $image)
-                              @if (is_array($image) && array_key_exists('url', $image))
-                                <img src="{{ $image['url'] }}" class="img-responsive" style="width: 50px;" alt="">
-                              @endif
-                            @endforeach
-                          @endif
+                         
                         </td>
                         <td>
                           <div class="card activity-chart mb-3">
@@ -187,12 +158,8 @@
                               @csrf
 
                               <div class="form-group">
-                                <select class="form-control input-sm" name="whatsapp_number">
-                                  <option value="">Select Whatsapp Number</option>
-                                  @foreach ($api_keys as $api_key)
-                                    <option value="{{ $api_key }}">{{ $api_key }}</option>
-                                  @endforeach
-                                </select>
+                               <input type="hidden" name="whatsapp_number" value="{{ $group['whatsapp_number'] }}">
+                               {{ $group['whatsapp_number'] }}
                               </div>
 
                               <button type="submit" class="btn btn-xs btn-secondary">Stop</button>
@@ -200,21 +167,15 @@
                           @else
                             <form class="my-1" action="{{ route('broadcast.restart.group', $group_id) }}" method="POST">
                               @csrf
-
+                              
                               <div class="form-group">
-                                <select class="form-control input-sm" name="whatsapp_number">
+                                <select class="form-control input-sm" name="whatsapp_number" required>
                                   <option value="">Select Whatsapp Number</option>
                                   @foreach ($api_keys as $api_key)
-                                    <option value="{{ $api_key }}">{{ $api_key }}</option>
+                                    <option value="{{ $api_key->id }}">{{ $api_key->number }}</option>
                                   @endforeach
                                 </select>
                               </div>
-
-                              <div class="form-group">
-                                <strong>Frequency</strong>
-                                <input type="number" class="form-control input-sm" name="frequency" value="10" min="1" required>
-                              </div>
-
                               <button type="submit" class="btn btn-xs btn-secondary">Restart</button>
                             </form>
 
