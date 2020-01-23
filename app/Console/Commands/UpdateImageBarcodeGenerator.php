@@ -42,6 +42,8 @@ class UpdateImageBarcodeGenerator extends Command
     public function handle()
     {
 
+      return true;
+
       $productId = $this->argument('product_id');
       
       $file_types = array(
