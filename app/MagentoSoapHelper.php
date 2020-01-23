@@ -301,9 +301,8 @@ class MagentoSoapHelper
                     ['key' => 'country_of_manufacture', 'value' => ucwords($product->made_in),],
                     ['key' => 'brands', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
                     ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
-                    ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0]
+                    ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
                     ['key' => 'hscode', 'value' => $product->hsCode($product->category,$product->composition),]
-                       
                 ]
             ]
         );

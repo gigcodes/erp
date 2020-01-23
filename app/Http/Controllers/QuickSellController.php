@@ -123,6 +123,7 @@ class QuickSellController extends Controller
         $product->name = $request->name;
     		$product->sku = $request->sku;
     		$product->size = $request->size ? implode(',', $request->size) : $request->other_size;
+        	$product->size_eu = $request->get("size_eu",null);
     		$product->brand = $request->brand;
     		$product->color = $request->color;
     		$product->supplier = $request->supplier;
@@ -207,6 +208,7 @@ class QuickSellController extends Controller
       $product->supplier = $request->supplier;
       $product->price = $request->price;
       $product->size = $request->size;
+      $product->size_eu = $request->get("size_eu");
       $product->brand = $request->brand;
       $product->location = $request->location;
       $product->category = $request->category;
