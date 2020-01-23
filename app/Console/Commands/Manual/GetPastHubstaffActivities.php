@@ -101,7 +101,6 @@ class GetPastHubstaffActivities extends Command
             $response = $this->doHubstaffOperationWithAccessToken(
                 function ($accessToken) use ($startTime, $endTime) {
                     $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime;
-                    // /v2/organizations/{organization_id}/activities/daily
                     return $this->client->get(
                         $url,
                         [
