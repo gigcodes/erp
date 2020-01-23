@@ -79,6 +79,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('crop-references-grid/reject', 'CroppedImageReferenceController@rejectCropImage');
 
+    Route::get('public-key', 'EncryptController@index')->name('encryption.index');
+    Route::post('save-key', 'EncryptController@saveKey')->name('encryption.save.key');
+    Route::post('forget-key', 'EncryptController@forgetKey')->name('encryption.forget.key');
+    
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
