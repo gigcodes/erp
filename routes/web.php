@@ -846,6 +846,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
 
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
+
+    Route::post('supplier/change-whatsapp-no', 'SupplierController@changeWhatsappNo')->name('supplier.change.whatsapp');
+
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
     Route::resource('supplier', 'SupplierController');
