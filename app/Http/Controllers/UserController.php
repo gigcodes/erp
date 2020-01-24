@@ -87,12 +87,21 @@ class UserController extends Controller
 			'email' => 'required|email|unique:users,email',
 			'phone' => 'sometimes|nullable|integer|unique:users,phone',
 			'password' => 'required|same:confirm-password',
-			
+			'hourly_rate' => 'numeric',
+			'currency' => 'string'
 
 		]);
 
-
 		$input = $request->all();
+		
+		$userRate = new UserRate;
+		$userRate->start_date=Carbon::now();
+		$userRate->hourly_rate=$input['hourly_rate'];
+		$userRate->currency=$input['currency'];
+
+		unset($input['hourly_rate']);
+		unset($input['currency']);
+		
 		$input['name'] = str_replace(' ', '_', $input['name']);
 		$input['password'] = Hash::make($input['password']);
 		if(isset($input['agent_role']))
@@ -101,6 +110,8 @@ class UserController extends Controller
 		$user = User::create($input);
 		
 
+		$userRate->user_id=$user->id;
+		$userRate->save();
 
 		return redirect()->to('/users/'.$user->id.'/edit')->with('success','User created successfully');;
 	}
