@@ -86,7 +86,9 @@
              
               <td>{{ $cron->error_count }}</td>
               <td>{{ $cron->updated_at->format('Y-m-d H:i:s') }}</td>
-                <td><a href="/cron/history/{{ $cron->signature }}"class="btn btn-secondary btn-sm">Click</button></a>
+              <td>
+                <a href="/cron/history/{{ $cron->signature }}"class="btn btn-secondary btn-sm">Click</button></a>
+                | <a href="javascript:;" data-r="{{ $cron->signature }}" class="btn btn-secondary btn-sm btn-run-command">Run</button></a>
             </tr>
 
 
@@ -113,7 +115,21 @@
             format: 'YYYY-MM-DD'
         });
 
-
-  
-</script>
+        $(document).on("click",".btn-run-command",function() {
+            var commandName = $(this).data("r");
+            $.ajax({
+              type: 'GET',
+              url: "/cron/run",
+              data: {name: commandName}
+            }).done(function(response) {
+               if(response.code == 200) {
+                 toastr['success'](response.output, 'success');
+               }else{
+                 toastr['error'](response.output, '');
+               } 
+            }).fail(function(response) {
+               toastr['error']('oops,something went wrong', '');
+            });
+        });
+    </script>
 @endsection
