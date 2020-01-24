@@ -290,16 +290,15 @@ var updateBoxEvent = function(parentId) {
                     var html = "";
                     $.each(dialogBoxData, function(k, v) {
                         var myTmpl = $.templates("#dialog-leaf");
-                        html += myTmpl.render({
-                            "data": v
-                        });
+                        var folderTemplate = $.templates("#dialog-folder-leaf");
+                        html += (v.dialog_type == 'folder') ? folderTemplate.render({ "data": v}): myTmpl.render({"data": v});
                     });
                     if (parent_id > 0) {
-                        var dilogTree = $(".node_child_" + parent_id).find(".node-children");
+                        var dialogTree = $(".node_child_" + parent_id).find(".node-children");
                     } else {
-                        var dilogTree = $("#dialog-tree");
+                        var dialogTree = $("#dialog-tree");
                     }
-                    dilogTree.html(html);
+                    dialogTree.html(html);
                     $("#leaf-editor-model").modal("hide");
                 }
             }
@@ -324,6 +323,31 @@ $(document).on("click", "#create-dialog-btn-open", function() {
     $("[data-toggle='toggle']").bootstrapToggle();
     searchForIntent($("#leaf-editor-model"));
 });
+
+
+$(document).on("click", "#create-dialog-folder-btn-rest", function(e) {
+    e.preventDefault();
+    var previous_node = 0;
+    $.ajax({
+        type: "get",
+        url: "/chatbot/rest/dialog/create",
+        data: {
+            "previous_node": previous_node,
+            "dialog_type": "folder"
+        },
+        dataType: "json",
+        success: function(response) {
+            if (response.code == 200) {
+                updateBoxEvent();
+            }
+        },
+        error: function() {
+            toastr['error']('Could not change module!');
+        }
+    });
+});
+
+
 $(document).on("click", "#create-dialog-btn-rest", function(e) {
     e.preventDefault();
     var previous_node = 0;
@@ -531,7 +555,8 @@ $(document).on("click", ".bx--overflow-menu-options > li", function() {
                 }
             },
             error: function() {
-                toastr['error']('Could not change module!');
+                errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+                toastr['error'](errorMessage);
             }
         });
     }
