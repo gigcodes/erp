@@ -351,6 +351,18 @@ class User extends Authenticatable
     }
 
 
+    public function rates(){
 
+        $date = date('Y-m-d',strtotime('last sunday'));
+
+        //$currentRate = UserRate::getRateForUser($this->id);
+
+        return $this->hasMany(
+            'App\UserRate',
+            'user_id',
+            'id'
+        )
+        ->where('user_rates.start_date','>=', $date);
+    }
 
 }

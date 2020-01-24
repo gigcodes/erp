@@ -18,6 +18,7 @@ use App\Customer;
 use App\UserProduct;
 use App\Role;
 use App\Permission;
+use App\UserRate;
 use DB;
 use Hash;
 use Cache;
@@ -94,7 +95,7 @@ class UserController extends Controller
 
 		$input = $request->all();
 		
-		$userRate = new UserRate;
+		$userRate = new UserRate();
 		$userRate->start_date=Carbon::now();
 		$userRate->hourly_rate=$input['hourly_rate'];
 		$userRate->currency=$input['currency'];
@@ -181,8 +182,12 @@ class UserController extends Controller
 		$api_keys = ApiKey::select('number')->get();
 		$customers_all = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
 
-
-		return view('users.edit',compact('user', 'users', 'roles','userRole' , 'agent_roles','user_agent_roles', 'api_keys', 'customers_all','permission','userPermission'));
+		$userRate = UserRate::getRateForUser($user->id);
+		
+		return view(
+			'users.edit',
+			compact('user', 'users', 'roles','userRole' , 'agent_roles','user_agent_roles', 'api_keys', 'customers_all','permission','userPermission', 'userRate')
+		);
 	}
 
 
@@ -202,10 +207,17 @@ class UserController extends Controller
 			'phone' => 'sometimes|nullable|integer|unique:users,phone,' . $id,
 			'password' => 'same:confirm-password',
 			'roles' => 'required',
-
 		]);
 
+
 		$input = $request->all();
+
+		$hourly_rate = $input['hourly_rate'];
+		$currency = $input['currency'];
+
+		unset($input['hourly_rate']);
+		unset($input['currency']);
+
 		$input['name'] = str_replace(' ', '_', $input['name']);
 		if(isset($input['agent_role'])){
         $input['agent_role'] = implode(',', $input['agent_role']);
@@ -246,6 +258,13 @@ class UserController extends Controller
 		$user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
 		$user->save();
 
+
+		$userRate = new UserRate();
+		$userRate->start_date=Carbon::now();
+		$userRate->hourly_rate=$hourly_rate;
+		$userRate->currency=$currency;
+		$userRate->user_id = $user->id;
+		$userRate->save();
 
 
 		return redirect()->back()
@@ -372,6 +391,11 @@ class UserController extends Controller
 		$user->save();
 
 		return redirect()->back()->withSuccess('You have successfully updated the user!');
+	}
+
+	public function payments(){
+		$users = User::with('rates')->get();
+		echo 'hello';
 	}
 
 	public function checkUserLogins()
