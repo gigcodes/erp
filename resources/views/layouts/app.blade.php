@@ -1039,6 +1039,9 @@
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('templates.type') }}">New List</a>
+                                </li>
                             </ul>
                         </li>
                         @if(auth()->user()->isAdmin())
