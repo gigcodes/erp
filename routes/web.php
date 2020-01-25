@@ -1476,3 +1476,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/modifyUserAccess', 'Github\UserController@modifyUserAccess');
     });
 });
+
+//Route::resource('store-website', 'StoreWebsiteController');
+
+Route::prefix('store-website')->group(function () {
+    Route::get('/', 'StoreWebsiteController@index')->name("store-website.index");
+    Route::get('/records', 'StoreWebsiteController@records')->name("store-website.records");
+});
+
