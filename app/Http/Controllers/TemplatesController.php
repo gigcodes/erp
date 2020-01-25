@@ -126,50 +126,184 @@ class TemplatesController extends Controller
             ], 200);
         }
 
+        
         return view('product-template.type-index',compact('templates','temps'));
     }
 
     public function generateTempalateCategoryBrand()
     {
-        $categories = Category::select('id')->get(); 
-        foreach ($categories as $category) {
-            $brands = Brand::select('id')->get();
-            foreach ($brands as $brand) {
-               $products = Product::where('category',$category->id)->where('brand',$brand->id)->latest()->limit(50)->get();
-               foreach ($products as $product) {
-                  if($product->getMedia(config('constants.media_tags'))->count() != 0){
-                        
-                        $template = Template::where('no_of_images',$product->getMedia(config('constants.media_tags'))->count())->first();
-                        if($template != null){
-                            $productTemplate = new ProductTemplate;
-                            $productTemplate->template_no = $template->id;
-                            $productTemplate->product_title = $product->name;
-                            $productTemplate->brand_id = $product->brand;
-                            $productTemplate->currency = 'eur';
-                            if(empty($product->price)){
-                                $product->price = 0;
+        $numbers = ['1','2','3','4','6'];
+        foreach ($numbers as $number) {
+            $template = Template::where('no_of_images',$number)->first();
+            $categories = Category::select('id')->get();
+                foreach ($categories as $category) {
+                $brands = Brand::select('id')->get();
+                foreach ($brands as $brand) {
+                   $products = Product::where('category',$category->id)->where('brand',$brand->id)->latest()->limit(50)->get();
+                   if($number == 1){
+                       foreach ($products as $product) {
+                          if($product->getMedia(config('constants.media_tags'))->count() != 0){
+                                if($template != null){
+                                    $productTemplate = new ProductTemplate;
+                                    $productTemplate->template_no = $template->id;
+                                    $productTemplate->product_title = $product->name;
+                                    $productTemplate->category_id = $product->category;
+                                    $productTemplate->brand_id = $product->brand;
+                                    $productTemplate->currency = 'eur';
+                                    if(empty($product->price)){
+                                        $product->price = 0;
+                                    }
+                                    if(empty($product->price_eur_discounted)){
+                                        $product->price_eur_discounted = 0;
+                                    }
+                                    $productTemplate->price = $product->price;
+                                    $productTemplate->discounted_price = $product->price_eur_discounted; 
+                                    $productTemplate->product_id = $product->id;
+                                    $productTemplate->is_processed = 0;
+                                    $productTemplate->type = 1;
+                                    $productTemplate->save();
+                                    foreach ($product->getMedia(config('constants.media_tags'))->all() as $media) {
+                                        $media = Media::find($media->id);
+                                        $tag = 'template-image';
+                                        $productTemplate->attachMedia($media, $tag);
+                                    }
+                                }
+                                
                             }
-                            if(empty($product->price_eur_discounted)){
-                                $product->price_eur_discounted = 0;
-                            }
-                            $productTemplate->price = $product->price;
-                            $productTemplate->discounted_price = $product->price_eur_discounted; 
-                            $productTemplate->product_id = $product->id;
-                            $productTemplate->is_processed = 0;
-                            $productTemplate->type = 1;
-                            $productTemplate->save();
-                            foreach ($product->getMedia(config('constants.media_tags'))->all() as $media) {
-                                $media = Media::find($media->id);
-                                $tag = 'template-image';
-                                $productTemplate->attachMedia($media, $tag);
-                            }
-                        }
-                        
+                       }
                     }
-               }
-            }
-        }
 
+                    if($number == 2){
+                        $count = 0;
+                        foreach ($products as $product) {
+                            if($product->getMedia(config('constants.media_tags'))->count() != 0){
+                                if($count == 2){
+                                    $count = 0;
+                                }
+
+                                if($count == 0){
+                                    $productTemplate = new ProductTemplate;
+                                    $productTemplate->template_no = $template->id;
+                                    $productTemplate->product_title = '';
+                                    $productTemplate->brand_id = $product->brand;
+                                    $productTemplate->currency = 'eur';
+                                    $productTemplate->price = '';
+                                    $productTemplate->category_id = $product->category;
+                                    $productTemplate->discounted_price = ''; 
+                                    $productTemplate->product_id = '';
+                                    $productTemplate->is_processed = 0;
+                                    $productTemplate->type = 1;
+                                    $productTemplate->save();
+                                    $media = $product->getMedia(config('constants.media_tags'))->first();
+                                    $media = Media::find($media->id);
+                                    $tag = 'template-image';
+                                    $productTemplate->attachMedia($media, $tag);
+
+                                }
+
+                                if($count == 1){
+                                    $media = $product->getMedia(config('constants.media_tags'))->first();
+                                    $media = Media::find($media->id);
+                                    $tag = 'template-image';
+                                    $productTemplate = ProductTemplate::find($productTemplate->id);
+                                    $productTemplate->attachMedia($media, $tag);
+                                }
+
+                                $count++;
+
+                            }    
+                       }
+                    }
+
+                    if($number == 3){
+                        $count = 0;
+                        foreach ($products as $product) {
+                            if($product->getMedia(config('constants.media_tags'))->count() != 0){
+                                if($count == 3){
+                                    $count = 0;
+                                }
+
+                                if($count == 0){
+                                    $productTemplate = new ProductTemplate;
+                                    $productTemplate->template_no = $template->id;
+                                    $productTemplate->product_title = '';
+                                    $productTemplate->brand_id = $product->brand;
+                                    $productTemplate->currency = 'eur';
+                                    $productTemplate->price = '';
+                                    $productTemplate->discounted_price = ''; 
+                                    $productTemplate->category_id = $product->category;
+                                    $productTemplate->product_id = '';
+                                    $productTemplate->is_processed = 0;
+                                    $productTemplate->type = 1;
+                                    $productTemplate->save();
+                                    $media = $product->getMedia(config('constants.media_tags'))->first();
+                                    $media = Media::find($media->id);
+                                    $tag = 'template-image';
+                                    $productTemplate->attachMedia($media, $tag);
+
+                                }
+
+                                if($count == 1 || $count == 2){
+                                    $media = $product->getMedia(config('constants.media_tags'))->first();
+                                    $media = Media::find($media->id);
+                                    $tag = 'template-image';
+                                    $productTemplate = ProductTemplate::find($productTemplate->id);
+                                    $productTemplate->attachMedia($media, $tag);
+                                }
+
+                                $count++;
+
+                            }    
+                       }
+                    } 
+
+                    if($number == 4){
+                        $count = 0;
+                        foreach ($products as $product) {
+                            if($product->getMedia(config('constants.media_tags'))->count() != 0){
+                                if($count == 4){
+                                    $count = 0;
+                                }
+
+                                if($count == 0){
+                                    $productTemplate = new ProductTemplate;
+                                    $productTemplate->template_no = $template->id;
+                                    $productTemplate->product_title = '';
+                                    $productTemplate->brand_id = $product->brand;
+                                    $productTemplate->currency = 'eur';
+                                    $productTemplate->price = '';
+                                    $productTemplate->discounted_price = ''; 
+                                    $productTemplate->category_id = $product->category;
+                                    $productTemplate->product_id = '';
+                                    $productTemplate->is_processed = 0;
+                                    $productTemplate->type = 1;
+                                    $productTemplate->save();
+                                    $media = $product->getMedia(config('constants.media_tags'))->first();
+                                    $media = Media::find($media->id);
+                                    $tag = 'template-image';
+                                    $productTemplate->attachMedia($media, $tag);
+
+                                }
+
+                                if($count == 1 || $count == 2 || $count == 3){
+                                    $media = $product->getMedia(config('constants.media_tags'))->first();
+                                    $media = Media::find($media->id);
+                                    $tag = 'template-image';
+                                    $productTemplate = ProductTemplate::find($productTemplate->id);
+                                    $productTemplate->attachMedia($media, $tag);
+                                }
+
+                                $count++;
+
+                            }    
+                       }
+                    }  
+
+
+                }
+            } 
+        }
+        
         return response()->json(["message" => "Sucess"],200);
     }
 

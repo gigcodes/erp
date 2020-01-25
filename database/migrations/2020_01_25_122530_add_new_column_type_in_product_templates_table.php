@@ -15,6 +15,7 @@ class AddNewColumnTypeInProductTemplatesTable extends Migration
     {
         Schema::table('product_templates', function (Blueprint $table) {
             $table->integer('type')->after('is_processed')->default(0);
+            $table->integer('category_id')->after('is_processed')->nullable();
         });
     }
 
@@ -27,6 +28,8 @@ class AddNewColumnTypeInProductTemplatesTable extends Migration
     {
         Schema::table('product_templates', function (Blueprint $table) {
              $table->dropColumn('type');
+             $table->dropColumn('category_id');
+               
         });
     }
 }
