@@ -1071,6 +1071,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('addremark', 'ScrapStatisticsController@addRemark')->name('scrap.addRemark');
     Route::get('facebook/inbox', 'FacebookController@getInbox');
     Route::resource('facebook', 'FacebookController');
+    Route::get('gmails/{id}', 'GmailDataController@show');
     Route::resource('gmail', 'GmailDataController');
     Route::resource('designer', 'DesignerController');
     Route::resource('sales', 'SalesItemController');
