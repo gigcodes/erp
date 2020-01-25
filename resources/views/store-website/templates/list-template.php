@@ -21,7 +21,10 @@
 			        <td>{{:prop.description}}</td>
 			        <td>{{:prop.is_published}}</td>
 			        <td>{{:prop.created_at}}</td>
-			        <td><button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button></td>
+			        <td>
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" src="/images/edit.png"></button>
+			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button>
+			        </td>
 			      </tr>
 			    {{/props}}  
 		    </tbody>

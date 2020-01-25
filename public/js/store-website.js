@@ -19,7 +19,12 @@ var page = {
             e.preventDefault();
             page.getResults();
         });
-        
+
+        page.config.bodyView.on("click",".btn-add-action",function(e) {
+            e.preventDefault();
+            page.createRecord();
+        });
+
         // delete product templates
         page.config.bodyView.on("click",".btn-delete-template",function(e) {
             if(!confirm("Are you sure you want to delete record?")) {
@@ -28,6 +33,15 @@ var page = {
                 page.deleteRecord($(this));
             }
         });
+
+        page.config.bodyView.on("click",".btn-edit-template",function(e) {
+            page.editRecord($(this));
+        });
+
+        $(".common-modal").on("click",".submit-store-site",function() {
+            page.submitFormSite($(this));
+        });
+
 
     },
     validationRule : function() {
@@ -59,14 +73,16 @@ var page = {
     
     	var addProductTpl = $.templates("#template-result-block");
         var tplHtml       = addProductTpl.render(response);
-        console.log(tplHtml);
+
+        $(".count-text").html("("+response.total+")");
+
     	page.config.bodyView.find("#page-view-result").html(tplHtml);
 
     }
     ,
     deleteRecord : function(ele) {
         var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/records/"+ele.data("id")+"/delete",
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/delete",
             method: "get",
         }
         this.sendAjax(_z, 'deleteResults');
@@ -92,6 +108,47 @@ var page = {
             data : {"action" : action , "ids" : ids, "_token"  : $('meta[name="csrf-token"]').attr('content')}
         }
         this.sendAjax(_z, "loadFirst");
+    },
+    createRecord : function(response) {
+        var createWebTemplate = $.templates("#template-create-website");
+        var tplHtml = createWebTemplate.render({data:{}});
+        
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+
+    editRecord : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/edit",
+            method: "get",
+        }
+        this.sendAjax(_z, 'editResult');
+    },
+
+    editResult : function(response) {
+        var createWebTemplate = $.templates("#template-create-website");
+        var tplHtml = createWebTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+
+    submitFormSite : function(ele) {var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/save",
+            method: "post",
+            data : ele.closest("form").serialize()
+        }
+        this.sendAjax(_z, "saveSite");
+        
+    },
+    saveSite : function(response) {
+        if(response.code  == 200) {
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            toastr["error"](response.error,"");
+        }
     }
 }
 
