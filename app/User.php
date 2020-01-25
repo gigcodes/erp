@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Cache;
 use App\UserLog;
+use DB;
 use Redirect;
 
 
@@ -351,18 +352,46 @@ class User extends Authenticatable
     }
 
 
-    public function rates(){
+    public function ratesCurrentWeek(){
 
         $date = date('Y-m-d',strtotime('last sunday'));
 
-        //$currentRate = UserRate::getRateForUser($this->id);
-
+        // changes in this week
         return $this->hasMany(
             'App\UserRate',
             'user_id',
             'id'
         )
-        ->where('user_rates.start_date','>=', $date);
+        ->where('user_rates.start_date','>=', $date)
+        ->orderBy('start_date');
+
+    }
+
+    public function currentRate(){
+
+
+        return $this->hasOne(
+            'App\UserRate',
+            'user_id',
+            'id'
+        )
+        ->latest();
+    }
+
+    
+
+    public function trackedActivitiesForWeek(){
+
+        $date = date('Y-m-d',strtotime('last sunday'));
+
+        return $this->hasManyThrough(
+            'App\Hubstaff\HubstaffActivity',
+            'App\Hubstaff\HubstaffMember',
+            'user_id',
+            'user_id',
+            'id',
+            'hubstaff_user_id'
+        )->where('starts_at', '>=', $date);
     }
 
 }

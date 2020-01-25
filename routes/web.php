@@ -114,7 +114,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('users/{id}/unassign/products', 'UserController@unassignProducts');
     Route::post('users/{id}/assign/products', 'UserController@assignProducts')->name('user.assign.products');
     Route::post('users/{id}/activate', 'UserController@activate')->name('user.activate');
-    Route::get('users/hubstaffPayments', 'UserController@payments');
+    Route::get('users/payments', 'UserController@payments');
     Route::resource('users', 'UserController');
     Route::resource('listing-payments', 'ListingPaymentsController');
     Route::get('product/listing/users', 'ProductController@showListigByUsers');

@@ -39,11 +39,11 @@ class UserController extends Controller
 	 */
 	function __construct()
 	{
-//	 	$this->middleware('permission:user-list', ['except' => ['assignProducts']]);
-//	 	$this->middleware('permission:user-create', ['only' => ['create','store']]);
-//	 	$this->middleware('permission:user-edit', ['only' => ['edit','update']]);
-//	 	$this->middleware('permission:user-delete', ['only' => ['destroy']]);
-//	 	$this->middleware('permission:product-lister', ['only' => ['assignProducts']]);
+		//	 	$this->middleware('permission:user-list', ['except' => ['assignProducts']]);
+		//	 	$this->middleware('permission:user-create', ['only' => ['create','store']]);
+		//	 	$this->middleware('permission:user-edit', ['only' => ['edit','update']]);
+		//	 	$this->middleware('permission:user-delete', ['only' => ['destroy']]);
+		//	 	$this->middleware('permission:product-lister', ['only' => ['assignProducts']]);
 	}
 
 
@@ -55,8 +55,8 @@ class UserController extends Controller
 	 */
 	public function index(Request $request)
 	{
-		$data = User::orderBy('name','asc')->paginate(25);
-		return view('users.index',compact('data'))
+		$data = User::orderBy('name', 'asc')->paginate(25);
+		return view('users.index', compact('data'))
 			->with('i', ($request->input('page', 1) - 1) * 5);
 	}
 
@@ -68,10 +68,10 @@ class UserController extends Controller
 	 */
 	public function create()
 	{
-		$roles = Role::pluck('name','name')->all();
+		$roles = Role::pluck('name', 'name')->all();
 		$users = User::all();
-		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
-		return view('users.create',compact('roles', 'users' , 'agent_roles'));
+		$agent_roles  = array('sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others');
+		return view('users.create', compact('roles', 'users', 'agent_roles'));
 	}
 
 
@@ -94,27 +94,27 @@ class UserController extends Controller
 		]);
 
 		$input = $request->all();
-		
+
 		$userRate = new UserRate();
-		$userRate->start_date=Carbon::now();
-		$userRate->hourly_rate=$input['hourly_rate'];
-		$userRate->currency=$input['currency'];
+		$userRate->start_date = Carbon::now();
+		$userRate->hourly_rate = $input['hourly_rate'];
+		$userRate->currency = $input['currency'];
 
 		unset($input['hourly_rate']);
 		unset($input['currency']);
-		
+
 		$input['name'] = str_replace(' ', '_', $input['name']);
 		$input['password'] = Hash::make($input['password']);
-		if(isset($input['agent_role']))
-        $input['agent_role'] = implode(',', $input['agent_role']);
+		if (isset($input['agent_role']))
+			$input['agent_role'] = implode(',', $input['agent_role']);
 
 		$user = User::create($input);
-		
 
-		$userRate->user_id=$user->id;
+
+		$userRate->user_id = $user->id;
 		$userRate->save();
 
-		return redirect()->to('/users/'.$user->id.'/edit')->with('success','User created successfully');;
+		return redirect()->to('/users/' . $user->id . '/edit')->with('success', 'User created successfully');;
 	}
 
 
@@ -133,19 +133,19 @@ class UserController extends Controller
 		}
 
 		$users_array = Helpers::getUserArray(User::all());
-		$roles = Role::pluck('name','name')->all();
+		$roles = Role::pluck('name', 'name')->all();
 		$users = User::all();
-		$userRole = $user->roles->pluck('name','name')->all();
-		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
-    $user_agent_roles = explode(',', $user->agent_role);
+		$userRole = $user->roles->pluck('name', 'name')->all();
+		$agent_roles  = array('sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others');
+		$user_agent_roles = explode(',', $user->agent_role);
 		$api_keys = ApiKey::select('number')->get();
 
 		$pending_tasks = Task::where('is_statutory', 0)
-		                     ->whereNull('is_completed')
-												 ->where(function ($query) use ($id) {
-													 	return $query->orWhere('assign_from', $id)
-											             				->orWhere('assign_to', $id);
-													})->get();
+			->whereNull('is_completed')
+			->where(function ($query) use ($id) {
+				return $query->orWhere('assign_from', $id)
+					->orWhere('assign_to', $id);
+			})->get();
 
 		// dd($pending_tasks);
 
@@ -172,21 +172,21 @@ class UserController extends Controller
 	public function edit($id)
 	{
 		$user = User::find($id);
-		$roles = Role::orderBy('name','asc')->pluck('name','id')->all();
-		$permission = Permission::orderBy('name','asc')->pluck('route','id')->all();
+		$roles = Role::orderBy('name', 'asc')->pluck('name', 'id')->all();
+		$permission = Permission::orderBy('name', 'asc')->pluck('route', 'id')->all();
 		$users = User::all();
-		$userRole = $user->roles->pluck('name','id')->all();
-		$userPermission = $user->permissions->pluck('name','id')->all();
-		$agent_roles  = array('sales' =>'Sales' , 'support' => 'Support' , 'queries' => 'Others');
-    	$user_agent_roles = explode(',', $user->agent_role);
+		$userRole = $user->roles->pluck('name', 'id')->all();
+		$userPermission = $user->permissions->pluck('name', 'id')->all();
+		$agent_roles  = array('sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others');
+		$user_agent_roles = explode(',', $user->agent_role);
 		$api_keys = ApiKey::select('number')->get();
 		$customers_all = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
 
 		$userRate = UserRate::getRateForUser($user->id);
-		
+
 		return view(
 			'users.edit',
-			compact('user', 'users', 'roles','userRole' , 'agent_roles','user_agent_roles', 'api_keys', 'customers_all','permission','userPermission', 'userRate')
+			compact('user', 'users', 'roles', 'userRole', 'agent_roles', 'user_agent_roles', 'api_keys', 'customers_all', 'permission', 'userPermission', 'userRate')
 		);
 	}
 
@@ -203,7 +203,7 @@ class UserController extends Controller
 		//dd($request);
 		$this->validate($request, [
 			'name' => 'required',
-			'email' => 'required|email|unique:users,email,'.$id,
+			'email' => 'required|email|unique:users,email,' . $id,
 			'phone' => 'sometimes|nullable|integer|unique:users,phone,' . $id,
 			'password' => 'same:confirm-password',
 			'roles' => 'required',
@@ -219,20 +219,20 @@ class UserController extends Controller
 		unset($input['currency']);
 
 		$input['name'] = str_replace(' ', '_', $input['name']);
-		if(isset($input['agent_role'])){
-        $input['agent_role'] = implode(',', $input['agent_role']);
-	    }else{
-	    	$input['agent_role'] = '';
-	    }
-//		$input['name'] = 'solo_admin';
-//		$input['email'] = 'admin@example.com';
-//		$input['password'] = 'admin@example.com';
+		if (isset($input['agent_role'])) {
+			$input['agent_role'] = implode(',', $input['agent_role']);
+		} else {
+			$input['agent_role'] = '';
+		}
+		//		$input['name'] = 'solo_admin';
+		//		$input['email'] = 'admin@example.com';
+		//		$input['password'] = 'admin@example.com';
 
 
-		if(!empty($input['password'])){
+		if (!empty($input['password'])) {
 			$input['password'] = Hash::make($input['password']);
-		}else{
-			$input = array_except($input,array('password'));
+		} else {
+			$input = array_except($input, array('password'));
 		}
 
 
@@ -243,13 +243,13 @@ class UserController extends Controller
 			$user->customers()->sync($request->customer);
 		}
 
-//		if (!$user->hasRole('Products Lister') && in_array('Products Lister', $request->roles)) {
-//			$requestData = new Request();
-//			$requestData->setMethod('POST');
-//			$requestData->request->add(['amount_assigned' => 100]);
-//
-//			$this->assignProducts($requestData, Auth::id());
-//		}
+		//		if (!$user->hasRole('Products Lister') && in_array('Products Lister', $request->roles)) {
+		//			$requestData = new Request();
+		//			$requestData->setMethod('POST');
+		//			$requestData->request->add(['amount_assigned' => 100]);
+		//
+		//			$this->assignProducts($requestData, Auth::id());
+		//		}
 
 		$user->roles()->sync($request->input('roles'));
 		$user->permissions()->sync($request->input('permissions'));
@@ -260,15 +260,15 @@ class UserController extends Controller
 
 
 		$userRate = new UserRate();
-		$userRate->start_date=Carbon::now();
-		$userRate->hourly_rate=$hourly_rate;
-		$userRate->currency=$currency;
+		$userRate->start_date = Carbon::now();
+		$userRate->hourly_rate = $hourly_rate;
+		$userRate->currency = $currency;
 		$userRate->user_id = $user->id;
 		$userRate->save();
 
 
 		return redirect()->back()
-		                 ->with('success','User updated successfully');
+			->with('success', 'User updated successfully');
 	}
 
 	/**
@@ -287,76 +287,77 @@ class UserController extends Controller
 		$user->delete();
 
 		return redirect()->route('users.index')
-		                 ->with('success','User deleted successfully');
+			->with('success', 'User deleted successfully');
 	}
 
-    public function unassignProducts(Request $request, $id) {
-        $user = User::find($id);
+	public function unassignProducts(Request $request, $id)
+	{
+		$user = User::find($id);
 
-        $userProducts = UserProduct::where('user_id', $user->id)->pluck('product_id')->toArray();
+		$userProducts = UserProduct::where('user_id', $user->id)->pluck('product_id')->toArray();
 
 
-        $products = Product::whereIn('id', $userProducts)->where('is_approved', 0)->where('is_listing_rejected', 0)->take($request->get('number') ?? 0)->get();
+		$products = Product::whereIn('id', $userProducts)->where('is_approved', 0)->where('is_listing_rejected', 0)->take($request->get('number') ?? 0)->get();
 
-        foreach ($products as $product) {
-            UserProduct::where('user_id', $user->id)->where('product_id', $product->id)->delete();
-        }
+		foreach ($products as $product) {
+			UserProduct::where('user_id', $user->id)->where('product_id', $product->id)->delete();
+		}
 
-        return redirect()->back()->with('success', 'Product unassigned successfully!');
+		return redirect()->back()->with('success', 'Product unassigned successfully!');
+	}
 
-    }
+	public function showAllAssignedProductsForUser($id)
+	{
+		$userProducts = UserProduct::where('user_id', $id)->with('product')->orderBy('created_at', 'DESC')->get();
 
-    public function showAllAssignedProductsForUser($id) {
-	    $userProducts = UserProduct::where('user_id', $id)->with('product')->orderBy('created_at', 'DESC')->get();
+		$user = User::find($id);
 
-	    $user = User::find($id);
-
-	    return view('products.assigned_products_list_by_user', compact('userProducts', 'user'));
-    }
+		return view('products.assigned_products_list_by_user', compact('userProducts', 'user'));
+	}
 
 	public function assignProducts(Request $request, $id)
 	{
 		$user = User::find($id);
 		$amount_assigned = 25;
 
-        $products = Product::where('stock', '>=', 1)
-            ->where('is_crop_ordered', 1)
-            ->where('is_order_rejected', 0)
-            ->where('is_approved', 0)
-            ->where('is_listing_rejected', 0)
-            ->where('isUploaded', 0)
-            ->where('isFinal', 0);
+		$products = Product::where('stock', '>=', 1)
+			->where('is_crop_ordered', 1)
+			->where('is_order_rejected', 0)
+			->where('is_approved', 0)
+			->where('is_listing_rejected', 0)
+			->where('isUploaded', 0)
+			->where('isFinal', 0);
 
-        $user_products = UserProduct::pluck('product_id')->toArray();
+		$user_products = UserProduct::pluck('product_id')->toArray();
 
-        $products = $products->whereNotIn('id', $user_products)
-            ->whereIn('category', [5,6,7,9,11,21,22,23,24,25,26,29,34,36,37,52,53,54,55,56,57,58,65,66,67,68,69,70,71,72,73,74,76,78,79,80,81,83,84,85,87,97,98,99,100,105,109,110,111,114,117,118])
-            ->orderBy('is_on_sale', 'DESC')
-            ->latest()
-            ->take($amount_assigned)
-            ->get();
+		$products = $products->whereNotIn('id', $user_products)
+			->whereIn('category', [5, 6, 7, 9, 11, 21, 22, 23, 24, 25, 26, 29, 34, 36, 37, 52, 53, 54, 55, 56, 57, 58, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 76, 78, 79, 80, 81, 83, 84, 85, 87, 97, 98, 99, 100, 105, 109, 110, 111, 114, 117, 118])
+			->orderBy('is_on_sale', 'DESC')
+			->latest()
+			->take($amount_assigned)
+			->get();
 
-        $user->products()->attach($products);
+		$user->products()->attach($products);
 
-        if (count($products) >= $amount_assigned-1) {
-            $message = 'You have successfully assigned ' . count($products) . ' products';
-            return redirect()->back()->with('success', $message);
-        }
+		if (count($products) >= $amount_assigned - 1) {
+			$message = 'You have successfully assigned ' . count($products) . ' products';
+			return redirect()->back()->with('success', $message);
+		}
 
-        $remaining = $amount_assigned-count($products);
+		$remaining = $amount_assigned - count($products);
 
-        $products = Product::where('stock', '>=', 1)
-            ->where('is_crop_ordered', 1)
-            ->where('is_order_rejected', 0)
-            ->where('is_listing_rejected', 0)
-            ->where('is_approved', 0)
-            ->where('isUploaded', 0)
-            ->where('isFinal', 0);
+		$products = Product::where('stock', '>=', 1)
+			->where('is_crop_ordered', 1)
+			->where('is_order_rejected', 0)
+			->where('is_listing_rejected', 0)
+			->where('is_approved', 0)
+			->where('isUploaded', 0)
+			->where('isFinal', 0);
 
-        $user_products = UserProduct::pluck('product_id')->toArray();
+		$user_products = UserProduct::pluck('product_id')->toArray();
 
-        $products = $products->whereNotIn('id', $user_products)->orderBy('is_on_sale', 'DESC')->latest()->take($remaining)->get();
-        $user->products()->attach($products);
+		$products = $products->whereNotIn('id', $user_products)->orderBy('is_on_sale', 'DESC')->latest()->take($remaining)->get();
+		$user->products()->attach($products);
 
 		if (count($products) > 0) {
 			$message = 'You have successfully assigned products';
@@ -364,8 +365,8 @@ class UserController extends Controller
 			$message = 'There were no products to assign!';
 		}
 
-        return redirect()->back()->withSuccess($message);
-    }
+		return redirect()->back()->withSuccess($message);
+	}
 
 	public function login(Request $request)
 	{
@@ -393,9 +394,105 @@ class UserController extends Controller
 		return redirect()->back()->withSuccess('You have successfully updated the user!');
 	}
 
-	public function payments(){
-		$users = User::with('rates')->get();
-		echo 'hello';
+	public function payments()
+	{
+		$date = date('Y-m-d', strtotime('last sunday'));
+
+		$users = User::with(['ratesCurrentWeek', 'trackedActivitiesForWeek'])->get();
+		$usersRatesPreviousWeek = UserRate::latestRatesForPreviousWeek();
+
+
+
+		$now = now();
+
+		foreach ($users as $user) {
+
+			$user->secondsTracked = 0;
+			$user->currency = '-';
+			$user->total = 0;
+
+
+			$invidualRatesPreviousWeek  = $usersRatesPreviousWeek->first(function ($value, $key) use ($user) {
+				return $value->user_id == $user->id;
+			});
+
+
+
+
+			$weekRates = [];
+
+			if ($invidualRatesPreviousWeek) {
+				$weekRates[] = array(
+					'start_date' => $date,
+					'rate' => $invidualRatesPreviousWeek->hourly_rate,
+					'currency' => $invidualRatesPreviousWeek->currency
+				);
+			}
+
+
+
+			$rates = $user->ratesCurrentWeek;
+
+			if ($rates) {
+
+				foreach ($rates as $rate) {
+					$weekRates[] = array(
+						'start_date' => $rate->start_date,
+						'rate' => $rate->hourly_rate,
+						'currency' => $rate->currency
+					);
+				}
+			}
+
+
+			usort($weekRates, function ($a, $b) {
+				return strtotime($a['start_date']) - strtotime($b['start_date']);
+			});
+
+
+			if (sizeof($weekRates) > 0) {
+				$weekSaturdayEnd = date('Y-m-d H:i:s', strtotime('sunday') - 1);
+
+				$lastEntry = $weekRates[sizeof($weekRates) - 1];
+
+				$weekRates[] = array(
+					'start_date' => $weekSaturdayEnd,
+					'rate' => $lastEntry['rate'],
+					'currency' => $lastEntry['currency']
+				);
+
+				$user->currency = $lastEntry['currency'];
+			}
+
+
+			$activities = $user->trackedActivitiesForWeek;
+
+			if (sizeof($weekRates) == 0) {
+				// user has no rates
+				continue;
+			} else {
+				foreach ($activities as $activity) {
+					$user->secondsTracked += $activity->tracked;
+					$i = 0;
+					while ($i < sizeof($weekRates) - 1) {
+
+						$start = $weekRates[$i];
+						$end = $weekRates[$i + 1];
+
+						if ($activity->starts_at >= $start['start_date'] && $activity->start_time < $end['start_date']) {
+							// the activity needs calculation for the start rate and hence do it
+							$earnings = $activity->tracked * ($start['rate'] / 60 / 60);
+							$activity->earnings = $earnings;
+							$user->total += $earnings;
+							break;
+						}
+						$i++;
+					}
+				}
+			}
+		}
+
+		return view('users.payments', ['users' => $users]);
 	}
 
 	public function checkUserLogins()
@@ -405,7 +502,6 @@ class UserController extends Controller
 
 		foreach ($users as $user) {
 			if ($login = UserLogin::where('user_id', $user->id)->where('created_at', '>', Carbon::now()->format('Y-m-d'))->latest()->first()) {
-
 			} else {
 				$login = UserLogin::create(['user_id'	=> $user->id]);
 			}
@@ -428,13 +524,13 @@ class UserController extends Controller
 
 	public function searchUser(Request $request)
 	{
-		$q = $request->input( 'q' );
+		$q = $request->input('q');
 
-		$results = User::select( 'id', 'name')
-		                  ->orWhere( 'name', 'LIKE', '%' . $q . '%' )
-		                  ->offset(0)
-		                  ->limit(15)
-		                  ->get();
+		$results = User::select('id', 'name')
+			->orWhere('name', 'LIKE', '%' . $q . '%')
+			->offset(0)
+			->limit(15)
+			->get();
 
 		return $results;
 	}
