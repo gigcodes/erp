@@ -58,6 +58,9 @@ var page = {
         var _z = {
             url: this.config.baseUrl + "/store-website/records",
             method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
         this.sendAjax(_z, "showResults");
     },
@@ -65,12 +68,15 @@ var page = {
     	var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/records",
             method: "get",
-            data : $(".message-search-handler").serialize()
+            data : $(".message-search-handler").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
         this.sendAjax(_z, "showResults");
     },
     showResults : function(response) {
-    
+        $("#loading-image").hide();
     	var addProductTpl = $.templates("#template-result-block");
         var tplHtml       = addProductTpl.render(response);
 
@@ -84,6 +90,9 @@ var page = {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/delete",
             method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
         this.sendAjax(_z, 'deleteResults');
     },
@@ -95,19 +104,6 @@ var page = {
             toastr['error']('Oops.something went wrong', 'error');
         }
 
-    },
-    submitForm: function(ele) {
-        var action = $(".store-website-handler").find("#action-to-run").val();
-        var ids    = [];
-            $.each($(".select-id-input:checked"),function(k,v){
-               ids.push($(v).val()); 
-            })
-        var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/records/action-handler",
-            method: "post",
-            data : {"action" : action , "ids" : ids, "_token"  : $('meta[name="csrf-token"]').attr('content')}
-        }
-        this.sendAjax(_z, "loadFirst");
     },
     createRecord : function(response) {
         var createWebTemplate = $.templates("#template-create-website");
@@ -137,7 +133,10 @@ var page = {
     submitFormSite : function(ele) {var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/save",
             method: "post",
-            data : ele.closest("form").serialize()
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
         this.sendAjax(_z, "saveSite");
         
@@ -147,6 +146,7 @@ var page = {
             page.loadFirst();
             $(".common-modal").modal("hide");
         }else {
+            $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
     }
