@@ -94,8 +94,9 @@ class ProductController extends Controller
         }
 
         $products = $products->paginate(Setting::get('pagination'));
+        $websiteList = \App\Helpers\ProductHelper::storeWebsite();
 
-        return view('products.index', compact('products', 'term', 'archived'))
+        return view('products.index', compact('products', 'term', 'archived','websiteList'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
@@ -2930,5 +2931,24 @@ class ProductController extends Controller
         $group->save();
 
         return response()->json(['success' => 'success'], 200);
+    }
+    public function published(Request $request)
+    {
+        $id         = $request->get("id");
+        $website    = $request->get("website",[]);
+
+        \App\WebsiteProduct::where("product_id",$id)->delete();
+
+        if(!empty($website)) {
+            foreach($website as $web) {
+                $website                    = new \App\WebsiteProduct;
+                $website->product_id        = $id;
+                $website->store_website_id  = $web;
+                $website->save(); 
+            }
+        }
+
+        return response()->json(["code" => 200]);    
+
     }
 }

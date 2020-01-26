@@ -665,4 +665,11 @@ class ProductHelper extends Model
             return str_replace('_', ' ', substr($tmp, 0, 17));
         }
     }
+
+    public static function storeWebsite()
+    {
+        return \App\storeWebsite::whereNull("deleted_at")->get()->pluck("title","id")->toArray();
+
+    }
+
 }

@@ -21,6 +21,7 @@ Route::get('create-media-image', 'CustomerController@testImage');
 
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
+Route::post('/products/published', 'ProductController@published');
 
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');

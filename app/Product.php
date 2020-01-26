@@ -723,4 +723,14 @@ class Product extends Model
         }      
     }
 
+    public function websiteProducts()
+    {
+        return $this->hasMany("App\WebsiteProduct","product_id","id");
+    }
+
+    public function publishedOn()
+    {
+        return array_keys($this->websiteProducts->pluck("product_id","store_website_id")->toArray());
+    }
+
 }
