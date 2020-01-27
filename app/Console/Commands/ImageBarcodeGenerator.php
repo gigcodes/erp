@@ -181,7 +181,7 @@ class ImageBarcodeGenerator extends Command
 
         //join media as m on m.id = md.media_id and extension in ('.self::EXTENSION_SUPPORT_TYPE.')
         $class = \App\Product::class;
-        $query = 'select p.id, count(*) as total_image,count(bm.id) as total_barcode,p.stock,bm.name as bm_name ,bm.price as bm_price,concat(concat(b.name, "||"), p.name) as bimage_name, 
+        $query = 'select p.id, count(*) as total_image,count(bm.id) as total_barcode,p.stock,bm.name as bm_name ,bm.price as bm_price,concat(concat(b.name, "||"), p.name) COLLATE utf8mb4_unicode_ci as bimage_name, 
         IF(p.price_special_offer > 0, p.price_special_offer , p.price_inr_special) as b_price 
         from products as p
         left join brands as b on b.id = p.brand
