@@ -25,7 +25,7 @@ var common = {
             }
             if (callback) {
                 if (isPassArg) {
-                    self[callback](isPassArg)
+                    self[callback](result,isPassArg)
                 } else {
                     self[callback](result);
                 }

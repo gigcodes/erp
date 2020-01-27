@@ -19,5 +19,9 @@ Route::prefix('message-queue')->group(function() {
 		Route::prefix('{id}')->group(function() {
 			Route::get('delete', 'MessageQueueController@deleteRecord');
 		});
-	});    	
+	}); 
+
+	Route::prefix('setting')->group(function() {
+		Route::post('update-limit','MessageQueueController@updateLimit');
+	});	
 });

@@ -221,4 +221,19 @@ class ChatMessage extends Model
         return $name; 
     }
 
+    public static function pendingQueueGroupList($params = [])
+    {
+        return self::where($params)->where("group_id",">",0)
+        ->pluck("group_id","group_id")
+        ->toArray();
+    }
+
+    public static function getQueueLimit()
+    {
+ 
+        $limit  = \App\Setting::where("name","is_queue_sending_limit")->first();
+        
+        return ($limit) ? $limit->val : 0;
+    }
+
 }
