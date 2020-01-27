@@ -10606,8 +10606,9 @@ li.active{
 }
 
 .chat-button-wrapper.expanded{
-    width: 80% !important;
-    right: -13em !important;
+    /*width: 80% !important;
+    right: -13em !important;*/
+    width: 95% !important;
 }
 .chat-button {
     height: 3em;
