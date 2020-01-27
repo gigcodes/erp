@@ -88,10 +88,7 @@ class RepositoryController extends Controller
     }
 
     public function deployBranch($repoId){
-
-        $repository = GithubRepository::find($repoId);
-
-        
+       $repository = GithubRepository::find($repoId);
 
         $branch = Input::get('branch');
         //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;

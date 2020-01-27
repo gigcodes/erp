@@ -6,6 +6,7 @@ use App\Github\GithubBranchState;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Console\Command;
 
 class LoadBranchState extends Command
@@ -120,26 +121,40 @@ class LoadBranchState extends Command
         /**
          * <https://api.github.com/repositories/231925646/branches?page=4>; rel="prev", <https://api.github.com/repositories/231925646/branches?page=4>; rel="last", <https://api.github.com/repositories/231925646/branches?page=1>; rel="first"
          */
-        $lastLink = null;
-        $links = explode(',', $linkHeader);
-        foreach ($links as $link) {
-            if (strpos($link, 'rel="last"') !== false) {
-                $lastLink = $link;
-                break;
-            }
-        }
-        //<https://api.github.com/repositories/231925646/branches?page=4>; rel="last"
-        $linkWithAngularBrackets = explode(";", $lastLink)[0];
-        //<https://api.github.com/repositories/231925646/branches?page=4>
-        $linkWithAngularBrackets = str_replace('<', '', $linkWithAngularBrackets);
-        //https://api.github.com/repositories/231925646/branches?page=4>
-        $linkWithPageNumber = str_replace('>', '', $linkWithAngularBrackets);
-        //https://api.github.com/repositories/231925646/branches?page=4
-        $totalPages = intval(explode('=',  explode('?', $linkWithPageNumber)[1]));
 
-        $branches = [];
+
+
+
+
+        $totalPages = 1;
+        if (sizeof($linkHeader) > 0) {
+            $lastLink = null;
+            $links = explode(',', $linkHeader[0]);
+            foreach ($links as $link) {
+                if (strpos($link, 'rel="last"') !== false) {
+                    $lastLink = $link;
+                    break;
+                }
+            }
+
+            //<https://api.github.com/repositories/231925646/branches?page=4>; rel="last"
+            $linkWithAngularBrackets = explode(";", $lastLink)[0];
+            //<https://api.github.com/repositories/231925646/branches?page=4>
+            $linkWithAngularBrackets = str_replace('<', '', $linkWithAngularBrackets);
+            //https://api.github.com/repositories/231925646/branches?page=4>
+            $linkWithPageNumber = str_replace('>', '', $linkWithAngularBrackets);
+            //https://api.github.com/repositories/231925646/branches?page=4
+            $pageNumberString = explode('?', $linkWithPageNumber)[1];
+            //page=4
+            $totalPages = explode('=',  $pageNumberString)[1];
+
+            $totalPages = intval($totalPages);
+        }
+
+        $allBranchNames = [];
         $page = 1;
         while ($page <= $totalPages) {
+
             $response = $this->githubClient->get($url . '?page=' . $page);
 
             $branches = json_decode($response->getBody()->getContents());
@@ -151,8 +166,8 @@ class LoadBranchState extends Command
                 $branches
             );
 
-            $branches = array_merge(
-                $branches,
+            $allBranchNames = array_merge(
+                $allBranchNames,
                 array_filter($branchNames, function ($name) {
                     return $name != 'master';
                 })
@@ -160,16 +175,28 @@ class LoadBranchState extends Command
 
             $page++;
         }
-
-        return $branches;
+        return $allBranchNames;
     }
 
     private function compareRepoBranches(int $repoId, string $branchName, string $base = 'master')
     {
         //https://api.github.com/repositories/:repoId/compare/:diff
 
-        $url = 'https://api.github.com/repositories/' . $repoId . '/compare/' . $base . '...' . $branchName;
-        $response = $this->githubClient->get($url);
+        try{
+            $url = 'https://api.github.com/repositories/' . $repoId . '/compare/' . $base . '...' . $branchName;
+            $response = $this->githubClient->get($url);
+        }catch(ClientException $e){
+            if($e->getResponse()->getStatusCode() == 404){
+                // known error which happens in case there is more changes 
+                return [
+                    'ahead_by' => 0,
+                    'behind_by' => 0,
+                    'last_commit_author_username' => null,
+                    'last_commit_time' => null
+                ];
+            }
+        }
+
 
         $compare = json_decode($response->getBody()->getContents());
 
