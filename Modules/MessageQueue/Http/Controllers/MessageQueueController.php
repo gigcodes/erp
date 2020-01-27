@@ -137,7 +137,7 @@ class MessageQueueController extends Controller
             ["val" => $limit]
         );
 
-        return response()->json(["code" => 200 , "message" => "Done!" . ChatMessage::getQueueLimit()]);    
+        return response()->json(["code" => 200 , "message" => "Done!"]);    
 
     }
 }
