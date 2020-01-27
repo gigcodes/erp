@@ -554,7 +554,8 @@ $(document).on("click", ".save-dialog-btn", function(e) {
                 updateBoxEvent(form.find("#parent_id_form").val());
                 //window.location.replace(response.redirect);
             } else {
-                toastr['error']('data is not correct or duplicate!');
+                errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+               	toastr['error'](errorMessage);
             }
         },
         error: function() {
