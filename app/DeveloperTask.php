@@ -73,4 +73,14 @@ class DeveloperTask extends Model
     {
         return $this->belongsTo(User::class, 'master_user_id', 'id');
     }
+
+    public function timeSpent(){
+        return $this->hasOne(
+            'App\Hubstaff\HubstaffActivity',
+            'task_id',
+            'hubstaff_task_id'
+        )
+        ->selectRaw('task_id, SUM(tracked) as tracked')
+        ->groupBy('task_id');
+    }
 }

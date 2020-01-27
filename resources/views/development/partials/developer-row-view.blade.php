@@ -35,6 +35,7 @@
     </td>
     <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
     <td>&nbsp;</td>
+    <td>{{ (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0) ? $issue->timeSpent->tracked : '' }}</td>
     <td>
         @if($issue->assignedUser)
             {{ $issue->assignedUser->name }}
