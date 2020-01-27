@@ -111,21 +111,57 @@ class LoadBranchState extends Command
     private function getBranchNamesOfRepository(int $repoId)
     {
         //https://api.github.com/repositories/:repoId/branches
+
         $url = 'https://api.github.com/repositories/' . $repoId . '/branches';
-        $response = $this->githubClient->get($url);
 
-        $branches = json_decode($response->getBody()->getContents());
+        $headResponse = $this->githubClient->head($url);
 
-        $branchNames =  array_map(
-            function ($branch) {
-                return $branch->name;
-            },
-            $branches
-        );
+        $linkHeader = $headResponse->getHeader("Link");
+        /**
+         * <https://api.github.com/repositories/231925646/branches?page=4>; rel="prev", <https://api.github.com/repositories/231925646/branches?page=4>; rel="last", <https://api.github.com/repositories/231925646/branches?page=1>; rel="first"
+         */
+        $lastLink = null;
+        $links = explode(',', $linkHeader);
+        foreach ($links as $link) {
+            if (strpos($link, 'rel="last"') !== false) {
+                $lastLink = $link;
+                break;
+            }
+        }
+        //<https://api.github.com/repositories/231925646/branches?page=4>; rel="last"
+        $linkWithAngularBrackets = explode(";", $lastLink)[0];
+        //<https://api.github.com/repositories/231925646/branches?page=4>
+        $linkWithAngularBrackets = str_replace('<', '', $linkWithAngularBrackets);
+        //https://api.github.com/repositories/231925646/branches?page=4>
+        $linkWithPageNumber = str_replace('>', '', $linkWithAngularBrackets);
+        //https://api.github.com/repositories/231925646/branches?page=4
+        $totalPages = intval(explode('=',  explode('?', $linkWithPageNumber)[1]));
 
-        return array_filter($branchNames, function ($name) {
-            return $name != 'master';
-        });
+        $branches = [];
+        $page = 1;
+        while ($page <= $totalPages) {
+            $response = $this->githubClient->get($url . '?page=' . $page);
+
+            $branches = json_decode($response->getBody()->getContents());
+
+            $branchNames =  array_map(
+                function ($branch) {
+                    return $branch->name;
+                },
+                $branches
+            );
+
+            $branches = array_merge(
+                $branches,
+                array_filter($branchNames, function ($name) {
+                    return $name != 'master';
+                })
+            );
+
+            $page++;
+        }
+
+        return $branches;
     }
 
     private function compareRepoBranches(int $repoId, string $branchName, string $base = 'master')
@@ -151,7 +187,7 @@ class LoadBranchState extends Command
                 $lastCommitAuthorUsername = $compare->commits[$index]->commit->author->name;
             }
             $lastCommitTime = Carbon::parse($compare->commits[$index]->commit->author->date);
-        } else{
+        } else {
             $lastCommitAuthorUsername = $compare->merge_base_commit->commit->author->name;
             $lastCommitTime = Carbon::parse($compare->merge_base_commit->commit->author->date);
         }
