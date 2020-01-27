@@ -1,12 +1,13 @@
 <script type="text/x-jsrender" id="template-result-block">
-	<div class="row">
+	<div class="row page-template-{{:page}}">
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
 		      	<th><input type="checkbox" class="select-all-records"></th>
 		      	<th>Id</th>
-		        <th>Number To</th>
+		        <th>Customer Name</th>
 		        <th>Number From</th>
+		        <th>Group</th>
 		        <th>Message</th>
 		        <th>Created At</th>
 		        <th>Attached</th>
@@ -18,8 +19,9 @@
 			      <tr>
 			      	<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}"></td>
 			      	<td>{{:prop.id}}</td>
-			        <td>{{:prop.phone}}</td>
+			      	<td>{{:prop.customer_name}}</td>
 			        <td>{{:prop.whatsapp_number}}</td>
+			        <td>{{:prop.group_id}}</td>
 			        <td>{{:prop.message}}</td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>

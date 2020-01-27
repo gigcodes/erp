@@ -50,10 +50,11 @@ class SendQueuePendingChatMessages extends Command
             ]);
             // get the status for approval
             $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
+            $limit = ChatMessage::getQueueLimit();
 
             // if message is approve then only need to run the queue
             if ($approveMessage == 1) {
-                $chatMessage = ChatMessage::where('is_queue', ">", 0)->limit(10)->get();
+                $chatMessage = ChatMessage::where('is_queue', ">", 0)->limit($limit)->get();
                 foreach ($chatMessage as $value) {
                     // check first if message need to be send from broadcast
                     if ($value->is_queue > 1) {

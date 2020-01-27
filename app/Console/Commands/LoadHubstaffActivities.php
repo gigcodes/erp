@@ -94,6 +94,9 @@ class LoadHubstaffActivities extends Command
                         'task_id'   => is_null($data['task_id']) ? 0 : $data['task_id'],
                         'starts_at' => $data['starts_at'],
                         'tracked'   => $data['tracked'],
+                        'keyboard'  => $data['keyboard'],
+                        'mouse'     => $data['mouse'],
+                        'overall'   => $data['overall'],
                     ]
                 );
             }
@@ -133,6 +136,9 @@ class LoadHubstaffActivities extends Command
                     'task_id'   => $activity->task_id,
                     'starts_at' => $activity->starts_at,
                     'tracked'   => $activity->tracked,
+                    'keyboard'  => $activity->keyboard,
+                    'mouse'     => $activity->mouse,
+                    'overall'   => $activity->overall,
                 );
             }
             return $activities;
