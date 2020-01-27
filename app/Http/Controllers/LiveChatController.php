@@ -421,10 +421,18 @@ class LiveChatController extends Controller
 			$customer->update();
 		}
 
+		$threadId = $customer->thread;
+
 		$messages = ChatMessage::where('customer_id',$chatId)->where('message_application_id',2)->get();
 		//getting customer name from chat
 		$customer = Customer::findorfail($chatId);
 		$name = $customer->name;
+		
+		$customerInfo = $this->getLiveChatIncCustomer($customer->email, 'raw');
+		if(!$customerInfo){
+			$customerInfo = '';
+		}
+
 		if(count($messages) != 0){
 			foreach ($messages as $message) {
 			if($message->user_id != 0){
@@ -444,7 +452,7 @@ class LiveChatController extends Controller
 		
 		return response()->json([
 						'status' => 'success',
-						'data' => array('id' => $chatId ,'count' => $count, 'message' => $messagess , 'name' => $name),
+						'data' => array('id' => $chatId ,'count' => $count, 'message' => $messagess , 'name' => $name, 'customerInfo' => $customerInfo, 'threadId' => $threadId),
         			]);
 	}
 	
@@ -489,13 +497,13 @@ class LiveChatController extends Controller
 		foreach($liveChatCustomers as $liveChatCustomer){
 			$customer = Customer::where('id',$liveChatCustomer->customer_id)->first();
 			if($liveChatCustomer->status == 0){
-				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'"><div class="d-flex bd-highlight"><div class="img_cont"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"><span class="online_icon offline"></span>
+				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'" style="cursor: pointer;"><div class="d-flex bd-highlight"><div class="img_cont"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"><span class="online_icon offline"></span>
 								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is offline</p></div></div></li>';
 			}elseif($liveChatCustomer->status == 1 && $liveChatCustomer->seen == 0){
-				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'"><div class="d-flex bd-highlight"><div class="img_cont"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"><span class="online_icon"></span>
+				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'" style="cursor: pointer;"><div class="d-flex bd-highlight"><div class="img_cont"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"><span class="online_icon"></span>
 								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is online</p></div><span class="new_message_icon"></span></div></li>';
 			}else{
-				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'"><div class="d-flex bd-highlight"><div class="img_cont"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"><span class="online_icon"></span>
+				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'" style="cursor: pointer;"><div class="d-flex bd-highlight"><div class="img_cont"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"><span class="online_icon"></span>
 								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is online</p></div></div></li>';
 			}
 		}
@@ -548,7 +556,63 @@ class LiveChatController extends Controller
 		
 	// }
 
+	/**
+	* function to get customer details from livechatinc
+	* https://api.livechatinc.com/v3.1/agent/action/get_customers
+	*
+	* @param customer's email address
+	*   
+	* @return - response livechatinc object of customer information. If error return false
+	*/
+	function getLiveChatIncCustomer($email='', $out='JSON'){
+		$threadId = '';
+		if($email == '' && session()->has('chat_customer_id')){
+			$chatId = session()->get('chat_customer_id');
+			$messages = ChatMessage::where('customer_id',$chatId)->where('message_application_id', 2)->get();
+			//getting customer name from chat
+			$customer = Customer::findorfail($chatId);
+			$email = $customer->email;
 
+			$liveChatCustomer = CustomerLiveChat::where('customer_id',$chatId)->first();
+			$threadId = $liveChatCustomer->thread;
+		}
+
+		$returnVal = '';
+		if($email != ''){
+			$postURL = 'https://api.livechatinc.com/v3.1/agent/action/get_customers';
+
+			$postData = array('filters' => array('email' => array('values' => array($email))));
+			$postData = json_encode($postData);
+			
+			$returnVal = '';
+			$result = self::curlCall($postURL, $postData, 'application/json');
+			if($result['err']){
+				// echo "ERROR 1:<br>";
+				// print_r($result['err']);
+				$returnVal = false;
+			}
+			else{
+				$response = json_decode($result['response']);
+				if(isset($response->error)){
+					// echo "ERROR 2:<br>";
+					// print_r($response);				
+					$returnVal = false;
+				}
+				else{
+					// echo "SUCSESS:<BR>";
+					// print_r($response);
+					$returnVal = $response->customers[0];
+				}
+			}
+		}
+
+		if($out == 'JSON'){
+			return response()->json(['status' => 'success', 'threadId' => $threadId, 'customerInfo' => $returnVal], 200);
+		}
+		else{
+			return $returnVal;
+		}
+	}
 	
 	/**
 	* function to upload file/image to liveshatinc
@@ -606,7 +670,7 @@ class LiveChatController extends Controller
 	*   data - data that has to be sent in curl call. This can be optional if GET
 	* @return - response from curl call, array(response, err)
 	*/
-	function curlCall($URL, $data=false, $contentType='application/json', $method='POST'){
+	function curlCall($URL, $data=false, $contentType=false, $defaultAuthorization=true, $method='POST'){
 		$curl = curl_init();
 
 		$curlData = array(
@@ -615,11 +679,7 @@ class LiveChatController extends Controller
 			CURLOPT_ENCODING => "",
 			CURLOPT_MAXREDIRS => 10,
 			CURLOPT_TIMEOUT => 30,
-			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-			CURLOPT_HTTPHEADER => array(
-				"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
-				"Content-Type: " . $contentType
-			)
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1
 		);
 
 		if($method == 'POST'){
@@ -628,7 +688,17 @@ class LiveChatController extends Controller
 		else{
 			$curlData[CURLOPT_CUSTOMREQUEST] = $method;
 		}
-
+		if($contentType){
+			$curlData[CURLOPT_HTTPHEADER] = [];
+			if($defaultAuthorization){
+				array_push($curlData[CURLOPT_HTTPHEADER], "Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13");
+			}
+			// $curlData[CURLOPT_HTTPHEADER] = array(
+			// 	"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
+			// 	"Content-Type: " . $contentType
+			// );
+			array_push($curlData[CURLOPT_HTTPHEADER], "Content-Type: " . $contentType);
+		}
 		if($data){
 			$curlData[CURLOPT_POSTFIELDS] = $data;
 		}
@@ -674,7 +744,7 @@ class LiveChatController extends Controller
 
 		$postURL = 'https://api.livechatinc.com/v3.1/agent/action/send_event';
 
-		$result = self::curlCall($postURL, $postData, 'multipart/json');
+		$result = self::curlCall($postURL, $postData, 'application/json');
 		if($result['err']){
 			// echo "ERROR 1:<br>";
 			// print_r($result['err']);

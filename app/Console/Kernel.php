@@ -336,7 +336,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
 
         // Update the inventory (every fifteen minutes)
-        $schedule->command('inventory:update')->dailyAt('04:00')->timezone('Asia/Dubai');
+        $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
 
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         $schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
@@ -354,7 +354,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('cold-leads:move-to-customers')->daily();
 
 
-        $schedule->command('send:queue-pending-chat-messages')->cron('*/3 * * * *')->between('07:30', '18:00')->withoutOverlapping(10);
+        $schedule->command('send:queue-pending-chat-messages')->cron('*/5 * * * *')->between('07:30', '18:00')->withoutOverlapping(10);
 
         // need to run this both cron every minutes
         $schedule->command('cronschedule:update')->everyMinute();

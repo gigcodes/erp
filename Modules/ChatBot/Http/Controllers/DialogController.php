@@ -54,6 +54,11 @@ class DialogController extends Controller
             ChatbotDialog::where("id", $chatbotDialog->id)->delete();
             return response()->json(["code" => $result->code, "error" => $result->error]);
         }
+
+        if (property_exists($result, 'error')) {
+            ChatbotDialog::where("id", $chatbotDialog->id)->delete();
+            return response()->json(["code" => $result->code, "error" => $result->error]);
+        }
         return response()->json(["code" => 200, "data" => $chatbotDialog, "redirect" => route("chatbot.dialog.edit", [$chatbotDialog->id])]);
     }
 
