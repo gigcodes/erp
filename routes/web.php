@@ -1362,6 +1362,8 @@ Route::group(['middleware' => 'auth','namespace' => 'Marketing', 'prefix' => 'ma
 });
 Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function() {
     Route::get('coupons','CouponController@index')->name('coupons.index');
+    Route::post('coupons/load','CouponController@loadData');
+    Route::get('coupons/load','CouponController@loadData');
     Route::post('coupons/store','CouponController@store')->name('coupons.store');
 });
 
