@@ -1,6 +1,22 @@
 @extends('layouts.app')
 
 @section('content')
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
+<script>
+    $(document).ready(function() {
+        $('#user-table').DataTable({
+            "ordering": true,
+            "info": false
+        });
+    });
+</script>
+<style>
+    #user-table_filter {
+        text-align: right;
+    }
+</style>
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading"><i>{{ $repoName }}</i> users ({{sizeof($users)}})</h2>
@@ -10,7 +26,7 @@
     <a href="/github/repos/{{ $repoName }}/users/add" class="btn btn-primary">Add User</a>
 </div>
 <div class="container">
-    <table class="table table-bordered">
+    <table id="user-table" class="table table-bordered">
         <thead>
             <tr>
                 <th>Id</th>
