@@ -64,7 +64,12 @@ class QuestionController extends Controller
 
         $chatbotQuestion = ChatbotQuestion::create($params);
 
-        WatsonManager::pushQuestion($chatbotQuestion->id);
+        $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
+
+        if (property_exists($result, 'error')) {
+            ChatbotQuestion::where("id", $chatbotQuestion->id)->delete();
+            return response()->json(["code" => $result->code, "error" => $result->error]);
+        }
 
         return response()->json(["code" => 200, "data" => $chatbotQuestion, "redirect" => route("chatbot.question.edit", [$chatbotQuestion->id])]);
     }
