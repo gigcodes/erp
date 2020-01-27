@@ -11,7 +11,10 @@ class HubstaffActivity extends Model
         'user_id',
         'task_id',
         'starts_at',
-        'tracked'
+        'tracked',
+        'keyboard',
+        'mouse',
+        'overall',
     ];
 
         
