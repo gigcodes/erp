@@ -29,7 +29,7 @@
                     <div class="form-group">
                         <strong>Number</strong>
 
-                        <select class="form-control" data-context="vendors" data-id="{{ $vendor->id }}" data-phone="+918082488108" id="conference-number-selected" required>
+                        <select class="form-control" data-context="vendors" data-phone="+918082488108" id="conference-number-selected" required>
                             <option disabled selected>Select Number</option>
                                 @foreach(\Config::get("twilio.caller_id") as $caller)
                                 <option value="{{ $caller }}">{{ $caller }}</option>
