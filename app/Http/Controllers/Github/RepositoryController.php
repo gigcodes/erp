@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Github;
 use App\Github\GithubRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Artisan;
 use Carbon\Carbon;
 use DateTime;
 use Exception;
@@ -86,6 +87,13 @@ class RepositoryController extends Controller
         //print_r($repository);
     }
 
+    public function deployBranch($repoId){
+        $branch = Input::get('branch');
+        //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
+        exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch);
+        return redirect(url('/github/repos/'.$repoId.'/branches'));
+    }
+
     public function mergeBranch($id)
     {
 
@@ -105,6 +113,7 @@ class RepositoryController extends Controller
                 ]
             );
             echo 'done';
+            Artisan::call('github:load_branch_state');
         } catch (Exception $e) {
             print_r($e->getMessage());
             return redirect(url('/github/repos/' . $id . '/branches'))->with(
