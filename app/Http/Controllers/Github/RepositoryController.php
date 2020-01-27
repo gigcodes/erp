@@ -71,7 +71,7 @@ class RepositoryController extends Controller
         $repository = GithubRepository::find($repositoryId);
         $branches = $repository->branches;
 
-        $currentBranch = exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/get_current_deployment.sh');
+        $currentBranch = exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').$repository->name.'/get_current_deployment.sh');
         
        //exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh master');
         
@@ -88,9 +88,14 @@ class RepositoryController extends Controller
     }
 
     public function deployBranch($repoId){
+
+        $repository = GithubRepository::find($repoId);
+
+        
+
         $branch = Input::get('branch');
         //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
-        exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch);
+        exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').$repository->name.'/deploy_branch.sh '.$branch);
         return redirect(url('/github/repos/'.$repoId.'/branches'));
     }
 
