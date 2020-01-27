@@ -52,8 +52,12 @@ class SendHubstaffReport extends Command
         //
         $userPastHour =  $this->getActionsForPastHour();
 
+        echo print_r($userPastHour);
+        
         $userToday = $this->getActionsForToday();
 
+        echo print_r($userToday);
+        
         $users = DB::table('users')
             ->join('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
             ->select(['hubstaff_user_id', 'name'])
@@ -90,10 +94,10 @@ class SendHubstaffReport extends Command
 
     private function getActionsForPastHour()
     {
-        $stop =  date("c");
+        $stop =  gmdate("c");
         $time   = strtotime($stop);
         $time   = $time - (60 * 60); //one hour
-        $start = date("c", $time);
+        $start = gmdate("c", $time);
 
         $response = $this->doHubstaffOperationWithAccessToken(
             function ($accessToken) use ($start, $stop) {
