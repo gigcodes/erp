@@ -398,7 +398,7 @@ class UserController extends Controller
 	{
 		$date = date('Y-m-d', strtotime('last sunday'));
 
-		$users = User::with(['ratesCurrentWeek', 'trackedActivitiesForWeek'])->get();
+		$users = User::with(['ratesCurrentWeek', 'trackedActivitiesForWeek', 'currentRate'])->get();
 		$usersRatesPreviousWeek = UserRate::latestRatesForPreviousWeek();
 
 
@@ -482,6 +482,7 @@ class UserController extends Controller
 						if ($activity->starts_at >= $start['start_date'] && $activity->start_time < $end['start_date']) {
 							// the activity needs calculation for the start rate and hence do it
 							$earnings = $activity->tracked * ($start['rate'] / 60 / 60);
+							$activity->rate = $start['rate'];
 							$activity->earnings = $earnings;
 							$user->total += $earnings;
 							break;
