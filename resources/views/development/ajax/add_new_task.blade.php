@@ -4,7 +4,7 @@
 
         <!-- Modal content-->
         <div class="modal-content">
-            <div  style="padding: 10px;border-bottom: 1px solid #e5e5e5;">
+            <div style="padding: 10px;border-bottom: 1px solid #e5e5e5;">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Add Development Task</h4>
             </div>
@@ -27,10 +27,24 @@
                     @endif
 
                     <div class="form-group">
+                        <label for="repository_id">Repository:</label>
+                        <br>
+                        <select style="width:100%" class="form-control select2" id="repository_id" name="repository_id">
+                            @foreach ($respositories as $repository)
+                                <option value="{{ $repository->id }}" {{ $repository->id == $defaultRepositoryId ? 'selected' : '' }}>{{ $repository->name }}</option>
+                            @endforeach
+                        </select>
+
+                        @if ($errors->has('repository_id'))
+                            <div class="alert alert-danger">{{$errors->first('repository_id')}}</div>
+                        @endif
+                    </div>
+
+                    <div class="form-group">
                         <strong>Attach files:</strong>
                         <input type="file" name="images[]" class="form-control" multiple>
                         @if ($errors->has('images'))
-                            <div class="alert alert-danger">{{$errors->first('images')}}</div>
+                        <div class="alert alert-danger">{{$errors->first('images')}}</div>
                         @endif
                     </div>
 
@@ -40,13 +54,23 @@
                         <select style="width:100%" class="form-control select2" id="module_id" name="module_id">
                             <option value>Select a Module</option>
                             @foreach ($modules as $module)
-                                <option value="{{ $module->id }}" {{ $module->id == old('module_id') ? 'selected' : '' }}>{{ $module->name }}</option>
+                            <option value="{{ $module->id }}" {{ $module->id == old('module_id') ? 'selected' : '' }}>{{ $module->name }}</option>
                             @endforeach
                         </select>
 
                         @if ($errors->has('module_id'))
-                            <div class="alert alert-danger">{{$errors->first('module_id')}}</div>
+                        <div class="alert alert-danger">{{$errors->first('module_id')}}</div>
                         @endif
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hubstaff_project">Hubstaff Project:</label>
+                        <br />
+                        <select style="width:100%" class="form-control select2" id="hubstaff_project" name="hubstaff_project">
+                            @foreach ($projects as $project)
+                            <option value="{{ $project->id }}" {{ $project->id == old('hubstaff_project') ? 'selected' : '' }}>{{ $project->hubstaff_project_name }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -58,7 +82,7 @@
                         </select>
 
                         @if ($errors->has('priority'))
-                            <div class="alert alert-danger">{{$errors->first('priority')}}</div>
+                        <div class="alert alert-danger">{{$errors->first('priority')}}</div>
                         @endif
                     </div>
 
@@ -66,22 +90,22 @@
                         <label for="priority">Type:</label>
                         <select class="form-control" name="task_type_id" id="task_type_id" required>
                             @foreach($tasksTypes as $taskType)
-                                <option value="{{$taskType->id}}">{{$taskType->name}}</option>
+                            <option value="{{$taskType->id}}">{{$taskType->name}}</option>
                             @endforeach
                         </select>
 
                         @if ($errors->has('priority'))
-                            <div class="alert alert-danger">{{$errors->first('priority')}}</div>
+                        <div class="alert alert-danger">{{$errors->first('priority')}}</div>
                         @endif
                     </div>
 
                     <div class="form-group">
                         <strong>Subject:</strong>
-                        <input type="text" class="form-control" name="subject" value="{{ old('subject') }}"/>
+                        <input type="text" class="form-control" name="subject" value="{{ old('subject') }}" />
                         </select>
 
                         @if ($errors->has('subject'))
-                            <div class="alert alert-danger">{{$errors->first('subject')}}</div>
+                        <div class="alert alert-danger">{{$errors->first('subject')}}</div>
                         @endif
                     </div>
 
@@ -91,17 +115,17 @@
                         </select>
 
                         @if ($errors->has('task'))
-                            <div class="alert alert-danger">{{$errors->first('task')}}</div>
+                        <div class="alert alert-danger">{{$errors->first('task')}}</div>
                         @endif
                     </div>
 
                     <div class="form-group">
                         <strong>Cost:</strong>
-                        <input type="number" class="form-control" name="cost" value="{{ old('cost') }}"/>
+                        <input type="number" class="form-control" name="cost" value="{{ old('cost') }}" />
                         </select>
 
                         @if ($errors->has('cost'))
-                            <div class="alert alert-danger">{{$errors->first('cost')}}</div>
+                        <div class="alert alert-danger">{{$errors->first('cost')}}</div>
                         @endif
                     </div>
 
@@ -114,7 +138,7 @@
                         </select>
 
                         @if ($errors->has('status'))
-                            <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                        <div class="alert alert-danger">{{$errors->first('status')}}</div>
                         @endif
                     </div>
                 </div>

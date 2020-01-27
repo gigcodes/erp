@@ -1214,7 +1214,7 @@ class WhatsAppController extends FindByNumberController
             if ($user) {
                 // Add user ID to params
                 $params[ 'user_id' ] = $user->id;
-
+                //dd($params[ 'message' ]);
                 // Check for task
                 if ($params[ 'message' ] != '' && (preg_match_all("/#([\d]+)/i", $params[ 'message' ], $match))) {
                     // If task is found
@@ -1623,6 +1623,7 @@ class WhatsAppController extends FindByNumberController
                 $m = new ChatMessage();
                 $message = str_replace('#ISSUE-', '', $originalMessage);
                 $m->issue_id = explode(' ', $message)[ 0 ];
+                $m->user_id = isset($user->id) ? $user->id : null;
                 $m->message = $originalMessage;
                 $m->save();
             }
@@ -1631,6 +1632,7 @@ class WhatsAppController extends FindByNumberController
                 $m = new ChatMessage();
                 $message = str_replace('#DEVTASK-', '', $originalMessage);
                 $m->developer_task_id = explode(' ', $message)[ 0 ];
+                $m->user_id = isset($user->id) ? $user->id : null;
                 $m->message = $originalMessage;
                 $m->save();
             }
@@ -1993,7 +1995,7 @@ class WhatsAppController extends FindByNumberController
                     $module_id = $request->dubbizle_id;
                 } elseif ($context == 'issue') {
 
-                    $sendTo = $request->get('send_to',"to_developer");
+                    $sendTo = $request->get('sendTo',"to_developer");
 
                     $params[ 'issue_id' ] = $request->get('issue_id');
                     //$issue                  = Issue::find($request->get('issue_id'));
@@ -2008,6 +2010,8 @@ class WhatsAppController extends FindByNumberController
                     }
 
                     $params[ 'erp_user' ] = $userId;
+                    $params[ 'user_id' ]  = $data['user_id'];
+                    $params[ 'sent_to_user_id' ] = $userId;
                     $params[ 'approved' ] = 1;
                     $params[ 'status' ] = 2;
 
@@ -2493,7 +2497,7 @@ class WhatsAppController extends FindByNumberController
 
         if ($request->images) {
 
-            $imagesDecoded = json_decode($request->images);
+            $imagesDecoded = json_decode($request->images,true);
 
             if (!empty($request->send_pdf) && $request->send_pdf == 1) {
                 /*$temp_chat_message = ChatMessage::create($data);
@@ -2560,20 +2564,33 @@ class WhatsAppController extends FindByNumberController
                 }
 
             } else {
-                foreach (array_unique($imagesDecoded) as $image) {
-                    $media = Media::find($image);
-                    if (!empty($media)) {
-                        $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
-                        if (!$isExists) {
-                            // check first barcode image exist or not
-                            $barcode = Media::where("filename", $image)->orderBy("id", "desc")->first();
-                            if ($barcode) {
-                                $media = $barcode;
+                if(!empty($imagesDecoded) && is_array($imagesDecoded)) {
+                    $medias = Media::whereIn("id",array_unique($imagesDecoded))->get();
+                    if(!$medias->isEmpty()) {
+                        foreach($medias as $media) {
+                            try{
+                               $chat_message->attachMedia($media, config('constants.media_tags'));
+                            }catch(\Exception $e) {
+                               \Log::error($e);
                             }
-                            // check first barcode exist end
-                            $chat_message->attachMedia($media, config('constants.media_tags'));
                         }
                     }
+                    // added above code optimized
+                    // foreach (array_unique($imagesDecoded) as $image) {
+                    //     $media = Media::find($image);
+                    //     if (!empty($media)) {
+                    //         removed code for checking the existing image
+                    //         $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
+                    //         if (!$isExists) {
+                    //             // check first barcode image exist or not
+                    //             $barcode = Media::where("filename", $image)->orderBy("id", "desc")->first();
+                    //             if ($barcode) {
+                    //                 $media = $barcode;
+                    //             }
+                    //             // check first barcode exist end
+                    //         }
+                    //     }
+                    // }
                 }
             }
 
@@ -4494,6 +4511,5 @@ class WhatsAppController extends FindByNumberController
         return response()->json(["code" => 200]);
 
     }
-
 
 }

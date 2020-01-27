@@ -4,6 +4,7 @@ namespace App\Library\Watson;
 
 use App\ChatbotDialog;
 use App\ChatbotKeyword;
+use \App\ChatbotKeywordValue;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionExample;
 use App\Customer;
@@ -24,9 +25,9 @@ class Model
     const API_KEY = "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC";
 
     public static function getWorkspaceId()
-    {
-        return "19cf3225-f007-4332-8013-74443d36a3f7";
-    }
+{
+    return "19cf3225-f007-4332-8013-74443d36a3f7";
+}
 
     public static function getAssistantId()
     {
@@ -47,10 +48,16 @@ class Model
             $storeParams                = [];
             $storeParams["entity"]      = $keyword->keyword;
             $storeParams["fuzzy_match"] = true;
-            $values                     = $keyword->chatbotKeywordValues()->get()->pluck("value", "value")->toArray();
+            $values                     = $keyword->chatbotKeywordValues()->get();
             $storeParams["values"]      = [];
+            $typeValue                   = [];
             foreach ($values as $value) {
-                $storeParams["values"][] = ["value" => $value];
+                $typeValue = ChatbotKeywordValue::where("id", $value["id"])->first()->chatbotKeywordValueTypes()->get()->pluck("type");
+                if($value["types"] == "synonyms") {
+                    $storeParams["values"][] = ["value" => $value["value"], "synonyms"=> $typeValue];
+                } else {
+                    $storeParams["values"][] = ["value" => $value["value"], "type" => "patterns", "patterns"=> $typeValue];
+                }
             }
 
             $watson = new EntitiesService(

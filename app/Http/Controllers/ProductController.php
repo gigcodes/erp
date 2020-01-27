@@ -35,6 +35,7 @@ use Chumper\Zipper\Zipper;
 use Dompdf\Exception;
 use FacebookAds\Object\ProductFeed;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
@@ -1069,6 +1070,7 @@ class ProductController extends Controller
 
     public function updateCategory(Request $request, $id)
     {
+
         $product = Product::find($id);
         $product->category = $request->category;
         $product->save();
@@ -1256,6 +1258,162 @@ class ProductController extends Controller
         ]);
     }
 
+    public function updateMagentoProduct(Request $request){
+        $product = Product::find($request->update_product_id);
+        
+        //////      Update Local Product    //////
+        $product->name=$request->name;
+        $product->price=$request->price;
+        $product->price_eur_special=$request->price_eur_special;
+        $product->price_eur_discounted=$request->price_eur_discounted;
+        $product->price_inr=$request->price_inr;
+        $product->price_inr_special=$request->price_inr_special;
+        $product->price_inr_discounted=$request->price_inr_discounted;
+        $product->measurement_size_type=$request->measurement_size_type;
+        $product->lmeasurement=$request->lmeasurement;
+        $product->hmeasurement=$request->hmeasurement;
+        $product->dmeasurement=$request->dmeasurement;
+        $product->composition=$request->composition;
+        $product->size=$request->size;
+        $product->short_description=$request->short_description;
+        $product->made_in=$request->made_in;
+        $product->brand=$request->brand;
+        $product->category=$request->category;
+        $product->supplier=$request->supplier;
+        $product->supplier_link=$request->supplier_link;
+        $product->product_link=$request->product_link;
+        $product->updated_at=time();
+
+        //echo "<pre>";print_r($request->all());exit;
+        if($product->update()){
+            if($product->status_id==12){
+                ///////     Update Magento Product  //////
+                $options   = array(
+                    'trace'              => true,
+                    'connection_timeout' => 120,
+                    'wsdl_cache'         => WSDL_CACHE_NONE,
+                );
+
+                $proxy     = new \SoapClient(config('magentoapi.url'), $options);
+                $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
+
+                $sku = $product->sku . $product->color;
+                try {
+                    $magento_product = json_decode(json_encode($proxy->catalogProductInfo($sessionId, $sku)), true);
+                    if($magento_product){
+                        if(!empty($product->size)) {
+                            $associated_skus = [];
+                            $new_variations = 0;
+                            $sizes_array = explode(',', $product->size);
+                            $categories = CategoryController::getCategoryTreeMagentoIds($product->category);
+
+                            //////      Add new Variations  //////
+                            foreach ($sizes_array as $key2 => $size) {
+                                $error_message = '';
+                
+                                try {
+                                  $simple_product = json_decode(json_encode($proxy->catalogProductInfo($sessionId, $sku . '-' . $size)), true);
+                                  //echo "<pre>";print_r($simple_product);
+                                } catch (\Exception $e) {
+                                  $error_message = $e->getMessage();
+                                }
+                
+                                if ($error_message == 'Product not exists.') {
+                                  // CREATE VARIATION
+                                  $productData = array(
+                                              'categories'            => $categories,
+                                              'name'                  => $product->name,
+                                              'description'           => '<p></p>',
+                                              'short_description'     => $product->short_description,
+                                              'website_ids'           => array(1),
+                                              // Id or code of website
+                                              'status'                => $magento_product['status'],
+                                              // 1 = Enabled, 2 = Disabled
+                                              'visibility'            => 1,
+                                              // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+                                              'tax_class_id'          => 2,
+                                              // Default VAT
+                                              'weight'                => 0,
+                                              'stock_data' => array(
+                                                  'use_config_manage_stock' => 1,
+                                                  'manage_stock' => 1,
+                                              ),
+                                              'price'                 => $product->price_eur_special,
+                                              // Same price than configurable product, no price change
+                                              'special_price'         => $product->price_eur_discounted,
+                                              'additional_attributes' => array(
+                                                  'single_data' => array(
+                                                      array( 'key' => 'msrp', 'value' => $product->price, ),
+                                                      array( 'key' => 'composition', 'value' => $product->composition, ),
+                                                      array( 'key' => 'color', 'value' => $product->color, ),
+                                                      array( 'key' => 'sizes', 'value' => $size, ),
+                                                      array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
+                                                      array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
+                                                  ),
+                                              ),
+                                          );
+                                          // Creation of product simple
+                                          $result            = $proxy->catalogProductCreate( $sessionId, 'simple', 14, $sku . '-' . $size, $productData );
+                                          $new_variations = 1;
+                
+                
+                                } else {
+                                  // SIMPLE PRODUCT EXISTS
+                                  $status = $simple_product['status'];
+                                  // 1 = Enabled, 2 = Disabled
+                
+                                  if ($status == 2) {
+                                    // $product->isFinal = 0;
+                                  } else {
+                                    // $product->isFinal = 1;
+                                  }
+                                }
+                                $associated_skus[] = $sku . '-' . $size;
+                              }
+
+                              if ($new_variations == 1) {
+                                // IF THERE WAS NEW VARIATION CREATED, UPDATED THE MAIN PRODUCT
+                                /**
+                                       * Configurable product
+                                       */
+                                      $productData = array(
+                                          'associated_skus' => $associated_skus,
+                                      );
+                                      // Creation of configurable product
+                                      $result = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
+                              }
+                            $messages="Product updated successfully";
+                            return Redirect::Back()
+                                    ->with('success',$messages);
+                        }else{
+                            $messages[]="Sorry! No sizes found for magento update";
+                            return Redirect::Back()
+                                    ->withErrors($messages);
+                        }
+                    }else{
+                        $messages[]="Sorry! Product not found in magento";
+                        return Redirect::Back()
+                                ->withErrors($messages);
+                    }
+                } catch (\Exception $e) {
+                    $messages[] = $e->getMessage();
+                    return Redirect::Back()
+                                ->withErrors($messages);
+                }
+            }else{
+                $messages="Product updated successfuly";
+                return Redirect::Back()
+                                    ->with('success',$messages);
+            }
+        }else{
+            $messages[]="Sorry! Please try again";
+            return Redirect::Back()
+                                ->withErrors($messages);
+        }
+        
+        return Redirect::Back();
+    }
+
     public function approveProduct(Request $request, $id)
     {
         $product = Product::find($id);
@@ -1319,6 +1477,80 @@ class ProductController extends Controller
             ->with('success', 'Product deleted successfully');
     }
 
+    public function originalCategory($id)
+    {
+        $product = Product::find($id);
+        if(isset($product->scraped_products)){
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
+                $category = $product->scraped_products->properties['category'];
+                $cat = implode(' > ',$category);
+                return response()->json(['success',$cat]);
+
+            }else{
+               return response()->json(['message','Category Is Not Present']); 
+            }
+            
+        }else{
+            return response()->json(['message','Category Is Not Present']); 
+        }
+        
+    }
+
+    public function changeAllCategoryForAllSupplierProducts(Request $request, $id)
+    {
+        $cat = $request->category;
+        
+        $product = Product::find($id);
+        if($product->scraped_products){
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
+                $category = $product->scraped_products->properties['category'];
+                $referencesCategory = implode(' ',$category);
+            }
+        }else{
+            return response()->json(['success','Scrapped Product Doesnt Not Exist']); 
+        }
+
+        if(isset($referencesCategory)){
+
+            $productSupplier = $product->supplier;
+            $supplier = Supplier::where('supplier',$productSupplier)->first();
+            $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
+            foreach ($scrapedProducts as $scrapedProduct) {
+                $products = $scrapedProduct->properties['category'];
+                $list = implode(' ',$products);
+                if(strtolower($referencesCategory) == strtolower($list)){
+                    $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                }
+            }
+
+            if(!isset($scrapedProductSkuArray)){
+                $scrapedProductSkuArray = [];
+            }
+
+            //Add reference to category 
+            $category = Category::find($cat);
+
+            if($product->product_category != null){
+                $reference = $category->references.','.$referencesCategory;
+                $category->references = $reference;
+                $category->save();
+            }
+            
+            //Update products with sku 
+            if(count($scrapedProductSkuArray) != 0){
+                foreach ($scrapedProductSkuArray as $productSku) {
+                    $oldProduct = Product::where('sku',$productSku)->first();
+                    if($oldProduct != null){
+                        $oldProduct->category = $cat;
+                        $oldProduct->save();
+                    }
+                }
+            }
+
+            return response()->json(['success','Product Got Updated']); 
+        }
+    }
+
     public function attachProducts($model_type, $model_id, $type = null, $customer_id = null, Request $request)
     {
 
@@ -1358,6 +1590,13 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
+
+        if($model_type == 'customer'){
+            $customerId = $model_id;
+        }else{
+             $customerId = null;
+        }
+
         //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
         $term = $request->input('term');
@@ -1404,9 +1643,11 @@ class ProductController extends Controller
         }
 
         if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
+
             $category_children = [];
 
             foreach ($request->category as $category) {
+
                 $is_parent = Category::isParent($category);
 
                 if ($is_parent) {
@@ -1431,12 +1672,14 @@ class ProductController extends Controller
             }
 
             $products = $products->whereIn('category', $category_children);
+
+
         }
 
-        if ($request->price_min != null) {
+        if ($request->price_min != null && $request->price_min != 0) {
             $products = $products->where('price_inr_special', '>=', $request->price_min);
         }
-
+        
         if ($request->price_max != null) {
             $products = $products->where('price_inr_special', '<=', $request->price_max);
         }
@@ -1496,12 +1739,12 @@ class ProductController extends Controller
 
                 $brand_id = \App\Brand::where('name', 'LIKE', "%$term%")->value('id');
                 if ($brand_id) {
-                    $products = $products->orWhere('brand', 'LIKE', "%$brand_id%");
+                    $query = $query->orWhere('brand', 'LIKE', "%$brand_id%");
                 }
 
                 $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
                 if ($category_id) {
-                    $products = $products->orWhere('category', $category_id);
+                    $query = $query->orWhere('category', $category_id);
                 }
 
             });
@@ -1565,14 +1808,29 @@ class ProductController extends Controller
                 ];
             }
         }
+        if($request->category){
+            try {
+               $filtered_category = $request->category[0]; 
+            } catch (\Exception $e) {
+                $filtered_category = 1;
+            }
+        }else{
+            $filtered_category = 1;
+        }
+        
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'data-placeholder' => 'Select Category..'])
+            ->selected($filtered_category)
+            ->renderAsDropdown();
+
+        //dd($category_selection);    
+        
 
         // category filter start count
         $categoryGroups = clone($products);
         $categoryGroups = $categoryGroups->groupBy("category")->select([\DB::raw("count(id) as total_product"),"category"])->pluck("total_product","category")->toArray();
         $categoryIds = array_values(array_filter(array_keys($categoryGroups)));
 
-        $categoryModel = \App\Category::whereIn("id",$categoryIds)->pluck("title","id")->toArray();
-
+        $categoryModel = \DB::table('categories')->whereIn("id",$categoryIds)->pluck("title","id")->toArray();
         $countCategory = [];
         if(!empty($categoryGroups) && !empty($categoryModel)) {
             foreach ($categoryGroups as $key => $count) {
@@ -1620,10 +1878,25 @@ class ProductController extends Controller
         if ($request->has("limit")) {
             $perPageLimit = ($request->get("limit") == "all") ? $products->get()->count() : $request->get("limit");
         }
-
+        $categoryAll = Category::where('parent_id',0)->get();
+        foreach ($categoryAll as $category) {
+            $categoryArray[] = array('id' => $category->id , 'value' => $category->title); 
+            $childs = Category::where('parent_id',$category->id)->get();
+            foreach ($childs as $child) {
+                $categoryArray[] = array('id' => $child->id , 'value' => $category->title.' '.$child->title);
+                $grandChilds = Category::where('parent_id',$child->id)->get();
+                if($grandChilds != null){
+                    foreach ($grandChilds as $grandChild) {
+                        $categoryArray[] = array('id' => $grandChild->id , 'value' => $category->title.' '.$child->title .' '.$grandChild->title);
+                    }
+                } 
+            }
+        }
+        
         $products = $products->paginate($perPageLimit);
         $products_count = $products->total();
         $all_product_ids = [];
+        $from  = request("from","");
         if ($request->ajax()) {
             $html = view('partials.image-load', [
                 'products' => $products,
@@ -1632,27 +1905,29 @@ class ProductController extends Controller
                 'model_type' => $model_type,
                 'countBrands' => $countBrands,
                 'countCategory' => $countCategory,
-                'countSuppliers' => $countSuppliers
+                'countSuppliers' => $countSuppliers,
+                'customerId' => $customerId,
+                'categoryArray' => $categoryArray,
             ])->render();
+
+            if(!empty($from) && $from == "attach-image") {
+                return $html;
+            }
 
             return response()->json(['html' => $html, 'products_count' => $products_count]);
         }
 
-        $filtered_category = json_decode($request->category, true);
         $brand = $request->brand;
         $message_body = $request->message ? $request->message : '';
         $sending_time = $request->sending_time ?? '';
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'multiple' => 'multiple', 'data-placeholder' => 'Select Category..'])
-            ->selected($filtered_category)
-            ->renderAsDropdown();
-
+           
         $locations = \App\ProductLocation::pluck("name", "name");
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
-
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers'));
+        
+        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers','customerId','categoryArray'));
     }
 
 
@@ -2342,8 +2617,20 @@ class ProductController extends Controller
 
     public function sendMessageSelectedCustomer(Request $request)
     {
-        $customerIds = $request->get('customers_id', '');
-        $customerIds = explode(',', $customerIds);
+        $token = request("customer_token","");
+        
+        if(!empty($token)) {
+            $customerIds = json_decode(session($token));
+            if(empty($customerIds)) {
+                $customerIds = [];
+            }
+        }
+        // if customer is not available then choose what it is before
+        if(empty($customerIds)) {
+            $customerIds = $request->get('customers_id', '');
+            $customerIds = explode(',', $customerIds);
+        }
+
         $brand = request()->get("brand", null);
         $category = request()->get("category", null);
         $numberOfProduts = request()->get("number_of_products", 10);
@@ -2357,13 +2644,14 @@ class ProductController extends Controller
             $product = $product->where("brand", $brand);
         }
 
-        if (!empty($category)) {
+        if (!empty($category) && $category != 1) {
             $toBeRun = true;
             $product = $product->where("category", $category);
         }
 
         if (!empty($quick_sell_groups)) {
             $toBeRun = true;
+            $quick_sell_groups = rtrim(ltrim($quick_sell_groups,","),",") ;
             $product = $product->whereRaw("(products.id in (select product_id from product_quicksell_groups where quicksell_group_id in (" . $quick_sell_groups . ") ))");
         }
 
@@ -2547,6 +2835,7 @@ class ProductController extends Controller
 
     public function saveGroupHsCode(Request $request)
     {
+        dd($request);
         $name = $request->name;
         $compositions = $request->compositions;
         $key = HsCodeSetting::first();
@@ -2564,6 +2853,12 @@ class ProductController extends Controller
 
 
         $hscodeSearchString = str_replace(['&gt;','>'],'', $name.' '.$category->title.' '.$request->composition);
+
+        $hscode = HsCode::where('description',$hscodeSearchString)->first();
+
+        if($hscode != null){
+            return response()->json(['HsCode Already exist']);
+        }
 
         $hscodeSearchString = urlencode($hscodeSearchString);
 

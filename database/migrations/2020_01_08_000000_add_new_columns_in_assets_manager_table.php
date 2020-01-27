@@ -14,7 +14,7 @@ class AddNewColumnsInAssetsManagerTable extends Migration
     public function up()
     {
         Schema::table('assets_manager', function (Blueprint $table) {
-            $table->string('usage')->nullable()->after('currency');
+//            $table->string('usage')->nullable()->after('currency');
         });
     }
 
