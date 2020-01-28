@@ -239,6 +239,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     //Cron
     Route::get('cron', 'CronController@index')->name('cron.index');
+    Route::get('cron/run', 'CronController@runCommand')->name('cron.run.command');
     Route::get('cron/history/{id}', 'CronController@history')->name('cron.history');
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
 

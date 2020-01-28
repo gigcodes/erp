@@ -39,19 +39,20 @@ class UpdateInventory extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-            'signature'  => $this->signature,
-            'start_time' => Carbon::now(),
-        ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        // Set empty array with SKU
-        $arrInventory = [];
+            // Set empty array with SKU
+            $arrInventory = [];
 
-        // Update all products in database to inventory = 0
-        Product::where('id', '>', 0)->update(['stock' => 0]);
+            // Update all products in database to inventory = 0
+            Product::where('id', '>', 0)->update(['stock' => 0]);
 
-        // Get all scraped products with stock
-        $sqlScrapedProductsInStock = "
+            // Get all scraped products with stock
+            $sqlScrapedProductsInStock = "
             SELECT
                 sp.sku,
                 COUNT(sp.id) AS cnt
@@ -62,23 +63,25 @@ class UpdateInventory extends Command
                 s.supplier_status_id=1 AND
                 sp.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
             GROUP BY
-                sp.sku
-        ";
+                sp.sku";
 
-        $scrapedProducts = DB::select($sqlScrapedProductsInStock);
+            $scrapedProducts = DB::select($sqlScrapedProductsInStock);
 
-        // Loop over scraped products
-        foreach ($scrapedProducts as $scrapedProduct) {
-            $arrInventory[$scrapedProduct->sku] = $scrapedProduct->cnt;
+            // Loop over scraped products
+            foreach ($scrapedProducts as $scrapedProduct) {
+                $arrInventory[$scrapedProduct->sku] = $scrapedProduct->cnt;
+            }
+
+            foreach ($arrInventory as $sku => $cnt) {
+                // Find product
+                Product::where('sku', $sku)->update(['stock' => $cnt]);
+                echo "Updated " . $sku . "\n";
+            }
+
+            // TODO: Update stock in Magento
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        foreach ($arrInventory as $sku => $cnt) {
-            // Find product
-            Product::where('sku', $sku)->update(['stock' => $cnt]);
-            echo "Updated " . $sku . "\n";
-        }
-
-        // TODO: Update stock in Magento
-        $report->update(['end_time' => Carbon::now()]);
     }
 }

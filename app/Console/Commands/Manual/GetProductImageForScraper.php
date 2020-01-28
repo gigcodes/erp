@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands\Manual;
 
-use Illuminate\Console\Command;
+use App\Helpers\StatusHelper;
 use App\Product;
 use App\ScrapedProducts;
-use App\Helpers\StatusHelper;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use Plank\Mediable\Mediable;
 
 class GetProductImageForScraper extends Command
 {
@@ -42,60 +42,69 @@ class GetProductImageForScraper extends Command
      */
     public function handle()
     {
-        //Getting All Products
-        if (!empty($this->argument('website'))) {
-            $scrapedProducts = ScrapedProducts::where('website', $this->argument('website'))->get();
-        } else {
-            $scrapedProducts = ScrapedProducts::all();
-        }
+        try {
+            $report = \App\CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
+            //Getting All Products
+            if (!empty($this->argument('website'))) {
+                $scrapedProducts = ScrapedProducts::where('website', $this->argument('website'))->get();
+            } else {
+                $scrapedProducts = ScrapedProducts::all();
+            }
 
-        foreach ($scrapedProducts as $scrapedProduct) {
+            foreach ($scrapedProducts as $scrapedProduct) {
 
-            //get products from scraped products
-            $product = $scrapedProduct->product;
+                //get products from scraped products
+                $product = $scrapedProduct->product;
 
-            //check if scraped product has product
-            if ($product != null && $product != '') {
-                //check if product has media
-                if ($product->hasMedia(\Config('constants.media_tags'))) {
-                    dump('Product has media');
-                } else {
-                    //check if scrapedProduct has images
-                    if ($scrapedProduct->images == null && $scrapedProduct->images == '') {
-                        continue;
-                    }
-                    //if product does not have media loop over images
-                    $countImageUpdated = 0;
-                    foreach ($scrapedProduct->images as $image) {
-                        //check if image has http or https link
-                        if (strpos($image, 'http') === false) {
+                //check if scraped product has product
+                if ($product != null && $product != '') {
+                    //check if product has media
+                    if ($product->hasMedia(\Config('constants.media_tags'))) {
+                        dump('Product has media');
+                    } else {
+                        //check if scrapedProduct has images
+                        if ($scrapedProduct->images == null && $scrapedProduct->images == '') {
                             continue;
                         }
+                        //if product does not have media loop over images
+                        $countImageUpdated = 0;
+                        foreach ($scrapedProduct->images as $image) {
+                            //check if image has http or https link
+                            if (strpos($image, 'http') === false) {
+                                continue;
+                            }
 
-                        try {
-                            //generating image from image
-                            $jpg = \Image::make($image)->encode('jpg');
-                        } catch (\Exception $e) {
-                            // if images are null
-                            $jpg = null;
-                        }
-                        if ($jpg != null) {
-                            $filename = substr($image, strrpos($image, '/'));
-                            $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
+                            try {
+                                //generating image from image
+                                $jpg = \Image::make($image)->encode('jpg');
+                            } catch (\Exception $e) {
+                                // if images are null
+                                $jpg = null;
+                            }
+                            if ($jpg != null) {
+                                $filename = substr($image, strrpos($image, '/'));
+                                $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
 
-                            //save image to media
-                            $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
-                            $product->attachMedia($media, config('constants.media_tags'));
-                            $countImageUpdated++;
+                                //save image to media
+                                $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
+                                $product->attachMedia($media, config('constants.media_tags'));
+                                $countImageUpdated++;
+                            }
                         }
-                    }
-                    if ($countImageUpdated != 0) {
-                        // Call status update handler
-                        StatusHelper::updateStatus($product, StatusHelper::$autoCrop);
-                        dump('images saved for product ID ' . $product->id);
+                        if ($countImageUpdated != 0) {
+                            // Call status update handler
+                            StatusHelper::updateStatus($product, StatusHelper::$autoCrop);
+                            dump('images saved for product ID ' . $product->id);
+                        }
                     }
                 }
             }
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }

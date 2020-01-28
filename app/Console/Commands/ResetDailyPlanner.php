@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use App\CronJobReport;
 use App\User;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class ResetDailyPlanner extends Command
 {
@@ -40,20 +40,24 @@ class ResetDailyPlanner extends Command
      */
     public function handle()
     {
-      $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-      ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-      $users_array = [6, 7, 49, 56, 72];
+            $users_array = [6, 7, 49, 56, 72];
 
-      $users = User::whereIn('id', $users_array)->get();
+            $users = User::whereIn('id', $users_array)->get();
 
-      foreach ($users as $user) {
-        $user->is_planner_completed = 0;
-        $user->save();
-      }
+            foreach ($users as $user) {
+                $user->is_planner_completed = 0;
+                $user->save();
+            }
 
-      $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

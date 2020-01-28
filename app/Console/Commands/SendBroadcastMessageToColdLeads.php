@@ -5,8 +5,8 @@ namespace App\Console\Commands;
 use App\Account;
 use App\ColdLeadBroadcasts;
 use App\CronJobReport;
-
 use App\Services\Instagram\Broadcast;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SendBroadcastMessageToColdLeads extends Command
@@ -42,32 +42,34 @@ class SendBroadcastMessageToColdLeads extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
+            $broadcast = ColdLeadBroadcasts::where('started_at', '<=', date('Y-m-d H:i:s'))
+                ->whereRaw('`messages_sent` != `number_of_users`')
+                ->first();
 
-        $broadcast = ColdLeadBroadcasts::where('started_at', '<=', date('Y-m-d H:i:s'))
-            ->whereRaw('`messages_sent` != `number_of_users`')
-            ->first();
-
-
-        $bs = new Broadcast();
-        $account = Account::where('platform', 'instagram')->where('broadcast', 1)->first();
+            $bs      = new Broadcast();
+            $account = Account::where('platform', 'instagram')->where('broadcast', 1)->first();
 
 //        $bs->followUser($broadcast);
 
-        //After users are followed, start DMing 10 people...
-//        sleep(10);
-//
-        $leads = $broadcast->lead()->where('cold_leads.status', 1)->where('followed_by', '>', 0)->get();
+            //After users are followed, start DMing 10 people...
+            //        sleep(10);
+            //
+            $leads = $broadcast->lead()->where('cold_leads.status', 1)->where('followed_by', '>', 0)->get();
 //        dd(count($leads));
-        $message = $broadcast->message;
-        $bs->login($account);
-        $bs->sendBulkMessages($leads, $message, $broadcast->image, $account, $broadcast);
-        $broadcast->save();
+            $message = $broadcast->message;
+            $bs->login($account);
+            $bs->sendBulkMessages($leads, $message, $broadcast->image, $account, $broadcast);
+            $broadcast->save();
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

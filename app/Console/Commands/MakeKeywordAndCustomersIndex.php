@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\BulkCustomerRepliesKeyword;
-use App\Customer;
 use App\CronJobReport;
+use App\Customer;
 use App\Services\BulkCustomerMessage\KeywordsChecker;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -46,25 +46,28 @@ class MakeKeywordAndCustomersIndex extends Command
      */
     public function handle()
     {
+        try {
 
-        $report = CronJobReport::create([
-            'signature' => $this->signature,
-            'start_time' => Carbon::now()
-        ]);
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
+            BulkCustomerRepliesKeyword::where('is_processed', 1)->chunk(5000, function ($keywords) {
+                $customers = Customer::where('is_categorized_for_bulk_messages', 0)->get();
+                $this->checker->assignCustomerAndKeyword($keywords, $customers);
+            });
 
-        BulkCustomerRepliesKeyword::where('is_processed', 1)->chunk(5000, function ($keywords) {
-            $customers = Customer::where('is_categorized_for_bulk_messages', 0)->get();
+            $keywords  = BulkCustomerRepliesKeyword::where('is_processed', 0)->get();
+            $customers = Customer::all();
             $this->checker->assignCustomerAndKeyword($keywords, $customers);
-        });
+            BulkCustomerRepliesKeyword::where('is_processed', 0)->update([
+                'is_processed' => 1,
+            ]);
 
-        $keywords = BulkCustomerRepliesKeyword::where('is_processed', 0)->get();
-        $customers = Customer::all();
-        $this->checker->assignCustomerAndKeyword($keywords, $customers);
-        BulkCustomerRepliesKeyword::where('is_processed', 0)->update([
-            'is_processed' => 1
-        ]);
-
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

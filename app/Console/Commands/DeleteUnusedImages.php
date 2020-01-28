@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use App\CronJobReport;
 use File;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DeleteUnusedImages extends Command
 {
@@ -40,40 +41,43 @@ class DeleteUnusedImages extends Command
      */
     public function handle()
     {
-      $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-      dd('stap');
-      $file_types = array(
-        'gif',
-        'jpg',
-        'jpeg',
-        'png'
-      );
-      $directory = public_path('uploads');
-      $files = File::allFiles($directory);
+            dd('stap');
+            $file_types = array(
+                'gif',
+                'jpg',
+                'jpeg',
+                'png',
+            );
+            $directory = public_path('uploads');
+            $files     = File::allFiles($directory);
 
-      // dd($files);
+            // dd($files);
 
-      foreach ($files as $file)
-      {
-          $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-          if (in_array($ext, $file_types)) {
-            $filename = pathinfo($file, PATHINFO_FILENAME);
+            foreach ($files as $file) {
+                $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                if (in_array($ext, $file_types)) {
+                    $filename = pathinfo($file, PATHINFO_FILENAME);
 
-              if(DB::table('media')->where('filename', '=', $filename)->count()) {
-                dump('in-use');
-                continue; // continue if the picture is in use
-              }
+                    if (DB::table('media')->where('filename', '=', $filename)->count()) {
+                        dump('in-use');
+                        continue; // continue if the picture is in use
+                    }
 
-              echo 'removed' . basename($file)."<br />";
-              unlink($file); // delete if picture isn't in use
-          }
-      }
+                    echo 'removed' . basename($file) . "<br />";
+                    unlink($file); // delete if picture isn't in use
+                }
+            }
 
-      $report->update(['end_time' => Carbon:: now()]);
-      
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
+
     }
 }

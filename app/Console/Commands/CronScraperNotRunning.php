@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use App\CronJobReport;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class CronScraperNotRunning extends Command
 {
@@ -42,63 +42,67 @@ class CronScraperNotRunning extends Command
     {
         return;
         // Create cron job report
-        $report = CronJobReport::create([
-            'signature' => $this->signature,
-            'start_time' => Carbon::now()
-        ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        // Get all suppliers
-        $sql = "
+            // Get all suppliers
+            $sql = "
             SELECT
                 s.id,
                 s.supplier,
                 sp.scraper_name,
                 MAX(ls.updated_at) AS last_update,
                 sp.scraper_name,
-                sp.inventory_lifetime 
+                sp.inventory_lifetime
             FROM
                 suppliers s
             JOIN
-                scrapers sp on sp.supplier_id = s.id    
-            LEFT JOIN 
-                log_scraper ls 
-            ON 
+                scrapers sp on sp.supplier_id = s.id
+            LEFT JOIN
+                log_scraper ls
+            ON
                 ls.website=sp.scraper_name
             WHERE
-                s.supplier_status_id=1 
-            GROUP BY 
-                s.id 
+                s.supplier_status_id=1
+            GROUP BY
+                s.id
             HAVING
-                last_update < DATE_SUB(NOW(), INTERVAL sp.inventory_lifetime DAY) OR 
+                last_update < DATE_SUB(NOW(), INTERVAL sp.inventory_lifetime DAY) OR
                 last_update IS NULL
-            ORDER BY 
+            ORDER BY
                 s.supplier
         ";
-        $allSuppliers = DB::select($sql);
+            $allSuppliers = DB::select($sql);
 
-        // Do we have results?
-        if (count($allSuppliers) > 0) {
-            // Loop over suppliers
-            foreach ($allSuppliers as $supplier) {
-                // Create message
-                $message = '[' . date('d-m-Y H:i:s') . '] Scraper not running: ' . $supplier->supplier;
+            // Do we have results?
+            if (count($allSuppliers) > 0) {
+                // Loop over suppliers
+                foreach ($allSuppliers as $supplier) {
+                    // Create message
+                    $message = '[' . date('d-m-Y H:i:s') . '] Scraper not running: ' . $supplier->supplier;
 
-                // Output debug message
-                dump("Scraper not running: " . $supplier->supplier);
-
-                // Try to send message
-                try {
                     // Output debug message
-                    dump("Sending message");
+                    dump("Scraper not running: " . $supplier->supplier);
 
-                    // Send message
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('34666805119', '971502609192', $message);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('919004780634', '971502609192', $message);
-                } catch (\Exception $e) {
-                    // Output error
-                    dump($e->getMessage());
+                    // Try to send message
+                    try {
+                        // Output debug message
+                        dump("Sending message");
+
+                        // Send message
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('34666805119', '971502609192', $message);
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('919004780634', '971502609192', $message);
+                    } catch (\Exception $e) {
+                        // Output error
+                        dump($e->getMessage());
+                    }
                 }
             }
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }
