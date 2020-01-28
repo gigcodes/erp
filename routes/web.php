@@ -1478,3 +1478,6 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/modifyUserAccess', 'Github\UserController@modifyUserAccess');
     });
 });
+
+Route::put('customer/language-translate/{id}', 'CustomerController@languageTranslate');
+Route::get('get-language', 'CustomerController@getLanguage')->name('livechat.customer.language');

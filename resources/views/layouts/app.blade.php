@@ -1527,7 +1527,7 @@
                     <div class="col-md-6 chat">
                         <div class="card_chat">
                             <div class="card-header msg_head">
-                                <div class="d-flex bd-highlight">
+                                <div class="d-flex bd-highlight align-items-center justify-content-between">
                                     <div class="img_cont">
                                         <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
 
@@ -1539,6 +1539,19 @@
                                     <div class="video_cam">
                                         <span><i class="fa fa-video"></i></span>
                                         <span><i class="fa fa-phone"></i></span>
+                                    </div>
+                                    @php
+                                        $path = storage_path('/');
+                                        $content = File::get($path."languages.json");
+                                        $language = json_decode($content, true);
+                                    @endphp
+                                    <div class="selectedValue">
+                                         <select id="autoTranslate" class="form-control auto-translate">
+                                            <option value="">Translation Language</option>
+                                            @foreach ($language as $key => $value) 
+                                                <option value="{{$value}}">{{$key}}</option>
+                                            @endforeach  
+                                        </select>
                                     </div>
                                 </div>
                                 <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
@@ -1567,7 +1580,7 @@
                                                 <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
                                                 <input type="file" id="imgupload" style="display:none" />
                                             </div>
-                                            <input type="hidden" id="message-id" />
+                                            <input type="hidden" id="message-id" name="message-id" />
                                             <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
                                             <div class="input-group-append">
                                                 <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
@@ -1842,6 +1855,27 @@
                 } else {}
             }
         }
+
+        $(document).on('change', '#autoTranslate', function (e) {
+             e.preventDefault();
+            var customerId = $("input[name='message-id'").val();
+            var language = $(".auto-translate").val();
+            let self = $(this);
+            $.ajax({
+                url: "/customer/language-translate/"+customerId,
+                method:"PUT",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                  },
+                data:{id:customerId, language:language },
+                cache: true,
+                success: function(res) {
+                    $('.selectedValue option[value="' + language + '"]').prop('selected', true);
+                    alert(res.success);
+                }
+            })
+        });
+       
     </script>
 
 </body>
