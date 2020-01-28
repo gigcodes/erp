@@ -347,6 +347,7 @@
 
         $(document).on('click','.preview', function () {
             $('#ModalPreview').click();
+            $('.preview-body').html('');
             var id = $(this).data('id');
             $.ajax({
                 type: "POST",
@@ -357,7 +358,10 @@
                     return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
                 },
             }).done(function(data) {
-                $('.preview-body').html(data.html.html);
+                console.log(data);
+                if(data.html){
+                    $('.preview-body').html(data.html.html);
+                }
             }).fail(function(data) {
             });
 
@@ -378,11 +382,13 @@
 /*
                     console.log(data.html['html']);
 */
-                    $('.put-index-here').html(data.html['html']);
-                    $('select[name="mailinglist_id"]').val(data.html['mailinglist_id']);
-                    $('select[name="template_id"]').val(data.html['template_id']);
-                    $('input[name="subject"]').val(data.html['subject']);
-                    $('input[name="scheduled_date"]').val(data.html['scheduled_date']);
+                    if(data.html){
+                        $('.put-index-here').html(data.html['html']);
+                        $('select[name="mailinglist_id"]').val(data.html['mailinglist_id']);
+                        $('select[name="template_id"]').val(data.html['template_id']);
+                        $('input[name="subject"]').val(data.html['subject']);
+                        $('input[name="scheduled_date"]').val(data.html['scheduled_date']);
+                    }
 
                 }).fail(function(data) {
             });

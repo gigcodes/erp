@@ -48,8 +48,7 @@ class MailingListSendMail extends Command
                 array_push($array_emails,["email" => $email]);
             }
             $diff = $now->diffInMinutes($mailing->scheduled_date);
-            if($diff < 15 && $mailing->progress == 0){
-                dump($emails);
+            if($diff <= 15 && $mailing->progress == 0){
                 $htmlContent = $mailing->html;
                 $data = [
                     "to" => $array_emails,
