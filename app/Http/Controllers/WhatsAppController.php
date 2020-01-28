@@ -1558,6 +1558,19 @@ class WhatsAppController extends FindByNumberController
                                 "chat_id" => $message->id,
                                 "reply"   => $chatbotReply["response"],
                             ]);
+                            foreach($chatbotReply["imageFiles"] as $image){
+                                //check whether the given file is present or not
+                                if (file_exists('/uploads/social-media/' .$image)) {
+                                    //inserting media_url in ChatMessage
+                                    $temp_params['message']    = '';
+                                    $temp_params['media_url']  = '/uploads/social-media/' .$image;
+                                    $message = ChatMessage::create($temp_params);
+                                    \App\ChatbotReply::create([
+                                    "chat_id" => $message->id,
+                                    "reply"   => $chatbotReply["response"],
+                                ]);
+                                }
+                            }
                         }
                     }
                 }
