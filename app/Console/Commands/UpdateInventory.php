@@ -49,7 +49,7 @@ class UpdateInventory extends Command
             $arrInventory = [];
 
             // Update all products in database to inventory = 0
-            Product::where('id', '>', 0)->update(['stock' => 0]);
+            // Product::where('id', '>', 0)->update(['stock' => 0]);
 
             // Get all scraped products with stock
             $sqlScrapedProductsInStock = "
