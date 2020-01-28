@@ -48,6 +48,8 @@
                 <th>Rate</th>
                 <th>Currency</th>
                 <th>Total</th>
+                <th>Balance</th>
+                <th>Pay</th>
 
             </tr>
         </thead>
@@ -55,7 +57,7 @@
             @foreach($users as $user)
             <tr style="position: relative">
                 <td onclick="toggle('{{$user->id}}')" style="cursor: pointer;">
-                    <div>
+                    <div style="margin-bottom: 20px;">
                         <span href="#{{$user->id}}-expandable">{{$user->name}}</span>
                     </div>
                     <div id="elastic-{{$user->id}}" class="activity-container" style="height: 500px;" data-expanded="false">
@@ -87,12 +89,44 @@
                 <td>{{isset($user->currentRate) ? $user->currentRate->hourly_rate : '-'}}</td>
                 <td>{{$user->currency}}</td>
                 <td>{{$user->total}}</td>
+                <td>0</td>
+                <td>
+                    <button class="btn btn-secondary" onclick="makePayment({{$user->id}})">Pay</button>
+                </td>
 
             </tr>
             @endforeach
         </tbody>
 
     </table>
+</div>
+
+<!-- Modal -->
+<div id="paymentModal" style="padding-top: 50px" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            {{Form::open(array('url' => '/github/add_user_to_repo', 'method' => 'POST'))}}
+            {{ Form::hidden('user_id', Input::old('user_id')) }}
+            <div class="modal-body">
+                <div class="form-group">
+                    {{ Form::label('note', 'Note') }}
+                    {{ Form::text('note',null, array('class' => 'form-control')) }}
+                </div>
+                <div class="form-group">
+                    {{ Form::label('payment_method', 'Payment Method') }}
+                    {{ Form::select('payment_method', [], null , array('class' => 'form-control'))  }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                {{ Form::submit('Pay', array('class' => 'btn btn-primary', 'data-dismiss'=> 'modal')) }}
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+            {{ Form::close() }}
+        </div>
+
+    </div>
 </div>
 @endsection
 
@@ -112,6 +146,10 @@
 <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
 <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
 <script>
+    function makePayment(userId) {
+        $("#paymentModal").modal();
+    }
+
     $(document).ready(function() {
 
         adjustHeight();
@@ -165,15 +203,16 @@
     }
 
     $(function() {
-        
 
+
+        /* beautify preserve:start */
         var selectedYear = {{ isset($selectedYear) ? $selectedYear : 'false' }};
         var selectedWeek = {{ isset($selectedWeek) ? $selectedWeek : 'false' }};
-
+        /* beautify preserve:end */
         var weekpicker;
-        if(selectedYear !== false && selectedWeek !== false){
+        if (selectedYear !== false && selectedWeek !== false) {
             weekpicker = $("#weekpicker1").weekpicker(selectedWeek, selectedYear);
-        }else{
+        } else {
             weekpicker = $("#weekpicker1").weekpicker();
         }
 
@@ -181,7 +220,7 @@
         weekpicker.find("input").on("dp.change", function() {
             console.log(weekpicker.getWeek());
             console.log(weekpicker.getYear());
-            window.location = '/hubstaff/payments?week='+weekpicker.getWeek()+'&year='+weekpicker.getYear();
+            window.location = '/hubstaff/payments?week=' + weekpicker.getWeek() + '&year=' + weekpicker.getYear();
         });
     });
 </script>

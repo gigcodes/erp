@@ -13,14 +13,16 @@ class CreateUserRatesTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_rates', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('user_id');
-            $table->dateTime('start_date');
-            $table->float('hourly_rate');
-            $table->string('currency');
-            $table->timestamps();
-        });
+        if(!Schema::hasTable('user_rates')){
+            Schema::create('user_rates', function (Blueprint $table) {
+                $table->increments('id');
+                $table->integer('user_id');
+                $table->dateTime('start_date');
+                $table->float('hourly_rate');
+                $table->string('currency');
+                $table->timestamps();
+            });
+        }
     }
     /**
      * Reverse the migrations.
