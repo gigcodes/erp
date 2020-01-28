@@ -1505,11 +1505,13 @@
                                     @foreach ($chatIds as $chatId)
                                     @php
                                     $customer = \App\Customer::where('id',$chatId->customer_id)->first();
+                                    $customerInital = substr($customer->name, 0, 1);
                                     @endphp
                                     <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
                                         <div class="d-flex bd-highlight">
                                             <div class="img_cont">
-                                                <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                                <soan class="rounded-circle user_inital">{{ $customerInital }}</soan>
+                                                {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
                                                 <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
                                             </div>
                                             <div class="user_info">
@@ -1532,7 +1534,8 @@
                             <div class="card-header msg_head">
                                 <div class="d-flex bd-highlight">
                                     <div class="img_cont">
-                                        <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                        <soan class="rounded-circle user_inital" id="user_inital"></soan>
+                                        {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
 
                                     </div>
                                     <div class="user_info" id="user_name">

@@ -433,26 +433,31 @@ class LiveChatController extends Controller
 			$customerInfo = '';
 		}
 
+		$customerInital = substr($name, 0, 1);
 		if(count($messages) != 0){
 			foreach ($messages as $message) {
 			if($message->user_id != 0){
-				$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
+				// Finding Agent 
+				$agent = User::where('email', $message->user_id)->first();
+				$agentInital = substr($agent->name, 0, 1);
+
+				$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">'.$agentInital.'</div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
 			}else{
-				$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
+				$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
 			}
 			}
 
 		}
 		
 		if(!isset($messagess)){
-				$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">New Customer For Chat<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime(now()))->diffForHumans().'</span></div></div>';
+				$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">New Customer For Chat<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime(now()))->diffForHumans().'</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
 		}
 
 		$count = CustomerLiveChat::where('seen',0)->count();
 		
 		return response()->json([
 						'status' => 'success',
-						'data' => array('id' => $chatId ,'count' => $count, 'message' => $messagess , 'name' => $name, 'customerInfo' => $customerInfo, 'threadId' => $threadId),
+						'data' => array('id' => $chatId ,'count' => $count, 'message' => $messagess , 'name' => $name, 'customerInfo' => $customerInfo, 'threadId' => $threadId, 'customerInital' => $customerInital),
         			]);
 	}
 	
@@ -464,16 +469,21 @@ class LiveChatController extends Controller
 			$messages = ChatMessage::where('customer_id',$chatId)->where('message_application_id',2)->get();
 			//getting customer name from chat
 			$customer = Customer::findorfail($chatId);
-			$name = $customer->name; 
+			$name = $customer->name;
+			$customerInital = substr($name, 0, 1);
 			if(count($messages) == 0){
-					$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>';
+					$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
 					
 			}else{
 				foreach ($messages as $message) {
 					if($message->user_id != 0){
-						$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
+						// Finding Agent 
+						$agent = User::where('email', $message->user_id)->first();
+						$agentInital = substr($agent->name, 0, 1);
+
+						$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">'.$agentInital.'</div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
 					}else{
-						$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>';
+						$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
 					}
 				}
 
@@ -482,11 +492,11 @@ class LiveChatController extends Controller
 			$count = CustomerLiveChat::where('seen',0)->count();
 			return response()->json([
 						'status' => 'success',
-						'data' => array('id' => $chatId ,'count' => $count, 'message' => $messagess , 'name' => $name),
+						'data' => array('id' => $chatId ,'count' => $count, 'message' => $messagess , 'name' => $name, 'customerInital' => $customerInital),
         			]);
 		}else{
 			return response()->json([
-            			'data' => array('id' => '','count' => 0, 'message' => '' , 'name' => ''),
+            			'data' => array('id' => '','count' => 0, 'message' => '' , 'name' => '', 'customerInital' => ''),
         			]);
 		}
 	}
@@ -496,15 +506,16 @@ class LiveChatController extends Controller
 
 		foreach($liveChatCustomers as $liveChatCustomer){
 			$customer = Customer::where('id',$liveChatCustomer->customer_id)->first();
+			$customerInital = substr($customer->name, 0, 1);
 			if($liveChatCustomer->status == 0){
-				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'" style="cursor: pointer;"><div class="d-flex bd-highlight"><div class="img_cont"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"><span class="online_icon offline"></span>
-								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is offline</p></div></div></li>';
+				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'" style="cursor: pointer;"><div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">'.$customerInital.'</span><span class="online_icon offline"></span>
+								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is offline</p></div></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
 			}elseif($liveChatCustomer->status == 1 && $liveChatCustomer->seen == 0){
-				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'" style="cursor: pointer;"><div class="d-flex bd-highlight"><div class="img_cont"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"><span class="online_icon"></span>
-								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is online</p></div><span class="new_message_icon"></span></div></li>';
+				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'" style="cursor: pointer;"><div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">'.$customerInital.'</span><span class="online_icon"></span>
+								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is online</p></div><span class="new_message_icon"></span></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
 			}else{
-				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'" style="cursor: pointer;"><div class="d-flex bd-highlight"><div class="img_cont"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"><span class="online_icon"></span>
-								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is online</p></div></div></li>';
+				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'" style="cursor: pointer;"><div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">'.$customerInital.'</span><span class="online_icon"></span>
+								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is online</p></div></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
 			}
 		}
 		if(empty($customers)){

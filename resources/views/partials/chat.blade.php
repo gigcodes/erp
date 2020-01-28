@@ -336,6 +336,20 @@ margin-bottom: 15px !important;
 	font-size: 12px;
 	height:25px;
 }
+.user_inital{
+	display: block;
+    background-color: #ddd;
+    text-align: center;
+    line-height: 40px;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    height: 40px;
+    width: 40px;
+}
+.online_icon{
+	right: -0.3em !important;
+}
 </style>
 <script src="https://cdn.livechatinc.com/accounts/accounts-sdk.min.js"></script>
 <script>
@@ -550,6 +564,7 @@ function getChats(id){
 			$('#user_name').text(data.data.name);
 			$("li.active").removeClass("active");
 			$("#user"+data.data.id).addClass("active");
+			$('#user_inital').text(data.data.customerInital);
 
 			var customerInfo = data.data.customerInfo;
 			if(customerInfo!=''){
@@ -594,6 +609,7 @@ function getChatsWithoutRefresh(){
 		 $('#user_name').text(data.data.name);
 		 $("li .active").removeClass("active");
 		 $("#user"+data.data.id).addClass("active");
+		 $('#user_inital').text(data.data.customerInital);
 		 scrolled=scrolled+300;
          $(".cover").animate({
 			scrollTop:  scrolled
@@ -638,7 +654,7 @@ function sendMessage(){
     })
     .done(function(data) {
        console.log(data);
-		chat_message = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'+message+'<span class="msg_time"></span></div></div>';
+		chat_message = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer">'+message+'<span class="msg_time"></span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
 		$('#message-recieve').append(chat_message);
 		$('#message').val('');
 		scrolled=scrolled+300;
