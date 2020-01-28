@@ -49,7 +49,7 @@ class UpdateInventory extends Command
             $arrInventory = [];
 
             // Update all products in database to inventory = 0
-            // Product::where('id', '>', 0)->update(['stock' => 0]);
+            //Product::where('id', '>', 0)->update(['stock' => 0]);
 
             // Get all scraped products with stock
             $sqlScrapedProductsInStock = "
@@ -61,7 +61,7 @@ class UpdateInventory extends Command
             JOIN scraped_products sp ON sp.website=sc.scraper_name
             WHERE
                 s.supplier_status_id=1 AND
-                sp.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
+                sp.last_inventory_at < DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
             GROUP BY
                 sp.sku";
 
@@ -74,7 +74,7 @@ class UpdateInventory extends Command
 
             foreach ($arrInventory as $sku => $cnt) {
                 // Find product
-                Product::where('sku', $sku)->update(['stock' => $cnt]);
+                Product::where('sku', $sku)->update(['stock' => 0]);
                 echo "Updated " . $sku . "\n";
             }
 

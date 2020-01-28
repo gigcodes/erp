@@ -37,3 +37,28 @@
 		{{:pagination}}
 	</div>
 </script>
+<script type="text/x-jsrender" id="template-send-message-report">
+	<table class="table table-bordered">
+	    <thead>
+	      <tr>
+	      	<th>Date</th>
+	        <th>Group ID</th>
+	        <th>Total sent</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+    		{{props data}}
+		      <tr>
+		      	<td>{{:prop.created_at}}</td>
+		      	<td>{{:prop.group_id}}</td>
+		        <td>{{:prop.total_sent}}</td>
+		      </tr>
+	       {{/props}}
+	       <tr colspan="2">
+	       	   <td></td>
+	       	   <td><b>Total</b></td>
+	       	   <td>{{:total}}</td>
+		   </tr>
+	    </tbody>
+	</table>
+</script>
