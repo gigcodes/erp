@@ -1,8 +1,8 @@
 <tr>
     <td>{{$item->id}}</td>
+    <td>{{$item->subject}}</td>
     <td>{{$item->audience->name}}</td>
     <td>{{$item->template->name}}</td>
-    {{--          <td>{{$value["subject"]}}</td>--}}
     <td>{{$item->scheduled_date}}</td>
     <td>
         <i title="Preview" id="preview" class="fa fa-eye preview" aria-hidden="true"></i>

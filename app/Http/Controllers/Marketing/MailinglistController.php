@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Marketing;
 use App\Customer;
 use App\CustomerMarketingPlatform;
 use App\Mailinglist;
+use App\MailinglistEmail;
 use App\MailingRemark;
 use App\Service;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -72,131 +74,119 @@ class MailinglistController extends Controller
     public function show($id, Request $request)
     {
         $customers = Customer::whereNotNull('email');
-        if(!is_null($request->term)){
+        if (!is_null($request->term)) {
             $customers = $customers->where('email', 'LIKE', "%{$request->term}%");
         }
         //Total Result
-        if (request('total') != null){
+        if (request('total') != null) {
 
             //search with date
-            if(request('total') == 1 && request('customrange') != null){
+            if (request('total') == 1 && request('customrange') != null) {
                 $range = explode(' - ', request('customrange'));
-                if($range[0] == end($range)){
+                if ($range[0] == end($range)) {
                     $customers->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
                         $qu->whereDate('created_at', end($range))->where('active', 1);
-                    })->where('do_not_disturb',0);
-                }else{
+                    })->where('do_not_disturb', 0);
+                } else {
                     $customers->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
                         $qu->whereBetween('created_at', [$range[0], end($range)])->where('active', 1);
-                    })->where('do_not_disturb',0);
+                    })->where('do_not_disturb', 0);
                 }
-            }
-
-            elseif(request('total') == 1){
+            } elseif (request('total') == 1) {
                 $customers->whereHas('customerMarketingPlatformActive', function ($qu) use ($request) {
                     $qu->where('active', 1);
-                })->where('do_not_disturb',0);
+                })->where('do_not_disturb', 0);
             }
 
-            if(request('total') == 2 && request('customrange') != null){
+            if (request('total') == 2 && request('customrange') != null) {
                 $range = explode(' - ', request('customrange'));
-                if($range[0] == end($range)){
-                    $customers->doesntHave('customerMarketingPlatformActive')->whereDate('created_at',end($range))->where('do_not_disturb',0);
-                }else{
-                    $customers->doesntHave('customerMarketingPlatformActive')->whereBetween('created_at', [$range[0], end($range)])->where('do_not_disturb',0);
+                if ($range[0] == end($range)) {
+                    $customers->doesntHave('customerMarketingPlatformActive')->whereDate('created_at', end($range))->where('do_not_disturb', 0);
+                } else {
+                    $customers->doesntHave('customerMarketingPlatformActive')->whereBetween('created_at', [$range[0], end($range)])->where('do_not_disturb', 0);
                 }
             }
 
-            if(request('total') == 2){
-                $customers->doesntHave('customerMarketingPlatformActive')->where('do_not_disturb',0);
+            if (request('total') == 2) {
+                $customers->doesntHave('customerMarketingPlatformActive')->where('do_not_disturb', 0);
             }
 
-            if(request('total') == 3 && request('customrange') != null){
+            if (request('total') == 3 && request('customrange') != null) {
                 $range = explode(' - ', request('customrange'));
-                if($range[0] == end($range)){
-                    $customers->where('do_not_disturb', 1)->whereDate('updated_at',end($range));
-                }else{
+                if ($range[0] == end($range)) {
+                    $customers->where('do_not_disturb', 1)->whereDate('updated_at', end($range));
+                } else {
                     $customers->where('do_not_disturb', 1)->whereBetween('updated_at', [$range[0], end($range)]);
                 }
-            }
-
-            elseif(request('total') == 3){
+            } elseif (request('total') == 3) {
                 $customers->where('do_not_disturb', 1);
             }
 
-            if(request('total') == 4 && request('customrange') != null){
+            if (request('total') == 4 && request('customrange') != null) {
                 $range = explode(' - ', request('customrange'));
-                if($range[0] == end($range)){
+                if ($range[0] == end($range)) {
 
                     $customers->whereHas('leads', function ($qu) use ($range) {
                         $qu->whereDate('created_at', end($range));
                     });
 
-                }else{
+                } else {
                     $customers->whereHas('leads', function ($qu) use ($range) {
                         $qu->whereBetween('created_at', [$range[0], end($range)]);
                     });
                 }
-            }
-
-            elseif(request('total') == 4){
+            } elseif (request('total') == 4) {
                 $customers->whereHas('leads');
             }
 
-            if(request('total') == 5 && request('customrange') != null){
+            if (request('total') == 5 && request('customrange') != null) {
                 $range = explode(' - ', request('customrange'));
-                if($range[0] == end($range)){
+                if ($range[0] == end($range)) {
 
                     $customers->whereHas('orders', function ($qu) use ($range) {
                         $qu->whereDate('created_at', end($range));
                     });
 
-                }else{
+                } else {
                     $customers->whereHas('orders', function ($qu) use ($range) {
                         $qu->whereBetween('created_at', [$range[0], end($range)]);
                     });
                 }
-            }
-
-            elseif(request('total') == 5){
+            } elseif (request('total') == 5) {
                 $customers->whereHas('orders');
             }
 
-            if(request('total') == 6 && request('customrange') != null){
+            if (request('total') == 6 && request('customrange') != null) {
                 $range = explode(' - ', request('customrange'));
-                if($range[0] == end($range)){
+                if ($range[0] == end($range)) {
 
                     $customers->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
                         $qu->where('active', 1);
-                    })->where('broadcast_number',null)->whereDate('created_at', end($range));;
+                    })->where('broadcast_number', null)->whereDate('created_at', end($range));;
 
-                }else{
+                } else {
                     $customers->whereHas('customerMarketingPlatformActive', function ($qu) use ($range) {
                         $qu->where('active', 1);
-                    })->where('broadcast_number',null)->whereBetween('created_at', [$range[0], end($range)]);
+                    })->where('broadcast_number', null)->whereBetween('created_at', [$range[0], end($range)]);
                 }
-            }
-
-            elseif(request('total') == 6){
+            } elseif (request('total') == 6) {
                 $customers->whereHas('customerMarketingPlatformActive', function ($qu) use ($request) {
                     $qu->where('active', 1);
-                })->where('broadcast_number',null)->where('do_not_disturb',0);
+                })->where('broadcast_number', null)->where('do_not_disturb', 0);
             }
 
-            if(request('total') == 7 && request('customrange') != null){
+            if (request('total') == 7 && request('customrange') != null) {
                 $range = explode(' - ', request('customrange'));
-                if($range[0] == end($range)){
+                if ($range[0] == end($range)) {
                     $customers->whereHas('notDelieveredImQueueMessage', function ($qu) use ($range) {
                         $qu->whereDate('send_after', end($range));
                     });
-                }else{
+                } else {
                     $customers->whereHas('notDelieveredImQueueMessage', function ($qu) use ($range) {
                         $qu->whereBetween('send_after', [$range[0], end($range)]);
                     });
                 }
-            }
-
-            elseif(request('total') == 7){
+            } elseif (request('total') == 7) {
                 $customers->whereHas('notDelieveredImQueueMessage');
             }
 
@@ -206,7 +196,7 @@ class MailinglistController extends Controller
 
         $contacts = $list->listCustomers->pluck('id')->toArray();
 
-        $countDNDCustomers = Customer::where('do_not_disturb','1')->count();
+        $countDNDCustomers = Customer::where('do_not_disturb', '1')->count();
 
         return view('marketing.mailinglist.show', compact('customers', 'id', 'contacts', 'list', 'countDNDCustomers'));
     }
@@ -262,7 +252,7 @@ class MailinglistController extends Controller
     {
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.sendinblue.com/v3/contacts/".$email,
+            CURLOPT_URL => "https://api.sendinblue.com/v3/contacts/" . $email,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -300,7 +290,7 @@ class MailinglistController extends Controller
     {
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.sendinblue.com/v3/contacts/lists/".$id,
+            CURLOPT_URL => "https://api.sendinblue.com/v3/contacts/lists/" . $id,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -351,4 +341,5 @@ class MailinglistController extends Controller
 
         return response()->json($remark, 200);
     }
+
 }

@@ -24,6 +24,7 @@ class CreateMailinglistEmailsTable extends Migration
            $table->integer('total_emails_scheduled')->default(0);
            $table->integer('total_emails_sent')->default(0);
            $table->integer('total_emails_undelivered')->default(0);
+           $table->integer('api_template_id');
            $table->timestamps();
         });
     }

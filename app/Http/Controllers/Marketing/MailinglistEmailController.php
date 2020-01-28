@@ -8,6 +8,7 @@ use App\Mailinglist;
 use App\MailinglistEmail;
 use App\MailinglistTemplate;
 use App\MailingTemplateFile;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -56,24 +57,55 @@ class MailinglistEmailController extends Controller
         $mailing_item->template_id = $data['template_id'] ;
         $mailing_item->html = $data['html'];
         $mailing_item->subject = $data['subject'];
-        $mailing_item->scheduled_date = $data['scheduled_date'];
+        $mailing_item->scheduled_date =$data['scheduled_date'];
         $mailing_item->html = $data['html'];
+
+        if(!empty($data['html'])){
+            $curl = curl_init();
+            $data = [
+                "sender" => array(
+                    'name' => 'Luxury Unlimited',
+                    'id' => 1,
+                ),
+                "htmlContent" => $mailing_item->html,
+                "templateName" =>  $mailing_item->subject,
+                'subject'=> $mailing_item->subject
+            ];
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://api.sendinblue.com/v3/smtp/templates",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_HTTPHEADER => array(
+                    "api-key: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",
+                    "Content-Type: application/json"
+                ),
+            ));
+            $response = curl_exec($curl);
+            $response = json_decode($response);
+            if($response->id){
+                $mailing_item->api_template_id = $response->id;
+            }
+            curl_close($curl);
+        }
+
         $mailing_item->save();
-
-
 
         return response()->json([
             'item' => view('partials.mailing-template.template',[
                 'item' => $mailing_item
-            ])->render()
+            ])->render(),
         ]);
     }
 
     public function show (Request $request) {
 /*        dd($request->id);*/
 
-        $data = MailinglistEmail::where("id", $request->id)->first()->html;
-
+        $data = MailinglistEmail::where("id", $request->id)->first();
         return response()->json([
             'html'=>$data
         ]);

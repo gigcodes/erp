@@ -196,7 +196,7 @@
             <div class="modal-content " >
                 <div class="modal-header">
                     <h4 class="modal-title" id="exampleModalLongTitle">Choose Image</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close close-images" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -251,6 +251,7 @@
             </thead>
                <tbody>
                 @foreach($mailings as $value)
+
                     <tr>
                         <td>{{$value->id}}</td>
                         <td>{{$value->subject}}</td>
@@ -327,7 +328,8 @@
             var src = $(this).attr('src');
             var id = $('.open-modal-img').attr('data-id');
             $('img[id="'+id+'"]').attr('src',src);
-            $('#exampleModalCenter').css('overflow-y','scroll')
+            $('#exampleModalCenter').css('overflow-y','scroll');
+            $('.close-images').click();
         });
         $('.put-index-here').not('img').attr('contentEditable','true');
 
@@ -336,7 +338,7 @@
         });
 
         $('#filter-date-modal').datetimepicker({
-            format: 'DD/MM/YYYY HH:mm:ss',
+            format: 'YYYY-MM-DD HH:mm:ss',
         });
 
         $('#filter-whats-date').datetimepicker({
@@ -355,7 +357,7 @@
                     return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
                 },
             }).done(function(data) {
-                $('.preview-body').html(data.html);
+                $('.preview-body').html(data.html.html);
             }).fail(function(data) {
             });
 
@@ -388,10 +390,12 @@
         });
 
         $('#create-email').on('click',function () {
-            $('select[name="mailinglist_id"]').val('');
+  /*          $('select[name="mailinglist_id"]').val('');*/
             $('select[name="template_id"]').val('');
             $('input[name="subject"]').val('');
             $('input[name="scheduled_date"]').val('');
+            $('.template_image').attr('src','');
+            $('.put-index-here').html('');
         })
 
 
