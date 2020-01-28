@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Complaint;
-use Illuminate\Console\Command;
 use App\CronJobReport;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class FlagCustomersIfTheyHaveAComplaint extends Command
 {
@@ -39,24 +40,28 @@ class FlagCustomersIfTheyHaveAComplaint extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        Complaint::where('is_customer_flagged', 0)->chunk(1000, function($complaints) {
-            foreach ($complaints as $complaint) {
-                $customer = $complaint->customer;
-                if ($customer) {
-                    dump('flagging...');
-                    $customer->is_flagged = 1;
-                    $customer->save();
-                    $complaint->is_customer_flagged = 1;
-                    $complaint->save();
+            Complaint::where('is_customer_flagged', 0)->chunk(1000, function ($complaints) {
+                foreach ($complaints as $complaint) {
+                    $customer = $complaint->customer;
+                    if ($customer) {
+                        dump('flagging...');
+                        $customer->is_flagged = 1;
+                        $customer->save();
+                        $complaint->is_customer_flagged = 1;
+                        $complaint->save();
+                    }
                 }
-            }
-        });
+            });
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

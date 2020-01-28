@@ -3,9 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Colors;
-use App\Product;
 use App\CronJobReport;
+use App\Product;
 use Illuminate\Console\Command;
+use Carbon\Carbon;
 
 class ImportColorsFromTitleAndDescription extends Command
 {
@@ -43,75 +44,80 @@ class ImportColorsFromTitleAndDescription extends Command
     public function handle()
     {
 
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $this->colors = (new Colors)->all();
-        unset($this->colors['Red']);
-        Product::where('is_approved', 0)->where('color', '')->orderBy('id', 'DESC')->chunk(1000, function($products) {
-            foreach ($products as $product) {
-                $scrapedProducts = $product->many_scraped_products;
+            $this->colors = (new Colors)->all();
+            unset($this->colors['Red']);
+            Product::where('is_approved', 0)->where('color', '')->orderBy('id', 'DESC')->chunk(1000, function ($products) {
+                foreach ($products as $product) {
+                    $scrapedProducts = $product->many_scraped_products;
 
-                foreach ($scrapedProducts as $scrapedProduct) {
-                    $property = $scrapedProduct->properties;
+                    foreach ($scrapedProducts as $scrapedProduct) {
+                        $property = $scrapedProduct->properties;
 
-                    $color = $property['color'] ?? '';
-                    $color = $this->getColorsFromText($color);
-                    $color = title_case($color);
+                        $color = $property['color'] ?? '';
+                        $color = $this->getColorsFromText($color);
+                        $color = title_case($color);
 
-                    if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false ) {
-                        dump($color . '--ing...');
-                        $product->color = $color;
-                        $product->save();
-                        break;
+                        if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
+                            dump($color . '--ing...');
+                            $product->color = $color;
+                            $product->save();
+                            break;
+                        }
+
+                        $color = $property['colors'] ?? '';
+                        $color = $this->getColorsFromText($color);
+                        $color = title_case($color);
+
+                        if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
+                            dump($color . '--ing...');
+
+                            $product->color = $color;
+                            $product->save();
+                            break;
+                        }
+
+                        $color = $this->getColorsFromText($product->title);
+                        $color = trim(str_replace(['-', '_'], '', $color));
+                        $color = title_case($color);
+
+                        if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
+                            dump($color . '--ing...');
+                            $product->color = $color;
+                            $product->save();
+                            break;
+                        }
+
+                        $color = $this->getColorsFromText($product->short_description);
+                        $color = trim(str_replace(['-', '_'], '', $color));
+                        $color = title_case($color);
+
+                        if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
+                            dump($color . '--ing...');
+                            $product->color = $color;
+                            $product->save();
+                            break;
+                        }
+
                     }
-
-                    $color = $property['colors'] ?? '';
-                    $color = $this->getColorsFromText($color);
-                    $color = title_case($color);
-
-                    if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false ) {
-                        dump($color . '--ing...');
-
-                        $product->color = $color;
-                        $product->save();
-                        break;
-                    }
-
-                    $color = $this->getColorsFromText($product->title);
-                    $color = trim(str_replace(['-', '_'], '', $color));
-                    $color = title_case($color);
-
-                    if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false ) {
-                        dump($color . '--ing...');
-                        $product->color = $color;
-                        $product->save();
-                        break;
-                    }
-
-                    $color = $this->getColorsFromText($product->short_description);
-                    $color = trim(str_replace(['-', '_'], '', $color));
-                    $color = title_case($color);
-
-                    if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false ) {
-                        dump($color . '--ing...');
-                        $product->color = $color;
-                        $product->save();
-                        break;
-                    }
-
                 }
-            }
-        });
+            });
 
-         $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 
-    private function getColorsFromText($text) {
+    private function getColorsFromText($text)
+    {
         $availableColors = [];
-        $text = strtolower($text);
+        $text            = strtolower($text);
 
         if (strpos($text, 'multi') !== false) {
             return 'Multi';

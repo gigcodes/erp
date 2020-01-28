@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Meetings\ZoomMeetings;
 use App\CronJobReport;
+use App\Meetings\ZoomMeetings;
 use Carbon\Carbon;
-
+use Illuminate\Console\Command;
 
 class ZoomMeetingDeleteRecordings extends Command
 {
@@ -32,7 +31,7 @@ class ZoomMeetingDeleteRecordings extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->zoomkey = env('ZOOM_API_KEY');
+        $this->zoomkey    = env('ZOOM_API_KEY');
         $this->zoomsecret = env('ZOOM_API_SECRET');
     }
 
@@ -43,18 +42,21 @@ class ZoomMeetingDeleteRecordings extends Command
      */
     public function handle()
     {
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-    $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
-         
-    $zoomKey = $this->zoomkey;
-    $zoomSecret = $this->zoomsecret;
-    $meetings = new ZoomMeetings();
-    $date = Carbon::yesterday();
-    $meetings->deleteRecordings($zoomKey, $zoomSecret, $date);
-    $report->update(['end_time' => Carbon:: now()]);
-    exit('Deleted zoom videos which are already downloaded in server.');
+            $zoomKey    = $this->zoomkey;
+            $zoomSecret = $this->zoomsecret;
+            $meetings   = new ZoomMeetings();
+            $date       = Carbon::yesterday();
+            $meetings->deleteRecordings($zoomKey, $zoomSecret, $date);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
+        exit('Deleted zoom videos which are already downloaded in server.');
     }
 }

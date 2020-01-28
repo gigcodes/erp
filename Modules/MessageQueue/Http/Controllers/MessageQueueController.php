@@ -15,7 +15,15 @@ class MessageQueueController extends Controller
      */
     public function index()
     {
-        return view('messagequeue::index');
+        $groupList = ChatMessage::pendingQueueGroupList([
+            "is_queue" => 1
+        ]);
+        
+        $sendingLimit = ChatMessage::getQueueLimit();
+        $sendStartTime = ChatMessage::getStartTime();
+        $sendEndTime = ChatMessage::getEndTime();
+
+        return view('messagequeue::index',compact('groupList','sendingLimit','sendStartTime','sendEndTime'));
     }
 
     /**
@@ -27,6 +35,8 @@ class MessageQueueController extends Controller
         $from  = request("from", "");
         $to    = request("to", "");
         $limit = request("limit", config('erp-customer.pagination'));
+        $customerName = request("customer_name","");
+        $groupId = request("group_id",0);
 
         $chatMessage = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
             ->where("is_queue", ">", 0)
@@ -40,7 +50,15 @@ class MessageQueueController extends Controller
             $chatMessage = $chatMessage->where("c.phone", "like", "%" . $to . "%");
         }
 
-        $chatMessage = $chatMessage->select(["chat_messages.*", "c.phone", "c.whatsapp_number"]);
+        if($groupId > 0) {
+            $chatMessage = $chatMessage->where("chat_messages.group_id",$groupId);
+        }
+
+        if(!empty($customerName)) {
+            $chatMessage = $chatMessage->where("c.name", "like", "%" . $customerName . "%");
+        }
+
+        $chatMessage = $chatMessage->select(["chat_messages.*", "c.phone", "c.whatsapp_number","c.name as customer_name"]);
 
         $chatMessage = $chatMessage->orderby("chat_messages.id","DESC")->paginate($limit);
 
@@ -65,6 +83,8 @@ class MessageQueueController extends Controller
             "code"       => 200,
             "data"       => $itemsList,
             "pagination" => (string) $chatMessage->links(),
+            "total"      => $chatMessage->total(),
+            "page"       => $chatMessage->currentPage(),  
         ]);
     }
 
@@ -91,7 +111,7 @@ class MessageQueueController extends Controller
                 if (!empty($ids) && is_array($ids)) {
                     \DB::update("update chat_messages as cm join customers as c on c.id = cm.customer_id join whatsapp_configs as wc
                     on wc.number = c.broadcast_number set cm.is_queue = wc.id where cm.id in (" . implode(",", $ids) . ");");
-                    return response()->json(["code" => 200, "message" => "Deleted Successfully"]);
+                    return response()->json(["code" => 200, "message" => "Updated to broadcast Successfully"]);
                 }
                 break;
             case 'delete_records':
@@ -108,67 +128,64 @@ class MessageQueueController extends Controller
                 break;    
         }
 
-        return response()->json(["code" => 500, "message" => "Oops, something went wrong"]);
+        return response()->json(["code" => 500, "message" => "Please select fields before action"]);
 
     }
 
-    /**
-     * Show the form for creating a new resource.
-     * @return Response
-     */
-    public function create()
+    public function updateLimit(Request $request)
     {
-        return view('messagequeue::create');
+        $limit = $request->get("message_sending_limit",0);
+        $startTime = $request->get("send_start_time","");
+        $endTime = $request->get("send_end_time","");
+
+        \App\Setting::updateOrCreate(
+            ["name" => "is_queue_sending_limit" , "type"=> "int"],
+            ["val" => $limit]
+        );
+
+        if(!empty($startTime)){
+            \App\Setting::updateOrCreate(
+                ["name" => "is_queue_send_start_time" , "type"=> "string"],
+                ["val" => $startTime]
+            );
+        }
+
+        if(!empty($endTime)){
+            \App\Setting::updateOrCreate(
+                ["name" => "is_queue_send_end_time" , "type"=> "string"],
+                ["val" => $endTime]
+            );
+        }
+
+        return response()->json(["code" => 200 , "message" => "Done!"]);    
+
     }
 
-    /**
-     * Store a newly created resource in storage.
-     * @param Request $request
-     * @return Response
-     */
-    public function store(Request $request)
+    public function report(Request $request)
     {
-        //
+        $customerRange = request("customrange");
+        $starRange  = explode(" - ", $customerRange);
+
+        $chatMessage = new ChatMessage;
+
+        if(isset($starRange[0])) {
+            $chatMessage = $chatMessage->where("created_at" , ">=" , $starRange[0]);
+        }
+
+        if(isset($starRange[1])) {
+            $chatMessage = $chatMessage->where("created_at" , "<=" , $starRange[1]);
+        }
+
+        $response = $chatMessage->groupBy("group_id")->orderBy("created_at","DESC")->select(["created_at","group_id",\DB::raw("count(*) as total_sent")])->get();
+
+        $total = 0;
+
+        foreach($response as $res) {
+            $total +=  $res->total_sent;
+        }
+
+
+        return response()->json(["code" => 200 , "data" => $response, 'total' => $total]);    
     }
 
-    /**
-     * Show the specified resource.
-     * @param int $id
-     * @return Response
-     */
-    public function show($id)
-    {
-        return view('messagequeue::show');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     * @param int $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        return view('messagequeue::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
-     * @return Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

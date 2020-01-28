@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\CronJobReport;
+use Carbon\Carbon;
+use File;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use App\CronJobReport;
-use File;
 
 class DeleteTempImages extends Command
 {
@@ -40,32 +41,38 @@ class DeleteTempImages extends Command
      */
     public function handle()
     {
-      
-      $file_types = array(
-        'gif',
-        'jpg',
-        'jpeg',
-        'png',
-        'pdf'
-      );
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
+            $file_types = array(
+                'gif',
+                'jpg',
+                'jpeg',
+                'png',
+                'pdf',
+            );
 
+            $directory = public_path('tmp_images');
+            $files     = File::allFiles($directory);
 
-      $directory = public_path('tmp_images');
-      $files = File::allFiles($directory);
+            foreach ($files as $file) {
+                $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
 
-      foreach ($files as $file)
-      {
-          $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                if (in_array($ext, $file_types)) {
 
-          if (in_array($ext, $file_types)) {
-
-            $filename = pathinfo($file, PATHINFO_FILENAME);
-              if(DB::table('media')->where('filename', '=', $filename)->count()) {
-                continue; // continue if the picture is in use
-              }
-              unlink($file); // delete if picture isn't in use
-          }
-      }
+                    $filename = pathinfo($file, PATHINFO_FILENAME);
+                    if (DB::table('media')->where('filename', '=', $filename)->count()) {
+                        continue; // continue if the picture is in use
+                    }
+                    unlink($file); // delete if picture isn't in use
+                }
+            }
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
 
     }
 }

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionExample;
 use App\Library\Watson\Language\Workspaces\V1\IntentService;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class ImportWatsonIntents extends Command
@@ -40,38 +41,47 @@ class ImportWatsonIntents extends Command
      */
     public function handle()
     {
-        $watson = new IntentService(
-            "apiKey",
-            "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
-        );
+        try {
+            $report = \App\CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
+            $watson = new IntentService(
+                "apiKey",
+                "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+            );
 
-        $workspaceId = "19cf3225-f007-4332-8013-74443d36a3f7";
+            $workspaceId = "19cf3225-f007-4332-8013-74443d36a3f7";
 
-        $result = $watson->getList($workspaceId, ['export' => "true"]);
+            $result = $watson->getList($workspaceId, ['export' => "true"]);
 
-        $result = json_decode($result->getContent());
+            $result = json_decode($result->getContent());
 
-        if (!empty($result->intents)) {
-            foreach ($result->intents as $intents) {
-                $question = ChatbotQuestion::where("value", $intents->intent)->first();
-                if (!$question) {
-                    $question = ChatbotQuestion::create([
-                        "value"        => $intents->intent,
-                        "workspace_id" => $workspaceId,
-                    ]);
-                }
+            if (!empty($result->intents)) {
+                foreach ($result->intents as $intents) {
+                    $question = ChatbotQuestion::where("value", $intents->intent)->first();
+                    if (!$question) {
+                        $question = ChatbotQuestion::create([
+                            "value"        => $intents->intent,
+                            "workspace_id" => $workspaceId,
+                        ]);
+                    }
 
-                if (!empty($intents->examples)) {
-                    foreach ($intents->examples as $example) {
-                        ChatbotQuestionExample::updateOrCreate(
-                            ["chatbot_question_id" => $question->id, "question" => $example->text],
-                            ["text" => $example->text]
-                        );
+                    if (!empty($intents->examples)) {
+                        foreach ($intents->examples as $example) {
+                            ChatbotQuestionExample::updateOrCreate(
+                                ["chatbot_question_id" => $question->id, "question" => $example->text],
+                                ["text" => $example->text]
+                            );
+                        }
                     }
                 }
             }
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-        
+
         return true;
     }
 }
