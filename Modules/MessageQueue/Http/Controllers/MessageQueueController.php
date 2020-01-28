@@ -18,8 +18,12 @@ class MessageQueueController extends Controller
         $groupList = ChatMessage::pendingQueueGroupList([
             "is_queue" => 1
         ]);
+        
         $sendingLimit = ChatMessage::getQueueLimit();
-        return view('messagequeue::index',compact('groupList','sendingLimit'));
+        $sendStartTime = ChatMessage::getStartTime();
+        $sendEndTime = ChatMessage::getEndTime();
+
+        return view('messagequeue::index',compact('groupList','sendingLimit','sendStartTime','sendEndTime'));
     }
 
     /**
@@ -130,14 +134,58 @@ class MessageQueueController extends Controller
 
     public function updateLimit(Request $request)
     {
-        $limit = $request->get("limit",0);
+        $limit = $request->get("message_sending_limit",0);
+        $startTime = $request->get("send_start_time","");
+        $endTime = $request->get("send_end_time","");
 
         \App\Setting::updateOrCreate(
             ["name" => "is_queue_sending_limit" , "type"=> "int"],
             ["val" => $limit]
         );
 
+        if(!empty($startTime)){
+            \App\Setting::updateOrCreate(
+                ["name" => "is_queue_send_start_time" , "type"=> "string"],
+                ["val" => $startTime]
+            );
+        }
+
+        if(!empty($endTime)){
+            \App\Setting::updateOrCreate(
+                ["name" => "is_queue_send_end_time" , "type"=> "string"],
+                ["val" => $endTime]
+            );
+        }
+
         return response()->json(["code" => 200 , "message" => "Done!"]);    
 
     }
+
+    public function report(Request $request)
+    {
+        $customerRange = request("customrange");
+        $starRange  = explode(" - ", $customerRange);
+
+        $chatMessage = new ChatMessage;
+
+        if(isset($starRange[0])) {
+            $chatMessage = $chatMessage->where("created_at" , ">=" , $starRange[0]);
+        }
+
+        if(isset($starRange[1])) {
+            $chatMessage = $chatMessage->where("created_at" , "<=" , $starRange[1]);
+        }
+
+        $response = $chatMessage->groupBy("group_id")->orderBy("created_at","DESC")->select(["created_at","group_id",\DB::raw("count(*) as total_sent")])->get();
+
+        $total = 0;
+
+        foreach($response as $res) {
+            $total +=  $res->total_sent;
+        }
+
+
+        return response()->json(["code" => 200 , "data" => $response, 'total' => $total]);    
+    }
+
 }

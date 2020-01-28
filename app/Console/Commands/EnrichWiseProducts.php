@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\ScrapedProducts;
 use App\CronJobReport;
+use App\ScrapedProducts;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class EnrichWiseProducts extends Command
@@ -39,42 +40,44 @@ class EnrichWiseProducts extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
+            $products = ScrapedProducts::where('website', 'Wiseboutique')->where('is_enriched', 0)->take(500)->get();
 
-        $products = ScrapedProducts::where('website', 'Wiseboutique')->where('is_enriched', 0)->take(500)->get();
+            $newProperties = [];
 
-        $newProperties = [];
+            foreach ($products as $product) {
+                $properties = $product->properties;
+                foreach ($properties as $key => $property) {
+                    if (!is_array($property)) {
+                        $property = $this->sanitize($property);
+                        $key      = $this->getAppropriateKey($key, $property);
 
-        foreach ($products as $product) {
-            $properties = $product->properties;
-            foreach ($properties as $key => $property)
-            {
-                if (!is_array($property))
-                {
-                    $property = $this->sanitize($property);
-                    $key = $this->getAppropriateKey($key, $property);
-
-                    if ($this->getColors($property) !== '') {
-                        $newProperties['colors'] = $this->getColors($property);
+                        if ($this->getColors($property) !== '') {
+                            $newProperties['colors'] = $this->getColors($property);
+                        }
                     }
+                    $newProperties[$key] = $property;
                 }
-                $newProperties[$key] = $property;
+                $product->description = $this->sanitize($product->description);
+                $product->properties  = $newProperties;
+                $product->is_enriched = 1;
+                $product->save();
+
             }
-            $product->description = $this->sanitize($product->description);
-            $product->properties = $newProperties;
-            $product->is_enriched = 1;
-            $product->save();
 
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        $report->update(['end_time' => Carbon:: now()]);
     }
 
-    private function getAppropriateKey($key, $value) {
+    private function getAppropriateKey($key, $value)
+    {
         $value = strtoupper($value);
 
         if (strpos($value, 'SHOULDERS') !== false || strpos($value, 'Chest') !== false || strpos($value, 'SHOULDER') !== false) {
@@ -84,10 +87,11 @@ class EnrichWiseProducts extends Command
         return $key;
     }
 
-    private function getColors($value) {
-        $value = strtoupper($value);
+    private function getColors($value)
+    {
+        $value          = strtoupper($value);
         $detectedColors = [];
-        $colors = [
+        $colors         = [
             'WHITE',
             'RED ',
             ' RED',
@@ -112,7 +116,8 @@ class EnrichWiseProducts extends Command
 
     }
 
-    private function sanitize($value) {
+    private function sanitize($value)
+    {
         $value = preg_replace('/\s+/', ' ', $value);
         $value = trim($value);
         $value = str_replace('\n', ' ', $value);

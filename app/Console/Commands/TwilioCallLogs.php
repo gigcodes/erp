@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\CronJobReport;
 use App\Voip\Twilio;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class TwilioCallLogs extends Command
 {
@@ -40,16 +40,19 @@ class TwilioCallLogs extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
+            $twilio = new Twilio();
+            $twilio->missedCallStatus();
+            exit('This data inserted in db..Now, you can check missed calls screen');
 
-        $twilio = new Twilio();
-        $twilio->missedCallStatus();
-        exit('This data inserted in db..Now, you can check missed calls screen');
-
-         $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

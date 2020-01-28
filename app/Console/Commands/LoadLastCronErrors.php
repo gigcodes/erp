@@ -2,26 +2,25 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Meetings\ZoomMeetings;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Cache;
 
-class ZoomMeetingRecordings extends Command
+class LoadLastCronErrors extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'meeting:getrecordings';
+    protected $signature = 'cron:last-errors';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'To get zoom recordings based on meeting id';
+    protected $description = 'Load last cron errors';
 
     /**
      * Create a new command instance.
@@ -31,8 +30,6 @@ class ZoomMeetingRecordings extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->zoomkey    = env('ZOOM_API_KEY');
-        $this->zoomsecret = env('ZOOM_API_SECRET');
     }
 
     /**
@@ -42,21 +39,21 @@ class ZoomMeetingRecordings extends Command
      */
     public function handle()
     {
+        //
         try {
-            $report = CronJobReport::create([
+            $report = \App\CronJobReport::create([
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $zoomKey    = $this->zoomkey;
-            $zoomSecret = $this->zoomsecret;
-            $meetings   = new ZoomMeetings();
-            $date       = Carbon::now();
-            $meetings->getRecordings($zoomKey, $zoomSecret, $date);
+            Cache::remember('cronLastErrors',15,function() {
+                return \App\CronJob::join("cron_job_reports as cjr","cron_jobs.signature","cjr.signature")
+                ->where("cjr.start_time",'>', \DB::raw('NOW() - INTERVAL 24 HOUR'))->where("cron_jobs.last_status","error")->groupBy("cron_jobs.signature")->get();
+            });
+            
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-        exit('Data inserted in db..Now, you can check meetings screen');
     }
 }
