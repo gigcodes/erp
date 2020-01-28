@@ -21,6 +21,10 @@ Route::prefix('message-queue')->group(function() {
 		});
 	}); 
 
+	Route::prefix('report')->group(function() {
+		Route::get('/', 'MessageQueueController@report')->name("message-queue.report");
+	});
+
 	Route::prefix('setting')->group(function() {
 		Route::post('update-limit','MessageQueueController@updateLimit');
 	});	

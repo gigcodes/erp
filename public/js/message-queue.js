@@ -1,3 +1,8 @@
+function cb(start, end) {
+    $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    $('#custom').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+}
+
 var msQueue = {
     init: function(settings) {
         
@@ -59,6 +64,11 @@ var msQueue = {
             msQueue.config.bodyView.find(".select-id-input").trigger("click");
         });
 
+        msQueue.config.bodyView.on("click",".btn-filter-report",function(e) {
+            e.preventDefault();
+            msQueue.filterReport();
+        });
+
         $(".select2").select2({tags:true});
 
         $(window).scroll(function() {
@@ -66,6 +76,25 @@ var msQueue = {
                 msQueue.config.bodyView.find("#page-view-result").find(".pagination").find(".active").next().find("a").click();
             }
         });
+
+        var start = moment().subtract(29, 'days');
+        var end = moment();
+
+        $('#reportrange').daterangepicker({
+                startDate: start,
+                endDate: end,
+                ranges: {
+                 'Today': [moment(), moment()],
+                 'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                 'This Month': [moment().startOf('month'), moment().endOf('month')],
+                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+             }
+        }, cb);
+
+        cb(start, end);
+
     },
     loadFirst: function() {
         var _z = {
@@ -160,7 +189,7 @@ var msQueue = {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/message-queue/setting/update-limit",
             method: "post",
-            data : {"limit" : limit ,"_token"  : $('meta[name="csrf-token"]').attr('content')},
+            data : $(".message-queue-limit-handler").serialize(),
             beforeSend : function() {
                 $("#loading-image").show();
             }
@@ -174,6 +203,23 @@ var msQueue = {
         }else{
             toastr['error']('Oops.something went wrong', 'error');
         }
+    },
+    filterReport: function(href) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/message-queue/report",
+            method: "get",
+            data : $("#message-fiter-handler").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "showReport",{append : true});
+    },
+    showReport : function(response) {
+        $("#loading-image").hide();
+        var addProductTpl = $.templates("#template-send-message-report");
+        var tplHtml       = addProductTpl.render(response);
+            msQueue.config.bodyView.find(".send-message-report").html(tplHtml);
     }
 }
 

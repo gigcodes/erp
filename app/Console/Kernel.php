@@ -353,8 +353,14 @@ class Kernel extends ConsoleKernel
         // Move cold leads to customers
         $schedule->command('cold-leads:move-to-customers')->daily();
 
+        // send only cron run time
+        $queueStartTime = ChatMessage::getStartTime();
+        $queueEndTime  = ChatMessage::getEndTime();
+        // check if time both is not empty then run the cron
+        if(!empty($queueStartTime) && !empty($queueEndTime)) {
+            $schedule->command('send:queue-pending-chat-messages')->cron('*/5 * * * *')->between($queueStartTime, $queueEndTime)->withoutOverlapping(10);
+        }
 
-        $schedule->command('send:queue-pending-chat-messages')->cron('*/5 * * * *')->between('07:30', '18:00')->withoutOverlapping(10);
 
         // need to run this both cron every minutes
         $schedule->command('cronschedule:update')->everyMinute();

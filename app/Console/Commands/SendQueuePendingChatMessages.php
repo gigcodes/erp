@@ -45,6 +45,8 @@ class SendQueuePendingChatMessages extends Command
         // get the status for approval
         $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
         $limit = ChatMessage::getQueueLimit();
+        $startTime = ChatMessage::getStartTime();
+        $endTime  = ChatMessage::getEndTime();
 
         // if message is approve then only need to run the queue
         if ($approveMessage == 1) {

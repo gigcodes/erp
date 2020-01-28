@@ -230,8 +230,21 @@ class ChatMessage extends Model
 
     public static function getQueueLimit()
     {
- 
         $limit  = \App\Setting::where("name","is_queue_sending_limit")->first();
+        
+        return ($limit) ? $limit->val : 0;
+    }
+
+    public static function getStartTime()
+    {
+        $limit  = \App\Setting::where("name","is_queue_send_start_time")->first();
+        
+        return ($limit) ? $limit->val : 0;
+    }
+
+    public static function getEndTime()
+    {
+        $limit  = \App\Setting::where("name","is_queue_send_end_time")->first();
         
         return ($limit) ? $limit->val : 0;
     }
