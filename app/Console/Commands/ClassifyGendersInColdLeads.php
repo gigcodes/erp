@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\ColdLeads;
-use App\PeopleNames;
-use Illuminate\Console\Command;
 use App\CronJobReport;
-
+use App\PeopleNames;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class ClassifyGendersInColdLeads extends Command
 {
@@ -41,32 +41,34 @@ class ClassifyGendersInColdLeads extends Command
      */
     public function handle()
     {
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+            $coldLeads = ColdLeads::where('is_gender_processed', 0)->take(10000)->get();
 
-        $coldLeads = ColdLeads::where('is_gender_processed', 0)->take(10000)->get();
+            foreach ($coldLeads as $key => $coldLead) {
+                echo "$key \n";
+                $coldLead->gender = 'm';
 
-        foreach ($coldLeads as $key=>$coldLead) {
-            echo "$key \n";
-            $coldLead->gender = 'm';
-
-            try {
-                $gender = PeopleNames::whereRaw("INSTR('$coldLead->username', `name`) > 0")->orWhereRaw("INSTR('$coldLead->name', `name`) > 0")->where('name', '!=', '')->first();
-                if ($gender) {
-                    $gender = $gender->gender;
-                    $coldLead->gender = $gender;
+                try {
+                    $gender = PeopleNames::whereRaw("INSTR('$coldLead->username', `name`) > 0")->orWhereRaw("INSTR('$coldLead->name', `name`) > 0")->where('name', '!=', '')->first();
+                    if ($gender) {
+                        $gender           = $gender->gender;
+                        $coldLead->gender = $gender;
+                    }
+                } catch (\Exception $exception) {
                 }
-            } catch (\Exception $exception) {
+
+                $coldLead->is_gender_processed = 1;
+                $coldLead->save();
             }
 
-
-            $coldLead->is_gender_processed = 1;
-            $coldLead->save();
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        $report->update(['end_time' => Carbon:: now()]);
     }
 }
