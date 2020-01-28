@@ -68,4 +68,16 @@ class CronController extends Controller
     	}
     	return view('cron.history', ['reports' => $reports , 'signature' => $request->signature]);
     }
+
+    public function runCommand(Request $request)
+    {
+        $command = $request->get("name");
+        
+        if(!empty($command)) {
+            \Artisan::call($command, []);
+            return response()->json(["code" => 200 , "output" => \Artisan::output()]);
+        }else {
+            return response()->json(["code" => 500 , "output" => "Command name is wrong or not added correctly"]);
+        }
+    }   
 }

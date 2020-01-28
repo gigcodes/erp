@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Task;
-use App\DailyActivity;
 use App\CronJobReport;
+use App\DailyActivity;
+use App\Task;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -41,37 +41,41 @@ class MovePlannedTasks extends Command
      */
     public function handle()
     {
-      $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-      ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-      $today = Carbon::now()->format('Y-m-d');
-      $planned_tasks  = Task::whereNotNull('time_slot')->where('planned_at', '<', "$today 00:00")->whereNull('is_completed')->orderBy('time_slot', 'ASC')->get();
+            $today         = Carbon::now()->format('Y-m-d');
+            $planned_tasks = Task::whereNotNull('time_slot')->where('planned_at', '<', "$today 00:00")->whereNull('is_completed')->orderBy('time_slot', 'ASC')->get();
 
-      foreach ($planned_tasks as $task) {
-        $task->planned_at = $today;
-        $task->pending_for += 1;
-        $task->save();
-      }
+            foreach ($planned_tasks as $task) {
+                $task->planned_at = $today;
+                $task->pending_for += 1;
+                $task->save();
+            }
 
-      // dd(count($planned_tasks));
+            // dd(count($planned_tasks));
 
-      $statutory_tasks  = Task::where('is_statutory', 1)->whereNotNull('is_completed')->whereNull('is_verified')->get();
+            $statutory_tasks = Task::where('is_statutory', 1)->whereNotNull('is_completed')->whereNull('is_verified')->get();
 
-      foreach ($statutory_tasks as $task) {
-        $task->is_completed = NULL;
-        $task->save();
-      }
+            foreach ($statutory_tasks as $task) {
+                $task->is_completed = null;
+                $task->save();
+            }
 
-      $daily_activities  = DailyActivity::whereNull('is_completed')->where('for_date', '<', "$today 00:00")->get();
+            $daily_activities = DailyActivity::whereNull('is_completed')->where('for_date', '<', "$today 00:00")->get();
 
-      foreach ($daily_activities as $task) {
-        $task->for_date = $today;
-        $task->pending_for += 1;
-        $task->save();
-      }
+            foreach ($daily_activities as $task) {
+                $task->for_date = $today;
+                $task->pending_for += 1;
+                $task->save();
+            }
 
-      $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands\Manual;
 
-use Illuminate\Console\Command;
-use App\ScrapedProducts;
 use App\CronJobReport;
+use App\ScrapedProducts;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class SetFormattedPricingForScrapedProducts extends Command
 {
@@ -44,81 +45,85 @@ class SetFormattedPricingForScrapedProducts extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
-        // Get all scraped products without formatted pricing
-        ScrapedProducts::chunk( 100, function ( $scrapedProducts ) {
-            //ScrapedProducts::whereNotNull( 'price_eur' )->chunk( 100, function ( $scrapedProducts ) {
-            foreach ( $scrapedProducts as $scrapedProduct ) {
-                // Check for price
-                $currency = $this->_getCurrencyFromPrice( $scrapedProduct->price );
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
+            // Get all scraped products without formatted pricing
+            ScrapedProducts::chunk(100, function ($scrapedProducts) {
+                //ScrapedProducts::whereNotNull( 'price_eur' )->chunk( 100, function ( $scrapedProducts ) {
+                foreach ($scrapedProducts as $scrapedProduct) {
+                    // Check for price
+                    $currency = $this->_getCurrencyFromPrice($scrapedProduct->price);
 
-                if ( !empty( $currency ) && !empty( $scrapedProduct->price ) ) {
-                    // Update scraped product
-                    if ( $currency == 'EUR' ) {
-                        $scrapedProduct->price_eur = $this->_getFormattedPrice( $scrapedProduct->price );
-                        $scrapedProduct->save();
+                    if (!empty($currency) && !empty($scrapedProduct->price)) {
+                        // Update scraped product
+                        if ($currency == 'EUR') {
+                            $scrapedProduct->price_eur = $this->_getFormattedPrice($scrapedProduct->price);
+                            $scrapedProduct->save();
+                        } else {
+                            // Set multiplier
+                            $multiplier                = 'euroIn' . ucfirst(strtolower($currency));
+                            $scrapedProduct->price_eur = round($this->$multiplier * $this->_getFormattedPrice($scrapedProduct->price), 2);
+                            $scrapedProduct->save();
+                        }
                     } else {
-                        // Set multiplier
-                        $multiplier = 'euroIn' . ucfirst( strtolower( $currency ) );
-                        $scrapedProduct->price_eur = round( $this->$multiplier * $this->_getFormattedPrice( $scrapedProduct->price ), 2 );
+                        dump("Unable to detect currency and/or price: " . $scrapedProduct->price);
+                        $scrapedProduct->price_eur = 0;
                         $scrapedProduct->save();
+
                     }
-                } else {
-                    dump( "Unable to detect currency and/or price: " . $scrapedProduct->price );
-                    $scrapedProduct->price_eur = 0;
-                    $scrapedProduct->save();
-
                 }
-            }
-        } );
+            });
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 
-    private function _getCurrencyFromPrice( $price )
+    private function _getCurrencyFromPrice($price)
     {
         // Check for long strings
-        if ( strlen( $price ) > 20 && strstr( $price, '%' ) ) {
-            $price = trim( substr( $price, 0, 20 ) );
+        if (strlen($price) > 20 && strstr($price, '%')) {
+            $price = trim(substr($price, 0, 20));
         }
 
         // Check for wrong prices
-        if ( empty( preg_replace( '#[^0-9\.,]#', '', $price ) ) ) {
+        if (empty(preg_replace('#[^0-9\.,]#', '', $price))) {
             return false;
         }
 
-        if ( stristr( $price, '%' ) ) {
+        if (stristr($price, '%')) {
             return false;
         }
 
         // Check for CNY
-        if ( stristr( $price, 'CN¥2' ) ) {
+        if (stristr($price, 'CN¥2')) {
             return 'CNY';
         }
 
         // Check for EUR
-        if ( stristr( $price, '&euro;' ) ) {
+        if (stristr($price, '&euro;')) {
             return 'EUR';
         }
 
-        if ( stristr( $price, '€' ) ) {
+        if (stristr($price, '€')) {
             return 'EUR';
         }
 
-        if ( stristr( $price, 'EUR' ) ) {
+        if (stristr($price, 'EUR')) {
             return 'EUR';
         }
 
         // Check for GBP
-        if ( stristr( $price, '£' ) ) {
+        if (stristr($price, '£')) {
             return 'GBP';
         }
 
         // Check for USD
-        if ( stristr( $price, '$' ) ) {
+        if (stristr($price, '$')) {
             return 'USD';
         }
 
@@ -126,40 +131,40 @@ class SetFormattedPricingForScrapedProducts extends Command
         return 'EUR';
     }
 
-    private function _getFormattedPrice( $price )
+    private function _getFormattedPrice($price)
     {
         // Remove all characters except dots and commas
-        $price = preg_replace( '#[^0-9\.,]#', '', $price );
+        $price = preg_replace('#[^0-9\.,]#', '', $price);
 
         // Check for prices with comma and dot
-        if ( stristr( $price, ',' ) && stristr( $price, ',' ) ) {
+        if (stristr($price, ',') && stristr($price, ',')) {
             // Check for dot as thousand separator
-            if ( strpos( $price, '.' ) < strpos( $price, ',' ) ) {
-                $price = str_replace( '.', '', $price );
-                $price = str_replace( ',', '.', $price );
+            if (strpos($price, '.') < strpos($price, ',')) {
+                $price = str_replace('.', '', $price);
+                $price = str_replace(',', '.', $price);
             } else {
-                $price = str_replace( ',', '', $price );
+                $price = str_replace(',', '', $price);
             }
 
             // Return the price
-            return trim( $price );
+            return trim($price);
         }
 
         // Two dots
-        if ( substr_count( $price, '.' ) > 1 ) {
+        if (substr_count($price, '.') > 1) {
             // Take price until second dot
-            $price = substr( $price, 0, strpos( $price, '.', 2 ) );
+            $price = substr($price, 0, strpos($price, '.', 2));
 
             // Remove dot
-            $price = str_replace( '.', '', $price );
+            $price = str_replace('.', '', $price);
         }
 
         // One dot, but as thousands separator
-        if ( substr_count( $price, '.' ) > 0 && (int) $price < 2 ) {
-            $price = str_replace( '.', '', $price );
+        if (substr_count($price, '.') > 0 && (int) $price < 2) {
+            $price = str_replace('.', '', $price);
         }
 
         // Return NULL by default
-        return round( trim( $price ) );
+        return round(trim($price));
     }
 }

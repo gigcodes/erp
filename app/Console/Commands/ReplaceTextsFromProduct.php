@@ -2,13 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use App\AttributeReplacement;
 use App\CronJobReport;
 use App\Product;
 use App\ProductStatus;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class ReplaceTextsFromProduct extends Command
 {
@@ -44,58 +43,60 @@ class ReplaceTextsFromProduct extends Command
     public function handle()
     {
         return;
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $report = CronJobReport::create([
-            'signature' => $this->signature,
-            'start_time' => Carbon::now()
-        ]);
+            // Return - do not run
+            return;
 
+            // Get all replacements
+            $replacements = AttributeReplacement::all();
 
-        // Return - do not run
-        return;
+            // Get all products in chunks of 1000 records
+            Product::select('products.*', 'product_status.name', 'product_status.value')->leftJoin('product_status', function ($join) {
+                $join->on('products.id', '=', 'product_status.product_id')->where('product_status.name', 'ATTRIBUTE_TEXT_REPLACEMENTS');
+            })->orderBy('products.id', 'DESC')->chunk(1000, function ($products) use ($replacements) {
 
-        // Get all replacements
-        $replacements = AttributeReplacement::all();
+                // Loop over products
+                foreach ($products as $product) {
+                    // Output information
+                    echo "Checking product " . $product->id . "\n";
 
-        // Get all products in chunks of 1000 records
-        Product::select('products.*', 'product_status.name', 'product_status.value')->leftJoin('product_status', function ($join) {
-            $join->on('products.id', '=', 'product_status.product_id')->where('product_status.name', 'ATTRIBUTE_TEXT_REPLACEMENTS');
-        })->orderBy('products.id', 'DESC')->chunk(1000, function ($products) use ($replacements) {
+                    // Loop over replacements
+                    foreach ($replacements as $replacement) {
+                        // Name
+                        if ($replacement->field_identifier == 'name') {
+                            $product->name = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->name);
+                            $product->name = htmlspecialchars_decode($product->name);
+                        }
 
-            // Loop over products
-            foreach ($products as $product) {
-                // Output information
-                echo "Checking product " . $product->id . "\n";
+                        // Composition
+                        if ($replacement->field_identifier == 'composition') {
+                            $product->composition = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->composition);
+                            $product->composition = htmlspecialchars_decode($product->composition);
+                        }
 
-                // Loop over replacements
-                foreach ($replacements as $replacement) {
-                    // Name
-                    if ($replacement->field_identifier == 'name') {
-                        $product->name = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->name);
-                        $product->name = htmlspecialchars_decode($product->name);
+                        // Short description
+                        if ($replacement->field_identifier == 'short_description') {
+                            $product->short_description = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->short_description);
+                            $product->short_description = htmlspecialchars_decode($product->short_description);
+                        }
                     }
 
-                    // Composition
-                    if ($replacement->field_identifier == 'composition') {
-                        $product->composition = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->composition);
-                        $product->composition = htmlspecialchars_decode($product->composition);
-                    }
+                    // Save the product
+                    $product->save();
 
-                    // Short description
-                    if ($replacement->field_identifier == 'short_description') {
-                        $product->short_description = str_replace([$replacement->first_term, title_case($replacement->first_term), strtolower($replacement->first_term), strtoupper($replacement->first_term)], $replacement->replacement_term ?? '', $product->short_description);
-                        $product->short_description = htmlspecialchars_decode($product->short_description);
-                    }
+                    // Update the product status
+                    ProductStatus::updateStatus($product->id, 'ATTRIBUTE_TEXT_REPLACEMENTS', 1);
                 }
+            });
 
-                // Save the product
-                $product->save();
-
-                // Update the product status
-                ProductStatus::updateStatus($product->id, 'ATTRIBUTE_TEXT_REPLACEMENTS', 1);
-            }
-        });
-
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }
