@@ -109,7 +109,8 @@
                	  toastr['success']('data updated successfully!');
                	  window.location.replace(response.redirect);
                }else{
-               	  toastr['error']('data is not correct or duplicate!');
+				errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+               	toastr['error'](errorMessage);
                } 
             },
             error: function () {

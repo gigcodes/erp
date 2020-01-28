@@ -75,6 +75,7 @@ class Model
 
             if($result->getStatusCode() !=  200) {
                 \Log::info(print_r($result,true));
+                return $result->getContent();
             }
 
         }
@@ -152,6 +153,7 @@ class Model
 
             if($result->getStatusCode() !=  200) {
                 \Log::info(print_r($result,true));
+                return $result->getContent();
             }
         }
 
@@ -289,6 +291,7 @@ class Model
 
             if($result->getStatusCode() !=  200) {
                 \Log::info(print_r($result,true));
+                return $result->getContent();
             }
         }
 

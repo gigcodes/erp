@@ -91,6 +91,7 @@ use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\RunErpEvents;
 use App\Console\Commands\GetOrdersFromnMagento;
 use App\Console\Commands\NumberOfImageCroppedCheck;
+use App\Console\Commands\LoadLastCronErrors;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -182,6 +183,7 @@ class Kernel extends ConsoleKernel
         NumberOfImageCroppedCheck::class,
         SetTemplatesForProduct::class,
         CheckScrapersLog::class,
+        LoadLastCronErrors::class
     ];
 
     /**
@@ -336,7 +338,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
 
         // Update the inventory (every fifteen minutes)
-        $schedule->command('inventory:update')->dailyAt('04:00')->timezone('Asia/Dubai');
+        $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
 
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         $schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
@@ -353,8 +355,14 @@ class Kernel extends ConsoleKernel
         // Move cold leads to customers
         $schedule->command('cold-leads:move-to-customers')->daily();
 
+        // send only cron run time
+        $queueStartTime = \App\ChatMessage::getStartTime();
+        $queueEndTime  = \App\ChatMessage::getEndTime();
+        // check if time both is not empty then run the cron
+        if(!empty($queueStartTime) && !empty($queueEndTime)) {
+            $schedule->command('send:queue-pending-chat-messages')->cron('*/5 * * * *')->between($queueStartTime, $queueEndTime)->withoutOverlapping(10);
+        }
 
-        $schedule->command('send:queue-pending-chat-messages')->cron('*/3 * * * *')->between('07:30', '18:00')->withoutOverlapping(10);
 
         // need to run this both cron every minutes
         $schedule->command('cronschedule:update')->everyMinute();
@@ -376,6 +384,7 @@ class Kernel extends ConsoleKernel
         // Github
         $schedule->command('github:load_branch_state')->hourly();
         $schedule->command('checkScrapersLog')->dailyAt('8:00');
+        $schedule->command('cron:last-errors')->everyFifteenMinutes();
     }
 
     /**
