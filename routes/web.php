@@ -1409,6 +1409,15 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::post('services/destroy', 'ServiceController@destroy')->name('services.destroy');
     Route::post('services/update', 'ServiceController@update')->name('services.update');
 
+    Route::get('mailinglist-templates', 'MailinglistTemplateController@index')->name('mailingList-template');
+    Route::get('mailinglist-ajax', 'MailinglistTemplateController@ajax');
+    Route::post('mailinglist-templates/store', 'MailinglistTemplateController@store')->name('mailingList-template.store');
+
+    Route::get('mailinglist-emails', 'MailinglistEmailController@index')->name('mailingList-emails');
+    Route::post('mailinglist-ajax-index', 'MailinglistEmailController@ajaxIndex');
+    Route::post('mailinglist-ajax-store', 'MailinglistEmailController@store');
+    Route::post('mailinglist-ajax-show', 'MailinglistEmailController@show');
+    Route::post('mailinglist-ajax-duplicate', 'MailinglistEmailController@duplicate');
 });
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');

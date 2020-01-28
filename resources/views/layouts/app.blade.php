@@ -626,6 +626,8 @@
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
                                         </li>
                                     </ul>
                                 </li>
