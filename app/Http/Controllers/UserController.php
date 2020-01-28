@@ -15,6 +15,7 @@ use App\ApiKey;
 use App\Task;
 use App\Product;
 use App\Customer;
+use App\Hubstaff\HubstaffActivity;
 use App\UserProduct;
 use App\Role;
 use App\Permission;
@@ -25,7 +26,7 @@ use Cache;
 use Auth;
 use Log;
 use Carbon\Carbon;
-
+use DateTime;
 
 class UserController extends Controller
 {
@@ -394,13 +395,39 @@ class UserController extends Controller
 		return redirect()->back()->withSuccess('You have successfully updated the user!');
 	}
 
-	public function payments()
+	private function printLastQuery()
 	{
-		$date = date('Y-m-d', strtotime('last sunday'));
+		DB::enableQueryLog();
+		$query = DB::getQueryLog();
+		$query = end($query);
+		print_r($query);
+	}
 
-		$users = User::with(['ratesCurrentWeek', 'trackedActivitiesForWeek', 'currentRate'])->get();
-		$usersRatesPreviousWeek = UserRate::latestRatesForPreviousWeek();
+	public function payments(Request $request)
+	{
 
+		$params = $request->all();
+
+		$date = new DateTime();
+
+		if (isset($params['year']) && isset($params['week'])) {
+			$year = $params['year'];
+			$week = $params['week'];
+		} else {
+			$week = $date->format("W");
+			$year = $date->format("Y");
+		}
+
+		$result = getStartAndEndDate($week, $year);
+		$start = $result['week_start'];
+		$end = $result['week_end'];
+
+		$users = User::with(['currentRate'])->get();
+		$usersRatesThisWeek = UserRate::ratesForWeek($week, $year);
+
+		$usersRatesPreviousWeek = UserRate::latestRatesForWeek($week - 1, $year);
+
+		$activitiesForWeek = HubstaffActivity::getActivitiesForWeek($week, $year);
 
 
 		$now = now();
@@ -423,15 +450,15 @@ class UserController extends Controller
 
 			if ($invidualRatesPreviousWeek) {
 				$weekRates[] = array(
-					'start_date' => $date,
+					'start_date' => $start,
 					'rate' => $invidualRatesPreviousWeek->hourly_rate,
 					'currency' => $invidualRatesPreviousWeek->currency
 				);
 			}
 
-
-
-			$rates = $user->ratesCurrentWeek;
+			$rates = $usersRatesThisWeek->filter(function ($value, $key) use ($user) {
+				return $value->user_id == $user->id;
+			});
 
 			if ($rates) {
 
@@ -451,12 +478,10 @@ class UserController extends Controller
 
 
 			if (sizeof($weekRates) > 0) {
-				$weekSaturdayEnd = date('Y-m-d H:i:s', strtotime('sunday') - 1);
-
 				$lastEntry = $weekRates[sizeof($weekRates) - 1];
 
 				$weekRates[] = array(
-					'start_date' => $weekSaturdayEnd,
+					'start_date' => $end,
 					'rate' => $lastEntry['rate'],
 					'currency' => $lastEntry['currency']
 				);
@@ -464,8 +489,11 @@ class UserController extends Controller
 				$user->currency = $lastEntry['currency'];
 			}
 
+			$activities = $activitiesForWeek->filter(function ($value, $key) use ($user) {
+				return $value->system_user_id === $user->id;
+			});
 
-			$activities = $user->trackedActivitiesForWeek;
+			$user->trackedActivitiesForWeek = $activities;
 
 			if (sizeof($weekRates) == 0) {
 				// user has no rates
@@ -493,7 +521,16 @@ class UserController extends Controller
 			}
 		}
 
-		return view('users.payments', ['users' => $users]);
+		//exit;
+
+		return view(
+			'users.payments',
+			[
+				'users' => $users,
+				'selectedYear' => $year,
+				'selectedWeek' => $week
+			]
+		);
 	}
 
 	public function checkUserLogins()

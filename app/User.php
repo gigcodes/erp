@@ -86,7 +86,6 @@ class User extends Authenticatable
     public function manualCropProducts()
     {
         return $this->belongsToMany(Product::class, 'user_manual_crop', 'user_id', 'product_id');
-
     }
 
     public function customers()
@@ -112,13 +111,11 @@ class User extends Authenticatable
     public function attributeRejected()
     {
         return $this->hasMany(ListingHistory::class)->where('action', 'LISTING_REJECTED');
-
     }
 
     public function cropSequenced()
     {
         return $this->hasMany(ListingHistory::class)->where('action', 'CROP_SEQUENCED');
-
     }
 
     public function whatsappAll()
@@ -164,12 +161,12 @@ class User extends Authenticatable
      */
     public function hasPermission($name)
     {
-        if($name == '/'){
+        if ($name == '/') {
             $genUrl = 'mastercontrol';
             header("Location: /development/list/devtask");
-        }else{
+        } else {
             $url = explode('/', $name);
-            $model = $url[ 0 ];
+            $model = $url[0];
             $actions = end($url);
             if ($model != '') {
                 if ($model == $actions) {
@@ -181,7 +178,7 @@ class User extends Authenticatable
                 return true;
             }
         }
-        
+
         $permission = Permission::where('route', $genUrl)->first();
 
         if (empty($permission)) {
@@ -258,7 +255,6 @@ class User extends Authenticatable
             }
         }
         return false;
-
     }
 
     public function user_logs()
@@ -338,8 +334,8 @@ class User extends Authenticatable
         }
 
         $splitName = explode(' ', $this->name);
-        if (mb_strlen($splitName[ 0 ]) <= $chars) {
-            return $splitName[ 0 ];
+        if (mb_strlen($splitName[0]) <= $chars) {
+            return $splitName[0];
         }
 
         return '';
@@ -347,27 +343,12 @@ class User extends Authenticatable
 
     public static function getNameById($id)
     {
-       $q  = self::where("id",$id)->first();
-       return ($q) ? $q->name : "";
+        $q  = self::where("id", $id)->first();
+        return ($q) ? $q->name : "";
     }
 
-
-    public function ratesCurrentWeek(){
-
-        $date = date('Y-m-d',strtotime('last sunday'));
-
-        // changes in this week
-        return $this->hasMany(
-            'App\UserRate',
-            'user_id',
-            'id'
-        )
-        ->where('user_rates.start_date','>=', $date)
-        ->orderBy('start_date');
-
-    }
-
-    public function currentRate(){
+    public function currentRate()
+    {
 
 
         return $this->hasOne(
@@ -375,23 +356,6 @@ class User extends Authenticatable
             'user_id',
             'id'
         )
-        ->latest();
+            ->latest();
     }
-
-    
-
-    public function trackedActivitiesForWeek(){
-
-        $date = date('Y-m-d',strtotime('last sunday'));
-
-        return $this->hasManyThrough(
-            'App\Hubstaff\HubstaffActivity',
-            'App\Hubstaff\HubstaffMember',
-            'user_id',
-            'user_id',
-            'id',
-            'hubstaff_user_id'
-        )->where('starts_at', '>=', $date);
-    }
-
 }
