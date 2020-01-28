@@ -48,7 +48,12 @@ class KeywordController extends Controller
         }
 
         $chatbotKeyword = ChatbotKeyword::create($params);
-        WatsonManager::pushKeyword($chatbotKeyword->id);
+        $result         = json_decode(WatsonManager::pushKeyword($chatbotKeyword->id));
+
+        if (property_exists($result, 'error')) {
+            ChatbotKeyword::where("id", $chatbotKeyword->id)->delete();
+            return response()->json(["code" => $result->code, "error" => $result->error]);
+        }
 
         return response()->json(["code" => 200, "data" => $chatbotKeyword, "redirect" => route("chatbot.keyword.edit", [$chatbotKeyword->id])]);
     }

@@ -507,7 +507,7 @@ class TaskModuleController extends Controller {
 			'task_details'	=> 'required',
 			'assign_to' => 'required_without:assign_to_contacts'
 		]);
-
+		
 		$data = $request->except( '_token' );
 		$data['assign_from'] = Auth::id();
 
@@ -606,19 +606,35 @@ class TaskModuleController extends Controller {
 			$chat_message = ChatMessage::create($params);
 
 			$myRequest = new Request();
-      $myRequest->setMethod('POST');
-      $myRequest->request->add(['messageId' => $chat_message->id]);
+      		$myRequest->setMethod('POST');
+      		$myRequest->request->add(['messageId' => $chat_message->id]);
 
-      app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
-
-
-		if ($request->ajax()) {
-			return response('success');
-		}
+      		app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
 
 
-		return redirect()->back()
-		                 ->with( 'success', 'Task created successfully.' );
+			if ($request->ajax()) {
+				$hasRender = request("has_render", false);
+				
+				if(!empty($hasRender)) {
+					
+					$users      = Helpers::getUserArray( User::all() );
+					$priority  	= \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
+
+					$mode = "task-module.partials.statutory-row";
+					if($task->is_statutory != 1) {
+						$mode = "task-module.partials.pending-row";
+					}
+
+					$view = (string)view($mode,compact('task','priority','users'));
+
+					return response()->json(["code" => 200, "statutory" => $task->is_statutory , "raw" => $view]);	
+
+				}
+
+				return response('success');
+			}
+
+			return redirect()->back()->with( 'success', 'Task created successfully.' );
 	}
 
 	public function flag(Request $request)

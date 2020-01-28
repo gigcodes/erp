@@ -2677,12 +2677,16 @@ class ProductController extends Controller
             $is_queue = 1;
         }
 
+        $groupId = \DB::table('chat_messages')->max('group_id');
+        $groupId = ($groupId > 0) ? $groupId : 1; 
+
         foreach ($customerIds as $k => $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');
             $params = $request->except(['_token', 'customers_id', 'return_url']);
             $params[ 'customer_id' ] = $customerId;
             $params[ 'is_queue' ] = $is_queue;
+            $params[ 'group_id' ] = $groupId;
             $requestData->request->add($params + $extraParams);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');

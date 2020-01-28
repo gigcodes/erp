@@ -1,3 +1,4 @@
-$CURRENT_PATH = $PWD;
-cd /Users/applecustomer/development/sololux-erp/deployment_scripts/erp
+scriptPath="$(cd "$(dirname "$0")"; pwd)"
+cd $scriptPath;
+cd ..
 git rev-parse --abbrev-ref HEAD

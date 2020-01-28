@@ -95,8 +95,6 @@ class SendHubstaffReport extends Command
         $time   = $time - (60 * 60); //one hour
         $start = date("c", $time);
 
-        return;
-
         $response = $this->doHubstaffOperationWithAccessToken(
             function ($accessToken) use ($start, $stop) {
                 $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $start . '&time_slot[stop]=' . $stop;
