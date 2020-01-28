@@ -359,4 +359,11 @@ class ScrapStatisticsController extends Controller
         return $output;
     }
 
+    public function getLastRemark()
+    {
+        $lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by created_at desc");
+
+        return response()->json(["code" => 200 , "data" => $lastRemark]);
+    }
+
 }

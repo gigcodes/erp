@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
 use App\CronJobReport;
+use App\Product;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class BringBrunoCompositionFromScraped extends Command
@@ -39,17 +40,21 @@ class BringBrunoCompositionFromScraped extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        Product::where('supplier', 'BRUNA ROSSO')->chunk(1000, function($products) {
-            foreach ($products as $product) {
+            Product::where('supplier', 'BRUNA ROSSO')->chunk(1000, function ($products) {
+                foreach ($products as $product) {
 //                $pro
-            }
-        });
+                }
+            });
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

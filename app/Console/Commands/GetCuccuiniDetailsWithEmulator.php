@@ -2,19 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\CronJobReport;
 use App\ScrapedProducts;
-use App\Product;
-use App\Brand;
-use App\Services\Bots\CucLoginEmulator;
 use App\Services\Bots\CucProductDataEmulator;
 use App\Services\Bots\CucProductExistsEmulator;
-use App\Setting;
-use App\Services\Bots\WebsiteEmulator;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
-use App\CronJobReport;
 use Illuminate\Console\Command;
-use Wa72\HtmlPageDom\HtmlPageCrawler;
-
 
 class GetCuccuiniDetailsWithEmulator extends Command
 {
@@ -37,22 +31,27 @@ class GetCuccuiniDetailsWithEmulator extends Command
 
     public function handle(): void
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
-        if (strpos($letters, 'C') === false) {
-            return;
+            $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+            if (strpos($letters, 'C') === false) {
+                return;
+            }
+
+            $this->authenticate();
+
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        $this->authenticate();
-
-        $report->update(['end_time' => Carbon:: now()]);
     }
 
-    private function authenticate() {
+    private function authenticate()
+    {
         $url = 'http://shop.cuccuini.it/it/register.html';
 
         $duskShell = new CucProductDataEmulator();
@@ -66,7 +65,8 @@ class GetCuccuiniDetailsWithEmulator extends Command
         }
     }
 
-    public function doesProductExist($product) {
+    public function doesProductExist($product)
+    {
 
         $url = 'http://shop.cuccuini.it/it/register.html';
 
@@ -93,28 +93,26 @@ class GetCuccuiniDetailsWithEmulator extends Command
     {
 
         $this->info('here saving to server');
-        $client = new Client();
+        $client   = new Client();
         $response = $client->request('POST', 'http://erp.sololuxury.co.in/api/sync-product', [
 //        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
             'form_params' => [
-                'sku' => $image->sku,
-                'website' => $image->website,
-                'has_sku' => $image->has_sku,
-                'title' => $image->title,
-                'brand_id' => $image->brand_id,
-                'description' => $image->description,
+                'sku'                 => $image->sku,
+                'website'             => $image->website,
+                'has_sku'             => $image->has_sku,
+                'title'               => $image->title,
+                'brand_id'            => $image->brand_id,
+                'description'         => $image->description,
 //                'images' => $this->imagesToDownload,
-                'price' => $image->price,
-                'properties' => $image->properties,
-                'url' => $image->url,
+                'price'               => $image->price,
+                'properties'          => $image->properties,
+                'url'                 => $image->url,
                 'is_property_updated' => 0,
-                'is_price_updated' => 1,
-                'is_enriched' => 0,
-                'can_be_deleted' => 0
-            ]
+                'is_price_updated'    => 1,
+                'is_enriched'         => 0,
+                'can_be_deleted'      => 0,
+            ],
         ]);
-
-
 
         if (!$response) {
             dd($response->getBody()->getContents());
@@ -126,6 +124,6 @@ class GetCuccuiniDetailsWithEmulator extends Command
 
     private function setIP(): void
     {
-        $this->IP = '5.61.4.70	' . ':' . '8080';
+        $this->IP = '5.61.4.70  ' . ':' . '8080';
     }
 }

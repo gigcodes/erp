@@ -3,13 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Category;
+use App\CronJobReport;
 use App\Product;
 use App\ScrapedProducts;
 use App\Supplier;
-use App\CronJobReport;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
-use League\Csv\Reader;
-use League\Csv\Statement;
 
 class FixCategoryNameBySupplier extends Command
 {
@@ -44,29 +43,34 @@ class FixCategoryNameBySupplier extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
+            Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
 //        Product::where('id', 143121)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
-            echo 'Chunk again=======================================================' . "\n";
-            foreach ($products as $product) {
-                $this->classify2($product);
-            }
-        });
+                echo 'Chunk again=======================================================' . "\n";
+                foreach ($products as $product) {
+                    $this->classify2($product);
+                }
+            });
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
 
     }
 
-    private function classify2($product) {
+    private function classify2($product)
+    {
         $records = Category::where('id', '>', 3)->whereNotNull('references')->where('references', '!=', '')->orderBy('id', 'DESC')->get();
         foreach ($records as $record) {
             $originalCategory = $record->title;
-            $rec = explode(',', $record->references);
-            $scrapedProducts = $product->many_scraped_products;
+            $rec              = explode(',', $record->references);
+            $scrapedProducts  = $product->many_scraped_products;
 
             foreach ($scrapedProducts as $scrapedProduct) {
                 $catt = $scrapedProduct->properties['category'] ?? [];
@@ -74,7 +78,7 @@ class FixCategoryNameBySupplier extends Command
                     $catt = implode('', $catt);
                 }
 
-                foreach ($rec as $kk=>$cat) {
+                foreach ($rec as $kk => $cat) {
                     $cat = strtoupper($cat);
 
                     dump($catt, $cat, $scrapedProduct->title, $scrapedProduct->url);
@@ -122,13 +126,13 @@ class FixCategoryNameBySupplier extends Command
                             $originalCategory = 'Scarves & Wraps';
                         }
 
-                        if ($originalCategory == 'Belts' && (stripos($catt, 'bag') !== false || stripos($product->title, 'bag') !== false || stripos($product->url, 'bag') !== false) ) {
+                        if ($originalCategory == 'Belts' && (stripos($catt, 'bag') !== false || stripos($product->title, 'bag') !== false || stripos($product->url, 'bag') !== false)) {
                             $originalCategory = 'Belt Bag';
                         }
 
 //                    if ($originalCategory == 'Jumper' && $gender == 2) {
-//                        $originalCategory = 'Others';
-//                    }
+                        //                        $originalCategory = 'Others';
+                        //                    }
 
                         if ($gender === false) {
                             $this->warn('NOOOOO' . $product->supplier);
@@ -137,10 +141,8 @@ class FixCategoryNameBySupplier extends Command
                             continue;
                         }
 
-
-                        $parentCategory = Category::find($gender);
+                        $parentCategory     = Category::find($gender);
                         $childrenCategories = $parentCategory->childs;
-
 
                         foreach ($childrenCategories as $childrenCategory) {
                             if ($childrenCategory->title == $originalCategory) {
@@ -169,7 +171,7 @@ class FixCategoryNameBySupplier extends Command
     private function classify($product)
     {
         $scrapedProduct = ScrapedProducts::where('sku', $product->sku)->orderBy('id', 'DESC')->first();
-        $category = $scrapedProduct->properties['category'] ?? [];
+        $category       = $scrapedProduct->properties['category'] ?? [];
         if ($category === []) {
             dump('TITLE assigned..................................................');
             $category = $scrapedProduct->title;
@@ -187,9 +189,9 @@ class FixCategoryNameBySupplier extends Command
                 continue;
             }
             $rec = explode(',', $record->references);
-            foreach ($rec as $kk=>$cat) {
+            foreach ($rec as $kk => $cat) {
                 if (stripos(strtoupper($category), strtoupper($cat)) !== false) {
-                    $this->info($category . ' =>  ' . $cat . ' ' . $record->id . ' => ' .  $originalCategory);
+                    $this->info($category . ' =>  ' . $cat . ' ' . $record->id . ' => ' . $originalCategory);
                     $c = Category::where('title', $originalCategory)->first();
                     if (!$c) {
                         continue;
@@ -212,8 +214,7 @@ class FixCategoryNameBySupplier extends Command
                         continue;
                     }
 
-
-                    $parentCategory = Category::find($gender);
+                    $parentCategory     = Category::find($gender);
                     $childrenCategories = $parentCategory->childs;
 
                     foreach ($childrenCategories as $childrenCategory) {
@@ -239,7 +240,8 @@ class FixCategoryNameBySupplier extends Command
         }
     }
 
-    private function getMaleOrFemale($category) {
+    private function getMaleOrFemale($category)
+    {
         if (is_array($category)) {
             $category = json_encode($category);
         }
