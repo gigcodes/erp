@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\ColdLeads;
-use App\Customer;
 use App\CronJobReport;
+use App\Customer;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class MoveColdLeadsToCustomers extends Command
 {
@@ -41,76 +41,78 @@ class MoveColdLeadsToCustomers extends Command
      */
     public function handle()
     {
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $report = CronJobReport::create([
-            'signature' => $this->signature,
-            'start_time' => Carbon::now()
-        ]);
+            // Get cold leads
+            $coldLeads = ColdLeads::where('is_imported', 1)->where('customer_id', null)->inRandomOrder()->get();
 
+            // Set count to 0 and maxcount to 50
+            $count    = 0;
+            $maxCount = 500000;
 
-        // Get cold leads
-        $coldLeads = ColdLeads::where('is_imported', 1)->where('customer_id', null)->inRandomOrder()->get();
+            // Get all numbers from config
+            $config = \Config::get("apiwha.instances");
 
-        // Set count to 0 and maxcount to 50
-        $count = 0;
-        $maxCount = 500000;
-
-        // Get all numbers from config
-        $config = \Config::get("apiwha.instances");
-
-        // Loop over numbers
-        $arrCustomerNumbers = [];
-        foreach ($config as $whatsAppNumber => $arrNumber) {
-            if ($arrNumber[ 'customer_number' ]) {
-                $arrCustomerNumbers[] = $arrNumber[ 'customer_number' ];
-            }
-        }
-
-        // Loop over coldLeads
-        if ($coldLeads !== null) {
-            foreach ($coldLeads as $coldLead) {
-                // Reached maxCount
-                if ($count >= $maxCount) {
-                    return;
+            // Loop over numbers
+            $arrCustomerNumbers = [];
+            foreach ($config as $whatsAppNumber => $arrNumber) {
+                if ($arrNumber['customer_number']) {
+                    $arrCustomerNumbers[] = $arrNumber['customer_number'];
                 }
+            }
 
-                // Add cold lead to customers table
-                if (!$coldLead->customer && !$coldLead->whatsapp) {
-                    // Check for existing customer
-                    $customer = Customer::where('phone', $coldLead->platform_id)->get();
+            // Loop over coldLeads
+            if ($coldLeads !== null) {
+                foreach ($coldLeads as $coldLead) {
+                    // Reached maxCount
+                    if ($count >= $maxCount) {
+                        return;
+                    }
 
-                    // Nothing found?
-                    if ($customer == null && !empty($coldLead->name)) {
-                        // Create new customer
-                        $customer = new Customer();
-                        $customer->name = $coldLead->name;
-                        $customer->phone = $coldLead->platform_id;
-                        $customer->whatsapp_number = $arrCustomerNumbers[ rand(0, count($arrCustomerNumbers) - 1) ];
-                        $customer->city = $coldLead->address;
-                        $customer->country = 'IN';
-                        try {
-                            $customer->save();
-                        } catch (\Exception $e) {
-                            echo $e->getMessage();
+                    // Add cold lead to customers table
+                    if (!$coldLead->customer && !$coldLead->whatsapp) {
+                        // Check for existing customer
+                        $customer = Customer::where('phone', $coldLead->platform_id)->get();
+
+                        // Nothing found?
+                        if ($customer == null && !empty($coldLead->name)) {
+                            // Create new customer
+                            $customer                  = new Customer();
+                            $customer->name            = $coldLead->name;
+                            $customer->phone           = $coldLead->platform_id;
+                            $customer->whatsapp_number = $arrCustomerNumbers[rand(0, count($arrCustomerNumbers) - 1)];
+                            $customer->city            = $coldLead->address;
+                            $customer->country         = 'IN';
+                            try {
+                                $customer->save();
+                            } catch (\Exception $e) {
+                                echo $e->getMessage();
+                                $coldLead->customer_id = 1;
+                                $coldLead->save();
+                            }
+
+                            if (!empty($customer->id)) {
+                                $coldLead->customer_id = $customer->id;
+                                $coldLead->save();
+                            }
+                        } else {
                             $coldLead->customer_id = 1;
                             $coldLead->save();
                         }
 
-                        if (!empty($customer->id)) {
-                            $coldLead->customer_id = $customer->id;
-                            $coldLead->save();
-                        }
-                    } else {
-                        $coldLead->customer_id = 1;
-                        $coldLead->save();
+                        $count++;
                     }
 
-                    $count++;
                 }
-
             }
-        }
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

@@ -104,6 +104,7 @@
                     <th width="15%">Issue</th>
                     <th width="5%">Date Created</th>
                     <th width="5%">Est Completion Time</th>
+                    <th width="5%">Tracked Time</th>
                     <th width="5%">Assigned To</th>
                     <th width="5%">Resolved</th>
                     <th width="5%">Master Developer</th>

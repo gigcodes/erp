@@ -239,6 +239,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     //Cron
     Route::get('cron', 'CronController@index')->name('cron.index');
+    Route::get('cron/run', 'CronController@runCommand')->name('cron.run.command');
     Route::get('cron/history/{id}', 'CronController@history')->name('cron.history');
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
 
@@ -920,6 +921,7 @@ Route::post('livechat/getUserList', 'LiveChatController@getUserList')->name('liv
 /* ---------------------------------------------------------------------------------- */
 
 Route::post('livechat/send-file','LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');
+Route::get('livechat/get-customer-info','LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/incomingNew', 'WhatsAppController@incomingMessageNew');
@@ -1071,6 +1073,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('addremark', 'ScrapStatisticsController@addRemark')->name('scrap.addRemark');
     Route::get('facebook/inbox', 'FacebookController@getInbox');
     Route::resource('facebook', 'FacebookController');
+    Route::get('gmails/{id}', 'GmailDataController@show');
     Route::resource('gmail', 'GmailDataController');
     Route::resource('designer', 'DesignerController');
     Route::resource('sales', 'SalesItemController');
@@ -1458,6 +1461,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/repos/{name}/users/add', 'Github\UserController@addUserToRepositoryForm');
         Route::get('/repos/{id}/branches', 'Github\RepositoryController@getRepositoryDetails');
         Route::get('/repos/{id}/branch/merge', 'Github\RepositoryController@mergeBranch');
+        Route::get('/repos/{id}/deploy', 'Github\RepositoryController@deployBranch');
         Route::post('/add_user_to_repo', 'Github\UserController@addUserToRepository');
         Route::get('/users', 'Github\UserController@listOrganizationUsers');
         Route::get('/users/{userId}', 'Github\UserController@userDetails');
