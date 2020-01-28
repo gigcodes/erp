@@ -18,7 +18,9 @@ class CreatePaymentsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('payment_method_id');
-            $table->string('note');
+            $table->string('note')->nullable();
+            $table->float('amount');
+            $table->string('currency');
             $table->timestamps();
             $table->softDeletes();
         });

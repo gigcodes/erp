@@ -16,6 +16,8 @@ use App\Task;
 use App\Product;
 use App\Customer;
 use App\Hubstaff\HubstaffActivity;
+use App\Payment;
+use App\PaymentMethod;
 use App\UserProduct;
 use App\Role;
 use App\Permission;
@@ -403,6 +405,7 @@ class UserController extends Controller
 		print_r($query);
 	}
 
+
 	public function payments(Request $request)
 	{
 
@@ -522,15 +525,41 @@ class UserController extends Controller
 		}
 
 		//exit;
+		$paymentMethods = array();
+		foreach (PaymentMethod::all() as $paymentMethod) {
+			$paymentMethods[$paymentMethod->id] = $paymentMethod->name;
+		}
 
 		return view(
 			'users.payments',
 			[
 				'users' => $users,
 				'selectedYear' => $year,
-				'selectedWeek' => $week
+				'selectedWeek' => $week,
+				'paymentMethods' => $paymentMethods
 			]
 		);
+	}
+
+	public function makePayment(Request $request)
+	{
+		$this->validate($request, [
+			'amount' => 'required|numeric|min:1',
+			'payment_method' => 'required',
+			'currency' => 'required'
+		]);
+
+		$parameters = $request->all();
+
+		$payment = new Payment;
+		$payment->user_id = $parameters['user_id'];
+		$payment->amount = $parameters['amount'];
+		$payment->currency = $parameters['currency'];
+		$payment->note = $parameters['note'];
+		$payment->payment_method_id = $parameters['payment_method'];
+		$payment->save();
+
+		return redirect('/hubstaff/payments')->withSuccess('Payment saved!');
 	}
 
 	public function checkUserLogins()

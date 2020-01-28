@@ -957,6 +957,7 @@ Route::get('hubstaff/tasks/{id}', 'HubstaffController@editTaskForm');
 Route::get('hubstaff/redirect', 'HubstaffController@redirect');
 Route::get('hubstaff/debug', 'HubstaffController@debug');
 Route::get('hubstaff/payments', 'UserController@payments');
+Route::post('hubstaff/makePayment', 'UserController@makePayment');
 
 /*
  * @date 1/13/2019

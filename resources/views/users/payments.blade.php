@@ -102,25 +102,33 @@
 </div>
 
 <!-- Modal -->
-<div id="paymentModal" style="padding-top: 50px" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+<div id="paymentModal" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="margin-top: 150px">
 
         <!-- Modal content-->
         <div class="modal-content">
-            {{Form::open(array('url' => '/github/add_user_to_repo', 'method' => 'POST'))}}
+            {{Form::open(array('url' => '/hubstaff/makePayment', 'method' => 'POST'))}}
             {{ Form::hidden('user_id', Input::old('user_id')) }}
             <div class="modal-body">
+                <div class="form-group">
+                    {{ Form::label('amount', 'Amount') }}
+                    {{ Form::number('amount',null, array('class' => 'form-control')) }}
+                </div>
+                <div class="form-group">
+                    {{ Form::label('currency', 'Currency') }}
+                    {{ Form::text('currency',null, array('class' => 'form-control')) }}
+                </div>
                 <div class="form-group">
                     {{ Form::label('note', 'Note') }}
                     {{ Form::text('note',null, array('class' => 'form-control')) }}
                 </div>
                 <div class="form-group">
                     {{ Form::label('payment_method', 'Payment Method') }}
-                    {{ Form::select('payment_method', [], null , array('class' => 'form-control'))  }}
+                    {{ Form::select('payment_method', $paymentMethods, null , array('class' => 'form-control'))  }}
                 </div>
             </div>
             <div class="modal-footer">
-                {{ Form::submit('Pay', array('class' => 'btn btn-primary', 'data-dismiss'=> 'modal')) }}
+                {{ Form::submit('Pay', array('class' => 'btn btn-primary')) }}
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
             {{ Form::close() }}
@@ -128,6 +136,13 @@
 
     </div>
 </div>
+
+@if ($message = Session::get('success'))
+<div class="alert alert-success">
+    <p>{{ $message }}</p>
+</div>
+@endif
+
 @endsection
 
 @section('scripts')
@@ -147,6 +162,7 @@
 <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
 <script>
     function makePayment(userId) {
+        $('input[name="user_id"]').val(userId);
         $("#paymentModal").modal();
     }
 
