@@ -7,6 +7,7 @@
 		        <th>Title</th>
 		        <th>Website</th>
 		        <th>Description</th>
+		        <th>Remote software</th>
 		        <th>Published</th>
 		        <th>Created At</th>
 		        <th>Action</th>
@@ -19,6 +20,7 @@
 			        <td>{{:prop.title}}</td>
 			        <td>{{:prop.website}}</td>
 			        <td>{{:prop.description}}</td>
+			        <td>{{:prop.remote_software}}</td>
 			        <td>{{if prop.is_published == 1}}Yes{{else}}No{{/if}}</td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>

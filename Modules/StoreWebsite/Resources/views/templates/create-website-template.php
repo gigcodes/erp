@@ -26,6 +26,10 @@
 		         <label for="description">Description</label>
 		         <input type="text" name="description" value="{{if data}}{{:data.description}}{{/if}}" class="form-control" id="description" placeholder="Enter Description">
 		      </div>
+		      <div class="form-group">
+		         <label for="remote_software">Remote software</label>
+		         <input type="text" name="remote_software" value="{{if data}}{{:data.remote_software}}{{/if}}" class="form-control" id="remote_software" placeholder="Enter Remote software">
+		      </div>
 		      <div class="form-row">
 		         <div class="form-group col-md-4">
 		            <label for="inputState">Is Published?</label>

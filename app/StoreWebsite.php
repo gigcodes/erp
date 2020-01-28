@@ -9,6 +9,6 @@ class StoreWebsite extends Model
 {
     use SoftDeletes;
     protected $fillable = [
-        'title','website', 'description', 'is_published', 'deleted_at', 'created_at', 'updated_at',
+        'title', 'remote_software', 'website', 'description', 'is_published', 'deleted_at', 'created_at', 'updated_at',
     ];
 }

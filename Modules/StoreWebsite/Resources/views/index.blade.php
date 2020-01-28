@@ -53,8 +53,8 @@
   	</div>	
 </div>
 
-@include("store-website.templates.list-template")
-@include("store-website.templates.create-website-template")
+@include("storewebsite::templates.list-template")
+@include("storewebsite::templates.create-website-template")
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
