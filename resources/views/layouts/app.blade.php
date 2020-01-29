@@ -451,6 +451,7 @@
                                             <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
                                             <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                             <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
+                                            <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
                                         </li>
                                     </ul>
                                 </li>
