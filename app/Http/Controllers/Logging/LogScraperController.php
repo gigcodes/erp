@@ -25,9 +25,49 @@ class LogScraperController extends Controller
             $scraperLogs = $scraperLogs->where('validation_result', 'LIKE', '%' . $request->result . '%');
         }
 
-        $scraperLogs = $scraperLogs->orderBy('created_at', 'DESC')->paginate(25);
+        if (!empty($request->id)) {
+            $scraperLogs = $scraperLogs->where('id', '=' ,$request->id);
+        }
 
-        return view('log.scraper', compact('scraperLogs'));
+        if (!empty($request->ip_address)) {
+            $scraperLogs = $scraperLogs->where('ip_address', 'LIKE', '%' . $request->ip_address . '%');
+        }
+
+        if (!empty($request->website)) {
+            $scraperLogs = $scraperLogs->where('website', 'LIKE', '%' . $request->website . '%');
+        }
+
+        if (!empty($request->url)) {
+            $scraperLogs = $scraperLogs->where('url', 'LIKE', '%' . $request->url . '%');
+        }
+
+        if (!empty($request->sku)) {
+            $scraperLogs = $scraperLogs->where('sku', 'LIKE', '%' . $request->sku . '%');
+        }
+
+        if (!empty($request->original_sku)) {
+            $scraperLogs = $scraperLogs->where('original_sku', 'LIKE', '%' . $request->original_sku . '%');
+        }
+
+        if (!empty($request->title)) {
+            $scraperLogs = $scraperLogs->where('title', 'LIKE', '%' . $request->title . '%');
+        }
+
+        if (!empty($request->validation_result)) {
+            $scraperLogs = $scraperLogs->where('validation_result', 'LIKE', '%' . $request->validation_result . '%');
+        }
+
+        $scraperLogs = $scraperLogs->orderBy('created_at', 'DESC')->paginate(25);
+        
+        // For ajax
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('logging.partials.scraper-logs', compact('scraperLogs'))->render(),
+                'links' => (string)$scraperLogs->appends(request()->except("page"))->links()
+            ], 200);
+        }
+
+        return view('logging.scraper', compact('scraperLogs'));
     }
 
     public function logSKU(Request $request)
