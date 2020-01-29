@@ -58,6 +58,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.laravel.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
     Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
+    Route::get('log-scraper', 'Logging\LogScraperController@index')->name('log-scraper.index');
 });
 
 Route::prefix('category-messages')->group(function () {
@@ -79,6 +80,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('crop-references-grid/reject', 'CroppedImageReferenceController@rejectCropImage');
 
+    Route::get('public-key', 'EncryptController@index')->name('encryption.index');
+    Route::post('save-key', 'EncryptController@saveKey')->name('encryption.save.key');
+    Route::post('forget-key', 'EncryptController@forgetKey')->name('encryption.forget.key');
+    
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
@@ -239,6 +244,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     //Cron
     Route::get('cron', 'CronController@index')->name('cron.index');
+    Route::get('cron/run', 'CronController@runCommand')->name('cron.run.command');
     Route::get('cron/history/{id}', 'CronController@history')->name('cron.history');
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
 
@@ -611,7 +617,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post( 'development/task/update-status', 'DevelopmentController@changeTaskStatus' );
     Route::post( 'development/task/upload-document', 'DevelopmentController@uploadDocument' );
     Route::get( 'development/task/get-document', 'DevelopmentController@getDocument' );
-    
+
 
     Route::resource('task-types', 'TaskTypesController');
 
@@ -800,7 +806,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('vendor/reply/delete', 'VendorController@deleteReply')->name('vendor.reply.delete');
     Route::post('vendor/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendor.email.send.bulk');
     Route::post('vendor/create-user', 'VendorController@createUser')->name('vendor.create.user');
-    
+
     Route::post('vendor/send/email', 'VendorController@sendEmail')->name('vendor.email.send');
     Route::get('vendor/email/inbox', 'VendorController@emailInbox')->name('vendor.email.inbox');
     Route::post('vendor/product', 'VendorController@productStore')->name('vendor.product.store');
@@ -838,10 +844,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/remove-scraped-brands', 'SupplierController@removeScrapedBrand')->name('supplier.scrapedbrands.remove');
     // Copy scraped brands to brands
     Route::post('supplier/copy-scraped-brands', 'SupplierController@copyScrapedBrandToBrand')->name('supplier.scrapedbrands.copy');
-    
+
     Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
 
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
+
+    Route::post('supplier/change-whatsapp-no', 'SupplierController@changeWhatsappNo')->name('supplier.change.whatsapp');
+
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
     Route::resource('supplier', 'SupplierController');
@@ -865,6 +874,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
+        Route::get('image', 'ProductTemplatesController@imageIndex');
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
@@ -873,6 +883,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('create', 'TemplatesController@create');
         Route::post('edit', 'TemplatesController@edit');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
+        Route::get('generate-template-category-branch', 'TemplatesController@generateTempalateCategoryBrand');
+        Route::get('type', 'TemplatesController@typeIndex')->name('templates.type');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
@@ -920,6 +932,7 @@ Route::post('livechat/getUserList', 'LiveChatController@getUserList')->name('liv
 /* ---------------------------------------------------------------------------------- */
 
 Route::post('livechat/send-file','LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');
+Route::get('livechat/get-customer-info','LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/incomingNew', 'WhatsAppController@incomingMessageNew');
@@ -1068,9 +1081,11 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('statistics/history', 'ScrapStatisticsController@getHistory');
     Route::resource('statistics', 'ScrapStatisticsController');
     Route::get('getremark', 'ScrapStatisticsController@getRemark')->name('scrap.getremark');
+    Route::get('latest-remark', 'ScrapStatisticsController@getLastRemark')->name('scrap.latest-remark');
     Route::post('addremark', 'ScrapStatisticsController@addRemark')->name('scrap.addRemark');
     Route::get('facebook/inbox', 'FacebookController@getInbox');
     Route::resource('facebook', 'FacebookController');
+    Route::get('gmails/{id}', 'GmailDataController@show');
     Route::resource('gmail', 'GmailDataController');
     Route::resource('designer', 'DesignerController');
     Route::resource('sales', 'SalesItemController');
@@ -1459,6 +1474,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/repos/{name}/users/add', 'Github\UserController@addUserToRepositoryForm');
         Route::get('/repos/{id}/branches', 'Github\RepositoryController@getRepositoryDetails');
         Route::get('/repos/{id}/branch/merge', 'Github\RepositoryController@mergeBranch');
+        Route::get('/repos/{id}/deploy', 'Github\RepositoryController@deployBranch');
         Route::post('/add_user_to_repo', 'Github\UserController@addUserToRepository');
         Route::get('/users', 'Github\UserController@listOrganizationUsers');
         Route::get('/users/{userId}', 'Github\UserController@userDetails');

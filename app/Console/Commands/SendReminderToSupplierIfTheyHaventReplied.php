@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\ChatMessage;
+use App\CronJobReport;
 use App\Http\Controllers\WhatsAppController;
 use App\Supplier;
 use Carbon\Carbon;
-use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -44,60 +44,60 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
+            $now = Carbon::now()->toDateTimeString();
 
-        $now = Carbon::now()->toDateTimeString();
+            //get latest message of the supplier exclusing the auto messages
+            $messagesIds = DB::table('chat_messages')
+                ->selectRaw('MAX(id) as id, supplier_id')
+                ->groupBy('supplier_id')
+                ->whereNotNull('message')
+                ->where('supplier_id', '>', '0')
+                ->where(function ($query) {
+                    $query->whereNotIn('status', [7, 8, 9]);
+                })
+                ->get();
 
-        //get latest message of the supplier exclusing the auto messages
-        $messagesIds = DB::table('chat_messages')
-            ->selectRaw('MAX(id) as id, supplier_id')
-            ->groupBy('supplier_id')
-            ->whereNotNull('message')
-            ->where('supplier_id', '>', '0')
-            ->where(function($query) {
-                $query->whereNotIn('status', [7,8,9]);
-            })
-            ->get();
+            foreach ($messagesIds as $messagesId) {
+                $supplier = Supplier::find($messagesId->supplier_id);
 
+                if (!$supplier) {
+                    continue;
+                }
 
+                $frequency = $supplier->frequency;
+                if (!($frequency >= 5)) {
+                    continue;
+                }
 
-        foreach ($messagesIds as $messagesId) {
-            $supplier = Supplier::find($messagesId->supplier_id);
+                // get the message if the interval is >= then that we have set for this supplier
+                $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
+                    ->where('id', $messagesId->id)
+                    ->where('user_id', '>', '0')
+                    ->where('approved', '1')
+                    ->first();
 
-            if (!$supplier) {
-                continue;
+                if (!$message) {
+                    continue;
+                }
+
+                dump('saving...');
+
+                $templateMessage = $supplier->reminder_message;
+
+                //Send message to the supplier
+                $this->sendMessage($supplier->id, $templateMessage);
             }
 
-            $frequency = $supplier->frequency;
-            if (!($frequency >= 5)) {
-                continue;
-            }
-
-            // get the message if the interval is >= then that we have set for this supplier
-            $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "'.$now.'") >= ' . $frequency)
-                ->where('id', $messagesId->id)
-                ->where('user_id', '>', '0')
-                ->where('approved', '1')
-                ->first();
-
-
-            if (!$message) {
-                continue;
-            }
-
-            dump('saving...');
-
-            $templateMessage = $supplier->reminder_message;
-
-            //Send message to the supplier
-            $this->sendMessage($supplier->id, $templateMessage);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-          $report->update(['end_time' => Carbon:: now()]);
 
     }
 
@@ -110,14 +110,13 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
     {
 
         $params = [
-            'number' => null,
-            'user_id' => 6,
-            'approved' => 1,
-            'status' => 1,
+            'number'      => null,
+            'user_id'     => 6,
+            'approved'    => 1,
+            'status'      => 1,
             'supplier_id' => $supplier,
-            'message' => $message
+            'message'     => $message,
         ];
-
 
         $chat_message = ChatMessage::create($params);
 

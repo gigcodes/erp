@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
 use App\CronJobReport;
+use App\Product;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GetSizesFromScrapedData extends Command
@@ -39,69 +40,74 @@ class GetSizesFromScrapedData extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        Product::where(function ($q) {
-            $q->where('size', '')
-                ->orWhereNull('size')
-            ;
-        })->where('is_approved', 0)->where('is_crop_ordered', '1')->chunk(1000, function ($products) {
-            foreach ($products as $product) {
-                dump($product->id);
-                $scrapedProducts = $product->many_scraped_products;
-                foreach ($scrapedProducts as $scrapedProduct) {
-                    $properties = $scrapedProduct->properties;
-                    $size = $properties['size'] ?? '';
-                    if (is_array($size)) {
-                        $size = implode(',', $size);
-                    }
-                    $size = $this->getSizeFromStr($size);
+            Product::where(function ($q) {
+                $q->where('size', '')
+                    ->orWhereNull('size')
+                ;
+            })->where('is_approved', 0)->where('is_crop_ordered', '1')->chunk(1000, function ($products) {
+                foreach ($products as $product) {
+                    dump($product->id);
+                    $scrapedProducts = $product->many_scraped_products;
+                    foreach ($scrapedProducts as $scrapedProduct) {
+                        $properties = $scrapedProduct->properties;
+                        $size       = $properties['size'] ?? '';
+                        if (is_array($size)) {
+                            $size = implode(',', $size);
+                        }
+                        $size = $this->getSizeFromStr($size);
 
-                    if ($size) {
-                        $product->size = $size;
-                        $product->save();
-                        break;
-                    }
+                        if ($size) {
+                            $product->size = $size;
+                            $product->save();
+                            break;
+                        }
 
-                    $size = $properties['sizes'] ?? '';
-                    dump($size);
-
-                    if (is_array($size)) {
-                        $size = implode(',', $size);
-                    }
-                    $size = $this->getSizeFromStr($size);
-
-                    if ($size) {
+                        $size = $properties['sizes'] ?? '';
                         dump($size);
-                        $product->size = $size;
-                        $product->save();
-                        break;
-                    }
 
-                    $size = $properties['sizes_prop'] ?? '';
+                        if (is_array($size)) {
+                            $size = implode(',', $size);
+                        }
+                        $size = $this->getSizeFromStr($size);
 
-                    if (is_array($size)) {
-                        $size = implode(',', $size);
-                    }
-                    $size = $this->getSizeFromStr($size);
+                        if ($size) {
+                            dump($size);
+                            $product->size = $size;
+                            $product->save();
+                            break;
+                        }
 
-                    if ($size) {
-                        dump($size);
-                        $product->size = $size;
-                        $product->save();
-                        break;
+                        $size = $properties['sizes_prop'] ?? '';
+
+                        if (is_array($size)) {
+                            $size = implode(',', $size);
+                        }
+                        $size = $this->getSizeFromStr($size);
+
+                        if ($size) {
+                            dump($size);
+                            $product->size = $size;
+                            $product->save();
+                            break;
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 
-    private  function getSizeFromStr($sizes) {
+    private function getSizeFromStr($sizes)
+    {
         if (strlen($sizes) < 60) {
             return str_replace(['/2', '+', '½'], '.5', $sizes);
         }

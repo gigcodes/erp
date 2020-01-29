@@ -612,7 +612,7 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Broadcast<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
+                                            <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Grid</a>
                                             <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
                                             <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calender</a>
                                         </li>
@@ -1039,6 +1039,12 @@
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('templates.type') }}">New List</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
+                                </li>
                             </ul>
                         </li>
                         @if(auth()->user()->isAdmin())
@@ -1170,6 +1176,9 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('cron.index')}}">Cron</a>
+                                        </li>
                                     </ul>
                                 </li>
 
@@ -1211,6 +1220,16 @@
                                         </li>
                                     </ul>
                                 </li>
+
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Encryption<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('encryption.index')}}">Encryption Key</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
                             </ul>
                         </li>
                         @endif
@@ -1475,12 +1494,17 @@
             <button class="help-button"><span>+</span></button>
         </div>
     </div>
+
+
     @if($liveChatUsers != '' && $liveChatUsers != null)
     <div class="chat-button-wrapper">
-        <div class="col-md-9 page-chat-list-rt dis-none">
+        <div class="chat-button-float">
+            <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
+        </div>
+        <div class="col-md-12 page-chat-list-rt dis-none">
             <div class="help-list well well-lg">
                 <div class="row">
-                    <div class="col-md-4 chat" style="margin-top : 0px !important;">
+                    <div class="col-md-3 chat" style="margin-top : 0px !important;">
                         <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
                             <div class="card-header">
                                 <div class="input-group">
@@ -1500,7 +1524,7 @@
                                     @php
                                     $customer = \App\Customer::where('id',$chatId->customer_id)->first();
                                     @endphp
-                                    <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
+                                    <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
                                         <div class="d-flex bd-highlight">
                                             <div class="img_cont">
                                                 <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
@@ -1521,7 +1545,7 @@
                             <div class="card-footer"></div>
                         </div>
                     </div>
-                    <div class="col-md-8 chat">
+                    <div class="col-md-6 chat">
                         <div class="card_chat">
                             <div class="card-header msg_head">
                                 <div class="d-flex bd-highlight">
@@ -1551,12 +1575,13 @@
                             <div class="card-body msg_card_body" id="message-recieve">
 
                             </div>
+                            <div class="typing-indicator" id="typing-indicator"></div>
                             <div class="card-footer">
                                 <div class="input-group">
-                                    <div class="input-group-append">
+                                    {{-- <div class="input-group-append">
                                         <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
                                         <input type="file" id="imgupload" style="display:none" />
-                                    </div>
+                                    </div> --}}
                                     <div class="card-footer">
                                         <div class="input-group">
                                             <div class="input-group-append">
@@ -1574,12 +1599,33 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                    <div class="col-md-3 customer-info">
+                        <div class="chat-righbox">
+                            <div class="title">General Info</div>
+                            <div id="chatCustomerInfo"></div>
 
+                        </div>
+                        <div class="chat-righbox">
+                            <div class="title">Visited Pages</div>
+                            <div id="chatVisitedPages">
+                                
+                            </div>
+                        </div>
+                        <div class="chat-righbox">
+                            <div class="title">Additional info</div>
+                            <div class="line-spacing" id="chatAdditionalInfo">
+                                
+                            </div>
+                        </div>
+                        <div class="chat-righbox">
+                            <div class="title">Technology</div>
+                            <div class="line-spacing" id="chatTechnology">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <button class="chat-button"><img src="/images/chat.png" class="img-responsive" /><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
         </div>
     </div>
     @endif
@@ -1641,9 +1687,19 @@
         });
 
         // started for chat button
-        $('.chat-button').on('click', function() {
+        var chatBoxOpen = false;
+        $('.chat-button').on('click', function () {
             $('.chat-button-wrapper').toggleClass('expanded');
             $('.page-chat-list-rt').toggleClass('dis-none');
+
+            if($('.chat-button-wrapper').hasClass('expanded')){
+                chatBoxOpen = true;
+                openChatBox(true);
+            }
+            else{
+                chatBoxOpen = false;
+                openChatBox(false);
+            }
         });
 
         var notesBtn = $(".save-user-notes");
@@ -1677,6 +1733,48 @@
                 },
             });
         });
+
+        @if(session()->has('encrpyt'))
+        
+        var inactivityTime = function () {
+            var time;
+            window.onload = resetTimer;
+            // DOM Events
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+
+        function remove_key() {
+            $.ajax({
+            url: "{{ route('encryption.forget.key') }}",
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                private: '1',
+                "_token": "{{ csrf_token() }}",
+            },
+            })
+            .done(function() {
+                alert('Please Insert Private Key');
+                location.reload();
+                console.log("success");
+            })
+            .fail(function() {
+                console.log("error");
+            })  
+        }
+
+        function resetTimer() {
+            clearTimeout(time);
+            time = setTimeout(remove_key, 1200000)
+            // 1000 milliseconds = 1 second
+        }
+        };
+
+        window.onload = function() {
+            inactivityTime(); 
+        }
+
+        @endif
 
         var getNotesList = function() {
             //$.ajax({

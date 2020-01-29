@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Hubstaff\HubstaffMember;
+use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -10,14 +11,11 @@ use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
 use Storage;
 
-
-
-
 class RefreshHubstaffUsers extends Command
 {
 
-    var $HUBSTAFF_TOKEN_FILE_NAME;
-    var $SEED_REFRESH_TOKEN;
+    public $HUBSTAFF_TOKEN_FILE_NAME;
+    public $SEED_REFRESH_TOKEN;
 
     /**
      * The name and signature of the console command.
@@ -42,7 +40,7 @@ class RefreshHubstaffUsers extends Command
     {
         parent::__construct();
         $this->HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
-        $this->SEED_REFRESH_TOKEN  = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
+        $this->SEED_REFRESH_TOKEN       = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
     }
 
     /**
@@ -54,7 +52,16 @@ class RefreshHubstaffUsers extends Command
     {
         //
         //echo Storage::disk('local')->put('file.txt', 'Contents');
-        $this->refreshUserList($this->getTokens()->access_token);
+        try {
+            $report = \App\CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
+            $this->refreshUserList($this->getTokens()->access_token);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 
     private function getTokens()
@@ -77,17 +84,17 @@ class RefreshHubstaffUsers extends Command
                 'https://account.hubstaff.com/access_tokens',
                 [
                     RequestOptions::FORM_PARAMS => [
-                        'grant_type' => 'refresh_token',
-                        'refresh_token' => $refreshToken
-                    ]
+                        'grant_type'    => 'refresh_token',
+                        'refresh_token' => $refreshToken,
+                    ],
                 ]
             );
 
             $responseJson = json_decode($response->getBody()->getContents());
 
             $tokens = [
-                'access_token' => $responseJson->access_token,
-                'refresh_token' => $responseJson->refresh_token
+                'access_token'  => $responseJson->access_token,
+                'refresh_token' => $responseJson->refresh_token,
             ];
 
             return Storage::disk('local')->put($this->HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
@@ -101,36 +108,35 @@ class RefreshHubstaffUsers extends Command
         // 1. try to get the list of users
         // 2. If users recieved update in database
         // 3. if users not recieved due to token failure refresh the token and retry
-        $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/members';
+        $url        = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/members';
         $httpClient = new Client();
         try {
             $response = $httpClient->get(
                 $url,
                 [
                     RequestOptions::HEADERS => [
-                        'Authorization' => 'Bearer ' . $accessToken
-                    ]
+                        'Authorization' => 'Bearer ' . $accessToken,
+                    ],
                 ]
             );
 
             $responseJson = json_decode($response->getBody()->getContents());
 
-
             foreach ($responseJson->members as $member) {
 
                 try {
-                    $url = 'https://api.hubstaff.com/v2/users/' . $member->user_id;
+                    $url      = 'https://api.hubstaff.com/v2/users/' . $member->user_id;
                     $response = $httpClient->get(
                         $url,
                         [
                             RequestOptions::HEADERS => [
-                                'Authorization' => 'Bearer ' . $accessToken
-                            ]
+                                'Authorization' => 'Bearer ' . $accessToken,
+                            ],
                         ]
                     );
 
                     $userResponseJson = json_decode($response->getBody()->getContents());
-                    $member->email = $userResponseJson->user->email;
+                    $member->email    = $userResponseJson->user->email;
                 } catch (Exception $e) {
                     // do nothing
                 }
@@ -142,7 +148,7 @@ class RefreshHubstaffUsers extends Command
                     ],
                     [
                         'hubstaff_user_id' => $member->user_id,
-                        'email' => $member->email
+                        'email'            => $member->email,
                     ]
                 );
             }

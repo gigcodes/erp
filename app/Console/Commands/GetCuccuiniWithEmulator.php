@@ -2,17 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\ScrapedProducts;
-use App\Product;
-use App\Brand;
 use App\CronJobReport;
 use App\Services\Bots\CucLoginEmulator;
-use App\Setting;
-use App\Services\Bots\WebsiteEmulator;
-use GuzzleHttp\Client;
 use Illuminate\Console\Command;
-use Wa72\HtmlPageDom\HtmlPageCrawler;
-
+use Carbon\Carbon;
 
 class GetCuccuiniWithEmulator extends Command
 {
@@ -35,22 +28,27 @@ class GetCuccuiniWithEmulator extends Command
 
     public function handle(): void
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
-        if (strpos($letters, 'C') === false) {
-            return;
+            $letters = env('SCRAP_ALPHAS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+            if (strpos($letters, 'C') === false) {
+                return;
+            }
+
+            $this->authenticate();
+
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        $this->authenticate();
-
-        $report->update(['end_time' => Carbon:: now()]);
     }
 
-    private function authenticate() {
+    private function authenticate()
+    {
         $url = 'http://shop.cuccuini.it/it/register.html';
 
         $duskShell = new CucLoginEmulator();
@@ -84,7 +82,6 @@ class GetCuccuiniWithEmulator extends Command
         return false;
     }
 
-
     private function setCountry(): void
     {
 
@@ -93,6 +90,6 @@ class GetCuccuiniWithEmulator extends Command
 
     private function setIP(): void
     {
-        $this->IP = '5.61.4.70	' . ':' . '8080';
+        $this->IP = '5.61.4.70  ' . ':' . '8080';
     }
 }

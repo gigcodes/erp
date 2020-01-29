@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\DeveloperTask;
+use Carbon\Carbon;
 use DB;
 use Exception;
 use GuzzleHttp\Client;
@@ -11,14 +11,11 @@ use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
 use Storage;
 
-
-
 class UploadTasksToHubstaff extends Command
 {
 
-    var $HUBSTAFF_TOKEN_FILE_NAME;
-    var $SEED_REFRESH_TOKEN;
-
+    public $HUBSTAFF_TOKEN_FILE_NAME;
+    public $SEED_REFRESH_TOKEN;
 
     /**
      * The name and signature of the console command.
@@ -43,7 +40,7 @@ class UploadTasksToHubstaff extends Command
     {
         parent::__construct();
         $this->HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
-        $this->SEED_REFRESH_TOKEN  = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
+        $this->SEED_REFRESH_TOKEN       = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
     }
 
     /**
@@ -53,9 +50,18 @@ class UploadTasksToHubstaff extends Command
      */
     public function handle()
     {
-        //
-        $this->uploadNormalTasks();
-        $this->uploadDeveloperTasks();
+        try {
+            $report = \App\CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
+            //
+            $this->uploadNormalTasks();
+            $this->uploadDeveloperTasks();
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 
     private function uploadNormalTasks()
@@ -119,7 +125,7 @@ class UploadTasksToHubstaff extends Command
                     ->where('id', '=', $task->id)
                     ->update(
                         [
-                            'hubstaff_task_id' => $taskId
+                            'hubstaff_task_id' => $taskId,
                         ]
                     );
             } else {
@@ -134,7 +140,7 @@ class UploadTasksToHubstaff extends Command
 
         $tokens = $this->getTokens();
 
-        $url = 'https://api.hubstaff.com/v2/projects/' . getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID') . '/tasks';
+        $url        = 'https://api.hubstaff.com/v2/projects/' . getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID') . '/tasks';
         $httpClient = new Client();
         try {
 
@@ -143,13 +149,13 @@ class UploadTasksToHubstaff extends Command
                 [
                     RequestOptions::HEADERS => [
                         'Authorization' => 'Bearer ' . $tokens->access_token,
-                        'Content-Type' => 'application/json'
+                        'Content-Type'  => 'application/json',
                     ],
 
-                    RequestOptions::BODY => json_encode([
-                        'summary' => substr($task->summary, 0, 200),
-                        'assignee_id' => isset($task->assignee_id) ? $task->assignee_id : getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID')
-                    ])
+                    RequestOptions::BODY    => json_encode([
+                        'summary'     => substr($task->summary, 0, 200),
+                        'assignee_id' => isset($task->assignee_id) ? $task->assignee_id : getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID'),
+                    ]),
                 ]
             );
             $parsedResponse = json_decode($response->getBody()->getContents());
@@ -195,17 +201,17 @@ class UploadTasksToHubstaff extends Command
                 'https://account.hubstaff.com/access_tokens',
                 [
                     RequestOptions::FORM_PARAMS => [
-                        'grant_type' => 'refresh_token',
-                        'refresh_token' => $refreshToken
-                    ]
+                        'grant_type'    => 'refresh_token',
+                        'refresh_token' => $refreshToken,
+                    ],
                 ]
             );
 
             $responseJson = json_decode($response->getBody()->getContents());
 
             $tokens = [
-                'access_token' => $responseJson->access_token,
-                'refresh_token' => $responseJson->refresh_token
+                'access_token'  => $responseJson->access_token,
+                'refresh_token' => $responseJson->refresh_token,
             ];
 
             return Storage::disk('local')->put($this->HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
