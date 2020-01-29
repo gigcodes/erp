@@ -186,7 +186,7 @@ class Kernel extends ConsoleKernel
         SetTemplatesForProduct::class,
         CheckScrapersLog::class,
         LoadLastCronErrors::class,
-        StoreBrands::class
+        StoreBrands::class,
         MailingListSendMail::class
     ];
 
