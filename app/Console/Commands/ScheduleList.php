@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\CronJob;
+use Illuminate\Console\Command;
 use Illuminate\Console\Scheduling\Schedule;
 
 class ScheduleList extends Command
 {
-    protected $signature = 'schedule:list';
+    protected $signature   = 'schedule:list';
     protected $description = 'List when scheduled commands are executed.';
 
     /**
@@ -35,35 +35,38 @@ class ScheduleList extends Command
      */
     public function handle()
     {
-        $events = array_map(function ($event) {
-        	
-            return [
-            	'cron' => $event->expression,
-                'command' => static::fixupCommand($event->command),
-            ];
-        }, $this->schedule->events());
-      
-       //Getting artisan
-       foreach ($events as $event) {
-       		$schedule = $event['cron'];
-       		$command = explode(' ', $event['command']);
-       		if(isset($command[1])){
-       		$signature = $command[1];
-       		if($signature != null){
+        try {
+            $events = array_map(function ($event) {
 
-       		$detail = CronJob::where('signature', 'like', "%{$signature}%")->first();
-    				if($detail == null){
-    					$cron = new CronJob();
-    					$cron->signature = $signature;
-    					$cron->schedule = $schedule;
-    					$cron->error_count = 0;
-    					$cron->save();
-    				}
-    			}
-    	 	}
-       }
+                return [
+                    'cron'    => $event->expression,
+                    'command' => static::fixupCommand($event->command),
+                ];
+            }, $this->schedule->events());
+
+            //Getting artisan
+            foreach ($events as $event) {
+                $schedule = $event['cron'];
+                $command  = explode(' ', $event['command']);
+                if (isset($command[1])) {
+                    $signature = $command[1];
+                    if ($signature != null) {
+
+                        $detail = CronJob::where('signature', 'like', "%{$signature}%")->first();
+                        if ($detail == null) {
+                            $cron              = new CronJob();
+                            $cron->signature   = $signature;
+                            $cron->schedule    = $schedule;
+                            $cron->error_count = 0;
+                            $cron->save();
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
-
 
     /**
      * If it's an artisan command, strip off the PHP
@@ -82,5 +85,4 @@ class ScheduleList extends Command
         return implode(' ', $parts);
     }
 
-    
 }

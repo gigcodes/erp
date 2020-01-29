@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Marketing\WhatsappConfig;
+use Illuminate\Console\Command;
 
 class IncrementFrequencyWhatsappConfig extends Command
 {
@@ -38,17 +38,21 @@ class IncrementFrequencyWhatsappConfig extends Command
      */
     public function handle()
     {
-        $configs = WhatsappConfig::where('is_customer_support',0)->get();
+        try {
+            $configs = WhatsappConfig::where('is_customer_support', 0)->get();
 
-        foreach ($configs as $config) {
+            foreach ($configs as $config) {
 
-            if($config->frequency != 10 && $config->frequency < 10){
+                if ($config->frequency != 10 && $config->frequency < 10) {
 
-                $config->frequency = ($config->frequency+1);
-                $config->update();
-                dump('Frequency Updated');
+                    $config->frequency = ($config->frequency + 1);
+                    $config->update();
+                    dump('Frequency Updated');
 
+                }
             }
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }

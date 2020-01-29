@@ -5,16 +5,13 @@ namespace App\Console\Commands;
 use App\Account;
 use App\AutoCommentHistory;
 use App\AutoReplyHashtags;
-use App\Brand;
 use App\Comment;
-use App\HashTag;
-use App\HashtagPostHistory;
+use App\CronJobReport;
 use App\InstagramAutoComments;
-use App\InstagramAutomatedMessages;
 use App\Services\Instagram\Hashtags;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
-use App\CronJobReport;
+use Carbon\Carbon;
 
 class AutoCommentBot extends Command
 {
@@ -51,28 +48,27 @@ class AutoCommentBot extends Command
      */
     public function handle()
     {
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+            $hashtag = AutoReplyHashtags::where('status', 1)->first();
 
-        $hashtag = AutoReplyHashtags::where('status', 1)->first();
+            $counter = 0;
 
-        $counter = 0;
+            $hashtags = new Hashtags();
+            $hashtags->login();
+            $cursor = '';
 
-        $hashtags = new Hashtags();
-        $hashtags->login();
-        $cursor = '';
-
-        $commentCount = 0;
+            $commentCount = 0;
 
 //        do {
 
 //            [$posts, $cursor] = $hashtags->getFeed($hashtag->text, $cursor);
 
-        $posts = AutoCommentHistory::where('status', 1)->take(50)->get();
-
+            $posts = AutoCommentHistory::where('status', 1)->take(50)->get();
 
             foreach ($posts as $post) {
 
@@ -82,23 +78,23 @@ class AutoCommentBot extends Command
                 $account = Account::where('platform', 'instagram')->where('bulk_comment', 1);
 
                 if (strlen($country) >= 4) {
-                    $comment = $comment->where(function($query) use ($country) {
+                    $comment = $comment->where(function ($query) use ($country) {
                         $query->where('country', $country)->orWhereNull('country');
                     });
-                    $account = $account->where(function($q) use ($country) {
+                    $account = $account->where(function ($q) use ($country) {
                         $q->where('country', $country)->orWhereNull('country');
                     });
                 }
 
                 $caption = $post->caption;
-                $caption = str_replace(['#', '@', '!', '-'. '/'],  ' ', $caption);
+                $caption = str_replace(['#', '@', '!', '-' . '/'], ' ', $caption);
                 $caption = explode(' ', $caption);
 
-                $comment = $comment->where(function($query) use($caption) {
+                $comment = $comment->where(function ($query) use ($caption) {
                     foreach ($caption as $i => $cap) {
                         if (strlen($cap) > 3) {
                             $cap = trim($cap);
-                            if ($i===0) {
+                            if ($i === 0) {
                                 $query = $query->where('options', 'LIKE', "%$cap%");
                                 continue;
                             }
@@ -107,14 +103,12 @@ class AutoCommentBot extends Command
                     }
                 });
 
-
                 $account = $account->inRandomOrder()->first();
                 $comment = $comment->inRandomOrder()->first();
 
                 if (!$comment) {
                     $comment = InstagramAutoComments::where('options', null)->orWhere('options', '[]')->inRandomOrder()->first();
                 }
-
 
                 if (!isset($this->accounts[$account->id])) {
                     $ig = new Instagram();
@@ -125,16 +119,18 @@ class AutoCommentBot extends Command
 
                 $this->accounts[$account->id]->media->comment($post->post_id, $comment->comment);
 
-                $post->status = 0;
+                $post->status     = 0;
                 $post->account_id = $account->id;
-                $post->comment = $comment->comment;
+                $post->comment    = $comment->comment;
                 $post->save();
-
 
                 sleep(5);
             }
 
-            $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
 
     }
 }
