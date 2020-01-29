@@ -197,6 +197,15 @@ class CacheMasterControl extends Command
                 return $supplierReplier = \App\Reply::where("model", "Supplier")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
             });
 
+            Cache::remember('latestScrapRemarks', 15, function () use ($chat) {
+                return \DB::select("
+                    select * 
+                    from scrap_remarks as sr 
+                    join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by created_at desc"
+                );
+            });
+
+
             $report->update(['end_time' => Carbon::now()]);
 
         } catch (\Exception $e) {

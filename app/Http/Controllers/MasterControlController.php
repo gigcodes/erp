@@ -88,6 +88,9 @@ class MasterControlController extends Controller
         $cronLastErrors = Cache::get( 'cronLastErrors' );
         $cronLastErrors = !empty($cronLastErrors) ? $cronLastErrors : [];
 
+        $latestRemarks = Cache::get('latestScrapRemarks');
+        $latestRemarks = !empty($latestRemarks) ? $latestRemarks : [];
+
         // For ajax
         if ($request->ajax()) {
             return response()->json([
@@ -108,7 +111,8 @@ class MasterControlController extends Controller
                     'reply_categories' => $reply_categories,
                     'vendorReplier' => $vendorReplier,
                     'supplierReplier' => $supplierReplier,
-                    'cronLastErrors' => $cronLastErrors
+                    'cronLastErrors' => $cronLastErrors,
+                    'latestRemarks' => $latestRemarks
 
                 ])->render()
             ], 200);
@@ -130,7 +134,8 @@ class MasterControlController extends Controller
           'reply_categories' => $reply_categories,
           'vendorReplier' => $vendorReplier,
           'supplierReplier' => $supplierReplier,
-          'cronLastErrors' => $cronLastErrors
+          'cronLastErrors' => $cronLastErrors,
+          'latestRemarks' => $latestRemarks
       ]);
     }
 
