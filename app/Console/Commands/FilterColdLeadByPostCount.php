@@ -3,9 +3,10 @@
 namespace App\Console\Commands;
 
 use App\ColdLeads;
+use App\CronJobReport;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
-use App\CronJobReport;
 
 class FilterColdLeadByPostCount extends Command
 {
@@ -40,37 +41,41 @@ class FilterColdLeadByPostCount extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $coldLeads = ColdLeads::orderBy('id', 'DESC')->get();
+            $coldLeads = ColdLeads::orderBy('id', 'DESC')->get();
 
-        $instagram = new Instagram();
-        $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
+            $instagram = new Instagram();
+            $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
 
-        foreach ($coldLeads as $coldLead) {
-            $username = $coldLead->username;
+            foreach ($coldLeads as $coldLead) {
+                $username = $coldLead->username;
 
-            try {
-                $coldLeadInstagram = $instagram->people->getInfoByName($username)->asArray();
-            } catch (\Exception $exception) {
-                continue;
-            }
-
-            echo "$username \n";
-
-            $user = $coldLeadInstagram['user'];
-
-            if ($user['media_count'] < 20) {
                 try {
-                    echo "DELETE \n";
-                    $coldLead->delete();
+                    $coldLeadInstagram = $instagram->people->getInfoByName($username)->asArray();
                 } catch (\Exception $exception) {
+                    continue;
+                }
+
+                echo "$username \n";
+
+                $user = $coldLeadInstagram['user'];
+
+                if ($user['media_count'] < 20) {
+                    try {
+                        echo "DELETE \n";
+                        $coldLead->delete();
+                    } catch (\Exception $exception) {
+                    }
                 }
             }
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-        $report->update(['end_time' => Carbon:: now()]);
     }
 }

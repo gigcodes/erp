@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\CronJobReport;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
-use App\CronJobReport;
-
 
 class TryScrappingFromFarfetchIfAttributesAreMissing extends Command
 {
@@ -41,32 +41,36 @@ class TryScrappingFromFarfetchIfAttributesAreMissing extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
+            $content = $this->getDetailsFromFarfetch('');
+            $c       = new HtmlPageCrawler($content);
+            $data    = $c->filter('._659731 div p._87b3a2')->getInnerHtml();
 
+            dd($data);
 
-        $content = $this->getDetailsFromFarfetch('');
-        $c = new HtmlPageCrawler($content);
-        $data = $c->filter('._659731 div p._87b3a2')->getInnerHtml();
-
-        dd($data);
-
-          $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
 
     }
 
-    public function getDetailsFromFarfetch($url) {
-        $request = new Client();
+    public function getDetailsFromFarfetch($url)
+    {
+        $request  = new Client();
         $response = $request->get('https://www.farfetch.com/ae/shopping/men/balenciaga-rhino-t-shirt-item-13445516.aspx?storeid=10952');
 
         return $response->getBody()->getContents();
     }
 
-    private function findGoogleSearch($sku) {
-        $request = new Client();
+    private function findGoogleSearch($sku)
+    {
+        $request  = new Client();
         $response = $request->get('');
     }
 }

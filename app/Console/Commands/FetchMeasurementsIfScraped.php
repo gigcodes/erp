@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
 use App\CronJobReport;
+use App\Product;
 use Illuminate\Console\Command;
+use Carbon\Carbon;
 
 class FetchMeasurementsIfScraped extends Command
 {
@@ -39,22 +40,22 @@ class FetchMeasurementsIfScraped extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-
-        Product::where(function ($query) {
-            $query->where('lmeasurement', '')->orWhereNull('lmeasurement');
-        })
-            ->where(function ($query) {
-                $query->where('hmeasurement', '')->orWhereNull('hmeasurement');
+            Product::where(function ($query) {
+                $query->where('lmeasurement', '')->orWhereNull('lmeasurement');
             })
-            ->where(function ($query) {
-                $query->where('dmeasurement', '')->orWhereNull('dmeasurement');
-            })
-            ->orderBy('created_at', 'DESC')->chunk(1000, function ($products) {
+                ->where(function ($query) {
+                    $query->where('hmeasurement', '')->orWhereNull('hmeasurement');
+                })
+                ->where(function ($query) {
+                    $query->where('dmeasurement', '')->orWhereNull('dmeasurement');
+                })
+                ->orderBy('created_at', 'DESC')->chunk(1000, function ($products) {
                 foreach ($products as $product) {
                     dump($product->id);
                     $scrapedProducts = $product->many_scraped_products;
@@ -65,15 +66,18 @@ class FetchMeasurementsIfScraped extends Command
                             preg_match('/\d+/', $property[1] ?? '', $hmeasurement);
                             preg_match('/\d+/', $property[2] ?? '', $dmeasurement);
                             dump($lmeasurement, $hmeasurement, $dmeasurement);
-                            $product->lmeasurement = $lmeasurement[0] ?? NULL;
-                            $product->hmeasurement = $hmeasurement[0] ?? NULL;
-                            $product->dmeasurement = $dmeasurement[0] ?? NULL;
+                            $product->lmeasurement = $lmeasurement[0] ?? null;
+                            $product->hmeasurement = $hmeasurement[0] ?? null;
+                            $product->dmeasurement = $dmeasurement[0] ?? null;
                             $product->save();
                         }
                     }
                 }
             });
 
-            $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

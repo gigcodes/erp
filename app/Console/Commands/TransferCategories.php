@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Category;
-use App\Product;
 use App\CronJobReport;
+use App\Product;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class TransferCategories extends Command
@@ -40,41 +41,43 @@ class TransferCategories extends Command
      */
     public function handle()
     {
+        try {
 
-      $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
-
-
-
-        $transfers = [
-          [90, 51],
-          [91, 58],
-          [110, 53],
-          [111, 55],
-          [118, 55],
-          [64, 119],
-          [121, 115],
-          [120, 123],
-          [125, 127],
-          [126, 62],
-          [16, 108],
-          [27, 20],
-          [29, 28],
-          [131, 133],
-          [132, 33],
-          [15, 108],
-        ];
-
-        foreach ($transfers as $transfer) {
-
-            Product::where('category', $transfer[0])->update([
-                'category' => $transfer[1]
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
             ]);
-            Category::find($transfer[0])->delete();
-        }
 
-          $report->update(['end_time' => Carbon:: now()]);
+            $transfers = [
+                [90, 51],
+                [91, 58],
+                [110, 53],
+                [111, 55],
+                [118, 55],
+                [64, 119],
+                [121, 115],
+                [120, 123],
+                [125, 127],
+                [126, 62],
+                [16, 108],
+                [27, 20],
+                [29, 28],
+                [131, 133],
+                [132, 33],
+                [15, 108],
+            ];
+
+            foreach ($transfers as $transfer) {
+
+                Product::where('category', $transfer[0])->update([
+                    'category' => $transfer[1],
+                ]);
+                Category::find($transfer[0])->delete();
+            }
+
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

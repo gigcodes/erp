@@ -212,6 +212,13 @@ class MasterControlController extends Controller
 
         $supplierReplier = Cache::get( 'supplierReplier' );
 
+        Cache::remember('cronLastErrors',15,function() {
+            return \App\CronJob::join("cron_job_reports as cjr","cron_jobs.signature","cjr.signature")
+            ->where("cjr.start_time",'>', DB::raw('NOW() - INTERVAL 24 HOUR'))->where("cron_jobs.last_status","error")->groupBy("cron_jobs.signature")->get();
+        });
+
+        $cronLastErrors = Cache::get( 'cronLastErrors' );
+
         // For ajax
         if ($request->ajax()) {
             return response()->json([
@@ -232,6 +239,7 @@ class MasterControlController extends Controller
                     'reply_categories' => $reply_categories,
                     'vendorReplier' => $vendorReplier,
                     'supplierReplier' => $supplierReplier,
+                    'cronLastErrors' => $cronLastErrors
 
                 ])->render()
             ], 200);
@@ -253,6 +261,7 @@ class MasterControlController extends Controller
         'reply_categories' => $reply_categories,
         'vendorReplier' => $vendorReplier,
         'supplierReplier' => $supplierReplier,
+        'cronLastErrors' => $cronLastErrors
     ]);
     }
 

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\BulkCustomerRepliesKeyword;
 use App\ChatMessage;
 use App\CronJobReport;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GetMostUsedWordsInCustomerMessages extends Command
@@ -40,30 +41,39 @@ class GetMostUsedWordsInCustomerMessages extends Command
      */
     public function handle()
     {
-        $messages = ChatMessage::where('is_processed_for_keyword', 0)->whereNotNull('number')->where('customer_id', '>', '0')->limit(1000)->get();
-        if ($messages != null) {
-            foreach ($messages as $message) {
-                // Set text
-                $text = $message->message;
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-                // Set to processed
-                $message->is_processed_for_keyword = 1;
-                $message->save();
+            $messages = ChatMessage::where('is_processed_for_keyword', 0)->whereNotNull('number')->where('customer_id', '>', '0')->limit(1000)->get();
+            if ($messages != null) {
+                foreach ($messages as $message) {
+                    // Set text
+                    $text = $message->message;
 
-                // Explode the words
-                $words = explode(' ', $text);
+                    // Set to processed
+                    $message->is_processed_for_keyword = 1;
+                    $message->save();
 
-                foreach ($words as $word) {
-                    $word = preg_replace('/[^\w]/', '', $word);
-                    var_dump($word);
+                    // Explode the words
+                    $words = explode(' ', $text);
 
-                    if (strlen(trim($word)) <= 3) {
-                        continue;
+                    foreach ($words as $word) {
+                        $word = preg_replace('/[^\w]/', '', $word);
+                        var_dump($word);
+
+                        if (strlen(trim($word)) <= 3) {
+                            continue;
+                        }
+
+                        //$this->addOrUpdateCountOfKeyword(trim($word));
                     }
-
-                    //$this->addOrUpdateCountOfKeyword(trim($word));
                 }
             }
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 
@@ -72,17 +82,17 @@ class GetMostUsedWordsInCustomerMessages extends Command
         $keyword = BulkCustomerRepliesKeyword::where('value', $word)->first();
 
         if ($keyword !== null) {
-            $keyword->count = (int)$keyword->count + 1;
+            $keyword->count = (int) $keyword->count + 1;
             $keyword->save();
             echo "UPDATED: " . $word . " " . $keyword->count . "\n";
             return;
         }
 
-        $keyword = new BulkCustomerRepliesKeyword();
-        $keyword->value = $word;
+        $keyword            = new BulkCustomerRepliesKeyword();
+        $keyword->value     = $word;
         $keyword->text_type = 'keyword';
         $keyword->is_manual = 0;
-        $keyword->count = 1;
+        $keyword->count     = 1;
         $keyword->save();
 
         // NEW
