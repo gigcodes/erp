@@ -9,7 +9,7 @@ class ChatApi
      * Get instance from whatsapp number
      *
      */
-    private function getInstanceMove($number = null)
+    private function getInstance($number = null)
     {
         $number = !empty($number) ? $number : 0;
 
@@ -29,16 +29,6 @@ class ChatApi
      */
     public static function chatQueue($number = null)
     {
-        if(!function_exists('getInstance')) {
-            function getInstance($number)
-            {
-                $number = !empty($number) ? $number : 0;
-                return isset(config("apiwha.instances")[$number])
-                    ? config("apiwha.instances")[$number]
-                    : config("apiwha.instances")[0];
-            }
-        }
-
         $instance = getInstance($number);
         /*        dd($instance);*/
         $instanceId = isset($instance["instance_id"]) ? $instance["instance_id"] : 0;
@@ -86,16 +76,6 @@ class ChatApi
      */
     public static function chatHistory($number = null)
     {
-        if(!function_exists('getInstance')) {
-            function getInstance($number)
-            {
-                $number = !empty($number) ? $number : 0;
-                return isset(config("apiwha.instances")[$number])
-                    ? config("apiwha.instances")[$number]
-                    : config("apiwha.instances")[0];
-            }
-        }
-
         $instance = getInstance($number);
         $instanceId = isset($instance["instance_id"]) ? $instance["instance_id"] : 0;
         $token = isset($instance["token"]) ? $instance["token"] : 0;
@@ -136,16 +116,6 @@ class ChatApi
      */
     public static function deleteQueues($number = null)
     {
-        if(!function_exists('getInstance')) {
-            function getInstance($number)
-            {
-                $number = !empty($number) ? $number : 0;
-                return isset(config("apiwha.instances")[$number])
-                    ? config("apiwha.instances")[$number]
-                    : config("apiwha.instances")[0];
-            }
-        }
-
         $instance = getInstance($number);
         /*        dd($instance);*/
         $instanceId = isset($instance["instance_id"]) ? $instance["instance_id"] : 0;

@@ -67,7 +67,14 @@ class SendQueuePendingChatMessages extends Command
                 $this->waitingMessages = [];
                 if (!empty($allWhatsappNo)) {
                     foreach ($allWhatsappNo as $no => $dataInstance) {
-                        $this->waitingMessages[$no] = ChatApi::waitingLimit($no);
+                        $no = ($no == 0) ? $dataInstance["number"] : $no;
+                        $chatApi = new ChatApi;
+                        $waitingRprt = $chatApi->chatQueue($no);
+                        $waitingMessage = 0;
+                        if(!empty($waitingRprt["totalMessages"])) {
+                            $waitingMessage = $waitingRprt["totalMessages"];
+                        }
+                        $this->waitingMessages[$no] = $waitingMessage;
                     }
                 }
 
@@ -118,6 +125,7 @@ class SendQueuePendingChatMessages extends Command
             }
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            echo '<pre>'; print_r($e->getMessage()); echo '</pre>';exit;
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
 
