@@ -37,15 +37,15 @@
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
-                <th>id</th>
-                <th>ip_address</th>
-                <th>website</th>
-                <th>url</th>
-                <th>sku</th>
-                <th>original_sku</th>
-                <th>title</th>
-                <th>validation_result</th>
-                <th>created_at</th>
+                <th>Id</th>
+                <th>Ip address</th>
+                <th>Website</th>
+                <th>Url</th>
+                <th>Sku</th>
+                <th>Original sku</th>
+                <th>Title</th>
+                <th>Validation result</th>
+                <th>Created at</th>
             </tr>
             <tr>
                 <th><input type="text" class="search form-control filter-serach-string" data-id="id"></th>
