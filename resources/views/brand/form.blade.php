@@ -54,7 +54,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Sales Discount %</strong>
-                    <input type="number" class="form-control" name="sales_discount" placeholder="sales discount" value="{{old('sales_discount') ? old('sales_discount') : $sales_discount}}"/>
+                    <input type="number" class="form-control" name="sales_discount" placeholder="sales discount" value="{{old('sales_discount') ? old('sales_discount') : isset($sales_discount)}}"/>
                     <small class="form-text text-muted">
                         If the product is discounted at the supplier, regardless of the percentage, this discount will be applied to the special price (original price - brand discount)
                     </small>
@@ -67,7 +67,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Apply B2B discount above</strong>
-                    <input type="number" class="form-control" name="apply_b2b_discount_above" placeholder="e.g. 40" value="{{old('apply_b2b_discount_above') ? old('apply_b2b_discount_above') : $apply_b2b_discount_above}}"/>
+                    <input type="number" class="form-control" name="apply_b2b_discount_above" placeholder="e.g. 40" value="{{old('apply_b2b_discount_above') ? old('apply_b2b_discount_above') : isset($apply_b2b_discount_above)}}"/>
                     <small class="form-text text-muted">
                         Above this percentage of discount at the supplier, the below discount will be applied
                     </small>
@@ -80,7 +80,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>B2B Sales Discount %</strong>
-                    <input type="number" class="form-control" name="b2b_sales_discount" placeholder="B2B sales discount" value="{{old('b2b_sales_discount') ? old('b2b_sales_discount') : $b2b_sales_discount}}"/>
+                    <input type="number" class="form-control" name="b2b_sales_discount" placeholder="B2B sales discount" value="{{old('b2b_sales_discount') ? old('b2b_sales_discount') : isset($b2b_sales_discount)}}"/>
                     <small class="form-text text-muted">
                         If a B2B discount is higher than the above percentage, the sales_discount will be applied to the special price (original price - brand discount)
                     </small>
@@ -118,7 +118,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Strip last # characters from SKU</strong>
-                    <input type="text" class="form-control" name="sku_strip_last" placeholder="Strip last # characters from SKU" value="{{old('sku_strip_last') ? old('sku_strip_last') : $sku_strip_last}}"/>
+                    <input type="text" class="form-control" name="sku_strip_last" placeholder="Strip last # characters from SKU" value="{{old('sku_strip_last') ? old('sku_strip_last') : isset($sku_strip_last)}}"/>
                     @if ($errors->has('sku_strip_last'))
                         <div class="alert alert-danger">{{$errors->first('sku_strip_last')}}</div>
                     @endif
@@ -128,7 +128,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Add to SKU for brand site</strong>
-                    <input type="text" class="form-control" name="sku_add" placeholder="Add to SKU for brand site" value="{{old('sku_add') ? old('sku_add') : $sku_add}}"/>
+                    <input type="text" class="form-control" name="sku_add" placeholder="Add to SKU for brand site" value="{{old('sku_add') ? old('sku_add') : isset($sku_add) }}"/>
                     @if ($errors->has('sku_add'))
                         <div class="alert alert-danger">{{$errors->first('sku_add')}}</div>
                     @endif
