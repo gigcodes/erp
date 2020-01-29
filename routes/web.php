@@ -80,6 +80,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('crop-references-grid/reject', 'CroppedImageReferenceController@rejectCropImage');
 
+    Route::get('public-key', 'EncryptController@index')->name('encryption.index');
+    Route::post('save-key', 'EncryptController@saveKey')->name('encryption.save.key');
+    Route::post('forget-key', 'EncryptController@forgetKey')->name('encryption.forget.key');
+    
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
@@ -844,6 +848,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
 
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
+
+    Route::post('supplier/change-whatsapp-no', 'SupplierController@changeWhatsappNo')->name('supplier.change.whatsapp');
+
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
     Route::resource('supplier', 'SupplierController');
