@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CreateCouponRequest;
 use App\Coupon;
 use App\Helpers\SSP;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CouponController extends Controller
 {
@@ -81,11 +82,11 @@ class CouponController extends Controller
                         $maximumUsage
                     )";
 
-                    return '<button title="edit" onclick="editCoupon'.$functionCall.'" class="btn btn-default">
+                    return '<button title="edit" onclick="editCoupon' . $functionCall . '" class="btn btn-default">
                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                     </button>
 
-                    <button title="copy" onclick="copyCoupon'.$functionCall.'" class="btn btn-default">
+                    <button title="copy" onclick="copyCoupon' . $functionCall . '" class="btn btn-default">
                         <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span>
                     </button>
 
@@ -93,7 +94,7 @@ class CouponController extends Controller
                         <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
                     </button>
 
-                    <button title="delete" onclick="deleteCoupon'.$functionCall.'" class="btn btn-default">
+                    <button title="delete" onclick="deleteCoupon' . $functionCall . '" class="btn btn-default">
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                     </button>';
                 }
@@ -169,7 +170,41 @@ class CouponController extends Controller
      */
     public function update(Request $request, $id)
     {
+
+        $request->validate([
+            'code' => 'required',
+            'description' => 'required',
+            'start' => 'required|date',
+            'expiration' => 'date|nullable',
+            'discount_fixed' => 'numeric|min:0',
+            'discount_percentage' => 'numeric|min:0',
+            'minimum_order_amount' => 'numeric|min:0',
+            'maximum_usage' => 'numberic'
+        ]);
+
+        $validated = $request->validated();
+
         //
+        try {
+            $coupon = Coupon::findOrFail($id);
+            $coupon->code = $validated->code;
+            $coupon->description = $validated->description;
+            $coupon->start = $validated->start;
+            $coupon->expiration = $validated->expiration;
+            $coupon->discount_fixed = $validated->discount_fixed;
+            $coupon->discount_percentage = $validated->discount_percentage;
+            $coupon->minimum_order_amount = $validated->minimum_order_amount;
+            $coupon->maximum_usage = $validated->maximum_usage;
+            $coupon->save();
+        } catch (ModelNotFoundException $e) {
+
+            response(
+                json_encode([
+                    'message' => 'Did not find coupon with id: '.$id
+                ]),
+                404
+            );
+        }
     }
 
     /**

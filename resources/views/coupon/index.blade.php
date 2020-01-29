@@ -11,7 +11,7 @@
         <div class="pull-left">
         </div>
         <div class="pull-right">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#couponModal">
+            <button type="button" class="btn btn-primary" onclick="createCoupon()">
                 New Coupon
             </button>
         </div>
@@ -19,7 +19,7 @@
 </div>
 <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <form action="{{ route('coupons.store') }}" method="POST">
+        <form id="coupon-form" method="POST">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="couponModalLabel">New Coupon</h5>
@@ -181,13 +181,38 @@
         $('.dataTables_length').addClass('bs-select');
     });
 
-    function copyCoupon() {
+    function copyCoupon(
+        id,
+        code,
+        description,
+        start,
+        expiration,
+        currency,
+        discountFixed,
+        discountPercentage,
+        minimumOrderAmount,
+        maximumUsage
+    ) {
+        /* beautify preserve:start */
+        $('#coupon-form').attr('action', '{{ route('coupons.store') }}')
+        /* beautify preserve:end */
 
+        $('#coupon-form input[name="code"]').val(code);
+        $('#coupon-form textarea[name="description"]').val(description);
+        $('#coupon-form input[name="start"]').val(start);
+        $('#coupon-form input[name="expiration"]').val(expiration);
+        $('#coupon-form input[name="currency"]').val(currency);
+        $('#coupon-form input[name="discount_fixed"]').val(discountFixed);
+        $('#coupon-form input[name="discount_percentage"]').val(discountPercentage);
+        $('#coupon-form input[name="minimum_order_amount"]').val(minimumOrderAmount);
+        $('#coupon-form input[name="maximum_usage"]').val(maximumUsage);
+
+        $('#couponModal').modal('show');
     }
 
     function deleteCoupon() {
         const shouldDelete = confirm('Do you want to delete coupon?');
-        if(shouldDelete){
+        if (shouldDelete) {
 
         }
     }
@@ -203,7 +228,28 @@
         minimumOrderAmount,
         maximumUsage
     ) {
+        $('#coupon-form').attr('action', '/coupons/update/' + id);
 
+        $('#coupon-form input[name="code"]').val(code);
+        $('#coupon-form textarea[name="description"]').val(description);
+        $('#coupon-form input[name="start"]').val(start);
+        $('#coupon-form input[name="expiration"]').val(expiration);
+        $('#coupon-form input[name="currency"]').val(currency);
+        $('#coupon-form input[name="discount_fixed"]').val(discountFixed);
+        $('#coupon-form input[name="discount_percentage"]').val(discountPercentage);
+        $('#coupon-form input[name="minimum_order_amount"]').val(minimumOrderAmount);
+        $('#coupon-form input[name="maximum_usage"]').val(maximumUsage);
+
+        $('#couponModal').modal('show');
+    }
+
+    function createCoupon() {
+        /* beautify preserve:start */
+        $('#coupon-form').attr('action', '{{ route('coupons.store') }}')
+        /* beautify preserve:end */
+        $('#coupon-form input').val('');
+        $('#coupon-form textarea').val('');
+        $('#couponModal').modal('show');
     }
 </script>
 @endsection
