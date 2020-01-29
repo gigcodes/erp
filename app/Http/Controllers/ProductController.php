@@ -2093,7 +2093,8 @@ class ProductController extends Controller
             ]);
         }
 
-        $images = Media::whereIn('id',$mediableArray)->get();
+        $images = Media::select('filename', 'extension', 'mime_type', 'disk', 'directory')->whereIn('id',$mediableArray)->get();
+
 
         //WIll use in future to detect Images removed to fast the query for now
         //foreach ($images as $image) {
