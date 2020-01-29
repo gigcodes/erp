@@ -27,10 +27,10 @@ class CouponController extends Controller
         $columns = array(
             array('db' => 'discount_fixed', 'dt' => -1),
             array('db' => 'discount_percentage', 'dt' => -1),
+            array('db' => 'start', 'dt' => -1),
             array('db' => 'code', 'dt' => 0),
             array('db' => 'description',  'dt' => 1),
             array('db' => 'expiration',   'dt' => 2),
-            //TODO: Discount here
             array(
                 'db'        => 'currency',
                 'dt'        => 3,
@@ -55,7 +55,47 @@ class CouponController extends Controller
                 'db' => 'id',
                 'dt' => 7,
                 'formatter' => function ($d, $row) {
-                    return 'actions';
+
+                    $id = $row['id'];
+                    $code = $row['code'];
+                    $description = $row['description'];
+                    $start = $row['start'];
+                    $expiration = $row['expiration'];
+                    $currency = $row['currency'];
+                    $discountFixed = $row['discount_fixed'];
+                    $discountPercentage = $row['discount_percentage'];
+                    $minimumOrderAmount = $row['minimum_order_amount'];
+                    $maximumUsage = $row['maximum_usage'];
+
+
+                    $functionCall = "(
+                        '$id',
+                        '$code',
+                        '$description',
+                        '$start',
+                        '$expiration',
+                        '$currency',
+                        $discountFixed,
+                        $discountPercentage,
+                        $minimumOrderAmount,
+                        $maximumUsage
+                    )";
+
+                    return '<button title="edit" onclick="editCoupon'.$functionCall.'" class="btn btn-default">
+                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                    </button>
+
+                    <button title="copy" onclick="copyCoupon'.$functionCall.'" class="btn btn-default">
+                        <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span>
+                    </button>
+
+                    <button title="report" class="btn btn-default">
+                        <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+                    </button>
+
+                    <button title="delete" onclick="deleteCoupon'.$functionCall.'" class="btn btn-default">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </button>';
                 }
             )
         );

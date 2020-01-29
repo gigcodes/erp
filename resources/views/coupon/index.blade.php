@@ -145,26 +145,9 @@
                     <th>Minimum Order Amount</th>
                     <th>Maximum Usage</th>
                     <th>Usage</th>
-                    <th width="10%">Action</th>
+                    <th width="10%">Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach ($coupons as $key => $coupon)
-                <tr>
-                    <td>{{ $coupon->code }}</td>
-                    <td>{{ $coupon->description }}</td>
-                    <td>{{ $coupon->expiration }}</td>
-                    <td>{{ $coupon->discount }}</td>
-                    <td>{{ $coupon->minimum_order_amount }}</td>
-                    <td>{{ $coupon->maximum_usage }}</td>
-                    <td>{{ $coupon->usage_count }}</td>
-                    <td>
-                        <a class="btn btn-image" href="#"><img src="/images/edit.png" /></a>
-                        <a class="btn btn-image" href="#"><img src="/images/view.png" /></a>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
         </table>
     </div>
 </div>
@@ -175,9 +158,11 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
+    /* beautify preserve:start */
     @if($errors -> any())
     $('#couponModal').modal('show');
     @endif
+    /* beautify preserve:end */
     $(document).ready(function() {
         $('#start').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
@@ -195,5 +180,30 @@
         });
         $('.dataTables_length').addClass('bs-select');
     });
+
+    function copyCoupon() {
+
+    }
+
+    function deleteCoupon() {
+        const shouldDelete = confirm('Do you want to delete coupon?');
+        if(shouldDelete){
+
+        }
+    }
+
+    function editCoupon(id,
+        code,
+        description,
+        start,
+        expiration,
+        currency,
+        discountFixed,
+        discountPercentage,
+        minimumOrderAmount,
+        maximumUsage
+    ) {
+
+    }
 </script>
 @endsection
