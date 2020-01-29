@@ -175,9 +175,9 @@
                     <div class="form-group">
                         <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
                             <option value="">-No Selected-</option>
-                            @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
-                                @if($number != "0")
-                                    <option {{ ($number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                            @foreach($whatsappConfigs as $whatsappConfig)
+                                @if($whatsappConfig->number != "0")
+                                    <option {{ ($whatsappConfig->number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $whatsappConfig->number }}">{{ $whatsappConfig->number }}</option>
                                 @endif
                             @endforeach
                         </select>
@@ -985,7 +985,7 @@
             }).done(function () {
                 alert('Number updated successfully!');
             }).fail(function (response) {
-                console.log(response);
+               alert('Please check entry for supplier');
             });
         });
     

@@ -3213,7 +3213,12 @@ class WhatsAppController extends FindByNumberController
             if ($context == 'supplier') {
                 $supplier = Supplier::find($message->supplier_id);
                 $phone = $supplier->default_phone;
-                $whatsapp_number = '971502609192';
+                if(empty($supplier->whatsapp_number)){
+                    $whatsapp_number = '971502609192';
+                }else{
+                    $whatsapp_number = $supplier->whatsapp_number;
+                }
+                
             } else {
                 if ($context == 'vendor') {
                     $vendor = Vendor::find($message->vendor_id);

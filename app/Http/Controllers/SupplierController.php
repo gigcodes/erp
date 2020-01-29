@@ -27,6 +27,7 @@ use App\ProductQuicksellGroup;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\SupplierBrandCountHistory;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\Marketing\WhatsappConfig;
 
 class SupplierController extends Controller
 {
@@ -191,6 +192,9 @@ class SupplierController extends Controller
           $selectedBrands = [];
         }
 
+
+        $whatsappConfigs = WhatsappConfig::where('provider','LIKE','%Chat API%')->get();
+
         return view('suppliers.index', [
             'suppliers' => $suppliers,
             'suppliers_all' => $suppliers_all,
@@ -207,7 +211,8 @@ class SupplierController extends Controller
             'total' => 0,
             'brands' => $brands,
             'scrapedBrands' => $scrapedBrands,
-            'selectedBrands' => $selectedBrands
+            'selectedBrands' => $selectedBrands,
+            'whatsappConfigs' => $whatsappConfigs,
         ]);
     }
 
