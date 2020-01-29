@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Log;
-use Cache;
-use Carbon\Carbon;
 use App\CronJobReport;
 use App\User;
 use App\UserLogin;
+use Cache;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
+use Log;
 
 class CheckLogins extends Command
 {
@@ -43,36 +43,40 @@ class CheckLogins extends Command
      */
     public function handle()
     {
-      $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-      ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-      Log::info(Carbon::now() . " begin checking users logins");
-  		$users = User::all();
+            Log::info(Carbon::now() . " begin checking users logins");
+            $users = User::all();
 
-  		foreach ($users as $user) {
-  			if ($login = UserLogin::where('user_id', $user->id)->where('created_at', '>', Carbon::now()->format('Y-m-d'))->latest()->first()) {
+            foreach ($users as $user) {
+                if ($login = UserLogin::where('user_id', $user->id)->where('created_at', '>', Carbon::now()->format('Y-m-d'))->latest()->first()) {
 
-  			} else {
-  				$login = UserLogin::create(['user_id'	=> $user->id]);
-  			}
+                } else {
+                    $login = UserLogin::create(['user_id' => $user->id]);
+                }
 
-  			if (Cache::has('user-is-online-' . $user->id)) {
-  				if ($login->logout_at) {
-  					UserLogin::create(['user_id'	=> $user->id, 'login_at'	=> Carbon::now()]);
-  				} else if (!$login->login_at) {
-  					$login->update(['login_at'	=> Carbon::now()]);
-  				}
-  			} else {
-  				if ($login->created_at && !$login->logout_at) {
-  					$login->update(['logout_at'	=> Carbon::now()]);
-  				}
-  			}
-  		}
+                if (Cache::has('user-is-online-' . $user->id)) {
+                    if ($login->logout_at) {
+                        UserLogin::create(['user_id' => $user->id, 'login_at' => Carbon::now()]);
+                    } else if (!$login->login_at) {
+                        $login->update(['login_at' => Carbon::now()]);
+                    }
+                } else {
+                    if ($login->created_at && !$login->logout_at) {
+                        $login->update(['logout_at' => Carbon::now()]);
+                    }
+                }
+            }
 
-  		Log::info(Carbon::now() . " end of checking users logins");
+            Log::info(Carbon::now() . " end of checking users logins");
 
-      $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }
