@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\CronJobReport;
 use App\Customer;
 use App\InstagramThread;
-use App\CronJobReport;
+use App\Services\Instagram\DirectMessage;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use App\Services\Instagram\DirectMessage;
 
 class SyncInstagramMessage extends Command
 {
@@ -46,30 +46,33 @@ class SyncInstagramMessage extends Command
      */
     public function handle()
     {
-      $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-      ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $inbox = $this->messages->getInbox()->asArray();
-        if (isset($inbox['inbox']['threads'])) {
-            $threads = $inbox['inbox']['threads'];
-            foreach ($threads as $thread)
-            {
-                $user = $thread['users'];
-                if (count($user) !== 1) {
-                    continue;
-                }
-                echo $user[0]['username'] . "\n";
-                $customer = $this->createCustomer($user[0]);
+            $inbox = $this->messages->getInbox()->asArray();
+            if (isset($inbox['inbox']['threads'])) {
+                $threads = $inbox['inbox']['threads'];
+                foreach ($threads as $thread) {
+                    $user = $thread['users'];
+                    if (count($user) !== 1) {
+                        continue;
+                    }
+                    echo $user[0]['username'] . "\n";
+                    $customer = $this->createCustomer($user[0]);
 
-                if ($customer) {
-                    $this->createThread($customer, $thread);
+                    if ($customer) {
+                        $this->createThread($customer, $thread);
+                    }
                 }
             }
-        }
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 
     /**
@@ -79,31 +82,30 @@ class SyncInstagramMessage extends Command
     private function createCustomer($user)
     {
         $customer = Customer::where('instahandler', $user['pk'])->first();
-        if ($customer)
-        {
+        if ($customer) {
             return;
         }
 
         $customer = Customer::where('ig_username', $user['username'])->first();
 
-
         if (!$customer) {
-            $customer = new Customer();
+            $customer       = new Customer();
             $customer->name = $user['full_name'];
         }
 
         $customer->instahandler = $user['pk'];
-        $customer->ig_username = $user['username'];
+        $customer->ig_username  = $user['username'];
         $customer->save();
 
         return $customer;
     }
 
-    private function createThread($customer, $t) {
+    private function createThread($customer, $t)
+    {
 
-        $thread = new InstagramThread();
-        $thread->customer_id = $customer->id;
-        $thread->thread_id = $t['thread_id'];
+        $thread               = new InstagramThread();
+        $thread->customer_id  = $customer->id;
+        $thread->thread_id    = $t['thread_id'];
         $thread->thread_v2_id = $t['thread_v2_id'];
         $thread->save();
     }

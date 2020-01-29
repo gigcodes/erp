@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
-use Illuminate\Console\Command;
 use App\CronJobReport;
+use App\Product;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class FixTitleCaseIssuesOnComposition extends Command
 {
@@ -39,20 +40,23 @@ class FixTitleCaseIssuesOnComposition extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
+            Product::chunk(1000, function ($products) {
+                foreach ($products as $product) {
+                    dump($product->id);
+                    $product->composition = title_case($product->composition);
+                    $product->save();
+                }
+            });
 
-        Product::chunk(1000, function($products) {
-            foreach ($products as $product) {
-                dump($product->id);
-                $product->composition = title_case($product->composition);
-                $product->save();
-            }
-        });
-
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\CronJobReport;
 use App\PageScreenshots;
 use App\Services\Bots\Screenshot;
-use App\CronJobReport;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GetPageScreenshot extends Command
@@ -40,20 +41,24 @@ class GetPageScreenshot extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $sites = PageScreenshots::where('image_link', '')->get();
+            $sites = PageScreenshots::where('image_link', '')->get();
 
-        $duskShell = new Screenshot();
-        $duskShell->prepare();
+            $duskShell = new Screenshot();
+            $duskShell->prepare();
 
-        foreach ($sites as $site) {
-            $duskShell->emulate($this, $site, '');
+            foreach ($sites as $site) {
+                $duskShell->emulate($this, $site, '');
+            }
+
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        $report->update(['end_time' => Carbon:: now()]);
     }
 }
