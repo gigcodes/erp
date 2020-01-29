@@ -6,9 +6,9 @@ use App\Brand;
 use App\Category;
 use App\ChatMessage;
 use App\Compositions;
+use App\CronJobReport;
 use App\Customer;
 use App\Product;
-use App\CronJobReport;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -50,124 +50,121 @@ class SendAutoReplyToCustomers extends Command
      */
     public function handle()
     {
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
-
-        $messagesIds = DB::table('chat_messages')
-            ->selectRaw('MAX(id) as id, customer_id')
-            ->groupBy('customer_id')
-            ->whereNotNull('message')
+            $messagesIds = DB::table('chat_messages')
+                ->selectRaw('MAX(id) as id, customer_id')
+                ->groupBy('customer_id')
+                ->whereNotNull('message')
 //            ->where('customer_id', 2272)
-            ->where('customer_id', '>', '0')
-            ->where(function($query) {
-                $query->whereNotIn('status', [7,8,9]);
-            })
-            ->get();
+                ->where('customer_id', '>', '0')
+                ->where(function ($query) {
+                    $query->whereNotIn('status', [7, 8, 9]);
+                })
+                ->get();
 
+            foreach ($messagesIds as $messagesId) {
+                $customer = Customer::where('id', $messagesId->customer_id)->whereNotNull('gender')->first();
 
-
-        foreach ($messagesIds as $messagesId) {
-            $customer = Customer::where('id', $messagesId->customer_id)->whereNotNull('gender')->first();
-
-            if (!$customer) {
-                continue;
-            }
+                if (!$customer) {
+                    continue;
+                }
 //            dump($customer->name);
 
-            $message = ChatMessage::where('id', $messagesId->id)
-                ->where(function($query) {
-                    $query->where('user_id', '=', '0')
-                        ->orWhereNull('user_id');
-                })
-                ->first();
+                $message = ChatMessage::where('id', $messagesId->id)
+                    ->where(function ($query) {
+                        $query->where('user_id', '=', '0')
+                            ->orWhereNull('user_id');
+                    })
+                    ->first();
 
-
-
-            if (!$message) {
-                continue;
-            }
-
-            $this->activeMessage = $message->message;
-
-            $extractedCategory = $this->extractCategory($customer->gender);
-            $extractedBrands = $this->extractBrands();
-            $extractedComposition = $this->extractCompositions();
-
-            if ($this->specificCategories !== []) {
-                $extractedCategory = $this->specificCategories;
-            }
-
-
-            if ($extractedCategory === [] && $extractedBrands === [] && $extractedComposition === []) {
-                continue;
-            }
-
-            if (!$this->isMessageAskingForProducts($message->message)) {
-                continue;
-            }
-
-            $products = new Product();
-
-            if ($extractedBrands !== []) {
-                $products = $products->whereIn('brand', $extractedBrands);
-            }
-
-            if ($extractedCategory !== []) {
-                $products = $products->whereIn('category', $extractedCategory);
-            }
-
-
-            if ($extractedComposition !== []) {
-                $products->where(function($query) use ($extractedComposition) {
-                    foreach ($extractedComposition as $key=>$composition) {
-                        if ($key === 0) {
-                            $query = $query->where('composition', 'LIKE', $composition);
-                            continue;
-                        }
-
-                        $query = $query->orWhere('composition', 'LIKE', $composition);
-                    }
-                });
-
-            }
-
-            $products = $products->where('is_without_image', 0)->take(25)->get();
-
-            $messageToSend = ' ';
-
-            $chatMessage = new ChatMessage();
-            $chatMessage->customer_id = $customer->id;
-            $chatMessage->message = $messageToSend;
-            $chatMessage->user_id = 109;
-            $chatMessage->status = 10;
-            $chatMessage->approved = 0;
-            $chatMessage->save();
-
-            foreach ($products as $product) {
-                $image = $product->getMedia(config('constants.media_tags'))->first();
-
-                if (!$image) {
+                if (!$message) {
                     continue;
                 }
 
-                $chatMessage->attachMedia($image, config('constants.media_tags'));
+                $this->activeMessage = $message->message;
+
+                $extractedCategory    = $this->extractCategory($customer->gender);
+                $extractedBrands      = $this->extractBrands();
+                $extractedComposition = $this->extractCompositions();
+
+                if ($this->specificCategories !== []) {
+                    $extractedCategory = $this->specificCategories;
+                }
+
+                if ($extractedCategory === [] && $extractedBrands === [] && $extractedComposition === []) {
+                    continue;
+                }
+
+                if (!$this->isMessageAskingForProducts($message->message)) {
+                    continue;
+                }
+
+                $products = new Product();
+
+                if ($extractedBrands !== []) {
+                    $products = $products->whereIn('brand', $extractedBrands);
+                }
+
+                if ($extractedCategory !== []) {
+                    $products = $products->whereIn('category', $extractedCategory);
+                }
+
+                if ($extractedComposition !== []) {
+                    $products->where(function ($query) use ($extractedComposition) {
+                        foreach ($extractedComposition as $key => $composition) {
+                            if ($key === 0) {
+                                $query = $query->where('composition', 'LIKE', $composition);
+                                continue;
+                            }
+
+                            $query = $query->orWhere('composition', 'LIKE', $composition);
+                        }
+                    });
+
+                }
+
+                $products = $products->where('is_without_image', 0)->take(25)->get();
+
+                $messageToSend = ' ';
+
+                $chatMessage              = new ChatMessage();
+                $chatMessage->customer_id = $customer->id;
+                $chatMessage->message     = $messageToSend;
+                $chatMessage->user_id     = 109;
+                $chatMessage->status      = 10;
+                $chatMessage->approved    = 0;
+                $chatMessage->save();
+
+                foreach ($products as $product) {
+                    $image = $product->getMedia(config('constants.media_tags'))->first();
+
+                    if (!$image) {
+                        continue;
+                    }
+
+                    $chatMessage->attachMedia($image, config('constants.media_tags'));
+
+                }
 
             }
 
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        $report->update(['end_time' => Carbon:: now()]);
 
     }
 
     private function extractBrands(): array
     {
-        $message = $this->activeMessage;
-        $brands = Brand::whereNull('deleted_at')->get();
-        $brandsFound= [];
+        $message     = $this->activeMessage;
+        $brands      = Brand::whereNull('deleted_at')->get();
+        $brandsFound = [];
 
         foreach ($brands as $brand) {
             $brandName = $brand->name;
@@ -183,12 +180,12 @@ class SendAutoReplyToCustomers extends Command
     private function extractCompositions(): array
     {
         $compositions = Compositions::all();
-        $message = $this->activeMessage;
+        $message      = $this->activeMessage;
 
-        $compositionsFound= [];
+        $compositionsFound = [];
 
         foreach ($compositions as $composition) {
-            $name = $composition->name;
+            $name  = $composition->name;
             $name2 = $composition->replace_with;
             if (stripos($message, $name) !== false || (stripos($message, $name2) !== false && $name2)) {
                 $compositionsFound[] = $name;
@@ -198,11 +195,11 @@ class SendAutoReplyToCustomers extends Command
             }
         }
 
-
         return $compositionsFound;
     }
 
-    private function extractCategory($gender) {
+    private function extractCategory($gender)
+    {
         if (strtoupper($gender) === 'MALE') {
             return $this->extractMaleCategory();
         }
@@ -210,13 +207,14 @@ class SendAutoReplyToCustomers extends Command
         return $this->extractFemaleCategory();
     }
 
-    private function extractFemaleCategory() {
-        $extractedCats = [];
+    private function extractFemaleCategory()
+    {
+        $extractedCats  = [];
         $femaleCategory = Category::find(2);
         foreach ($femaleCategory->childs as $femaleCategoryChild) {
             foreach ($femaleCategoryChild->childs as $subSubCategory) {
                 if ($this->extractCategoryIdWithReferences($subSubCategory)) {
-                    $extractedCats[] = $subSubCategory->id;
+                    $extractedCats[]            = $subSubCategory->id;
                     $this->specificCategories[] = $subSubCategory->id;
                 }
             }
@@ -227,12 +225,12 @@ class SendAutoReplyToCustomers extends Command
 
     private function extractMaleCategory(): array
     {
-        $extractedCats = [];
+        $extractedCats  = [];
         $femaleCategory = Category::find(3);
         foreach ($femaleCategory->childs as $femaleCategoryChild) {
             foreach ($femaleCategoryChild->childs as $subSubCategory) {
                 if ($this->extractCategoryIdWithReferences($subSubCategory)) {
-                    $extractedCats[] = $subSubCategory->id;
+                    $extractedCats[]            = $subSubCategory->id;
                     $this->specificCategories[] = $subSubCategory->id;
                 }
             }
@@ -243,7 +241,7 @@ class SendAutoReplyToCustomers extends Command
 
     private function extractCategoryIdWithReferences($category): bool
     {
-        $name = strlen($category->title) > 3 ? substr($category->title, 0, -1) : $category->title;
+        $name    = strlen($category->title) > 3 ? substr($category->title, 0, -1) : $category->title;
         $message = $this->activeMessage;
         return stripos(strtoupper($message), strtoupper($name)) !== false;
     }

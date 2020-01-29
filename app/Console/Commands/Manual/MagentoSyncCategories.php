@@ -3,8 +3,9 @@
 namespace App\Console\Commands\Manual;
 
 use App\Category;
-use Illuminate\Console\Command;
 use App\MagentoSoapHelper;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class MagentoSyncCategories extends Command
 {
@@ -39,45 +40,31 @@ class MagentoSyncCategories extends Command
      */
     public function handle()
     {
-        // Set memory limit
-        ini_set('memory_limit', '2048M');
+        try {
+            $report = \App\CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
+            // Set memory limit
+            ini_set('memory_limit', '2048M');
 
-        // Get all products queued for AI
-        $categories = Category::where('parent_id', 0)->get();
+            // Get all products queued for AI
+            $categories = Category::where('parent_id', 0)->get();
 
-        // Set Magento soap helper
-        $magentoSoapHelper = new MagentoSoapHelper();
+            // Set Magento soap helper
+            $magentoSoapHelper = new MagentoSoapHelper();
 
-        // Loop over top level categories
-        foreach ($categories as $category) {
-            // Ignore category ID 1
-            if ($category->id != 1) {
-                // Set magento ID
-                $topLevelId = $category->magento_id;
+            // Loop over top level categories
+            foreach ($categories as $category) {
+                // Ignore category ID 1
+                if ($category->id != 1) {
+                    // Set magento ID
+                    $topLevelId = $category->magento_id;
 
-                // Output name
-                echo $category->title . " > ";
-                if ((int)$category->magento_id > 0) {
-                    $result = $magentoSoapHelper->catalogCategoryInfo($category->magento_id);
-
-                    if ($result === false) {
-                        echo "\n";
-                    } else {
-                        echo $result->name . "\n";
-                    }
-                } else {
-                    echo "Category not exists. Missing Magento ID.\n";
-                }
-
-                // Get sub-categories
-                $levelTwoCategories = Category::where('parent_id', $category->id)->get();
-
-                // Loop over level two categories
-                foreach ($levelTwoCategories as $levelTwoCategory) {
-                    echo '|-' . $levelTwoCategory->title . " > ";
-
-                    if ((int)$levelTwoCategory->magento_id > 0) {
-                        $result = $magentoSoapHelper->catalogCategoryInfo($levelTwoCategory->magento_id);
+                    // Output name
+                    echo $category->title . " > ";
+                    if ((int) $category->magento_id > 0) {
+                        $result = $magentoSoapHelper->catalogCategoryInfo($category->magento_id);
 
                         if ($result === false) {
                             echo "\n";
@@ -88,42 +75,65 @@ class MagentoSyncCategories extends Command
                         echo "Category not exists. Missing Magento ID.\n";
                     }
 
-                    // Get level three categories
-                    $levelThreeCategories = Category::where('parent_id', $levelTwoCategory->id)->get();
+                    // Get sub-categories
+                    $levelTwoCategories = Category::where('parent_id', $category->id)->get();
 
-                    // Loop over level three categories
-                    foreach ($levelThreeCategories as $levelThreeCategory) {
-                        echo '|---' . $levelThreeCategory->title . " > ";
+                    // Loop over level two categories
+                    foreach ($levelTwoCategories as $levelTwoCategory) {
+                        echo '|-' . $levelTwoCategory->title . " > ";
 
-                        if ((int)$levelThreeCategory->magento_id > 0) {
-                            $result = $magentoSoapHelper->catalogCategoryInfo($levelThreeCategory->magento_id);
+                        if ((int) $levelTwoCategory->magento_id > 0) {
+                            $result = $magentoSoapHelper->catalogCategoryInfo($levelTwoCategory->magento_id);
 
                             if ($result === false) {
                                 echo "\n";
-
-                                // Create new category
-                                $arrCategoryData = [
-                                    'name' => ucwords($levelThreeCategory->title),
-                                    'is_active' => 1,
-                                    'include_in_menu' => 1,
-                                    'available_sort_by' => ['position'],
-                                    'url_key' => str_replace(' ', '-', strtolower($levelThreeCategory->title)),
-                                    'default_sort_by' => 'position',
-                                ];
-                                $newId = $magentoSoapHelper->catalogCategoryCreate($levelTwoCategory->magento_id, $arrCategoryData);
-
-                                // Store new ID
-                                $levelThreeCategory->magento_id;
-                                $levelThreeCategory->save();
                             } else {
                                 echo $result->name . "\n";
                             }
                         } else {
                             echo "Category not exists. Missing Magento ID.\n";
                         }
+
+                        // Get level three categories
+                        $levelThreeCategories = Category::where('parent_id', $levelTwoCategory->id)->get();
+
+                        // Loop over level three categories
+                        foreach ($levelThreeCategories as $levelThreeCategory) {
+                            echo '|---' . $levelThreeCategory->title . " > ";
+
+                            if ((int) $levelThreeCategory->magento_id > 0) {
+                                $result = $magentoSoapHelper->catalogCategoryInfo($levelThreeCategory->magento_id);
+
+                                if ($result === false) {
+                                    echo "\n";
+
+                                    // Create new category
+                                    $arrCategoryData = [
+                                        'name'              => ucwords($levelThreeCategory->title),
+                                        'is_active'         => 1,
+                                        'include_in_menu'   => 1,
+                                        'available_sort_by' => ['position'],
+                                        'url_key'           => str_replace(' ', '-', strtolower($levelThreeCategory->title)),
+                                        'default_sort_by'   => 'position',
+                                    ];
+                                    $newId = $magentoSoapHelper->catalogCategoryCreate($levelTwoCategory->magento_id, $arrCategoryData);
+
+                                    // Store new ID
+                                    $levelThreeCategory->magento_id;
+                                    $levelThreeCategory->save();
+                                } else {
+                                    echo $result->name . "\n";
+                                }
+                            } else {
+                                echo "Category not exists. Missing Magento ID.\n";
+                            }
+                        }
                     }
                 }
             }
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }

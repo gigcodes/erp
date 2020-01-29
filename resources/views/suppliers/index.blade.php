@@ -170,6 +170,19 @@
                   @if ($supplier->has_error == 1)
                     <span class="text-danger">!!!</span>
                   @endif
+
+                  <p>
+                    <div class="form-group">
+                        <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
+                            <option value="">-No Selected-</option>
+                            @foreach($whatsappConfigs as $whatsappConfig)
+                                @if($whatsappConfig->number != "0")
+                                    <option {{ ($whatsappConfig->number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $whatsappConfig->number }}">{{ $whatsappConfig->number }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                </p>
                 </span>
                 <br>
               </td>
@@ -958,6 +971,23 @@
               }
           });
       });
+
+      $(document).on('change', '.change-whatsapp-no', function () {
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('supplier.change.whatsapp') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    supplier_id : $this.data("supplier-id"),
+                    number: $this.val()
+                }
+            }).done(function () {
+                alert('Number updated successfully!');
+            }).fail(function (response) {
+               alert('Please check entry for supplier');
+            });
+        });
     
   </script>
 @endsection

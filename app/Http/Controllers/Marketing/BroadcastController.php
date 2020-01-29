@@ -229,19 +229,21 @@ class BroadcastController extends Controller
 
             //Leads List
             $leads = ErpLeads::select('customer_id')->whereNotNull('customer_id')->get();
+/*            dd($leads);*/
             foreach ($leads as $lead) {
                 $leadArray[] = $lead->customer_id;
             }
             $leadList = implode(",", $leadArray);
             
             $marketings = CustomerMarketingPlatform::select('customer_id')->whereNull('remark')->get();
-
+/*            dd($marketings);*/
              foreach ($marketings as $marketing) {
                 $marketingArray[] = $marketing->customer_id;
             }
             $marketingList = implode(",", $marketingArray);
 
             $dndNumbers = Customer::select('id')->where('do_not_disturb',1)->get();
+/*            dd($dndNumbers);*/
             foreach ($dndNumbers as $dndNumber) {
                 $dndCustomerNumberArray[] = $dndNumber->id;
             }

@@ -204,18 +204,17 @@
                                 <input type="text" name="social_handle" id="supplier_social_handle" class="form-control input-sm" placeholder="Social Handle" value="{{ $supplier->social_handle }}">
                             </div>
 
-                            {{-- <div class="form-group">
-                                      <select name="whatsapp_number" class="form-control input-sm" id="whatsapp_change">
-                                          <option value>Whatsapp Number</option>
-
-                                @foreach ($api_keys as $api_key)
-                                              <option value="{{ $api_key->number }}" {{ $customer->whatsapp_number == $api_key->number ? 'selected' : '' }}>{{ $api_key->number }}</option>
-                                          @endforeach
-                                      </select>
-
-                              <span class="text-success change_status_message" style="display: none;">Successfully changed whatsapp number</span>
-                                  </div> --}}
-                            {{-- @endif --}}
+                            <div class="form-group">
+                                    <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
+                                        <option value="">-No Selected-</option>
+                                        @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                                            @if($number != "0")
+                                                <option {{ ($number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                            </div>
+                            
 
                             <div class="form-group">
                                 <input type="text" name="website" id="supplier_website" class="form-control input-sm" placeholder="Website" value="{{ $supplier->website }}">
@@ -1968,7 +1967,24 @@
             })
             
             
-        }  
+        }
+
+         $(document).on('change', '.change-whatsapp-no', function () {
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('supplier.change.whatsapp') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    supplier_id : $this.data("supplier-id"),
+                    number: $this.val()
+                }
+            }).done(function () {
+                alert('Number updated successfully!');
+            }).fail(function (response) {
+                console.log(response);
+            });
+        });  
 
 
         

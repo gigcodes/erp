@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Customer;
-use Illuminate\Console\Command;
 use App\CronJobReport;
+use App\Customer;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Webklex\IMAP\Client;
 
 class CreateCustomersIfNewEmailComes extends Command
@@ -40,44 +41,47 @@ class CreateCustomersIfNewEmailComes extends Command
      */
     public function handle()
     {
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+            $imap = new Client([
+                'host'          => env('IMAP_HOST_PURCHASE'),
+                'port'          => env('IMAP_PORT_PURCHASE'),
+                'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
+                'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
+                'username'      => env('IMAP_USERNAME_PURCHASE'),
+                'password'      => env('IMAP_PASSWORD_PURCHASE'),
+                'protocol'      => env('IMAP_PROTOCOL_PURCHASE'),
+            ]);
 
-        $imap = new Client([
-            'host'          => env('IMAP_HOST_PURCHASE'),
-            'port'          => env('IMAP_PORT_PURCHASE'),
-            'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
-            'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-            'username'      => env('IMAP_USERNAME_PURCHASE'),
-            'password'      => env('IMAP_PASSWORD_PURCHASE'),
-            'protocol'      => env('IMAP_PROTOCOL_PURCHASE')
-        ]);
+            $imap->connect();
 
-        $imap->connect();
+            $inbox = $imap->getFolder('INBOX');
 
-        $inbox = $imap->getFolder('INBOX');
+            $messages = $inbox->getMessages();
 
-        $messages = $inbox->getMessages();
+            foreach ($messages as $message) {
+                $email    = $message->getAttributes()['from'][0]->mail;
+                $customer = Customer::where('email', $email)->first();
 
-        foreach ($messages as $message) {
-            $email = $message->getAttributes()['from'][0]->mail;
-            $customer = Customer::where('email', $email)->first();
+                if ($customer) {
+                    continue;
+                }
 
-            if ($customer) {
-                continue;
+                $customer        = new Customer();
+                $customer->email = $email;
+                $customer->name  = $message->getAttributes()['from'][0]->personal;
+                $customer->save();
+
             }
 
-            $customer = new Customer();
-            $customer->email = $email;
-            $customer->name = $message->getAttributes()['from'][0]->personal;
-            $customer->save();
-
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        $report->update(['end_time' => Carbon:: now()]);
 
     }
 }
