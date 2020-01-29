@@ -164,7 +164,7 @@ class CacheMasterControl extends Command
             });
 
             //Getting Vendor Chat
-            Cache::remember('result_vendor_chat', 1, function () use ($chat) {
+            Cache::remember('result_vendor_chat', 5, function () use ($chat) {
 
                 $vendorChats = $chat->select('vendor_id')->whereNotNull('vendor_id')->orderBy('created_at', 'desc')->groupBy('vendor_id')->get()->toArray();
 
