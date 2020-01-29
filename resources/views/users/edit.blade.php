@@ -121,6 +121,20 @@
                         </div>
                     </div>
 
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>Rate:</strong>
+                            {!! Form::text('hourly_rate', isset($userRate) ? $userRate->hourly_rate: '', array('placeholder' => 'Rate','class' => 'form-control')) !!}
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>Currency:</strong>
+                            {!! Form::text('currency', isset($userRate) ? $userRate->currency: '', array('placeholder' => 'USD','class' => 'form-control')) !!}
+                        </div>
+                    </div>
+
                     @if ($user->hasRole('Customer Care'))
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="form-group">

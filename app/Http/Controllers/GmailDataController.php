@@ -11,9 +11,9 @@ class GmailDataController extends Controller
 {
     public function index(Request $request) {
         if($request->sender){
-            $data = GmailData::where('sender',$request->sender)->orderBy('created_at','desc')->paginate(Setting::get('pagination'));
+            $data = GmailData::where('sender',$request->sender)->groupBy('sender')->orderBy('created_at','desc')->paginate(Setting::get('pagination'));
         }else{
-            $data = GmailData::orderBy('created_at','desc')->paginate(Setting::get('pagination'));
+            $data = GmailData::orderBy('created_at','desc')->groupBy('sender')->paginate(Setting::get('pagination'));
         
         }
         $senders = GmailData::select('sender')->groupBy('sender')->get();
@@ -29,9 +29,9 @@ class GmailDataController extends Controller
         return view('scrap.gmail', compact('brands', 'data','senders'));
     }
 
-    public function show($id){
-    	$data = GmailData::find($id);
-    	$brands = Brand::get()->pluck('name')->toArray();
-    	return view('scrap.show-gmail', compact('brands', 'data'));
+    public function show($sender){
+        $datas = GmailData::where('sender','LIKE','%'.$sender.'%')->get();
+        $brands = Brand::get()->pluck('name')->toArray();
+    	return view('scrap.show-gmail', compact('brands', 'datas','sender'));
     }
 }
