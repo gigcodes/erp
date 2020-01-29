@@ -193,7 +193,9 @@ class SupplierController extends Controller
         }
 
 
-        $whatsappConfigs = WhatsappConfig::where('provider','LIKE','%Chat API%')->get();
+        $whatsappConfigs = WhatsappConfig::where('provider','LIKE','%Chat-API%')->get();
+
+       
 
         return view('suppliers.index', [
             'suppliers' => $suppliers,
