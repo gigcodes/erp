@@ -96,7 +96,7 @@ class RepositoryController extends Controller
         //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
         $result = exec('/usr/bin/sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch);
         return redirect(url('/github/repos/' . $repoId . '/branches'))->with([
-            'message' => 'Branch merged successfully',
+            'message' => $result,
             'alert-type' => 'success'
         ]);
     }
