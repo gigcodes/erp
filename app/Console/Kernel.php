@@ -96,6 +96,7 @@ use App\Console\Commands\LoadLastCronErrors;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\StoreBrands;
+use App\Console\Commands\RunPriorityKeywordSearch;
 
 
 class Kernel extends ConsoleKernel
@@ -187,7 +188,8 @@ class Kernel extends ConsoleKernel
         CheckScrapersLog::class,
         LoadLastCronErrors::class,
         StoreBrands::class,
-        MailingListSendMail::class
+        MailingListSendMail::class,
+        RunPriorityKeywordSearch::class
     ];
 
     /**
@@ -391,6 +393,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('cron:last-errors')->everyFifteenMinutes();
         $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
         $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
+
+        //Run google priority scraper
+        $schedule->command('run:priority-keyword-search')->daily();
     }
 
     /**

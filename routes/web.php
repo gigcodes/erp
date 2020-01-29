@@ -1466,6 +1466,7 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::get('/search/keyword-priority','GoogleSearchController@markPriority')->name('google.search.keyword.priority');
     Route::get('/search/keyword', 'GoogleSearchController@index')->name('google.search.keyword');
     Route::get('/search/results', 'GoogleSearchController@searchResults')->name('google.search.results');
+    Route::get('/search/scrap', 'GoogleSearchController@callScraper')->name('google.search.keyword.scrap');
 
     Route::resource('/affiliate/keyword', 'GoogleAffiliateController');
     Route::get('/affiliate/keyword', 'GoogleAffiliateController@index')->name('google.affiliate.keyword');
@@ -1473,6 +1474,7 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::get('/affiliate/results', 'GoogleAffiliateController@searchResults')->name('google.affiliate.results');
     Route::post('affiliate/flag', 'GoogleAffiliateController@flag')->name('affiliate.flag');
     Route::post('affiliate/email/send', 'GoogleAffiliateController@emailSend')->name('affiliate.email.send');
+    Route::get('/affiliate/scrap', 'GoogleAffiliateController@callScraper')->name('google.affiliate.keyword.scrap');
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
