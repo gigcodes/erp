@@ -253,6 +253,21 @@ class ProductsCreator
         $product->measurement_size_type = $formattedDetails[ 'measurement_size_type' ];
         $product->made_in = $formattedDetails[ 'made_in' ];
         $product->category = $formattedDetails[ 'category' ];
+        // start to update the eu size
+        if(!empty($product->size)) {
+            $sizeExplode = explode(",", $product->size);
+            if(!empty($sizeExplode) && is_array($sizeExplode)){
+                $euSize = [];
+                foreach($sizeExplode as $sizeE){
+                    $helperSize = ProductHelper::getRedactedText($sizeE, 'composition');
+                    //find the eu size and update into the field
+                    $euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
+                }
+                if(!empty($euSize)) {
+                    $product->size_eu = implode(',', $euSize);
+                }
+            }
+        }
 
         $product->price = $formattedPrices[ 'price_eur' ];
         $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
