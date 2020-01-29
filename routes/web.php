@@ -80,6 +80,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('crop-references-grid/reject', 'CroppedImageReferenceController@rejectCropImage');
 
+    Route::get('public-key', 'EncryptController@index')->name('encryption.index');
+    Route::post('save-key', 'EncryptController@saveKey')->name('encryption.save.key');
+    Route::post('forget-key', 'EncryptController@forgetKey')->name('encryption.forget.key');
+    
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
@@ -844,6 +848,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
 
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
+
+    Route::post('supplier/change-whatsapp-no', 'SupplierController@changeWhatsappNo')->name('supplier.change.whatsapp');
+
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
     Route::resource('supplier', 'SupplierController');
@@ -867,6 +874,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
+        Route::get('image', 'ProductTemplatesController@imageIndex');
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
@@ -875,6 +883,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('create', 'TemplatesController@create');
         Route::post('edit', 'TemplatesController@edit');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
+        Route::get('generate-template-category-branch', 'TemplatesController@generateTempalateCategoryBrand');
+        Route::get('type', 'TemplatesController@typeIndex')->name('templates.type');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
@@ -1406,14 +1416,25 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist/delete/{id}/{email}', 'MailinglistController@delete')->name('mailingList.delete');
     Route::get('mailinglist/list/delete/{id}', 'MailinglistController@deleteList')->name('mailingList.delete.list');
     Route::post('mailinglist-create', 'MailinglistController@create')->name('mailingList.create');
+    Route::get('mailinglist-add-manual', 'MailinglistController@addManual')->name('mailinglist.add.manual');
     Route::post('addRemark', 'MailinglistController@addRemark')->name('mailingList.addRemark');
     Route::get('gettaskremark', 'MailinglistController@getBroadCastRemark')->name('mailingList.gets.remark');
+
 
     Route::get('services', 'ServiceController@index')->name('services');
     Route::post('services/store', 'ServiceController@store')->name('services.store');
     Route::post('services/destroy', 'ServiceController@destroy')->name('services.destroy');
     Route::post('services/update', 'ServiceController@update')->name('services.update');
 
+    Route::get('mailinglist-templates', 'MailinglistTemplateController@index')->name('mailingList-template');
+    Route::get('mailinglist-ajax', 'MailinglistTemplateController@ajax');
+    Route::post('mailinglist-templates/store', 'MailinglistTemplateController@store')->name('mailingList-template.store');
+
+    Route::get('mailinglist-emails', 'MailinglistEmailController@index')->name('mailingList-emails');
+    Route::post('mailinglist-ajax-index', 'MailinglistEmailController@ajaxIndex');
+    Route::post('mailinglist-ajax-store', 'MailinglistEmailController@store');
+    Route::post('mailinglist-ajax-show', 'MailinglistEmailController@show');
+    Route::post('mailinglist-ajax-duplicate', 'MailinglistEmailController@duplicate');
 });
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');

@@ -14,6 +14,7 @@ use App\Console\Commands\GetGebnegozionlineProductDetailsWithEmulator;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
 use App\Console\Commands\GetMostUsedWordsInCustomerMessages;
 use App\Console\Commands\GrowInstagramAccounts;
+use App\Console\Commands\MailingListSendMail;
 use App\Console\Commands\MakeApprovedImagesSchedule;
 use App\Console\Commands\MakeKeywordAndCustomersIndex;
 use App\Console\Commands\PostScheduledMedia;
@@ -183,7 +184,8 @@ class Kernel extends ConsoleKernel
         NumberOfImageCroppedCheck::class,
         SetTemplatesForProduct::class,
         CheckScrapersLog::class,
-        LoadLastCronErrors::class
+        LoadLastCronErrors::class,
+        MailingListSendMail::class
     ];
 
     /**
@@ -385,6 +387,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('github:load_branch_state')->hourly();
         $schedule->command('checkScrapersLog')->dailyAt('8:00');
         $schedule->command('cron:last-errors')->everyFifteenMinutes();
+        $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
     }
 
     /**

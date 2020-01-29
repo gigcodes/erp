@@ -69,6 +69,7 @@ use App\ProductQuicksellGroup;
 use App\Helpers\InstantMessagingHelper;
 use App\Library\Watson\Model as WatsonManager;
 use \App\Helpers\TranslationHelper;
+use App\ImQueue;
 
 
 class WhatsAppController extends FindByNumberController
@@ -3151,7 +3152,12 @@ class WhatsAppController extends FindByNumberController
             if ($context == 'supplier') {
                 $supplier = Supplier::find($message->supplier_id);
                 $phone = $supplier->default_phone;
-                $whatsapp_number = '971502609192';
+                if(empty($supplier->whatsapp_number)){
+                    $whatsapp_number = '971502609192';
+                }else{
+                    $whatsapp_number = $supplier->whatsapp_number;
+                }
+                
             } else {
                 if ($context == 'vendor') {
                     $vendor = Vendor::find($message->vendor_id);
@@ -3469,7 +3475,7 @@ class WhatsAppController extends FindByNumberController
                                             //Attach image to chat message
                                             $chatMessage->attachMedia($url['key'], config('constants.media_tags'));
                                             $priority = 1;
-                                            $send = InstantMessagingHelper::scheduleMessage($customer->phone, $customer->broadcast_number,$request->message, $url[ 'url' ], $priority, $now);
+                                            $send = InstantMessagingHelper::scheduleMessage($customer->phone, $customer->broadcast_number,$request->message, $url[ 'url' ], $priority, $now , $max_group_id);
                                             if ($send != false) {
                                                 $now->addMinutes($minutes);
                                                 $now = InstantMessagingHelper::broadcastSendingTimeCheck($now);
@@ -3483,7 +3489,7 @@ class WhatsAppController extends FindByNumberController
                                 } elseif ($request->linked_images == null) {
                                     $chatMessage = ChatMessage::create($params);
 
-                                    $send = InstantMessagingHelper::scheduleMessage($customer->phone, $customer->broadcast_number, $request->message, '', $priority, $now);
+                                    $send = InstantMessagingHelper::scheduleMessage($customer->phone, $customer->broadcast_number, $request->message, '', $priority, $now, $max_group_id);
                                     if ($send != false) {
                                         $now->addMinutes($minutes);
                                         $now = InstantMessagingHelper::broadcastSendingTimeCheck($now);
@@ -3572,10 +3578,10 @@ class WhatsAppController extends FindByNumberController
 
     public function stopAll()
     {
-        $message_queues = MessageQueue::where('sent', 0)->where('status', 0)->get();
-
+        $message_queues = ImQueue::whereNull('sent_at')->get();
+        
         foreach ($message_queues as $message_queue) {
-            $message_queue->status = 1;
+            $message_queue->send_after = null;
             $message_queue->save();
         }
 
