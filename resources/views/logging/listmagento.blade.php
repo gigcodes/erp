@@ -113,17 +113,20 @@
                     <div class="modal-body">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="update_product_id" id="update_product_id" value="">
-                            <div class="form-group col-md-12">
+                            <div class="form-group col-md-8">
                                 <label for="title">Name</label>
                                 <input name="name" type="text" class="form-control" id="update_name" value="" required>
                             </div>
-                            <div class="form-group col-md-12">
-                                <label for="title">Short Description</label>
-                                <textarea name="short_description" class="form-control" id="update_short_description"></textarea>
+                            <div class="form-group col-md-4">
+                                <img src="" id="single_product_image" class="quick-image-container img-responive" style="width: 70px;" alt="">
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="title">Size</label>
                                 <input name="size" type="text" class="form-control" id="update_size" value="">
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="title">Short Description</label>
+                                <textarea name="short_description" class="form-control" id="update_short_description"></textarea>
                             </div>
                             <div class="form-group col-md-4">
                                 <label for="title">Price</label>
@@ -222,13 +225,15 @@
     <script type="text/javascript">
         
         $(document).on("click", ".update_modal", function () {
+            var data=$(this).data('id');
+            
             var detail = $(this).data('id');
-
+            //alert(JSON.stringify(detail));
+            $("#single_product_image").attr("src",detail['image_url']);
             $("#update_product_id").val(detail['product_id']);
             $("#update_name").val(detail['name']);
             $("#update_short_description").val(detail['short_description']);
             $("#update_size").val(detail['size']);
-            //$("#update_color").val(detail['color']);
             $("#update_price").val(detail['price']);
             $("#update_price_eur_special").val(detail['price_eur_special']);
             $("#update_price_eur_discounted").val(detail['price_eur_discounted']);

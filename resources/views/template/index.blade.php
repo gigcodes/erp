@@ -52,12 +52,26 @@
 	.error {
 		color: #FF0000;
 	}
+
+    #loading-image {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        margin: -50px 0px 0px -50px;
+        z-index: 60;
+    }
 </style>
+<div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
 <div class="row" id="product-template-page">
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Templates</h2>
         <div class="pull-right">
             <button type="button" class="btn btn-secondary create-product-template-btn">+ Add Template</button>
+        </div>
+        <div class="pull-right">
+            <button type="button" class="btn btn-secondary" onclick="generateProducts()" style="margin-right: 7px !important;">Generate Product</button>
         </div>
     </div>
     <br>
@@ -103,6 +117,22 @@
     	}
     	$('#number').val(numberImage);
 		$('#product-template-edit-modal').modal('show');
+    }
+
+    function generateProducts(){
+    	$.ajax({
+                url: '/templates/generate-template-category-branch',
+                dataType: "json",
+                type: "GET",
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+            }).done(function (data) {
+            	$("#loading-image").hide();
+                alert('Product Template Created');
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('Please Check');
+            });
     }
 </script>
 
