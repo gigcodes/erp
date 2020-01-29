@@ -874,6 +874,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
+        Route::get('image', 'ProductTemplatesController@imageIndex');
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
@@ -882,6 +883,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('create', 'TemplatesController@create');
         Route::post('edit', 'TemplatesController@edit');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
+        Route::get('generate-template-category-branch', 'TemplatesController@generateTempalateCategoryBrand');
+        Route::get('type', 'TemplatesController@typeIndex')->name('templates.type');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
@@ -1413,6 +1416,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist/delete/{id}/{email}', 'MailinglistController@delete')->name('mailingList.delete');
     Route::get('mailinglist/list/delete/{id}', 'MailinglistController@deleteList')->name('mailingList.delete.list');
     Route::post('mailinglist-create', 'MailinglistController@create')->name('mailingList.create');
+    Route::get('mailinglist-add-manual', 'MailinglistController@addManual')->name('mailinglist.add.manual');
     Route::post('addRemark', 'MailinglistController@addRemark')->name('mailingList.addRemark');
     Route::get('gettaskremark', 'MailinglistController@getBroadCastRemark')->name('mailingList.gets.remark');
 
