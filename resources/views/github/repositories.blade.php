@@ -40,11 +40,14 @@
                 <td>{{$repository['name']}}</td>
                 <td>{{$repository['updated_at']}}</td>
                 <td>
-                    <a href="{{ url('/github/repos/'.$repository['id'].'/branches') }}">
+                    <a class="btn btn-default" href="{{ url('/github/repos/'.$repository['id'].'/branches') }}">
                         <span title="Branches" class="glyphicon glyphicon-tasks"></span>
                     </a>
-                    <a href="{{ url('/github/repos/'.$repository['name'].'/users') }}">
+                    <a class="btn btn-default" href="{{ url('/github/repos/'.$repository['name'].'/users') }}">
                         <span title="Users" class="glyphicon glyphicon-user"></span>
+                    </a>
+                    <a class="btn btn-default" href="{{ url('/github/repos/'.$repository['id'].'/pull-request') }}">
+                        <span title="Pull Request" class="glyphicon glyphicon-import"></span>
                     </a>
                 </td>
             </tr>

@@ -78,7 +78,7 @@ class InstantMessagingHelper
         }
     }
 
-    public static function scheduleMessage($numberTo, $numberFrom, $message = null, $image = null, $priority = 1, $sendAfter = null)
+    public static function scheduleMessage($numberTo, $numberFrom, $message = null, $image = null, $priority = 1, $sendAfter = null , $broadcastId = null)
     {
 
         // Check last message to this number - TODO: This works for now, but not once we start scheduling messages from the system
@@ -126,6 +126,7 @@ class InstantMessagingHelper
         $imQueue->image = $image;
         $imQueue->priority = $priority;
         $imQueue->send_after = $sendAfter;
+        $imQueue->broadcast_id = $broadcastId;
         $imQueue->marketing_message_type_id = 2;
         return $imQueue->save();
     }
