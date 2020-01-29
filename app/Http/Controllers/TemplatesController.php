@@ -115,7 +115,7 @@ class TemplatesController extends Controller
         if($request->search){
             $templates = ProductTemplate::where('template_no',$request->search)->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
         }else{
-           $templates = ProductTemplate::where('type',1)->paginate(Setting::get('pagination')); 
+           $templates = ProductTemplate::paginate(Setting::get('pagination')); 
         }
         
         if ($request->ajax()) {
