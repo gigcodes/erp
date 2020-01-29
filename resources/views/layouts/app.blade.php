@@ -626,6 +626,8 @@
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -908,7 +910,7 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Images<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('image.grid') }}">Image Grid</a>
+                                            <a class="dropdown-item" href="{{ route('image.grid') }}">Lifestyle Image Grid</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
@@ -1038,6 +1040,12 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('templates.type') }}">New List</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
                                 </li>
                             </ul>
                         </li>
@@ -1517,11 +1525,13 @@
                                     @foreach ($chatIds as $chatId)
                                     @php
                                     $customer = \App\Customer::where('id',$chatId->customer_id)->first();
+                                    $customerInital = substr($customer->name, 0, 1);
                                     @endphp
                                     <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
                                         <div class="d-flex bd-highlight">
                                             <div class="img_cont">
-                                                <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                                <soan class="rounded-circle user_inital">{{ $customerInital }}</soan>
+                                                {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
                                                 <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
                                             </div>
                                             <div class="user_info">
@@ -1542,9 +1552,10 @@
                     <div class="col-md-6 chat">
                         <div class="card_chat">
                             <div class="card-header msg_head">
-                                <div class="d-flex bd-highlight">
+                                <div class="d-flex bd-highlight align-items-center justify-content-between">
                                     <div class="img_cont">
-                                        <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                        <soan class="rounded-circle user_inital" id="user_inital"></soan>
+                                        {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
 
                                     </div>
                                     <div class="user_info" id="user_name">
@@ -1554,6 +1565,19 @@
                                     <div class="video_cam">
                                         <span><i class="fa fa-video"></i></span>
                                         <span><i class="fa fa-phone"></i></span>
+                                    </div>
+                                    @php
+                                        $path = storage_path('/');
+                                        $content = File::get($path."languages.json");
+                                        $language = json_decode($content, true);
+                                    @endphp
+                                    <div class="selectedValue">
+                                         <select id="autoTranslate" class="form-control auto-translate">
+                                            <option value="">Translation Language</option>
+                                            @foreach ($language as $key => $value) 
+                                                <option value="{{$value}}">{{$key}}</option>
+                                            @endforeach  
+                                        </select>
                                     </div>
                                 </div>
                                 <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
@@ -1582,7 +1606,7 @@
                                                 <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
                                                 <input type="file" id="imgupload" style="display:none" />
                                             </div>
-                                            <input type="hidden" id="message-id" />
+                                            <input type="hidden" id="message-id" name="message-id" />
                                             <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
                                             <div class="input-group-append">
                                                 <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
@@ -1899,6 +1923,27 @@
                 } else {}
             }
         }
+
+        $(document).on('change', '#autoTranslate', function (e) {
+             e.preventDefault();
+            var customerId = $("input[name='message-id'").val();
+            var language = $(".auto-translate").val();
+            let self = $(this);
+            $.ajax({
+                url: "/customer/language-translate/"+customerId,
+                method:"PUT",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                  },
+                data:{id:customerId, language:language },
+                cache: true,
+                success: function(res) {
+                    $('.selectedValue option[value="' + language + '"]').prop('selected', true);
+                    alert(res.success);
+                }
+            })
+        });
+       
     </script>
 
 </body>

@@ -6,6 +6,13 @@ use File;
 use Illuminate\Http\Request;
 use App\Setting;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\Template;
+use App\Product;
+use App\Category;
+use App\Brand;
+use App\ProductTemplate;
+use Plank\Mediable\Media;
+use DB;
 
 class TemplatesController extends Controller
 {
@@ -99,6 +106,110 @@ class TemplatesController extends Controller
 
         return redirect()->back();
     
+    }
+
+
+    public function typeIndex(Request $request)
+    {
+        $temps = Template::all();
+        if($request->search){
+            $templates = ProductTemplate::where('template_no',$request->search)->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
+        }else{
+           $templates = ProductTemplate::paginate(Setting::get('pagination')); 
+        }
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('product-template.partials.type-list-template', compact('templates','temps'))->render(),
+                'links' => (string)$templates->render(),
+                'total' => $templates->total(),
+            ], 200);
+        }
+
+        
+        return view('product-template.type-index',compact('templates','temps'));
+    }
+
+    public function generateTempalateCategoryBrand()
+    {
+        $templates = Template::where('auto_generate_product',1)->get();
+        foreach ($templates as $template) {
+            $categories = Category::select('id')->get();
+                foreach ($categories as $category) {
+                $brands = Brand::select('id')->get();
+                foreach ($brands as $brand) {
+                   $products = Product::where('category',$category->id)->where('brand',$brand->id)->latest()->limit(50)->get();
+                   foreach ($products as $product) {
+                        if($product->getMedia(config('constants.media_tags'))->count() != 0){
+                            $oldTemplate = ProductTemplate::where('template_no',$template->id)->where('type',1)->orderBy('id','desc')->first();
+                            if($oldTemplate != null){
+                                $mediable = DB::table('mediables')->where('mediable_type','App\ProductTemplate')->where('mediable_id',$oldTemplate->id)->count();
+                                if($template->no_of_images == $mediable){
+                                    //check if Product Template Already Exist
+                                    $temp = ProductTemplate::where('template_no',$template->id)->where('brand_id',$product->brand)->where('category_id',$product->category)->where('is_processed',0)->where('type',1)->count();
+                                    
+                                    if($temp == 0){
+                                        $productTemplate = new ProductTemplate;
+                                        $productTemplate->template_no = $template->id;
+                                        $productTemplate->product_title = '';
+                                        $productTemplate->brand_id = $product->brand;
+                                        $productTemplate->currency = 'eur';
+                                        $productTemplate->price = '';
+                                        $productTemplate->discounted_price = ''; 
+                                        $productTemplate->category_id = $product->category;
+                                        $productTemplate->product_id = '';
+                                        $productTemplate->is_processed = 0;
+                                        $productTemplate->type = 1;
+                                        $productTemplate->save();
+                                        $media = $product->getMedia(config('constants.media_tags'))->first();
+                                        $media = Media::find($media->id);
+                                        $tag = 'template-image';
+                                        try {
+                                           $productTemplate->attachMedia($media, $tag); 
+                                        } catch (\Exception $e) {
+                                            continue;
+                                        }
+                                    }    
+                                    
+                                }else{
+                                    $media = $product->getMedia(config('constants.media_tags'))->first();
+                                    $media = Media::find($media->id);
+                                    $tag = 'template-image';
+                                    $oldTemplate->attachMedia($media, $tag);   
+                               }
+                            }else{
+                                //check if Product Template Already Exist
+                                $temp = ProductTemplate::where('template_no',$template->id)->where('brand_id',$product->brand)->where('category_id',$product->category)->where('is_processed',0)->where('type',1)->count();
+                                if($temp == 0){
+                                    $productTemplate = new ProductTemplate;
+                                    $productTemplate->template_no = $template->id;
+                                    $productTemplate->product_title = '';
+                                    $productTemplate->brand_id = $product->brand;
+                                    $productTemplate->currency = 'eur';
+                                    $productTemplate->price = '';
+                                    $productTemplate->discounted_price = ''; 
+                                    $productTemplate->category_id = $product->category;
+                                    $productTemplate->product_id = '';
+                                    $productTemplate->is_processed = 0;
+                                    $productTemplate->type = 1;
+                                    $productTemplate->save();
+                                    $media = $product->getMedia(config('constants.media_tags'))->first();
+                                    $media = Media::find($media->id);
+                                    $tag = 'template-image';
+                                    try {
+                                        $productTemplate->attachMedia($media, $tag); 
+                                    } catch (\Exception $e) {
+                                        continue;
+                                    }
+                                }    
+                            }
+                        }
+                   }
+                }
+            } 
+        }
+        
+        return response()->json(["message" => "Sucess"],200);
     }
 
 }
