@@ -612,7 +612,7 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Broadcast<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
+                                            <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Grid</a>
                                             <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
                                             <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calender</a>
                                         </li>
@@ -1216,6 +1216,16 @@
                                         </li>
                                     </ul>
                                 </li>
+
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Encryption<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('encryption.index')}}">Encryption Key</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
                             </ul>
                         </li>
                         @endif
@@ -1480,6 +1490,8 @@
             <button class="help-button"><span>+</span></button>
         </div>
     </div>
+
+
     @if($liveChatUsers != '' && $liveChatUsers != null)
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
@@ -1717,6 +1729,48 @@
                 },
             });
         });
+
+        @if(session()->has('encrpyt'))
+        
+        var inactivityTime = function () {
+            var time;
+            window.onload = resetTimer;
+            // DOM Events
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+
+        function remove_key() {
+            $.ajax({
+            url: "{{ route('encryption.forget.key') }}",
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                private: '1',
+                "_token": "{{ csrf_token() }}",
+            },
+            })
+            .done(function() {
+                alert('Please Insert Private Key');
+                location.reload();
+                console.log("success");
+            })
+            .fail(function() {
+                console.log("error");
+            })  
+        }
+
+        function resetTimer() {
+            clearTimeout(time);
+            time = setTimeout(remove_key, 1200000)
+            // 1000 milliseconds = 1 second
+        }
+        };
+
+        window.onload = function() {
+            inactivityTime(); 
+        }
+
+        @endif
 
         var getNotesList = function() {
             //$.ajax({
