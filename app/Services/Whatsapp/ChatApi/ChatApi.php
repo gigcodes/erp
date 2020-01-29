@@ -9,7 +9,7 @@ class ChatApi
      * Get instance from whatsapp number
      *
      */
-    private function getInstance($number = null)
+    private function getInstanceMove($number = null)
     {
         $number = !empty($number) ? $number : 0;
 
@@ -29,12 +29,14 @@ class ChatApi
      */
     public static function chatQueue($number = null)
     {
-        function getInstance($number)
-        {
-            $number = !empty($number) ? $number : 0;
-            return isset(config("apiwha.instances")[$number])
-                ? config("apiwha.instances")[$number]
-                : config("apiwha.instances")[0];
+        if(!function_exists('getInstance')) {
+            function getInstance($number)
+            {
+                $number = !empty($number) ? $number : 0;
+                return isset(config("apiwha.instances")[$number])
+                    ? config("apiwha.instances")[$number]
+                    : config("apiwha.instances")[0];
+            }
         }
 
         $instance = getInstance($number);
@@ -84,12 +86,14 @@ class ChatApi
      */
     public static function chatHistory($number = null)
     {
-        function getInstance($number)
-        {
-            $number = !empty($number) ? $number : 0;
-            return isset(config("apiwha.instances")[$number])
-                ? config("apiwha.instances")[$number]
-                : config("apiwha.instances")[0];
+        if(!function_exists('getInstance')) {
+            function getInstance($number)
+            {
+                $number = !empty($number) ? $number : 0;
+                return isset(config("apiwha.instances")[$number])
+                    ? config("apiwha.instances")[$number]
+                    : config("apiwha.instances")[0];
+            }
         }
 
         $instance = getInstance($number);
@@ -132,12 +136,14 @@ class ChatApi
      */
     public static function deleteQueues($number = null)
     {
-        function getInstance($number)
-        {
-            $number = !empty($number) ? $number : 0;
-            return isset(config("apiwha.instances")[$number])
-                ? config("apiwha.instances")[$number]
-                : config("apiwha.instances")[0];
+        if(!function_exists('getInstance')) {
+            function getInstance($number)
+            {
+                $number = !empty($number) ? $number : 0;
+                return isset(config("apiwha.instances")[$number])
+                    ? config("apiwha.instances")[$number]
+                    : config("apiwha.instances")[0];
+            }
         }
 
         $instance = getInstance($number);
@@ -196,4 +202,18 @@ class ChatApi
 // Send a request
         $result = file_get_contents($url, false, $options);
     }
+
+    public static function waitingLimit($number = null)
+    {
+        $result   = self::chatQueue($number);
+        $waiting  = 0;
+        
+        if (isset($result["totalMessages"]) && is_numeric($result["totalMessages"])) {
+            $waiting = $result["totalMessages"];
+        }    
+
+        return $waiting;
+
+    }
+
 }

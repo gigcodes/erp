@@ -6,11 +6,14 @@ use App\ChatMessage;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Services\Whatsapp\ChatApi\ChatApi;
 
 class SendQueuePendingChatMessages extends Command
 {
     const BROADCAST_PRIORITY        = 8;
     const MARKETING_MESSAGE_TYPE_ID = 3;
+
+    public $waitingMessages;
 
     /**
      * The name and signature of the console command.
@@ -44,6 +47,8 @@ class SendQueuePendingChatMessages extends Command
     public function handle()
     {
         try {
+
+
             $report = \App\CronJobReport::create([
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
@@ -56,7 +61,21 @@ class SendQueuePendingChatMessages extends Command
 
             // if message is approve then only need to run the queue
             if ($approveMessage == 1) {
+                
+                $allWhatsappNo         = config("apiwha.instances");
+                
+                $this->waitingMessages = [];
+                if (!empty($allWhatsappNo)) {
+                    foreach ($allWhatsappNo as $no => $dataInstance) {
+                        $this->waitingMessages[$no] = ChatApi::waitingLimit($no);
+                    }
+                }
+
+                echo '<pre>'; print_r($this->waitingMessages); echo '</pre>';exit;
+
                 $chatMessage = ChatMessage::where('is_queue', ">", 0)->limit($limit)->get();
+
+
                 foreach ($chatMessage as $value) {
                     // check first if message need to be send from broadcast
                     if ($value->is_queue > 1) {
