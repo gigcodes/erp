@@ -72,7 +72,7 @@ class RepositoryController extends Controller
         $repository = GithubRepository::find($repositoryId);
         $branches = $repository->branches;
 
-        $currentBranch = exec('sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/get_current_deployment.sh');
+        $currentBranch = exec('/usr/bin/sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/get_current_deployment.sh');
 
         //exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh master');
 
@@ -94,8 +94,11 @@ class RepositoryController extends Controller
 
         $branch = Input::get('branch');
         //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
-        exec('sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch);
-        return redirect(url('/github/repos/' . $repoId . '/branches'));
+        $result = exec('/usr/bin/sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch);
+        return redirect(url('/github/repos/' . $repoId . '/branches'))->with([
+            'message' => 'Branch merged successfully',
+            'alert-type' => 'success'
+        ]);
     }
 
     public function mergeBranch($id)
@@ -162,7 +165,7 @@ class RepositoryController extends Controller
         $pullRequests = $this->getPullRequests($repoId);
 
         $branchNames = array_map(
-            function($pullRequest){
+            function ($pullRequest) {
                 return $pullRequest['source'];
             },
             $pullRequests
@@ -170,9 +173,9 @@ class RepositoryController extends Controller
 
         $branchStates = GithubBranchState::whereIn('branch_name', $branchNames)->get();
 
-        foreach($pullRequests as $pullRequest){
+        foreach ($pullRequests as $pullRequest) {
             $pullRequest['branchState'] = $branchStates->first(
-                function($value, $key) use ($pullRequest){
+                function ($value, $key) use ($pullRequest) {
                     return $value->branch_name == $pullRequest['source'];
                 }
             );
