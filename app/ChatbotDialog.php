@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ChatbotDialog extends Model
 {
     protected $fillable = [
-        'name', 'title', 'parent_id', 'match_condition', 'workspace_id', 'previous_sibling', 'metadata','response_type',
+        'name', 'title', 'parent_id', 'match_condition', 'workspace_id', 'previous_sibling', 'metadata','response_type','dialog_type'
     ];
 
     public function response()
