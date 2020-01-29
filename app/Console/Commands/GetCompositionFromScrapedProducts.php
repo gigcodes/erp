@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
 use App\CronJobReport;
+use App\Product;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GetCompositionFromScrapedProducts extends Command
@@ -39,34 +40,37 @@ class GetCompositionFromScrapedProducts extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        Product::where('is_approved', 0)->orderBy('id', 'DESC')->where(function($query) {
-            $query->where('composition', '')->whereRaw('`short_description` = `composition`');
-        })->chunk(1000, function($products) {
-            foreach ($products as $product) {
-                $scrapedProducts = $product->many_scraped_products;
-                if (!$scrapedProducts) {
-                    continue;
-                }
-
-
-                foreach ($scrapedProducts as $scrapedProduct) {
-                    $properties = $scrapedProduct->properties;
-                    $composition = $properties['material_used'] ?? null;
-                    if ($composition !== 'null' && $composition !== null && $composition !== '') {
-                        dump($composition);
-                        $product->composition = title_case($composition);
-                        $product->save();
+            Product::where('is_approved', 0)->orderBy('id', 'DESC')->where(function ($query) {
+                $query->where('composition', '')->whereRaw('`short_description` = `composition`');
+            })->chunk(1000, function ($products) {
+                foreach ($products as $product) {
+                    $scrapedProducts = $product->many_scraped_products;
+                    if (!$scrapedProducts) {
                         continue;
                     }
-                }
-            }
-        });
 
-        $report->update(['end_time' => Carbon:: now()]);
+                    foreach ($scrapedProducts as $scrapedProduct) {
+                        $properties  = $scrapedProduct->properties;
+                        $composition = $properties['material_used'] ?? null;
+                        if ($composition !== 'null' && $composition !== null && $composition !== '') {
+                            dump($composition);
+                            $product->composition = title_case($composition);
+                            $product->save();
+                            continue;
+                        }
+                    }
+                }
+            });
+
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Customer;
 use App\CronJobReport;
+use App\Customer;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class SyncCustomersFromMagento extends Command
 {
@@ -40,56 +40,60 @@ class SyncCustomersFromMagento extends Command
      */
     public function handle()
     {
-
-        $report = CronJobReport::create([
-            'signature' => $this->signature,
-            'start_time'  => Carbon::now()
-        ]);
-
-        $options   = array(
-            'trace'              => true,
-            'connection_timeout' => 120,
-            'wsdl_cache'         => WSDL_CACHE_NONE,
-        );
-
-        $proxy = new \SoapClient( config('magentoapi.url'), $options);
         try {
-            $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-            //Get customer list from magento
-            $magentoCustomers = json_decode( json_encode( $proxy->customerCustomerList($sessionId) ), true );
+            $options = array(
+                'trace'              => true,
+                'connection_timeout' => 120,
+                'wsdl_cache'         => WSDL_CACHE_NONE,
+            );
 
-            //Loop through customers
-            if(count($magentoCustomers) > 0){
-                foreach($magentoCustomers as $k=>$customer){
-                    $customerId = $customer['customer_id'];
-                    $customerEmail = $customer['email'];
-                    $magentoCustomersAddress = json_decode( json_encode( $proxy->customerAddressList($sessionId, $customerId) ), true );
+            $proxy = new \SoapClient(config('magentoapi.url'), $options);
+            try {
+                $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
-                    if(count($magentoCustomersAddress) > 0){
-                        foreach($magentoCustomersAddress as $ck=>$customerAddress){
-                            if(trim($customerAddress['telephone']) != ''){
-                                $customerPhone = $this->formatPhonenumber($customerAddress['telephone'], $customerAddress['country_id']);
+                //Get customer list from magento
+                $magentoCustomers = json_decode(json_encode($proxy->customerCustomerList($sessionId)), true);
 
-                                //Check if customer exists in ERP, with email and phone number
-                                if(!$this->checkERPCustomer($customerEmail, $customerPhone)){
+                //Loop through customers
+                if (count($magentoCustomers) > 0) {
+                    foreach ($magentoCustomers as $k => $customer) {
+                        $customerId              = $customer['customer_id'];
+                        $customerEmail           = $customer['email'];
+                        $magentoCustomersAddress = json_decode(json_encode($proxy->customerAddressList($sessionId, $customerId)), true);
 
-                                    $customerInfo = $this->setCustomer($customer, $customerAddress);
+                        if (count($magentoCustomersAddress) > 0) {
+                            foreach ($magentoCustomersAddress as $ck => $customerAddress) {
+                                if (trim($customerAddress['telephone']) != '') {
+                                    $customerPhone = $this->formatPhonenumber($customerAddress['telephone'], $customerAddress['country_id']);
 
-                                    //Add new customer to ERP
-                                    $this->addNewCustomerToERP($customerInfo);
+                                    //Check if customer exists in ERP, with email and phone number
+                                    if (!$this->checkERPCustomer($customerEmail, $customerPhone)) {
+
+                                        $customerInfo = $this->setCustomer($customer, $customerAddress);
+
+                                        //Add new customer to ERP
+                                        $this->addNewCustomerToERP($customerInfo);
+                                    }
                                 }
                             }
                         }
                     }
                 }
+            } catch (\SoapFault $fault) {
+                // can't connect magento API server
+                dump("Can't connect Magento via SOAP: " . $fault->getMessage());
+                \App\CronJob::insertLastError($this->signature, $fault->getMessage());
             }
-        } catch (\SoapFault $fault) {
-            // can't connect magento API server
-            dump("Can't connect Magento via SOAP: " . $fault->getMessage());
-        }
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 
     /**
@@ -101,7 +105,7 @@ class SyncCustomersFromMagento extends Command
     {
         //$phone number might need format.. will have to check database for properly matching the phonenumber
         $customer = Customer::where('email', $email)->where('phone', $phonenumber)->first();
-        
+
         return ($customer) ? true : false;
     }
 
@@ -112,14 +116,14 @@ class SyncCustomersFromMagento extends Command
      */
     public function setCustomer($customerInfo, $customerAddress)
     {
-        $customer = [];
-        $customer['name'] = $customerInfo['firstname'].' '.$customerInfo['lastname'];
-        $customer['email'] = $customerInfo['email'];
+        $customer            = [];
+        $customer['name']    = $customerInfo['firstname'] . ' ' . $customerInfo['lastname'];
+        $customer['email']   = $customerInfo['email'];
         $customer['address'] = $customerAddress['street'];
-        $customer['city'] = $customerAddress['city'];
+        $customer['city']    = $customerAddress['city'];
         $customer['country'] = $customerAddress['country_id'];
         $customer['pincode'] = $customerAddress['postcode'];
-        $customer['phone'] = $this->formatPhonenumber($customerAddress['telephone'], $customerAddress['country_id']);
+        $customer['phone']   = $this->formatPhonenumber($customerAddress['telephone'], $customerAddress['country_id']);
 
         return $customer;
     }
@@ -131,14 +135,14 @@ class SyncCustomersFromMagento extends Command
      */
     public function addNewCustomerToERP($customerInfo)
     {
-        $customer = new Customer;
-        $customer->name = $customerInfo['name'];
-        $customer->email = $customerInfo['email'];
+        $customer          = new Customer;
+        $customer->name    = $customerInfo['name'];
+        $customer->email   = $customerInfo['email'];
         $customer->address = $customerInfo['address'];
-        $customer->city = $customerInfo['city'];
+        $customer->city    = $customerInfo['city'];
         $customer->country = $customerInfo['country'];
         $customer->pincode = $customerInfo['pincode'];
-        $customer->phone = $customerInfo['phone'];
+        $customer->phone   = $customerInfo['phone'];
 
         $customer->save();
     }
@@ -155,9 +159,9 @@ class SyncCustomersFromMagento extends Command
         /*$customerPhone = (int) str_replace(' ', '', $phonenumber);
         $customerPhone = str_replace(' ', '', $phonenumber);
         if ($country_id == 'IN') {
-            if (strlen($customerPhone) <= 10) {
-                $customerPhone = '91' . $customerPhone;
-            }
+        if (strlen($customerPhone) <= 10) {
+        $customerPhone = '91' . $customerPhone;
+        }
         }*/
 
         return $customerPhone;
