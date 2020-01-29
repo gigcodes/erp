@@ -39,6 +39,7 @@
                 <th>Number</th>
                 <th>Title</th>
                 <th>Branch</th>
+                <th>Deploy</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -48,6 +49,9 @@
                 <td>{{$pullRequest['id']}}</td>
                 <td>{{$pullRequest['title']}}</td>
                 <td>{{$pullRequest['source']}}</td>
+                <td>
+                    <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch='.urlencode($pullRequest['source'])) }}">Deploy</a>
+                </td>
                 <td>
                     <div>
                         <a class="btn btn-sm btn-secondary" href="{{url('/github/repos/'.$repository->id.'/branch/merge?source=master&destination='.urlencode($pullRequest['source']))}}">
