@@ -605,6 +605,7 @@ function getChatsWithoutRefresh(){
 	.done(function(data) {
 		 $('#message-recieve').empty().html(data.data.message);
 		 $('#message-id').val(data.data.id);
+		 getLanguage(data.data.id);
 		 $('#new_message_count').text(data.data.count);
 		 $('#user_name').text(data.data.name);
 		 $("li .active").removeClass("active");
@@ -619,6 +620,22 @@ function getChatsWithoutRefresh(){
 	.fail(function() {
 		console.log("error");
 	});
+}
+
+function getLanguage(customerId) {
+	$.ajax({
+		url: "{{ route('livechat.customer.language') }}",
+		type: 'GET',
+		dataType: 'json',
+		data: { id:customerId, _token: "{{ csrf_token() }}" },
+	})
+	.done(function(res) {
+		if(res.data.language) {
+			$('.selectedValue option[value="' + res.data.language + '"]').prop('selected', true);
+		} else {
+			$('.selectedValue option[value=""]').prop('selected', true);
+		}
+	})
 }
 
 function getUserList(){

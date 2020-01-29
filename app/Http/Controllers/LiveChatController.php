@@ -13,6 +13,7 @@ use Plank\Mediable\Mediable;
 use App\User;
 use App\LiveChatUser;
 use App\LivechatincSetting;
+use App\Helpers\TranslationHelper;
 
 
 class LiveChatController extends Controller
@@ -102,6 +103,14 @@ class LiveChatController extends Controller
 					}else{
 						$userID = null;
 					}
+					
+					$customerDetails = Customer::find($customerLiveChat->customer_id);
+	                $language = $customerDetails->language;
+	                if($language !=null)
+	                {
+	                    $result = TranslationHelper::translate($language, 'en', $message);
+	                    $message = $result.' -- '.$message;
+	                }
 					
 					$params = [
                     	'unique_id' => $chatDetails->chat_id,
@@ -235,6 +244,13 @@ class LiveChatController extends Controller
             $password = \Config('livechat.password');
 			$chatId = $request->id;
 			$message = $request->message;
+
+			$customerDetails = Customer::find($chatId);
+            $language = $customerDetails->language;
+            if($language !=null)
+            {
+                $message = TranslationHelper::translate('en', $language, $message);
+            }
 			
 			//Get Thread ID From Customer Live Chat
 			$customer = CustomerLiveChat::where('customer_id',$chatId)->first();

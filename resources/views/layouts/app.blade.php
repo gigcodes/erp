@@ -612,7 +612,7 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Broadcast<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
+                                            <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Grid</a>
                                             <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
                                             <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calender</a>
                                         </li>
@@ -626,6 +626,8 @@
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1039,6 +1041,12 @@
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('templates.type') }}">New List</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
+                                </li>
                             </ul>
                         </li>
                         @if(auth()->user()->isAdmin())
@@ -1214,6 +1222,16 @@
                                         </li>
                                     </ul>
                                 </li>
+
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Encryption<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('encryption.index')}}">Encryption Key</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
                             </ul>
                         </li>
                         @endif
@@ -1478,6 +1496,8 @@
             <button class="help-button"><span>+</span></button>
         </div>
     </div>
+
+
     @if($liveChatUsers != '' && $liveChatUsers != null)
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
@@ -1532,7 +1552,7 @@
                     <div class="col-md-6 chat">
                         <div class="card_chat">
                             <div class="card-header msg_head">
-                                <div class="d-flex bd-highlight">
+                                <div class="d-flex bd-highlight align-items-center justify-content-between">
                                     <div class="img_cont">
                                         <soan class="rounded-circle user_inital" id="user_inital"></soan>
                                         {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
@@ -1545,6 +1565,19 @@
                                     <div class="video_cam">
                                         <span><i class="fa fa-video"></i></span>
                                         <span><i class="fa fa-phone"></i></span>
+                                    </div>
+                                    @php
+                                        $path = storage_path('/');
+                                        $content = File::get($path."languages.json");
+                                        $language = json_decode($content, true);
+                                    @endphp
+                                    <div class="selectedValue">
+                                         <select id="autoTranslate" class="form-control auto-translate">
+                                            <option value="">Translation Language</option>
+                                            @foreach ($language as $key => $value) 
+                                                <option value="{{$value}}">{{$key}}</option>
+                                            @endforeach  
+                                        </select>
                                     </div>
                                 </div>
                                 <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
@@ -1573,7 +1606,7 @@
                                                 <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
                                                 <input type="file" id="imgupload" style="display:none" />
                                             </div>
-                                            <input type="hidden" id="message-id" />
+                                            <input type="hidden" id="message-id" name="message-id" />
                                             <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
                                             <div class="input-group-append">
                                                 <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
@@ -1719,6 +1752,48 @@
             });
         });
 
+        @if(session()->has('encrpyt'))
+        
+        var inactivityTime = function () {
+            var time;
+            window.onload = resetTimer;
+            // DOM Events
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+
+        function remove_key() {
+            $.ajax({
+            url: "{{ route('encryption.forget.key') }}",
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                private: '1',
+                "_token": "{{ csrf_token() }}",
+            },
+            })
+            .done(function() {
+                alert('Please Insert Private Key');
+                location.reload();
+                console.log("success");
+            })
+            .fail(function() {
+                console.log("error");
+            })  
+        }
+
+        function resetTimer() {
+            clearTimeout(time);
+            time = setTimeout(remove_key, 1200000)
+            // 1000 milliseconds = 1 second
+        }
+        };
+
+        window.onload = function() {
+            inactivityTime(); 
+        }
+
+        @endif
+
         var getNotesList = function() {
             //$.ajax({
             //            type: "GET",
@@ -1848,6 +1923,27 @@
                 } else {}
             }
         }
+
+        $(document).on('change', '#autoTranslate', function (e) {
+             e.preventDefault();
+            var customerId = $("input[name='message-id'").val();
+            var language = $(".auto-translate").val();
+            let self = $(this);
+            $.ajax({
+                url: "/customer/language-translate/"+customerId,
+                method:"PUT",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                  },
+                data:{id:customerId, language:language },
+                cache: true,
+                success: function(res) {
+                    $('.selectedValue option[value="' + language + '"]').prop('selected', true);
+                    alert(res.success);
+                }
+            })
+        });
+       
     </script>
 
 </body>
