@@ -4,16 +4,13 @@ namespace App\Console\Commands;
 
 use App\ColorNamesReference;
 use App\Colors;
-use App\PictureColors;
-use App\Product;
-use ColorThief\ColorThief;
 use App\CronJobReport;
+use App\Product;
+use Carbon\Carbon;
+use ColorThief\ColorThief;
 use Illuminate\Console\Command;
 use League\ColorExtractor\Color;
-use League\ColorExtractor\ColorExtractor;
-use League\ColorExtractor\Palette;
 use ourcodeworld\NameThatColor\ColorInterpreter as NameThatColor;
-
 
 class ExtractImageColors extends Command
 {
@@ -48,62 +45,64 @@ class ExtractImageColors extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $ourColors = ColorNamesReference::pluck('erp_name', 'color_name')->toArray();
-        $availableColors = (new Colors())->all();
+            $ourColors       = ColorNamesReference::pluck('erp_name', 'color_name')->toArray();
+            $availableColors = (new Colors())->all();
 
-        Product::where('is_approved', 1)->where('id', '183946')->chunk(1000, function($products) use ($ourColors, $availableColors) {
-            foreach ($products as $product) {
+            Product::where('is_approved', 1)->where('id', '183946')->chunk(1000, function ($products) use ($ourColors, $availableColors) {
+                foreach ($products as $product) {
 
 //                if (isset($availableColors[$product->color])) {
-//                    dump('skipped');
-//                    continue;
-//                }
+                    //                    dump('skipped');
+                    //                    continue;
+                    //                }
 
-                $imageUrl = $product->getMedia(config('constants.media_tags'))->first();
+                    $imageUrl = $product->getMedia(config('constants.media_tags'))->first();
 
-                if (!$imageUrl) {
-                    continue;
+                    if (!$imageUrl) {
+                        continue;
+                    }
+
+                    $image = $product->getMedia(config('constants.media_tags'))->first();
+
+                    $imageUrl = $image->getUrl();
+
+                    try {
+                        $rgb = ColorThief::getColor($imageUrl);
+                    } catch (\Exception $exception) {
+                        continue;
+                    }
+
+                    $rgbColor = [
+                        'r' => $rgb[0],
+                        'g' => $rgb[1],
+                        'b' => $rgb[2],
+                    ];
+
+                    $hex = Color::fromIntToHex(Color::fromRgbToInt($rgbColor));
+                    dump($hex);
+                    $nameThatColor = new NameThatColor();
+                    $color         = $nameThatColor->name($hex)['name'];
+                    $color         = $ourColors[$color];
+
+                    dump($color);
+
+                    $product->color = $color;
+                    $product->save();
+
+                    dump('Saved: ' . $color);
+
                 }
+            });
 
-                $image = $product->getMedia(config('constants.media_tags'))->first();
-
-                $imageUrl = $image->getUrl();
-
-                try {
-                    $rgb = ColorThief::getColor($imageUrl);
-                } catch (\Exception $exception) {
-                    continue;
-                }
-
-                $rgbColor = [
-                    'r' => $rgb[0],
-                    'g' => $rgb[1],
-                    'b' => $rgb[2],
-                ];
-
-
-                $hex =  Color::fromIntToHex(Color::fromRgbToInt($rgbColor));
-                dump($hex);
-                $nameThatColor = new NameThatColor();
-                $color = $nameThatColor->name($hex)['name'];
-                $color = $ourColors[$color];
-
-                dump($color);
-
-
-                $product->color = $color;
-                $product->save();
-
-                dump('Saved: ' . $color);
-
-            }
-        });
-
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

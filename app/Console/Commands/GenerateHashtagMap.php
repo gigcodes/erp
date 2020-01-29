@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Services\Explorer\InstagramExplorer;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
-
 
 class GenerateHashtagMap extends Command
 {
@@ -39,15 +39,19 @@ class GenerateHashtagMap extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+        try {
+            $report = \App\CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $explorer = new InstagramExplorer();
-        $explorer->loginToInstagram();
-        $explorer->getSimilarHashtags();
+            $explorer = new InstagramExplorer();
+            $explorer->loginToInstagram();
+            $explorer->getSimilarHashtags();
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }
