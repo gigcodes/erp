@@ -697,7 +697,7 @@ class LiveChatController extends Controller
 	*   data - data that has to be sent in curl call. This can be optional if GET
 	* @return - response from curl call, array(response, err)
 	*/
-	function curlCall($URL, $data=false, $contentType=false, $defaultAuthorization=true, $method='POST'){
+	function curlCall($URL, $data=false, $contentType=false, $defaultAuthorization=true, $method='POST', $additionalHeaders=false){
 		$curl = curl_init();
 
 		$curlData = array(
@@ -729,7 +729,13 @@ class LiveChatController extends Controller
 		if($data){
 			$curlData[CURLOPT_POSTFIELDS] = $data;
 		}
+		if($additionalHeaders){
+			$curlData += $additionalHeaders;
+		}
 
+		if($additionalHeaders){
+			$curlData += $additionalHeaders;
+		}
 		curl_setopt_array($curl, $curlData);
 		$response = curl_exec($curl);
 		$err = curl_error($curl);
@@ -790,6 +796,36 @@ class LiveChatController extends Controller
 				// print_r($response);
 				//return $response->url;
 				return response()->json(['status' => 'success', 'filename' => $filename, 'fileCDNPath' => $fileCDNPath, 'responseData' => $response], 200);
+			}
+		}
+	}
+
+	/**
+	* Get tickets from livechat inc and put them as unread messages
+	* 
+	* https://developers.livechatinc.com/docs/management/configuration-api/v2.0/#tickets
+	* https://api.livechatinc.com/tickets?assigned=0
+	*/
+	function getLiveChatIncTickets(){
+
+		$postURL = 'https://api.livechatinc.com/v2/tickets';
+		$additionalHeaders = [];
+		$additionalHeaders[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
+		$additionalHeaders[CURLOPT_USERPWD] = 'yogeshmordani@icloud.com:dal:TCq0caYaTk2wBLrwu8-hmw';
+		$additionalHeaders[CURLOPT_HTTPHEADER] = ['X-API-Version: 2'];
+
+		$result = self::curlCall($postURL, false, false, false, 'GET', $additionalHeaders);
+		if($result['err']){
+			return false;
+		}
+		else{
+			$response = json_decode($result['response']);
+			if(isset($response->error)){			
+				return false;
+			}
+			else{
+				$responseData = json_decode($result['response'], true);
+				return $responseData['tickets'];
 			}
 		}
 	}
