@@ -68,7 +68,7 @@ class SendHubstaffReport extends Command
                 ->select(['hubstaff_user_id', 'name'])
                 ->get();
 
-            $report = array();
+            $hubstaffReport = array();
             foreach ($users as $user) {
 
                 $pastHour = (isset($userPastHour[$user->hubstaff_user_id])
@@ -81,11 +81,11 @@ class SendHubstaffReport extends Command
 
                 if ($today != '0') {
                     $message  = $user->name . ' ' . $pastHour . ' ' . $today;
-                    $report[] = $message;
+                    $hubstaffReport[] = $message;
                 }
             }
 
-            $message = implode(PHP_EOL, $report);
+            $message = implode(PHP_EOL, $hubstaffReport);
 
             ChatMessage::sendWithChatApi('971502609192', null, $message);
             $report->update(['end_time' => Carbon::now()]);
