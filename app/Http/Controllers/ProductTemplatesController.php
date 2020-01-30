@@ -11,6 +11,7 @@ use App\Setting;
 use App\ProductTemplate;
 use App\Template;
 use App\Category;
+use App\Product;
 
 class ProductTemplatesController extends Controller
 {
