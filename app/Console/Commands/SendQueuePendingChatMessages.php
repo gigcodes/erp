@@ -6,11 +6,15 @@ use App\ChatMessage;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Services\Whatsapp\ChatApi\ChatApi;
 
 class SendQueuePendingChatMessages extends Command
 {
     const BROADCAST_PRIORITY        = 8;
     const MARKETING_MESSAGE_TYPE_ID = 3;
+    const MESSAGE_QUEUE_PENDING_LIMIT = 300;
+
+    public $waitingMessages;
 
     /**
      * The name and signature of the console command.
@@ -44,6 +48,8 @@ class SendQueuePendingChatMessages extends Command
     public function handle()
     {
         try {
+
+
             $report = \App\CronJobReport::create([
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
@@ -56,7 +62,22 @@ class SendQueuePendingChatMessages extends Command
 
             // if message is approve then only need to run the queue
             if ($approveMessage == 1) {
+                
+                $allWhatsappNo         = config("apiwha.instances");
+                
+                $this->waitingMessages = [];
+                if (!empty($allWhatsappNo)) {
+                    foreach ($allWhatsappNo as $no => $dataInstance) {
+                        $no = ($no == 0) ? $dataInstance["number"] : $no;
+                        $chatApi = new ChatApi;
+                        $waitingMessage = $chatApi->waitingLimit($no);
+                        $this->waitingMessages[$no] = $waitingMessage;
+                    }
+                }
+                
                 $chatMessage = ChatMessage::where('is_queue', ">", 0)->limit($limit)->get();
+
+
                 foreach ($chatMessage as $value) {
                     // check first if message need to be send from broadcast
                     if ($value->is_queue > 1) {
@@ -89,6 +110,15 @@ class SendQueuePendingChatMessages extends Command
                         $value->save();
 
                     } else {
+
+                        // check message is full or not 
+                        $isSendingLimitFull = isset($this->waitingMessage[$value->customer->whatsapp_number]) 
+                        ? $this->waitingMessage[$value->customer->whatsapp_number] : 0;
+                        // if message queue is full then go for the next;
+                        if($isSendingLimitFull >= self::MESSAGE_QUEUE_PENDING_LIMIT) {
+                            continue;
+                        }
+
                         $myRequest = new Request();
                         $myRequest->setMethod('POST');
                         $myRequest->request->add(['messageId' => $value->id]);

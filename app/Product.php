@@ -34,7 +34,8 @@ class Product extends Model
     protected $fillable = [
         'sku',
         'is_barcode_check',
-        'has_mediables'
+        'has_mediables',
+        'size_eu'
     ];
     protected $dates = ['deleted_at'];
     protected $appends = [];
