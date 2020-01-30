@@ -1,7 +1,7 @@
 @foreach($data as $key=>$datum)
                     <tr>
                         <td>{{ $key+1 }}</td>
-                        <td><a href="/scrap/gmails/{{ $datum->id }}" target="_blank">Visit</a></td>
+                        <td><a href="/scrap/gmails/{{ $datum->sender }}" target="_blank">Visit</a></td>
                         <td>{{ $datum->sender }}</td>
                         <td>{{ $datum->received_at }}</td>
                         <td>

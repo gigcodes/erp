@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Plank\Mediable\Media;
-use App\CronJobReport;
-
-use Storage;
+use Carbon\Carbon;
 
 class ReplaceJpegImageWithJpg extends Command
 {
@@ -42,32 +41,35 @@ class ReplaceJpegImageWithJpg extends Command
     public function handle()
     {
 
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
+            $medias = Media::where('extension', 'jpeg')->get();
 
-        $medias = Media::where('extension', 'jpeg')->get();
+            foreach ($medias as $media) {
+                $absolutePath    = $media->getAbsolutePath();
+                $newAbsolutePath = substr($absolutePath, 0, -4) . 'jpg';
 
-        foreach ($medias as $media) {
-            $absolutePath = $media->getAbsolutePath();
-            $newAbsolutePath = substr($absolutePath, 0, -4) . 'jpg';
+                if (file_exists($absolutePath)) {
+                    dump('exists..');
+                }
 
-            if (file_exists($absolutePath)) {
-                dump('exists..');
-            }
-
-            try {
-                rename($absolutePath, $newAbsolutePath);
-                $media->extension = 'jpg';
-                $media->save();
-                dump('done...');
-            } catch (\Exception $exception) {
+                try {
+                    rename($absolutePath, $newAbsolutePath);
+                    $media->extension = 'jpg';
+                    $media->save();
+                    dump('done...');
+                } catch (\Exception $exception) {
 //                dump($exception);
+                }
             }
-        }
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

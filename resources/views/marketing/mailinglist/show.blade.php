@@ -76,6 +76,10 @@
         .slider.round:before {
             border-radius: 50%;
         }
+
+        .show_select {
+            display: none;
+        }
     </style>
 @endsection
 
@@ -124,7 +128,13 @@
                             : {{$customers->total()}}</button>
                         <button type="button" class="btn btn-secondary" id="selectDND">DND Customers
                             : {{ $countDNDCustomers }}</button>
+                        <br>
+                        <div style="margin-top: 7px;">
+                            <button type="button" class="btn btn-secondary" id="select">Select</button>
+                            <button type="button" class="btn btn-secondary" id="enable">Enable</button>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -149,6 +159,7 @@
         <table class="table table-bordered" id="passwords-table">
             <thead>
             <tr>
+                <th class="show_select">Select All</th>
                 <th style="">Customer ID</th>
                 <th style="">Customer Name</th>
                 <th style="">Email</th>
@@ -157,12 +168,25 @@
                         <option>Select DND Users</option>
                     </select>
                 </th>
-                <th style="">Actions</th>
+                <th style="">Manual Approval</th>
                 <th>Remarks</th>
             </thead>
             <tbody>
+            <tr>
+                <th class="show_select"><input type="checkbox" class="form-control" id="select_all"></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>
+                </th>
+                <th></th>
+                <th></th>
+            </tr>
             @foreach($customers as $value)
                 <tr>
+                    <td class="show_select"><input type="checkbox" name="select" class="form-control checkbox_select"
+                                                   value="{{$value->id}}" data-id="{{$id}}" data-email="{{$value['email']}}"></td>
                     <td>{{$value["id"]}}</td>
                     <td>{{$value["name"]}}</td>
                     <td>{{$value["email"]}}</td>
@@ -180,11 +204,20 @@
                             <span class="slider round"></span>
                         </label>
                     </td>
-                    <td>@if(!in_array($value['id'], $contacts))<a
-                                href="{{route('mailingList.add_to_list', [$id, $value['email']])}}"><i
-                                    class="fa fa-plus"></i></a>@else<a
-                                href="{{route('mailingList.delete', [$id, $value['email']])}}"><i
-                                    class="fa fa-minus"></i></a>@endif</td>
+                    <td>
+                        <label class="switch" style="margin: 0px">
+                            @if(in_array($value['id'], $contacts))
+                                <input type="hidden" id="checkbox_value_dnd">
+                                <input type="checkbox" class="checkbox" checked value="{{ $value->id }}"
+                                       onclick="disable({{$id}},'{{$value['email']}}')">
+                            @else
+                                <input type="hidden" id="checkbox_value_dnd">
+                                <input type="checkbox" class="checkbox" value="{{ $value->id }}"
+                                       onclick="enable({{$id}},'{{$value['email']}}')" id="marketing{{ $value->id }}">
+                            @endif
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
                     <td>
                         <button type="button" class="btn btn-image make-remarks d-inline" data-toggle="modal"
                                 data-target="#makeRemarksModal" data-id="{{$value->id}}">
@@ -207,7 +240,7 @@
                 </div>
                 <div class="modal-body">
                     <div id="remarks-list">
-                        <p> werwer <br> <small>By Malcolm Hyatt updated on 22-1 12:10 </small></p>
+                        <p><br> <small> </small></p>
                     </div>
 
                     <form class="add-remarks"></form>
@@ -231,104 +264,189 @@
 
 
 @section('scripts')
+
     <script !src="">
-        function enableDND(id) {
-            method = $('#checkbox_value_dnd').val();
-            if (method == 1) {
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ route('broadcast.add.dnd') }}',
-                    data: {
-                        id: id,
-                        type: 1,
-                    }, success: function (data) {
-                        console.log(data);
-                        if (data.status == 'error') {
-                            // alert('Something went wrong');
-                        } else {
-                            $('#checkbox_value_dnd').val('0');
-                            alert('Customer Added to DND');
-
-                        }
-
-                    },
-                    error: function (data) {
-                        alert('Something went wrong');
-                    }
-                });
-
-            } else {
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ route('broadcast.add.dnd') }}',
-                    data: {
-                        id: id,
-                        type: 0,
-                    }, success: function (data) {
-                        console.log(data);
-                        if (data.status == 'error') {
-                            //    alert('Something went wrong');
-                        } else {
-                            $('#checkbox_value_dnd').val('1');
-                            alert('Customer Removed From DND');
-
-                        }
-                    },
-                    error: function (data) {
-                        alert('Something went wrong');
-                    }
-                });
-
-            }
-        }
-        $('#addRemarksButton').on('click', function () {
-            var id = $('.id').val();
-            var remark = $('.remark').val();
-            $.ajax({
-                type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                url: '{{ route('mailingList.addRemark') }}',
-                data: {
-                    id: id,
-                    remark: remark,
-                },
-            }).done(response => {
-                $('.add-remarks').find('textarea[name="remark"]').val('');
-
-                var html = ' <p> ' + remark + ' <br> <small>By You updated on ' + moment().format('DD-M H:mm') + ' </small></p>';
-
-                $("#makeRemarksModal").find('#remarks-list').append(html);
-            }).fail(function (response) {
-                console.log(response);
-
-                alert('Could not fetch remarks');
-            });
+        $("#select").click(function () {
+            $(".show_select").toggle();
         });
-        $(document).on('click', '.make-remarks', function (e) {
-            e.preventDefault();
-
-            var id = $(this).data('id');
-            $('.id').val(id);
-            $.ajax({
-                type: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                url: '{{ route('mailingList.gets.remark') }}',
-                data: {
-                    id: id,
-                },
-            }).done(response => {
-                var html = '';
-
-                $.each(response, function (index, value) {
-                    html += ' <p> ' + value.text + ' <br> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></p>';
-                    html + "<hr>";
+        $("#enable").click(function () {
+            val = $('input[name="select"]:checked');
+            if (val.length == 0) {
+                alert('Please Select Customer');
+            } else {
+                $('input[name="select"]:checked').each(function () {
+                    id = this.value;
+                    email = $(this).attr('data-email');
+                    id_v = $(this).attr('data-id');
+                    $.ajax({
+                        url: "{{ route('mailinglist.add.manual') }}",
+                        dataType: "json",
+                        data: {
+                            id: id_v,
+                            email: email,
+                        },
+                        beforeSend: function () {
+                            $("#loading-image").show();
+                            $("#marketing" + id).prop('checked', true);
+                        },
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        alert('No response from server');
+                    });
                 });
-                $("#makeRemarksModal").find('#remarks-list').html(html);
+                // alert('Customer Updated');
+            }
+        });
+        //select all checkboxes
+        $("#select_all").change(function () {  //"select all" change
+            $(".checkbox_select").prop('checked', $(this).prop("checked")); //change all ".checkbox" checked status
+        });
+
+        //".checkbox" change
+        $('.checkbox_select').change(function () {
+            //uncheck "select all", if one of the listed checkbox item is unchecked
+            if (false == $(this).prop("checked")) { //if this item is unchecked
+                $("#select_all").prop('checked', false); //change "select all" checked status to false
+            }
+            //check "select all" if all checkbox items are checked
+            if ($('.checkbox_select:checked').length == $('.checkbox_select').length) {
+                $("#select_all").prop('checked', true);
+            }
+        });
+
+            function disable(id, email) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/marketing/mailinglist/delete/' + id + '/' + email,
+                    success: function (data) {
+                        if (data.status == 'error') {
+                            alert('Something went wrong');
+                        } else {
+                            alert('Customer removed');
+                        }
+                    },
+                    error: function (data) {
+                        alert('Something went wrong');
+                    }
+                });
+            }
+
+            function enable(id, email) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/marketing/mailinglist/add/' + id + '/' + email,
+                    success: function (data) {
+                        if (data.status == 'error') {
+                            alert('Something went wrong');
+                        } else {
+                            alert('Customer Added');
+                        }
+                    },
+                    error: function (data) {
+                        alert('Something went wrong');
+                    }
+                });
+            }
+
+            function enableDND(id) {
+                method = $('#checkbox_value_dnd').val();
+                if (method == 1) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '{{ route('broadcast.add.dnd') }}',
+                        data: {
+                            id: id,
+                            type: 1,
+                        }, success: function (data) {
+                            console.log(data);
+                            if (data.status == 'error') {
+                                // alert('Something went wrong');
+                            } else {
+                                $('#checkbox_value_dnd').val('0');
+                                alert('Customer Added to DND');
+
+                            }
+
+                        },
+                        error: function (data) {
+                            alert('Something went wrong');
+                        }
+                    });
+
+                } else {
+                    $.ajax({
+                        type: 'GET',
+                        url: '{{ route('broadcast.add.dnd') }}',
+                        data: {
+                            id: id,
+                            type: 0,
+                        }, success: function (data) {
+                            console.log(data);
+                            if (data.status == 'error') {
+                                //    alert('Something went wrong');
+                            } else {
+                                $('#checkbox_value_dnd').val('1');
+                                alert('Customer Removed From DND');
+
+                            }
+                        },
+                        error: function (data) {
+                            alert('Something went wrong');
+                        }
+                    });
+
+                }
+            }
+
+            $('#addRemarksButton').on('click', function () {
+                var id = $('.id').val();
+                var remark = $('.remark').val();
+                $.ajax({
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: '{{ route('mailingList.addRemark') }}',
+                    data: {
+                        id: id,
+                        remark: remark,
+                    },
+                }).done(response => {
+                    $('.add-remarks').find('textarea[name="remark"]').val('');
+
+                    var html = ' <p> ' + remark + ' <br> <small>By You updated on ' + moment().format('DD-M H:mm') + ' </small></p>';
+
+                    $("#makeRemarksModal").find('#remarks-list').append(html);
+                }).fail(function (response) {
+                    console.log(response);
+
+                    alert('Could not fetch remarks');
+                });
             });
+            $(document).on('click', '.make-remarks', function (e) {
+                e.preventDefault();
+
+                var id = $(this).data('id');
+                $('.id').val(id);
+                $.ajax({
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: '{{ route('mailingList.gets.remark') }}',
+                    data: {
+                        id: id,
+                    },
+                }).done(response => {
+                    var html = '';
+
+                    $.each(response, function (index, value) {
+                        html += ' <p> ' + value.text + ' <br> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></p>';
+                        html + "<hr>";
+                    });
+                    $("#makeRemarksModal").find('#remarks-list').html(html);
+                });
         });
     </script>
 @endsection

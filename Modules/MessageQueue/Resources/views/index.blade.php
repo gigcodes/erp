@@ -3,6 +3,11 @@
 
 @section('title', 'List | Message Queue')
 
+@section('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+@endsection
+
 @section('content')
 
 <div class="row" id="message-queue-page">
@@ -10,6 +15,36 @@
         <h2 class="page-heading">Message Queue <span id="total-counter"></span></h2>
     </div>
     <br>
+    <div class="col-lg-12 margin-tb">
+		<button data-toggle="collapse" href="#collapse-message-queue" class="collapsed btn btn-secondary" aria-expanded="false">Search message queue count</button>
+		<div class="panel-group">
+			<div id="collapse-message-queue" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+				<div class="panel-body">
+					<div class="row">
+			    		<form id="message-fiter-handler" action="{{ route('message-queue.report') }}" method="GET">
+		                	<div class="pull-left">
+		                		<div class="form-group">
+	                    	    	<div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+		                                <input type="hidden" name="customrange" id="custom" value="{{ isset($customrange) ? $customrange : '' }}">
+		                                <i class="fa fa-calendar"></i>&nbsp;
+		                                <span @if(isset($customrange)) style="display:none;" @endif id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ isset($customrange) ? $from .' '.$to : '' }}</p><i class="fa fa-caret-down"></i>
+		                            </div>
+			                    </div>
+		                	</div>	
+		                	<div class="pull-right">
+	                            <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-filter-report">
+						  			<img src="/images/search.png" style="cursor: default;">
+						  		</button>
+		                	</div>
+			    		</form>
+					</div>	
+					<div class="row send-message-report">
+							
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>	
     <div class="col-lg-12 margin-tb">
     	<div class="row" style="margin-bottom:20px;">
 	    	<div class="col col-md-5">
@@ -36,20 +71,33 @@
 					  </div>	
 					</form>
 					<form class="form-inline message-queue-limit-handler" method="post">
-					  <div class="row">
-				  		<div class="col">
-				  			<div class="form-group">
-							    <label for="action">Message Per 5 Min:</label>
-							    {{ Form::text("message_sending_limit",isset($sendingLimit) ? $sendingLimit : 0,["class" => "form-control message_sending_limit"] ) }}
-						  	</div>
-						  	<div class="form-group">
-						  		<label for="button">&nbsp;</label>
-						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-send-limit">
-						  			<img src="/images/filled-sent.png" style="cursor: default;">
-						  		</button>
-						  	</div>		
-				  		</div>
-					  </div>	
+						<?php echo csrf_field(); ?>
+					  	<div class="row">
+					  		<div class="col">
+					  			<div class="form-group">
+								    <label for="message_sending_limit">Message Per 5 Min:</label>
+								    {{ Form::text("message_sending_limit",isset($sendingLimit) ? $sendingLimit : 0,["class" => "form-control message_sending_limit"] ) }}
+							  	</div>		
+					  		</div>
+					  	</div>
+					  	<div class="row">
+					  		<div class="col">
+					  			<div class="form-group">
+								    <label for="send_start_time">Start Time:</label>
+								    {{ Form::time("send_start_time",isset($sendStartTime) ? $sendStartTime : 0,["class" => "form-control message_sending_start" , "datetime" => "hh:mm"] ) }}
+							  	</div>
+							  	<div class="form-group">
+								    <label for="send_end_time">End Time:</label>
+								    {{ Form::time("send_end_time",isset($sendEndTime) ? $sendEndTime : 0,["class" => "form-control message_sending_end" , "datetime" => "hh:mm"] ) }}
+							  	</div>
+							  	<div class="form-group">
+							  		<label for="button">&nbsp;</label>
+							  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-send-limit">
+							  			<img src="/images/filled-sent.png" style="cursor: default;">
+							  		</button>
+							  	</div>		
+					  		</div>
+					  	</div>	
 					</form>	
 		    	</div>
 		    </div>
@@ -101,18 +149,23 @@
 
 @include("messagequeue::templates.list-template")
 
-<script type="text/javascript" src="/js/jsrender.min.js"></script>
-<script type="text/javascript" src="/js/jquery.validate.min.js"></script>
-<script src="/js/jquery-ui.js"></script>
-<script type="text/javascript" src="/js/common-helper.js"></script>
-<script type="text/javascript" src="/js/message-queue.js"></script>
-
-<script type="text/javascript">
-	msQueue.init({
-		bodyView : $("#message-queue-page"),
-		baseUrl : "<?php echo url("/"); ?>"
-	});
-</script>
 
 @endsection
+
+@section('scripts')
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+	<script type="text/javascript" src="/js/jsrender.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.validate.min.js"></script>
+	<script src="/js/jquery-ui.js"></script>
+	<script type="text/javascript" src="/js/common-helper.js"></script>
+	<script type="text/javascript" src="/js/message-queue.js"></script>
+	<script type="text/javascript">
+		msQueue.init({
+			bodyView : $("#message-queue-page"),
+			baseUrl : "<?php echo url("/"); ?>"
+		});
+	</script>
+@endsection
+
 

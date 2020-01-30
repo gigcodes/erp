@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Carbon\Carbon;
-use App\Voucher;
 use App\CronJobReport;
 use App\Mail\VoucherReminder;
+use App\Voucher;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
 class SendVoucherReminder extends Command
@@ -42,24 +42,28 @@ class SendVoucherReminder extends Command
      */
     public function handle()
     {
-      $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-      ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-      $before = Carbon::now()->subDays(5)->format('Y-m-d 00:00:00');
-      $vouchers = Voucher::where('date', '<=', $before)->get();
+            $before   = Carbon::now()->subDays(5)->format('Y-m-d 00:00:00');
+            $vouchers = Voucher::where('date', '<=', $before)->get();
 
-      foreach ($vouchers as $voucher) {
-        $credit = $voucher->amount - $voucher->paid;
+            foreach ($vouchers as $voucher) {
+                $credit = $voucher->amount - $voucher->paid;
 
-        if ($credit > 0) {
-          Mail::to('yogeshmordani@icloud.com')
-              ->cc('hr@sololuxury.co.in')
-              ->send(new VoucherReminder($voucher));
+                if ($credit > 0) {
+                    Mail::to('yogeshmordani@icloud.com')
+                        ->cc('hr@sololuxury.co.in')
+                        ->send(new VoucherReminder($voucher));
+                }
+            }
+
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-      }
-
-      $report->update(['end_time' => Carbon:: now()]);
     }
 }

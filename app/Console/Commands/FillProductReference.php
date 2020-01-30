@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
 use App\CronJobReport;
+use App\Product;
 use App\ProductReference;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class FillProductReference extends Command
@@ -40,39 +41,41 @@ class FillProductReference extends Command
      */
     public function handle()
     {
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-      $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+            $products = Product::all();
 
+            foreach ($products as $product) {
+                $reference             = new ProductReference;
+                $reference->product_id = $product->id;
+                $reference->sku        = $product->sku;
+                $reference->color      = $product->color;
+                $reference->save();
 
-      $products = Product::all();
+                if (!empty($product->size)) {
+                    $sizes = explode(',', $product->size);
 
-  		foreach ($products as $product) {
-  			$reference = new ProductReference;
-  			$reference->product_id = $product->id;
-        $reference->sku = $product->sku;
-  			$reference->color = $product->color;
-  			$reference->save();
+                    foreach ($sizes as $size) {
+                        $reference             = new ProductReference;
+                        $reference->product_id = $product->id;
+                        $reference->sku        = $product->sku;
+                        $reference->color      = $product->color;
+                        $reference->size       = $size;
+                        $reference->save();
+                        dump($size);
+                    }
+                }
+            }
 
-  			if (!empty($product->size)) {
-  				$sizes = explode(',', $product->size);
+            dd('stap');
 
-  				foreach ($sizes as $size) {
-  					$reference = new ProductReference;
-            $reference->product_id = $product->id;
-            $reference->sku = $product->sku;
-            $reference->color = $product->color;
-      			$reference->size = $size;
-  					$reference->save();
-            dump($size);
-  				}
-  			}
-  		}
-
-  		dd('stap');
-
-      $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

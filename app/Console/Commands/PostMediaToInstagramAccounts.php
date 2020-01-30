@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Account;
+use App\CronJobReport;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
-use App\CronJobReport;
-use InstagramAPI\Media\Photo\InstagramPhoto;
 
 class PostMediaToInstagramAccounts extends Command
 {
@@ -41,47 +40,48 @@ class PostMediaToInstagramAccounts extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
+            $instagram = new Instagram();
 
+            $accounts = 'shrikirtiraha23,balachander83,ashnauppalapati81,vinayafalodiya55';
+            $accounts = explode(',', $accounts);
 
-        $instagram = new Instagram();
+            foreach ($accounts as $account) {
+                try {
+                    $instagram->login($account, 'This123!@#');
+                } catch (\Exception $exception) {
+                    continue;
+                }
 
-        $accounts = 'shrikirtiraha23,balachander83,ashnauppalapati81,vinayafalodiya55';
-        $accounts = explode(',', $accounts);
+                for ($i = 1; $i < 10; $i++) {
+                    echo "FOR $account \n";
+                    $filename             = __DIR__ . '/images/' . $i . '.jpeg';
+                    $source               = imagecreatefromjpeg($filename);
+                    list($width, $height) = getimagesize($filename);
 
-        foreach ($accounts as $account) {
-            try {
-                $instagram->login($account, 'This123!@#');
-            } catch (\Exception $exception) {
-                continue;
+                    $newwidth  = 800;
+                    $newheight = 800;
+
+                    $destination = imagecreatetruecolor($newwidth, $newheight);
+                    imagecopyresampled($destination, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+
+                    imagejpeg($destination, __DIR__ . '/images/' . $i . '.jpeg', 100);
+
+                    $instagram->timeline->uploadPhoto($filename);
+
+                    sleep(10);
+
+                }
             }
 
-
-            for ($i=1;$i<10;$i++) {
-                echo "FOR $account \n";
-                $filename = __DIR__ . '/images/'. $i . '.jpeg';
-                $source = imagecreatefromjpeg($filename);
-                list($width, $height) = getimagesize($filename);
-
-                $newwidth = 800;
-                $newheight = 800;
-
-                $destination = imagecreatetruecolor($newwidth, $newheight);
-                imagecopyresampled($destination, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-
-                imagejpeg($destination, __DIR__ . '/images/'. $i . '.jpeg', 100);
-
-                $instagram->timeline->uploadPhoto($filename);
-
-                sleep(10);
-
-            }
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        $report->update(['end_time' => Carbon:: now()]);
     }
 }

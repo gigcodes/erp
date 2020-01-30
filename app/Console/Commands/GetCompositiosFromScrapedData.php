@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Compositions;
-use App\Product;
 use App\CronJobReport;
+use App\Product;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GetCompositiosFromScrapedData extends Command
@@ -35,67 +36,71 @@ class GetCompositiosFromScrapedData extends Command
 
     public function handle(): void
     {
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+            Product::where('composition', '')->orWhereNull('composition')->orderBy('created_at', 'DESC')->chunk(1000, function ($products) {
+                foreach ($products as $product) {
+                    $scrapedProducts = $product->many_scraped_products;
+                    $found           = false;
+                    foreach ($scrapedProducts as $scrapedProduct) {
+                        $property    = $scrapedProduct->properties;
+                        $composition = $property['composition'] ?? '';
+                        if ($composition) {
+                            dump($composition);
+                            $product->composition = $composition;
+                            $product->save();
+                            $found = true;
+                            break;
+                        }
+                        $composition = $property['material_used'] ?? '';
+                        if ($composition) {
+                            dump($composition);
+                            $product->composition = $composition;
+                            $product->save();
+                            $found = true;
+                            break;
+                        }
+                        $composition = $property['Details'] ?? '';
+                        if ($composition) {
+                            dump($composition);
+                            $product->composition = $composition;
+                            $product->save();
+                            $found = true;
+                            break;
+                        }
+                    }
 
-        Product::where('composition', '')->orWhereNull('composition')->orderBy('created_at', 'DESC')->chunk(1000, function($products) {
-            foreach ($products as $product) {
-                $scrapedProducts = $product->many_scraped_products;
-                $found = false;
-                foreach ($scrapedProducts as $scrapedProduct) {
-                    $property = $scrapedProduct->properties;
-                    $composition = $property['composition'] ?? '';
-                    if ($composition) {
-                        dump($composition);
-                        $product->composition = $composition;
-                        $product->save();
-                        $found = true;
-                        break;
+                    if ($found) {
+                        continue;
                     }
-                    $composition = $property['material_used'] ?? '';
-                    if ($composition) {
-                        dump($composition);
-                        $product->composition = $composition;
-                        $product->save();
-                        $found = true;
-                        break;
+
+                    foreach ($scrapedProducts as $scrapedProduct) {
+                        $composition = $this->getCompositionValuesFromRawData($scrapedProduct);
+
+                        if ($composition) {
+                            $product->composition = $composition;
+                            $product->save();
+                            dump($composition);
+                            break;
+                        }
                     }
-                    $composition = $property['Details'] ?? '';
-                    if ($composition) {
-                        dump($composition);
-                        $product->composition = $composition;
-                        $product->save();
-                        $found = true;
-                        break;
-                    }
+
                 }
+            });
 
-                if ($found) {
-                    continue;
-                }
-
-                foreach ($scrapedProducts as $scrapedProduct) {
-                    $composition = $this->getCompositionValuesFromRawData($scrapedProduct);
-
-                    if($composition) {
-                        $product->composition = $composition;
-                        $product->save();
-                        dump($composition);
-                        break;
-                    }
-                }
-
-            }
-        });
-
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 
-    private function getCompositionValuesFromRawData($scrapedProduct) {
-        $properties = json_encode($scrapedProduct->properties);
+    private function getCompositionValuesFromRawData($scrapedProduct)
+    {
+        $properties  = json_encode($scrapedProduct->properties);
         $description = $scrapedProduct->description;
 
         $hasExtracted = preg_match_all('/(\d+)% (\w+)/', $properties, $extractedData);
@@ -110,7 +115,8 @@ class GetCompositiosFromScrapedData extends Command
 
     }
 
-    private function getCompositionFromList($properties, $description) {
+    private function getCompositionFromList($properties, $description)
+    {
 
         $hasExtracted = preg_match_all('/(\d+)% (\w+)/', $description, $extractedData);
 
