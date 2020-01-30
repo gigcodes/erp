@@ -390,7 +390,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('checkScrapersLog')->dailyAt('8:00');
         $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
         $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
-        $schedule->command('cache:master-control')->everyMinute();
+        $schedule->command('cache:master-control')->everyFiveMinutes()->withoutOverlapping();
     }
 
     /**
