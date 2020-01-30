@@ -93,7 +93,7 @@ class RepositoryController extends Controller
         $branch = Input::get('branch');
         //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
-        $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch. ' 2>&1';
+        $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
 
         $allOutput = array();
         $allOutput[] = $cmd;
@@ -188,5 +188,35 @@ class RepositoryController extends Controller
             'pullRequests' => $pullRequests,
             'repository' => $repository
         ]);
+    }
+
+    public function listAllPullRequests()
+    {
+        $repositories = GithubRepository::all(['id', 'name']);
+
+        $allPullRequests = [];
+        foreach ($repositories as $repository) {
+            $pullRequests = $this->getPullRequests($repository->id);
+
+            $pullRequests = array_map(
+                function($pullRequest) use($repository){
+                    $pullRequest['repository'] = $repository;
+                    return $pullRequest;    
+                },
+                $pullRequests
+            );
+
+            $allPullRequests = array_merge($allPullRequests, $pullRequests);
+        }
+
+        //echo print_r($allPullRequests, true);
+
+        //exit;
+        return view(
+            'github.all_pull_requests',
+            [
+                'pullRequests' =>  $allPullRequests
+            ]
+        );
     }
 }

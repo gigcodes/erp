@@ -1504,6 +1504,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/repo_user_access/{id}/remove', 'Github\UserController@removeUserFromRepository');
         Route::post('/linkUser', 'Github\UserController@linkUser');
         Route::post('/modifyUserAccess', 'Github\UserController@modifyUserAccess');
+        Route::get('/pullRequests', 'Github\RepositoryController@listAllPullRequests');
     });
 });
 

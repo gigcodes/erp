@@ -1198,6 +1198,9 @@
                                             <a class="dropdown-item" href="{{ url('/github/groups') }}">Groups</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('/github/pullRequests') }}">Pull requests</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('/github/sync') }}">Synchronise from online</a>
                                         </li>
                                     </ul>
