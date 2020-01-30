@@ -18,5 +18,9 @@ Route::prefix('store-website')->group(function () {
     Route::prefix('{id}')->group(function () {
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
+    	Route::prefix('attached-category')->group(function () {
+    		Route::get('/', 'CategoryController@index')->name("store-website.attached-category.index");
+    		Route::post('/', 'CategoryController@store')->name("store-website.attached-category.store");
+    	});		
     });    
 });
