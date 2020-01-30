@@ -83,8 +83,6 @@ class RepositoryController extends Controller
             'current_branch' => $currentBranch
         ]);
 
-
-
         //print_r($repository);
     }
 
@@ -94,9 +92,14 @@ class RepositoryController extends Controller
 
         $branch = Input::get('branch');
         //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
-        $result = exec('/usr/bin/sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch);
+
+        $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch. ' 2>&1';
+
+        $allOutput = array();
+        $allOutput[] = $cmd;
+        $result = exec($cmd, $allOutput);
         return redirect(url('/github/repos/' . $repoId . '/branches'))->with([
-            'message' => $result,
+            'message' => print_r($allOutput, true),
             'alert-type' => 'success'
         ]);
     }
