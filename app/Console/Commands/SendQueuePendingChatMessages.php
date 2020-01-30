@@ -70,15 +70,11 @@ class SendQueuePendingChatMessages extends Command
                     foreach ($allWhatsappNo as $no => $dataInstance) {
                         $no = ($no == 0) ? $dataInstance["number"] : $no;
                         $chatApi = new ChatApi;
-                        $waitingRprt = $chatApi->chatQueue($no);
-                        $waitingMessage = 0;
-                        if(!empty($waitingRprt["totalMessages"])) {
-                            $waitingMessage = $waitingRprt["totalMessages"];
-                        }
+                        $waitingMessage = $chatApi->waitingLimit($no);
                         $this->waitingMessages[$no] = $waitingMessage;
                     }
                 }
-
+                
                 $chatMessage = ChatMessage::where('is_queue', ">", 0)->limit($limit)->get();
 
 
