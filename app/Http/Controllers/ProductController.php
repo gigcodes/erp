@@ -222,7 +222,7 @@ class ProductController extends Controller
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(5);
+        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
 
         return view('products.final_listing', [
             'products' => $newProducts,
@@ -2081,31 +2081,51 @@ class ProductController extends Controller
             ]);
         }
 
-        // Get images
-        $images = $product->media()->where('tag','original')->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
+        $mediables = DB::table('mediables')->select('media_id')->where('mediable_id',$product->id)->where('mediable_type','App\Product')->where('tag','original')->get();
 
-         foreach ($images as $image) {
-            $link = $image->getUrl();
-            //$link = 'https://erp.amourint.com/uploads/15d428fb0c6944.jpg';
-            $vision = LogGoogleVision::where('image_url','LIKE','%'.$link.'%')->first();
-            if($vision != null){
-               $keywords = preg_split('/[\n,]+/',$vision->response);
-               $countKeywords = count($keywords);
-               for ($i=0; $i < $countKeywords; $i++) {
-                    if (strpos($keywords[$i], 'Object') !== false) {
-                            $key = str_replace('Object: ','',$keywords[$i]);
-                            $value = str_replace('Score (confidence): ','',$keywords[$i+1]);
-                            $output[] = array($key => $value);
-                    }
-               }
-            }
-            if(isset($output)){
-               $image->setAttribute('objects', json_encode($output));
-            }else{
-              $image->setAttribute('objects', '');
-            }
-
+        foreach ($mediables as $mediable) {
+            $mediableArray[] = $mediable->media_id;
         }
+
+        if(!isset($mediableArray)){
+            return response()->json([
+                'status' => 'no_product'
+            ]);
+        }
+
+        $images = Media::select('id','filename', 'extension', 'mime_type', 'disk', 'directory')->whereIn('id',$mediableArray)->get();
+
+
+        foreach($images as $image){
+            $output['media_id'] = $image->id;
+            $image->setAttribute('pivot', $output);
+        }
+        
+        //WIll use in future to detect Images removed to fast the query for now
+        //foreach ($images as $image) {
+            //$link = $image->getUrl();
+
+
+            //$link = 'https://erp.amourint.com/uploads/15d428fb0c6944.jpg';
+            // $vision = LogGoogleVision::where('image_url','LIKE','%'.$link.'%')->first();
+            // if($vision != null){
+            //    $keywords = preg_split('/[\n,]+/',$vision->response);
+            //    $countKeywords = count($keywords);
+            //    for ($i=0; $i < $countKeywords; $i++) {
+            //         if (strpos($keywords[$i], 'Object') !== false) {
+            //                 $key = str_replace('Object: ','',$keywords[$i]);
+            //                 $value = str_replace('Score (confidence): ','',$keywords[$i+1]);
+            //                 $output[] = array($key => $value);
+            //         }
+            //    }
+            // }
+            // if(isset($output)){
+            //    $image->setAttribute('objects', json_encode($output));
+            // }else{
+            //   $image->setAttribute('objects', '');
+            // }
+
+        //}
 
         // Get category
         $category = $product->product_category;
