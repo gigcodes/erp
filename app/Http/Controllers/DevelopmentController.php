@@ -905,6 +905,8 @@ class DevelopmentController extends Controller
         if (empty($responsibleUser)) {
             $responsibleUser = Auth::id();
         }*/
+        $userId = Auth::id();
+        $userId = !empty($userId) ? $userId : $request->get('assigned_to', 0);
         $task = new DeveloperTask;
         $task->priority = $request->input('priority');
         $task->subject = $request->input('subject');
@@ -913,8 +915,8 @@ class DevelopmentController extends Controller
         $task->assigned_to = $request->get('assigned_to', 0);
         $task->module_id = $module->id;
         $task->user_id = 0;
-        $task->assigned_by = Auth::id();
-        $task->created_by = Auth::id();
+        $task->assigned_by = $userId;
+        $task->created_by = $userId;
         $task->reference = $reference;
         $task->status = 'Issue';
         $task->task_type_id = 3;
