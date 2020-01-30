@@ -51,6 +51,13 @@ var page = {
             page.submitCategory($(this));
         });
 
+        $(".common-modal").on("click",".btn-delete-store-website-category",function(e) {
+            e.preventDefault();
+            page.deleteCategory($(this));
+        });
+
+            
+
     },
     validationRule : function() {
          $(document).find("#product-template-from").validate({
@@ -207,7 +214,24 @@ var page = {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
-    }
+    },
+    deleteCategory : function(ele) {
+        
+        var storeWebsiteId = ele.data("store-website-id");
+        var id = ele.data("id");
+
+        var _z = {
+            url: this.config.baseUrl + "/store-website/"+storeWebsiteId+"/attached-category/"+id+"/delete",
+            method: "get",
+        }
+
+        this.sendAjax(_z, 'deleteCategoryResponse', ele);
+    },
+    deleteCategoryResponse: function(response) {
+        if(response.code == 200) {
+
+        }
+    } 
 }
 
 $.extend(page, common);

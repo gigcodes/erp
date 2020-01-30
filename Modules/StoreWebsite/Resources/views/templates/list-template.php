@@ -84,8 +84,7 @@
 						        <td>{{:prop.remote_id}}</td>
 						        <td>{{:prop.created_at}}</td>
 						        <td>
-						        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
-						        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" title="Delete" src="/images/delete.png"></button>
+						        	<button type="button" data-store-website-id="{{>prop.store_website_id}}" data-id="{{>prop.id}}" class="btn btn-delete-store-website-category"><img width="15px" title="Delete" src="/images/delete.png"></button>
 						        </td>
 						      </tr>
 						    {{/props}}  
