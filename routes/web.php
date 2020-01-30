@@ -1411,11 +1411,12 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
 
 });
 Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function() {
-    Route::post('coupons/update/{id}', 'CouponController@update');
+    Route::post('coupons/store','CouponController@store')->name('coupons.store');
+    Route::post('coupons/{id}', 'CouponController@update');
     Route::get('coupons','CouponController@index')->name('coupons.index');
     Route::post('coupons/load','CouponController@loadData');
     Route::get('coupons/load','CouponController@loadData');
-    Route::post('coupons/store','CouponController@store')->name('coupons.store');
+    Route::delete('coupons/{id}', 'CouponController@destroy');
 });
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');

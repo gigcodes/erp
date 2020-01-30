@@ -222,10 +222,25 @@
         $('#couponModal').modal('show');
     }
 
-    function deleteCoupon() {
+    function deleteCoupon(id) {
         const shouldDelete = confirm('Do you want to delete coupon?');
         if (shouldDelete) {
-
+            $.ajax({
+                    method: "DELETE",
+                    url: '/checkout/coupons/'+id,
+                    data: {
+                        _token: $('#coupon-form input[name="_token"]').val(),
+                    }
+                })
+                .done(function(response) {
+                    const responseJson = JSON.parse(response);
+                    showReponseAlert(responseJson.message);
+                    $('#coupon_table').DataTable().ajax.reload();
+                })
+                .fail(function(response) {
+                    console.log(response);
+                    showReponseAlert(response.responseJSON.message);
+                });
         }
     }
 
@@ -240,7 +255,7 @@
         minimumOrderAmount,
         maximumUsage
     ) {
-        $('#coupon-form').attr('action', '/checkout/coupons/update/' + id);
+        $('#coupon-form').attr('action', '/checkout/coupons/' + id);
 
         $('#coupon-form input[name="code"]').val(code);
         $('#coupon-form textarea[name="description"]').val(description);
@@ -290,9 +305,9 @@
                 $('#couponModal').modal('hide');
                 $('#coupon_table').DataTable().ajax.reload();
             })
-            .fail(function(message) {
-                const response = JSON.parse(message);
-                showReponseAlert(response.message);
+            .fail(function(response) {
+                console.log(response);
+                showReponseAlert(response.responseJSON.message);
                 $('#couponModal').modal('hide');
             });
 

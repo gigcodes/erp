@@ -60,8 +60,12 @@ class CouponController extends Controller
                     $id = $row['id'];
                     $code = $row['code'];
                     $description = $row['description'];
-                    $start = $row['start'];
-                    $expiration = $row['expiration'];
+                    $start = date('Y-m-d H:i',strtotime($row['start']));
+                    if($row['expiration']){
+                        $expiration = date('Y-m-d H:i',strtotime($row['expiration']));
+                    }else{
+                        $expiration = '';
+                    }
                     $currency = $row['currency'];
                     $discountFixed = $row['discount_fixed'];
                     $discountPercentage = $row['discount_percentage'];
@@ -177,14 +181,14 @@ class CouponController extends Controller
     {
 
         $request->validate([
-            'code' => 'required',
+            'code' => 'required|unique:coupons',
             'description' => 'required',
-            'start' => 'required|date',
-            'expiration' => 'date|nullable',
-            'discount_fixed' => 'numeric|min:0',
-            'discount_percentage' => 'numeric|min:0',
-            'minimum_order_amount' => 'numeric|min:0',
-            'maximum_usage' => 'numeric'
+            'start' => 'required|date_format:Y-m-d H:i',
+            'expiration' => 'sometimes|nullable|date_format:Y-m-d H:i|after:start',
+            'discount_fixed' => 'nullable|numeric',
+            'discount_percentage' => 'sometimes|nullable|numeric',
+            'minimum_order_amount' => 'sometimes|nullable|integer',
+            'maximum_usage' => 'sometimes|nullable|integer'
         ]);
 
         $validated = $request->all();
@@ -227,5 +231,21 @@ class CouponController extends Controller
     public function destroy($id)
     {
         //
+        $count = Coupon::destroy($id);
+        if($count == 1){
+            return response(
+                json_encode([
+                    'message' => 'Deleted the coupon'
+                ])
+            );
+        }else{
+            return response(
+                json_encode([
+                    'message' => 'Failed to delete coupon. It might be not present'
+                ]),
+                404
+            );
+        }
+
     }
 }
