@@ -2093,9 +2093,14 @@ class ProductController extends Controller
             ]);
         }
 
-        $images = Media::select('filename', 'extension', 'mime_type', 'disk', 'directory')->whereIn('id',$mediableArray)->get();
+        $images = Media::select('id','filename', 'extension', 'mime_type', 'disk', 'directory')->whereIn('id',$mediableArray)->get();
 
 
+        foreach($images as $image){
+            $output['media_id'] = $image->id;
+            $image->setAttribute('pivot', $output);
+        }
+        
         //WIll use in future to detect Images removed to fast the query for now
         //foreach ($images as $image) {
             //$link = $image->getUrl();
