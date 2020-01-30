@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Github;
 
 use App\Github\GithubBranchState;
 use App\Github\GithubRepository;
+use App\Helpers\githubTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Artisan;
@@ -14,10 +15,12 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Input;
-use Twilio\TwiML\Messaging\Body;
 
 class RepositoryController extends Controller
 {
+
+    use githubTrait;
+
     private $client;
 
     function __construct()
@@ -104,6 +107,25 @@ class RepositoryController extends Controller
         ]);
     }
 
+    private function updateBranchState($repoId, $branchName){
+        $comparison = $this->compareRepoBranches($repoId, $branchName);
+
+        GithubBranchState::updateOrCreate(
+            [
+                'repository_id' => $repoId,
+                'branch_name'   => $branchName,
+            ],
+            [
+                'repository_id'               => $repoId,
+                'branch_name'                 => $branchName,
+                'ahead_by'                    => $comparison['ahead_by'],
+                'behind_by'                   => $comparison['behind_by'],
+                'last_commit_author_username' => $comparison['last_commit_author_username'],
+                'last_commit_time'            => $comparison['last_commit_time'],
+            ]
+        );
+    }
+
     public function mergeBranch($id)
     {
 
@@ -123,7 +145,12 @@ class RepositoryController extends Controller
                 ]
             );
             echo 'done';
-            Artisan::call('github:load_branch_state');
+            //Artisan::call('github:load_branch_state');
+            if($source == 'master'){
+                $this->updateBranchState($id, $destination);
+            }else if($destination == 'master'){
+                $this->updateBranchState($id, $source);
+            }
         } catch (Exception $e) {
             print_r($e->getMessage());
             return redirect(url('/github/repos/' . $id . '/branches'))->with(
