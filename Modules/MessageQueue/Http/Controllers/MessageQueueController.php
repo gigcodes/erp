@@ -114,6 +114,16 @@ class MessageQueueController extends Controller
                     return response()->json(["code" => 200, "message" => "Updated to broadcast Successfully"]);
                 }
                 break;
+            case 'change_customer_number':
+                
+                if (!empty($ids) && is_array($ids)) {
+                    $number = $request->get("send_number","");
+                    if(!empty($number)){
+                        \DB::update("update chat_messages as cm join customers as c on c.id = cm.customer_id set c.whatsapp_number = '".$number."' where cm.id in (" . implode(",", $ids) . ");");
+                    }
+                    return response()->json(["code" => 200, "message" => "Updated to broadcast Successfully"]);
+                }
+                break;    
             case 'delete_records':
 
                 if (!empty($ids) && is_array($ids)) {
