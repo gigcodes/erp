@@ -12,6 +12,7 @@ class SendQueuePendingChatMessages extends Command
 {
     const BROADCAST_PRIORITY        = 8;
     const MARKETING_MESSAGE_TYPE_ID = 3;
+    const MESSAGE_QUEUE_PENDING_LIMIT = 300;
 
     public $waitingMessages;
 
@@ -78,8 +79,6 @@ class SendQueuePendingChatMessages extends Command
                     }
                 }
 
-                echo '<pre>'; print_r($this->waitingMessages); echo '</pre>';exit;
-
                 $chatMessage = ChatMessage::where('is_queue', ">", 0)->limit($limit)->get();
 
 
@@ -115,6 +114,15 @@ class SendQueuePendingChatMessages extends Command
                         $value->save();
 
                     } else {
+
+                        // check message is full or not 
+                        $isSendingLimitFull = isset($this->waitingMessage[$value->customer->whatsapp_number]) 
+                        ? $this->waitingMessage[$value->customer->whatsapp_number] : 0;
+                        // if message queue is full then go for the next;
+                        if($isSendingLimitFull >= self::MESSAGE_QUEUE_PENDING_LIMIT) {
+                            continue;
+                        }
+
                         $myRequest = new Request();
                         $myRequest->setMethod('POST');
                         $myRequest->request->add(['messageId' => $value->id]);
@@ -125,7 +133,6 @@ class SendQueuePendingChatMessages extends Command
             }
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
-            echo '<pre>'; print_r($e->getMessage()); echo '</pre>';exit;
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
 
