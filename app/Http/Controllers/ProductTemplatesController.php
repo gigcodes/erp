@@ -120,6 +120,8 @@ class ProductTemplatesController extends Controller
 
         $records->where("product_templates.is_processed", "=", 0);
 
+        $records->where("product_templates.brand_id", "!=", null);
+
         $record = $records->orderBy("product_templates.id", "asc")->first();
 
         $data = [];
@@ -243,7 +245,7 @@ class ProductTemplatesController extends Controller
             
             $templates = $query->where('is_processed',1)->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
         }else{
-           $templates = ProductTemplate::where('type',1)->where('is_processed',1)->paginate(Setting::get('pagination')); 
+           $templates = ProductTemplate::where('is_processed',1)->paginate(Setting::get('pagination')); 
         }
         
         // if ($request->ajax()) {
