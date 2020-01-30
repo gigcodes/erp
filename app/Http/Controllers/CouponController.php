@@ -136,7 +136,12 @@ class CouponController extends Controller
     public function store(CreateCouponRequest $request)
     {
         Coupon::create($request->all());
-        return redirect()->route('coupons.index')->withSuccess('You have successfully saved a coupon!');
+        //return redirect()->route('coupons.index')->withSuccess('You have successfully saved a coupon!');
+        return response(
+            json_encode([
+                'message' => 'Created new coupon'
+            ])
+        );
     }
 
     /**
@@ -168,11 +173,8 @@ class CouponController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function abc(Request $request, $id)
+    public function update(Request $request, $id)
     {
-        
-        echo $id;
-        exit;
 
         $request->validate([
             'code' => 'required',
@@ -182,28 +184,34 @@ class CouponController extends Controller
             'discount_fixed' => 'numeric|min:0',
             'discount_percentage' => 'numeric|min:0',
             'minimum_order_amount' => 'numeric|min:0',
-            'maximum_usage' => 'numberic'
+            'maximum_usage' => 'numeric'
         ]);
 
-        $validated = $request->validated();
+        $validated = $request->all();
 
         //
         try {
             $coupon = Coupon::findOrFail($id);
-            $coupon->code = $validated->code;
-            $coupon->description = $validated->description;
-            $coupon->start = $validated->start;
-            $coupon->expiration = $validated->expiration;
-            $coupon->discount_fixed = $validated->discount_fixed;
-            $coupon->discount_percentage = $validated->discount_percentage;
-            $coupon->minimum_order_amount = $validated->minimum_order_amount;
-            $coupon->maximum_usage = $validated->maximum_usage;
+            $coupon->code = $validated['code'];
+            $coupon->description = $validated['description'];
+            $coupon->start = $validated['start'];
+            $coupon->expiration = $validated['expiration'];
+            $coupon->discount_fixed = $validated['discount_fixed'];
+            $coupon->discount_percentage = $validated['discount_percentage'];
+            $coupon->minimum_order_amount = $validated['minimum_order_amount'];
+            $coupon->maximum_usage = $validated['maximum_usage'];
             $coupon->save();
+
+            return response(
+                json_encode([
+                    'message' => 'Updated coupon'
+                ])
+            );
         } catch (ModelNotFoundException $e) {
 
-            response(
+            return response(
                 json_encode([
-                    'message' => 'Did not find coupon with id: '.$id
+                    'message' => 'Did not find coupon with id: ' . $id
                 ]),
                 404
             );

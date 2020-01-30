@@ -5,21 +5,33 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/scroller/2.0.1/css/scroller.jqueryui.min.css">
 @endsection
 @section('content')
+
+
+
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Coupon Management</h2>
-        <div class="pull-left">
-        </div>
-        <div class="pull-right">
-            <button type="button" class="btn btn-primary" onclick="createCoupon()">
-                New Coupon
-            </button>
-        </div>
     </div>
 </div>
+
+<div id="response-alert" style="display:none;" class="alert alert-success">
+    <span>You should check in on some of those fields below.</span>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div id="response-alert-container">
+
+</div>
+<div style="text-align: right;">
+    <button type="button" class="btn btn-primary" onclick="createCoupon()">
+        New Coupon
+    </button>
+</div>
+
 <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <form id="coupon-form" method="POST">
+        <form id="coupon-form" method="POST" onsubmit="return executeCouponOperation();">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="couponModalLabel">New Coupon</h5>
@@ -228,7 +240,7 @@
         minimumOrderAmount,
         maximumUsage
     ) {
-        $('#coupon-form').attr('action', '/coupons/update/' + id);
+        $('#coupon-form').attr('action', '/checkout/coupons/update/' + id);
 
         $('#coupon-form input[name="code"]').val(code);
         $('#coupon-form textarea[name="description"]').val(description);
@@ -247,9 +259,51 @@
         /* beautify preserve:start */
         $('#coupon-form').attr('action', '{{ route('coupons.store') }}')
         /* beautify preserve:end */
-        $('#coupon-form input').val('');
+        $('#coupon-form input').not('input[name="_token"]').val('');
         $('#coupon-form textarea').val('');
         $('#couponModal').modal('show');
+    }
+
+    function executeCouponOperation() {
+
+        const formActionUrl = $('#coupon-form').attr('action');
+
+        $.ajax({
+                method: "POST",
+                url: formActionUrl,
+                data: {
+                    _token: $('#coupon-form input[name="_token"]').val(),
+                    code: $('#coupon-form input[name="code"]').val(),
+                    description: $('#coupon-form textarea[name="description"]').val(),
+                    start: $('#coupon-form input[name="start"]').val(),
+                    expiration: $('#coupon-form input[name="expiration"]').val(),
+                    currency: $('#coupon-form input[name="currency"]').val(),
+                    discount_fixed: $('#coupon-form input[name="discount_fixed"]').val(),
+                    discount_percentage: $('#coupon-form input[name="discount_percentage"]').val(),
+                    minimum_order_amount: $('#coupon-form input[name="minimum_order_amount"]').val(),
+                    maximum_usage: $('#coupon-form input[name="maximum_usage"]').val()
+                }
+            })
+            .done(function(msg) {
+                const response = JSON.parse(msg);
+                showReponseAlert(response.message);
+                $('#couponModal').modal('hide');
+                $('#coupon_table').DataTable().ajax.reload();
+            })
+            .fail(function(message) {
+                const response = JSON.parse(message);
+                showReponseAlert(response.message);
+                $('#couponModal').modal('hide');
+            });
+
+        return false;
+    }
+
+    function showReponseAlert(alert) {
+        const responseAlert = $('#response-alert').clone();
+        $(responseAlert).show();
+        $(responseAlert).find('>span').text(alert);
+        $('#response-alert-container').empty().append(responseAlert);
     }
 </script>
 @endsection

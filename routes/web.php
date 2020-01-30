@@ -1411,8 +1411,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
 
 });
 Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function() {
-    Route::post('coupons/update/{id}', 'CouponController@abc');
-    Route::get('coupons/update/{id}', 'CouponController@abc');
+    Route::post('coupons/update/{id}', 'CouponController@update');
     Route::get('coupons','CouponController@index')->name('coupons.index');
     Route::post('coupons/load','CouponController@loadData');
     Route::get('coupons/load','CouponController@loadData');

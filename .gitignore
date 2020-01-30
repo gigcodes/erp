@@ -58,3 +58,5 @@ public/uploads
 public/zoom/*
 !public/zoom/.gitkeep
 public/tmp_images/*
+
+/deployment_scripts_test
