@@ -169,6 +169,7 @@ class ProductSelectionController extends Controller
 		$productselection = new Product();
 		$productselection->sku = $request->input('sku');
 		$productselection->size = $request->input('size');
+		$productselection->size_eu = $request->input('size_eu');
 		$productselection->price = $request->input('price');
 		// $productselection->supplier = $request->input('supplier');
 		$productselection->supplier_link = $request->input('supplier_link');
@@ -236,6 +237,7 @@ class ProductSelectionController extends Controller
 
 		$productselection->sku = $request->input('sku');
 		$productselection->size = $request->input('size');
+		$productselection->size_eu = $request->input('size_eu');
 		$productselection->price = $request->input('price');
 		$productselection->status_id = $request->input('status_id');
 		// $productselection->supplier = $request->input('supplier');
