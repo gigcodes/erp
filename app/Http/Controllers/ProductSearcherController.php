@@ -65,6 +65,7 @@ class ProductSearcherController extends Controller
 		$productsearcher->dnf = $request->input('dnf');
 		$productsearcher->sku = $request->input('sku');
 		$productsearcher->size = $request->input('size');
+		$productsearcher->size_eu = $request->input('size_eu');
 		$productsearcher->price = $request->input('price');
 		$productsearcher->product_link = $request->input('product_link');
 		$productsearcher->supplier = $request->input('supplier');
