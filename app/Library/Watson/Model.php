@@ -4,6 +4,7 @@ namespace App\Library\Watson;
 
 use App\ChatbotDialog;
 use App\ChatbotKeyword;
+use \App\ChatbotKeywordValue;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionExample;
 use App\Customer;
@@ -47,10 +48,16 @@ class Model
             $storeParams                = [];
             $storeParams["entity"]      = $keyword->keyword;
             $storeParams["fuzzy_match"] = true;
-            $values                     = $keyword->chatbotKeywordValues()->get()->pluck("value", "value")->toArray();
+            $values                     = $keyword->chatbotKeywordValues()->get();
             $storeParams["values"]      = [];
+            $typeValue                   = [];
             foreach ($values as $value) {
-                $storeParams["values"][] = ["value" => $value];
+                $typeValue = ChatbotKeywordValue::where("id", $value["id"])->first()->chatbotKeywordValueTypes()->get()->pluck("type");
+                if($value["types"] == "synonyms") {
+                    $storeParams["values"][] = ["value" => $value["value"], "synonyms"=> $typeValue];
+                } else {
+                    $storeParams["values"][] = ["value" => $value["value"], "type" => "patterns", "patterns"=> $typeValue];
+                }
             }
 
             $watson = new EntitiesService(
@@ -68,6 +75,7 @@ class Model
 
             if($result->getStatusCode() !=  200) {
                 \Log::info(print_r($result,true));
+                return $result->getContent();
             }
 
         }
@@ -145,6 +153,7 @@ class Model
 
             if($result->getStatusCode() !=  200) {
                 \Log::info(print_r($result,true));
+                return $result->getContent();
             }
         }
 
@@ -282,6 +291,7 @@ class Model
 
             if($result->getStatusCode() !=  200) {
                 \Log::info(print_r($result,true));
+                return $result->getContent();
             }
         }
 

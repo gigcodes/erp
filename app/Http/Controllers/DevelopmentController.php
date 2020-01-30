@@ -259,9 +259,9 @@ class DevelopmentController extends Controller
             });
         }
         // Get all data with user and messages
-        $plannedTasks = $plannedTasks->where('status', 'Planned')->orderBy('created_at')->with(['user', 'messages'])->get();
-        $completedTasks = $completedTasks->where('status', 'Done')->orderBy('created_at')->with(['user', 'messages'])->get();
-        $progressTasks = $progressTasks->where('status', 'In Progress')->orderBy('created_at')->with(['user', 'messages'])->get();
+        $plannedTasks = $plannedTasks->where('status', 'Planned')->orderBy('created_at')->with(['user', 'messages', 'timeSpent'])->get();
+        $completedTasks = $completedTasks->where('status', 'Done')->orderBy('created_at')->with(['user', 'messages', 'timeSpent'])->get();
+        $progressTasks = $progressTasks->where('status', 'In Progress')->orderBy('created_at')->with(['user', 'messages', 'timeSpent'])->get();
         // Get all modules
         $modules = DeveloperModule::all();
         // Get all developers
@@ -352,7 +352,7 @@ class DevelopmentController extends Controller
     {
         //$request->request->add(["order" => $request->get("order","communication_desc")]);
         // Load issues
-        $issues = DeveloperTask::where('developer_tasks.task_type_id', $type == 'issue' ? '3' : '1');
+        $issues = DeveloperTask::with('timeSpent')->where('developer_tasks.task_type_id', $type == 'issue' ? '3' : '1');
 
         if ((int) $request->get('submitted_by') > 0) {
             $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
@@ -718,7 +718,7 @@ class DevelopmentController extends Controller
      */
     private function createBranchOnGithub($repositoryId, $taskId, $taskTitle,  $branchName = 'master')
     {
-        $newBranchName = 'DEVTASK-' . $taskId . '/' . preg_replace('/\s/', '', $taskTitle);
+        $newBranchName = 'DEVTASK-' . $taskId;
 
         // get the master branch SHA
         // https://api.github.com/repositories/:repoId/branches/master

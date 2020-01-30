@@ -84,6 +84,10 @@ Route::post('{username}/{password}/get-comments', 'InstagramPostsController@getC
 Route::post('{username}/{password}/send-comment', 'InstagramPostsController@commentSent');
 Route::get('instagram/get-hashtag-list','InstagramPostsController@getHashtagList');
 
+//Giving All Brands with Reference
+Route::get('brands','BrandController@brandReference');
+
+
 // SUPPLIERS
 Route::post('supplier/brands-raw', 'SupplierController@apiBrandsRaw');
 
@@ -91,6 +95,12 @@ Route::post('supplier/brands-raw', 'SupplierController@apiBrandsRaw');
 Route::get('google/keywords', 'GoogleSearchController@getKeywordsApi');
 Route::post('google/search-results', 'GoogleSearchController@apiPost');
 
+//Google affiliate search
+Route::get('google/affiliate/keywords', 'GoogleAffiliateController@getKeywordsApi');
+Route::post('google/affiliate/search-results', 'GoogleAffiliateController@apiPost');
+
 Route::get('scraper/next','ScrapController@sendScrapDetails');
 Route::post('scraper/endtime','ScrapController@recieveScrapDetails');
 
+Route::get('search/{type}', 'SearchQueueController@index');
+Route::post('search/{type}', 'SearchQueueController@upload_content');

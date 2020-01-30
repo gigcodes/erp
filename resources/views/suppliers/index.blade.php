@@ -41,7 +41,7 @@
                 </div>
 
                   <div class="form-group ml-3">
-                      <input type="text" name="source" id="source" placeholder="Source..">
+                      <input type="text" class="form-control" name="source" id="source" placeholder="Source..">
                   </div>
 
                 <div class="form-group ml-3">
@@ -67,11 +67,34 @@
 {{--                      <select name="status" id=""></select>--}}
 {{--                  </div>--}}
 
+                      <div class="form-group mr-3" style="padding-top: 10px">
+                        <select class="form-control select-multiple2" name="brand[]" data-placeholder="Select brand.." multiple>
+                          <optgroup label="Brands">
+                            @foreach ($brands as $key => $value)
+                              <option value="{{ $value->id }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $value->name }}</option>
+                            @endforeach
+                        </optgroup>
+                        </select>
+                      </div>
+
+                      <div class="form-group mr-3" style="padding-top: 10px">
+                        <select class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
+                          <optgroup label="Brands">
+                            @foreach ($scrapedBrands as $key => $value)
+                              @if(!in_array($value, $selectedBrands))
+                                <option value="{{ $value }}"> {{ $value}}</option>
+                              @endif
+                            @endforeach
+                        </optgroup>
+                        </select>
+                      </div>
+
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
               </form>
             </div>
 
             <div class="pull-right">
+                <button type="button" class="btn btn-secondary manage-scraped-brand-raw" data-toggle="modal" data-target="#manageScrapedBrandsRaw">Manage Scraped Brands Raw</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
                 <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</button>
             </div>
@@ -92,6 +115,7 @@
             <th width="10%">Address</th>
               <th>Source</th>
               <th>Designers</th>
+              <th>No.of Brands</th>
             <th width="10%">Social handle</th>
             {{-- <th>Agents</th> --}}
             {{-- <th width="5%">GST</th> --}}
@@ -146,6 +170,19 @@
                   @if ($supplier->has_error == 1)
                     <span class="text-danger">!!!</span>
                   @endif
+
+                  <p>
+                    <div class="form-group">
+                        <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
+                            <option value="">-No Selected-</option>
+                            @foreach($whatsappConfigs as $whatsappConfig)
+                                @if($whatsappConfig->number != "0")
+                                    <option {{ ($whatsappConfig->number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $whatsappConfig->number }}">{{ $whatsappConfig->number }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                </p>
                 </span>
                 <br>
               </td>
@@ -176,6 +213,7 @@
                         N/A
                     @endif
                 </td>
+                <td>{{count(array_filter(explode(',',$supplier->brands)))}}</td>
               <td class="expand-row" style="word-break: break-all;">
                   <div class="td-mini-container">
                       {{ strlen($supplier->social_handle) > 10 ? substr($supplier->social_handle, 0, 10).'...' : $supplier->social_handle }}
@@ -373,6 +411,40 @@
             </div>
         </div>
     </div>
+
+    <div id="manageScrapedBrandsRaw"  class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Manage Scraped Brands Raw</h4>
+                </div>
+                <div class="modal-body">
+                  <table class="table table-bordered table-striped">
+                    <thead>
+                      <tr>
+                        <th width="50%">Pick ScrapedBrand Brands Raw To Hide Or Remove</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <td>
+                            <div style="overflow-y: scroll; height: 250px">
+                              @foreach ($scrapedBrands as $key => $value)
+                               <input type="checkbox" class="newBrandSelection" name="scrapedBrands[]" value="{{$value}}" style="margin-right:10px" {{ in_array($value, $selectedBrands) ? 'checked' : ''}}>{{ $value }}<br>
+                              @endforeach
+                            </div>
+                          </td>
+                        </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-default manageScrapedBrandsSave">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @include('customers.zoomMeeting');
 @endsection
 
@@ -389,7 +461,6 @@
              includeSelectAllOption: true
            });
         });
-
     $(document).on('click', '.set-reminder', function() {
         let supplierId = $(this).data('id');
         let frequency = $(this).data('frequency');
@@ -877,23 +948,46 @@
           }
       });
 
-      $('#copyScrapedBrands').on('click', function(){
-          if(confirm('Are you sure to copy brands?')){
-              //call copy function
-              $.ajax({
-                  url: "{{ route('supplier.scrapedbrands.copy') }}",
-                  type: 'POST',
-                  data: {
-                      id: brandUpdateSupplierId,
-                      _token: "{{ csrf_token() }}"
-                  },            
-                  success: function(data) {
-                      $('.brand-supplier-mini-' + brandUpdateSupplierId).html(data.mini);
-                      $('.brand-supplier-full-' + brandUpdateSupplierId).html(data.full);
-                      alert('Brands copied successfully');
-                  }
-              });
-          }
-      });      
+      $(document).ready(function() {
+          $(".select-multiple").multiselect();
+          $(".select-multiple2").select2();
+      }); 
+
+      $('.manageScrapedBrandsSave').on('click', function() {
+        $('#manageScrapedBrandsRaw').modal('toggle');
+          $.ajax({
+              url: "{{ route('manageScrapedBrands') }}",
+              type: 'POST',
+              data: {
+                  selectedBrands: $('.newBrandSelection:checked').serializeArray
+                  ().map(function(obj) { 
+                    return obj.value;
+                  }),
+                  _token: "{{ csrf_token() }}" 
+              },            
+              success: function(data) {
+                 alert(data);
+                 location.reload();
+              }
+          });
+      });
+
+      $(document).on('change', '.change-whatsapp-no', function () {
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('supplier.change.whatsapp') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    supplier_id : $this.data("supplier-id"),
+                    number: $this.val()
+                }
+            }).done(function () {
+                alert('Number updated successfully!');
+            }).fail(function (response) {
+               alert('Please check entry for supplier');
+            });
+        });
+    
   </script>
 @endsection

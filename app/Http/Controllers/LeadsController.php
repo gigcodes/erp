@@ -1184,6 +1184,11 @@ class LeadsController extends Controller
             $media[] = ['url' => $value->getUrl(), 'id' => $value->id];
         }
 
+        $price = 0;
+        if($product) {
+            $price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_inr_special;
+        }
+
         return response()->json([
             'brand' => $product ? $product->brand : '',
             'category' => $product ? $product->category : '1',
@@ -1191,6 +1196,7 @@ class LeadsController extends Controller
             'shoe_size' => $customer ? $customer->shoe_size : '',
             'gender' => $customer ? $customer->gender : '',
             'media' => $media,
+            'price' => $price
         ]);
     }
 }

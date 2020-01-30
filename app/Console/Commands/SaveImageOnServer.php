@@ -2,19 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\ScrapedProducts;
-use App\Product;
-use App\Brand;
 use App\CronJobReport;
 use App\Services\Bots\Prada;
-use App\Services\Bots\CucLoginEmulator;
-use App\Services\Bots\CucProductDataEmulator;
-use App\Setting;
-use App\Services\Bots\WebsiteEmulator;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
-use Wa72\HtmlPageDom\HtmlPageCrawler;
-
 
 class SaveImageOnServer extends Command
 {
@@ -37,18 +29,22 @@ class SaveImageOnServer extends Command
 
     public function handle(): void
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
+            $this->authenticate();
 
-        $this->authenticate();
-
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 
-    private function authenticate() {
+    private function authenticate()
+    {
         $url = 'http://shop.cuccuini.it/it/register.html';
 
         $duskShell = new Prada(new Client());
@@ -62,7 +58,6 @@ class SaveImageOnServer extends Command
         }
     }
 
-
     private function setCountry(): void
     {
 
@@ -71,6 +66,6 @@ class SaveImageOnServer extends Command
 
     private function setIP(): void
     {
-        $this->IP = '5.61.4.70	' . ':' . '8080';
+        $this->IP = '5.61.4.70  ' . ':' . '8080';
     }
 }

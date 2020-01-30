@@ -9,13 +9,50 @@ use App\Http\Controllers\Controller;
 
 class LogListMagentoController extends Controller
 {
+    protected function get_brands(){
+        $brands=\App\Brand::all();
+
+        return $brands;
+    }
+    
+    protected function get_categories(){
+        $categories=\App\Category::all();
+
+        return $categories;
+    }
+
+    private function check_successfully_listed_products(){
+        $successfull_products=\App\Product::where('status_id','=','12')
+                                            ->leftJoin('log_list_magentos','log_list_magentos.product_id','=','products.id')
+                                            ->whereNull('log_list_magentos.id')
+                                            ->select('products.*','log_list_magentos.id as exist')
+                                            ->get();
+
+        foreach($successfull_products as $item){
+            $new=new LogListMagento;
+            $new->product_id=$item->id;
+            $new->message="success";
+            $new->created_at=$new->updated_at=time();
+
+            $new->save();
+        }
+    }
+
     public function index(Request $request)
     {
-        // Get results
+        $this->check_successfully_listed_products();
+        /*
         $logListMagentos = LogListMagento::join('products', 'log_list_magentos.product_id', '=', 'products.id')
             ->join('brands', 'products.brand', '=', 'brands.id')
             ->join('categories', 'products.category', '=', 'categories.id')
             ->orderBy('log_list_magentos.created_at', 'DESC');
+        */
+
+        // Get results
+        $logListMagentos = \App\Product::join('log_list_magentos','log_list_magentos.product_id','=','products.id')
+                                        ->join('brands', 'products.brand', '=', 'brands.id')
+                                        ->join('categories', 'products.category', '=', 'categories.id')
+                                        ->orderBy('log_list_magentos.created_at', 'DESC');
 
         // Filters
         if (!empty($request->product_id)) {
@@ -35,8 +72,17 @@ class LogListMagentoController extends Controller
         }
 
         // Get paginated result
+        $logListMagentos->select('log_list_magentos.*','products.*','brands.name as brand_name','categories.title as category_title');
         $logListMagentos = $logListMagentos->paginate(25);
 
+        foreach($logListMagentos as $key=>$item){
+            if ($item->hasMedia(config('constants.media_tags'))){
+                $logListMagentos[$key]['image_url']=$item->getMedia(config('constants.media_tags'))->first()->getUrl();
+            }else{
+                $logListMagentos[$key]['image_url']='';
+            }
+        }
+        //echo "<Pre>";print_r($logListMagentos);exit;
         // For ajax
         if ($request->ajax()) {
             return response()->json([
@@ -44,8 +90,12 @@ class LogListMagentoController extends Controller
                 'links' => (string)$logListMagentos->render()
             ], 200);
         }
+        $filters=$request->all();
 
         // Show results
-        return view('logging.listmagento', compact('logListMagentos'));
+        return view('logging.listmagento', compact('logListMagentos','filters'))
+                                ->with('success',\Request::Session()->get("success"))
+                                ->with('brands',$this->get_brands())
+                                ->with('categories',$this->get_categories());
     }
 }

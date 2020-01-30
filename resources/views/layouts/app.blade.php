@@ -612,7 +612,7 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Broadcast<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Messages</a>
+                                            <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Grid</a>
                                             <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
                                             <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calender</a>
                                         </li>
@@ -625,6 +625,9 @@
                                             <a class="dropdown-item" href="{{ route('whatsapp.config.index') }}">WhatsApp Config</a>
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
+                                            <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -907,7 +910,7 @@
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Images<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('image.grid') }}">Image Grid</a>
+                                            <a class="dropdown-item" href="{{ route('image.grid') }}">Lifestyle Image Grid</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
@@ -990,6 +993,17 @@
                                                 </li>
                                             </ul>
                                         </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Affiliate<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.affiliate.keyword')}}">Keywords</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('google.affiliate.results')}}">Search Results</a>
+                                                </li>
+                                            </ul>
+                                        </li>                                        
                                     </ul>
                                 </li>
                             </ul>
@@ -1026,6 +1040,12 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('templates.type') }}">New List</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
                                 </li>
                             </ul>
                         </li>
@@ -1148,12 +1168,18 @@
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('services') }}">Services</a>
+                                </li>
 
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>System<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('cron.index')}}">Cron</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1194,8 +1220,22 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('hubstaff/tasks') }}">Tasks</a>
                                         </li>
+
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('hubstaff/payments') }}">Payments</a>
+                                        </li>
                                     </ul>
                                 </li>
+
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Encryption<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('encryption.index')}}">Encryption Key</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
                             </ul>
                         </li>
                         @endif
@@ -1460,12 +1500,17 @@
             <button class="help-button"><span>+</span></button>
         </div>
     </div>
+
+
     @if($liveChatUsers != '' && $liveChatUsers != null)
     <div class="chat-button-wrapper">
-        <div class="col-md-9 page-chat-list-rt dis-none">
+        <div class="chat-button-float">
+            <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
+        </div>
+        <div class="col-md-12 page-chat-list-rt dis-none">
             <div class="help-list well well-lg">
                 <div class="row">
-                    <div class="col-md-4 chat" style="margin-top : 0px !important;">
+                    <div class="col-md-3 chat" style="margin-top : 0px !important;">
                         <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
                             <div class="card-header">
                                 <div class="input-group">
@@ -1484,11 +1529,13 @@
                                     @foreach ($chatIds as $chatId)
                                     @php
                                     $customer = \App\Customer::where('id',$chatId->customer_id)->first();
+                                    $customerInital = substr($customer->name, 0, 1);
                                     @endphp
-                                    <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}">
+                                    <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
                                         <div class="d-flex bd-highlight">
                                             <div class="img_cont">
-                                                <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                                <soan class="rounded-circle user_inital">{{ $customerInital }}</soan>
+                                                {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
                                                 <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
                                             </div>
                                             <div class="user_info">
@@ -1506,12 +1553,13 @@
                             <div class="card-footer"></div>
                         </div>
                     </div>
-                    <div class="col-md-8 chat">
+                    <div class="col-md-6 chat">
                         <div class="card_chat">
                             <div class="card-header msg_head">
-                                <div class="d-flex bd-highlight">
+                                <div class="d-flex bd-highlight align-items-center justify-content-between">
                                     <div class="img_cont">
-                                        <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                        <soan class="rounded-circle user_inital" id="user_inital"></soan>
+                                        {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
 
                                     </div>
                                     <div class="user_info" id="user_name">
@@ -1521,6 +1569,19 @@
                                     <div class="video_cam">
                                         <span><i class="fa fa-video"></i></span>
                                         <span><i class="fa fa-phone"></i></span>
+                                    </div>
+                                    @php
+                                        $path = storage_path('/');
+                                        $content = File::get($path."languages.json");
+                                        $language = json_decode($content, true);
+                                    @endphp
+                                    <div class="selectedValue">
+                                         <select id="autoTranslate" class="form-control auto-translate">
+                                            <option value="">Translation Language</option>
+                                            @foreach ($language as $key => $value) 
+                                                <option value="{{$value}}">{{$key}}</option>
+                                            @endforeach  
+                                        </select>
                                     </div>
                                 </div>
                                 <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
@@ -1536,19 +1597,20 @@
                             <div class="card-body msg_card_body" id="message-recieve">
 
                             </div>
+                            <div class="typing-indicator" id="typing-indicator"></div>
                             <div class="card-footer">
                                 <div class="input-group">
-                                    <div class="input-group-append">
+                                    {{-- <div class="input-group-append">
                                         <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
                                         <input type="file" id="imgupload" style="display:none" />
-                                    </div>
+                                    </div> --}}
                                     <div class="card-footer">
                                         <div class="input-group">
                                             <div class="input-group-append">
                                                 <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
                                                 <input type="file" id="imgupload" style="display:none" />
                                             </div>
-                                            <input type="hidden" id="message-id" />
+                                            <input type="hidden" id="message-id" name="message-id" />
                                             <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
                                             <div class="input-group-append">
                                                 <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
@@ -1559,12 +1621,33 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                    <div class="col-md-3 customer-info">
+                        <div class="chat-righbox">
+                            <div class="title">General Info</div>
+                            <div id="chatCustomerInfo"></div>
 
+                        </div>
+                        <div class="chat-righbox">
+                            <div class="title">Visited Pages</div>
+                            <div id="chatVisitedPages">
+                                
+                            </div>
+                        </div>
+                        <div class="chat-righbox">
+                            <div class="title">Additional info</div>
+                            <div class="line-spacing" id="chatAdditionalInfo">
+                                
+                            </div>
+                        </div>
+                        <div class="chat-righbox">
+                            <div class="title">Technology</div>
+                            <div class="line-spacing" id="chatTechnology">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <button class="chat-button"><img src="/images/chat.png" class="img-responsive" /><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
         </div>
     </div>
     @endif
@@ -1626,9 +1709,19 @@
         });
 
         // started for chat button
-        $('.chat-button').on('click', function() {
+        var chatBoxOpen = false;
+        $('.chat-button').on('click', function () {
             $('.chat-button-wrapper').toggleClass('expanded');
             $('.page-chat-list-rt').toggleClass('dis-none');
+
+            if($('.chat-button-wrapper').hasClass('expanded')){
+                chatBoxOpen = true;
+                openChatBox(true);
+            }
+            else{
+                chatBoxOpen = false;
+                openChatBox(false);
+            }
         });
 
         var notesBtn = $(".save-user-notes");
@@ -1662,6 +1755,48 @@
                 },
             });
         });
+
+        @if(session()->has('encrpyt'))
+        
+        var inactivityTime = function () {
+            var time;
+            window.onload = resetTimer;
+            // DOM Events
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+
+        function remove_key() {
+            $.ajax({
+            url: "{{ route('encryption.forget.key') }}",
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                private: '1',
+                "_token": "{{ csrf_token() }}",
+            },
+            })
+            .done(function() {
+                alert('Please Insert Private Key');
+                location.reload();
+                console.log("success");
+            })
+            .fail(function() {
+                console.log("error");
+            })  
+        }
+
+        function resetTimer() {
+            clearTimeout(time);
+            time = setTimeout(remove_key, 1200000)
+            // 1000 milliseconds = 1 second
+        }
+        };
+
+        window.onload = function() {
+            inactivityTime(); 
+        }
+
+        @endif
 
         var getNotesList = function() {
             //$.ajax({
@@ -1792,6 +1927,27 @@
                 } else {}
             }
         }
+
+        $(document).on('change', '#autoTranslate', function (e) {
+             e.preventDefault();
+            var customerId = $("input[name='message-id'").val();
+            var language = $(".auto-translate").val();
+            let self = $(this);
+            $.ajax({
+                url: "/customer/language-translate/"+customerId,
+                method:"PUT",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                  },
+                data:{id:customerId, language:language },
+                cache: true,
+                success: function(res) {
+                    $('.selectedValue option[value="' + language + '"]').prop('selected', true);
+                    alert(res.success);
+                }
+            })
+        });
+       
     </script>
 
 </body>

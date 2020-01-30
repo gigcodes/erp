@@ -625,7 +625,7 @@ class ScrapController extends Controller
             $dateRange = request("daterange","");
             $startDate = false;
             $endDate   = false;
-            
+
             if(!empty($dateRange)) {
                 $range = explode(" - ", $dateRange);
                 if(!empty($range[0]) && !empty($range[1])) {
@@ -673,11 +673,11 @@ class ScrapController extends Controller
             }
 
             if(!empty($startDate)) {
-                $query->whereDate('created_at'," >= " , $startDate);   
+                $query->whereDate('created_at'," >= " , $startDate);
             }
 
             if(!empty($endDate)) {
-                $query->whereDate('created_at'," <= " , $endDate);   
+                $query->whereDate('created_at'," <= " , $endDate);
             }
 
             if (request('orderCreated') != null) {
@@ -702,7 +702,7 @@ class ScrapController extends Controller
 
             $paginate = (Setting::get('pagination') * 10);
             $logs = $query->paginate($paginate)->appends(request()->except(['page']));
-            
+
             $search = [
                 \DB::raw("count(*) as total_record"),
                 \DB::raw("count(DISTINCT sku) as total_u_record")
@@ -719,14 +719,14 @@ class ScrapController extends Controller
             $totalUniqueSkuRecords = \DB::table("log_scraper");
 
             if(!empty($startDate)) {
-                $totalUniqueSkuRecords->whereDate('created_at'," >= " , $startDate);   
+                $totalUniqueSkuRecords->whereDate('created_at'," >= " , $startDate);
             }
 
             if(!empty($endDate)) {
-                $totalUniqueSkuRecords->whereDate('created_at'," <= " , $endDate);   
+                $totalUniqueSkuRecords->whereDate('created_at'," <= " , $endDate);
                 $totalUniqueSkuRecords->groupBy(\DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d")'));
             }
-            
+
             $totalUniqueSkuRecords->select($search);
             $summeryRecords = $totalUniqueSkuRecords->get();
 
@@ -826,14 +826,14 @@ class ScrapController extends Controller
 
         if($request->global != null){
             $query = $query->where('scraper_name', 'LIKE', "%{$request->global}%")
-                    ->orWhere('product_url_selector', 'LIKE', "%{$request->global}%")
-                    ->orWhere('designer_url_selector', 'LIKE', "%{$request->global}%")
-                    ->orWhere('starting_urls', 'LIKE', "%{$request->global}%")
-                    ->orWhere('run_gap', 'LIKE', "%{$request->global}%")
-                    ->orWhere('time_out', 'LIKE', "%{$request->global}%")
-                    ->orWhereHas('mainSupplier', function ($qu) use ($request) {
-                        $qu->where('supplier', 'LIKE', "%{$request->global}%");
-                    });
+                ->orWhere('product_url_selector', 'LIKE', "%{$request->global}%")
+                ->orWhere('designer_url_selector', 'LIKE', "%{$request->global}%")
+                ->orWhere('starting_urls', 'LIKE', "%{$request->global}%")
+                ->orWhere('run_gap', 'LIKE', "%{$request->global}%")
+                ->orWhere('time_out', 'LIKE', "%{$request->global}%")
+                ->orWhereHas('mainSupplier', function ($qu) use ($request) {
+                    $qu->where('supplier', 'LIKE', "%{$request->global}%");
+                });
         }
 
         if($request->scraper_name != null){
@@ -862,8 +862,8 @@ class ScrapController extends Controller
 
         if($request->supplier_name != null){
             $query = $query->whereHas('mainSupplier', function ($qu) use ($request) {
-                        $qu->where('supplier', 'LIKE', "%{$request->supplier_name}%");
-                    });
+                $qu->where('supplier', 'LIKE', "%{$request->supplier_name}%");
+            });
 
         }
 
@@ -879,21 +879,21 @@ class ScrapController extends Controller
             ], 200);
         }
 
-        
-        
+
+
         return view('scrap.supplier-scraper',compact('scrapers','suppliers'));
     }
 
     public function genericScraperSave(Request $request){
-        
+
         if($request->id){
-            $scraper = Scraper::find($request->id);    
+            $scraper = Scraper::find($request->id);
         }else{
-            $scraper = new Scraper; 
+            $scraper = new Scraper;
             $scraper->scraper_name = $request->name;
-            $scraper->supplier_id = $request->supplier_id; 
+            $scraper->supplier_id = $request->supplier_id;
         }
-        
+
 
         $scraper->run_gap = $request->run_gap;
         $scraper->time_out = $request->time_out;
@@ -903,7 +903,7 @@ class ScrapController extends Controller
         $scraper->save();
 
         if ($request->ajax()) {
-        return response()->json(['success'],200);
+            return response()->json(['success'],200);
         }
 
         return redirect()->back()->with('message', 'Scraper Saved');
@@ -911,62 +911,62 @@ class ScrapController extends Controller
 
     public function genericMapping($id)
     {
-       $scraper = Scraper::find($id);
-       $mappings = ScraperMapping::where('scrapers_id',$id)->get();
-       return view('scrap.generic-scraper-mapping',compact('scraper','mappings','id'));
+        $scraper = Scraper::find($id);
+        $mappings = ScraperMapping::where('scrapers_id',$id)->get();
+        return view('scrap.generic-scraper-mapping',compact('scraper','mappings','id'));
     }
 
     public function genericMappingSave(Request $request)
     {
-            $id = $request->id;
-            $select = $request->select;
-            $count = count($select);
-            $functions = $request->functions;
-            $parameter = $request->parameter;
-            $selector = $request->selector;
+        $id = $request->id;
+        $select = $request->select;
+        $count = count($select);
+        $functions = $request->functions;
+        $parameter = $request->parameter;
+        $selector = $request->selector;
 
-            for ($i=0; $i < $count; $i++) {
-                if($select[$i] != null){
-                    $updateMapping = ScraperMapping::where('scrapers_id',$id)->where('field_name',$select[$i])->first();
-                    if($updateMapping != null){
-                        $mapping = $updateMapping;
-                    }else{
-                        $mapping = new ScraperMapping;
-                    }
-                    if($selector[$i] == null){
-                        $selector[$i] = '';
-                    }
-                    if($functions[$i] == null){
-                        $functions[$i] = '';
-                    }
-                    if($parameter[$i] == null){
-                        $parameter[$i] = '';
-                    }
-                    
-                    $mapping->field_name = $select[$i];
-                    $mapping->scrapers_id = $id;
-                    $mapping->selector = $selector[$i];
-                    $mapping->function = $functions[$i];
-                    $mapping->parameter = $parameter[$i];
-                    $mapping->save();
-                } 
-            } 
+        for ($i=0; $i < $count; $i++) {
+            if($select[$i] != null){
+                $updateMapping = ScraperMapping::where('scrapers_id',$id)->where('field_name',$select[$i])->first();
+                if($updateMapping != null){
+                    $mapping = $updateMapping;
+                }else{
+                    $mapping = new ScraperMapping;
+                }
+                if($selector[$i] == null){
+                    $selector[$i] = '';
+                }
+                if($functions[$i] == null){
+                    $functions[$i] = '';
+                }
+                if($parameter[$i] == null){
+                    $parameter[$i] = '';
+                }
 
-            return response()->json(['success'],200);      
+                $mapping->field_name = $select[$i];
+                $mapping->scrapers_id = $id;
+                $mapping->selector = $selector[$i];
+                $mapping->function = $functions[$i];
+                $mapping->parameter = $parameter[$i];
+                $mapping->save();
+            }
+        }
+
+        return response()->json(['success'],200);
     }
 
     public function sendScrapDetails()
     {
-       
-       $scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
-       
-       if($scraper == null){
+
+        $scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
+
+        if($scraper == null){
             return response()->json(['message' => 'No Scraper Present'], 400);
-       }
+        }
         $startingURLs = explode("\n", str_replace("\r", "", $scraper->starting_urls));
-        
+
         $maps = ScraperMapping::where('scrapers_id',$scraper->id)->get();
-       
+
         foreach ($maps as $map) {
             $mapArray[]  = array($map->field_name => array('selector' => $map->selector,'function' => $map->function , 'parameters' => $map->parameter));
         }
@@ -978,9 +978,9 @@ class ScrapController extends Controller
         $scraper->start_time = now();
         $scraper->save();
 
-       $json = json_encode(array("website" => $scraper->scraper_name , "timeout" => $scraper->time_out , "starting_urls" => $startingURLs , "designer_url_selector" => $scraper->designer_url_selector, "product_url_selector" => $scraper->product_url_selector,"map" => $mapArray));
+        $json = json_encode(array("website" => $scraper->scraper_name , "timeout" => $scraper->time_out , "starting_urls" => $startingURLs , "designer_url_selector" => $scraper->designer_url_selector, "product_url_selector" => $scraper->product_url_selector,"map" => $mapArray));
 
-       return $json;
+        return $json;
 
     }
 
@@ -993,14 +993,13 @@ class ScrapController extends Controller
         $scraper->end_time = now();
         $scraper->save();
 
-        return response()->json(['success'],200);   
+        return response()->json(['success'],200);
     }
 
     public function genericMappingDelete(Request $request){
         $id = $request->id;
         $mapping = ScraperMapping::find($id);
         $mapping->delete();
-        return response()->json(['success'],200);   
+        return response()->json(['success'],200);
     }
 }
-

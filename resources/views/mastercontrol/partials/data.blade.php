@@ -673,6 +673,37 @@
                 </div>
                 </td>
               </tr>
+              <tr>
+                <td>Crop Job Errors</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table">
+                  <div class="table">
+                   <table>
+                   <tr>
+                    <th>Cron</th>
+                    <th>Last Run at</th>
+                    <th>Error</th>
+                   </tr>
+                   <?php if(!empty($cronLastErrors)){ ?>
+                     <?php foreach($cronLastErrors as $cronLastError) { ?>
+                       <tr>
+                          <td>{{ $cronLastError->signature }}</td>
+                          <td>{{ $cronLastError->start_time }}</td>
+                          <td>{{ $cronLastError->last_error }}</td>
+                       </tr>
+                      <?php } ?>
+                    <?php } ?>
+                 </table>
+                   </div> 
+                </td>
+              </tr>
            </tbody>
         </table>
     </div>
