@@ -52,12 +52,13 @@ class CronJob extends Model
                 'assigned_to' => \App\Setting::get("cron_issue_assinged_to",self::DEFAULT_ASSIGNED_TO),
             ]);
             app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
-        }else{
+        }
+        /*else{
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add(['issue_id' => $hasAssignedIssue->id, 'message' => $error, 'status' => 1]);
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
-        }
+        }*/
 
         // once cron error done we need to assign that error to the related person
 
