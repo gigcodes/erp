@@ -17,6 +17,7 @@
     <br>
     <div class="col-lg-12 margin-tb">
 		<button data-toggle="collapse" href="#collapse-message-queue" class="collapsed btn btn-secondary" aria-expanded="false">Search message queue count</button>
+		<button data-toggle="collapse" href="#collapse-show-queue" class="collapsed btn btn-secondary" aria-expanded="false">Show Queue Count</button>
 		<div class="panel-group">
 			<div id="collapse-message-queue" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 				<div class="panel-body">
@@ -44,7 +45,41 @@
 				</div>
 			</div>
 		</div>
-    </div>	
+    </div>
+
+    <div class="col-lg-12 margin-tb">
+		<div class="panel-group">
+			<div class="panel-body">
+				<div class="row">
+				    <div class="col-md-12">
+				        <div class="collapse" id="collapse-show-queue">
+				            <div class="card card-body">
+				              <?php if(!empty($waitingMessages)) { ?>
+				                <div class="row col-md-12">
+				                    <?php foreach($waitingMessages as $no => $queue) { ?>
+				                      <div class="col-md-2">
+				                            <div class="card">
+				                              <div class="card-header">
+				                                <?php echo $no; ?>
+				                              </div>
+				                              <div class="card-body">
+				                                  <?php echo $queue; ?>
+				                              </div>
+				                          </div>
+				                       </div> 
+				                  <?php } ?>
+				                </div>
+				              <?php } else  { 
+				                echo "Sorry , No data available";
+				              } ?>
+				            </div>
+				        </div>
+				    </div>    
+				</div>	
+			</div>	
+		</div>
+    </div>
+
     <div class="col-lg-12 margin-tb">
     	<div class="row" style="margin-bottom:20px;">
 	    	<div class="col col-md-5">

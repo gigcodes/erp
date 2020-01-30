@@ -6,6 +6,7 @@ use App\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use App\Services\Whatsapp\ChatApi\ChatApi;
 
 class MessageQueueController extends Controller
 {
@@ -23,7 +24,20 @@ class MessageQueueController extends Controller
         $sendStartTime = ChatMessage::getStartTime();
         $sendEndTime = ChatMessage::getEndTime();
 
-        return view('messagequeue::index',compact('groupList','sendingLimit','sendStartTime','sendEndTime'));
+        $allWhatsappNo         = config("apiwha.instances");
+
+        $waitingMessages = [];
+        if (!empty($allWhatsappNo)) {
+            foreach ($allWhatsappNo as $no => $dataInstance) {
+                $no = ($no == 0) ? $dataInstance["number"] : $no;
+                $chatApi = new ChatApi;
+                $waitingMessage = $chatApi->waitingLimit($no);
+                $waitingMessages[$no] = $waitingMessage;
+            }
+        }
+
+
+        return view('messagequeue::index',compact('groupList','sendingLimit','sendStartTime','sendEndTime','waitingMessages'));
     }
 
     /**
