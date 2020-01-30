@@ -58,7 +58,18 @@
 							    	<option value="">-- Select --</option>
 							    	<option value="change_to_broadcast">Change to Broadcast</option>
 							    	<option value="delete_records">Delete Records</option>
-							    	<option value="delete_all">Delete All Records</option>	
+							    	<option value="delete_all">Delete All Records</option>
+							    	<option value="change_customer_number">Change Customer Number</option>	
+							    </select>
+						  	</div>
+						  	<div class="form-group sending-number-section" style="display: none;">
+							    <label for="action">Sending Number:</label>
+							    <select class="form-control" name="sending-number" id="sending-number">
+								    @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+				                        @if($number != "0")
+				                            <option value="{{ $number }}">{{ $number }}</option>
+				                        @endif
+				                    @endforeach
 							    </select>
 						  	</div>
 						  	<div class="form-group">

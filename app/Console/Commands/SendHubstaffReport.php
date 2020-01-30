@@ -57,14 +57,18 @@ class SendHubstaffReport extends Command
             ]);
             $userPastHour = $this->getActionsForPastHour();
 
+            echo print_r($userPastHour);
+
             $userToday = $this->getActionsForToday();
+
+            echo print_r($userToday);
 
             $users = DB::table('users')
                 ->join('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
                 ->select(['hubstaff_user_id', 'name'])
                 ->get();
 
-            $report = array();
+            $hubstaffReport = array();
             foreach ($users as $user) {
 
                 $pastHour = (isset($userPastHour[$user->hubstaff_user_id])
@@ -77,11 +81,11 @@ class SendHubstaffReport extends Command
 
                 if ($today != '0') {
                     $message  = $user->name . ' ' . $pastHour . ' ' . $today;
-                    $report[] = $message;
+                    $hubstaffReport[] = $message;
                 }
             }
 
-            $message = implode(PHP_EOL, $report);
+            $message = implode(PHP_EOL, $hubstaffReport);
 
             ChatMessage::sendWithChatApi('971502609192', null, $message);
             $report->update(['end_time' => Carbon::now()]);
@@ -98,10 +102,10 @@ class SendHubstaffReport extends Command
 
     private function getActionsForPastHour()
     {
-        $stop  = date("c");
-        $time  = strtotime($stop);
-        $time  = $time - (60 * 60); //one hour
-        $start = date("c", $time);
+        $stop =  gmdate("c");
+        $time   = strtotime($stop);
+        $time   = $time - (60 * 60); //one hour
+        $start = gmdate("c", $time);
 
         $response = $this->doHubstaffOperationWithAccessToken(
             function ($accessToken) use ($start, $stop) {
