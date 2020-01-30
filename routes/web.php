@@ -968,6 +968,8 @@ Route::post('hubstaff/tasks/addData', 'HubstaffController@addTask');
 Route::get('hubstaff/tasks/{id}', 'HubstaffController@editTaskForm');
 Route::get('hubstaff/redirect', 'HubstaffController@redirect');
 Route::get('hubstaff/debug', 'HubstaffController@debug');
+Route::get('hubstaff/payments', 'UserController@payments');
+Route::post('hubstaff/makePayment', 'UserController@makePayment');
 
 /*
  * @date 1/13/2019
@@ -1483,6 +1485,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
         Route::get('/repos/{name}/users/add', 'Github\UserController@addUserToRepositoryForm');
         Route::get('/repos/{id}/branches', 'Github\RepositoryController@getRepositoryDetails');
+        Route::get('/repos/{id}/pull-request', 'Github\RepositoryController@listPullRequests');
         Route::get('/repos/{id}/branch/merge', 'Github\RepositoryController@mergeBranch');
         Route::get('/repos/{id}/deploy', 'Github\RepositoryController@deployBranch');
         Route::post('/add_user_to_repo', 'Github\UserController@addUserToRepository');

@@ -1220,6 +1220,10 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('hubstaff/tasks') }}">Tasks</a>
                                         </li>
+
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('hubstaff/payments') }}">Payments</a>
+                                        </li>
                                     </ul>
                                 </li>
 
