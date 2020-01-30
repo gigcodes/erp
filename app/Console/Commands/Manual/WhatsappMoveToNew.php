@@ -2,13 +2,11 @@
 
 namespace App\Console\Commands\Manual;
 
-use Illuminate\Console\Command;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\ChatMessage;
-use App\Customer;
 use App\CronJobReport;
-use App\Http\Controllers\WhatsAppController;
+use App\Customer;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class WhatsappMoveToNew extends Command
 {
@@ -43,18 +41,18 @@ class WhatsappMoveToNew extends Command
      */
     public function handle()
     {
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+            // Set variables
+            $newNumber = '971545889192';
+            $days      = 60;
 
-        // Set variables
-        $newNumber = '971545889192';
-        $days = 60;
-
-        // Query to find all customers of $number
-        $sql = "
+            // Query to find all customers of $number
+            $sql = "
             SELECT
                 DISTINCT(customer_id)
             FROM
@@ -72,22 +70,25 @@ class WhatsappMoveToNew extends Command
                 number IS NOT NULL AND
                 created_at > DATE_SUB(NOW(), INTERVAL " . $days . " DAY)
         ";
-        // echo $sql;
-        $rs = DB::select(DB::raw($sql));
+            // echo $sql;
+            $rs = DB::select(DB::raw($sql));
 
-        // Loop over customers
-        if ($rs !== null) {
-            foreach ($rs as $result) {
-                // Find customer
-                $customer = Customer::find($result->customer_id);
-                $customer->whatsapp_number = $newNumber;
-                $customer->save();
+            // Loop over customers
+            if ($rs !== null) {
+                foreach ($rs as $result) {
+                    // Find customer
+                    $customer                  = Customer::find($result->customer_id);
+                    $customer->whatsapp_number = $newNumber;
+                    $customer->save();
 
-                // Output customer information
-                echo $customer->id . ' ' . $customer->phone . "\n";
+                    // Output customer information
+                    echo $customer->id . ' ' . $customer->phone . "\n";
+                }
             }
-        }
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands\Manual;
 
-use Illuminate\Console\Command;
 use App\Jobs\PushToMagento;
 use App\Product;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class ManualQueueForMagento extends Command
 {
@@ -41,17 +42,25 @@ class ManualQueueForMagento extends Command
     {
         // Set memory limit
         ini_set('memory_limit', '2048M');
+        try {
+            $report = \App\CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
+            // Get all products queued for AI
+            $products = Product::where('status_id', '=', 9)->where('stock', '>', 0)->get();
 
-        // Get all products queued for AI
-        $products = Product::where('status_id', '=', 9)->where('stock', '>', 0)->get();
+            // Loop over products
+            foreach ($products as $product) {
+                // Output product ID
+                echo $product->id . "\n";
 
-        // Loop over products
-        foreach ($products as $product) {
-            // Output product ID
-            echo $product->id . "\n";
-
-            // Queue for AI
-            PushToMagento::dispatch($product)->onQueue('magento');
+                // Queue for AI
+                PushToMagento::dispatch($product)->onQueue('magento');
+            }
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }

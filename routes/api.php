@@ -84,6 +84,10 @@ Route::post('{username}/{password}/get-comments', 'InstagramPostsController@getC
 Route::post('{username}/{password}/send-comment', 'InstagramPostsController@commentSent');
 Route::get('instagram/get-hashtag-list','InstagramPostsController@getHashtagList');
 
+//Giving All Brands with Reference
+Route::get('brands','BrandController@brandReference');
+
+
 // SUPPLIERS
 Route::post('supplier/brands-raw', 'SupplierController@apiBrandsRaw');
 
