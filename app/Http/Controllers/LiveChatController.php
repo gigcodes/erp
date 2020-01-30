@@ -732,10 +732,6 @@ class LiveChatController extends Controller
 		if($additionalHeaders){
 			$curlData += $additionalHeaders;
 		}
-
-		if($additionalHeaders){
-			$curlData += $additionalHeaders;
-		}
 		curl_setopt_array($curl, $curlData);
 		$response = curl_exec($curl);
 		$err = curl_error($curl);
