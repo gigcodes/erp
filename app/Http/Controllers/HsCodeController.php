@@ -85,8 +85,42 @@ class HsCodeController extends Controller
         }else{
 
          $productss = $query->select('*', DB::raw('count(*) as total'))
-                 ->where('category','>',3)->where('stock',1)->groupBy('category')->groupBy('composition')->orderBy('total','desc')->take(100)->get();
+                 ->where('category','>',3)->where('stock',1)->groupBy('category')->groupBy('composition')->orderBy('total','desc')->get();
+          }
+          
+          if($productss->count() != 0){
 
+            $count = 0;
+          foreach ($productss as $product) {
+                    if($count == 100){
+                        break;
+                    }
+
+                    $categoryTree = CategoryController::getCategoryTree($product->category);
+                    if(is_array($categoryTree)){
+                        $childCategory = implode(' > ',$categoryTree);
+                    }
+
+                    $parentCategory = $product->product_category->title;
+                    $name = $childCategory.' > '.$parentCategory;
+
+                    $hscodeSearchString = str_replace(['&gt;','>'],'', $product->composition.' '.$name);
+                    
+                    $hscode = HsCode::where('description',$hscodeSearchString)->first();
+                    
+                    if($hscode == null){
+                        $productArray[] = $product->setAttribute('category_name', $name);
+                        $count++;
+                    }
+                    
+                 }       
+
+          }      
+          
+
+        
+        if(!isset($productArray)){
+            $productArray = [];
         }
         
         $selected_categories = $request->category ? $request->category : 1;
@@ -95,7 +129,7 @@ class HsCodeController extends Controller
             ->selected($selected_categories)
             ->renderAsDropdown();
                      
-        $p = $productss->toArray();
+        $p = $productArray;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = Setting::get('pagination'); 
         
@@ -111,7 +145,7 @@ class HsCodeController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('simplyduty.most-common.partials.data', compact('products','category_selection','groups','cate','hscodes'))->render(),
-                'links' => (string)$products->render(),
+                'links' => (string)$products->appends($request->all())->render(),
                 'total' => $products->total(),
             ], 200);
             }
@@ -127,10 +161,10 @@ class HsCodeController extends Controller
         if($request->category != null){
             $categories = DB::table('categories')->select('id','title')->where('id',$request->category)->orderBy('title','asc')->get()->toArray(); 
         }else{
-            $categories = Category::orderBy('title','asc')->get();  
+            $categories = DB::table('categories')->orderBy('title','asc')->whereNotIn('id',[1,2,3])->get();  
         }
         
-
+        
         foreach ($categories as $category) {
 
             $categoryTree = CategoryController::getCategoryTree($category->id);
@@ -140,18 +174,24 @@ class HsCodeController extends Controller
 
             $parentCategory = $category->title;
             $name = $childCategory.' > '.$parentCategory;
-
             if($request->combination != null){
                 
-                $products = Product::select('composition', DB::raw('count(*) as total'))->where('category',$category->id)->where('category','>',3)->where('stock',1)->where('composition','LIKE','%'.$request->combination.'%')->whereNotNull('composition')->groupBy('composition')->orderBy('total','desc')->take(3)->get(); 
+                $products = Product::select('composition')->where('category',$category->id)->where('category','>',3)->where('stock',1)->where('composition','LIKE','%'.$request->combination.'%')->whereNotNull('composition')->groupBy('composition')->limit(3)->get(); 
 
             }else{
-             $products = Product::select('composition', DB::raw('count(*) as total'))->where('category',$category->id)->where('category','>',3)->where('stock',1)->whereNotNull('composition')->groupBy('composition')->orderBy('total','desc')->take(3)->get(); 
+             $products = Product::select('composition')->where('category',$category->id)->where('stock',1)->whereNotNull('composition')->groupBy('composition')->limit(3)->get(); 
          }
 
          foreach ($products as $product) {
-            $data[$name][] = $product->composition;
+            //Check if product hscode exist
+            $hscodeSearchString = str_replace(['&gt;','>'],'', $product->composition.' '.$name);
+            
+            $hscode = HsCode::where('description',$hscodeSearchString)->first();
 
+            if($hscode == null){
+                $data[] = array('name' => $name,'id' => $category->id , 'composition' => $product->composition);
+            }
+           
         }
 
     }
@@ -159,7 +199,7 @@ class HsCodeController extends Controller
     if(!isset($data)){
         $data = [];
     }
-
+    
     $currentPage = LengthAwarePaginator::resolveCurrentPage();
     $perPage = Setting::get('pagination'); 
 

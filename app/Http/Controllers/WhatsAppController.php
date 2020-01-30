@@ -68,8 +68,10 @@ use App\QuickSellGroup;
 use App\ProductQuicksellGroup;
 use App\Helpers\InstantMessagingHelper;
 use App\Library\Watson\Model as WatsonManager;
+use Response;
 use \App\Helpers\TranslationHelper;
 use App\ImQueue;
+
 
 
 class WhatsAppController extends FindByNumberController
@@ -1015,7 +1017,7 @@ class WhatsAppController extends FindByNumberController
 
         // Check for messages
         if (!array_key_exists('messages', $data)) {
-            return response('ACK', 200);
+            return Response::json('ACK', 200);
         }
         // Loop over messages
         foreach ($data[ 'messages' ] as $chatapiMessage) {
@@ -1577,7 +1579,7 @@ class WhatsAppController extends FindByNumberController
             }
         }
 
-        return response('success');
+        return Response::json('success', 200);
     }
 
     public function outgoingProcessed(Request $request)

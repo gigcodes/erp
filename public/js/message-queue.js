@@ -69,6 +69,16 @@ var msQueue = {
             msQueue.filterReport();
         });
 
+        msQueue.config.bodyView.on("change","#action-to-run",function(e) {
+            if($(this).val() == "change_customer_number") {
+                $(".sending-number-section").show();
+            }else{
+                $(".sending-number-section").hide();
+            }
+        });
+
+
+
         $(".select2").select2({tags:true});
 
         $(window).scroll(function() {
@@ -160,7 +170,9 @@ var msQueue = {
 
     },
     submitForm: function(ele) {
-        var action = $(".message-queue-handler").find("#action-to-run").val();
+        var messageHandler = $(".message-queue-handler");
+        var action = messageHandler.find("#action-to-run").val();
+        var sendNumber = messageHandler.find("#sending-number").val();
         var ids    = [];
             $.each($(".select-id-input:checked"),function(k,v){
                ids.push($(v).val()); 
@@ -168,7 +180,12 @@ var msQueue = {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/message-queue/records/action-handler",
             method: "post",
-            data : {"action" : action , "ids" : ids, "_token"  : $('meta[name="csrf-token"]').attr('content')},
+            data : {
+                "action" : action , 
+                "ids" : ids,
+                "send_number" : sendNumber, 
+                "_token"  : $('meta[name="csrf-token"]').attr('content')
+            },
             beforeSend : function() {
                 $("#loading-image").show();
             }

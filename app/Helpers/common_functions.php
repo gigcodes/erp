@@ -14,7 +14,7 @@ function createProductTextImage($path, $uploadPath = "", $text = "", $color = "5
 {
     $text = wordwrap(strtoupper($text), 24, "\n");
 
-    $img  = \IImage::make($path);
+    $img = \IImage::make($path);
     $img->resize(600, null, function ($constraint) {
         $constraint->aspectRatio();
     });
@@ -58,7 +58,7 @@ function previous_sibling(array $elements, $previous_sibling = 0, &$branch = [])
 
 /**
  * return all types of short message with postfix
- * 
+ *
  */
 
 function show_short_message($message, $size = 50, $postfix = "...")
@@ -76,7 +76,7 @@ function show_short_message($message, $size = 50, $postfix = "...")
 
 /**
  * key is using for to attach customer via session
- * 
+ *
  */
 
 function attach_customer_key()
@@ -102,4 +102,18 @@ function getStartAndEndDate($week, $year)
     $dto->modify('+7 days');
     $ret['week_end'] = $dto->format('Y-m-d');
     return $ret;
+}
+
+/**
+ * Moved function from chat api to here due to duplicates
+ *
+ */
+if (!function_exists('getInstance')) {
+    function getInstance($number)
+    {
+        $number = !empty($number) ? $number : 0;
+        return isset(config("apiwha.instances")[$number])
+        ? config("apiwha.instances")[$number]
+        : config("apiwha.instances")[0];
+    }
 }
