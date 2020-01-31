@@ -3,11 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Account;
+use App\CronJobReport;
 use App\Influencers;
 use App\InfluencersDM;
 use App\InstagramAutomatedMessages;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
-use App\CronJobReport;
 use InstagramAPI\Instagram;
 
 class SendMessagesToBloggers extends Command
@@ -43,56 +44,58 @@ class SendMessagesToBloggers extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
+            $bloggers = Influencers::whereDoesntHave('message')->get();
 
-        $bloggers = Influencers::whereDoesntHave('message')->get();
+            foreach ($bloggers as $blogger) {
+                $targetUsername = $blogger->username;
+                echo "$targetUsername \n";
 
-        foreach ($bloggers as $blogger) {
-            $targetUsername = $blogger->username;
-            echo "$targetUsername \n";
+                if (!$targetUsername) {
+                    continue;
+                }
 
-            if (!$targetUsername) {
-                continue;
-            }
+                $account = Account::where('platform', 'instagram')->inRandomOrder()->first();
+                $message = '';
 
-            $account = Account::where('platform', 'instagram')->inRandomOrder()->first();
-            $message = '';
+                $ig = new Instagram();
 
-            $ig = new Instagram();
-
-            try {
-                  $ig->login($account->last_name, $account->password);
+                try {
+                    $ig->login($account->last_name, $account->password);
 //                $ig->login('rishabh_aryal', 'R1shabh@12345');
-                $userinfo = $ig->people->getInfoByName($targetUsername)->asArray();
-            } catch (\Exception $exception) {
-                continue;
+                    $userinfo = $ig->people->getInfoByName($targetUsername)->asArray();
+                } catch (\Exception $exception) {
+                    continue;
+                }
+
+                $message = InstagramAutomatedMessages::where('type', 'text')
+                    ->where('sender_type', 'normal')
+                    ->where('receiver_type', 'inf_dm')
+                    ->where('status', '1')
+                    ->orderBy('use_count', 'ASC')
+                    ->first();
+
+                $ig->direct->sendText([
+                    'users' => [
+                        $userinfo['user']['pk'],
+                    ],
+                ], $message->message);
+
+                $msg                = new InfluencersDM();
+                $msg->influencer_id = $blogger->id;
+                $msg->message_id    = $message->id;
+                $msg->save();
+
             }
 
-            $message = InstagramAutomatedMessages::where('type', 'text')
-                ->where('sender_type', 'normal')
-                ->where('receiver_type', 'inf_dm')
-                ->where('status', '1')
-                ->orderBy('use_count', 'ASC')
-                ->first();
-
-            $ig->direct->sendText([
-                'users' => [
-                    $userinfo['user']['pk']
-                ]
-            ], $message->message);
-
-            $msg = new InfluencersDM();
-            $msg->influencer_id = $blogger->id;
-            $msg->message_id = $message->id;
-            $msg->save();
-
-
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-         $report->update(['end_time' => Carbon:: now()]);
     }
 }

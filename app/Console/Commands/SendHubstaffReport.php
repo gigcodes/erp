@@ -4,11 +4,11 @@ namespace App\Console\Commands;
 
 use App\ChatMessage;
 use App\Helpers\hubstaffTrait;
-use App\Hubstaff\HubstaffMember;
 use DB;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
+use Carbon\Carbon;
 
 class SendHubstaffReport extends Command
 {
@@ -50,35 +50,48 @@ class SendHubstaffReport extends Command
     public function handle()
     {
         //
-        $userPastHour =  $this->getActionsForPastHour();
+        try {
+            $report = \App\CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
+            $userPastHour = $this->getActionsForPastHour();
 
-        $userToday = $this->getActionsForToday();
+            echo print_r($userPastHour);
 
-        $users = DB::table('users')
-            ->join('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
-            ->select(['hubstaff_user_id', 'name'])
-            ->get();
+            $userToday = $this->getActionsForToday();
 
-        $report = array();
-        foreach ($users as $user) {
+            echo print_r($userToday);
 
-            $pastHour = (isset($userPastHour[$user->hubstaff_user_id])
-                ? $this->formatSeconds($userPastHour[$user->hubstaff_user_id])
-                : '0');
+            $users = DB::table('users')
+                ->join('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
+                ->select(['hubstaff_user_id', 'name'])
+                ->get();
 
-            $today = (isset($userToday[$user->hubstaff_user_id])
-                ? $this->formatSeconds($userToday[$user->hubstaff_user_id])
-                : '0');
+            $hubstaffReport = array();
+            foreach ($users as $user) {
 
-            if($today != '0'){
-                $message = $user->name . ' ' .  $pastHour . ' ' . $today;
-                $report[] = $message;
+                $pastHour = (isset($userPastHour[$user->hubstaff_user_id])
+                    ? $this->formatSeconds($userPastHour[$user->hubstaff_user_id])
+                    : '0');
+
+                $today = (isset($userToday[$user->hubstaff_user_id])
+                    ? $this->formatSeconds($userToday[$user->hubstaff_user_id])
+                    : '0');
+
+                if ($today != '0') {
+                    $message  = $user->name . ' ' . $pastHour . ' ' . $today;
+                    $hubstaffReport[] = $message;
+                }
             }
+
+            $message = implode(PHP_EOL, $hubstaffReport);
+
+            ChatMessage::sendWithChatApi('971502609192', null, $message);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        $message = implode(PHP_EOL, $report);
-
-        ChatMessage::sendWithChatApi('971502609192',null, $message);
     }
 
     private function formatSeconds($seconds)
@@ -87,15 +100,12 @@ class SendHubstaffReport extends Command
         return sprintf('%02d:%02d:%02d', ($t / 3600), ($t / 60 % 60), $t % 60);
     }
 
-
     private function getActionsForPastHour()
     {
-        $stop =  date("c");
+        $stop =  gmdate("c");
         $time   = strtotime($stop);
         $time   = $time - (60 * 60); //one hour
-        $start = date("c", $time);
-
-        return;
+        $start = gmdate("c", $time);
 
         $response = $this->doHubstaffOperationWithAccessToken(
             function ($accessToken) use ($start, $stop) {
@@ -104,8 +114,8 @@ class SendHubstaffReport extends Command
                     $url,
                     [
                         RequestOptions::HEADERS => [
-                            'Authorization' => 'Bearer ' . $accessToken
-                        ]
+                            'Authorization' => 'Bearer ' . $accessToken,
+                        ],
                     ]
                 );
             }
@@ -130,11 +140,11 @@ class SendHubstaffReport extends Command
     private function getActionsForToday()
     {
 
-        $now = date('Y-m-d H:i:s');
-        $time   = strtotime($now);
+        $now   = date('Y-m-d H:i:s');
+        $time  = strtotime($now);
         $start = date('Y-m-d', $time);
-        $time = $time + (24 * 60 * 60);
-        $stop = date('Y-m-d', $time);
+        $time  = $time + (24 * 60 * 60);
+        $stop  = date('Y-m-d', $time);
 
         //https://api.hubstaff.com/v2/organizations/:organization_id/activities/daily?date[start]=2020-01-08T00:00:00+0&date[stop]=2020-01-08T05:30:00+0
         $response = $this->doHubstaffOperationWithAccessToken(
@@ -144,8 +154,8 @@ class SendHubstaffReport extends Command
                     $url,
                     [
                         RequestOptions::HEADERS => [
-                            'Authorization' => 'Bearer ' . $accessToken
-                        ]
+                            'Authorization' => 'Bearer ' . $accessToken,
+                        ],
                     ]
                 );
             }

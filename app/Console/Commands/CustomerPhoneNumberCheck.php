@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Customer;
 use App\Helpers\InstantMessagingHelper;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class CustomerPhoneNumberCheck extends Command
 {
@@ -39,44 +40,52 @@ class CustomerPhoneNumberCheck extends Command
      */
     public function handle()
     {
-        $type = $this->argument('type');
-        
-        $customers = Customer::where('do_not_disturb',1)->get();
-        if($type == 'test'){
-            foreach($customers as $customer){
-                if($customer->phone == null){
-                    continue;
-                }
-                //check if existing customer is on not invalid list
-                $result = substr($customer->phone, 0, 1);
-                if($result == '-'){
-                    continue;
-                }
-                $result = InstantMessagingHelper::customerPhoneCheck($customer->phone,0);
-                if($result == false){
-                    dump('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
-                }
-            }
-        }elseif($type == 'run'){
-            foreach($customers as $customer){
+        try {
+            $report = \App\CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
+            $type = $this->argument('type');
 
-                if($customer->phone == null){
-                    continue;
+            $customers = Customer::where('do_not_disturb', 1)->get();
+            if ($type == 'test') {
+                foreach ($customers as $customer) {
+                    if ($customer->phone == null) {
+                        continue;
+                    }
+                    //check if existing customer is on not invalid list
+                    $result = substr($customer->phone, 0, 1);
+                    if ($result == '-') {
+                        continue;
+                    }
+                    $result = InstantMessagingHelper::customerPhoneCheck($customer->phone, 0);
+                    if ($result == false) {
+                        dump('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                    }
                 }
-                //check if existing customer is on not invalid list
-                $result = substr($customer->phone, 0, 1);
-                if($result == '-'){
-                    continue;
+            } elseif ($type == 'run') {
+                foreach ($customers as $customer) {
+
+                    if ($customer->phone == null) {
+                        continue;
+                    }
+                    //check if existing customer is on not invalid list
+                    $result = substr($customer->phone, 0, 1);
+                    if ($result == '-') {
+                        continue;
+                    }
+                    $result = InstantMessagingHelper::customerPhoneCheck($customer->phone, 1);
+                    if ($result == false) {
+                        dump('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
+                    }
                 }
-                $result = InstantMessagingHelper::customerPhoneCheck($customer->phone,1);
-                if($result == false){
-                    dump('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
-                }
+            } else {
+                dump('Please use test or run');
             }
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-        else{
-            dump('Please use test or run');
-        }
-        
+
     }
 }

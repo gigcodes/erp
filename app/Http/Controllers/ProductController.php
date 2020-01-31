@@ -222,7 +222,7 @@ class ProductController extends Controller
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(5);
+        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
 
         return view('products.final_listing', [
             'products' => $newProducts,
@@ -1591,6 +1591,7 @@ class ProductController extends Controller
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
 
+
         if($model_type == 'customer'){
             $customerId = $model_id;
         }else{
@@ -2081,31 +2082,51 @@ class ProductController extends Controller
             ]);
         }
 
-        // Get images
-        $images = $product->media()->where('tag','original')->get(['filename', 'extension', 'mime_type', 'disk', 'directory']);
+        $mediables = DB::table('mediables')->select('media_id')->where('mediable_id',$product->id)->where('mediable_type','App\Product')->where('tag','original')->get();
 
-         foreach ($images as $image) {
-            $link = $image->getUrl();
-            //$link = 'https://erp.amourint.com/uploads/15d428fb0c6944.jpg';
-            $vision = LogGoogleVision::where('image_url','LIKE','%'.$link.'%')->first();
-            if($vision != null){
-               $keywords = preg_split('/[\n,]+/',$vision->response);
-               $countKeywords = count($keywords);
-               for ($i=0; $i < $countKeywords; $i++) {
-                    if (strpos($keywords[$i], 'Object') !== false) {
-                            $key = str_replace('Object: ','',$keywords[$i]);
-                            $value = str_replace('Score (confidence): ','',$keywords[$i+1]);
-                            $output[] = array($key => $value);
-                    }
-               }
-            }
-            if(isset($output)){
-               $image->setAttribute('objects', json_encode($output));
-            }else{
-              $image->setAttribute('objects', '');
-            }
-
+        foreach ($mediables as $mediable) {
+            $mediableArray[] = $mediable->media_id;
         }
+
+        if(!isset($mediableArray)){
+            return response()->json([
+                'status' => 'no_product'
+            ]);
+        }
+
+        $images = Media::select('id','filename', 'extension', 'mime_type', 'disk', 'directory')->whereIn('id',$mediableArray)->get();
+
+
+        foreach($images as $image){
+            $output['media_id'] = $image->id;
+            $image->setAttribute('pivot', $output);
+        }
+        
+        //WIll use in future to detect Images removed to fast the query for now
+        //foreach ($images as $image) {
+            //$link = $image->getUrl();
+
+
+            //$link = 'https://erp.amourint.com/uploads/15d428fb0c6944.jpg';
+            // $vision = LogGoogleVision::where('image_url','LIKE','%'.$link.'%')->first();
+            // if($vision != null){
+            //    $keywords = preg_split('/[\n,]+/',$vision->response);
+            //    $countKeywords = count($keywords);
+            //    for ($i=0; $i < $countKeywords; $i++) {
+            //         if (strpos($keywords[$i], 'Object') !== false) {
+            //                 $key = str_replace('Object: ','',$keywords[$i]);
+            //                 $value = str_replace('Score (confidence): ','',$keywords[$i+1]);
+            //                 $output[] = array($key => $value);
+            //         }
+            //    }
+            // }
+            // if(isset($output)){
+            //    $image->setAttribute('objects', json_encode($output));
+            // }else{
+            //   $image->setAttribute('objects', '');
+            // }
+
+        //}
 
         // Get category
         $category = $product->product_category;
@@ -2676,12 +2697,16 @@ class ProductController extends Controller
             $is_queue = 1;
         }
 
+        $groupId = \DB::table('chat_messages')->max('group_id');
+        $groupId = ($groupId > 0) ? $groupId : 1; 
+
         foreach ($customerIds as $k => $customerId) {
             $requestData = new Request();
             $requestData->setMethod('POST');
             $params = $request->except(['_token', 'customers_id', 'return_url']);
             $params[ 'customer_id' ] = $customerId;
             $params[ 'is_queue' ] = $is_queue;
+            $params[ 'group_id' ] = $groupId;
             $requestData->request->add($params + $extraParams);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
@@ -2835,7 +2860,7 @@ class ProductController extends Controller
 
     public function saveGroupHsCode(Request $request)
     {
-        dd($request);
+
         $name = $request->name;
         $compositions = $request->compositions;
         $key = HsCodeSetting::first();
@@ -2852,12 +2877,16 @@ class ProductController extends Controller
         $categoryId = $category->id;
 
 
-        $hscodeSearchString = str_replace(['&gt;','>'],'', $name.' '.$category->title.' '.$request->composition);
+        if($request->composition){
+            $hscodeSearchString = str_replace(['&gt;','>'],'', $name.' '.$category->title.' '.$request->composition);
+        }else{
+            $hscodeSearchString = str_replace(['&gt;','>'],'', $name);    
+        }
 
         $hscode = HsCode::where('description',$hscodeSearchString)->first();
 
         if($hscode != null){
-            return response()->json(['HsCode Already exist']);
+            return response()->json(['error'=>'HsCode Already exist']);
         }
 
         $hscodeSearchString = urlencode($hscodeSearchString);
@@ -2882,7 +2911,7 @@ class ProductController extends Controller
 
         if(!isset($categories->HSCode)){
 
-            return response()->json(['Something is wrong with the API. Please check the balance.']);
+            return response()->json(['error'=>'Something is wrong with the API. Please check the balance.']);
 
         }else{
 
@@ -2905,14 +2934,16 @@ class ProductController extends Controller
                 }
 
                 $id = $group->id;
-
-                foreach ($compositions as $composition) {
-                    $comp = new HsCodeGroupsCategoriesComposition();
-                    $comp->hs_code_group_id = $id;
-                    $comp->category_id = $categoryId;
-                    $comp->composition = $composition;
-                    $comp->save();
+                if($request->compositions){
+                    foreach ($compositions as $composition) {
+                        $comp = new HsCodeGroupsCategoriesComposition();
+                        $comp->hs_code_group_id = $id;
+                        $comp->category_id = $categoryId;
+                        $comp->composition = $composition;
+                        $comp->save();
+                    }
                 }
+                
             }
         }
 

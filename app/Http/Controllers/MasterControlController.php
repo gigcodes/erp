@@ -41,176 +41,55 @@ class MasterControlController extends Controller
      */
     public function index(Request $request)
     {
-      $start = $request->range_start ?  "$request->range_start 00:00" : Carbon::now()->subDay()->format('Y-m-d 00:00');
-      $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay()->format('Y-m-d 23:59');
+        $start = $request->range_start ?  "$request->range_start 00:00" : Carbon::now()->subDay()->format('Y-m-d 00:00');
+        $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay()->format('Y-m-d 23:59');
 
-      Cache::remember('cropped_image_references', 15, function() {
-            return CroppedImageReference::count(); 
-        });
+        $cropReference = Cache::get( 'cropped_image_references' );
+        $cropReference = !empty($cropReference) ? $cropReference : 0;
 
-      $cropReference = Cache::get( 'cropped_image_references' );
-      
-      Cache::remember('pending_crop_reference', 15, function() {
-            return Product::where('status_id',StatusHelper::$autoCrop)->where('stock','>=',1)->count();
-        });
+        $pendingCropReferenceProducts = Cache::get( 'pending_crop_reference' );
+        $pendingCropReferenceProducts = !empty($pendingCropReferenceProducts) ? $pendingCropReferenceProducts : 0;
 
-      $pendingCropReferenceProducts = Cache::get( 'pending_crop_reference' );
+        $cropReferenceWeekCount = Cache::get( 'crop_reference_week_count' );
+        $cropReferenceWeekCount = !empty($cropReferenceWeekCount) ? $cropReferenceWeekCount : 0;
 
+        $cropReferenceDailyCount = Cache::get( 'crop_reference_daily_count' );
+        $cropReferenceDailyCount = !empty($cropReferenceDailyCount) ? $cropReferenceDailyCount : 0;
 
-      Cache::remember('crop_reference_week_count', 15, function() {
-            return CroppedImageReference::where('created_at', '>=', \Carbon\Carbon::now()->subDays(7)->startOfDay())->count();
-        });
+        $pendingCropReferenceCategory = Cache::get( 'pending_crop_category' );
+        $pendingCropReferenceCategory = !empty($pendingCropReferenceCategory) ? $pendingCropReferenceCategory : 0;
 
-      $cropReferenceWeekCount = Cache::get( 'crop_reference_week_count' );
-      
-      Cache::remember('crop_reference_daily_count', 15, function() {
-            return CroppedImageReference::whereDate('created_at', Carbon::today())->count();
-        });
+        $productStats = Cache::get( 'status_count' );
+        $productStats = !empty($productStats) ? $productStats : [];
 
-      $cropReferenceDailyCount = Cache::get( 'crop_reference_daily_count' );
-      
-      Cache::remember('pending_crop_category', 15, function() {
-            return Product::where('status_id',StatusHelper::$attributeRejectCategory)->where('stock','>=',1)->count();
-        });
-
-      $pendingCropReferenceCategory =  Cache::get( 'pending_crop_category' );
-
-      Cache::remember('status_count', 15, function() {
-            return StatusHelper::getStatusCount();
-        });
-
-      $productStats = Cache::get( 'status_count' );
-
-      Cache::remember('result_scraped_product_in_stock', 15, function() {
-            $sqlScrapedProductsInStock = "
-                SELECT
-                    COUNT(DISTINCT(ls.sku)) as ttl
-                FROM
-                    suppliers s
-                JOIN 
-                    scrapers sc 
-                ON 
-                    s.id=sc.supplier_id    
-                JOIN 
-                    log_scraper ls 
-                ON 
-                    ls.website=sc.scraper_name
-                WHERE
-                    s.supplier_status_id=1 AND 
-                    ls.validated=1 AND
-                    ls.website!='internal_scraper' AND
-                    ls.updated_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY) 
-            ";
-
-            return DB::select($sqlScrapedProductsInStock);
-        });
-
-      
         $resultScrapedProductsInStock = Cache::get( 'result_scraped_product_in_stock' );
-      
-        
-        
-        $chat = ChatMessage::where('created_at','>=', Carbon::now()->subDay()->toDateTimeString());
-           
-        
-        //Getting Customer Chat  
-        Cache::remember('result_customer_chat', 5, function() use ($chat) {
-            
-           $chatCustomers = clone $chat;
-
-            $customerChats = $chatCustomers->select('customer_id')->whereNotNull('customer_id')->whereNotNull('number')->orderBy('created_at','desc')->groupBy('customer_id')->get()->toArray();
-            foreach ($customerChats as $customerChat) {
-                $customerArrays[] = $customerChat['customer_id'];
-            }
-            if(!isset($customerArrays)){
-              $customerArrays = [];
-            }
-
-             $customerPlaceholders = implode(',',array_fill(0, count($customerArrays), '?'));
-
-
-            if($customerPlaceholders == ''){
-              $customers = [];
-            }else{
-              $customers = Customer::select('id','name','phone')->whereIn('id',$customerArrays)->orderByRaw("field(id,{$customerPlaceholders})", $customerArrays)->get();
-            }
-
-            return $customers;
-        });
+        $resultScrapedProductsInStock = !empty($resultScrapedProductsInStock) ? $resultScrapedProductsInStock : [];
 
         $customers = Cache::get( 'result_customer_chat' );
-
+        $customers = !empty($customers) ? $customers : [];
 
         //Getting Supplier Chat  
-        Cache::remember('result_supplier_chat', 5, function() use ($chat){
-            
-           $chatSuppliers = clone $chat;
-
-           $supplierChats = $chatSuppliers->select('supplier_id')->whereNotNull('supplier_id')->orderBy('created_at','desc')->groupBy('supplier_id')->get()->toArray();
-            foreach ($supplierChats as $supplierChat) {
-                $supplierArrays[] = $supplierChat['supplier_id'];
-            }
-
-            if(!isset($supplierArrays)){
-            $supplierArrays = [];
-            }
-
-            $supplierPlaceholders = implode(',',array_fill(0, count($supplierArrays), '?'));
-            
-            if($supplierPlaceholders == ''){
-            $suppliers = [];
-        }else{
-            $suppliers = Supplier::whereIn('id',$supplierArrays)->orderByRaw("field(id,{$supplierPlaceholders})", $supplierArrays)->get();
-        }
-
-            return $suppliers;
-        });
-
         $suppliers = Cache::get( 'result_supplier_chat' );
-
+        $suppliers = !empty($suppliers) ? $suppliers : [];
 
         //Getting Vendor Chat  
-        Cache::remember('result_vendor_chat', 5, function() use ($chat){
-
-          $vendorChats = $chat->select('vendor_id')->whereNotNull('vendor_id')->orderBy('created_at','desc')->groupBy('vendor_id')->get()->toArray();
-          foreach ($vendorChats as $vendorChat) {
-            $vendorArrays[] = $vendorChat['vendor_id'];
-          }
-          if(!isset($vendorArrays)){
-            $vendorArrays = [];
-          }
-
-          $vendorPlaceholders = implode(',',array_fill(0, count($vendorArrays), '?'));
-
-          if($vendorPlaceholders == ''){
-            $vendors = [];
-          }else{
-            $vendors = Vendor::whereIn('id',$vendorArrays)->orderByRaw("field(id,{$vendorPlaceholders})", $vendorArrays)->get();
-          }
-
-          return $vendors;
-
-        });
-
         $vendors = Cache::get( 'result_vendor_chat' );
-
-        Cache::remember('reply_categories', 15, function() use ($chat) {
-            return $reply_categories = ReplyCategory::all();
-        });
+        $vendors = !empty($vendors) ? $vendors : [];
 
         $reply_categories = Cache::get( 'reply_categories' );
-
-        Cache::remember('vendorReplier', 15, function() use ($chat) {
-          return $vendorReplier = \App\Reply::where("model","Vendor")->whereNull("deleted_at")->pluck("reply","id")->toArray();
-        });
+        $reply_categories = !empty($reply_categories) ? $reply_categories : [];
 
         $vendorReplier = Cache::get( 'vendorReplier' );
-
-        Cache::remember('supplierReplier', 15, function() use ($chat) {
-            return $supplierReplier = \App\Reply::where("model","Supplier")->whereNull("deleted_at")->pluck("reply","id")->toArray();
-        });
+        $vendorReplier = !empty($vendorReplier) ? $vendorReplier : [];
 
         $supplierReplier = Cache::get( 'supplierReplier' );
+        $supplierReplier = !empty($supplierReplier) ? $supplierReplier : [];
+
+        $cronLastErrors = Cache::get( 'cronLastErrors' );
+        $cronLastErrors = !empty($cronLastErrors) ? $cronLastErrors : [];
+
+        $latestRemarks = Cache::get('latestScrapRemarks');
+        $latestRemarks = !empty($latestRemarks) ? $latestRemarks : [];
 
         // For ajax
         if ($request->ajax()) {
@@ -232,28 +111,32 @@ class MasterControlController extends Controller
                     'reply_categories' => $reply_categories,
                     'vendorReplier' => $vendorReplier,
                     'supplierReplier' => $supplierReplier,
+                    'cronLastErrors' => $cronLastErrors,
+                    'latestRemarks' => $latestRemarks
 
                 ])->render()
             ], 200);
         }
 
-     return view('mastercontrol.index', [
-        'start' => $start, 
-        'end' => $end , 
-        'cropReference' => $cropReference,
-        'pendingCropReferenceProducts' => $pendingCropReferenceProducts , 
-        'pendingCropReferenceCategory' => $pendingCropReferenceCategory,
-        'productStats' => $productStats,
-        'resultScrapedProductsInStock' => $resultScrapedProductsInStock,
-        'cropReferenceWeekCount' => $cropReferenceWeekCount,
-        'cropReferenceDailyCount' => $cropReferenceDailyCount,
-        'chatSuppliers' => $suppliers,
-        'chatCustomers' => $customers,
-        'chatVendors' => $vendors,
-        'reply_categories' => $reply_categories,
-        'vendorReplier' => $vendorReplier,
-        'supplierReplier' => $supplierReplier,
-    ]);
+       return view('mastercontrol.index', [
+          'start' => $start, 
+          'end' => $end , 
+          'cropReference' => $cropReference,
+          'pendingCropReferenceProducts' => $pendingCropReferenceProducts , 
+          'pendingCropReferenceCategory' => $pendingCropReferenceCategory,
+          'productStats' => $productStats,
+          'resultScrapedProductsInStock' => $resultScrapedProductsInStock,
+          'cropReferenceWeekCount' => $cropReferenceWeekCount,
+          'cropReferenceDailyCount' => $cropReferenceDailyCount,
+          'chatSuppliers' => $suppliers,
+          'chatCustomers' => $customers,
+          'chatVendors' => $vendors,
+          'reply_categories' => $reply_categories,
+          'vendorReplier' => $vendorReplier,
+          'supplierReplier' => $supplierReplier,
+          'cronLastErrors' => $cronLastErrors,
+          'latestRemarks' => $latestRemarks
+      ]);
     }
 
     /**

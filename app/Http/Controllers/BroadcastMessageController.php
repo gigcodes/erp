@@ -13,156 +13,124 @@ use Carbon\Carbon;
 use File;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\ImQueue;
+use App\Marketing\WhatsappConfig;
+use Illuminate\Pagination\LengthAwarePaginator;
+use DB;
 
 class BroadcastMessageController extends Controller
 {
     public function index(Request $request)
     {
-        $date = $request->sending_time ?? Carbon::now()->format('Y-m-d');
-        $selected_customer = $request->customer ?? '';
-        $month_back = Carbon::parse($date)->subMonth();
-
-        $message_queues = MessageQueue::latest()->where('sending_time', 'LIKE', "%$date%");
-        $last_set_completed = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->where('sent', 1);
-
-        if ($request->customer != '') {
-            $message_queues = $message_queues->where('customer_id', $selected_customer);
-            $last_set_completed = $last_set_completed->where('customer_id', $selected_customer);
-        }
-
-        $last_set_completed_count = $last_set_completed->count();
-        $last_set_stopped_count = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->where('status', 1)->count();
-        $last_set_received_count = MessageQueue::with('chat_message')->where('sending_time', '>', "$month_back 00:00:00")->whereHas('chat_message', function ($query) {
-            $query->where('sent', 1);
-        })->count();
-
-        if ($request->sending_time != '') {
-            $message_groups = MessageQueue::where('sending_time', 'LIKE', "%$request->sending_time%")->get()->groupBy(['group_id', 'sent', 'status']);
+        
+        if ($request->reportrange != '') {
+            $range = explode(' - ', $request->reportrange);
+            if($range[0] == end($range)){
+                $message_groups = ImQueue::whereDate('created_at',$range[0])->orderBy('id','desc')->whereNotNull('broadcast_id')->get()->groupBy('broadcast_id');
+            }else{
+               $message_groups = ImQueue::whereBetween('created_at',[$range[0], end($range)])->orderBy('id','desc')->whereNotNull('broadcast_id')->get()->groupBy('broadcast_id'); 
+            }
         } else {
-            $message_groups = MessageQueue::where('sending_time', '>', "$month_back 00:00:00")->get()->groupBy(['group_id', 'sent', 'status']);
+            $message_groups = ImQueue::whereNotNull('broadcast_id')->orderBy('id','desc')->get()->groupBy('broadcast_id');
+            
         }
 
         // dd($message_groups);
 
         $message_groups_array = [];
 
-        // dd();
-
         $new_data = [];
 
-        // $month_days = $request->sending_time ? 1 : $month_back->daysInMonth;
-        //
-        // for ($i = $month_back->format('d'); $i <= $month_days; $i++) {
-        //   $day = $i < 10 ? "0" . $i : $i;
-        //
-        //   if ($month_days == 1) {
-        //     $new_data[$request->sending_time] = [];
-        //   } else {
-        //     $date = $month_back->format('Y-m-') . $day;
-        //
-        //     $new_data[$date] = [];
-        //   }
-        // }
-
-        if ($request->sending_time) {
-            $new_data[ $request->sending_time ] = [];
-        } else {
-            while ($month_back->lte(Carbon::parse($date))) {
-                $new_data[ $month_back->copy()->format('Y-m-d') ] = [];
-                $month_back->addDay();
-            }
-        }
-
-        // dd($new_data);
-
+        
         foreach ($message_groups as $group_id => $datas) {
-            $sent_count = 0;
+            $pending_count = 0;
             $received_count = 0;
             $stopped_count = 0;
+            $failed_count = 0;
             $total_count = 0;
-            foreach ($datas as $sent_status => $data) {
-
-                foreach ($data as $stopped_status => $items) {
-                    if ($sent_status == 1) {
-                        $sent_count += count($items);
-
-                        foreach ($items as $item) {
-                            $received_count += ($item->chat_message && $item->chat_message->sent == 1) ? 1 : 0;
-                        }
-                    }
-
-                    $total_count += count($items);
-
-                    if ($stopped_status == 0) {
-                        $can_be_stopped = true;
-                    } else {
-                        $can_be_stopped = false;
-                        $stopped_count += count($items);
-                    }
-
-                    $message_groups_array[ $group_id ][ 'message' ] = json_decode($items[ 0 ]->data, true)[ 'message' ];
-                    $message_groups_array[ $group_id ][ 'image' ] = array_key_exists('image', json_decode($items[ 0 ]->data, true)) ? json_decode($items[ 0 ]->data, true)[ 'image' ] : [];
-                    $message_groups_array[ $group_id ][ 'linked_images' ] = array_key_exists('linked_images', json_decode($items[ 0 ]->data, true)) ? json_decode($items[ 0 ]->data, true)[ 'linked_images' ] : [];
-                    $message_groups_array[ $group_id ][ 'can_be_stopped' ] = $can_be_stopped;
-                    $message_groups_array[ $group_id ][ 'sending_time' ] = $items[ 0 ]->sending_time;
-                    $message_groups_array[ $group_id ][ 'whatsapp_number' ] = $items[ 0 ]->whatsapp_number;
+            foreach ($datas as $data) {
+            if($data->sent_at != null && $data->sent_at != '2002-02-02 02:02:02'){
+                    $received_count++;
                 }
 
-                $message_groups_array[ $group_id ][ 'sent' ] = $sent_count;
-                $message_groups_array[ $group_id ][ 'received' ] = $received_count;
-                $message_groups_array[ $group_id ][ 'stopped' ] = $stopped_count;
-                $message_groups_array[ $group_id ][ 'total' ] = $total_count;
-                $message_groups_array[ $group_id ][ 'expecting_time' ] = MessageQueue::where('group_id', $group_id)->orderBy('sending_time', 'DESC')->first()->sending_time;
+                if($data->sent_at == '2002-02-02 02:02:02'){
+                    $failed_count++;
+                }
+
+                $can_be_stopped = true;
+
+                if($data->send_after == null){
+                    $stopped_count++;
+                    $can_be_stopped = false;
+                }
+
+                if($data->sent_at == null){
+                    $pending_count++;
+                }
+
+                $whatsappConfig = WhatsappConfig::where('number',$data->number_from)->first();
+                if($whatsappConfig == null){
+                    $whatsappConfig->frequency = 0;
+                }
+
+                //Start Date And Time 
+                $firstMessage = ImQueue::where('broadcast_id',$group_id)->orderBy('send_after','asc')->first();
+                if($firstMessage == null){
+                    $firstMessage->send_after = 0;
+                }
+
+                //last Message Date And Time 
+                $lastMessage = ImQueue::where('broadcast_id',$group_id)->orderBy('send_after','desc')->first();
+                if($lastMessage == null){
+                    $lastMessage->send_after = 0;
+                }
+
+                $message_groups_array[ 'start_time' ] = $firstMessage->send_after;
+                $message_groups_array[ 'end_time' ] = $lastMessage->send_after;
+                $message_groups_array[ 'message' ] = $data->text;
+                $message_groups_array[ 'broadcast_number' ] = $data->number_from;
+                $message_groups_array[ 'frequency' ] = $whatsappConfig->frequency;
+                $message_groups_array[ 'image' ] = $data->image;
+                $message_groups_array[ 'can_be_stopped' ] = $can_be_stopped;
+                $message_groups_array[ 'sending_time' ] = $data->send_after;
+                $message_groups_array[ 'whatsapp_number' ] = $data->number_from;
+                $total_count++;
+                }
+
+                $message_groups_array[ 'pending' ] = $pending_count;
+                $message_groups_array[ 'received' ] = $received_count;
+                $message_groups_array[ 'stopped' ] = $stopped_count;
+                $message_groups_array[ 'failed' ] = $failed_count;
+                $message_groups_array[ 'total' ] = $total_count;
+                $message_groups_array[ 'expecting_time' ] = '';
+                $message_groups_array[ 'group_id' ] = $group_id;
+                $message_groups['datas'] = $message_groups_array;
+
+                $new_data[] = $message_groups_array;
             }
+
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            $perPage = Setting::get('pagination'); 
+            if (request()->get('select_all') == 'true') {
+              $perPage = count($vendors);
+              $currentPage = 1;
+            }
+            $currentItems = array_slice($new_data, $perPage * ($currentPage - 1), $perPage);
+
+            $new_data = new LengthAwarePaginator($currentItems, count($new_data), $perPage, $currentPage, [
+            'path'  => LengthAwarePaginator::resolveCurrentPath()
+            ]);
+
 
             // dd($message_groups_array[$group_id]);
-            $new_data[ Carbon::parse($message_groups_array[ $group_id ][ 'sending_time' ])->format('Y-m-d') ][ $group_id ] = $message_groups_array[ $group_id ];
-        }
-
+            
+        
         // Get all numbers from config
-        $configWhatsApp = \Config::get("apiwha.instances");
-
-        // Loop over numbers
-        $arrCustomerNumbers = [];
-        foreach ( $configWhatsApp as $whatsAppNumber => $whatsAppConfig ) {
-            if ( $whatsAppConfig['customer_number'] ) {
-                $arrCustomerNumbers[] = $whatsAppNumber;
-            }
-        }
-
-        $message_queues = $message_queues->orderBy('sending_time', 'ASC')->paginate(Setting::get('pagination'));
-        $last_set_completed = $last_set_completed->orderBy('sending_time', 'ASC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
-        $customers_all = Customer::select(['id', 'name', 'phone', 'email'])->get();
-        $broadcast_images = BroadcastImage::orderBy('id', 'DESC')->paginate(Setting::get('pagination'));
-        $cron_job = CronJob::where('signature', 'run:message-queues')->first();
-        $pending_messages_count = MessageQueue::where('sent', 0)->where('status', '!=', 1)->where('sending_time', '<', Carbon::now())->count();
-
-        $shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
-                                ->whereNotNull('shoe_size')
-                                ->groupBy('shoe_size')
-                                ->pluck('counts', 'shoe_size');
-
-        $clothing_size_group = Customer::selectRaw('clothing_size, count(id) as counts')
-                                        ->whereNotNull('clothing_size')
-                                        ->groupBy('clothing_size')
-                                        ->pluck('counts', 'clothing_size');
-
+        $configWhatsApp = WhatsappConfig::select('id','number')->where('status',1)->get();
+        
         return view('customers.broadcast', [
-            'message_queues' => $message_queues,
-            'message_groups' => $new_data,
-            'date' => $date,
-            'last_set_completed' => $last_set_completed,
-            'last_set_completed_count' => $last_set_completed_count,
-            'last_set_stopped_count' => $last_set_stopped_count,
-            'last_set_received_count' => $last_set_received_count,
-            'customers_all' => $customers_all,
-            'selected_customer' => $selected_customer,
-            'api_keys' => $arrCustomerNumbers,
-            'broadcast_images' => $broadcast_images,
-            'cron_job' => $cron_job,
-            'pending_messages_count' => $pending_messages_count,
-            'shoe_size_group' => $shoe_size_group,
-            'clothing_size_group' => $clothing_size_group,
+            'broadcasts' => $new_data,
+            
         ]);
     }
 
@@ -263,72 +231,60 @@ class BroadcastMessageController extends Controller
 
     public function restartGroup(Request $request, $id)
     {
-        if ($request->whatsapp_number == '') {
-            $group = MessageQueue::where('group_id', $id)->where('sent', 0)->where('status', 1);
-        } else {
-            $group = MessageQueue::where('group_id', $id)->where('sent', 0)->where('status', 1)
-                ->whereHas('Customer', function ($query) use ($request) {
-                    $query->where('whatsapp_number', $request->whatsapp_number);
-                });
-        }
+        $groups = ImQueue::where('broadcast_id',$id)->get();
 
-        $group = $group->get();
+        foreach ($groups as $group) {
+            # code...
+        
+            $whatappConfig = WhatsappConfig::find($request->whatsapp_number);
+            
+            $maxTime = ImQueue::select(DB::raw('IF(MAX(send_after)>MAX(sent_at), MAX(send_after), MAX(sent_at)) AS maxTime'))->where('number_from', $whatappConfig->number)->first();
 
-        $minutes = round(60 / $request->frequency);
-        $now = Carbon::now();
-        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-        $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
+            
+            // Convert maxTime to unixtime
+            $maxTime = strtotime($maxTime->maxTime);
 
-        foreach ($group as $set) {
-
-            if (!$now->between($morning, $evening, true)) {
-                if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
-                    // add day
-                    $now->addDay();
-                    $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                    $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                    $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
-                } else {
-                    // dont add day
-                    $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                    $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
-                    $evening = Carbon::create($now->year, $now->month, $now->day, 18, 0, 0);
-                }
+            // Add interval
+            $maxTime = $maxTime + (3600 / $whatappConfig->frequency);
+            
+            // Check if it's in the future
+            if ($maxTime < time()) {
+                $maxTime = time();
             }
 
-            $set->sending_time = $now;
-            $set->status = 0;
-            $set->save();
+            
+            // Check for decent times
+            if (date('H', $maxTime) < $whatappConfig->send_start) {
+                $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime);
+            } elseif (date('H', $maxTime) > $whatappConfig->send_end) {
+                $sendAfter = date('Y-m-d 0' . $whatappConfig->send_start . ':00:00', $maxTime + 86400);
+            } else {
+                $sendAfter = date('Y-m-d H:i:s', $maxTime);
+            }
 
-            $now->addMinutes($minutes);
-        }
+            $group->send_after = $sendAfter;
+            
+            $group->update();
 
+        }    
+       
         return redirect()->route('broadcast.index')->withSuccess('You have successfully restarted group!');
     }
 
     public function DeleteGroup(Request $request, $id)
     {
-        MessageQueue::where('group_id', $id)->delete();
+        ImQueue::where('broadcast_id', $id)->delete();
 
         return redirect()->route('broadcast.index')->withSuccess('You have successfully deleted group!');
     }
 
     public function stopGroup(Request $request, $id)
     {
-        if ($request->whatsapp_number == '') {
-            $message_queues = MessageQueue::where('group_id', $id)->where('sent', 0)->where('status', 0);
-        } else {
-            $message_queues = MessageQueue::where('group_id', $id)->where('sent', 0)->where('status', 0)
-                ->whereHas('Customer', function ($query) use ($request) {
-                    $query->where('whatsapp_number', $request->whatsapp_number);
-                });
-        }
 
-        $message_queues = $message_queues->get();
-
-        foreach ($message_queues as $message_queue) {
-            $message_queue->status = 1;
-            $message_queue->save();
+        $messageQueues = ImQueue::where('broadcast_id',$id)->whereNull('sent_at')->get();
+        foreach ($messageQueues as $messageQueue) {
+           $messageQueue->send_after = null;
+           $messageQueue->update();
         }
 
         return redirect()->route('broadcast.index')->with('success', 'Broadcast group has been stopped!');

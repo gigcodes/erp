@@ -58,6 +58,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.laravel.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
     Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
+    Route::get('log-scraper', 'Logging\LogScraperController@index')->name('log-scraper.index');
 });
 
 Route::prefix('category-messages')->group(function () {
@@ -78,6 +79,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/magento/status/save', 'MagentoController@saveStatus')->name('magento.save.status');
 
     Route::post('crop-references-grid/reject', 'CroppedImageReferenceController@rejectCropImage');
+
+    Route::get('public-key', 'EncryptController@index')->name('encryption.index');
+    Route::post('save-key', 'EncryptController@saveKey')->name('encryption.save.key');
+    Route::post('forget-key', 'EncryptController@forgetKey')->name('encryption.forget.key');
 
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
@@ -239,6 +244,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     //Cron
     Route::get('cron', 'CronController@index')->name('cron.index');
+    Route::get('cron/run', 'CronController@runCommand')->name('cron.run.command');
     Route::get('cron/history/{id}', 'CronController@history')->name('cron.history');
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
 
@@ -582,7 +588,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
 
     // Social Media Image Module
-    Route::get('images/grid', 'ImageController@index')->name('image.grid');
+    Route::get('lifestyle/images/grid', 'ImageController@index')->name('image.grid');
     Route::post('images/grid', 'ImageController@store')->name('image.grid.store');
     Route::post('images/grid/attachImage', 'ImageController@attachImage')->name('image.grid.attach');
     Route::get('images/grid/approvedImages', 'ImageController@approved')->name('image.grid.approved');
@@ -842,6 +848,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/update-brands', 'SupplierController@updateScrapedBrandFromBrandRaw')->name('supplier.brands.update');
 
     Route::post('supplier/send/emailBulk', 'SupplierController@sendEmailBulk')->name('supplier.email.send.bulk');
+
+    Route::post('supplier/change-whatsapp-no', 'SupplierController@changeWhatsappNo')->name('supplier.change.whatsapp');
+
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
     Route::resource('supplier', 'SupplierController');
@@ -865,6 +874,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('create', 'ProductTemplatesController@create');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
+        Route::get('image', 'ProductTemplatesController@imageIndex');
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
@@ -873,6 +883,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('create', 'TemplatesController@create');
         Route::post('edit', 'TemplatesController@edit');
         Route::get('destroy/{id}', 'TemplatesController@destroy');
+        Route::get('generate-template-category-branch', 'TemplatesController@generateTempalateCategoryBrand');
+        Route::get('type', 'TemplatesController@typeIndex')->name('templates.type');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
@@ -920,6 +932,7 @@ Route::post('livechat/getUserList', 'LiveChatController@getUserList')->name('liv
 /* ---------------------------------------------------------------------------------- */
 
 Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');
+Route::get('livechat/get-customer-info', 'LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/incomingNew', 'WhatsAppController@incomingMessageNew');
@@ -955,6 +968,8 @@ Route::post('hubstaff/tasks/addData', 'HubstaffController@addTask');
 Route::get('hubstaff/tasks/{id}', 'HubstaffController@editTaskForm');
 Route::get('hubstaff/redirect', 'HubstaffController@redirect');
 Route::get('hubstaff/debug', 'HubstaffController@debug');
+Route::get('hubstaff/payments', 'UserController@payments');
+Route::post('hubstaff/makePayment', 'UserController@makePayment');
 
 /*
  * @date 1/13/2019
@@ -1068,9 +1083,11 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('statistics/history', 'ScrapStatisticsController@getHistory');
     Route::resource('statistics', 'ScrapStatisticsController');
     Route::get('getremark', 'ScrapStatisticsController@getRemark')->name('scrap.getremark');
+    Route::get('latest-remark', 'ScrapStatisticsController@getLastRemark')->name('scrap.latest-remark');
     Route::post('addremark', 'ScrapStatisticsController@addRemark')->name('scrap.addRemark');
     Route::get('facebook/inbox', 'FacebookController@getInbox');
     Route::resource('facebook', 'FacebookController');
+    Route::get('gmails/{id}', 'GmailDataController@show');
     Route::resource('gmail', 'GmailDataController');
     Route::resource('designer', 'DesignerController');
     Route::resource('sales', 'SalesItemController');
@@ -1399,14 +1416,27 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist/delete/{id}/{email}', 'MailinglistController@delete')->name('mailingList.delete');
     Route::get('mailinglist/list/delete/{id}', 'MailinglistController@deleteList')->name('mailingList.delete.list');
     Route::post('mailinglist-create', 'MailinglistController@create')->name('mailingList.create');
+    Route::get('mailinglist-add-manual', 'MailinglistController@addManual')->name('mailinglist.add.manual');
     Route::post('addRemark', 'MailinglistController@addRemark')->name('mailingList.addRemark');
     Route::get('gettaskremark', 'MailinglistController@getBroadCastRemark')->name('mailingList.gets.remark');
+
 
     Route::get('services', 'ServiceController@index')->name('services');
     Route::post('services/store', 'ServiceController@store')->name('services.store');
     Route::post('services/destroy', 'ServiceController@destroy')->name('services.destroy');
     Route::post('services/update', 'ServiceController@update')->name('services.update');
+
+    Route::get('mailinglist-templates', 'MailinglistTemplateController@index')->name('mailingList-template');
+    Route::get('mailinglist-ajax', 'MailinglistTemplateController@ajax');
+    Route::post('mailinglist-templates/store', 'MailinglistTemplateController@store')->name('mailingList-template.store');
+
+    Route::get('mailinglist-emails', 'MailinglistEmailController@index')->name('mailingList-emails');
+    Route::post('mailinglist-ajax-index', 'MailinglistEmailController@ajaxIndex');
+    Route::post('mailinglist-ajax-store', 'MailinglistEmailController@store');
+    Route::post('mailinglist-ajax-show', 'MailinglistEmailController@show');
+    Route::post('mailinglist-ajax-duplicate', 'MailinglistEmailController@duplicate');
 });
+
 Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {
     Route::post('coupons/store', 'CouponController@store')->name('coupons.store');
     Route::post('coupons/{id}', 'CouponController@update');
@@ -1439,6 +1469,7 @@ Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
 Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
+Route::get('temp-task/product-creator', 'TmpTaskController@importProduct');
 
 Route::prefix('google')->middleware('auth')->group(function () {
     Route::resource('/search/keyword', 'GoogleSearchController');
@@ -1464,7 +1495,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
         Route::get('/repos/{name}/users/add', 'Github\UserController@addUserToRepositoryForm');
         Route::get('/repos/{id}/branches', 'Github\RepositoryController@getRepositoryDetails');
+        Route::get('/repos/{id}/pull-request', 'Github\RepositoryController@listPullRequests');
         Route::get('/repos/{id}/branch/merge', 'Github\RepositoryController@mergeBranch');
+        Route::get('/repos/{id}/deploy', 'Github\RepositoryController@deployBranch');
         Route::post('/add_user_to_repo', 'Github\UserController@addUserToRepository');
         Route::get('/users', 'Github\UserController@listOrganizationUsers');
         Route::get('/users/{userId}', 'Github\UserController@userDetails');
@@ -1483,3 +1516,6 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/modifyUserAccess', 'Github\UserController@modifyUserAccess');
     });
 });
+
+Route::put('customer/language-translate/{id}', 'CustomerController@languageTranslate');
+Route::get('get-language', 'CustomerController@getLanguage')->name('livechat.customer.language');

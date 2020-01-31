@@ -98,7 +98,14 @@ class ProductApproverController extends Controller
 			$reference_final_sku = $reference_sku . $reference_color;
 
 			if(!empty($product->size)) {
-				$product_sizes = explode(',', $product->size);
+				
+				$euSize = explode(',', $product->size_eu);
+				
+				if(!empty($euSize)){
+					$product_sizes = $euSize;
+				}else{
+					$product_sizes = explode(',', $product->size);
+				}
 
 				foreach ($product_sizes as $size) {
 					if (in_array($size, $reference_array)) {
@@ -164,7 +171,14 @@ class ProductApproverController extends Controller
             $reference_final_sku = $reference_sku . $reference_color;
 
             if(!empty($product->size)) {
-                $product_sizes = explode(',', $product->size);
+                
+                $euSize = explode(',', $product->size_eu);
+				
+				if(!empty($euSize)){
+					$product_sizes = $euSize;
+				}else{
+					$product_sizes = explode(',', $product->size);
+				}
 
                 foreach ($product_sizes as $size) {
                     if (in_array($size, $reference_array)) {

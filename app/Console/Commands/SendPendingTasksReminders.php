@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\CronJobReport;
 use App\Task;
 use App\User;
-use App\CronJobReport;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class SendPendingTasksReminders extends Command
 {
@@ -41,32 +41,36 @@ class SendPendingTasksReminders extends Command
      */
     public function handle()
     {
-      $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-      ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-      $tasks = Task::whereNull('is_completed')->whereRaw('tasks.id IN (SELECT task_id FROM task_users WHERE user_id IN (6, 7, 49, 56) AND type LIKE "%User%")')->get()->groupBy('assign_to');
+            $tasks = Task::whereNull('is_completed')->whereRaw('tasks.id IN (SELECT task_id FROM task_users WHERE user_id IN (6, 7, 49, 56) AND type LIKE "%User%")')->get()->groupBy('assign_to');
 
-      foreach ($tasks as $user_id => $data) {
-        $user = User::find($user_id);
+            foreach ($tasks as $user_id => $data) {
+                $user = User::find($user_id);
 
-        if ($user) {
-          $count = count($data);
-          $message = "Today You have $count pending tasks.";
+                if ($user) {
+                    $count   = count($data);
+                    $message = "Today You have $count pending tasks.";
 
-          dump("$user_id - $user->name has $count pending tasks");
+                    dump("$user_id - $user->name has $count pending tasks");
 
-          try {
-            dump("Sending message");
+                    try {
+                        dump("Sending message");
 
-            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
-          } catch (\Exception $e) {
-            dump($e->getMessage());
-          }
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
+                    } catch (\Exception $e) {
+                        dump($e->getMessage());
+                    }
+                }
+            }
+
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-      }
-
-      $report->update(['end_time' => Carbon:: now()]);
     }
 }

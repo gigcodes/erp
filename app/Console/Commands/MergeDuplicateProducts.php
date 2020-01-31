@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\CronJobReport;
 use App\Product;
+use Carbon\Carbon;
 use File;
 use Illuminate\Console\Command;
-use App\CronJobReport;
 
 class MergeDuplicateProducts extends Command
 {
@@ -41,120 +42,124 @@ class MergeDuplicateProducts extends Command
     public function handle()
     {
 
-      $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-      // $products = Product::withTrashed()->where('supplier', 'Women Concept Store Cagliari')->get();
-      // $product = Product::find(127805);
-      // dd(count($products));
+            // $products = Product::withTrashed()->where('supplier', 'Women Concept Store Cagliari')->get();
+            // $product = Product::find(127805);
+            // dd(count($products));
 
-      $products = Product::selectRaw('sku, COUNT(*) as duplicates')->groupBy('sku')->having('duplicates', '>', 1)->get();
+            $products = Product::selectRaw('sku, COUNT(*) as duplicates')->groupBy('sku')->having('duplicates', '>', 1)->get();
 
-      // dd(count($products));
-      //
-      // dd('stap');
+            // dd(count($products));
+            //
+            // dd('stap');
 
-      foreach ($products as $key => $product) {
-        dump("$key - Product");
+            foreach ($products as $key => $product) {
+                dump("$key - Product");
 
-        $duplicates = Product::where('sku', $product->sku)->get();
+                $duplicates = Product::where('sku', $product->sku)->get();
 
-        foreach ($duplicates as $key2 => $duplicate) {
-          if ($key2 == 0) {
-            dump("$key - $key2 - Main Product");
+                foreach ($duplicates as $key2 => $duplicate) {
+                    if ($key2 == 0) {
+                        dump("$key - $key2 - Main Product");
 
-            $main_product = $duplicate;
-          } else {
-            // $main_product
+                        $main_product = $duplicate;
+                    } else {
+                        // $main_product
 
-            if ($duplicate->purchases()->count() > 0) {
-              dump("$key - $key2 - Transferring Purchases");
+                        if ($duplicate->purchases()->count() > 0) {
+                            dump("$key - $key2 - Transferring Purchases");
 
-              foreach ($duplicate->purchases as $purchase) {
-                $main_product->purchases()->syncWithoutDetaching($purchase);
-              }
+                            foreach ($duplicate->purchases as $purchase) {
+                                $main_product->purchases()->syncWithoutDetaching($purchase);
+                            }
 
-              $duplicate->purchases()->detach();
-            }
+                            $duplicate->purchases()->detach();
+                        }
 
-            if ($duplicate->references()->count() > 0) {
-              dump("$key - $key2 - Transferring References");
+                        if ($duplicate->references()->count() > 0) {
+                            dump("$key - $key2 - Transferring References");
 
-              foreach ($duplicate->references as $reference) {
-                $reference->product_id = $main_product->id;
-                $reference->save();
-              }
+                            foreach ($duplicate->references as $reference) {
+                                $reference->product_id = $main_product->id;
+                                $reference->save();
+                            }
 
-              $duplicate->references()->delete();
-            }
+                            $duplicate->references()->delete();
+                        }
 
-            if ($duplicate->suggestions()->count() > 0) {
-              dump("$key - $key2 - Transferring Suggestions");
+                        if ($duplicate->suggestions()->count() > 0) {
+                            dump("$key - $key2 - Transferring Suggestions");
 
-              foreach ($duplicate->suggestions as $suggestion) {
-                $main_product->suggestions()->syncWithoutDetaching($suggestion);
-              }
+                            foreach ($duplicate->suggestions as $suggestion) {
+                                $main_product->suggestions()->syncWithoutDetaching($suggestion);
+                            }
 
-              $duplicate->suggestions()->detach();
-            }
+                            $duplicate->suggestions()->detach();
+                        }
 
-            if ($duplicate->private_views()->count() > 0) {
-              dump("$key - $key2 - Transferring Private Views");
+                        if ($duplicate->private_views()->count() > 0) {
+                            dump("$key - $key2 - Transferring Private Views");
 
-              foreach ($duplicate->private_views as $private_view) {
-                $main_product->private_views()->syncWithoutDetaching($private_view);
-              }
+                            foreach ($duplicate->private_views as $private_view) {
+                                $main_product->private_views()->syncWithoutDetaching($private_view);
+                            }
 
-              $duplicate->private_views()->detach();
-            }
+                            $duplicate->private_views()->detach();
+                        }
 
-            if ($duplicate->user()->count() > 0) {
-              dump("$key - $key2 - Transferring Users");
+                        if ($duplicate->user()->count() > 0) {
+                            dump("$key - $key2 - Transferring Users");
 
-              foreach ($duplicate->user as $user) {
-                $main_product->user()->syncWithoutDetaching($user);
-              }
+                            foreach ($duplicate->user as $user) {
+                                $main_product->user()->syncWithoutDetaching($user);
+                            }
 
-              $duplicate->user()->detach();
-            }
+                            $duplicate->user()->detach();
+                        }
 
-            if ($duplicate->hasMedia(config('constants.media_tags'))) {
-              dump("$key - $key2 - Has Images");
+                        if ($duplicate->hasMedia(config('constants.media_tags'))) {
+                            dump("$key - $key2 - Has Images");
 
-              foreach ($duplicate->getMedia(config('constants.media_tags')) as $image) {
-                $image_path = $image->getAbsolutePath();
+                            foreach ($duplicate->getMedia(config('constants.media_tags')) as $image) {
+                                $image_path = $image->getAbsolutePath();
 
-                if (File::exists($image_path)) {
-                  dump("$key - $key2 - Deleting Image on server");
-                  File::delete($image_path);
-                  // unlink($image_path);
+                                if (File::exists($image_path)) {
+                                    dump("$key - $key2 - Deleting Image on server");
+                                    File::delete($image_path);
+                                    // unlink($image_path);
+                                }
+
+                                $image->delete();
+                            }
+
+                        } else {
+                            dump("$key - $key2 - NO IMAGES");
+                        }
+
+                        $duplicate->suppliers()->detach();
+
+                        // if ($duplicate->user()) {
+                        //   dump('user');
+                        //   // $duplicate->user()->detach();
+                        // }
+
+                        // $duplicate->references()->delete();
+                        // $duplicate->suggestions()->detach();
+                        $duplicate->forceDelete();
+                    }
                 }
 
-                $image->delete();
-              }
-
-            } else {
-              dump("$key - $key2 - NO IMAGES");
+                dump("------------------");
             }
 
-            $duplicate->suppliers()->detach();
-
-            // if ($duplicate->user()) {
-            //   dump('user');
-            //   // $duplicate->user()->detach();
-            // }
-
-            // $duplicate->references()->delete();
-            // $duplicate->suggestions()->detach();
-            $duplicate->forceDelete();
-          }
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        dump("------------------");
-      }
-
-       $report->update(['end_time' => Carbon:: now()]);
     }
 }

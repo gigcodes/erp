@@ -112,11 +112,12 @@ class ScrapStatisticsController extends Controller
             }
         }
 
+        $lastRunAt = \DB::table("log_scraper")->groupBy("website")->select([\DB::raw("MAX(updated_at) as last_run_at"),"website"])->pluck("last_run_at","website")->toArray();
+
         $users = \App\User::all()->pluck("name", "id")->toArray();
 
-        //echo '<pre>'; print_r($scrapeData); echo '</pre>';exit;
         // Return view
-        return view('scrap.stats', compact('activeSuppliers', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown'));
+        return view('scrap.stats', compact('activeSuppliers', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt'));
     }
 
     /**
@@ -357,6 +358,13 @@ class ScrapStatisticsController extends Controller
         }
 
         return $output;
+    }
+
+    public function getLastRemark()
+    {
+        $lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by created_at desc");
+
+        return response()->json(["code" => 200 , "data" => $lastRemark]);
     }
 
 }

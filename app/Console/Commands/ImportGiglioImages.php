@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\CronJobReport;
 use App\Product;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
-use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class ImportGiglioImages extends Command
@@ -41,28 +42,31 @@ class ImportGiglioImages extends Command
      */
     public function handle()
     {
+        try {
 
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
+            $cookieJar = CookieJar::fromArray([
+                '__cfduid' => 'd866a348dc8d8be698f25655b77ada8921560006391',
+            ], '.giglio.com');
 
-        $cookieJar = CookieJar::fromArray([
-            '__cfduid' => 'd866a348dc8d8be698f25655b77ada8921560006391'
-        ], '.giglio.com');
+            $guzzle = new Client();
 
-        $guzzle = new Client();
+            $params = [];
 
-        $params = [];
+            $products          = Product::where('id', 2754)->get();
+            $params['cookies'] = $cookieJar;
 
-        $products = Product::where('id', 2754)->get();
-        $params['cookies'] = $cookieJar;
+            $response = $guzzle->request('GET', 'https://img.giglio.com/images/prodZoom/A66167.001_1.jpg', $params);
 
-        $response = $guzzle->request('GET', 'https://img.giglio.com/images/prodZoom/A66167.001_1.jpg', $params);
+            file_put_contents(__DIR__ . '/one.jpg', $response->getBody()->getContents());
 
-        file_put_contents(__DIR__ . '/one.jpg', $response->getBody()->getContents());
-
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Setting;
+use App\ProductTemplate;
+use App\Template;
+use App\Category;
+use App\Product;
 
 class ProductTemplatesController extends Controller
 {
@@ -117,6 +121,8 @@ class ProductTemplatesController extends Controller
 
         $records->where("product_templates.is_processed", "=", 0);
 
+        $records->where("product_templates.brand_id", "!=", null);
+
         $record = $records->orderBy("product_templates.id", "asc")->first();
 
         $data = [];
@@ -217,5 +223,46 @@ class ProductTemplatesController extends Controller
             }
         }
         return response()->json(["data" => $html]);
+    }
+
+    public function imageIndex(Request $request)
+    {
+        $temps = Template::all();
+        if($request->template || $request->brand || $request->category){
+            
+            $query = ProductTemplate::query();
+
+            if(!empty($request->template)){
+                $query->where('template_no',$request->template);
+            }
+            
+            if(!empty($request->brand)){
+                $query->whereIn('brand_id',$request->brand);
+            }
+            
+            if(!empty($request->category && $request->category[0] != 1)){
+                $query->whereIn('category_id',$request->category);
+            }
+            
+            $templates = $query->where('is_processed',1)->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
+        }else{
+           $templates = ProductTemplate::where('is_processed',1)->paginate(Setting::get('pagination')); 
+        }
+        
+        // if ($request->ajax()) {
+        //     return response()->json([
+        //         'tbody' => view('product-template.partials.type-list-template', compact('templates','temps'))->render(),
+        //         'links' => (string)$templates->render(),
+        //         'total' => $templates->total(),
+        //     ], 200);
+        // }
+
+        $selected_categories = $request->category ? $request->category : 1;
+
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2'])
+            ->selected($selected_categories)
+            ->renderAsDropdown();
+
+        return view('product-template.image',compact('templates','temps','category_selection'));
     }
 }

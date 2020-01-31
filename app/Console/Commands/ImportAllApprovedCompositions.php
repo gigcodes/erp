@@ -3,9 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Compositions;
-use App\Product;
 use App\CronJobReport;
+use App\Product;
 use Illuminate\Console\Command;
+use Carbon\Carbon;
 
 class ImportAllApprovedCompositions extends Command
 {
@@ -40,41 +41,43 @@ class ImportAllApprovedCompositions extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $products = Product::where('is_approved', 1)->get();
-        foreach ($products as $product) {
-            $composition = $product->composition;
-            $composition = preg_replace('/[0-9]+/', '', $composition);
-            $composition = str_replace(['%', ',', ':', 'Exterior', 'Interior', 'Made In', 'Italy', 'Portugal','France', '.'], '', $composition);
-            $composition = str_replace(["\n", '\n'], ' ', $composition);
-            $composition = explode(' ', trim($composition));
+            $products = Product::where('is_approved', 1)->get();
+            foreach ($products as $product) {
+                $composition = $product->composition;
+                $composition = preg_replace('/[0-9]+/', '', $composition);
+                $composition = str_replace(['%', ',', ':', 'Exterior', 'Interior', 'Made In', 'Italy', 'Portugal', 'France', '.'], '', $composition);
+                $composition = str_replace(["\n", '\n'], ' ', $composition);
+                $composition = explode(' ', trim($composition));
 
-            if (count($composition) > 10) {
-                continue;
-            }
-
-            foreach ($composition as $cmp) {
-                $cmpr = Compositions::where('name', trim($cmp))->first();
-                if ($cmpr || strlen($cmp) < 4 || in_array(strtolower($cmp), ['sole', 'and', 'from'], true)) {
+                if (count($composition) > 10) {
                     continue;
                 }
 
-                dump('Adding ' . $cmp);
+                foreach ($composition as $cmp) {
+                    $cmpr = Compositions::where('name', trim($cmp))->first();
+                    if ($cmpr || strlen($cmp) < 4 || in_array(strtolower($cmp), ['sole', 'and', 'from'], true)) {
+                        continue;
+                    }
 
-                $cmpr = new Compositions();
-                $cmpr->name = trim($cmp);
-                $cmpr->save();
+                    dump('Adding ' . $cmp);
 
+                    $cmpr       = new Compositions();
+                    $cmpr->name = trim($cmp);
+                    $cmpr->save();
+
+                }
 
             }
 
-
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        $report->update(['end_time' => Carbon:: now()]);
     }
 }

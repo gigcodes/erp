@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\CronJobReport;
 use App\Services\Scrap\GebnegozionlineProductDetailsScraper;
-
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class CreateScrapedProducts extends Command
 {
@@ -43,13 +43,17 @@ class CreateScrapedProducts extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $this->scraper->createProducts();
-        
-        $report->update(['end_time' => Carbon:: now()]);
+            $this->scraper->createProducts();
+
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

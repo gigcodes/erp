@@ -23,4 +23,8 @@ class ProductTemplate extends Model
         return $this->hasOne("\App\Brand","id","brand_id");
     }
 
+    public function category() {
+        return $this->hasOne("\App\Category","id","category_id");
+    }
+
 }

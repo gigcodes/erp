@@ -47,6 +47,7 @@
             <tr>
                 <th>ID</th>
                 <th>Name</th>
+                <th>Magento ID</th>
                 <th>Euro to Inr</th>
                 <th>Deduction%</th>
                 <th>Segment</th>
@@ -56,6 +57,7 @@
                 <tr>
                     <td>{{ $brand->id }}</td>
                     <td>{{ $brand->name }}</td>
+                    <td>{{ $brand->magento_id}}</td>
                     <td>{{ $brand->euro_to_inr }}</td>
                     <td>{{ $brand->deduction_percentage }}</td>
                     <td>{{ $brand->brand_segment }}</td>
