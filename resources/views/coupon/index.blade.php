@@ -250,6 +250,11 @@
         $('.dataTables_length').addClass('bs-select');
 
         $('input#report-date').daterangepicker();
+
+        $('input#report-date').on('apply.daterangepicker', function(ev, picker) {
+            const couponId = $('#couponReportModal').attr('data-coupon-id');
+            getReport(couponId);
+        });
     });
 
     function copyCoupon(
@@ -380,6 +385,42 @@
         $('#response-alert-container').empty().append(responseAlert);
     }
 
+    function getReport(id) {
+        const startDateMoment = $('input#report-date').data('daterangepicker').startDate;
+        const endDateMoment = $('input#report-date').data('daterangepicker').endDate;
+
+        const startString = startDateMoment.format('YYYY-MM-DD ') + '00:00:00';
+        const endString = endDateMoment.format('YYYY-MM-DD ') + '23:59:59';
+
+        $('input#report-date').hide();
+
+        $('#report-body').empty();
+
+        $('#report-progress').show();
+
+        $('#couponReportModal').attr('data-coupon-id', id);
+
+        $('#couponReportModal').modal('show');
+
+        $.ajax({
+                method: 'GET',
+                url: '/checkout/coupons/' + id + '/report?start=' + startString + '&end=' + endString
+            })
+            .done(function(response) {
+                const orders = JSON.parse(response);
+                $('#report-progress').hide();
+                $('input#report-date').show();
+                $('#report-body').empty();
+                addCouponRow(id);
+                for (let i = 0; i < orders.length; i++) {
+                    addOrderRow(orders[i].order_id, orders[i].order_date, orders[i].client_name);
+                }
+            })
+            .fail(function(error) {
+                console.log(error);
+            });
+    }
+
     function showReport(id) {
 
         const startDate = moment().subtract(30, 'days').toDate();
@@ -391,40 +432,15 @@
         $('input#report-date').data('daterangepicker').setStartDate(startDate);
         $('input#report-date').data('daterangepicker').setEndDate(endDate);
 
-        $('input#report-date').hide();
-
-        $('#report-progress').show();
-
-        $('#couponReportModal').modal('show');
-
-        $.ajax({
-                method: 'GET',
-                url: '/checkout/coupons/' + id + '/report?start=' + startString + '&end=' + endString
-            })
-            .done(function(response) {
-                console.log(response);
-                const orders = JSON.parse(response);
-                $('#report-progress').hide();
-                $('#report-body').empty();
-                addCouponRow(id);
-                for(let i = 0;i<orders.length;i++){
-                   addOrderRow(orders[i].order_id, orders[i].order_date, orders[i].client_name);
-                }
-            })
-            .fail(function(error) {
-                console.log(error);
-            });
-
+        getReport(id);
 
     }
 
-    function addCouponRow(couponId){
-        
+    function addCouponRow(couponId) {
+
         const orderRow = $("#coupon-row").clone();
         $(orderRow).removeAttr('id');
-        $(orderRow).find('td').html('<strong>Coupon Id:<strong>'+ couponId);
-
-        console.log(orderRow);
+        $(orderRow).find('td').html('<strong>Coupon Id:<strong>' + couponId);
 
         $('#report-body').append(orderRow);
     }
