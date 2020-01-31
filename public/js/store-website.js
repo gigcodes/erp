@@ -227,9 +227,9 @@ var page = {
 
         this.sendAjax(_z, 'deleteCategoryResponse', ele);
     },
-    deleteCategoryResponse: function(response) {
+    deleteCategoryResponse: function(response,ele) {
         if(response.code == 200) {
-
+            ele.closest("tr").remove();
         }
     } 
 }

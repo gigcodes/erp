@@ -3,11 +3,11 @@
 namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\StoreWebsite;
+use App\StoreWebsiteCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
-use App\StoreWebsiteCategory;
 
 class CategoryController extends Controller
 {
@@ -26,11 +26,14 @@ class CategoryController extends Controller
                 'class' => 'form-control select-searchable',
             ])->renderAsDropdown();
 
-            $storeWebsite = StoreWebsiteCategory::join("categories as c","c.id","store_website_categories.category_id")->where("store_website_id",$id)->get();
+            $storeWebsite = StoreWebsiteCategory::join("categories as c", "c.id", "store_website_categories.category_id")
+                ->where("store_website_id", $id)
+                ->select(["store_website_categories.*", "c.title"])
+                ->get();
 
             return response()->json([
                 "code"             => 200,
-                "store_website_id" => 20,
+                "store_website_id" => $id,
                 "data"             => $storeWebsite,
                 'scdropdown'       => $categoryDropDown,
             ]);
@@ -72,6 +75,15 @@ class CategoryController extends Controller
 
         return response()->json(["code" => 200, "data" => $storeWebsiteCategory]);
 
+    }
+
+    public function delete(Request $request, $id, $store_category_id)
+    {
+        $storeCategory = StoreWebsiteCategory::where("store_website_id", $id)->where("id", $store_category_id)->first();
+        if ($storeCategory) {
+            $storeCategory->delete();
+        }
+        return response()->json(["code" => 200, "data" => []]);
     }
 
 }

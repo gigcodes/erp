@@ -80,7 +80,7 @@
 					    	{{props data}}
 						      <tr>
 						      	<td>{{:prop.id}}</td>
-						        <td>{{:prop.name}}</td>
+						        <td>{{:prop.title}}</td>
 						        <td>{{:prop.remote_id}}</td>
 						        <td>{{:prop.created_at}}</td>
 						        <td>
