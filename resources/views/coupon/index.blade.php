@@ -24,15 +24,16 @@
 </div>
 <table style="display:none;">
     <tr id="coupon-row">
-        <td colspan="3"></td>
+        <td colspan="4"></td>
     </tr>
     <tr id="order-row">
         <td data-identifier="order-id">Order ID</td>
         <td data-identifier="order-date">Order Date</td>
         <td data-identifier="order-client-name">Client Name</td>
+        <td data-identifier="order-balance-amount">Balance Amount</td>
     </tr>
     <tr id="no-order-row" class="text-center">
-        <td colspan="3">No Order Data</td>
+        <td colspan="4">No Order Data</td>
     </tr>
 </table>
 
@@ -41,7 +42,11 @@
 
 <div id="response-alert-container"></div>
 
-<div style="text-align: right;">
+<div style="text-align: right; margin-bottom: 10px;">
+    <button type="button" class="btn btn-primary" onclick="showOverallReport()">
+        Overall Report
+    </button>
+    <span>&nbsp;</span>
     <button type="button" class="btn btn-primary" onclick="createCoupon()">
         New Coupon
     </button>
@@ -405,24 +410,37 @@
 
         $('#couponReportModal').modal('show');
 
+        let url = '';
+        if(id){
+            url = '/checkout/coupons/' + id + '/report?start=' + startString + '&end=' + endString;
+        }else{
+            url = '/checkout/coupons/report?start=' + startString + '&end=' + endString;
+        }
+
         $.ajax({
                 method: 'GET',
-                url: '/checkout/coupons/' + id + '/report?start=' + startString + '&end=' + endString
+                url
             })
             .done(function(response) {
-                const orders = JSON.parse(response);
+                const coupons = JSON.parse(response);
                 $('#report-progress').hide();
                 $('input#report-date').show();
                 $('#report-body').empty();
-                addCouponRow(id);
-                console.log('Orders Length: ', orders.length);
-                if (orders.length <= 0) {
-                    addNoOrderDataRow();
-                } else {
-                    for (let i = 0; i < orders.length; i++) {
-                        addOrderRow(orders[i].order_id, orders[i].order_date, orders[i].client_name);
+
+                for (let i = 0; i < coupons.length; i++) {
+                    addCouponRow(coupons[i].coupon_id);
+
+                    const orders = coupons[i].orders;
+
+                    if (orders.length <= 0) {
+                        addNoOrderDataRow();
+                    } else {
+                        for (let i = 0; i < orders.length; i++) {
+                            addOrderRow(orders[i].order_id, orders[i].order_date, orders[i].client_name, orders[i].balance_amount);
+                        }
                     }
                 }
+
             })
             .fail(function(error) {
                 console.log(error);
@@ -444,6 +462,19 @@
 
     }
 
+    function showOverallReport() {
+        const startDate = moment().subtract(30, 'days').toDate();
+        const endDate = moment().toDate();
+
+        const startString = moment(startDate).format('YYYY-MM-DD ') + '00:00:00';
+        const endString = moment(endDate).format('YYYY-MM-DD ') + '23:59:59';
+
+        $('input#report-date').data('daterangepicker').setStartDate(startDate);
+        $('input#report-date').data('daterangepicker').setEndDate(endDate);
+
+        getReport();
+    }
+
     function addCouponRow(couponId) {
 
         const orderRow = $("#coupon-row").clone();
@@ -453,12 +484,13 @@
         $('#report-body').append(orderRow);
     }
 
-    function addOrderRow(orderId, orderDate, clientName) {
+    function addOrderRow(orderId, orderDate, clientName, orderBalanceAmount) {
         const orderRow = $("#order-row").clone();
         $(orderRow).removeAttr('id');
         $(orderRow).find('td[data-identifier="order-id"]').text(orderId);
         $(orderRow).find('td[data-identifier="order-date"]').text(orderDate);
         $(orderRow).find('td[data-identifier="order-client-name"]').text(clientName);
+        $(orderRow).find('td[data-identifier="order-balance-amount"]').text(orderBalanceAmount);
 
         $('#report-body').append(orderRow);
     }
@@ -467,10 +499,6 @@
         const row = $("#no-order-row").clone();
         $(row).removeAttr('id');
         $('#report-body').append(row);
-    }
-
-    function showOverallReport() {
-
     }
 </script>
 @endsection

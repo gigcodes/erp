@@ -128,7 +128,7 @@ class CouponController extends Controller
 
         $couponCounts = Coupon::usageCount($couponIds);
 
-       $dataArray = array_map(
+        $dataArray = array_map(
             function ($data) use ($couponCounts) {
 
                 foreach ($couponCounts as $couponCount) {
@@ -275,17 +275,46 @@ class CouponController extends Controller
         }
     }
 
-    public function showReport($couponId)
+    public function showReport($couponId = null)
     {
 
         $start = Input::get('start');
         $end = Input::get('end');
 
-        $orders = Order::where('coupon_id', $couponId)
-            ->where('order_date', '>=', Carbon::parse($start))
-            ->where('order_date', '<=', Carbon::parse($end))
-            ->get();
+        if (isset($couponId)) {
+            $orders = Order::where('coupon_id', $couponId)
+                ->where('order_date', '>=', Carbon::parse($start))
+                ->where('order_date', '<=', Carbon::parse($end))
+                ->get();
+        } else {
+            $orders = Order::where('order_date', '>=', Carbon::parse($start))
+                ->where('order_date', '<=', Carbon::parse($end))
+                ->get();
+        }
 
-        echo $orders;
+
+        $couponWithOrders = array();
+
+        foreach ($orders as $order) {
+            $couponId = $order->coupon_id;
+
+            if (isset($couponWithOrders[$couponId])) {
+                $couponWithOrders[$couponId][] = $order->toArray();
+            } else {
+                $couponWithOrders[$couponId] = array($order->toArray());
+            }
+        }
+
+        $response  = array();
+        foreach ($couponWithOrders as $couponId => $orders) {
+            $response[] = array(
+                'coupon_id' => $couponId,
+                'orders' => $orders
+            );
+        }
+
+        return response(
+            json_encode($response)
+        );
     }
 }
