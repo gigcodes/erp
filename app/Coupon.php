@@ -2,6 +2,7 @@
 
 namespace App;
 
+use DB;
 use Illuminate\Database\Eloquent\Model;
 
 class Coupon extends Model
@@ -25,17 +26,39 @@ class Coupon extends Model
 
     protected $appends = ['discount'];
 
-    public function getDiscountAttribute () {
+    public function getDiscountAttribute()
+    {
         $discount = '';
-        if($this->currency) {
+        if ($this->currency) {
             $discount .= $this->currency . ' ';
         }
-        if($this->discount_fixed) {
+        if ($this->discount_fixed) {
             $discount .= $this->discount_fixed . ' fixed plus ';
         }
-        if($this->discount_percentage) {
+        if ($this->discount_percentage) {
             $discount .= $this->discount_percentage . '% discount';
         }
         return $discount;
+    }
+
+    public static function usageCount($couponIds)
+    {
+        $query =  DB::table('orders')
+            ->select('coupon_id', DB::raw('count(*) as count'))
+            ->groupBy('coupon_id');
+
+        foreach ($couponIds as $couponId) {
+            $query->orHaving('coupon_id', '=', $couponId);
+        }
+
+        return $query->get();
+    }
+
+    public function usage()
+    {
+        return $this->hasMany(
+            'App\Order',
+            'coupon_id'
+        );
     }
 }

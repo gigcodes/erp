@@ -24,7 +24,7 @@
 </div>
 <table style="display:none;">
     <tr id="coupon-row">
-        <td colspan="3">Coupon : <strong>Coupon Id</strong></td>
+        <td colspan="3"></td>
     </tr>
     <tr id="order-row">
         <td data-identifier="order-id">Order ID</td>

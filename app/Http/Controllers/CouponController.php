@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CouponController extends Controller
 {
+    private $DATA_COLUMN_KEY = -99;
     /**
      * Display a listing of the resource.
      *
@@ -29,6 +30,7 @@ class CouponController extends Controller
         $tableName = with(new Coupon)->getTable();
         $primaryKey = 'id';
         $columns = array(
+            array('db' => 'id', 'dt' => $this->DATA_COLUMN_KEY),
             array('db' => 'discount_fixed', 'dt' => -1),
             array('db' => 'discount_percentage', 'dt' => -1),
             array('db' => 'start', 'dt' => -1),
@@ -115,12 +117,34 @@ class CouponController extends Controller
             'host' => config('database.connections.mysql.host')
         );
 
+        $tableArray = SSP::simple($_GET, $sql_details, $tableName, $primaryKey, $columns);
 
+        $couponIds = array_map(
+            function ($data) {
+                return $data[$this->DATA_COLUMN_KEY];
+            },
+            $tableArray['data']
+        );
+
+        $couponCounts = Coupon::usageCount($couponIds);
+
+       $dataArray = array_map(
+            function ($data) use ($couponCounts) {
+
+                foreach ($couponCounts as $couponCount) {
+                    if ($couponCount->coupon_id == $data[$this->DATA_COLUMN_KEY]) {
+                        $data['6'] = $couponCount->count;
+                    }
+                }
+                return $data;
+            },
+            $tableArray['data']
+        );
+
+        $tableArray['data'] = $dataArray;
 
         return response(
-            json_encode(
-                SSP::simple($_GET, $sql_details, $tableName, $primaryKey, $columns)
-            )
+            json_encode($tableArray)
         );
     }
 
