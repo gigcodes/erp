@@ -6,6 +6,7 @@ use App\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use App\Services\Whatsapp\ChatApi\ChatApi;
 
 class MessageQueueController extends Controller
 {
@@ -23,7 +24,20 @@ class MessageQueueController extends Controller
         $sendStartTime = ChatMessage::getStartTime();
         $sendEndTime = ChatMessage::getEndTime();
 
-        return view('messagequeue::index',compact('groupList','sendingLimit','sendStartTime','sendEndTime'));
+        $allWhatsappNo         = config("apiwha.instances");
+
+        $waitingMessages = [];
+        if (!empty($allWhatsappNo)) {
+            foreach ($allWhatsappNo as $no => $dataInstance) {
+                $no = ($no == 0) ? $dataInstance["number"] : $no;
+                $chatApi = new ChatApi;
+                $waitingMessage = $chatApi->waitingLimit($no);
+                $waitingMessages[$no] = $waitingMessage;
+            }
+        }
+
+
+        return view('messagequeue::index',compact('groupList','sendingLimit','sendStartTime','sendEndTime','waitingMessages'));
     }
 
     /**
@@ -114,6 +128,16 @@ class MessageQueueController extends Controller
                     return response()->json(["code" => 200, "message" => "Updated to broadcast Successfully"]);
                 }
                 break;
+            case 'change_customer_number':
+                
+                if (!empty($ids) && is_array($ids)) {
+                    $number = $request->get("send_number","");
+                    if(!empty($number)){
+                        \DB::update("update chat_messages as cm join customers as c on c.id = cm.customer_id set c.whatsapp_number = '".$number."' where cm.id in (" . implode(",", $ids) . ");");
+                    }
+                    return response()->json(["code" => 200, "message" => "Updated to broadcast Successfully"]);
+                }
+                break;    
             case 'delete_records':
 
                 if (!empty($ids) && is_array($ids)) {

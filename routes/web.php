@@ -1461,6 +1461,7 @@ Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
 Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
+Route::get('temp-task/product-creator','TmpTaskController@importProduct');
 
 Route::prefix('google')->middleware('auth')->group(function () {
     Route::resource('/search/keyword', 'GoogleSearchController');

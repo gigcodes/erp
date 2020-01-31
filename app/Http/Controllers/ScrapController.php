@@ -705,7 +705,7 @@ class ScrapController extends Controller
 
             $search = [
                 \DB::raw("count(*) as total_record"),
-                \DB::raw("count(DISTINCT sku) as total_u_record")
+                \DB::raw("count(DISTINCT p.sku) as total_u_record")
             ];
 
 
@@ -716,7 +716,9 @@ class ScrapController extends Controller
                 $search[] = \DB::raw("'All' as date");
             }
 
-            $totalUniqueSkuRecords = \DB::table("log_scraper");
+            $totalUniqueSkuRecords = \DB::table("log_scraper")->leftJoin("products as p",function($q){
+                $q->on("p.sku","log_scraper.sku")->where('stock','>=',1);
+            });
 
             if(!empty($startDate)) {
                 $totalUniqueSkuRecords->whereDate('created_at'," >= " , $startDate);

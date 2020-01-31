@@ -223,7 +223,7 @@ class ProductController extends Controller
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(5);
+        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
 
         return view('products.final_listing', [
             'products' => $newProducts,
@@ -1592,6 +1592,7 @@ class ProductController extends Controller
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
 
+
         if($model_type == 'customer'){
             $customerId = $model_id;
         }else{
@@ -2094,9 +2095,14 @@ class ProductController extends Controller
             ]);
         }
 
-        $images = Media::select('filename', 'extension', 'mime_type', 'disk', 'directory')->whereIn('id',$mediableArray)->get();
+        $images = Media::select('id','filename', 'extension', 'mime_type', 'disk', 'directory')->whereIn('id',$mediableArray)->get();
 
 
+        foreach($images as $image){
+            $output['media_id'] = $image->id;
+            $image->setAttribute('pivot', $output);
+        }
+        
         //WIll use in future to detect Images removed to fast the query for now
         //foreach ($images as $image) {
             //$link = $image->getUrl();
@@ -2855,7 +2861,7 @@ class ProductController extends Controller
 
     public function saveGroupHsCode(Request $request)
     {
-        dd($request);
+
         $name = $request->name;
         $compositions = $request->compositions;
         $key = HsCodeSetting::first();
@@ -2872,12 +2878,16 @@ class ProductController extends Controller
         $categoryId = $category->id;
 
 
-        $hscodeSearchString = str_replace(['&gt;','>'],'', $name.' '.$category->title.' '.$request->composition);
+        if($request->composition){
+            $hscodeSearchString = str_replace(['&gt;','>'],'', $name.' '.$category->title.' '.$request->composition);
+        }else{
+            $hscodeSearchString = str_replace(['&gt;','>'],'', $name);    
+        }
 
         $hscode = HsCode::where('description',$hscodeSearchString)->first();
 
         if($hscode != null){
-            return response()->json(['HsCode Already exist']);
+            return response()->json(['error'=>'HsCode Already exist']);
         }
 
         $hscodeSearchString = urlencode($hscodeSearchString);
@@ -2902,7 +2912,7 @@ class ProductController extends Controller
 
         if(!isset($categories->HSCode)){
 
-            return response()->json(['Something is wrong with the API. Please check the balance.']);
+            return response()->json(['error'=>'Something is wrong with the API. Please check the balance.']);
 
         }else{
 
@@ -2925,14 +2935,16 @@ class ProductController extends Controller
                 }
 
                 $id = $group->id;
-
-                foreach ($compositions as $composition) {
-                    $comp = new HsCodeGroupsCategoriesComposition();
-                    $comp->hs_code_group_id = $id;
-                    $comp->category_id = $categoryId;
-                    $comp->composition = $composition;
-                    $comp->save();
+                if($request->compositions){
+                    foreach ($compositions as $composition) {
+                        $comp = new HsCodeGroupsCategoriesComposition();
+                        $comp->hs_code_group_id = $id;
+                        $comp->category_id = $categoryId;
+                        $comp->composition = $composition;
+                        $comp->save();
+                    }
                 }
+                
             }
         }
 
