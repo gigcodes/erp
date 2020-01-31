@@ -1417,6 +1417,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function() {
     Route::post('coupons/load','CouponController@loadData');
     Route::get('coupons/load','CouponController@loadData');
     Route::delete('coupons/{id}', 'CouponController@destroy');
+    Route::get('coupons/{id}/report', 'CouponController@showReport');
 });
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');

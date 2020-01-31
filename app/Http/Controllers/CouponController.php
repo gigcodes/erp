@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CreateCouponRequest;
 use App\Coupon;
 use App\Helpers\SSP;
+use App\Order;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CouponController extends Controller
@@ -60,10 +63,10 @@ class CouponController extends Controller
                     $id = $row['id'];
                     $code = $row['code'];
                     $description = $row['description'];
-                    $start = date('Y-m-d H:i',strtotime($row['start']));
-                    if($row['expiration']){
-                        $expiration = date('Y-m-d H:i',strtotime($row['expiration']));
-                    }else{
+                    $start = date('Y-m-d H:i', strtotime($row['start']));
+                    if ($row['expiration']) {
+                        $expiration = date('Y-m-d H:i', strtotime($row['expiration']));
+                    } else {
                         $expiration = '';
                     }
                     $currency = $row['currency'];
@@ -94,7 +97,7 @@ class CouponController extends Controller
                         <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span>
                     </button>
 
-                    <button title="report" class="btn btn-default">
+                    <button title="report" onclick="showReport' . $functionCall . '" class="btn btn-default">
                         <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
                     </button>
 
@@ -232,13 +235,13 @@ class CouponController extends Controller
     {
         //
         $count = Coupon::destroy($id);
-        if($count == 1){
+        if ($count == 1) {
             return response(
                 json_encode([
                     'message' => 'Deleted the coupon'
                 ])
             );
-        }else{
+        } else {
             return response(
                 json_encode([
                     'message' => 'Failed to delete coupon. It might be not present'
@@ -246,6 +249,19 @@ class CouponController extends Controller
                 404
             );
         }
+    }
 
+    public function showReport($couponId)
+    {
+
+        $start = Input::get('start');
+        $end = Input::get('end');
+
+        $orders = Order::where('coupon_id', $couponId)
+            ->where('order_date', '>=', Carbon::parse($start))
+            ->where('order_date', '<=', Carbon::parse($end))
+            ->get();
+
+        echo $orders;
     }
 }

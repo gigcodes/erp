@@ -3,6 +3,7 @@
 @section('link-css')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.jqueryui.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/scroller/2.0.1/css/scroller.jqueryui.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 @endsection
 @section('content')
 
@@ -14,21 +15,36 @@
     </div>
 </div>
 
+<!-- Hidden content used to generate dynamic elements (start) -->
 <div id="response-alert" style="display:none;" class="alert alert-success">
     <span>You should check in on some of those fields below.</span>
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
 </div>
-<div id="response-alert-container">
+<table style="display:none;">
+    <tr id="coupon-row">
+        <td colspan="3">Coupon : <strong>Coupon Id</strong></td>
+    </tr>
+    <tr id="order-row">
+        <td data-identifier="order-id">Order ID</td>
+        <td data-identifier="order-date">Order Date</td>
+        <td data-identifier="order-client-name">Client Name</td>
+    </tr>
+</table>
 
-</div>
+<!-- Hidden content used to generate dynamic elements (end) -->
+
+
+<div id="response-alert-container"></div>
+
 <div style="text-align: right;">
     <button type="button" class="btn btn-primary" onclick="createCoupon()">
         New Coupon
     </button>
 </div>
 
+<!-- COUPON DETAIL MODAL -->
 <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <form id="coupon-form" method="POST" onsubmit="return executeCouponOperation();">
@@ -140,6 +156,44 @@
     </div>
 </div>
 
+<!-- COUPON REPORT MODAL -->
+<div class="modal fade" id="couponReportModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Report</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <input id="report-date" />
+                </div>
+                <div id="report-progress" class="text-center">
+                    <h4>Please wait. Generating report...</h4>
+                </div>
+                <div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered" style="width: 99%">
+                            <tbody id="report-body">
+                                <tr>
+                                    <td colspan="3">Coupon : <strong>Coupon Id</strong></td>
+                                </tr>
+                                <tr>
+                                    <td data-identifier="order-id">Order ID</td>
+                                    <td data-identifier="order-date">Order Date</td>
+                                    <td data-identifier="order-client-name">Client Name</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @if ($message = Session::get('success'))
 <div class="alert alert-success">
     <p>{{ $message }}</p>
@@ -169,9 +223,12 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
 <script type="text/javascript">
     /* beautify preserve:start */
-    @if($errors -> any())
+    @if($errors->any())
     $('#couponModal').modal('show');
     @endif
     /* beautify preserve:end */
@@ -191,6 +248,8 @@
             }
         });
         $('.dataTables_length').addClass('bs-select');
+
+        $('input#report-date').daterangepicker();
     });
 
     function copyCoupon(
@@ -227,7 +286,7 @@
         if (shouldDelete) {
             $.ajax({
                     method: "DELETE",
-                    url: '/checkout/coupons/'+id,
+                    url: '/checkout/coupons/' + id,
                     data: {
                         _token: $('#coupon-form input[name="_token"]').val(),
                     }
@@ -319,6 +378,69 @@
         $(responseAlert).show();
         $(responseAlert).find('>span').text(alert);
         $('#response-alert-container').empty().append(responseAlert);
+    }
+
+    function showReport(id) {
+
+        const startDate = moment().subtract(30, 'days').toDate();
+        const endDate = moment().toDate();
+
+        const startString = moment(startDate).format('YYYY-MM-DD ') + '00:00:00';
+        const endString = moment(endDate).format('YYYY-MM-DD ') + '23:59:59';
+
+        $('input#report-date').data('daterangepicker').setStartDate(startDate);
+        $('input#report-date').data('daterangepicker').setEndDate(endDate);
+
+        $('input#report-date').hide();
+
+        $('#report-progress').show();
+
+        $('#couponReportModal').modal('show');
+
+        $.ajax({
+                method: 'GET',
+                url: '/checkout/coupons/' + id + '/report?start=' + startString + '&end=' + endString
+            })
+            .done(function(response) {
+                console.log(response);
+                const orders = JSON.parse(response);
+                $('#report-progress').hide();
+                $('#report-body').empty();
+                addCouponRow(id);
+                for(let i = 0;i<orders.length;i++){
+                   addOrderRow(orders[i].order_id, orders[i].order_date, orders[i].client_name);
+                }
+            })
+            .fail(function(error) {
+                console.log(error);
+            });
+
+
+    }
+
+    function addCouponRow(couponId){
+        
+        const orderRow = $("#coupon-row").clone();
+        $(orderRow).removeAttr('id');
+        $(orderRow).find('td').html('<strong>Coupon Id:<strong>'+ couponId);
+
+        console.log(orderRow);
+
+        $('#report-body').append(orderRow);
+    }
+
+    function addOrderRow(orderId, orderDate, clientName) {
+        const orderRow = $("#order-row").clone();
+        $(orderRow).removeAttr('id');
+        $(orderRow).find('td[data-identifier="order-id"]').text(orderId);
+        $(orderRow).find('td[data-identifier="order-date"]').text(orderDate);
+        $(orderRow).find('td[data-identifier="order-client-name"]').text(clientName);
+
+        $('#report-body').append(orderRow);
+    }
+
+    function showOverallReport() {
+
     }
 </script>
 @endsection
