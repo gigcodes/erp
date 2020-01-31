@@ -31,6 +31,9 @@
         <td data-identifier="order-date">Order Date</td>
         <td data-identifier="order-client-name">Client Name</td>
     </tr>
+    <tr id="no-order-row" class="text-center">
+        <td colspan="3">No Order Data</td>
+    </tr>
 </table>
 
 <!-- Hidden content used to generate dynamic elements (end) -->
@@ -412,8 +415,13 @@
                 $('input#report-date').show();
                 $('#report-body').empty();
                 addCouponRow(id);
-                for (let i = 0; i < orders.length; i++) {
-                    addOrderRow(orders[i].order_id, orders[i].order_date, orders[i].client_name);
+                console.log('Orders Length: ', orders.length);
+                if (orders.length <= 0) {
+                    addNoOrderDataRow();
+                } else {
+                    for (let i = 0; i < orders.length; i++) {
+                        addOrderRow(orders[i].order_id, orders[i].order_date, orders[i].client_name);
+                    }
                 }
             })
             .fail(function(error) {
@@ -453,6 +461,12 @@
         $(orderRow).find('td[data-identifier="order-client-name"]').text(clientName);
 
         $('#report-body').append(orderRow);
+    }
+
+    function addNoOrderDataRow() {
+        const row = $("#no-order-row").clone();
+        $(row).removeAttr('id');
+        $('#report-body').append(row);
     }
 
     function showOverallReport() {
