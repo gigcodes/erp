@@ -406,14 +406,16 @@
 
         $('#report-progress').show();
 
-        $('#couponReportModal').attr('data-coupon-id', id);
+
 
         $('#couponReportModal').modal('show');
 
         let url = '';
-        if(id){
+        if (id) {
+            $('#couponReportModal').attr('data-coupon-id', id);
             url = '/checkout/coupons/' + id + '/report?start=' + startString + '&end=' + endString;
-        }else{
+        } else {
+            $('#couponReportModal').removeAttr('data-coupon-id');
             url = '/checkout/coupons/report?start=' + startString + '&end=' + endString;
         }
 
@@ -439,6 +441,13 @@
                             addOrderRow(orders[i].order_id, orders[i].order_date, orders[i].client_name, orders[i].balance_amount);
                         }
                     }
+                }
+
+                if (id && coupons.length <= 0) {
+                    addCouponRow(id);
+                    addNoOrderDataRow();
+                }else if(coupons.length <=0){
+                    addNoOrderDataRow();
                 }
 
             })
