@@ -30,6 +30,18 @@
 		         <label for="remote_software">Remote software</label>
 		         <input type="text" name="remote_software" value="{{if data}}{{:data.remote_software}}{{/if}}" class="form-control" id="remote_software" placeholder="Enter Remote software">
 		      </div>
+		      <div class="form-group">
+		         <label for="magento_url">Magento Url</label>
+		         <input type="text" name="magento_url" value="{{if data}}{{:data.magento_url}}{{/if}}" class="form-control" id="magento_url" placeholder="Enter magento url">
+		      </div>
+		      <div class="form-group">
+		         <label for="magento_username">Magento username</label>
+		         <input type="text" name="magento_username" value="{{if data}}{{:data.magento_username}}{{/if}}" class="form-control" id="magento_username" placeholder="Enter Username">
+		      </div>
+		      <div class="form-group">
+		         <label for="magento_password">Magento Password</label>
+		         <input type="text" name="magento_password" value="{{if data}}{{:data.magento_password}}{{/if}}" class="form-control" id="magento_password" placeholder="Enter Password">
+		      </div>
 		      <div class="form-row">
 		         <div class="form-group col-md-4">
 		            <label for="inputState">Is Published?</label>
