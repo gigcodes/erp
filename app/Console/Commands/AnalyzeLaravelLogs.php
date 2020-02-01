@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\LaravelGithubLog;
 use Illuminate\Console\Command;
 use Storage;
 
@@ -39,8 +40,7 @@ class AnalyzeLaravelLogs extends Command
     public function handle()
     {
 
-        //TODO: get this from env
-        $path = '/Users/applecustomer/development/sololux-erp/';
+        $path =  base_path() . '/';
 
         $escaped = str_replace('/', '\/', $path);
 
@@ -85,7 +85,20 @@ class AnalyzeLaravelLogs extends Command
             }
         );
 
-        echo print_r($errorData, true);
+        foreach ($errorData as $error) {
+
+            LaravelGithubLog::firstOrCreate(
+                [
+                    'log_time' => $error['timestamp'],
+                    'log_file_name' => $error['log_file_name'],
+                    'file' => $error['filename'],
+                    'author' =>  $error['commit']['author'],
+                    'commit_time' => $error['commit']['date']
+                ]
+            );
+        }
+
+        echo 'done';
     }
 
     private function getDetailsFromCommit($commit)
