@@ -943,12 +943,22 @@ class ProductController extends Controller
         $data[ 'location' ] = $product->location;
 
         $data[ 'suppliers' ] = '';
+        $data[ 'more_suppliers' ] = [];        
 
         foreach ($product->suppliers as $key => $supplier) {
             if ($key == 0) {
                 $data[ 'suppliers' ] .= $supplier->supplier;
             } else {
                 $data[ 'suppliers' ] .= ", $supplier->supplier";
+            }
+        }
+
+        foreach ($product->suppliers_info as $key => $pr) {
+            if($pr->stock > 0) {
+                $data[ 'more_suppliers' ][] = [
+                    "name" => $pr->supplier->supplier,
+                    "link" => $pr->supplier_link
+                ] ;  
             }
         }
 
