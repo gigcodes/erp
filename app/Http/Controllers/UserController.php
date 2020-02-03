@@ -551,12 +551,17 @@ class UserController extends Controller
 
 		$parameters = $request->all();
 
+
+		$paymentMethod = PaymentMethod::firstOrCreate([
+			'name' => $parameters['payment_method']
+		]);
+
 		$payment = new Payment;
 		$payment->user_id = $parameters['user_id'];
 		$payment->amount = $parameters['amount'];
 		$payment->currency = $parameters['currency'];
 		$payment->note = $parameters['note'];
-		$payment->payment_method_id = $parameters['payment_method'];
+		$payment->payment_method_id = $paymentMethod->id;
 		$payment->save();
 
 		return redirect('/hubstaff/payments')->withSuccess('Payment saved!');
