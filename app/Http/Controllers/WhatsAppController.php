@@ -3095,7 +3095,7 @@ class WhatsAppController extends FindByNumberController
                 ]);
 
                 return response()->json([
-                    'data' => $data
+                    'data' => []
                 ], 200);
             }
 
