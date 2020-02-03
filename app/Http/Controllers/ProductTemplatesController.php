@@ -243,10 +243,20 @@ class ProductTemplatesController extends Controller
             if(!empty($request->category && $request->category[0] != 1)){
                 $query->whereIn('category_id',$request->category);
             }
+
+            $range = explode(' - ', request('date_range'));
+
+            if($range[0] == end($range)){
+                $query->whereDate('updated_at', end($range));
+            }else{
+                $start = str_replace('/', '-', $range[0]);
+                $end = str_replace('/', '-', end($range));
+                $query->whereBetween('updated_at', array($start,$end));
+            }
             
-            $templates = $query->where('is_processed',1)->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
+            $templates = $query->where('is_processed',1)->orderBy('updated_at','desc')->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
         }else{
-           $templates = ProductTemplate::where('is_processed',1)->paginate(Setting::get('pagination')); 
+           $templates = ProductTemplate::where('is_processed',1)->orderBy('updated_at','desc')->paginate(Setting::get('pagination')); 
         }
         
         // if ($request->ajax()) {
