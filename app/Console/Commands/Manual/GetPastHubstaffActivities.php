@@ -61,16 +61,16 @@ class GetPastHubstaffActivities extends Command
 
         $start = strtotime($startString . ' UTC');
 
-        while($start < $now){
-            $end = $start + 7*24*60*60;
+        while ($start < $now) {
+            $end = $start + 7 * 24 * 60 * 60; // 1 week limited by API
 
-            echo '====================='.PHP_EOL;
-            echo 'Start: '.gmdate('c', $start).PHP_EOL;
-            echo 'End: '.gmdate('c', $end).PHP_EOL;
+            echo '=====================' . PHP_EOL;
+            echo 'Start: ' . gmdate('c', $start) . PHP_EOL;
+            echo 'End: ' . gmdate('c', $end) . PHP_EOL;
 
             $activities = $this->getActivitiesBetween(gmdate('c', $start), gmdate('c', $end));
 
-            echo "Got activities(count): ".sizeof($activities).PHP_EOL;
+            echo "Got activities(count): " . sizeof($activities) . PHP_EOL;
             foreach ($activities as $id => $data) {
                 HubstaffActivity::updateOrCreate(
                     [
@@ -78,7 +78,7 @@ class GetPastHubstaffActivities extends Command
                     ],
                     [
                         'user_id' => $data['user_id'],
-                        'task_id' => is_null($data['task_id']) ? 0 : $data['task_id'] ,
+                        'task_id' => is_null($data['task_id']) ? 0 : $data['task_id'],
                         'starts_at' => $data['starts_at'],
                         'tracked' => $data['tracked'],
                         'keyboard' => $data['keyboard'],
@@ -94,13 +94,13 @@ class GetPastHubstaffActivities extends Command
         }
     }
 
-    private function getActivitiesBetween($startTime, $endTime)
+    private function getActivitiesBetween($startTime, $endTime, $startId = 0, $resultArray = [])
     {
 
         try {
             $response = $this->doHubstaffOperationWithAccessToken(
-                function ($accessToken) use ($startTime, $endTime) {
-                    $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime;
+                function ($accessToken) use ($startTime, $endTime, $startId) {
+                    $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime . '&page_start_id=' . $startId;
                     return $this->client->get(
                         $url,
                         [
@@ -113,7 +113,7 @@ class GetPastHubstaffActivities extends Command
             );
             $responseJson = json_decode($response->getBody()->getContents());
 
-            $activities = array();
+            $activities = $resultArray;
 
             foreach ($responseJson->activities as $activity) {
                 $activities[$activity->id] = array(
@@ -126,7 +126,13 @@ class GetPastHubstaffActivities extends Command
                     'overall' => $activity->overall
                 );
             }
-            return $activities;
+
+            if (isset($responseJson->pagination)) {
+                $nextStart = $responseJson->pagination->next_page_start_id;
+                return $this->getActivitiesBetween($startTime, $endTime, $nextStart,  $activities);
+            } else {
+                return $activities;
+            }
         } catch (Exception $e) {
             echo $e->getMessage() . PHP_EOL;
             return false;

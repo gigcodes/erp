@@ -48,6 +48,11 @@ return [
             "token" => "jdcqh3ladeuvwzp4",
             "customer_number" => false,
         ],
+        "971569119192" => [
+            "instance_id" => 95901,
+            "token" => "5m5009tmunnz6g1o",
+            "customer_number" => false,
+        ],
         // Default
         "0" => [
             "number" => '971502609192', // Default number!

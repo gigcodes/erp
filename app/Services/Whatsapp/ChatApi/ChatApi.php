@@ -29,14 +29,6 @@ class ChatApi
      */
     public static function chatQueue($number = null)
     {
-        function getInstance($number)
-        {
-            $number = !empty($number) ? $number : 0;
-            return isset(config("apiwha.instances")[$number])
-                ? config("apiwha.instances")[$number]
-                : config("apiwha.instances")[0];
-        }
-
         $instance = getInstance($number);
         /*        dd($instance);*/
         $instanceId = isset($instance["instance_id"]) ? $instance["instance_id"] : 0;
@@ -84,14 +76,6 @@ class ChatApi
      */
     public static function chatHistory($number = null)
     {
-        function getInstance($number)
-        {
-            $number = !empty($number) ? $number : 0;
-            return isset(config("apiwha.instances")[$number])
-                ? config("apiwha.instances")[$number]
-                : config("apiwha.instances")[0];
-        }
-
         $instance = getInstance($number);
         $instanceId = isset($instance["instance_id"]) ? $instance["instance_id"] : 0;
         $token = isset($instance["token"]) ? $instance["token"] : 0;
@@ -132,14 +116,6 @@ class ChatApi
      */
     public static function deleteQueues($number = null)
     {
-        function getInstance($number)
-        {
-            $number = !empty($number) ? $number : 0;
-            return isset(config("apiwha.instances")[$number])
-                ? config("apiwha.instances")[$number]
-                : config("apiwha.instances")[0];
-        }
-
         $instance = getInstance($number);
         /*        dd($instance);*/
         $instanceId = isset($instance["instance_id"]) ? $instance["instance_id"] : 0;
@@ -196,4 +172,18 @@ class ChatApi
 // Send a request
         $result = file_get_contents($url, false, $options);
     }
+
+    public static function waitingLimit($number = null)
+    {
+        $result   = self::chatQueue($number);
+        $waiting  = 0;
+        
+        if (isset($result["totalMessages"]) && is_numeric($result["totalMessages"])) {
+            $waiting = $result["totalMessages"];
+        }    
+
+        return $waiting;
+
+    }
+
 }
