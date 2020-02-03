@@ -312,7 +312,7 @@ class WhatsappConfigController extends Controller
         
         $ch = curl_init();
 
-        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->id.'/get-barcode';
+        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-barcode';
         
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
