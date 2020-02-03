@@ -11,6 +11,7 @@ use App\Setting;
 use Validator;
 use Crypt;
 use Response;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class WhatsappConfigController extends Controller
 {
@@ -301,5 +302,45 @@ class WhatsappConfigController extends Controller
             'success' => true,
             'message' => 'WhatsApp Configs Deleted'
         ));
+    }
+
+    public function getBarcode(Request $request){
+
+        $id = $request->id;
+
+        $whatsappConfig = WhatsappConfig::find($id);
+        
+        $ch = curl_init();
+
+        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-barcode';
+        
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch); 
+
+        $barcode = json_decode($output);
+            
+        if($barcode){
+           
+           if($barcode->barcode == 'No Barcode Available'){
+                return Response::json(array('nobarcode' => true)); 
+           } 
+           $content = base64_decode($barcode->barcode);
+
+            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('barcode')->upload();
+        
+            return Response::json(array('success' => true,'media' => $media->getUrl())); 
+        }else{
+         
+             return Response::json(array('error' => true)); 
+        }
     }
 }
