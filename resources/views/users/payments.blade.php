@@ -29,6 +29,36 @@
         max-height: 500px;
         overflow-y: auto;
     }
+
+    .dropdown-wrapper {
+        position: relative;
+    }
+
+    .dropdown-wrapper>ul {
+        margin: 0px;
+        padding: 5px;
+        list-style: none;
+        position: absolute;
+        width: 100%;
+        box-shadow: 3px 3px 10px 0px;
+        background: white;
+    }
+
+    .dropdown input{
+        width: 100%;
+    }
+
+    .payment-overlay {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: 0px;
+    }
+
+    .error {
+        color: red;
+        font-size: 10pt;
+    }
 </style>
 <div class="row">
     <div class="col-lg-12 margin-tb">
@@ -124,7 +154,35 @@
                 </div>
                 <div class="form-group">
                     {{ Form::label('payment_method', 'Payment Method') }}
-                    {{ Form::select('payment_method', $paymentMethods, null , array('class' => 'form-control'))  }}
+                    <div style="position: relative;">
+                        <select name="payment_method" class="form-control payment" onclick="console.log('hello');">
+                            <option>Option 1</option>
+                            <option>Option 1</option>
+                            <option>Option 1</option>
+                            <option>Option 1</option>
+                            <option>Option 1</option>
+                        </select>
+                        <div class="payment-overlay" onclick="console.log('hello world');">
+
+                        </div>
+                    </div>
+                    <div class="dropdown-wrapper">
+                        <ul class="dropdown">
+                            <li>
+                                <div>
+                                    <input type="text" placeholder="Search / Create" />
+                                </div>
+                                <div>
+                                    <span class="error">Required</span>
+                                </div>
+                            </li>
+                            <li>Option 1</li>
+                            <li>Option 1</li>
+                            <li>Option 1</li>
+                            <li>Option 1</li>
+                            <li><button class="btn btn-sm btn-primary">Add new method</button></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
