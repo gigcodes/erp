@@ -126,7 +126,7 @@
     </div>
 
 @include('marketing.whatsapp-configs.partials.add-modal')
-@include("partials.modals.large-image-modal")
+@include("marketing.whatsapp-configs.partials.image")
    
 @endsection
 
