@@ -206,9 +206,10 @@ class CouponController extends Controller
      */
     public function update(Request $request, $id)
     {
+        
 
         $request->validate([
-            'code' => 'required|unique:coupons',
+            'code' => 'required',
             'description' => 'required',
             'start' => 'required|date_format:Y-m-d H:i',
             'expiration' => 'sometimes|nullable|date_format:Y-m-d H:i|after:start',
