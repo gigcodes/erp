@@ -21,15 +21,6 @@ class SendMessageToCustomer implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $_token;
-    protected $send_pdf;
-    protected $pdf_file_name;
-    protected $images;
-    protected $image;
-    protected $screenshot_path;
-    protected $message;
-    protected $customer_id;
-    protected $status;
     protected $type;
     protected $params;
 
@@ -103,7 +94,7 @@ class SendMessageToCustomer implements ShouldQueue
         $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
 
         // check first if the media needs to be handled by pdf then first create the images of it
-        $allpdf = [];
+        $allpdf   = [];
         $allMedia = [];
         if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
             $chunkedMedia = $medias->chunk(self::MEDIA_PDF_CHUNKS);
@@ -127,8 +118,8 @@ class SendMessageToCustomer implements ShouldQueue
 
                 File::put($fileName, $pdf->output());
 
-                $allpdf[] = $fileName;
-                $media = MediaUploader::fromSource($fileName)->toDirectory('chatmessage/0')->upload();
+                $allpdf[]            = $fileName;
+                $media               = MediaUploader::fromSource($fileName)->toDirectory('chatmessage/0')->upload();
                 $allMedia[$fileName] = $media;
 
             }
@@ -151,7 +142,7 @@ class SendMessageToCustomer implements ShouldQueue
                                     // attach to customer so we can send later after approval
                                     $extradata             = $insertParams;
                                     $extradata['is_queue'] = 0;
-                                    $extraChatMessage = ChatMessage::create($extradata);
+                                    $extraChatMessage      = ChatMessage::create($extradata);
                                     $extraChatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
 
                                 }
