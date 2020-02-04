@@ -117,7 +117,7 @@ class CacheMasterControl extends Command
             });
 
             //Getting Customer Chat
-            $chat = ChatMessage::where('created_at', '>=', "0000-00-00 00:00:00");
+            $chat = ChatMessage::where('created_at','>=', Carbon::now()->subDay()->toDateTimeString());
 
             Cache::remember('result_customer_chat', 5, function () use ($chat) {
 
