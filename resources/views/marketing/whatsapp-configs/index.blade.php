@@ -126,6 +126,7 @@
     </div>
 
 @include('marketing.whatsapp-configs.partials.add-modal')
+@include("marketing.whatsapp-configs.partials.image")
    
 @endsection
 
@@ -264,6 +265,26 @@
         });
     });
 
-        
+   function getBarcode(id){
+        $.ajax({
+        url: '/marketing/whatsapp-config/get-barcode',
+        type: 'GET',
+        dataType: 'json',
+        data: {id: id},
+        }).done(function (data) {
+            $("#loading-image").hide();
+            if(data.success){
+                $('#image_crop').attr('src',data.media);
+                $('#largeImageModal').modal('show');
+            }else if(data.error){
+                alert('Check if Barcode Server Is Running');
+            }else if(data.nobarcode){
+                alert('No Barcode Is Present , Device Is Connected Please Check Internet Connection')
+            }
+            
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+   }     
 </script>
 @endsection
