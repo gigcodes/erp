@@ -3083,6 +3083,23 @@ class WhatsAppController extends FindByNumberController
         $today_date = Carbon::now()->format('Y-m-d');
 
         if ($context == "customer") {
+
+            // check the customer message
+            $customer = \App\Customer::find($message->customer_id);
+            if($customer && $customer->hasDND()){
+                $message->update([
+                    'approved' => 1,
+                    'is_queue' => 0,
+                    'status' => 2,
+                    'created_at' => Carbon::now()
+                ]);
+
+                return response()->json([
+                    'data' => []
+                ], 200);
+            }
+
+
             $chat_messages_count = ChatMessage::where('customer_id', $message->customer_id)->where('created_at', 'LIKE', "%$today_date%")->whereNull('number')->count();
 
             if ($chat_messages_count == 1) {
