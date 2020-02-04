@@ -740,29 +740,41 @@
                 data: {
                     _token: "{{ csrf_token() }}",
                 },
+                beforeSend: function () {
+                  $("#loading-image").show();
+                },
                 success: function(result){
+                    $("#loading-image").hide();
+                    $('#categoryUpdate').modal('show');
                     if(result[0] == 'success'){
                         $('#old_category').text(result[1]);
                         $('#changed_category').text(category);
                         $('#product_id').val(product_id);
                         $('#category_id').val(category_id);
+                        if(typeof result[2] != "undefined") {
+                            $("#no_of_product_will_affect").html(result[2]);
+                        }
                     }else{
                         $('#old_category').text('No Scraped Product Present');
                         $('#changed_category').text(category);
                         $('#product_id').val(product_id);
                         $('#category_id').val(category_id);
+                        $("#no_of_product_will_affect").html(0);
                     }
                 },
                 error: function (){
+                    $("#loading-image").hide();
+                    $('#categoryUpdate').modal('show');
                     $('#old_category').text('No Scraped Product Present');
                     $('#changed_category').text(category);
                     $('#product_id').val(product_id);
                     $('#category_id').val(category_id);
+                    $("#no_of_product_will_affect").html(0);
                 }
             });
 
             
-            $('#categoryUpdate').modal('show');
+            //$('#categoryUpdate').modal('show');
             
         });        
         
