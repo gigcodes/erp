@@ -159,7 +159,7 @@
                             <div class="form-group">
                                 <select name="whatsapp_number" id="vendor_whatsapp_number" class="form-control input-sm">
                                     <option value>Whatsapp Number</option>
-                                    <option value="919004780634" {{ '919004780634' == $vendor->whatsapp_number ? ' selected' : '' }}>919004780634 Indian</option>
+                                    <option value="971569119192" {{ '971569119192' == $vendor->whatsapp_number ? ' selected' : '' }}>971569119192 Indian</option>
                                     <option value="971502609192" {{ '971502609192' == $vendor->whatsapp_number ? ' selected' : '' }}>971502609192 Dubai</option>
                                 </select>
                             </div>
