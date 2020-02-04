@@ -3082,8 +3082,8 @@ class WhatsAppController extends FindByNumberController
                 ], 200);
             }
 
-
-            $chat_messages_count = ChatMessage::where('customer_id', $message->customer_id)->where('created_at', 'LIKE', "%$today_date%")->whereNull('number')->count();
+            // disable first intro message of the day
+            /*$chat_messages_count = ChatMessage::where('customer_id', $message->customer_id)->where('created_at', 'LIKE', "%$today_date%")->whereNull('number')->count();
 
             if ($chat_messages_count == 1) {
                 $customer = Customer::find($message->customer_id);
@@ -3105,7 +3105,7 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 sleep(5);
-            }
+            }*/
 
             if (Setting::get('whatsapp_number_change') == 1) {
                 $customer = Customer::find($message->customer_id);
