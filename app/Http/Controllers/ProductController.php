@@ -2638,7 +2638,44 @@ class ProductController extends Controller
 
     public function sendMessageSelectedCustomer(Request $request)
     {
+
+        $params = request()->all();
+        $params["user_id"] = \Auth::id();
+        $params["is_queue"] = 1;
+
         $token = request("customer_token","");
+        
+        if(!empty($token)) {
+            $customerIds = json_decode(session($token));
+            if(empty($customerIds)) {
+                $customerIds = [];
+            }
+        }
+        // if customer is not available then choose what it is before
+        if(empty($customerIds)) {
+            $customerIds = $request->get('customers_id', '');
+            $customerIds = explode(',', $customerIds);
+        }
+        
+        $params["customer_ids"] = $customerIds;
+
+        $groupId = \DB::table('chat_messages')->max('group_id');
+        $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
+        
+        \App\Jobs\SendMessageToCustomer::dispatch($params);
+
+        if ($request->ajax()) {
+            return response()->json(['msg' => 'success']);
+        }
+
+        if ($request->get('return_url')) {
+            return redirect("/" . $request->get('return_url'));
+        }
+
+        return redirect('/erp-leads');
+
+
+        /*$token = request("customer_token","");
         
         if(!empty($token)) {
             $customerIds = json_decode(session($token));
@@ -2712,15 +2749,9 @@ class ProductController extends Controller
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
         }
 
-        if ($request->ajax()) {
-            return response()->json(['msg' => 'success']);
-        }
+        \Log::info(print_r(\DB::getQueryLog(),true));*/
 
-        if ($request->get('return_url')) {
-            return redirect("/" . $request->get('return_url'));
-        }
-
-        return redirect('/erp-leads');
+        
 
     }
 
