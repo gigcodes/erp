@@ -27,6 +27,7 @@ class MessageQueueController extends Controller
         $allWhatsappNo         = config("apiwha.instances");
 
         $waitingMessages = [];
+        //if(env("APP_ENV") != "local") {
         if (!empty($allWhatsappNo)) {
             foreach ($allWhatsappNo as $no => $dataInstance) {
                 $no = ($no == 0) ? $dataInstance["number"] : $no;
@@ -35,7 +36,7 @@ class MessageQueueController extends Controller
                 $waitingMessages[$no] = $waitingMessage;
             }
         }
-
+        //}
 
         return view('messagequeue::index',compact('groupList','sendingLimit','sendStartTime','sendEndTime','waitingMessages'));
     }
@@ -158,13 +159,13 @@ class MessageQueueController extends Controller
 
     public function updateLimit(Request $request)
     {
-        $limit = $request->get("message_sending_limit",0);
+        $limit = $request->get("message_sending_limit",[]);
         $startTime = $request->get("send_start_time","");
         $endTime = $request->get("send_end_time","");
 
         \App\Setting::updateOrCreate(
-            ["name" => "is_queue_sending_limit" , "type"=> "int"],
-            ["val" => $limit]
+            ["name" => "is_queue_sending_limit"],
+            ["val" => json_encode($limit), "type"=> "str"]
         );
 
         if(!empty($startTime)){

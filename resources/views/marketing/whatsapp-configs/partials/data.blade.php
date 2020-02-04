@@ -33,6 +33,7 @@
     @endif
     <a href="{{route('whatsapp.config.history', $whatsAppConfig->id)}}" title="History"><i class="fa fa-history" aria-hidden="true"></i></a>
     <a href="{{route('whatsapp.config.queue', $whatsAppConfig->id)}}" title="Queue"><i class="fa fa-list" aria-hidden="true"></i></a>
+    <button class="btn btn-link" onclick="getBarcode({{ $whatsAppConfig->id }})" data-toggle="tooltip" data-placement="top" title="Barcode For Whatsapp"><i class="fa fa-barcode"></i></button>
   </td>
 </tr>
 

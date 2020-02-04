@@ -62,6 +62,9 @@ $countRow = 0;
                                         <td>{{ $number->frequency }}</td>
                                         <td>{{ $number->send_start }}</td>
                                         <td>{{ $number->send_end }}</td>
+                                        @if($number->is_customer_support == 0)
+                                        <td><button class="btn btn-link btn-sm" onclick="switchNumber({{ $number->id }})">Switch</button></td>
+                                        @endif
 
                                     </tr>
                                     
