@@ -104,6 +104,7 @@ class SendMessageToCustomer implements ShouldQueue
 
         // check first if the media needs to be handled by pdf then first create the images of it
         $allpdf = [];
+        $allMedia = [];
         if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
             $chunkedMedia = $medias->chunk(self::MEDIA_PDF_CHUNKS);
             foreach ($chunkedMedia as $key => $medias) {
@@ -127,6 +128,8 @@ class SendMessageToCustomer implements ShouldQueue
                 File::put($fileName, $pdf->output());
 
                 $allpdf[] = $fileName;
+                $media = MediaUploader::fromSource($fileName)->toDirectory('chatmessage/0')->upload();
+                $allMedia[$fileName] = $media;
 
             }
         }
@@ -143,22 +146,13 @@ class SendMessageToCustomer implements ShouldQueue
                             foreach ($allpdf as $no => $file) {
                                 // if first file then send direct into queue and if then send after it
                                 if ($no == 0) {
-                                    $media = MediaUploader::fromSource($file)
-                                        ->toDirectory('chatmessage/' . floor($chatMessage->id / config('constants.image_per_folder')))
-                                        ->upload();
-                                    $chatMessage->attachMedia($media, config('constants.media_tags'));
+                                    $chatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
                                 } else {
                                     // attach to customer so we can send later after approval
                                     $extradata             = $insertParams;
                                     $extradata['is_queue'] = 0;
-
                                     $extraChatMessage = ChatMessage::create($extradata);
-
-                                    $media = MediaUploader::fromSource($file)
-                                        ->toDirectory('chatmessage/' . floor($extraChatMessage->id / config('constants.image_per_folder')))
-                                        ->upload();
-
-                                    $extraChatMessage->attachMedia($media, config('constants.media_tags'));
+                                    $extraChatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
 
                                 }
                             }
