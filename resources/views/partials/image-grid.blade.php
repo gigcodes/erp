@@ -81,7 +81,7 @@
                     </div>
 
                     <div class="form-group mr-3">
-                        @php $brands = \App\Brand::getAll(); @endphp
+                        @php $brands = \App\Brand::where("magento_id",">",0)->pluck("name","id"); @endphp
                         {{-- {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                         <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brands...">
                             <optgroup label="Brands">
