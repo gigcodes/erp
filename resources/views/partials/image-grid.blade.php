@@ -23,6 +23,33 @@
             margin: -50px 0px 0px -50px;
             z-index: 60;
         }
+        .carousel-control:focus, .carousel-control:hover {
+            color: #0284b8 !important;
+        }
+
+        .product-slider { padding: 45px; }
+
+        
+          .product-slider #carousel { margin: 0; }
+
+           .product-slider .maincarousel .item { height: 150px; } 
+
+           .product-slider .carousel-inner img {object-fit: contain;}
+
+          .product-slider .thumbcarousel { margin: 12px 0 0; padding: 0 45px; }
+
+          .product-slider .thumbcarousel .item { text-align: center; }
+
+          .product-slider .thumbcarousel .item .thumb {  width: 20%; margin: 0 2%; display: inline-block; vertical-align: middle; cursor: pointer; max-width: 35px; }
+
+          .product-slider .maincarousel .item img { width: 100%; height: 150px; }
+
+          .carousel-control { color: #0284b8; text-align: center; text-shadow: none; font-size: 30px; width: 30px; height: 30px; line-height: 20px; top: 23%; }
+          .carousel-caption, .carousel-control .fa { font: normal normal normal 30px/26px FontAwesome; }
+          .carousel-control { background-color: rgba(0, 0, 0, 0); bottom: auto; font-size: 20px; left: 0; position: absolute; top: 30%; width: auto; }
+
+          .carousel-control.right, .carousel-control.left { background-color: rgba(0, 0, 0, 0); background-image: none; }
+
     </style>
 @endsection
 
@@ -825,9 +852,16 @@
 @section('scripts')
 <script type="text/javascript">
     function myFunction(id){
-    $('#description'+id).toggle();
-    $('#description_full'+id).toggle();
-   }
+        $('#description'+id).toggle();
+        $('#description_full'+id).toggle();
+    }
+
+    $(document).on("click",".attach-thumb-created .item",function(e){
+        e.preventDefault();
+        var imageID = $(this).find(".thumb").data("image");
+        var card = $(this).closest(".product-list-card");
+            card.find(".attach-photo").attr("data-image",imageID);
+    });
 </script>
 
 @endsection
