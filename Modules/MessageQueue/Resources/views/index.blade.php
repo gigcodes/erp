@@ -120,10 +120,14 @@
 						<?php echo csrf_field(); ?>
 					  	<div class="row">
 					  		<div class="col">
-					  			<div class="form-group">
-								    <label for="message_sending_limit">Message Per 5 Min:</label>
-								    {{ Form::text("message_sending_limit",isset($sendingLimit) ? $sendingLimit : 0,["class" => "form-control message_sending_limit"] ) }}
-							  	</div>		
+					  			@foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+			                        @if($number != "0")
+				                        <div class="form-group">
+										    <label for="message_sending_limit">Limit for {{ $number }}:</label>
+										    {{ Form::text("message_sending_limit[{$number}]",isset($sendingLimit[$number]) ? $sendingLimit[$number] : 0,["class" => "form-control message_sending_limit"] ) }}
+									  	</div>
+			                        @endif
+			                    @endforeach		
 					  		</div>
 					  	</div>
 					  	<div class="row">

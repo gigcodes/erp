@@ -93,11 +93,12 @@ class SendQueuePendingChatMessages extends Command
                 
                 if (!empty($numberList)) {
                     foreach ($numberList as $number) {
+                        $sendLimit = isset($limit[$number]) ? $limit[$number] : 0;
 
                         $chatMessage = ChatMessage::where('is_queue', ">", 0)
                             ->join("customers as c", "c.id", "chat_messages.customer_id")
                             ->where("c.whatsapp_number", $number)
-                            ->limit($limit)->get();
+                            ->limit($sendLimit)->get();
 
                         if (!$chatMessage->isEmpty()) {
                             foreach ($chatMessage as $value) {
