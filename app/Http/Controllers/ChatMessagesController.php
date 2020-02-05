@@ -11,6 +11,7 @@ use App\Task;
 use App\Old;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\PublicKey;
 
 class ChatMessagesController extends Controller
 {
@@ -161,12 +162,29 @@ class ChatMessagesController extends Controller
 
                 }
             }
+            if($request->object == 'customer'){
 
+                if(session()->has('encrpyt')){
+                   $public = PublicKey::first();
+                    if($public != null){
+                        $privateKey = hex2bin(session()->get('encrpyt.private'));
+                        $publicKey = hex2bin($public->key);
+                        $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($privateKey, $publicKey);
+                        $message = hex2bin($chatMessage->message);
+                        $textMessage = sodium_crypto_box_seal_open($message, $keypair);
+                    }
+                }else{
+                    $textMessage = htmlentities($chatMessage->message);
+                }
+            }else{
+                $textMessage = htmlentities($chatMessage->message);
+            }
+            
             $messages[] = [
                 'id' => $chatMessage->id,
                 'type' => $request->object,
                 'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
-                'message' => htmlentities($chatMessage->message),
+                'message' => $textMessage,
                 'media_url' => $chatMessage->media_url,
                 'datetime' => $chatMessage->created_at,
                 'media' => is_array($media) ? $media : null,

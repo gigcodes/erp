@@ -12,7 +12,6 @@
 <script>
     $(document).ready(function() {
         $('#branches-table').DataTable({
-            "paging": false,
             "ordering": true,
             "info": false
         });
@@ -50,7 +49,7 @@
 </script>
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading"><i>{{ $repository->name }}</i> branches</h2>
+        <h2 class="page-heading"><i>{{ $repository->name }}</i> branches ({{sizeof($branches)}})</h2>
     </div>
 </div>
 <div class="container">

@@ -76,7 +76,7 @@
                             </Select> --}}
                             <select name="whatsapp_number" class="form-control" id="whatsapp_change">
                                 <option value>Whatsapp Number</option>
-                                <option value="919004780634" {{ '919004780634' == $user->whatsapp_number ? ' selected' : '' }}>919004780634 Indian</option>
+                                <option value="971569119192" {{ '971569119192' == $user->whatsapp_number ? ' selected' : '' }}>971569119192 Indian</option>
                                 <option value="971502609192" {{ '971502609192' == $user->whatsapp_number ? ' selected' : '' }}>971502609192 Dubai</option>
                                 {{-- @foreach ($api_keys as $api_key)
                                   <option value="{{ $api_key->number }}" {{ $user->whatsapp_number == $api_key->number ? 'selected' : '' }}>{{ $api_key->number }}</option>
@@ -118,6 +118,20 @@
                         <div class="form-group">
                             <strong>Listing Rejection Rate:</strong>
                             <input type="text" name="listing_rejection_rate" class="form-control" value="{{ $user->listing_rejection_rate ?? 0 }}">
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>Rate:</strong>
+                            {!! Form::text('hourly_rate', isset($userRate) ? $userRate->hourly_rate: '', array('placeholder' => 'Rate','class' => 'form-control')) !!}
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>Currency:</strong>
+                            {!! Form::text('currency', isset($userRate) ? $userRate->currency: '', array('placeholder' => 'USD','class' => 'form-control')) !!}
                         </div>
                     </div>
 
