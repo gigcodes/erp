@@ -58,7 +58,9 @@ $countRow = 0;
                                         <td>{{ $number->last_online }}</td>
                                         <td> @if(isset($number->imQueueLastMessageSend)) @if($number->imQueueLastMessageSend->send_after == '2002-02-02 02:02:02') Message Failed @else Send SucessFully @endif @endif</td>
                                         <td>{{ $number->created_at->format('d-m-Y') }}</td>
-                                        <td>@if($number->status == 1) Active @elseif($number->status == 2) Blocked @else Inactive @endif</td>
+                                        <td>@if($number->status == 1) Active @elseif($number->status == 2) Blocked 
+                                        @elseif($number->status == 3) Scan Pending 
+                                        @else Inactive @endif</td>
                                         <td>{{ $number->frequency }}</td>
                                         <td>{{ $number->send_start }}</td>
                                         <td>{{ $number->send_end }}</td>

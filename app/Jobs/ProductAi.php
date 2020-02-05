@@ -45,6 +45,15 @@ class ProductAi implements ShouldQueue
         // Load product
         $product = $this->_product;
 
+        // ------ 2020-FEB-05 SKIP ALL GOOGLE AI, IMMEDIATELY TO CROP
+
+        // Update product status to auto crop
+        $product->status_id = StatusHelper::$autoCrop;
+        $product->save();
+
+        // Log info
+        Log::channel('productUpdates')->info("[Queued job result] Successfully handled AI");
+
         // Log alert if there is no product
         if ($product == null || !isset($product->id)) {
             // Log alert
@@ -62,7 +71,7 @@ class ProductAi implements ShouldQueue
 
         // Loop over media to get URLs
         foreach ($arrMedia as $media) {
-            $arrImages[] = 'https://erp.amourint.com/' . $media->disk . '/' . $media->filename . '.' . $media->extension;
+            $arrImages[] = $media->getUrl();//'https://erp.amourint.com/' . $media->disk . '/' . $media->filename . '.' . $media->extension;
         }
 
         // Log alert if there are no images
