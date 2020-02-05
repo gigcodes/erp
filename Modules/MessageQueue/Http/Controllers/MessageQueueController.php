@@ -38,7 +38,13 @@ class MessageQueueController extends Controller
         }
         //}
 
-        return view('messagequeue::index',compact('groupList','sendingLimit','sendStartTime','sendEndTime','waitingMessages'));
+        $countQueue = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
+            ->where("is_queue", ">", 0)
+            ->where("customer_id", ">", 0)
+            ->groupBy("c.whatsapp_number")
+            ->select(\DB::raw("count(*) as total_message"),"c.whatsapp_number")->get();
+       
+        return view('messagequeue::index',compact('groupList','sendingLimit','sendStartTime','sendEndTime','waitingMessages','countQueue'));
     }
 
     /**
