@@ -140,7 +140,7 @@
                 <td>{{isset($user->currentRate) ? $user->currentRate->hourly_rate : '-'}}</td>
                 <td>{{$user->currency}}</td>
                 <td>{{$user->total}}</td>
-                <td>0</td>
+                <td>{{$user->balance}}</td>
                 <td>
                     <button class="btn btn-secondary" onclick="makePayment({{$user->id}})">Pay</button>
                 </td>

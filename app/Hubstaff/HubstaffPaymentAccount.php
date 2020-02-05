@@ -11,4 +11,10 @@ class HubstaffPaymentAccount extends Model
         'accounted_at',
         'amount'
     ];
+
+    public static function getConsidatedUserAmountToBePaid(){
+        return self::groupBy('user_id')
+            ->selectRaw('user_id, SUM(amount) as amount')
+            ->get();
+    }
 }

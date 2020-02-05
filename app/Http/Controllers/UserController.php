@@ -16,6 +16,7 @@ use App\Task;
 use App\Product;
 use App\Customer;
 use App\Hubstaff\HubstaffActivity;
+use App\Hubstaff\HubstaffPaymentAccount;
 use App\Payment;
 use App\PaymentMethod;
 use App\UserProduct;
@@ -432,6 +433,11 @@ class UserController extends Controller
 
 		$activitiesForWeek = HubstaffActivity::getActivitiesForWeek($week, $year);
 
+		$paymentsDone = Payment::getConsidatedUserPayments();
+
+		$amountToBePaid = HubstaffPaymentAccount::getConsidatedUserAmountToBePaid();
+
+		
 
 		$now = now();
 
@@ -440,6 +446,32 @@ class UserController extends Controller
 			$user->secondsTracked = 0;
 			$user->currency = '-';
 			$user->total = 0;
+
+			
+
+			$userPaymentsDone = 0;
+			$userPaymentsDoneModel = $paymentsDone->first(function ($value) use($user) {
+				return $value->user_id == $user->id;
+			});
+
+			if($userPaymentsDoneModel){
+				$userPaymentsDone = $userPaymentsDoneModel->paid;
+			}
+
+			$userPaymentsToBeDone = 0;
+			$userAmountToBePaidModel = $amountToBePaid->first(function ($value) use($user){
+				return $value->user_id == $user->id;
+			});
+
+			if($userAmountToBePaidModel){
+				$userPaymentsToBeDone = $userAmountToBePaidModel->amount;
+			}
+
+			$user->balance = $userPaymentsToBeDone - $userPaymentsDone;
+
+			
+
+			//echo $user->id. ' '.$userPaymentsToBeDone. ' '. $userPaymentsDone. PHP_EOL;
 
 
 			$invidualRatesPreviousWeek  = $usersRatesPreviousWeek->first(function ($value, $key) use ($user) {
