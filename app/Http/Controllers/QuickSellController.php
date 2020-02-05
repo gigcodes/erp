@@ -29,7 +29,8 @@ class QuickSellController extends Controller
       $category_dropdown = (new \App\Category)->attr([
         'name' => 'category[]', 
         'class' => 'form-control select-multiple2', 
-        'multiple' => 'multiple'
+        'multiple' => 'multiple',
+        'data-placeholder' => 'Select Category'
       ])->selected(request('category'))->renderAsDropdown();
 
       $products = Product::where('quick_product',1)->where('is_pending',0)->latest();
@@ -535,7 +536,8 @@ class QuickSellController extends Controller
         $category_dropdown = (new \App\Category)->attr([
           'name' => 'category[]', 
           'class' => 'form-control select-multiple2', 
-          'multiple' => 'multiple'
+          'multiple' => 'multiple',
+          'data-placeholder' => 'Select Category'
         ])->selected(request('category'))->renderAsDropdown();
 
         if($request->selected_products || $request->term  || $request->category || $request->brand || $request->color || $request->supplier ||
