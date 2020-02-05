@@ -12,7 +12,6 @@ class SendQueuePendingChatMessages extends Command
 {
     const BROADCAST_PRIORITY          = 8;
     const MARKETING_MESSAGE_TYPE_ID   = 3;
-    const MESSAGE_QUEUE_PENDING_LIMIT = 300;
 
     public $waitingMessages;
 
@@ -139,7 +138,7 @@ class SendQueuePendingChatMessages extends Command
                                     $isSendingLimitFull = isset($this->waitingMessage[$value->customer->whatsapp_number])
                                     ? $this->waitingMessage[$value->customer->whatsapp_number] : 0;
                                     // if message queue is full then go for the next;
-                                    if ($isSendingLimitFull >= self::MESSAGE_QUEUE_PENDING_LIMIT) {
+                                    if ($isSendingLimitFull >= config("apiwha.message_queue_limit",100)) {
                                         continue;
                                     }
 
