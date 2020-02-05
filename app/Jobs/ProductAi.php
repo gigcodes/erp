@@ -62,7 +62,7 @@ class ProductAi implements ShouldQueue
 
         // Loop over media to get URLs
         foreach ($arrMedia as $media) {
-            $arrImages[] = 'https://erp.amourint.com/' . $media->disk . '/' . $media->filename . '.' . $media->extension;
+            $arrImages[] = $media->getUrl();//'https://erp.amourint.com/' . $media->disk . '/' . $media->filename . '.' . $media->extension;
         }
 
         // Log alert if there are no images
