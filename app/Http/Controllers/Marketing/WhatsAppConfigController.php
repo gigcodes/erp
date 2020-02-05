@@ -343,4 +343,81 @@ class WhatsappConfigController extends Controller
              return Response::json(array('error' => true)); 
         }
     }
+
+    public function getScreen(Request $request){
+
+        $id = $request->id;
+
+        $whatsappConfig = WhatsappConfig::find($id);
+        
+        $ch = curl_init();
+
+        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-screen';
+        
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch); 
+
+        $barcode = json_decode($output);
+            
+        if($barcode){
+           
+           if($barcode->barcode == 'No Screen Available'){
+                return Response::json(array('nobarcode' => true)); 
+           } 
+           $content = base64_decode($barcode->barcode);
+
+            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('screen')->upload();
+        
+            return Response::json(array('success' => true,'media' => $media->getUrl())); 
+        }else{
+         
+             return Response::json(array('error' => true)); 
+        }
+    }
+
+    public function deleteChromeData(Request $request)
+    {
+        $id = $request->id;
+
+        $whatsappConfig = WhatsappConfig::find($id);
+        
+        $ch = curl_init();
+
+        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/delete-chrome-data';
+        
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch); 
+
+        $barcode = json_decode($output);
+            
+        if($barcode){
+           
+           if($barcode->barcode == 'Directory Deleted'){
+                return Response::json(array('nobarcode' => true)); 
+           } 
+            return Response::json(array('success' => true,'media' => 'Directory Can not be Deleted')); 
+        }else{
+         
+             return Response::json(array('error' => true)); 
+        }
+    }
+    
 }
