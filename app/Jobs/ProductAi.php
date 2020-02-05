@@ -45,6 +45,15 @@ class ProductAi implements ShouldQueue
         // Load product
         $product = $this->_product;
 
+        // ------ 2020-FEB-05 SKIP ALL GOOGLE AI, IMMEDIATELY TO CROP
+
+        // Update product status to auto crop
+        $product->status_id = StatusHelper::$autoCrop;
+        $product->save();
+
+        // Log info
+        Log::channel('productUpdates')->info("[Queued job result] Successfully handled AI");
+
         // Log alert if there is no product
         if ($product == null || !isset($product->id)) {
             // Log alert
