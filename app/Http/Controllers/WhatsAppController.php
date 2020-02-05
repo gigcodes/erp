@@ -2205,7 +2205,7 @@ class WhatsAppController extends FindByNumberController
 
                                     //$productsQuickSell = ProductQuicksellGroup::where('quicksell_group_id', $group->group)->get();
                                     //dd($productsQuickSell[0]->product_id);
-                                    $images = [];
+                                    $medias = [];
 
                                     $products = Product::with('media')
                                         ->select('products.*')
@@ -2217,7 +2217,7 @@ class WhatsAppController extends FindByNumberController
                                     foreach ($products as $product) {
                                         $image = $product->media->first();
                                         if ($image) {
-                                            array_push($images, $image->filename);
+                                            array_push($medias, $image);
                                         }
 
                                     }
@@ -2243,15 +2243,15 @@ class WhatsAppController extends FindByNumberController
                                         }
                                     }*/
 
-                                    if (isset($images) && count($images) > 0) {
-                                        $temp_chat_message = ChatMessage::create($data);
+                                    if (isset($medias) && count($medias) > 0) {
+                                        /*$temp_chat_message = ChatMessage::create($data);
                                         foreach ($images as $image) {
                                             $media = Media::where('filename', $image)->first();
                                             $isExists = DB::table('mediables')->where('media_id', $media->id)->where('mediable_id', $temp_chat_message->id)->where('mediable_type', 'App\ChatMessage')->count();
                                             if (!$isExists) {
                                                 $temp_chat_message->attachMedia($media, config('constants.media_tags'));
                                             }
-                                        }
+                                        }*/
 
                                         if (!empty($request->send_pdf) && $request->send_pdf == 1) {
                                             $fn = '';
@@ -2261,7 +2261,7 @@ class WhatsAppController extends FindByNumberController
 
                                             $folder = "temppdf_view_" . time();
 
-                                            $medias = Media::whereIn('filename', $images)->get();
+                                            //$medias = Media::whereIn('id', $images)->get();
                                             $pdfView = view('pdf_views.images' . $fn, compact('medias', 'folder'));
                                             $pdf = new Dompdf();
                                             $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
@@ -2293,13 +2293,12 @@ class WhatsAppController extends FindByNumberController
 
                                             }
                                         } else {
-                                            $medias = Media::whereIn('filename', $images)->get();
+                                            //$medias = Media::whereIn('id', $images)->get();
                                             if ($medias != null) {
                                                 if ($request->customerId != null) {
                                                     $customer = Customer::findorfail($request->customerId);
                                                     foreach ($medias as $media) {
                                                         $file = $media->getUrl();
-
                                                         $data[ 'customer_id' ] = $customer->id;
                                                         $chat_message = ChatMessage::create($data);
                                                         $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, '', $file, '', '');
