@@ -16,6 +16,7 @@ use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
 use App\SupplierBrandCount;
 use App\SupplierCategoryCount;
+use App\Setting;
 
 class ProductsCreator
 {
