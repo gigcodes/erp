@@ -17,7 +17,8 @@
     <br>
     <div class="col-lg-12 margin-tb">
 		<button data-toggle="collapse" href="#collapse-message-queue" class="collapsed btn btn-secondary" aria-expanded="false">Search message queue count</button>
-		<button data-toggle="collapse" href="#collapse-show-queue" class="collapsed btn btn-secondary" aria-expanded="false">Show Queue Count</button>
+		<button data-toggle="collapse" href="#collapse-show-queue" class="collapsed btn btn-secondary" aria-expanded="false">Show Chat API Queue Count</button>
+		<button data-toggle="collapse" href="#pending-queue-no-wise" class="collapsed btn btn-secondary" aria-expanded="false">Show Message Queue Count</button>
 		<div class="panel-group">
 			<div id="collapse-message-queue" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 				<div class="panel-body">
@@ -44,6 +45,28 @@
 					</div>
 				</div>
 			</div>
+			<div class="collapse" id="pending-queue-no-wise" style="margin-top: 5px;">
+	            <div class="card card-body">
+	              <?php if(!empty($countQueue)) { ?>
+	                <div class="row col-md-12">
+	                    <?php foreach($countQueue as $queue) { ?>
+	                      <div class="col-md-2">
+	                            <div class="card">
+	                              <div class="card-header">
+	                                <?php echo $queue->whatsapp_number; ?>
+	                              </div>
+	                              <div class="card-body">
+	                                  <?php echo $queue->total_message; ?>
+	                              </div>
+	                          </div>
+	                       </div> 
+	                  <?php } ?>
+	                </div>
+	              <?php } else  { 
+	                echo "Sorry , No data available";
+	              } ?>
+	            </div>
+	        </div>
 		</div>
     </div>
 
@@ -63,6 +86,9 @@
 				                                <?php echo $no; ?>
 				                              </div>
 				                              <div class="card-body">
+				                                  <?php if($queue > 200) { ?>
+					                                  <a class="recall-api" data-no="<?php echo $no; ?>" href="javascript:;"><img title="Recall" src="/images/icons-refresh.png"></img></a>&nbsp;
+					                              <?php } ?>
 				                                  <?php echo $queue; ?>
 				                              </div>
 				                          </div>

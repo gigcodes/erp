@@ -27,5 +27,6 @@ Route::prefix('message-queue')->group(function() {
 
 	Route::prefix('setting')->group(function() {
 		Route::post('update-limit','MessageQueueController@updateLimit');
+		Route::get('recall','MessageQueueController@recall');
 	});	
 });

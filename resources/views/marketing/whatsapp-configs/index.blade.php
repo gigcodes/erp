@@ -285,6 +285,50 @@
         }).fail(function (jqXHR, ajaxOptions, thrownError) {
             alert('No response from server');
         });
-   }     
+   }
+
+   function getScreen(id) {
+        $.ajax({
+        url: '/marketing/whatsapp-config/get-screen',
+        type: 'GET',
+        dataType: 'json',
+        data: {id: id},
+        }).done(function (data) {
+            $("#loading-image").hide();
+            if(data.success){
+                $('#image_crop').attr('src',data.media);
+                $('#largeImageModal').modal('show');
+            }else if(data.error){
+                alert('Check if Barcode Server Is Running');
+            }else if(data.nobarcode){
+                alert('No Screen Is Present')
+            }
+            
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+    } 
+
+    function deleteChrome(id) {
+            $.ajax({
+            url: '/marketing/whatsapp-config/delete-chrome',
+            type: 'GET',
+            dataType: 'json',
+            data: {id: id},
+            }).done(function (data) {
+                $("#loading-image").hide();
+                if(data.success){
+                    $('#image_crop').attr('src',data.media);
+                    $('#largeImageModal').modal('show');
+                }else if(data.error){
+                    alert('Check if Barcode Server Is Running');
+                }else if(data.nobarcode){
+                    alert('No Screen Is Present')
+                }
+                
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        }    
 </script>
 @endsection
