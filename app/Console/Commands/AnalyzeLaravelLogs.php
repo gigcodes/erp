@@ -49,6 +49,9 @@ class AnalyzeLaravelLogs extends Command
 
         $files = Storage::disk('logs')->files();
         foreach ($files as $file) {
+
+            echo '====== Getting logs from file:'.$file.' ======'.PHP_EOL;
+
             $content = Storage::disk('logs')->get($file);
 
             $matches = [];
@@ -59,11 +62,16 @@ class AnalyzeLaravelLogs extends Command
 
             foreach ($timestamps as $index => $timestamp) {
 
-                $errorData[] = array(
+                $data =  array(
                     'log_file_name' => $file,
                     'timestamp' => $timestamp,
                     'filename' => $filenames[$index]
                 );
+
+                echo 'Got error: ';
+                echo print_r($data, true).PHP_EOL;
+
+                $errorData[] = $data;
             }
         }
 
@@ -71,6 +79,7 @@ class AnalyzeLaravelLogs extends Command
             $cmdReponse = [];
             $cmd = 'git log -n 1 ' . $path . $error['filename'] . ' 2>&1';
             exec($cmd, $cmdReponse);
+            echo 'Command execution response :'.print_r($cmdReponse, true).PHP_EOL;
             $commitDetails = $this->getDetailsFromCommit($cmdReponse);
             if ($commitDetails) {
                 $errorData[$key]['commit'] = $commitDetails;
