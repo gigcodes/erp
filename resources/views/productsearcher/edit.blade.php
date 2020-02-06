@@ -56,6 +56,15 @@
                 </div>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Size (in eu):</strong>
+                <input type="text" class="form-control" name="size_eu" placeholder="Size (in eu)" value="{{old('size_eu') ? old('size_eu') : $productsearcher->size_eu }}"/>
+                @if ($errors->has('size_eu'))
+                    <div class="alert alert-danger">{{$errors->first('size_eu')}}</div>
+                @endif
+            </div>
+        </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Price (in Euro):</strong>
                     <input type="number" class="form-control" name="price" placeholder="Price" value="{{old('price') ? old('price') : $productsearcher->price }}"/>

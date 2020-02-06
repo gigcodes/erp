@@ -203,8 +203,8 @@
                                             $product = \App\Product::find($product->id)
                                         @endphp
                                         <?php $gridImage = ''; ?>
-                                        @if ($product->hasMedia(config('constants.media_tags')))
-                                            @foreach($product->getMedia(config('constants.media_tags')) as $media)
+                                        @if ($product->hasMedia(config('constants.media_gallery_tag')))
+                                            @foreach($product->getMedia(config('constants.media_gallery_tag')) as $media)
                                                 @if(stripos($media->filename, 'crop') !== false)
                                                     <?php
                                                     $width = 0;
@@ -235,12 +235,12 @@
                                         @endif
                                     </div>
                                     <div class="col-md-4" id="col-large-image{{ $product->id }}">
-                                        @if ($product->hasMedia(config('constants.media_tags')))
-                                            <div onclick="bigImg('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}'); background-size: 300px" id="image{{ $product->id }}">
+                                        @if ($product->hasMedia(config('constants.media_gallery_tag')))
+                                            <div onclick="bigImg('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}'); background-size: 300px" id="image{{ $product->id }}">
                                                 <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}" id="image-tag{{ $product->id }}">
                                             </div>
-                                            <button onclick="cropImage('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}','{{ $product->id }}')" class="btn btn-secondary">Crop Image</button>
-                                            <button onclick="crop('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}','{{ $product->id }}','{{ $gridImage }}')" class="btn btn-secondary">Crop</button>
+                                            <button onclick="cropImage('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}','{{ $product->id }}')" class="btn btn-secondary">Crop Image</button>
+                                            <button onclick="crop('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}','{{ $product->id }}','{{ $gridImage }}')" class="btn btn-secondary">Crop</button>
                                             
                                         @endif
                                     </div>

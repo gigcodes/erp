@@ -1389,6 +1389,11 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::post('whatsapp-queue/delete','WhatsappConfigController@destroyQueue')->name('whatsapp.config.delete_queue');
     Route::post('whatsapp-queue/delete_all/','WhatsappConfigController@destroyQueueAll')->name('whatsapp.config.delete_all');
     Route::get('whatsapp-queue/delete_queues/{id}','WhatsappConfigController@clearMessagesQueue')->name('whatsapp.config.delete_all_queues');
+    Route::get('whatsapp-config/get-barcode', 'WhatsappConfigController@getBarcode')->name('whatsapp.config.barcode');
+    Route::get('whatsapp-config/get-screen', 'WhatsappConfigController@getScreen')->name('whatsapp.config.screen');
+    Route::get('whatsapp-config/delete-chrome', 'WhatsappConfigController@deleteChromeData')->name('whatsapp.config.delete');
+
+    Route::post('whatsapp-queue/switchBroadcast','BroadcastController@switchBroadcast')->name('whatsapp.config.switchBroadcast');
 
 
     // Marketing Platform
@@ -1460,6 +1465,7 @@ Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
 Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
+Route::get('temp-task/product-creator','TmpTaskController@importProduct');
 
 Route::prefix('google')->middleware('auth')->group(function () {
     Route::resource('/search/keyword', 'GoogleSearchController');
@@ -1485,6 +1491,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
         Route::get('/repos/{name}/users/add', 'Github\UserController@addUserToRepositoryForm');
         Route::get('/repos/{id}/branches', 'Github\RepositoryController@getRepositoryDetails');
+        Route::get('/repos/{id}/pull-request', 'Github\RepositoryController@listPullRequests');
         Route::get('/repos/{id}/branch/merge', 'Github\RepositoryController@mergeBranch');
         Route::get('/repos/{id}/deploy', 'Github\RepositoryController@deployBranch');
         Route::post('/add_user_to_repo', 'Github\UserController@addUserToRepository');

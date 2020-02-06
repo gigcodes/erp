@@ -82,7 +82,8 @@ class AiRun extends Command
 
                 // Loop over media to get URLs
                 foreach ($arrMedia as $media) {
-                    $arrImages[] = 'https://erp.amourint.com/' . $media->disk . '/' . $media->filename . '.' . $media->extension;
+                    // wrong path assigned so now taken from direct
+                    $arrImages[] = $media->getUrl();//'https://erp.amourint.com/' . $media->disk . '/' . $media->filename . '.' . $media->extension;
                 }
 
                 // Skip to the next one if there are no images

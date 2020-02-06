@@ -86,4 +86,10 @@ class TmpTaskController extends Controller
 
     }
 
+    public function importProduct()
+    {
+        $scraped_product = \App\ScrapedProducts::orderBy("id","desc")->first();
+        app('App\Services\Products\ProductsCreator')->createProduct($scraped_product);
+    }
+
 }
