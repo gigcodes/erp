@@ -83,7 +83,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('public-key', 'EncryptController@index')->name('encryption.index');
     Route::post('save-key', 'EncryptController@saveKey')->name('encryption.save.key');
     Route::post('forget-key', 'EncryptController@forgetKey')->name('encryption.forget.key');
-    
+
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
@@ -610,13 +610,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('imported/leads/save', 'ColdLeadsController@addLeadToCustomer');
 
     // Development
-    Route::post( 'development/task/move-to-progress', 'DevelopmentController@moveTaskToProgress' );
-    Route::post( 'development/task/complete-task', 'DevelopmentController@completeTask' );
-    Route::post( 'development/task/assign-task', 'DevelopmentController@updateAssignee' );
-    Route::post( 'development/task/relist-task', 'DevelopmentController@relistTask' );
-    Route::post( 'development/task/update-status', 'DevelopmentController@changeTaskStatus' );
-    Route::post( 'development/task/upload-document', 'DevelopmentController@uploadDocument' );
-    Route::get( 'development/task/get-document', 'DevelopmentController@getDocument' );
+    Route::post('development/task/move-to-progress', 'DevelopmentController@moveTaskToProgress');
+    Route::post('development/task/complete-task', 'DevelopmentController@completeTask');
+    Route::post('development/task/assign-task', 'DevelopmentController@updateAssignee');
+    Route::post('development/task/relist-task', 'DevelopmentController@relistTask');
+    Route::post('development/task/update-status', 'DevelopmentController@changeTaskStatus');
+    Route::post('development/task/upload-document', 'DevelopmentController@uploadDocument');
+    Route::get('development/task/get-document', 'DevelopmentController@getDocument');
 
 
     Route::resource('task-types', 'TaskTypesController');
@@ -931,8 +931,8 @@ Route::post('livechat/getUserList', 'LiveChatController@getUserList')->name('liv
 
 /* ---------------------------------------------------------------------------------- */
 
-Route::post('livechat/send-file','LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');
-Route::get('livechat/get-customer-info','LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
+Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');
+Route::get('livechat/get-customer-info', 'LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/incomingNew', 'WhatsAppController@incomingMessageNew');
@@ -1113,8 +1113,6 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/generic-scraper/mapping/delete', 'ScrapController@genericMappingDelete')->name('generic.mapping.delete');
 
     Route::get('/{name}', 'ScrapController@showProducts')->name('show.logFile');
-
-
 });
 
 Route::resource('quick-reply', 'QuickReplyController');
@@ -1380,8 +1378,8 @@ Route::group(['middleware' => 'auth'], function () {
 
 Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'marketing'], function () {
     // Whats App Config
-    Route::get('whatsapp-config','WhatsappConfigController@index')->name('whatsapp.config.index');
-    Route::get('whatsapp-history/{id}','WhatsappConfigController@history')->name('whatsapp.config.history');
+    Route::get('whatsapp-config', 'WhatsappConfigController@index')->name('whatsapp.config.index');
+    Route::get('whatsapp-history/{id}', 'WhatsappConfigController@history')->name('whatsapp.config.history');
     Route::post('whatsapp-config/store', 'WhatsappConfigController@store')->name('whatsapp.config.store');
     Route::post('whatsapp-config/edit', 'WhatsappConfigController@edit')->name('whatsapp.config.edit');
     Route::post('whatsapp-config/delete', 'WhatsappConfigController@destroy')->name('whatsapp.config.delete');
@@ -1412,10 +1410,10 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::post('broadcast/customer/list', 'BroadcastController@getCustomerBroadcastList')->name('broadcast.customer.list');
     Route::post('broadcast/global/save', 'BroadcastController@saveGlobalValues')->name('broadcast.global.save');
     Route::post('broadcast/enable/count', 'BroadcastController@getCustomerCountEnable')->name('broadcast.enable.count');
-    Route::get('broadcast/sendMessage/list','BroadcastController@broadCastSendMessage')->name('broadcast.message.send.list');
-    Route::post('broadcast/customer/list','BroadcastController@getCustomerBroadcastList')->name('broadcast.customer.list');
-    Route::post('broadcast/global/save','BroadcastController@saveGlobalValues')->name('broadcast.global.save');
-    Route::post('broadcast/enable/count','BroadcastController@getCustomerCountEnable')->name('broadcast.enable.count');
+    Route::get('broadcast/sendMessage/list', 'BroadcastController@broadCastSendMessage')->name('broadcast.message.send.list');
+    Route::post('broadcast/customer/list', 'BroadcastController@getCustomerBroadcastList')->name('broadcast.customer.list');
+    Route::post('broadcast/global/save', 'BroadcastController@saveGlobalValues')->name('broadcast.global.save');
+    Route::post('broadcast/enable/count', 'BroadcastController@getCustomerCountEnable')->name('broadcast.enable.count');
 
     Route::get('mailinglist', 'MailinglistController@index')->name('mailingList');
     Route::get('mailinglist/{id}', 'MailinglistController@show')->name('mailingList.single');
@@ -1444,6 +1442,17 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::post('mailinglist-ajax-duplicate', 'MailinglistEmailController@duplicate');
 });
 
+Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {
+    Route::post('coupons/store', 'CouponController@store')->name('coupons.store');
+    Route::post('coupons/{id}', 'CouponController@update');
+    Route::get('coupons', 'CouponController@index')->name('coupons.index');
+    Route::post('coupons/load', 'CouponController@loadData');
+    Route::get('coupons/load', 'CouponController@loadData');
+    Route::delete('coupons/{id}', 'CouponController@destroy');
+    Route::get('coupons/{id}/report', 'CouponController@showReport');
+    Route::get('coupons/report', 'CouponController@showReport');
+});
+
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
 Route::group(['middleware' => 'auth'], function () {
     Route::prefix('tmp-task')->group(function () {
@@ -1465,17 +1474,17 @@ Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
 Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
-Route::get('temp-task/product-creator','TmpTaskController@importProduct');
+Route::get('temp-task/product-creator', 'TmpTaskController@importProduct');
 
 Route::prefix('google')->middleware('auth')->group(function () {
     Route::resource('/search/keyword', 'GoogleSearchController');
-    Route::get('/search/keyword-priority','GoogleSearchController@markPriority')->name('google.search.keyword.priority');
+    Route::get('/search/keyword-priority', 'GoogleSearchController@markPriority')->name('google.search.keyword.priority');
     Route::get('/search/keyword', 'GoogleSearchController@index')->name('google.search.keyword');
     Route::get('/search/results', 'GoogleSearchController@searchResults')->name('google.search.results');
 
     Route::resource('/affiliate/keyword', 'GoogleAffiliateController');
     Route::get('/affiliate/keyword', 'GoogleAffiliateController@index')->name('google.affiliate.keyword');
-    Route::get('/affiliate/keyword-priority','GoogleAffiliateController@markPriority')->name('google.affiliate.keyword.priority');
+    Route::get('/affiliate/keyword-priority', 'GoogleAffiliateController@markPriority')->name('google.affiliate.keyword.priority');
     Route::get('/affiliate/results', 'GoogleAffiliateController@searchResults')->name('google.affiliate.results');
     Route::post('affiliate/flag', 'GoogleAffiliateController@flag')->name('affiliate.flag');
     Route::post('affiliate/email/send', 'GoogleAffiliateController@emailSend')->name('affiliate.email.send');
