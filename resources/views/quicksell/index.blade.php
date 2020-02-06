@@ -25,7 +25,7 @@
 @section('content')
 <div class="row">
   <div class="col">
-    <h2 class="page-heading">Quick Sell</h2>
+    <h2 class="page-heading">Quick Sell @if($totalProduct) ({{ $totalProduct }}) @endif</h2>
   </div>
 </div>
 
@@ -45,73 +45,35 @@
     </div>
     <div class="form-group mr-3">
       @php
-       $category_parent = \App\Category::where('parent_id', 0)->orderby('title','asc')->get();
-       $category_child = \App\Category::where('parent_id', '!=', 0)->orderby('title','asc')->get();
+        if(empty($category_dropdown)) { 
+          $category_dropdown = (new \App\Category)->attr([
+          'name' => 'category[]', 
+          'class' => 'form-control select-multiple2', 
+          'multiple' => 'multiple',
+          'data-placeholder' => 'Select Category'
+          ])->selected()->renderAsDropdown();
+        }
        @endphp
-      <select class="form-control select-multiple2" name="category[]" multiple data-placeholder="Category...">
-        <optgroup label="Category">
-          @foreach($category_parent as $c)
-                <option value="{{ $c->id }}">{{ $c->title }}</option>
-                @if($c->childs)
-                  @foreach($c->childs as $categ)
-                  <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
-                  @endforeach
-                @endif
-            @endforeach
-            @foreach($category_child as $c)
-                <option value="{{ $c->id }}">{{ $c->title }}</option>
-                @if($c->childs)
-                  @foreach($c->childs as $categ)
-                  <option value="{{ $categ->id }}">---{{ $categ->title }}</option>
-                  @endforeach
-                @endif
-            @endforeach
-        </optgroup>
-      </select>
+       {!! $category_dropdown !!}
     </div>
 
   <div class="form-group mr-3">
     @php $brands = \App\Brand::getAll(); @endphp
-    <select class="form-control select-multiple2" name="brand[]" multiple data-placeholder="Brands...">
-      <optgroup label="Brands">
-        @foreach ($brands as $key => $name)
-          <option value="{{ $key }}">{{ $name }}</option>
-        @endforeach
-      </optgroup>
-    </select>
+    {{ Form::select('brand[]',$brands,request('brand'),["class" => "form-control select-multiple2" ,"multiple" => true, "data-placeholder" => "Select Brands"]) }}
   </div>
 
   <div class="form-group mr-3">
-    {{-- <strong>Color</strong> --}}
-    @php $colors = new \App\Colors(); @endphp
-    <select class="form-control select-multiple2" name="color[]" multiple data-placeholder="Colors...">
-      <optgroup label="Colors">
-        @foreach ($colors->all() as $key => $col)
-          <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
-        @endforeach
-      </optgroup>
-    </select>
+    @php $colors = (new \App\Colors())->all(); @endphp
+    {{ Form::select('color[]',$colors,request('color'),["class" => "form-control select-multiple2" ,"multiple" => true, "data-placeholder" => "Select Colors",'style' => "min-width:250px;"]) }}
   </div>
 
   <div class="form-group mr-3">
-    <select class="form-control select-multiple2" name="supplier[]" multiple data-placeholder="Supplier...">
-      <optgroup label="Suppliers">
-        @foreach ($suppliers as $key => $supp)
-          <option value="{{ $supp->supplier }}" {{ isset($supplier) && $supplier == $supp->id ? 'selected' : '' }}>{{ $supp->supplier }}</option>
-        @endforeach
-      </optgroup>
-    </select>
+    {{ Form::select('supplier[]',$suppliers->pluck('supplier','id'),request('supplier'),["class" => "form-control select-multiple2" ,"multiple" => true , "data-placeholder" => "Select supplier"]) }}
   </div>
 
   @if (Auth::user()->hasRole('Admin'))
     <div class="form-group mr-3">
-      <select class="form-control select-multiple2" name="location[]" multiple data-placeholder="Location...">
-        <optgroup label="Locations">
-          @foreach ($locations as $name)
-            <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
-          @endforeach
-        </optgroup>
-      </select>
+      {{ Form::select('location[]',$locations,request('location'),["class" => "form-control select-multiple2" ,"multiple" => true , "data-placeholder" => "Select location"]) }}
     </div>
   @endif
 
@@ -122,14 +84,8 @@
   </div>
 
   <div class="form-group mr-3">
-    @php $groups = \App\QuickSellGroup::all(); @endphp
-    <select class="form-control select-multiple2" name="group[]" multiple data-placeholder="Groups...">
-      <optgroup label="Groups">
-        @foreach ($groups as $group)
-          <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }} @endif</option>
-        @endforeach
-      </optgroup>
-    </select>
+    @php $groups = \App\QuickSellGroup::get()->pluck('name','id'); @endphp
+    {{ Form::select('group[]',$groups,request('group'),["class" => "form-control select-multiple2" ,"multiple" => true , "data-placeholder" => "Select Group",'style' => "min-width:250px;"]) }}
   </div>
 
   <div class="form-group mr-3">
@@ -236,7 +192,6 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.11/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script type="text/javascript">
-    console.log($('.infinite-scroll'));
     $('.infinite-scroll').jscroll({
         debug: true,
         autoTrigger: true,
@@ -472,8 +427,16 @@
 
 
       $(document).ready(function() {
-         $(".select-multiple").multiselect();
-       $(".select-multiple2").select2();
+          $(".select-multiple").multiselect({
+            placeholder: function(){
+                $(this).data('placeholder');
+            }
+          });
+          $(".select-multiple2").select2({
+            placeholder: function(){
+                $(this).data('placeholder');
+            }
+          });
        });
       
 

@@ -49,15 +49,17 @@ class StoreBrands extends Command
         $brands = array_filter(str_replace('"', '',array_unique(array_map("strtolower",array_reduce($brandsArray, 'array_merge',[])))));
         $brandsInBrands = Brand::select('name')->whereNotNull('name')->get()->all();
         foreach ($brandsInBrands as $key => $value) {
-            array_push($brandsTableArray, $value->name);
+            array_push($brandsTableArray, trim($value->name));
         }
         $brandsTable = array_unique(array_map("strtolower",array_filter($brandsTableArray)));
         foreach ($brands as $key => $value) {
+            $value = trim($value);
             if(!in_array($value, $brandsTable)) {
                 $params = [
                     'name' => $value,
                     'created_at' =>  Carbon::now()
                 ];
+                $brandsTable[] = $value;
                 Brand::create($params);
             }
             
