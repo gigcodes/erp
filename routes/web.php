@@ -207,6 +207,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('category/references', 'CategoryController@mapCategory');
     Route::post('category/references', 'CategoryController@saveReferences');
     Route::post('category/update-field', 'CategoryController@updateField');
+    Route::post('category/reference', 'CategoryController@saveReference');
     Route::resource('category', 'CategoryController');
 
     Route::resource('resourceimg', 'ResourceImgController');
