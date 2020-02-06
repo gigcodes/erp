@@ -381,6 +381,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('hubstaff:refresh_users')->hourly();
         // send hubstaff report
         $schedule->command('hubstaff:send_report')->hourly()->between('7:00', '23:00');
+        $schedule->command('hubstaff:load_activities')->hourly();
 
         //Sync customer from magento to ERP
         $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
