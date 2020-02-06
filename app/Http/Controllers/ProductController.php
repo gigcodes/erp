@@ -943,12 +943,22 @@ class ProductController extends Controller
         $data[ 'location' ] = $product->location;
 
         $data[ 'suppliers' ] = '';
+        $data[ 'more_suppliers' ] = [];        
 
         foreach ($product->suppliers as $key => $supplier) {
             if ($key == 0) {
                 $data[ 'suppliers' ] .= $supplier->supplier;
             } else {
                 $data[ 'suppliers' ] .= ", $supplier->supplier";
+            }
+        }
+
+        foreach ($product->suppliers_info as $key => $pr) {
+            if($pr->stock > 0) {
+                $data[ 'more_suppliers' ][] = [
+                    "name" => $pr->supplier->supplier,
+                    "link" => $pr->supplier_link
+                ] ;  
             }
         }
 
@@ -1480,14 +1490,36 @@ class ProductController extends Controller
     public function originalCategory($id)
     {
         $product = Product::find($id);
+        $referencesCategory = "";
+
         if(isset($product->scraped_products)){
+            // starting to see that howmany category we going to update
             if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
                 $category = $product->scraped_products->properties['category'];
-                $cat = implode(' > ',$category);
-                return response()->json(['success',$cat]);
+                $referencesCategory = implode(' > ',$category);
+            }
 
+            $scrapedProductSkuArray = [];
+
+            if(!empty($referencesCategory)){
+                $productSupplier = $product->supplier;
+                $supplier = Supplier::where('supplier',$productSupplier)->first();
+                if($supplier && $supplier->scraper) {
+                    $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
+                    foreach ($scrapedProducts as $scrapedProduct) {
+                        $products = $scrapedProduct->properties['category'];
+                        $list = implode(' > ',$products);
+                        if(strtolower($referencesCategory) == strtolower($list)){
+                            $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                        }
+                    }
+                }
+            }
+             
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
+                return response()->json(['success',$referencesCategory,count($scrapedProductSkuArray)]);
             }else{
-               return response()->json(['message','Category Is Not Present']); 
+                return response()->json(['message','Category Is Not Present']); 
             }
             
         }else{
@@ -2638,7 +2670,44 @@ class ProductController extends Controller
 
     public function sendMessageSelectedCustomer(Request $request)
     {
+
+        $params = request()->all();
+        $params["user_id"] = \Auth::id();
+        $params["is_queue"] = 1;
+
         $token = request("customer_token","");
+        
+        if(!empty($token)) {
+            $customerIds = json_decode(session($token));
+            if(empty($customerIds)) {
+                $customerIds = [];
+            }
+        }
+        // if customer is not available then choose what it is before
+        if(empty($customerIds)) {
+            $customerIds = $request->get('customers_id', '');
+            $customerIds = explode(',', $customerIds);
+        }
+        
+        $params["customer_ids"] = $customerIds;
+
+        $groupId = \DB::table('chat_messages')->max('group_id');
+        $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
+        
+        \App\Jobs\SendMessageToCustomer::dispatch($params);
+
+        if ($request->ajax()) {
+            return response()->json(['msg' => 'success']);
+        }
+
+        if ($request->get('return_url')) {
+            return redirect("/" . $request->get('return_url'));
+        }
+
+        return redirect('/erp-leads');
+
+
+        /*$token = request("customer_token","");
         
         if(!empty($token)) {
             $customerIds = json_decode(session($token));
@@ -2712,15 +2781,9 @@ class ProductController extends Controller
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
         }
 
-        if ($request->ajax()) {
-            return response()->json(['msg' => 'success']);
-        }
+        \Log::info(print_r(\DB::getQueryLog(),true));*/
 
-        if ($request->get('return_url')) {
-            return redirect("/" . $request->get('return_url'));
-        }
-
-        return redirect('/erp-leads');
+        
 
     }
 

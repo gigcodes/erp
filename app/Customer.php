@@ -233,5 +233,10 @@ class Customer extends Model
         return $this->hasOne('App\ChatMessage','customer_id','id')->whereNotNull('number')->latest();
     }
 
+    public function hasDND()
+    {
+        return ($this->do_not_disturb == 1) ? true : false;
+    }
+
     
 }

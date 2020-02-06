@@ -169,7 +169,16 @@
                 </tr>
                 <tr>
                     <td colspan="3">Supplier: <strong>{{ $supplier }} | {{ $suppliers }}</strong></td>
-                    <td colspan="2">Supplier Link: <a target="_new" href="{{ $supplier_link }}"><strong>Open</strong></a></td>
+                    <td colspan="2">Supplier Link: <a target="_new" href="{{ $supplier_link }}"><strong>Open</strong></a>
+                        <br>
+                        On Stock Supplier Link: 
+                        <?php if(!empty($more_suppliers)) { ?>
+                            <?php foreach ($more_suppliers as $more_supplier)  { ?>    
+                                <br>
+                                <a target="_new" href="{{ $more_supplier['link'] }}"><strong>{{ $more_supplier['name'] }}</strong></a>
+                            <?php } ?>
+                        <?php } ?>
+                    </td>
                 </tr>
                 <tr>
                     <td colspan="5"></td>

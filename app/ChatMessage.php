@@ -232,7 +232,7 @@ class ChatMessage extends Model
     {
         $limit  = \App\Setting::where("name","is_queue_sending_limit")->first();
         
-        return ($limit) ? $limit->val : 0;
+        return ($limit) ? json_decode($limit->val,true) : [];
     }
 
     public static function getStartTime()
