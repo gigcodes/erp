@@ -30,6 +30,62 @@
 
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel-group">
+                <div class="panel-body">
+                    <div class="row">
+                        <form id="message-fiter-handler" action="{{ route('log-scraper.index') }}" method="GET">
+                            <div class="pull-left">
+                                <div class="form-group">
+                                    @php
+                                    if(isset($customrange)){
+                                         $range = explode(' - ', $customrange);
+                                            $from = \Carbon\Carbon::parse($range[0])->format('F d, Y'); 
+                                            $to = \Carbon\Carbon::parse(end($range))->format('F d, Y'); 
+                                        }
+                                    @endphp    
+                                    <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                        <input type="hidden" name="customrange" id="custom" value="{{ isset($customrange) ? $customrange : '' }}">
+                                        <i class="fa fa-calendar"></i>&nbsp;
+                                        <span @if(isset($customrange)) style="display:none;" @endif id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ isset($customrange) ? $from .' '.$to : '' }}</p><i class="fa fa-caret-down"></i>
+                                    </div>
+                                </div>
+                            </div>  
+                            <div class="pull-right">
+                                <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-filter-report">
+                                    <img src="/images/search.png" style="cursor: default;">
+                                </button>
+                                <button style="float:right;" data-toggle="collapse" href="#pending-error-list"  class="btn btn-secondary">
+                                    Show Errors
+                                </button>
+                            </div>
+                        </form>
+                    </div>  
+                    <div id="pending-error-list" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+                        <div class="card card-body">
+                          <?php if(!empty($logsByGroup)) { ?>
+                            <div class="row col-md-12">
+                                <?php foreach($logsByGroup as $logsBy) { ?>
+                                  <div class="col-md-2">
+                                        <div class="card">
+                                          <div class="card-header">
+                                            <?php echo $logsBy->website; ?>
+                                          </div>
+                                          <div class="card-body">
+                                              <?php echo $logsBy->total_error; ?>
+                                          </div>
+                                      </div>
+                                   </div> 
+                              <?php } ?>
+                            </div>
+                          <?php } else  { echo "Sorry , No data available"; } ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>    
+    </div>
 
     @include('partials.flash_messages')
 
@@ -80,6 +136,29 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <script type="text/javascript">
+
+        function cb(start, end) {
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            $('#custom').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+        }
+
+        var start = moment().subtract(29, 'days');
+        var end = moment();
+
+        $('#reportrange').daterangepicker({
+                startDate: start,
+                endDate: end,
+                ranges: {
+                 'Today': [moment(), moment()],
+                 'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                 'This Month': [moment().startOf('month'), moment().endOf('month')],
+                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+             }
+        }, cb);
+
+        cb(start, end);
 
         var callResult = function(url,sendingPost,append) {
             $.ajax({
