@@ -29,6 +29,57 @@
         max-height: 500px;
         overflow-y: auto;
     }
+
+    .dropdown-wrapper {
+        position: relative;
+    }
+
+    .dropdown-wrapper.hidden {
+        display: none;
+    }
+
+    .dropdown-wrapper>ul {
+        margin: 0px;
+        padding: 5px;
+        list-style: none;
+        position: absolute;
+        width: 100%;
+        box-shadow: 3px 3px 10px 0px;
+        background: white;
+    }
+
+    .dropdown input {
+        width: calc(100% - 120px);
+        line-height: 2;
+        outline: none;
+        border: none;
+    }
+
+    .payment-method-option:hover {
+        background: #d4d4d4;
+    }
+
+    .payment-method-option.selected {
+        font-weight: bold;
+    }
+
+    .payment-dropdown-header {
+        padding: 2px;
+        border: 1px solid #e0e0e0;
+        border-radius: 3px;
+    }
+
+    .payment-overlay {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: 0px;
+    }
+
+    .error {
+        color: red;
+        font-size: 10pt;
+    }
 </style>
 <div class="row">
     <div class="col-lg-12 margin-tb">
@@ -89,7 +140,7 @@
                 <td>{{isset($user->currentRate) ? $user->currentRate->hourly_rate : '-'}}</td>
                 <td>{{$user->currency}}</td>
                 <td>{{$user->total}}</td>
-                <td>0</td>
+                <td>{{$user->balance}}</td>
                 <td>
                     <button class="btn btn-secondary" onclick="makePayment({{$user->id}})">Pay</button>
                 </td>
@@ -124,7 +175,29 @@
                 </div>
                 <div class="form-group">
                     {{ Form::label('payment_method', 'Payment Method') }}
-                    {{ Form::select('payment_method', $paymentMethods, null , array('class' => 'form-control'))  }}
+                    <div style="position: relative;">
+                        <select id="payment_method" name="payment_method" class="form-control payment" onclick="console.log('hello');">
+                            @foreach($paymentMethods as $paymentMethod)
+                            <option value="{{ $paymentMethod }}"> {{ $paymentMethod }} </option>
+                            @endforeach
+                        </select>
+                        <div class="payment-overlay" onclick="toggleDropdown()">
+
+                        </div>
+                    </div>
+                    <div id="payment-dropdown-wrapper" class="dropdown-wrapper hidden">
+                        <ul id="payment-method-dropdown" class="dropdown">
+                            <li>
+                                <div class="payment-dropdown-header">
+                                    <input autocomplete="off" id="payment-method-input" onkeyup="filterMethods(this.value)" type="text" placeholder="Search / Create" />
+                                    <button type="button" onclick="return addPaymentMethod()" class="btn btn-sm btn-primary">Add new method</button>
+                                </div>
+                            </li>
+                            @foreach($paymentMethods as $paymentMethod)
+                            <li onclick="selectOption(this)" class="payment-method-option">{{$paymentMethod}}</li>
+                            @endforeach
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -161,9 +234,22 @@
 <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
 <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
 <script>
-    function makePayment(userId) {
+    let paymentMethods;
+
+    function makePayment(userId, defaultMethod = null) {
         $('input[name="user_id"]').val(userId);
+
+        if (defaultMethod) {
+            $('#payment_method').val(defaultMethod);
+        }
+        filterMethods('');
+        $('.dropdown input').val('');
+
         $("#paymentModal").modal();
+    }
+
+    function setPaymentMethods() {
+        paymentMethods = $('.payment-method-option');
     }
 
     $(document).ready(function() {
@@ -175,6 +261,15 @@
             "info": false
         });
 
+        setPaymentMethods();
+
+        $('#payment-dropdown-wrapper').click(function() {
+            event.stopPropagation();
+        })
+
+        $("#paymentModal").click(function() {
+            closeDropdown();
+        })
     });
 
     function adjustHeight() {
@@ -239,5 +334,95 @@
             window.location = '/hubstaff/payments?week=' + weekpicker.getWeek() + '&year=' + weekpicker.getYear();
         });
     });
+
+    function filterMethods(needle) {
+        console.log(needle);
+        $('#payment-method-dropdown .payment-method-option').remove();
+
+        let filteredElements = paymentMethods.filter(
+            function(index, element) {
+                const optionValue = $(element).text();
+                return optionValue.toLowerCase().includes(needle.toLowerCase());
+            }
+        )
+
+        filteredElements.each(function(index, element) {
+            const value = $(element).text();
+            if (value == $('#payment_method').val()) {
+                $(element).addClass('selected');
+            } else {
+                $(element).removeClass('selected');
+            }
+        });
+
+        $('#payment-method-dropdown').append(filteredElements);
+    }
+
+    function selectOption(element) {
+        selectOptionWithText($(element).text());
+    }
+
+    function selectOptionWithText(text) {
+        $('#payment_method').val(text);
+        closeDropdown();
+    }
+
+    function toggleDropdown() {
+        if ($('#payment-dropdown-wrapper').hasClass('hidden')) {
+            filterMethods('');
+            $('.dropdown input').val('');
+            $('#payment-dropdown-wrapper').removeClass('hidden');
+        } else {
+            $('#payment-dropdown-wrapper').addClass('hidden');
+        }
+        event.stopPropagation();
+    }
+
+    function closeDropdown() {
+        $('#payment-dropdown-wrapper').addClass('hidden');
+    }
+
+    function addPaymentMethod() {
+
+        console.log('here');
+
+        const newPaymentMethod = $('#payment-method-input').val();
+
+        let paymentExists = false;
+        $('#payment-method-dropdown .payment-method-option')
+            .each(function(index, element) {
+                if ($(element).text() == newPaymentMethod) {
+                    paymentExists = true;
+                }
+            });
+
+        if (paymentExists) {
+            alert('Payment method exits');
+            return;
+        } else if (!newPaymentMethod || newPaymentMethod.trim() == '') {
+            alert('Payment method required');
+            return;
+        }
+
+        filterMethods('');
+
+        $('#payment-method-dropdown').append(
+            '<li onclick="selectOption(this)" class="payment-method-option">' + newPaymentMethod + '</li>'
+        );
+
+        $('#payment_method').append(
+            '<option value="' + newPaymentMethod + '">' + newPaymentMethod + '</option>'
+        );
+
+        setPaymentMethods();
+
+
+
+        selectOptionWithText(newPaymentMethod);
+        event.stopPropagation();
+        event.preventDefault();
+
+        return true;
+    }
 </script>
 @endsection
