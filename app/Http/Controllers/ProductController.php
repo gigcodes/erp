@@ -1496,7 +1496,9 @@ class ProductController extends Controller
             // starting to see that howmany category we going to update
             if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
                 $category = $product->scraped_products->properties['category'];
-                $referencesCategory = implode(' > ',$category);
+                if(is_array($category)) {
+                    $referencesCategory = implode(' > ',$category);
+                }
             }
 
             $scrapedProductSkuArray = [];
@@ -1508,9 +1510,11 @@ class ProductController extends Controller
                     $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
                     foreach ($scrapedProducts as $scrapedProduct) {
                         $products = $scrapedProduct->properties['category'];
-                        $list = implode(' > ',$products);
-                        if(strtolower($referencesCategory) == strtolower($list)){
-                            $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                        if(is_array($products)){
+                            $list = implode(' > ',$products);
+                            if(strtolower($referencesCategory) == strtolower($list)){
+                                $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                            }
                         }
                     }
                 }
@@ -1548,10 +1552,14 @@ class ProductController extends Controller
             $supplier = Supplier::where('supplier',$productSupplier)->first();
             $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
             foreach ($scrapedProducts as $scrapedProduct) {
-                $products = $scrapedProduct->properties['category'];
-                $list = implode(' ',$products);
-                if(strtolower($referencesCategory) == strtolower($list)){
-                    $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                if(isset($scrapedProduct->properties['category'])) {
+                    $products = $scrapedProduct->properties['category'];
+                    if(is_array($products)) {
+                        $list = implode(' ',$products);
+                        if(strtolower($referencesCategory) == strtolower($list)){
+                            $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                        }
+                    }
                 }
             }
 
@@ -2674,6 +2682,7 @@ class ProductController extends Controller
         $params = request()->all();
         $params["user_id"] = \Auth::id();
         $params["is_queue"] = 1;
+        $params["status"] = \App\ChatMessage::CHAT_AUTO_BROADCAST;
 
         $token = request("customer_token","");
         
