@@ -28,6 +28,7 @@
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="/js/generic.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
 
     @yield('link-css')
@@ -632,6 +633,14 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Checkout<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('coupons.index') }}">Coupons</a>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1197,6 +1206,9 @@
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('/github/groups') }}">Groups</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('/github/pullRequests') }}">Pull requests</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('/github/sync') }}">Synchronise from online</a>
