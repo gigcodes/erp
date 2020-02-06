@@ -112,11 +112,12 @@ class ScrapStatisticsController extends Controller
             }
         }
 
+        $lastRunAt = \DB::table("log_scraper")->groupBy("website")->select([\DB::raw("MAX(updated_at) as last_run_at"),"website"])->pluck("last_run_at","website")->toArray();
+
         $users = \App\User::all()->pluck("name", "id")->toArray();
 
-        //echo '<pre>'; print_r($scrapeData); echo '</pre>';exit;
         // Return view
-        return view('scrap.stats', compact('activeSuppliers', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown'));
+        return view('scrap.stats', compact('activeSuppliers', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt'));
     }
 
     /**

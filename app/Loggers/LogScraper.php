@@ -49,7 +49,7 @@ class LogScraper extends Model
         $errorLog .= self::validateSizeSystem(!empty($request->size_system) ? $request->size_system : '');
 
         // Validate properties
-        // TODO
+        $warningLog .= self::validateProperty($request);
 
         // Validate image warnings
         $warningLog .= self::validateImageWarnings($request->images);
@@ -192,6 +192,23 @@ class LogScraper extends Model
         // Return an empty string
         return "";
     }
+
+    public static function validateProperty($request)
+    {
+        // Check if we have a value
+        $string = "";
+        
+        if(isset($request->properties)) {
+           $properties =  $request->properties;
+           if(empty($properties['category'])){
+              $string .= "[warning] Category is empty".PHP_EOL;
+           }
+        }
+        
+        return $string;
+    }
+
+    
 
     public static function validateSizeSystem($sizeSystem)
     {

@@ -7,7 +7,7 @@
 <body>
 
 <div class="container-fluid">
-    @foreach($results as $key=>$item)
+    @foreach($results as $key => $item)
         @if ($item)
             @php
                 $resultScraper = json_decode($item->result_scraper);
@@ -58,16 +58,18 @@
                                     <label> {{ ucwords(strtolower($resultAi->category)) }} (AI)</label>
                                 </div>
                             </div>
-                            @foreach( $keywords as $keyword=>$count)
-                                <div class="row">
-                                    <div class="col-sm-1">
-                                        <input type="radio" name="category" value="{{ \App\LogScraperVsAi::getCategoryIdByKeyword( $keyword, $resultAi->gender, $genderScraper ) }}">
+                            @if(is_array($keywords))
+                                @foreach( $keywords as $keyword=>$count)
+                                    <div class="row">
+                                        <div class="col-sm-1">
+                                            <input type="radio" name="category" value="{{ \App\LogScraperVsAi::getCategoryIdByKeyword( $keyword, $resultAi->gender, $genderScraper ) }}">
+                                        </div>
+                                        <div class="col-sm-10">
+                                            <label>{{ ucwords(strtolower($keyword)) }}</label>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-10">
-                                        <label>{{ ucwords(strtolower($keyword)) }}</label>
-                                    </div>
-                                </div>
-                            @endforeach
+                                @endforeach
+                            @endif
                             <div class="row">
                                 <div class="col-sm-1">
                                     <input type="radio" name="category" value="dropdown" <?php echo empty( $resultAi->gender ) && empty( $genderScraper ) ? '' : 'checked'; ?>>

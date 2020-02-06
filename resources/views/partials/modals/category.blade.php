@@ -14,6 +14,8 @@
             <p id="old_category"></p>
             <strong>Changed Category:</strong>
             <p id="changed_category"></p>
+            <strong>No of product will affect:</strong>
+            <p id="no_of_product_will_affect"></p>
             
             @if ($errors->has('message'))
               <div class="alert alert-danger">{{$errors->first('message')}}</div>
