@@ -72,7 +72,7 @@ class SendMessageToCustomer implements ShouldQueue
 
         $insertParams = [
             "message"  => isset($params["message"]) ? $params["message"] : null,
-            "status"   => isset($params["status"]) ? $params["status"] : 1,
+            "status"   => isset($params["status"]) ? $params["status"] : \App\ChatMessage::CHAT_AUTO_BROADCAST,
             "is_queue" => isset($params["is_queue"]) ? $params["is_queue"] : 0,
             "group_id" => isset($params["group_id"]) ? $params["group_id"] : null,
             "user_id"  => isset($params["user_id"]) ? $params["user_id"] : null,
