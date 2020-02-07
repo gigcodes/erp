@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Issue;
 use App\LaravelGithubLog;
 use Illuminate\Console\Command;
 use Storage;
@@ -102,9 +103,11 @@ class AnalyzeLaravelLogs extends Command
         echo '== DATA ENTRIES == '.PHP_EOL;
         echo print_r($errorData, true);
 
+        $newlyCreatedLogs  = [];
+
         foreach ($errorData as $error) {
 
-            LaravelGithubLog::firstOrCreate(
+            $log = LaravelGithubLog::firstOrCreate(
                 [
                     'log_time' => $error['timestamp'],
                     'log_file_name' => $error['log_file_name'],
@@ -117,6 +120,28 @@ class AnalyzeLaravelLogs extends Command
                     'stacktrace' => $error['stacktrace']
                 ]
             );
+
+            if($log->wasRecentlyCreated){
+                $newlyCreatedLogs[] = $log;
+            }
+        }
+
+        // create issue for the newly create log
+        foreach($newlyCreatedLogs as $log){
+
+            $issue = $log->file.PHP_EOL.PHP_EOL.$log->stacktrce;
+            $subject = 'Exception in '.$log->file;
+
+
+
+            Issue::create([
+                'user_id' => , 
+                'issue' => $issue, 
+                'priority' => 0, 
+                'module' => '', 
+                'subject' => $subject
+            ]);
+
         }
 
         echo 'done';
@@ -152,6 +177,10 @@ class AnalyzeLaravelLogs extends Command
             );
         }
         return false;
+    }
+
+    private function getUserDetailsFromCommit($commit){
+        
     }
 
     function startsWith($string, $startString)
