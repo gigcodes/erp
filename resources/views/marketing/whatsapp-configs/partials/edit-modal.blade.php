@@ -55,6 +55,30 @@
                             @endif
                         </div>
                         <div class="form-group">
+                            <strong>Instance Id:</strong>
+                            <input type="text" name="instance_id" class="form-control" value="{{ $whatsAppConfig->instance_id }}">
+                            @if ($errors->has('instance_id'))
+                                <div class="alert alert-danger" >{{$errors->first('instance_id')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>Token:</strong>
+                            <input type="text" name="token" class="form-control" value="{{ $whatsAppConfig->token }}">
+                            @if ($errors->has('token'))
+                                <div class="alert alert-danger" >{{$errors->first('token')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>Is Default ?:</strong>
+                            <select class="form-control" name="is_default">
+                                <option value="0" @if($whatsAppConfig->is_default == 0) selected @endif>No</option>
+                                <option value="1" @if($whatsAppConfig->is_default == 1) selected @endif>Yes</option>
+                            </select>
+                            @if ($errors->has('is_default'))
+                                <div class="alert alert-danger" >{{$errors->first('is_default')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
                             <strong>Frequency:</strong>
                             <input type="text" name="frequency" class="form-control" value="{{ $whatsAppConfig->frequency }}">
                             @if ($errors->has('frequency'))
