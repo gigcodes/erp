@@ -50,26 +50,30 @@ class AnalyzeLaravelLogs extends Command
         $files = Storage::disk('logs')->files();
         foreach ($files as $file) {
 
-            echo '====== Getting logs from file:'.$file.' ======'.PHP_EOL;
+            echo '====== Getting logs from file:' . $file . ' ======' . PHP_EOL;
 
             $content = Storage::disk('logs')->get($file);
 
             $matches = [];
-            preg_match_all('/^\[([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})\].*' . $escaped . '(\S*):\d*\)$/mU', $content, $matches);
+            //preg_match_all('/\[([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})\].*' . $escaped . '(\S*):\d*\)(.|\\s)*[stacktrace](.|\\s)*main/U', $content, $matches);
+
+            preg_match_all('/\[([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})\].*?'.$escaped. '(\S*?):\d*?\)\n.*?(#0.*?)main/s', $content, $matches);
 
             $timestamps = $matches[1];
             $filenames = $matches[2];
+            $errorStackTrace = $matches[3];
 
             foreach ($timestamps as $index => $timestamp) {
 
                 $data =  array(
                     'log_file_name' => $file,
                     'timestamp' => $timestamp,
-                    'filename' => $filenames[$index]
+                    'filename' => $filenames[$index],
+                    'stacktrace' => $errorStackTrace[$index]
                 );
 
                 echo 'Got error: ';
-                echo print_r($data, true).PHP_EOL;
+                echo print_r($data, true) . PHP_EOL;
 
                 $errorData[] = $data;
             }
@@ -78,8 +82,9 @@ class AnalyzeLaravelLogs extends Command
         foreach ($errorData as $key => $error) {
             $cmdReponse = [];
             $cmd = 'git log -n 1 ' . $path . $error['filename'] . ' 2>&1';
+            echo 'git command: '.$cmd;
             exec($cmd, $cmdReponse);
-            echo 'Command execution response :'.print_r($cmdReponse, true).PHP_EOL;
+            echo 'Command execution response :' . print_r($cmdReponse, true) . PHP_EOL;
             $commitDetails = $this->getDetailsFromCommit($cmdReponse);
             if ($commitDetails) {
                 $errorData[$key]['commit'] = $commitDetails;
@@ -94,15 +99,22 @@ class AnalyzeLaravelLogs extends Command
             }
         );
 
+        echo '== DATA ENTRIES == '.PHP_EOL;
+        echo print_r($errorData, true);
+
         foreach ($errorData as $error) {
 
             LaravelGithubLog::firstOrCreate(
                 [
                     'log_time' => $error['timestamp'],
                     'log_file_name' => $error['log_file_name'],
-                    'file' => $error['filename'],
+                    'file' => $error['filename']
+                ],
+                [
+                    'commit' => $error['commit']['commit'],
                     'author' =>  $error['commit']['author'],
-                    'commit_time' => $error['commit']['date']
+                    'commit_time' => $error['commit']['date'],
+                    'stacktrace' => $error['stacktrace']
                 ]
             );
         }
@@ -114,17 +126,29 @@ class AnalyzeLaravelLogs extends Command
     {
         foreach ($commit as $line) {
             if ($this->startsWith($line, 'Author: ')) {
-                $author = substr($line, strlen('Author: '), -1);
+                $author = substr($line, strlen('Author: '));
                 $author = trim($author);
             } else if ($this->startsWith($line, 'Date: ')) {
-                $date = substr($line, strlen('Date: '), -1);
+                $date = substr($line, strlen('Date: '));
                 $date = trim($date);
+            } else if($this->startsWith($line, 'commit')) {
+                $commit = substr($line, strlen('commit'));
+                $commit = trim($commit);
             }
         }
         if (isset($author) && isset($date)) {
+            echo print_r(
+                array(
+                    'author' => $author,
+                    'date' => $date,
+                    'commit' => $commit
+                ),
+                true
+            );
             return array(
                 'author' => $author,
-                'date' => $date
+                'date' => $date,
+                'commit' => $commit
             );
         }
         return false;
