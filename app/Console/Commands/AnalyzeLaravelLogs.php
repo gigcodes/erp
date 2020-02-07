@@ -2,8 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Github\GithubUser;
 use App\Issue;
 use App\LaravelGithubLog;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Console\Command;
 use Storage;
 
@@ -23,6 +26,8 @@ class AnalyzeLaravelLogs extends Command
      */
     protected $description = 'Analyze all the log files';
 
+    private $client;
+
     /**
      * Create a new command instance.
      *
@@ -31,6 +36,9 @@ class AnalyzeLaravelLogs extends Command
     public function __construct()
     {
         parent::__construct();
+        $this->client = new Client([
+            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+        ]);
     }
 
     /**
@@ -58,7 +66,7 @@ class AnalyzeLaravelLogs extends Command
             $matches = [];
             //preg_match_all('/\[([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})\].*' . $escaped . '(\S*):\d*\)(.|\\s)*[stacktrace](.|\\s)*main/U', $content, $matches);
 
-            preg_match_all('/\[([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})\].*?'.$escaped. '(\S*?):\d*?\)\n.*?(#0.*?)main/s', $content, $matches);
+            preg_match_all('/\[([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})\].*?' . $escaped . '(\S*?):\d*?\)\n.*?(#0.*?)main/s', $content, $matches);
 
             $timestamps = $matches[1];
             $filenames = $matches[2];
@@ -83,7 +91,7 @@ class AnalyzeLaravelLogs extends Command
         foreach ($errorData as $key => $error) {
             $cmdReponse = [];
             $cmd = 'git log -n 1 ' . $path . $error['filename'] . ' 2>&1';
-            echo 'git command: '.$cmd;
+            echo 'git command: ' . $cmd;
             exec($cmd, $cmdReponse);
             echo 'Command execution response :' . print_r($cmdReponse, true) . PHP_EOL;
             $commitDetails = $this->getDetailsFromCommit($cmdReponse);
@@ -100,7 +108,7 @@ class AnalyzeLaravelLogs extends Command
             }
         );
 
-        echo '== DATA ENTRIES == '.PHP_EOL;
+        echo '== DATA ENTRIES == ' . PHP_EOL;
         echo print_r($errorData, true);
 
         $newlyCreatedLogs  = [];
@@ -121,10 +129,39 @@ class AnalyzeLaravelLogs extends Command
                 ]
             );
 
-            if($log->wasRecentlyCreated){
+            if ($log->wasRecentlyCreated) {
                 $newlyCreatedLogs[] = $log;
             }
         }
+
+        echo 'Getting github user IDs....' . PHP_EOL;
+
+        // assign the github user ID to the logs
+        foreach ($newlyCreatedLogs as $log) {
+            $githubUserId = $this->getUserIdFromCommit($log->commit);
+            $log->githubUserId = $githubUserId;
+        }
+
+        // get all the user id corresponding to github user ID
+
+        $githubUserIds = array_unique(
+            array_filter(
+                array_map(
+                    function ($log) {
+                        return $log->githubUserId;
+                    },
+                    $newlyCreatedLogs
+                )
+            )
+        );
+
+        echo '====== Github User IDs ======' . PHP_EOL;
+        echo print_r($githubUserIds, true).PHP_EOL;
+
+
+        $users = GithubUser::whereIn('id', $githubUserIds)->select(['id', 'user_id'])->get();
+
+        echo print_r($users, true).PHP_EOL;
 
         // create issue for the newly create log
         foreach($newlyCreatedLogs as $log){
@@ -132,10 +169,17 @@ class AnalyzeLaravelLogs extends Command
             $issue = $log->file.PHP_EOL.PHP_EOL.$log->stacktrce;
             $subject = 'Exception in '.$log->file;
 
+            $user = $users->first(function ($value, $key) use ($log){
+                return $value->id == $log->githubUserId;
+            });
 
+            $user_id = 0;
+            if($user){
+                $user_id = $user->user_id;
+            }
 
             Issue::create([
-                'user_id' => , 
+                'user_id' => $user_id, 
                 'issue' => $issue, 
                 'priority' => 0, 
                 'module' => '', 
@@ -156,7 +200,7 @@ class AnalyzeLaravelLogs extends Command
             } else if ($this->startsWith($line, 'Date: ')) {
                 $date = substr($line, strlen('Date: '));
                 $date = trim($date);
-            } else if($this->startsWith($line, 'commit')) {
+            } else if ($this->startsWith($line, 'commit')) {
                 $commit = substr($line, strlen('commit'));
                 $commit = trim($commit);
             }
@@ -179,8 +223,22 @@ class AnalyzeLaravelLogs extends Command
         return false;
     }
 
-    private function getUserDetailsFromCommit($commit){
-        
+    private function getUserIdFromCommit($commit)
+    {
+        // NOTE: 231925646 is the ERP repo ID
+        $url = 'https://api.github.com/repositories/231925646/commits/' . $commit;
+        try {
+            $response = $this->client->get($url);
+            $decodedResponse = json_decode($response->getBody()->getContents());
+            if (isset($decodedResponse->author)) {
+                return $decodedResponse->author->id;
+            }
+            echo 'COULD NOT FIND USER DETAILS FOR: ' . $commit . ' Error: Parsing response' . PHP_EOL;
+            return false;
+        } catch (ClientException $e) {
+            echo 'COULD NOT FIND USER DETAILS FOR: ' . $commit . ' Error: ' . $e->getMessage() . PHP_EOL;
+            return false;
+        }
     }
 
     function startsWith($string, $startString)
