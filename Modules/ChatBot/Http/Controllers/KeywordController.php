@@ -44,7 +44,8 @@ class KeywordController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(["code" => 500, "error" => []]);
+            $errors = human_error_array($validator->messages()->get('*'));
+            return response()->json(["code" => 500, "error" => $errors]);
         }
 
         $chatbotKeyword = ChatbotKeyword::create($params);
