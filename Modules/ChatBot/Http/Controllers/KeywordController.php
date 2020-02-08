@@ -49,6 +49,27 @@ class KeywordController extends Controller
         }
 
         $chatbotKeyword = ChatbotKeyword::create($params);
+
+        if ( $params["value"] != NULL) {
+            $params["chatbot_keyword_id"] = $chatbotKeyword->id;
+            $chatbotKeywordValue = new ChatbotKeywordValue;
+            $chatbotKeywordValue->fill($params);
+            $chatbotKeywordValue->save();
+            
+            $valueType = [];
+            $valueType["chatbot_keyword_value_id"] =  $chatbotKeywordValue->id;
+            if(!empty($params["type"])) {
+                foreach ($params["type"] as $value) {
+                    if($value != NULL) {
+                        $valueType["type"] = $value;
+                        $chatbotKeywordValueTypes = new ChatbotKeywordValueTypes;
+                        $chatbotKeywordValueTypes->fill($valueType);
+                        $chatbotKeywordValueTypes->save();
+                    }
+                }
+            }
+        }
+
         $result         = json_decode(WatsonManager::pushKeyword($chatbotKeyword->id));
 
         if (property_exists($result, 'error')) {

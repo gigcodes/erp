@@ -190,7 +190,11 @@ var searchForDialog = function(ele) {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     url: isEntity ? "/chatbot/keyword" : "/chatbot/question",
-                    data: isEntity ? { keyword: selectedIntentOrEntity } : { value: selectedIntentOrEntity },
+                    data: isEntity ? { 
+                        keyword: selectedIntentOrEntity , value : $(".question-insert").val() 
+                    } : { 
+                        value: selectedIntentOrEntity , question : $(".question-insert").val() 
+                    },
                     dataType: "json",
                     success: function(response) {
                         var successMessage = isEntity ? "Entity Created Successfully" : "Intent Created SuccessFully"

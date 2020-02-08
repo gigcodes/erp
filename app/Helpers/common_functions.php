@@ -117,3 +117,18 @@ if (!function_exists('getInstance')) {
         : config("apiwha.instances")[0];
     }
 }
+
+ function human_error_array($errors)
+ {
+    $list = [];
+    if(!empty($errors)) {
+        foreach($errors as $key => $berror) {
+            foreach($berror as $serror) {
+                $list[] = "{$key} : ".$serror;
+            }
+        }
+    }
+
+    return $list;
+
+ }
