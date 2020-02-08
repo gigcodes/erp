@@ -346,7 +346,7 @@ $(document).on("click", "#create-dialog-folder-btn-rest", function(e) {
             }
         },
         error: function() {
-            toastr['error']('Could not change module!');
+            toastr['error']('Could not create dialog folder!');
         }
     });
 });
