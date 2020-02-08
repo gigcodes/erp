@@ -20,6 +20,7 @@ class ChatMessage extends Model
     ];
 
     CONST CHAT_AUTO_BROADCAST = 8;
+    CONST CHAT_AUTO_WATSON_REPLY = 11;
 
     use Mediable;
 

@@ -27,9 +27,9 @@ class Model
     const API_KEY = "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC";
 
     public static function getWorkspaceId()
-{
-    return "19cf3225-f007-4332-8013-74443d36a3f7";
-}
+    {
+        return "19cf3225-f007-4332-8013-74443d36a3f7";
+    }
 
     public static function getAssistantId()
     {
@@ -354,7 +354,15 @@ class Model
                 }
             }
 
-            if (isset($result->output) && isset($result->output->generic)) {
+            $chatResponse = new ResponsePurify($result->output,$customer);
+            // if response is valid then check ahead
+            if($chatResponse->isValid()) {
+                $result = $chatResponse->assignAction();
+                if(!empty($result)) {
+                    return $result;
+                }
+            }
+            /*if (isset($result->output) && isset($result->output->generic)) {
 
                 $textMessage = reset($result->output->generic);
                 if(isset($result->output->entities)) {
@@ -380,7 +388,7 @@ class Model
                         return ["reply_text" => $textMessage, "response" => json_encode($result), "imageFiles"=>$imageFiles];
                     }
                 }
-            }
+            }*/
 
             return false;
         }

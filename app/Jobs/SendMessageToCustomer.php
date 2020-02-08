@@ -64,6 +64,9 @@ class SendMessageToCustomer implements ShouldQueue
 
         }
 
+        if(isset($params["images"]) && is_array($params["images"])) {
+            $medias = Media::whereIn("id", $params["images"])->get();
+        }
         // attach to the customer
         $customerIds = !empty($params["customer_ids"]) ? $params["customer_ids"] : explode(",", $params["customers_id"]);
 
@@ -77,9 +80,10 @@ class SendMessageToCustomer implements ShouldQueue
             "group_id" => isset($params["group_id"]) ? $params["group_id"] : null,
             "user_id"  => isset($params["user_id"]) ? $params["user_id"] : null,
             "number"   => null,
+            "is_chatbot" => isset($params["is_chatbot"]) ? $params["is_chatbot"] : 0,
         ];
 
-        $allMediaIds = $medias->pluck("id")->toArray();
+        $allMediaIds = (!$medias->isEmpty()) ? $medias->pluck("id")->toArray() : [];
         $mediable    = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', 'App\Product')->get();
 
         $availableMedia = [];
@@ -129,6 +133,13 @@ class SendMessageToCustomer implements ShouldQueue
             foreach ($customers as $customer) {
                 $insertParams["customer_id"] = $customer->id;
                 $chatMessage                 = ChatMessage::create($insertParams);
+                if($chatMessage->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
+                    \App\ChatbotReply::create([
+                        "chat_id" => $chatMessage->id,
+                        "reply"   => isset($params["chatbot_response"]) ? json_encode($params["chatbot_response"]) : json_encode([])
+                    ]);
+                }
+
                 if (!$medias->isEmpty()) {
 
                     if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
