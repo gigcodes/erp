@@ -69,6 +69,18 @@ var msQueue = {
             msQueue.filterReport();
         });
 
+        msQueue.config.bodyView.on("change","#action-to-run",function(e) {
+            if($(this).val() == "change_customer_number") {
+                $(".sending-number-section").show();
+            }else{
+                $(".sending-number-section").hide();
+            }
+        });
+
+        $(document).on("click",".recall-api",function(e) {    
+            msQueue.recallQueue($(this));
+        });
+
         $(".select2").select2({tags:true});
 
         $(window).scroll(function() {
@@ -160,7 +172,9 @@ var msQueue = {
 
     },
     submitForm: function(ele) {
-        var action = $(".message-queue-handler").find("#action-to-run").val();
+        var messageHandler = $(".message-queue-handler");
+        var action = messageHandler.find("#action-to-run").val();
+        var sendNumber = messageHandler.find("#sending-number").val();
         var ids    = [];
             $.each($(".select-id-input:checked"),function(k,v){
                ids.push($(v).val()); 
@@ -168,7 +182,12 @@ var msQueue = {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/message-queue/records/action-handler",
             method: "post",
-            data : {"action" : action , "ids" : ids, "_token"  : $('meta[name="csrf-token"]').attr('content')},
+            data : {
+                "action" : action , 
+                "ids" : ids,
+                "send_number" : sendNumber, 
+                "_token"  : $('meta[name="csrf-token"]').attr('content')
+            },
             beforeSend : function() {
                 $("#loading-image").show();
             }
@@ -220,6 +239,25 @@ var msQueue = {
         var addProductTpl = $.templates("#template-send-message-report");
         var tplHtml       = addProductTpl.render(response);
             msQueue.config.bodyView.find(".send-message-report").html(tplHtml);
+    },
+    recallQueue : function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/message-queue/setting/recall",
+            method: "get",
+            data : {send_number : ele.data("no")},
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterRecallQueue");   
+    },
+    afterRecallQueue : function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200){
+            toastr['success'](response.message, 'success');
+        }else{
+            toastr['error']('Oops.something went wrong', 'error');
+        }
     }
 }
 

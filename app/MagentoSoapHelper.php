@@ -155,11 +155,19 @@ class MagentoSoapHelper
 
         // Get all the sizes
         $arrSizes = explode(',', $product->size);
+        $hasEuSize = false;
+        $euArrSize = explode(',', $product->size_eu);
+        if(!empty($euArrSize)) {
+            $arrSizes = $euArrSize;
+            $hasEuSize = true;
+        }
 
         // Loop over each size and create a single (child) product
         foreach ($arrSizes as $size) {
             // Get correct size
-            $size = ProductHelper::getWebsiteSize($product->size_system, $size, $product->category);
+            if(!$hasEuSize){
+                $size = ProductHelper::getWebsiteSize($product->size_system, $size, $product->category);
+            }
 
             // Set SKU
             $sku = $product->sku . $product->color;
@@ -301,9 +309,8 @@ class MagentoSoapHelper
                     ['key' => 'country_of_manufacture', 'value' => ucwords($product->made_in),],
                     ['key' => 'brands', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
                     ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
-                    ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0]
+                    ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
                     ['key' => 'hscode', 'value' => $product->hsCode($product->category,$product->composition),]
-                       
                 ]
             ]
         );

@@ -14,6 +14,7 @@ use App\Console\Commands\GetGebnegozionlineProductDetailsWithEmulator;
 use App\Console\Commands\GetGebnegozionlineProductEntries;
 use App\Console\Commands\GetMostUsedWordsInCustomerMessages;
 use App\Console\Commands\GrowInstagramAccounts;
+use App\Console\Commands\MailingListSendMail;
 use App\Console\Commands\MakeApprovedImagesSchedule;
 use App\Console\Commands\MakeKeywordAndCustomersIndex;
 use App\Console\Commands\PostScheduledMedia;
@@ -91,9 +92,10 @@ use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\RunErpEvents;
 use App\Console\Commands\GetOrdersFromnMagento;
 use App\Console\Commands\NumberOfImageCroppedCheck;
-use App\Console\Commands\LoadLastCronErrors;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Console\Commands\StoreBrands;
+use App\Console\Commands\CacheMasterControl;
 
 
 class Kernel extends ConsoleKernel
@@ -183,7 +185,9 @@ class Kernel extends ConsoleKernel
         NumberOfImageCroppedCheck::class,
         SetTemplatesForProduct::class,
         CheckScrapersLog::class,
-        LoadLastCronErrors::class
+        StoreBrands::class,
+        MailingListSendMail::class,
+        CacheMasterControl::class
     ];
 
     /**
@@ -377,6 +381,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('hubstaff:refresh_users')->hourly();
         // send hubstaff report
         $schedule->command('hubstaff:send_report')->hourly()->between('7:00', '23:00');
+        $schedule->command('hubstaff:load_activities')->hourly();
 
         //Sync customer from magento to ERP
         $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
@@ -384,7 +389,9 @@ class Kernel extends ConsoleKernel
         // Github
         $schedule->command('github:load_branch_state')->hourly();
         $schedule->command('checkScrapersLog')->dailyAt('8:00');
-        $schedule->command('cron:last-errors')->everyFifteenMinutes();
+        $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
+        $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
+        $schedule->command('cache:master-control')->everyFiveMinutes()->withoutOverlapping();
     }
 
     /**

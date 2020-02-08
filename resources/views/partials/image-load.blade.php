@@ -1,3 +1,4 @@
+
 <div class="row">
   <div class="col text-center">
     <button type="button" class="btn btn-image my-3" id="sendImageMessage"><img src="/images/filled-sent.png" /></button>
@@ -11,10 +12,14 @@
           $image = $product->getMedia(config('constants.attach_image_tag'))->first();
           $image_keys = [];
           $selected_all = true;
-
+          $images = [];
           foreach ($product->getMedia(config('constants.attach_image_tag')) as $img) {
             $image_keys[] = $img->getKey();
-
+            $images[] = [
+              "abs" => $img->getAbsolutePath(),
+              "url" => $img->getUrl(),
+              "id"  => $img->getKey()
+            ];
             if (!in_array($img->getKey(), $selected_products)) {
               $selected_all = false;
             }
@@ -24,45 +29,63 @@
         @endphp
         {{-- @foreach ($images as $image) --}}
           <div class="col-md-3 col-xs-6 text-center mb-5 product-list-card">
-            <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
-
-              <img data-src="{{ $image->getUrl() }}" class="lazy img-responsive grid-image" alt="" />
+              <div class="row">
+                <div class="product-slider">
+                  <div data-interval="false" id="carousel_{{ $product->id }}" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner maincarousel">
+                      @foreach($images as $p => $im)
+                          <div class="item @if($p == 0) active @endif"> <img src="{{ urldecode($im['url'])}}"> </div>
+                      @endforeach
+                    </div>
+                  </div>
+                  <div class="clearfix">
+                    <div id="thumbcarousel_{{ $product->id }}" class="carousel slide thumbcarousel attach-thumb-created" data-interval="false">
+                      <div class="carousel-inner">
+                          @foreach($images as $p => $im)
+                              <div class="item @if($p == 0) active @endif">
+                                  <div data-target="#carousel_{{ $product->id }}" data-image="{{$im['id']}}" data-slide-to="{{ $p }}" class="thumb"><img width="25px" height="25px;" src="{{ urldecode($im['url'])}}"></div>
+                              </div>
+                          @endforeach
+                      </div>
+                      <a class="left carousel-control" href="#thumbcarousel_{{ $product->id }}" role="button" data-slide="prev"> <i class="fa fa-angle-left" aria-hidden="true"></i> </a> <a class="right carousel-control" href="#thumbcarousel_{{ $product->id }}" role="button" data-slide="next"><i class="fa fa-angle-right" aria-hidden="true"></i> </a> </div>
+                  </div>
+                </div>  
+              </div>  
               <div style="text-align: left;">
-              <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
-              <p>Id : {{ $product->id }}</p>
-              <p>Title : {{ $product->name }} </p>
-            </a>
-              <p>Category : @php
-                  if(!isset($product->product_category)){
-                    $id = 1;
-                  }else{
-                    $id = $product->product_category->id;
-                  }
+                <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
+                <p>Id : {{ $product->id }}</p>
+                <p>Title : {{ $product->name }} </p>
+                <p>Category : @php
+                    if(!isset($product->product_category)){
+                      $id = 1;
+                    }else{
+                      $id = $product->product_category->id;
+                    }
 
-                  if(!isset($renderCategory)) {
-                     $renderCategory = nestable()->make(\App\Category::all());
-                  }
+                    if(!isset($renderCategory)) {
+                       $renderCategory = nestable()->make(\App\Category::all());
+                    }
 
-                  $render = $renderCategory->attr([
-                    'name' => 'category[]', 
-                    'class' => 'form-control select-multiple-cat-list update-product', 
-                    'data-placeholder' => 'Select Category..' , 
-                    'data-id' => $product->id 
-                  ])->selected($id)->renderAsDropdown();
+                    $render = $renderCategory->attr([
+                      'name' => 'category[]', 
+                      'class' => 'form-control select-multiple-cat-list update-product', 
+                      'data-placeholder' => 'Select Category..' , 
+                      'data-id' => $product->id 
+                    ])->selected($id)->renderAsDropdown();
 
-                  @endphp
-                  @if($render)
-                      {!! $render !!}
-                  @endif
-              </p>
-              <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
-              <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>
-              <p>Price EUR Special : {{ $product->price_eur_special }}</p>
-              <p>Price INR Special : {{ $product->price_inr_special }}</p>
-              <p>Color : {{ $product->color }} </p>
-              <p>Created At : {{ date("Y-m-d g:i a",strtotime($product->created_at)) }}</p>
+                    @endphp
+                    @if($render)
+                        {!! $render !!}
+                    @endif
+                </p>
+                    <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
+                    <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>
+                    <p>Price EUR Special : {{ $product->price_eur_special }}</p>
+                    <p>Price INR Special : {{ $product->price_inr_special }}</p>
+                    <p>Color : {{ $product->color }} </p>
+                    <p>Created At : {{ date("Y-m-d g:i a",strtotime($product->created_at)) }}</p>
+                  </a>
             </div>
-            </a>
             <div style="text-align: left;">
               <p onclick="myFunction({{ $product->id }})" id="description{{ $product->id }}">Description : {{ strlen($product->short_description) > 40 ? substr($product->short_description, 0, 40).'...' : $product->short_description }}</p>
               <p onclick="myFunction({{ $product->id }})" style="display: none;" id="description_full{{ $product->id }}">Description :{{ $product->short_description }}</p>

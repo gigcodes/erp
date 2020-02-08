@@ -3,13 +3,18 @@
 namespace App\Console\Commands;
 
 use App\Github\GithubBranchState;
+use App\Helpers\githubTrait;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Console\Command;
 
 class LoadBranchState extends Command
 {
+
+    use githubTrait;
+
     private $githubClient;
     /**
      * The name and signature of the console command.
@@ -120,55 +125,71 @@ class LoadBranchState extends Command
     private function getBranchNamesOfRepository(int $repoId)
     {
         //https://api.github.com/repositories/:repoId/branches
-        $url      = 'https://api.github.com/repositories/' . $repoId . '/branches';
-        $response = $this->githubClient->get($url);
 
-        $branches = json_decode($response->getBody()->getContents());
+        $url = 'https://api.github.com/repositories/' . $repoId . '/branches';
 
-        $branchNames = array_map(
-            function ($branch) {
-                return $branch->name;
-            },
-            $branches
-        );
+        $headResponse = $this->githubClient->head($url);
 
-        return array_filter($branchNames, function ($name) {
-            return $name != 'master';
-        });
-    }
+        $linkHeader = $headResponse->getHeader("Link");
+        /**
+         * <https://api.github.com/repositories/231925646/branches?page=4>; rel="prev", <https://api.github.com/repositories/231925646/branches?page=4>; rel="last", <https://api.github.com/repositories/231925646/branches?page=1>; rel="first"
+         */
 
-    private function compareRepoBranches(int $repoId, string $branchName, string $base = 'master')
-    {
-        //https://api.github.com/repositories/:repoId/compare/:diff
 
-        $url      = 'https://api.github.com/repositories/' . $repoId . '/compare/' . $base . '...' . $branchName;
-        $response = $this->githubClient->get($url);
 
-        $compare = json_decode($response->getBody()->getContents());
 
-        $lastCommitAuthorUsername = null;
-        $lastCommitTime           = null;
 
-        if (is_array($compare->commits) && sizeof($compare->commits) > 0) {
-            $index = sizeof($compare->commits) - 1;
-
-            try {
-                $lastCommitAuthorUsername = $compare->commits[$index]->author->login;
-            } catch (Exception $e) {
-                // do nothing
-                $lastCommitAuthorUsername = $compare->commits[$index]->commit->author->name;
+        $totalPages = 1;
+        if (sizeof($linkHeader) > 0) {
+            $lastLink = null;
+            $links = explode(',', $linkHeader[0]);
+            foreach ($links as $link) {
+                if (strpos($link, 'rel="last"') !== false) {
+                    $lastLink = $link;
+                    break;
+                }
             }
-            $lastCommitTime = Carbon::parse($compare->commits[$index]->commit->author->date);
-        } else {
-            $lastCommitAuthorUsername = $compare->merge_base_commit->commit->author->name;
-            $lastCommitTime           = Carbon::parse($compare->merge_base_commit->commit->author->date);
+
+            //<https://api.github.com/repositories/231925646/branches?page=4>; rel="last"
+            $linkWithAngularBrackets = explode(";", $lastLink)[0];
+            //<https://api.github.com/repositories/231925646/branches?page=4>
+            $linkWithAngularBrackets = str_replace('<', '', $linkWithAngularBrackets);
+            //https://api.github.com/repositories/231925646/branches?page=4>
+            $linkWithPageNumber = str_replace('>', '', $linkWithAngularBrackets);
+            //https://api.github.com/repositories/231925646/branches?page=4
+            $pageNumberString = explode('?', $linkWithPageNumber)[1];
+            //page=4
+            $totalPages = explode('=',  $pageNumberString)[1];
+
+            $totalPages = intval($totalPages);
         }
 
-        return [
-            'ahead_by'                    => $compare->ahead_by,
-            'behind_by'                   => $compare->behind_by,
-            'last_commit_author_username' => $lastCommitAuthorUsername,
-            'last_commit_time'            => $lastCommitTime,
-        ];
+        $allBranchNames = [];
+        $page = 1;
+        while ($page <= $totalPages) {
+
+            $response = $this->githubClient->get($url . '?page=' . $page);
+
+            $branches = json_decode($response->getBody()->getContents());
+
+            $branchNames =  array_map(
+                function ($branch) {
+                    return $branch->name;
+                },
+                $branches
+            );
+
+            $allBranchNames = array_merge(
+                $allBranchNames,
+                array_filter($branchNames, function ($name) {
+                    return $name != 'master';
+                })
+            );
+
+            $page++;
+        }
+        return $allBranchNames;
     }
+
+    
 }
