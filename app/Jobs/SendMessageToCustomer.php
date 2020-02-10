@@ -107,69 +107,70 @@ class SendMessageToCustomer implements ShouldQueue
         // check first if the media needs to be handled by pdf then first create the images of it
         $allpdf   = [];
         $allMedia = [];
-        if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
-            $chunkedMedia = $medias->chunk(self::MEDIA_PDF_CHUNKS);
-            foreach ($chunkedMedia as $key => $medias) {
+        if(!empty($medias)) {
+            if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
+                $chunkedMedia = $medias->chunk(self::MEDIA_PDF_CHUNKS);
+                foreach ($chunkedMedia as $key => $medias) {
 
-                $pdfView = (string) view('pdf_views.images_customer', compact('medias', 'availableMedia', 'products'));
+                    $pdfView = (string) view('pdf_views.images_customer', compact('medias', 'availableMedia', 'products'));
 
-                // based on view create a pdf
-                $pdf = new Dompdf();
-                $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
-                $pdf->loadHtml($pdfView);
+                    // based on view create a pdf
+                    $pdf = new Dompdf();
+                    $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
+                    $pdf->loadHtml($pdfView);
 
-                if (!empty($params["pdf_file_name"])) {
-                    $random = str_replace(" ", "-", $params["pdf_file_name"] . "-" . ($key + 1) . "-" . date("Y-m-d-H-i-s-") . rand());
-                } else {
-                    $random = uniqid('sololuxury_', true);
+                    if (!empty($params["pdf_file_name"])) {
+                        $random = str_replace(" ", "-", $params["pdf_file_name"] . "-" . ($key + 1) . "-" . date("Y-m-d-H-i-s-") . rand());
+                    } else {
+                        $random = uniqid('sololuxury_', true);
+                    }
+
+                    $fileName = public_path() . '/' . $random . '.pdf';
+                    $pdf->render();
+
+                    File::put($fileName, $pdf->output());
+
+                    $allpdf[]            = $fileName;
+                    $media               = MediaUploader::fromSource($fileName)->toDirectory('chatmessage/0')->upload();
+                    $allMedia[$fileName] = $media;
+
                 }
-
-                $fileName = public_path() . '/' . $random . '.pdf';
-                $pdf->render();
-
-                File::put($fileName, $pdf->output());
-
-                $allpdf[]            = $fileName;
-                $media               = MediaUploader::fromSource($fileName)->toDirectory('chatmessage/0')->upload();
-                $allMedia[$fileName] = $media;
-
             }
-        }
+            if (!$customers->isEmpty()) {
+                foreach ($customers as $customer) {
+                    $insertParams["customer_id"] = $customer->id;
+                    $chatMessage                 = ChatMessage::create($insertParams);
+                    if (!$medias->isEmpty()) {
 
-        if (!$customers->isEmpty()) {
-            foreach ($customers as $customer) {
-                $insertParams["customer_id"] = $customer->id;
-                $chatMessage                 = ChatMessage::create($insertParams);
-                if (!$medias->isEmpty()) {
+                        if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
+                            // send pdf
+                            if (!empty($allpdf)) {
+                                foreach ($allpdf as $no => $file) {
+                                    // if first file then send direct into queue and if then send after it
+                                    if ($no == 0) {
+                                        $chatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
+                                    } else {
+                                        // attach to customer so we can send later after approval
+                                        $extradata             = $insertParams;
+                                        $extradata['is_queue'] = 0;
+                                        $extraChatMessage      = ChatMessage::create($extradata);
+                                        $extraChatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
 
-                    if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
-                        // send pdf
-                        if (!empty($allpdf)) {
-                            foreach ($allpdf as $no => $file) {
-                                // if first file then send direct into queue and if then send after it
-                                if ($no == 0) {
-                                    $chatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
-                                } else {
-                                    // attach to customer so we can send later after approval
-                                    $extradata             = $insertParams;
-                                    $extradata['is_queue'] = 0;
-                                    $extraChatMessage      = ChatMessage::create($extradata);
-                                    $extraChatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
+                                    }
+                                }
+                            }
 
+                        } else {
+                            foreach ($medias as $media) {
+                                try {
+                                    $chatMessage->attachMedia($media, config('constants.media_tags'));
+                                } catch (\Exception $e) {
+                                    \Log::error($e);
                                 }
                             }
                         }
 
-                    } else {
-                        foreach ($medias as $media) {
-                            try {
-                                $chatMessage->attachMedia($media, config('constants.media_tags'));
-                            } catch (\Exception $e) {
-                                \Log::error($e);
-                            }
-                        }
                     }
-
                 }
             }
         }
