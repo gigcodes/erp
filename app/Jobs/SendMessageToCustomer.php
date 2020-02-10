@@ -53,12 +53,15 @@ class SendMessageToCustomer implements ShouldQueue
         $mediaImages = [];
         $params      = $this->params;
         $this->type  = "by_product";
+        $haveMedia = false;
+
 
         // query section
 
         if ($this->type == "by_product") {
             $mediaImages = ProductHelper::getImagesByProduct($params);
             if (!empty($mediaImages)) {
+                $haveMedia = true;
                 $medias = Media::whereIn("id", $mediaImages)->get();
             }
         }
@@ -67,6 +70,7 @@ class SendMessageToCustomer implements ShouldQueue
         //if ($this->type == "by_images") {
         if(!empty($params["images"])) {
             $ids = is_array($params["images"]) ? $params["images"] : json_decode($params["images"]);
+            $haveMedia = true;
             $medias = Media::whereIn("id", $ids)->get();
         }
         //}
@@ -86,7 +90,7 @@ class SendMessageToCustomer implements ShouldQueue
             "number"   => null,
         ];
 
-        $allMediaIds = $medias->pluck("id")->toArray();
+        $allMediaIds = ($haveMedia) ? $medias->pluck("id")->toArray() : [];
         $mediable    = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', 'App\Product')->get();
 
         $availableMedia = [];
