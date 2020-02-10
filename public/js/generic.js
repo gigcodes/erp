@@ -7,13 +7,18 @@ $(document).on('click', '.load-communication-modal', function () {
     var load_type = $(this).data('load-type');
     var is_admin = $(this).data('is_admin');
     var is_hod_crm = $(this).data('is_hod_crm');
+    
+    var limit = 2;
+    if(typeof $(this).data('limit') != "undefined") {
+       limit = $(this).data('limit');
+    }
 
 
     $.ajax({
         type: "GET",
         url: "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages",
         data: {
-            limit: 1000,
+            limit: limit,
             load_all: load_all,
             load_attached: load_attached,
             load_type: load_type,
@@ -22,9 +27,12 @@ $(document).on('click', '.load-communication-modal', function () {
             //$(thiss).text('Loading...');
         }
     }).done(function (response) {
+        
         var j = 0;
         var li = '<div class="speech-wrapper">';
+        
         (response.messages).forEach(function (message) {
+            console.log(message);
             // Set empty image var
             var media = '';
             var imgSrc = '';
@@ -35,7 +43,6 @@ $(document).on('click', '.load-communication-modal', function () {
                     // Get image to display
                     imgSrc = getImageToDisplay(message.mediaWithDetails[i].image);
                     var productId = message.mediaWithDetails[i].product_id;
-
                     // Set media
                     if (imgSrc != '') {
                         media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank" class="show-thumbnail-image"><input type="checkbox" name="product" value="' + productId + '" id="cb1_' + i + '" /><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
@@ -45,6 +52,7 @@ $(document).on('click', '.load-communication-modal', function () {
 
             // check for media with details
             if (load_attached == 1 && message.media && message.media.length > 0) {
+                media = media + '<div class="col-12">';
                 for (var i = 0; i < message.media.length; i++) {
                     // Get image to display
                     imgSrc = getImageToDisplay(message.media[i].image);
@@ -53,34 +61,34 @@ $(document).on('click', '.load-communication-modal', function () {
 
                     // Set media
                     if (imgSrc != '') {
-                        media = media + '<div class="col-12">';
+                        //media = media + '<div class="col-md-4">';
                         var imageType = (message.media[i].image).substr( (message.media[i].image).length - 4).toLowerCase();
-                        if (message.media[i].product_id) {
+                        var dataProductId =  (message.media[i].product_id) ? 'data-id="' + message.media[i].product_id + '"' : '';  
 
-                            if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
-                                media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info show-thumbnail-image"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                            } else {
-                                media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                            } 
+                        if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
+                            media = media + '<div class="thumbnail">';
+                            media = media + '<div id="thumb">';
+                            media = media + '<img width="20px" height="20px" class="img-responsive"alt="300x200" src="'+imgSrc+'">';
+                            media = media + '<button class="btn btn-default btn-warning pull-right"><span class="glyphicon glyphicon-user"></span> 10</button>';
+                            media = media + '</div>';
+                            media = media + '</div>';
+                            //media = media + '<a href="javascript:;" '+dataProductId+' class="show-product-info show-thumbnail-image"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         } else {
-                            if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
-                                media = media + '<a class="show-thumbnail-image" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                            }else{
-                                media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                            }
+                            media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         }
-                            
 
-                        if (message.media[i].product_id > 0 && message.customer_id > 0) {
+                        /*if (message.media[i].product_id > 0 && message.customer_id > 0) {
                             media = media + '<br />';
-                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Lead</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-detail_image" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">Detailed Images</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-order" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Order</a>';
-                        }
-                        media = media + '</div>';
+                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Ds</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ L</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-detail_image" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">D</a>';
+                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-order" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Or</a>';
+                        }*/
+
+                        //media = media + '</div>';
                     }
                 }
+                media = media + '</div>';
             }
 
 
@@ -151,11 +159,11 @@ $(document).on('click', '.load-communication-modal', function () {
                 }
             }
             button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 delete-message" data-id="' + message.id + '">- Remove</a>';
-            if(message.is_queue == 1) {
+            if(message.is_queue > 0) {
                button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>'; 
             }
 
-            if (message.inout == 'out' || message.inout == 'in') {
+            if (message.message != '' && (message.inout == 'out' || message.inout == 'in')) {
                 button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 create-dialog">+ Dialog</a>'; 
             }    
 
