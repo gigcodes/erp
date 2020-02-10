@@ -64,11 +64,15 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
+        $currentPage = request("page",1);
+        $skip        = ($currentPage - 1) * $limit;
+
+
         $chatMessages = $object
             ->whatsappAll()
             ->whereRaw($rawWhere)
             ->where('status', '!=', 10)
-            ->skip(0)->take($limit);
+            ->skip($skip)->take($limit);
 
         $loadType = $request->get('load_type');
         switch ($loadType) {

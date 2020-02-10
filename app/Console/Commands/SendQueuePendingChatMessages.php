@@ -62,7 +62,7 @@ class SendQueuePendingChatMessages extends Command
      */
     public function handle()
     {
-        try {
+        //try {
 
             $report = \App\CronJobReport::create([
                 'signature'  => $this->signature,
@@ -155,9 +155,9 @@ class SendQueuePendingChatMessages extends Command
 
             }
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        }
+        }*/
 
     }
 }
