@@ -8,7 +8,7 @@ var getMoreChatConvo = function(params) {
         url: params.url,
         data: params.data,
         beforeSend: function () {
-            var loadingIcon = '<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url(//images//pre-loader.gif)50% 50% no-repeat;display:none;"></div>';
+            var loadingIcon = '<div id="loading-image" style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url(/images/pre-loader.gif)50% 50% no-repeat;"></div>';
             if ($('#chat-list-history').length > 0) {
                 $("#chat-list-history").find(".modal-body").append(loadingIcon);
             } else {
@@ -21,15 +21,17 @@ var getMoreChatConvo = function(params) {
             var li = getHtml(response);
 
             if ($('#chat-list-history').length > 0) {
-                //$("#chat-list-history").find(".modal-body").find("#loading-image").remove();
+                $("#chat-list-history").find(".modal-body").find("#loading-image").remove();
                 $("#chat-list-history").find(".modal-body").append(li);
                 //$(thiss).html("<img src='/images/chat.png' alt=''>");
                 //$("#chat-list-history").modal("show");
             } else {
-                //$("#chat-history").find("#loading-image").remove();
+                $("#chat-history").find("#loading-image").remove();
                 $("#chat-history").append(li);
             }
         }else{
+            $("#chat-list-history").find(".modal-body").find("#loading-image").remove();
+            $("#chat-history").find("#loading-image").remove();
             currentChatParams.data.hasMore = false;
         }
 
@@ -799,8 +801,11 @@ $('#chat-list-history').on("scroll", function() {
 
 
     // Bottom reached:
-    if (modal_scrollTop > (modal_scrollHeight - 200)) {
+    //console.log([modal_scrollTop,(modal_scrollHeight - 500), workingOn , currentChatParams.data.hasMore]);
+    if (modal_scrollTop > (modal_scrollHeight - 500) && workingOn == null) {
+        console.log(currentChatParams.data.hasMore,workingOn);
         if(currentChatParams.data.hasMore && workingOn == null) {
+            workingOn = true;
             currentChatParams.data.page++; 
             getMoreChatConvo(currentChatParams);
         }
