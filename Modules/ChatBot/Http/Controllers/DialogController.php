@@ -496,4 +496,10 @@ class DialogController extends Controller
         return response()->json(["incomplete_results" => false, "items"=> $allDialogList, "total_count" => count($allDialogList)]);
 
     }
+
+    public function log(Request $request)
+    {
+        $log = WatsonManager::getLog();
+        return view('chatbot::dialog.log', compact('log'));
+    }
 }
