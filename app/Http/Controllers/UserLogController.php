@@ -94,27 +94,20 @@ class UserLogController extends Controller
     }
 
     public function getData(Request $request){
-       
-        if(!empty($request->from_date)){
-            $userslogs = UserLog::select(['id', 'user_id', 'url', 'created_at','user_name', 'updated_at'])->whereBetween('created_at', array($request->from_date, $request->to_date))->get();
-        return Datatables::of($userslogs)
-        ->addColumn('user_name', function ($userslogs) {
-            return '<h6>'. $userslogs->user_name .'</h6>';
-        })
-        ->rawColumns(['user_name'])
-        ->make(true);
+        $query = UserLog::query();
+
+        if($request->from_date){
+            $query = $query->whereBetween('created_at', array($request->from_date, $request->to_date));
+        }
+
+        if($request->id){
+            $query = $query->where('user_name','LIKE','%'.$request->id.'%');
+        }
 
 
-        }elseif (!empty($request->id)) {
-             $userslogs = UserLog::select(['id', 'user_id', 'url', 'created_at','user_name', 'updated_at'])->where('id',$request->id)->get();
-        return Datatables::of($userslogs)
-        ->addColumn('user_name', function ($userslogs) {
-            return '<h6>'. $userslogs->user_name .'</h6>';
-        })
-        ->rawColumns(['user_name'])
-        ->make(true);
-        }else{
-            $userslogs = UserLog::select(['id', 'user_id', 'url', 'created_at','user_name', 'updated_at']);
+        $userslogs = $query->select(['id', 'user_id', 'url', 'created_at','user_name', 'updated_at'])->orderBy('id','desc');
+
+
         return Datatables::of($userslogs)
         ->addColumn('user_name', function ($userslogs) {
             return '<button class="btn btn-sm yellow edit" onclick="usertype('.$userslogs->user_id .')">'.$userslogs->user_name .'</button>';
@@ -122,12 +115,6 @@ class UserLogController extends Controller
         ->rawColumns(['user_name'])
         ->make(true);
 
-         }
+         
      }
-
-
-
-
-
-
 }

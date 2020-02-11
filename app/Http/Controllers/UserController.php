@@ -59,7 +59,27 @@ class UserController extends Controller
 	 */
 	public function index(Request $request)
 	{
-		$data = User::orderBy('name', 'asc')->paginate(25);
+		$query = User::query();
+
+		if($request->id){
+			$query = $query->where('id', $request->id);
+		}
+
+		if($request->term){
+			$query = $query->where('name', 'LIKE','%'.$request->term.'%')->orWhere('email', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('phone', 'LIKE', '%'.$request->term.'%');
+		}
+
+		$data = $query->orderBy('name', 'asc')->paginate(25)->appends(request()->except(['page']));
+
+		if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('users.partials.list-users', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$data->render(),
+                'count' => $data->total(),
+            ], 200);
+        }
+
 		return view('users.index', compact('data'))
 			->with('i', ($request->input('page', 1) - 1) * 5);
 	}

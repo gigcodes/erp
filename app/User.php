@@ -182,7 +182,11 @@ class User extends Authenticatable
         $permission = Permission::where('route', $genUrl)->first();
 
         if (empty($permission)) {
-            echo 'unauthorized route doesnt not exist - ' . $genUrl;
+            echo 'unauthorized route doesnt not exist - new permission save' . $genUrl;
+            $per = new Permission;
+            $per->name = $genUrl;
+            $per->route = $genUrl;
+            $per->save();
             die();
             return false;
         }
