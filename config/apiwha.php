@@ -65,5 +65,6 @@ return [
 //            "instance_id" => 55211,
 //            "token" => "3b92u5cbg215c718"
 //        ],
-    ]
+    ],
+    "message_queue_limit" => 200
 ];

@@ -159,6 +159,17 @@ class ScrapController extends Controller
                 ]);
             }
         }
+        // remove categories if it is matching with sku
+        $propertiesExt = $request->get('properties');
+        if(isset($propertiesExt["category"])) {
+            $categories = array_map("strtolower", $propertiesExt["category"]);
+            $strsku     =  strtolower($sku);
+            if(in_array($strsku, $categories)) {
+               $index = array_search($strsku, $categories);
+               unset($categories[$index]);
+            }
+            $propertiesExt["category"] = $categories;
+        }
 
         // Get this product from scraped products
         $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
@@ -175,7 +186,7 @@ class ScrapController extends Controller
 
             // Set values for existing scraped product
             $scrapedProduct->url = $request->get('url');
-            $scrapedProduct->properties = $request->get('properties');
+            $scrapedProduct->properties = $propertiesExt;
             $scrapedProduct->is_sale = $request->get('is_sale') ?? 0;
             $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title'), 'name');
             $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'), 'short_description');
@@ -212,7 +223,7 @@ class ScrapController extends Controller
             $scrapedProduct->url = $request->get('url');
             $scrapedProduct->title = ProductHelper::getRedactedText($request->get('title') ?? 'N/A', 'name');
             $scrapedProduct->description = ProductHelper::getRedactedText($request->get('description'), 'short_description');
-            $scrapedProduct->properties = $request->get('properties');
+            $scrapedProduct->properties = $propertiesExt;
             $scrapedProduct->currency = ProductHelper::getCurrency($request->get('currency'));
             $scrapedProduct->price = (float)$request->get('price');
             if ($request->get('currency') == 'EUR') {
