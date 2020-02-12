@@ -255,16 +255,22 @@ class DialogController extends Controller
             if($current) {
                 $current->previous_sibling = $chatbotDialog->id;
                 $current->save();
-                WatsonManager::newPushDialog($current->id);
+                $error = WatsonManager::newPushDialog($current->id);
+
             }
             $chatbotDialog->previous_sibling = $previousSibling;
             $chatbotDialog->save();
-            WatsonManager::newPushDialog($chatbotDialog->id);
+            $response = WatsonManager::newPushDialog($chatbotDialog->id);
+            if(isset($response["code"]) && $response["code"] != 200) {
+                return response()->json(["code" => 500, "error" => $response["error"]]);
+            }
 
         }else {
-            WatsonManager::newPushDialog($chatbotDialog->id);
+            $response = WatsonManager::newPushDialog($chatbotDialog->id);
+            if(isset($response["code"]) && $response["code"] != 200) {
+                return response()->json(["code" => 500, "error" => $response["error"]]);
+            }
         }
-
 
         return response()->json(["code" => 200, "redirect" => route("chatbot.dialog.list")]);
 
@@ -380,7 +386,7 @@ class DialogController extends Controller
         }
         $params["response_type"] = "standard";
 
-        $siblingNode = ChatbotDialog::where("previous_sibling", 0)->first();
+        //$siblingNode = ChatbotDialog::where("previous_sibling", 0)->first();
         $dialog = ChatbotDialog::create($params);
 
         $currentNode = $request->get("current_node", 0);
@@ -392,10 +398,10 @@ class DialogController extends Controller
             }
         }
 
-        if($dialog->dialog_type == 'folder' && $siblingNode) {
+        /*if($dialog->dialog_type == 'folder' && $siblingNode) {
             $siblingNode->previous_sibling = $dialog->id;
             $siblingNode->save();
-        }
+        }*/
 
         // update sort order with previous sibling
         //$this->updateSortOrder();

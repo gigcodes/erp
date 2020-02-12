@@ -13,6 +13,13 @@
             height: 600px;
         }
 
+        li {
+            list-style-type: none;
+        }
+        .padding-left-zero {
+            padding-left: 0px;
+        }
+
     </style>
 @endsection
 @section('content')
@@ -25,7 +32,9 @@
             </div>
             <div class="pull-right">
                 <a class="btn btn-secondary" href="{{ route('users.index') }}"> Back</a>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addPermission">Add Permission</button>
             </div>
+
         </div>
     </div>
 
@@ -62,25 +71,10 @@
 
                     <div class="col-xs-12">
                         <div class="form-group">
-                            {{-- <strong>Solo phone:</strong>
-                            <Select name="whatsapp_number" class="form-control">
-                                <option value>None</option>
-                                <option value="919167152579" {{ $user->whatsapp_number == '919167152579' ? 'selected' : '' }}>00</option>
-                                <option value="918291920452" {{ $user->whatsapp_number == '918291920452' ? 'selected' : '' }}>02</option>
-                                <option value="918291920455" {{ $user->whatsapp_number == '918291920455' ? 'selected' : '' }}>03</option>
-                                <option value="919152731483" {{ $user->whatsapp_number == '919152731483' ? 'selected' : '' }}>04</option>
-                                <option value="919152731484" {{ $user->whatsapp_number == '919152731484' ? 'selected' : '' }}>05</option>
-                                <option value="971562744570" {{ $user->whatsapp_number == '971562744570' ? 'selected' : '' }}>06</option>
-                                <option value="918291352520" {{ $user->whatsapp_number == '918291352520' ? 'selected' : '' }}>08</option>
-                                <option value="919004008983" {{ $user->whatsapp_number == '919004008983' ? 'selected' : '' }}>09</option>
-                            </Select> --}}
                             <select name="whatsapp_number" class="form-control" id="whatsapp_change">
                                 <option value>Whatsapp Number</option>
                                 <option value="971569119192" {{ '971569119192' == $user->whatsapp_number ? ' selected' : '' }}>971569119192 Indian</option>
                                 <option value="971502609192" {{ '971502609192' == $user->whatsapp_number ? ' selected' : '' }}>971502609192 Dubai</option>
-                                {{-- @foreach ($api_keys as $api_key)
-                                  <option value="{{ $api_key->number }}" {{ $user->whatsapp_number == $api_key->number ? 'selected' : '' }}>{{ $api_key->number }}</option>
-                                @endforeach --}}
                             </select>
 
                             @if ($errors->has('whatsapp_number'))
@@ -153,7 +147,7 @@
                     @endif
 
                     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-                        <button type="submit" class="btn btn-secondary">+</button>
+                        <button type="submit" class="btn btn-secondary">Save Changes</button>
                     </div>
                 </div>
             </div>
@@ -161,13 +155,14 @@
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="overflow-auto" id="collapse1">
                         <strong>Role:</strong>
-
+                        <input type="text" id="myInputRole" onkeyup="roleSearch()" placeholder="Search for roles.." class="form-control">
+                        <ul id="myRole" class="padding-left-zero">
                         @foreach($roles as $key => $value)
-                           <div>
-                                {{ Form::checkbox('roles[]',  $key  , (in_array($value, $userRole)) ? "checked" : '') }} <strong>{{ $value }}</strong>
-
-                                 </div>
+                           <li>
+                            <a>{{ Form::checkbox('roles[]',  $key  , (in_array($value, $userRole)) ? "checked" : '') }} <strong>{{ $value }}</strong></a>
+                            </li>
                         @endforeach
+                        </ul>
 
                     </div>
                     <br />
@@ -187,15 +182,17 @@
 
             </div>
             <div class="col-md-3">
-
                 <div class="overflow-auto" id="collapse">
                     <strong>Permission:</strong>
+                    <input type="text" id="myInput" onkeyup="permissionSearch()" placeholder="Search for permissions.." class="form-control">
+                    <ul id="myUL" class="padding-left-zero">
                     @foreach($permission as $key => $value)
-                        <div>
-                           {{ Form::checkbox('permissions[]',  $key , (in_array($value, $userPermission)) ? "checked" : '') }} <strong>{{ $value }}</strong>
+                        <li><a>
+                           {{ Form::checkbox('permissions[]',  $key , (in_array($value, $userPermission)) ? "checked" : '') }} <strong>{{ $value }}</strong></a>
 
-                        </div>
+                        </li>
                     @endforeach
+                    </ul>
                 </div>
                 <br>
                 <div class="form-group">
@@ -232,6 +229,48 @@
       </form>
     </div> --}}
 
+@include('users.partials.add-permission')
+@endsection
+
+@section('scripts')
+
+<script>
+function permissionSearch() {
+    var input, filter, ul, li, a, i, txtValue;
+    input = document.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("myUL");
+    li = ul.getElementsByTagName("li");
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("a")[0];
+        txtValue = a.textContent || a.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+        } else {
+            li[i].style.display = "none";
+        }
+    }
+}
+
+function roleSearch() {
+    var input, filter, ul, li, a, i, txtValue;
+    input = document.getElementById("myInputRole");
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("myRole");
+    li = ul.getElementsByTagName("li");
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("a")[0];
+        txtValue = a.textContent || a.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+        } else {
+            li[i].style.display = "none";
+        }
+    }
+}
+
+
+</script>
 
 @endsection
 
