@@ -1976,7 +1976,31 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
         
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers','customerId','categoryArray'));
+        return view('partials.image-grid', compact(
+            'products',
+            'products_count',
+            'roletype',
+            'model_id',
+            'selected_products',
+            'model_type',
+            'status',
+            'assigned_user',
+            'category_selection',
+            'brand',
+            'filtered_category',
+            'message_body',
+            'sending_time',
+            'locations',
+            'suppliers',
+            'all_product_ids',
+            'quick_sell_groups',
+            'countBrands',
+            'countCategory',
+            'countSuppliers',
+            'customerId',
+            'categoryArray',
+            'term'
+        ));
     }
 
 

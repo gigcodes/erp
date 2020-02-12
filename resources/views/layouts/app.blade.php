@@ -158,7 +158,14 @@
 
     <script src="{{ asset('js/chat.js') }}"></script> --}}
 
-
+    <style type="text/css">
+        .back-to-top {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -469,6 +476,9 @@
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('Logging\LogListMagentoController@index') }}">Log List Magento</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/magento/status">Order Status Mapping</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1499,7 +1509,7 @@
         <div class="col-md-12">
             @yield('large_content')
         </div>
-
+         <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>   
     </div>
 
     @if(Auth::check())
@@ -1959,6 +1969,23 @@
                     alert(res.success);
                 }
             })
+        });
+
+        $(document).ready(function(){
+            $(window).scroll(function () {
+                    if ($(this).scrollTop() > 50) {
+                        $('#back-to-top').fadeIn();
+                    } else {
+                        $('#back-to-top').fadeOut();
+                    }
+                });
+                // scroll body to 0px on click
+                $('#back-to-top').click(function () {
+                    $('body,html').animate({
+                        scrollTop: 0
+                    }, 400);
+                    return false;
+                });
         });
        
     </script>

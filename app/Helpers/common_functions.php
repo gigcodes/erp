@@ -118,6 +118,20 @@ if (!function_exists('getInstance')) {
     }
 }
 
+ function human_error_array($errors)
+ {
+    $list = [];
+    if(!empty($errors)) {
+        foreach($errors as $key => $berror) {
+            foreach($berror as $serror) {
+                $list[] = "{$key} : ".$serror;
+            }
+        }
+    }
+
+    return $list;
+
+ }
 
 /**
  * Get all instances no with array list
@@ -140,4 +154,3 @@ if (!function_exists('getInstanceNo')) {
         return $list;
     }
 }
-
