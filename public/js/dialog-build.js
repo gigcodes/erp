@@ -332,6 +332,10 @@ $(document).on("click", "#create-dialog-btn-open", function() {
 $(document).on("click", "#create-dialog-folder-btn-rest", function(e) {
     e.preventDefault();
     var previous_node = 0;
+    var previous = $("#dialog-tree").find("li").last();
+    if (previous.length > 0) {
+        previous_node = previous.data("id");
+    }
     $.ajax({
         type: "get",
         url: "/chatbot/rest/dialog/create",

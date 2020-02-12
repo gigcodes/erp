@@ -710,7 +710,10 @@ class ProductHelper extends Model
             
             // run query
             $imagesQuery = $product->where("stock",">",0)
-                ->join("mediables as m", "m.mediable_id", "products.id")->select("media_id","products.id")->groupBy("products.id")
+                ->join("mediables as m", function($q) {
+                    $q->on("m.mediable_id","products.id")->where("m.mediable_type",Product::class);
+                })
+                ->select("media_id","products.id")->groupBy("products.id")
                 ->limit($limit)
                 ->get()->pluck("media_id","id")->toArray();
             

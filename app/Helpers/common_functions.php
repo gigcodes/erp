@@ -132,3 +132,25 @@ if (!function_exists('getInstance')) {
     return $list;
 
  }
+
+/**
+ * Get all instances no with array list
+ *
+ */
+if (!function_exists('getInstanceNo')) {
+    function getInstanceNo()
+    {
+        $nos  = config("apiwha.instances");
+        
+        $list = [];
+        
+        if(!empty($nos)) {
+            foreach ($nos as $key => $no) {
+                $n = ($key == 0) ? $no["number"] : $key;
+                $list[$n] = $n;
+            }
+        }
+
+        return $list;
+    }
+}
