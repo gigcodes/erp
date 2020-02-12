@@ -80,6 +80,10 @@ class LogListMagentoController extends Controller
             $logListMagentos->where('categories.title', 'LIKE', '%' . $request->category . '%');
         }
 
+        if(!empty($request->status)){
+            $logListMagentos->where('log_list_magentos.magento_status', 'LIKE', '%' . $request->status . '%');
+        }
+
         // Get paginated result
         $logListMagentos->select('log_list_magentos.*', 'products.*', 'brands.name as brand_name', 'categories.title as category_title', 'log_list_magentos.id as log_list_magento_id');
         $logListMagentos = $logListMagentos->paginate(25);

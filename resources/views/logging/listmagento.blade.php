@@ -26,7 +26,7 @@
 </div>
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Log List Magento</h2>
+        <h2 class="page-heading">Log List Magento ({{ sizeof($logListMagentos) }})</h2>
         <div class="pull-right">
             <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
         </div>
@@ -55,6 +55,16 @@
                     <div class="col-md-2">
                         <label for="sku">Category</label>
                         <input type="text" class="form-control" id="category" name="category" value="{{ old('category')}}">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="sku">Status</label>
+                        <select class="form-control" name="status">
+                            <option value=''>All</option>
+                            <option value="available" {{ old('status') == 'available' ? 'selected' : '' }}>Available</option>
+                            <option value="sold" {{ old('status') == 'sold' ? 'selected' : '' }}>Sold</option>
+                            <option value="out_of_stock" {{ old('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                        </select>
+
                     </div>
                     <button class="btn btn-light" id="submit">
                         <span class="fa fa-filter"></span> Filter Results
@@ -266,7 +276,7 @@
     });
 
     function changeMagentoStatus(logId, newStatus) {
-        if(!newStatus){
+        if (!newStatus) {
             return;
         }
         $.ajax({
