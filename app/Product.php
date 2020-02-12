@@ -258,7 +258,7 @@ class Product extends Model
                 ];
 
                 // Log scrap activity
-                ScrapActivity::create($params);
+                //ScrapActivity::create($params);
 
                 // Return
                 //returning 1 for Product Updated
