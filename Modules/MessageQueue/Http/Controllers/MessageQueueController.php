@@ -6,6 +6,7 @@ use App\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use App\Services\Whatsapp\ChatApi\ChatApi;
 
 class MessageQueueController extends Controller
 {
@@ -23,7 +24,27 @@ class MessageQueueController extends Controller
         $sendStartTime = ChatMessage::getStartTime();
         $sendEndTime = ChatMessage::getEndTime();
 
-        return view('messagequeue::index',compact('groupList','sendingLimit','sendStartTime','sendEndTime'));
+        $allWhatsappNo         = config("apiwha.instances");
+
+        $waitingMessages = [];
+        //if(env("APP_ENV") != "local") {
+        if (!empty($allWhatsappNo)) {
+            foreach ($allWhatsappNo as $no => $dataInstance) {
+                $no = ($no == 0) ? $dataInstance["number"] : $no;
+                $chatApi = new ChatApi;
+                $waitingMessage = $chatApi->waitingLimit($no);
+                $waitingMessages[$no] = $waitingMessage;
+            }
+        }
+        //}
+
+        $countQueue = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
+            ->where("is_queue", ">", 0)
+            ->where("customer_id", ">", 0)
+            ->groupBy("c.whatsapp_number")
+            ->select(\DB::raw("count(*) as total_message"),"c.whatsapp_number")->get();
+       
+        return view('messagequeue::index',compact('groupList','sendingLimit','sendStartTime','sendEndTime','waitingMessages','countQueue'));
     }
 
     /**
@@ -144,13 +165,13 @@ class MessageQueueController extends Controller
 
     public function updateLimit(Request $request)
     {
-        $limit = $request->get("message_sending_limit",0);
+        $limit = $request->get("message_sending_limit",[]);
         $startTime = $request->get("send_start_time","");
         $endTime = $request->get("send_end_time","");
 
         \App\Setting::updateOrCreate(
-            ["name" => "is_queue_sending_limit" , "type"=> "int"],
-            ["val" => $limit]
+            ["name" => "is_queue_sending_limit"],
+            ["val" => json_encode($limit), "type"=> "str"]
         );
 
         if(!empty($startTime)){
@@ -196,6 +217,32 @@ class MessageQueueController extends Controller
 
 
         return response()->json(["code" => 200 , "data" => $response, 'total' => $total]);    
+    }
+
+    public function recall(Request $request)
+    {
+        $no = $request->get("send_number");
+        $i = 0;
+        if(!empty($no)) {
+            $queue = ChatApi::chatQueue($no);
+            if(!empty($queue) && !empty($queue["first100"])) {
+                foreach($queue["first100"] as $message) {
+                    $messageID = json_decode($message["metadata"],true);
+                    if(!empty($messageID["msgId"])) {
+                         $chatMessage = ChatMessage::where("unique_id",$messageID["msgId"])->where("is_queue",0)->first();
+                         if($chatMessage) {
+                            $chatMessage->is_queue = 1;
+                            $chatMessage->approved = 0;
+                            $chatMessage->save();
+                            $i++;
+                         }
+                    }
+                }
+            }
+        }
+
+        return response()->json(["code" => 200 , "message" => "{$i} Message has been recalled"]);
+
     }
 
 }

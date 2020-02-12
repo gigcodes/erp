@@ -153,7 +153,7 @@ class Customer extends Model
 
     public function whatsappAll()
     {
-        return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+        return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function whatsapp_number_change_notified()
@@ -231,6 +231,11 @@ class Customer extends Model
     public function receivedLastestMessage()
     {
         return $this->hasOne('App\ChatMessage','customer_id','id')->whereNotNull('number')->latest();
+    }
+
+    public function hasDND()
+    {
+        return ($this->do_not_disturb == 1) ? true : false;
     }
 
     

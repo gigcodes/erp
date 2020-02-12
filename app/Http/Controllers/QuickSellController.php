@@ -26,8 +26,17 @@ class QuickSellController extends Controller
      */
     public function index(Request $request)
     {
+      $category_dropdown = (new \App\Category)->attr([
+        'name' => 'category[]', 
+        'class' => 'form-control select-multiple2', 
+        'multiple' => 'multiple',
+        'data-placeholder' => 'Select Category'
+      ])->selected(request('category'))->renderAsDropdown();
 
-      $products = Product::where('quick_product',1)->where('is_pending',0)->latest()->paginate(Setting::get('pagination'));
+      $products = Product::where('quick_product',1)->where('is_pending',0)->latest();
+      $totalProduct = $products->count();
+      $products = $products->paginate(Setting::get('pagination'));
+
       $allSize  = Product::where('quick_product',1)->where('is_pending',0)->groupBy("size")->select("size")->pluck("size")->toArray();
 
       $brands_all = Brand::all();
@@ -91,6 +100,8 @@ class QuickSellController extends Controller
         'new_category_selection'  => $new_category_selection,
         'api_keys' =>  $api_keys,
         'customers' => $customers,
+        'totalProduct' => $totalProduct,
+        'category_dropdown' => $category_dropdown
       ]);
     }
 
@@ -123,6 +134,7 @@ class QuickSellController extends Controller
         $product->name = $request->name;
     		$product->sku = $request->sku;
     		$product->size = $request->size ? implode(',', $request->size) : $request->other_size;
+        	$product->size_eu = $request->get("size_eu",null);
     		$product->brand = $request->brand;
     		$product->color = $request->color;
     		$product->supplier = $request->supplier;
@@ -207,6 +219,7 @@ class QuickSellController extends Controller
       $product->supplier = $request->supplier;
       $product->price = $request->price;
       $product->size = $request->size;
+      $product->size_eu = $request->get("size_eu");
       $product->brand = $request->brand;
       $product->location = $request->location;
       $product->category = $request->category;
@@ -520,6 +533,12 @@ class QuickSellController extends Controller
 
     public function search(Request $request)
     {
+        $category_dropdown = (new \App\Category)->attr([
+          'name' => 'category[]', 
+          'class' => 'form-control select-multiple2', 
+          'multiple' => 'multiple',
+          'data-placeholder' => 'Select Category'
+        ])->selected(request('category'))->renderAsDropdown();
 
         if($request->selected_products || $request->term  || $request->category || $request->brand || $request->color || $request->supplier ||
             $request->location || $request->size || $request->price ){
@@ -565,7 +584,13 @@ class QuickSellController extends Controller
                 $price = (explode(",",$request->price));
                 $from = $price[0];
                 $to = $price[1];
-                $query->whereBetween('price',[ $from , $to ]);
+                if($from == 0) {
+                  $query->where(function($q) use($from , $to) {
+                       $q->whereNull("price")->orWhereBetween('price',[ $from , $to ]);
+                  });  
+                }else{
+                  $query->whereBetween('price',[ $from , $to ]);
+                }
             }
 
             if(request('per_page') != null){
@@ -574,10 +599,14 @@ class QuickSellController extends Controller
                 $per_page = Setting::get('pagination');
             }
 
-            $products = $query->where('quick_product',1)->where('is_pending',0)->paginate($per_page);
+            $products = $query->where('quick_product',1)->where('is_pending',0);
+            $totalProduct = $products->count();
+            $products = $products->paginate($per_page);
 
         }else{
-            $products = Product::where('is_pending',0)->latest()->paginate(Setting::get('pagination'));
+            $products = Product::where('is_pending',0)->latest();
+            $totalProduct = $products->count();
+            $products = $products->paginate(Setting::get('pagination'));
         }
 
 
@@ -643,6 +672,8 @@ class QuickSellController extends Controller
             'new_category_selection'  => $new_category_selection,
             'api_keys' =>  $api_keys,
             'customers' => $customers,
+            'totalProduct' => $totalProduct,
+            'category_dropdown' => $category_dropdown
         ]);
     }
 

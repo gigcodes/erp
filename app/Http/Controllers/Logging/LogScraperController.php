@@ -15,19 +15,70 @@ class LogScraperController extends Controller
 {
     public function index(Request $request)
     {
+        $customrange = $request->get("customrange",null);
+
+        $from = null;
+        $to  = null;
+
+        if(!empty($customrange)) {
+            list($from,$to) = explode(" - ", $customrange);
+        }
+
         $scraperLogs = DB::table('log_scraper')->where('validated', 0);
+
+        if (!empty($request->id)) {
+            $scraperLogs = $scraperLogs->where('id', '=' ,$request->id);
+        }
+
+        if (!empty($request->ip_address)) {
+            $scraperLogs = $scraperLogs->where('ip_address', 'LIKE', '%' . $request->ip_address . '%');
+        }
 
         if (!empty($request->website)) {
             $scraperLogs = $scraperLogs->where('website', 'LIKE', '%' . $request->website . '%');
         }
 
-        if (!empty($request->result)) {
-            $scraperLogs = $scraperLogs->where('validation_result', 'LIKE', '%' . $request->result . '%');
+        if (!empty($request->url)) {
+            $scraperLogs = $scraperLogs->where('url', 'LIKE', '%' . $request->url . '%');
         }
 
-        $scraperLogs = $scraperLogs->orderBy('created_at', 'DESC')->paginate(25);
+        if (!empty($request->sku)) {
+            $scraperLogs = $scraperLogs->where('sku', 'LIKE', '%' . $request->sku . '%');
+        }
 
-        return view('log.scraper', compact('scraperLogs'));
+        if (!empty($request->original_sku)) {
+            $scraperLogs = $scraperLogs->where('original_sku', 'LIKE', '%' . $request->original_sku . '%');
+        }
+
+        if (!empty($request->title)) {
+            $scraperLogs = $scraperLogs->where('title', 'LIKE', '%' . $request->title . '%');
+        }
+
+        if (!empty($request->validation_result)) {
+            $scraperLogs = $scraperLogs->where('validation_result', 'LIKE', '%' . $request->validation_result . '%');
+        }
+
+        if(!empty($from) && !empty($to)) {
+            $scraperLogs = $scraperLogs->where('created_at',">=", $from)->where('created_at', "<=", $to);   
+        }
+
+        $logsByGroup  = clone($scraperLogs);
+        $logsByGroup  = $logsByGroup->where("validation_result","!=" ,"");
+        $logsByGroup  = $logsByGroup->select(["website",\DB::raw("count(*) as total_error")]);
+        $logsByGroup  = $logsByGroup->groupBy("website");
+        $logsByGroup  = $logsByGroup->having("total_error",">",0)->get();
+
+        $scraperLogs = $scraperLogs->orderBy('created_at', 'DESC')->paginate(25);
+        
+        // For ajax
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('logging.partials.scraper-logs', compact('scraperLogs'))->render(),
+                'links' => (string)$scraperLogs->appends(request()->except("page"))->links()
+            ], 200);
+        }
+
+        return view('logging.scraper', compact('scraperLogs','customrange','logsByGroup'));
     }
 
     public function logSKU(Request $request)

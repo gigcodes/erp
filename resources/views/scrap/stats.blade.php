@@ -201,7 +201,11 @@
                             <td width="10%" style="text-right">
                                 {{ $supplier->scraper_start_time }}h
                             </td>
-                            <td width="10%">{!! !empty($data) ? str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($data->last_scrape_date))) : '' !!}</td>
+                            <td width="10%">
+                                @if(isset($supplier->scraper_name) && !empty($supplier->scraper_name) &&  isset($lastRunAt[$supplier->scraper_name]))
+                                    {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
+                                @endif
+                            </td>
                             <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                             <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
                             <td width="3%">{{ !empty($data) ? $data->total : '' }}</td>
