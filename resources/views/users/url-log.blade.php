@@ -23,13 +23,24 @@
         </div>
     </div>
     <div class="row input-daterange">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <input type="text" name="from_date" id="from_date" class="form-control" placeholder="From Date" readonly />
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <input type="text" name="to_date" id="to_date" class="form-control" placeholder="To Date" readonly />
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <select class="form-control selectpicker" data-live-search="true" id="username">
+                      @php
+                      $users = \App\User::select('name')->get();
+                      @endphp
+                      <option value="">Select User</option>
+                      @foreach($users as $user)
+                      <option value="{{ $user->name }}">{{ $user->name }}</option>
+                      @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <button type="button" name="filter" id="filter" class="btn btn-primary">Filter</button>
                     <button type="button" name="refresh" id="refresh" class="btn btn-default">Refresh</button>
                 </div>
@@ -103,14 +114,15 @@ $(document).ready(function(){
  $('#filter').click(function(){
     var from_date = $('#from_date').val();
     var to_date = $('#to_date').val();
-  if(from_date != '' &&  to_date != '')
+    var username = $('#username').val(); 
+  if(from_date != '' &&  to_date != '' || username != '')
       {
        $('#userlogs-table').DataTable().destroy();
-       load_data(from_date, to_date);
+       load_data(from_date, to_date, username);
       }
   else
       {
-       alert('Both Date is required');
+       alert('Please Select To Filter');
       }
   });
 
