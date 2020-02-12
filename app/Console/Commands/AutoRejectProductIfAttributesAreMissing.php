@@ -43,7 +43,8 @@ class AutoRejectProductIfAttributesAreMissing extends Command
      */
     public function handle()
     {
-        try {
+        return true;
+        /*try {
             $report = CronJobReport::create([
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
@@ -148,6 +149,6 @@ class AutoRejectProductIfAttributesAreMissing extends Command
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        }
+        }*/
     }
 }

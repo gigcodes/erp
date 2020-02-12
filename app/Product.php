@@ -54,6 +54,14 @@ class Product extends Model
             \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
         });
 
+        static::updating(function ($product) {
+            $oldCatID = $product->category;
+            $newCatID = $product->getOriginal('category');
+            if($oldCatID != $newCatID) {
+                \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);     
+            }
+        });
+
         static::created(function ($model) {
             $flag = 0;
             if ($model->hasMedia(config('constants.attach_image_tag'))) {

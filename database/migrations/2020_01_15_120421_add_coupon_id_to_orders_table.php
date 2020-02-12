@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddNewColumnDialogTypeInChatbotDialogsTable extends Migration
+class AddCouponIdToOrdersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddNewColumnDialogTypeInChatbotDialogsTable extends Migration
      */
     public function up()
     {
-        Schema::table('chatbot_dialogs', function (Blueprint $table) {
-            $table->enum('dialog_type',['node', 'folder']);
+        Schema::table('orders', function (Blueprint $table) {
+            $table->unsignedBigInteger('coupon_id')->nullable()->after('is_priority');
         });
     }
 
@@ -25,8 +25,8 @@ class AddNewColumnDialogTypeInChatbotDialogsTable extends Migration
      */
     public function down()
     {
-        Schema::table('chatbot_dialogs', function (Blueprint $table) {
-            $table->dropColumn('dialog_type');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('coupon_id');
         });
     }
 }

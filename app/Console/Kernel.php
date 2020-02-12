@@ -345,7 +345,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
 
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
-        $schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
+        //$schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
 
         //This command saves the twilio call logs in call_busy_messages table...
         $schedule->command('twilio:allcalls')->everyFifteenMinutes();
@@ -381,6 +381,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('hubstaff:refresh_users')->hourly();
         // send hubstaff report
         $schedule->command('hubstaff:send_report')->hourly()->between('7:00', '23:00');
+        $schedule->command('hubstaff:load_activities')->hourly();
 
         //Sync customer from magento to ERP
         $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();

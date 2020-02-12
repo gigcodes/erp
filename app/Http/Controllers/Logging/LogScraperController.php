@@ -15,15 +15,16 @@ class LogScraperController extends Controller
 {
     public function index(Request $request)
     {
+        $customrange = $request->get("customrange",null);
+
+        $from = null;
+        $to  = null;
+
+        if(!empty($customrange)) {
+            list($from,$to) = explode(" - ", $customrange);
+        }
+
         $scraperLogs = DB::table('log_scraper')->where('validated', 0);
-
-        if (!empty($request->website)) {
-            $scraperLogs = $scraperLogs->where('website', 'LIKE', '%' . $request->website . '%');
-        }
-
-        if (!empty($request->result)) {
-            $scraperLogs = $scraperLogs->where('validation_result', 'LIKE', '%' . $request->result . '%');
-        }
 
         if (!empty($request->id)) {
             $scraperLogs = $scraperLogs->where('id', '=' ,$request->id);
@@ -57,6 +58,16 @@ class LogScraperController extends Controller
             $scraperLogs = $scraperLogs->where('validation_result', 'LIKE', '%' . $request->validation_result . '%');
         }
 
+        if(!empty($from) && !empty($to)) {
+            $scraperLogs = $scraperLogs->where('created_at',">=", $from)->where('created_at', "<=", $to);   
+        }
+
+        $logsByGroup  = clone($scraperLogs);
+        $logsByGroup  = $logsByGroup->where("validation_result","!=" ,"");
+        $logsByGroup  = $logsByGroup->select(["website",\DB::raw("count(*) as total_error")]);
+        $logsByGroup  = $logsByGroup->groupBy("website");
+        $logsByGroup  = $logsByGroup->having("total_error",">",0)->get();
+
         $scraperLogs = $scraperLogs->orderBy('created_at', 'DESC')->paginate(25);
         
         // For ajax
@@ -67,7 +78,7 @@ class LogScraperController extends Controller
             ], 200);
         }
 
-        return view('logging.scraper', compact('scraperLogs'));
+        return view('logging.scraper', compact('scraperLogs','customrange','logsByGroup'));
     }
 
     public function logSKU(Request $request)

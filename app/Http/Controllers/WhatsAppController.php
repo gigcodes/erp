@@ -1084,6 +1084,11 @@ class WhatsAppController extends FindByNumberController
                 'customer_id' => null,
             ];
 
+            // check if time exist then convert and assign it
+            if(isset($chatapiMessage[ 'time' ])) {
+                $params['created_at'] = date("Y-m-d H:i:s",$chatapiMessage[ 'time' ]);
+            }
+
             // Check if the message is a URL
             if (filter_var($text, FILTER_VALIDATE_URL)) {
                 if (substr($text, 0, 23) == 'https://firebasestorage') {
