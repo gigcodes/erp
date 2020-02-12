@@ -51,6 +51,25 @@
         } 
 
         $path = $subMedia->getAbsolutePath();
+
+         try {
+            $img = Image::make($subMedia->getAbsolutePath());
+            $height = $img->height();
+            $width = $img->width();
+            $path = $subMedia->getAbsolutePath();
+            if ($height > 1000 || $width > 1000) {
+                $img->resize(1000, 1000);
+                if(!is_dir(public_path() . '/tmp_images')) {
+                    mkdir(public_path() . '/tmp_images', 0777, true);
+                }
+                $path = public_path() . '/tmp_images/'.$subMedia->getBasenameAttribute();
+                $img->save($path);
+            }
+        }catch (\Exception $e) {
+            \Log::info("Please fix this error : ".json_encode($subMedia));
+            continue;
+        }
+
         ?>
         <div class="page" style="page-break-after:always;">
             <?php

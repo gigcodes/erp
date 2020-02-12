@@ -207,6 +207,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('category/references', 'CategoryController@mapCategory');
     Route::post('category/references', 'CategoryController@saveReferences');
     Route::post('category/update-field', 'CategoryController@updateField');
+    Route::post('category/reference', 'CategoryController@saveReference');
     Route::resource('category', 'CategoryController');
 
     Route::resource('resourceimg', 'ResourceImgController');
@@ -1519,6 +1520,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/repo_user_access/{id}/remove', 'Github\UserController@removeUserFromRepository');
         Route::post('/linkUser', 'Github\UserController@linkUser');
         Route::post('/modifyUserAccess', 'Github\UserController@modifyUserAccess');
+        Route::get('/pullRequests', 'Github\RepositoryController@listAllPullRequests');
     });
 });
 

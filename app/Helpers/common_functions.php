@@ -117,3 +117,40 @@ if (!function_exists('getInstance')) {
         : config("apiwha.instances")[0];
     }
 }
+
+ function human_error_array($errors)
+ {
+    $list = [];
+    if(!empty($errors)) {
+        foreach($errors as $key => $berror) {
+            foreach($berror as $serror) {
+                $list[] = "{$key} : ".$serror;
+            }
+        }
+    }
+
+    return $list;
+
+ }
+
+/**
+ * Get all instances no with array list
+ *
+ */
+if (!function_exists('getInstanceNo')) {
+    function getInstanceNo()
+    {
+        $nos  = config("apiwha.instances");
+        
+        $list = [];
+        
+        if(!empty($nos)) {
+            foreach ($nos as $key => $no) {
+                $n = ($key == 0) ? $no["number"] : $key;
+                $list[$n] = $n;
+            }
+        }
+
+        return $list;
+    }
+}

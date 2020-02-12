@@ -191,6 +191,7 @@ return [
         Yajra\DataTables\DataTablesServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Milon\Barcode\BarcodeServiceProvider::class,
+        App\Providers\WhatsappConfigProvider::class,
     ],
 
     /*
