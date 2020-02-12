@@ -46,6 +46,7 @@ cronjob-magecontroller.php
 trash.php
 /merge_conflicts
 temp.php
+temp.txt
 logs
 .git.zip
 _MACOSX
