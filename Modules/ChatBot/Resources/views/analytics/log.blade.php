@@ -15,6 +15,16 @@
 
 <div class="row">
     <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
+        <div class="pull-left">
+          <div class="form-inline">
+              <form method="get">
+                  <?php echo Form::text("search",request("search",null),["class" => "form-control", "placeholder" => "Enter input here.."]); ?>      
+                  <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+                      <img src="/images/search.png" style="cursor: default;">
+                  </button>
+              </form>
+          </div>
+        </div>
         <div class="pull-right">
             <div class="form-inline">
                 <button type="button" class="btn btn-secondary ml-3" id="create-dialog-btn-rest">Create</button>
@@ -44,12 +54,12 @@
               <tr>
                 <td><?php echo $el["user_input"]; ?></td>
                 <td><?php echo $el["bot_response"]; ?></td>
-                <td><?php echo implode(",",$el["intents"]); ?></td>
-                <td><?php echo implode(",",$el["entities"]); ?></td>
+                <td><span class="label label-default"><?php echo implode(",",$el["intents"]); ?></span></td>
+                <td><span class="label label-info"><?php echo implode(",",$el["entities"]); ?></span></td>
                 <td><?php echo $el["warning"]; ?></td>
                 <td><?php echo $el["requested_at"]; ?></td>
                 <td>
-                  <a href="javascript:;" data-message="{{ $el['user_input'] }}" class="btn btn-xs btn-image create-dialog" title="Add Dialog"><img src="/images/add.png" alt=""></a>
+                    <a href="javascript:;" data-message="{{ $el['user_input'] }}" class="btn btn-xs btn-image create-dialog" title="Add Dialog"><img src="/images/add.png" alt=""></a>
                 </td>
               </tr>
           <?php } ?>
@@ -61,7 +71,7 @@
             <li class="page-item"><a class="page-link" onclick="return window.history.back();" tabindex="-1">Previous</a></li>
           <?php } ?>
           <?php if(!empty($nextUrl)) { ?>
-            <li class="page-item"><a class="page-link" href="<?php echo route('chatbot.analytics.list',['cursor' => $nextUrl]); ?>">Next</a></li>
+            <li class="page-item"><a class="page-link" href="<?php echo route('chatbot.analytics.list',['cursor' => $nextUrl] + request()->all()); ?>">Next</a></li>
           <?php } ?>
         </ul>
       </nav>

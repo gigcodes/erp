@@ -19,6 +19,10 @@ class AnalyticsController extends Controller
         $params['cursor']     = $request->get("cursor", "");
         $params['sort']       = $request->get("sort", "-request_timestamp");
         $params['page_limit'] = $request->get("page_limit", 10);
+        $search = $request->get("search");
+        if(!empty($search)) {
+            $params['filter']    = "request.input.text:".$search;
+        }
 
         $responseLog = WatsonManager::getLog($params);
 
