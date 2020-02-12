@@ -953,14 +953,22 @@ class ProductController extends Controller
             }
         }
 
-        foreach ($product->suppliers_info as $key => $pr) {
+        /*foreach ($product->suppliers_info as $key => $pr) {
             if($pr->stock > 0) {
                 $data[ 'more_suppliers' ][] = [
                     "name" => $pr->supplier->supplier,
                     "link" => $pr->supplier_link
                 ] ;  
             }
-        }
+        }*/
+
+        $data[ 'more_suppliers' ] = DB::select('SELECT sp.url as link,s.supplier as name
+                            FROM `scraped_products` sp 
+                            JOIN scrapers sc on sc.scraper_name=sp.website 
+                            JOIN suppliers s ON s.id=sc.supplier_id 
+                            WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY) and sp.sku = :sku', ['sku' => $product->sku]);
+        
+
 
         $data[ 'images' ] = $product->getMedia(config('constants.media_tags'));
 
@@ -1968,7 +1976,31 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
         
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers','customerId','categoryArray'));
+        return view('partials.image-grid', compact(
+            'products',
+            'products_count',
+            'roletype',
+            'model_id',
+            'selected_products',
+            'model_type',
+            'status',
+            'assigned_user',
+            'category_selection',
+            'brand',
+            'filtered_category',
+            'message_body',
+            'sending_time',
+            'locations',
+            'suppliers',
+            'all_product_ids',
+            'quick_sell_groups',
+            'countBrands',
+            'countCategory',
+            'countSuppliers',
+            'customerId',
+            'categoryArray',
+            'term'
+        ));
     }
 
 

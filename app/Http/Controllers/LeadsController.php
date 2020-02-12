@@ -611,7 +611,7 @@ class LeadsController extends Controller
 
                     $params[ 'message' ] = 'The product images for : : ' . $brand_name . ' ' . $product->name . ' are.';
                     $chat_message = ChatMessage::create($params);
-                    $chat_message->attachMedia($product->getMedia(config('constants.media_tags')), config('constants.media_tags'));
+                    $chat_message->attachMedia($product->getMedia(config('constants.attach_image_tag')), config('constants.media_tags'));
 
                 } else {
 
