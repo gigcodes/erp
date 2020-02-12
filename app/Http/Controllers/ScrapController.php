@@ -176,13 +176,13 @@ class ScrapController extends Controller
 
         if ($scrapedProduct) {
             // Add scrape statistics
-            $scrapStatistics = new ScrapStatistics();
-            $scrapStatistics->supplier = $request->get('website');
-            $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
-            $scrapStatistics->brand = $brand->name;
-            $scrapStatistics->url = $request->get('url');
-            $scrapStatistics->description = $request->get('sku');
-            $scrapStatistics->save();
+            // $scrapStatistics = new ScrapStatistics();
+            // $scrapStatistics->supplier = $request->get('website');
+            // $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
+            // $scrapStatistics->brand = $brand->name;
+            // $scrapStatistics->url = $request->get('url');
+            // $scrapStatistics->description = $request->get('sku');
+            // $scrapStatistics->save();
 
             // Set values for existing scraped product
             $scrapedProduct->url = $request->get('url');
@@ -203,13 +203,13 @@ class ScrapController extends Controller
             $scrapedProduct->touch();
         } else {
             // Add scrape statistics
-            $scrapStatistics = new ScrapStatistics();
-            $scrapStatistics->supplier = $request->get('website');
-            $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
-            $scrapStatistics->brand = $brand->name;
-            $scrapStatistics->url = $request->get('url');
-            $scrapStatistics->description = $request->get('sku');
-            $scrapStatistics->save();
+            // $scrapStatistics = new ScrapStatistics();
+            // $scrapStatistics->supplier = $request->get('website');
+            // $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
+            // $scrapStatistics->brand = $brand->name;
+            // $scrapStatistics->url = $request->get('url');
+            // $scrapStatistics->description = $request->get('sku');
+            // $scrapStatistics->save();
 
             // Create new scraped product
             $scrapedProduct = new ScrapedProducts();
