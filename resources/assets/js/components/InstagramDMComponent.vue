@@ -136,7 +136,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <input :disabled="currentDisabledLead==lead.id" v-model="message[lead.id]" placeholder="Type Message here..." type="text" name="message" class="form-control">
+                                                <input :disabled="currentDisabledLead==lead.id" v-model.lazy="message[lead.id]" :key="index+1" placeholder="Type Message here..." type="text" name="message" class="form-control" >
                                             </div>
                                         </div>
                                         <div class="col-md-12 text-right">
@@ -198,7 +198,8 @@
                 currentLeadId: null,
                 sender: null,
                 receivers: [],
-                acc: ''
+                acc: '',
+                csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             }
         },
         methods: {
@@ -270,7 +271,8 @@
                         url: '/instagram/thread/'+leadId,
                         data: {
                             account_id: this.accounts[this.selectedAccounts[leadId]].id,
-                            message: this.message[leadId]
+                            message: this.message[leadId],
+                            _token: this.csrf
                         },
                         config: { headers: {'Content-Type': 'multipart/form-data' }}
                     })
