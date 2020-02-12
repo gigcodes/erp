@@ -550,28 +550,23 @@ class UserController extends Controller
 
 			$user->trackedActivitiesForWeek = $activities;
 
-			if (sizeof($weekRates) == 0) {
-				// user has no rates
-				continue;
-			} else {
-				foreach ($activities as $activity) {
-					$user->secondsTracked += $activity->tracked;
-					$i = 0;
-					while ($i < sizeof($weekRates) - 1) {
+			foreach ($activities as $activity) {
+				$user->secondsTracked += $activity->tracked;
+				$i = 0;
+				while ($i < sizeof($weekRates) - 1) {
 
-						$start = $weekRates[$i];
-						$end = $weekRates[$i + 1];
+					$start = $weekRates[$i];
+					$end = $weekRates[$i + 1];
 
-						if ($activity->starts_at >= $start['start_date'] && $activity->start_time < $end['start_date']) {
-							// the activity needs calculation for the start rate and hence do it
-							$earnings = $activity->tracked * ($start['rate'] / 60 / 60);
-							$activity->rate = $start['rate'];
-							$activity->earnings = $earnings;
-							$user->total += $earnings;
-							break;
-						}
-						$i++;
+					if ($activity->starts_at >= $start['start_date'] && $activity->start_time < $end['start_date']) {
+						// the activity needs calculation for the start rate and hence do it
+						$earnings = $activity->tracked * ($start['rate'] / 60 / 60);
+						$activity->rate = $start['rate'];
+						$activity->earnings = $earnings;
+						$user->total += $earnings;
+						break;
 					}
+					$i++;
 				}
 			}
 		}
