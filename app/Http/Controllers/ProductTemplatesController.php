@@ -101,29 +101,30 @@ class ProductTemplatesController extends Controller
 
     public function apiIndex(Request $request)
     {
-        $limit = $request->get("limit", 10);
-        $records = \App\ProductTemplate::leftJoin("brands as b", "b.id", "product_templates.brand_id")
-            ->select(["product_templates.*", "b.name as brand_name"]);
+        
+        $record = \App\ProductTemplate::where('is_processed','0')->whereNotNull('brand_id')->whereNotNull('category_id')->where('category_id','>',3)->orderBy('id','asc')->first();
 
-        if ($request->get("id", null) != null) {
-            $records->where("id", $request->get("id"));
+        $category = $record->category;
+        // Get other information related to category
+        $cat = $category->title;
+
+        $parent = '';
+        $child = '';
+
+        try {
+            if ($cat != 'Select Category') {
+                if ($category->isParent($category->id)) {
+                    $parent = $cat;
+                    $child = $cat;
+                } else {
+                    $parent = $category->parent()->first()->title;
+                    $child = $cat;
+                }
+            }
+        } catch (\ErrorException $e) {
+            //
         }
-
-        if ($request->get("productTitle", null) != null) {
-            $q = $request->get('productTitle');
-            $records->where("product_title", "like", "%$q%");
-        }
-
-        if ($request->get("productBrand", null) != null) {
-            $q = $request->get('productBrand');
-            $records->where("b.name", "like", "%$q%");
-        }
-
-        $records->where("product_templates.is_processed", "=", 0);
-
-        $records->where("product_templates.brand_id", "!=", null);
-
-        $record = $records->orderBy("product_templates.id", "asc")->first();
+        $productCategory = $parent.' '.$child;
 
         $data = [];
         if ($record) {
@@ -131,7 +132,8 @@ class ProductTemplatesController extends Controller
                 "id" => $record->id,
                 "templateNumber" => $record->template_no,
                 "productTitle" => $record->product_title,
-                "productBrand" => $record->brand_name,
+                "productBrand" => $record->brand->name,
+                "productCategory" => $productCategory,
                 "productPrice" => $record->price,
                 "productDiscountedPrice" => $record->discounted_price,
                 "productCurrency" => $record->currency,
@@ -243,10 +245,20 @@ class ProductTemplatesController extends Controller
             if(!empty($request->category && $request->category[0] != 1)){
                 $query->whereIn('category_id',$request->category);
             }
+
+            $range = explode(' - ', request('date_range'));
+
+            if($range[0] == end($range)){
+                $query->whereDate('updated_at', end($range));
+            }else{
+                $start = str_replace('/', '-', $range[0]);
+                $end = str_replace('/', '-', end($range));
+                $query->whereBetween('updated_at', array($start,$end));
+            }
             
-            $templates = $query->where('is_processed',1)->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
+            $templates = $query->where('is_processed',1)->orderBy('updated_at','desc')->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
         }else{
-           $templates = ProductTemplate::where('is_processed',1)->paginate(Setting::get('pagination')); 
+           $templates = ProductTemplate::where('is_processed',1)->orderBy('updated_at','desc')->paginate(Setting::get('pagination')); 
         }
         
         // if ($request->ajax()) {
