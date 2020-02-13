@@ -14,9 +14,7 @@
 Auth::routes();
 
 
-Route::get('/test/test', function () {
-    return session()->all();
-});
+Route::get('/test/test', 'TestController@index');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 

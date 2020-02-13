@@ -235,7 +235,7 @@ class UserController extends Controller
 
 
 		$input = $request->all();
-
+		
 		$hourly_rate = $input['hourly_rate'];
 		$currency = $input['currency'];
 
