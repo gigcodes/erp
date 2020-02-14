@@ -151,9 +151,13 @@ class Customer extends Model
         return $count > 0 ? true : false;
     }
 
-    public function whatsappAll()
+    public function whatsappAll($needBroadcast = false)
     {
-        return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        if($needBroadcast) {
+            return $this->hasMany('App\ChatMessage', 'customer_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
+        }else{
+            return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        }
     }
 
     public function whatsapp_number_change_notified()
