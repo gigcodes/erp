@@ -61,7 +61,6 @@
                         <select class="form-control" name="status">
                             <option value=''>All</option>
                             <option value="available" {{ old('status') == 'available' ? 'selected' : '' }}>Available</option>
-                            <option value="sold" {{ old('status') == 'sold' ? 'selected' : '' }}>Sold</option>
                             <option value="out_of_stock" {{ old('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
                         </select>
 
@@ -95,17 +94,12 @@
                             <td> {{$item->price}} </td>
                             <td> {{$item->message}} </td>
                             <td>
-                                @if($item->created_at!='')
-                                {{ date('M d, Y',strtotime($item->created_at))}}
+                                @if(isset($item->log_created_at))
+                                {{ date('M d, Y',strtotime($item->log_created_at))}}
                                 @endif
                             </td>
                             <td>
-                                <select onchange="changeMagentoStatus({{ $item->log_list_magento_id }}, this.value)">
-                                    <option value="false">Unknown</option>
-                                    <option value="available" {{ $item->magento_status == 'available' ? 'selected' : '' }}>Available</option>
-                                    <option value="sold" {{ $item->magento_status == 'sold' ? 'selected' : '' }}>Sold</option>
-                                    <option value="out_of_stock" {{ $item->magento_status == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
-                                </select>
+                                {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'Out of Stock' }}
                             </td>
                             <td>
                                 <button data-toggle="modal" data-target="#update_modal" class="btn btn-primary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
