@@ -153,6 +153,7 @@
                     <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/not-private.png"/></button>
                 @endif
             @endif
+            <button type="button" onClick="return confirm('Are you sure you want to delete this task ?');" data-id="<?php echo $task->id; ?>" class="btn btn-image delete-task-btn"><img src="/images/delete.png"/></button>
         </div>
     </td>
 </tr>
