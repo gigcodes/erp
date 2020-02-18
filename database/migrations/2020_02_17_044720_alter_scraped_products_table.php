@@ -14,7 +14,8 @@ class AlterScrapedProductsTable extends Migration
     public function up()
     {
         Schema::table('scraped_products', function (Blueprint $table) {
-            $table->integer('category')->nullable()->after('discounted_price');
+            $table->string('ip_address')->nullable()->after('discounted_price');
+            $table->integer('category')->nullable()->after('ip_address');
             $table->integer('validated')->nullable()->after('category');
             $table->text('validation_result')->nullable()->after('validated');
             $table->text('raw_data')->nullable()->after('validation_result');
@@ -29,6 +30,7 @@ class AlterScrapedProductsTable extends Migration
     public function down()
     {
         Schema::table('scraped_products', function (Blueprint $table) {
+            $table->dropColumn('ip_address');
             $table->dropColumn('category');
             $table->dropColumn('validated');
             $table->dropColumn('validation_result');

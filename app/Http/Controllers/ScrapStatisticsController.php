@@ -112,7 +112,7 @@ class ScrapStatisticsController extends Controller
             }
         }
 
-        $lastRunAt = \DB::table("log_scraper")->groupBy("website")->select([\DB::raw("MAX(updated_at) as last_run_at"),"website"])->pluck("last_run_at","website")->toArray();
+        $lastRunAt = \DB::table("scraped_products")->groupBy("website")->select([\DB::raw("MAX(last_inventory_at) as last_run_at"),"website"])->pluck("last_run_at","website")->toArray();
 
         $users = \App\User::all()->pluck("name", "id")->toArray();
 

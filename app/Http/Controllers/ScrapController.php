@@ -637,7 +637,7 @@ class ScrapController extends Controller
 
         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns) {
 
-            $query = LogScraper::query();
+            $query = \App\ScrapedProducts::query();
 
             $dateRange = request("daterange","");
             $startDate = false;
@@ -733,8 +733,8 @@ class ScrapController extends Controller
                 $search[] = \DB::raw("'All' as date");
             }
 
-            $totalUniqueSkuRecords = \DB::table("log_scraper")->leftJoin("products as p",function($q){
-                $q->on("p.sku","log_scraper.sku")->where('stock','>=',1);
+            $totalUniqueSkuRecords = \DB::table("scraped_products")->leftJoin("products as p",function($q){
+                $q->on("p.sku","scraped_products.sku")->where('stock','>=',1);
             });
 
             if(!empty($startDate)) {
