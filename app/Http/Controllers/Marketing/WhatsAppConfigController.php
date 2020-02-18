@@ -419,5 +419,41 @@ class WhatsappConfigController extends Controller
              return Response::json(array('error' => true)); 
         }
     }
+
+    public function restartScript(Request $request)
+    {
+        $id = $request->id;
+
+        $whatsappConfig = WhatsappConfig::find($id);
+        
+        $ch = curl_init();
+
+        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/restart-script';
+        
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch); 
+
+        $response = json_decode($output);
+            
+        if($response){
+           
+           if($response->barcode == 'Process Killed'){
+                return Response::json(array('nobarcode' => true)); 
+           } 
+            return Response::json(array('success' => true,'media' => 'No Process Found')); 
+        }else{
+         
+             return Response::json(array('error' => true)); 
+        }
+    }
     
 }
