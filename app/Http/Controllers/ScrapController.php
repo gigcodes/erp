@@ -199,6 +199,9 @@ class ScrapController extends Controller
             $scrapedProduct->discounted_price = $request->get('discounted_price');
             $scrapedProduct->original_sku = trim($request->get('sku'));
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
+            $scrapedProduct->validated = empty($errorLog) ? 1 : 0;
+            $scrapedProduct->validation_result = $errorLog;
+            $scrapedProduct->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
             $scrapedProduct->save();
             $scrapedProduct->touch();
         } else {
@@ -232,6 +235,9 @@ class ScrapController extends Controller
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
             $scrapedProduct->website = $request->get('website');
             $scrapedProduct->brand_id = $brand->id;
+            $scrapedProduct->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
+            $scrapedProduct->validated = empty($errorLog) ? 1 : 0;
+            $scrapedProduct->validation_result = $errorLog;
             $scrapedProduct->save();
         }
 
@@ -569,27 +575,27 @@ class ScrapController extends Controller
 
         if (is_array($links)) {
             foreach ($links as $link) {
-                $logScraper = LogScraper::where('url', $link)->where('website', $website)->first();
+                //$logScraper = LogScraper::where('url', $link)->where('website', $website)->first();
 
-                if ($logScraper != null) {
-                    Log::channel('productUpdates')->debug("[log_scraper] Found existing product with url " . $link);
-                    $logScraper->touch();
-                    $logScraper->save();
+                //if ($logScraper != null) {
+                    //Log::channel('productUpdates')->debug("[log_scraper] Found existing product with url " . $link);
+                    //$logScraper->touch();
+                    //$logScraper->save();
 
                     // Load scraped product and update last_inventory_at
-                    $scrapedProduct = ScrapedProducts::where('sku', ProductHelper::getSku($logScraper->sku))->where('website', $website)->first();
+                    $scrapedProduct = ScrapedProducts::where('url', $link)->where('website', $website)->first();
 
                     if ($scrapedProduct != null) {
-                        Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($logScraper->sku));
+                        Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($scrapedProduct->sku));
                         $scrapedProduct->url = $link;
                         $scrapedProduct->last_inventory_at = Carbon::now();
                         $scrapedProduct->save();
                     } else {
                         $pendingUrl[] = $link;
                     }
-                } else {
-                    $pendingUrl[] = $link;
-                }
+                //} else {
+                    //$pendingUrl[] = $link;
+                //}
             }
 
             //Getting Supplier by Scraper name

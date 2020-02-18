@@ -616,7 +616,7 @@ class Product extends Model
                         $jpg = null;
                         // need to define error update
                         if($scrapedProduct && is_object($scrapedProduct)) {
-                            $lastScraper = \App\Loggers\LogScraper::where("sku", $this->sku)->latest()->first();
+                            $lastScraper = ScrapedProducts::where("sku", $this->sku)->latest()->first();
                             if($lastScraper) {
                                 $lastScraper->validation_result = $lastScraper->validation_result.PHP_EOL."[error] One or more images has an invalid URL : ".$image.PHP_EOL;
                                 $lastScraper->save();
