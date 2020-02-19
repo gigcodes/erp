@@ -31,7 +31,22 @@ class RoleController extends Controller
 	 */
 	public function index(Request $request)
 	{
-		$roles = Role::orderBy('id','DESC')->paginate(10);
+		$query = Role::query();
+
+		if($request->term){
+			$query = $query->where('name', 'LIKE','%'.$request->term.'%');
+		}
+
+		$roles = $query->orderBy('id','DESC')->paginate(25)->appends(request()->except(['page']));
+
+		if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('roles.partials.list-roles', compact('roles'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$roles->render(),
+                'count' => $roles->total(),
+            ], 200);
+        }
+
 		return view('roles.index',compact('roles'))
 			->with('i', ($request->input('page', 1) - 1) * 10);
 	}

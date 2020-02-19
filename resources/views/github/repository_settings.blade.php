@@ -12,7 +12,6 @@
 <script>
     $(document).ready(function() {
         $('#branches-table').DataTable({
-            "paging": false,
             "ordering": true,
             "info": false
         });
@@ -50,9 +49,20 @@
 </script>
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading"><i>{{ $repository->name }}</i> branches</h2>
+        <h2 class="page-heading"><i>{{ $repository->name }}</i> branches ({{sizeof($branches)}})</h2>
     </div>
 </div>
+
+@if(Session::has('message'))
+<div class="alert alert-warning alert-dismissible">
+    {{Session::get('message')}}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+@endif
+
+
 <div class="container">
     <div class="text-right">
         <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch=master') }}">Deploy Master</a>

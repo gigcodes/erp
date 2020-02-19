@@ -21,4 +21,11 @@ class LogListMagento extends Model
         // Return
         return;
     }
+
+    public static function updateMagentoStatus($id, $status)
+    {
+        return self::where('id', $id)->update([
+            'magento_status' => $status
+        ]);
+    }
 }
