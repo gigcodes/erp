@@ -78,8 +78,8 @@ class ScrapStatisticsController extends Controller
                 SUM(IF(ls.validated=1,1,0)) AS validated,
                 SUM(IF(ls.validation_result LIKE "%[error]%",1,0)) AS errors,
                 SUM(IF(ls.validation_result LIKE "%[warning]%",1,0)) AS warnings,
-                MAX(ls.updated_at) AS last_scrape_date,
-                IF(MAX(ls.updated_at) < DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY),0,1) AS running
+                MAX(ls.last_inventory_at) AS last_scrape_date,
+                IF(MAX(ls.last_inventory_at) < DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY),0,1) AS running
             FROM
                 suppliers s
             JOIN
@@ -87,14 +87,14 @@ class ScrapStatisticsController extends Controller
             ON 
                 sc.supplier_id = s.id    
             JOIN
-                log_scraper ls 
+                scraped_products ls 
             ON  
                 sc.scraper_name=ls.website
             WHERE
                 ls.website != "internal_scraper" AND 
                 ' . ($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '') . '
                 ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
-                ls.updated_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
+                ls.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
             GROUP BY
                 ls.website
             ORDER BY
@@ -112,7 +112,7 @@ class ScrapStatisticsController extends Controller
             }
         }
 
-        $lastRunAt = \DB::table("log_scraper")->groupBy("website")->select([\DB::raw("MAX(updated_at) as last_run_at"),"website"])->pluck("last_run_at","website")->toArray();
+        $lastRunAt = \DB::table("scraped_products")->groupBy("website")->select([\DB::raw("MAX(last_inventory_at) as last_run_at"),"website"])->pluck("last_run_at","website")->toArray();
 
         $users = \App\User::all()->pluck("name", "id")->toArray();
 

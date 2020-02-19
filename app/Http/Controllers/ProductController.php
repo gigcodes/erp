@@ -3066,4 +3066,126 @@ class ProductController extends Controller
 
         return response()->json(['success' => 'success'], 200);
     }
+
+    public function originalColor($id)
+    {
+        $product = Product::find($id);
+        $referencesColor = "";
+        if(isset($product->scraped_products)){
+            
+            // starting to see that howmany color we going to update
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['colors']) != null){
+                $color = $product->scraped_products->properties['colors'];
+                if(is_array($color)) {
+                    $referencesColor = implode(' > ',$color);
+                }else{
+                   $referencesColor = $color;
+                }
+            }
+
+            // starting to see that howmany color we going to update
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['color']) != null){
+                $color = $product->scraped_products->properties['color'];
+                if(is_array($color)) {
+                    $referencesColor = implode(' > ',$color);
+                }else{
+                   $referencesColor = $color;
+                }
+            }
+            
+            $scrapedProductSkuArray = [];
+
+            if(!empty($referencesColor)){
+                $productSupplier = $product->supplier;
+                $supplier = Supplier::where('supplier',$productSupplier)->first();
+                if($supplier && $supplier->scraper) {
+                    $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
+                    foreach ($scrapedProducts as $scrapedProduct) {
+                        if(isset($scrapedProduct->properties['color'])){
+                           $products = $scrapedProduct->properties['color'];
+                            if(!empty($products)){
+                                $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                            } 
+                        }
+                        
+                        if (isset($scrapedProduct->properties['colors'])) {
+                            $products = $scrapedProduct->properties['colors'];
+                            if(!empty($products)){
+                                $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                            }
+                        }
+                        
+                    }
+                }
+            }
+            
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['colors']) != null){
+                return response()->json(['success',$referencesColor,count($scrapedProductSkuArray)]);
+            }else{
+                return response()->json(['message','Color Is Not Present']); 
+            }
+            
+        }else{
+            return response()->json(['message','Color Is Not Present']); 
+        }
+    }
+
+     public function changeAllColorForAllSupplierProducts(Request $request, $id)
+    {
+        $cat = $request->color;
+        
+        $product = Product::find($id);
+        if($product->scraped_products){
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['colors']) != null){
+                $color = $product->scraped_products->properties['colors'];
+                $referencesColor = $color;
+            }
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['color']) != null){
+                $color = $product->scraped_products->properties['color'];
+                $referencesColor = $color;
+            }
+        }else{
+            return response()->json(['success','Scrapped Product Doesnt Not Exist']); 
+        }
+
+        if(isset($referencesColor)){
+
+            $productSupplier = $product->supplier;
+            $supplier = Supplier::where('supplier',$productSupplier)->first();
+            $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
+
+            foreach ($scrapedProducts as $scrapedProduct) {
+                if(isset($scrapedProduct->properties['colors'])) {
+                    $colors = $scrapedProduct->properties['colors'];
+                    if(strtolower($referencesColor) == strtolower($colors)){
+                        $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                    }
+                    
+                }
+                if(isset($scrapedProduct->properties['color'])) {
+                    $colors = $scrapedProduct->properties['color'];
+                    if(strtolower($referencesColor) == strtolower($colors)){
+                        $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                    }
+                }
+            }
+
+            if(!isset($scrapedProductSkuArray)){
+                $scrapedProductSkuArray = [];
+            }
+
+            //Update products with sku 
+            if(count($scrapedProductSkuArray) != 0){
+                foreach ($scrapedProductSkuArray as $productSku) {
+                    $oldProduct = Product::where('sku',$productSku)->first();
+                    if($oldProduct != null){
+                        $oldProduct->color = $cat;
+                        $oldProduct->save();
+                    }
+                }
+            }
+
+            return response()->json(['success','Product Got Updated']); 
+        }
+    }
 }
