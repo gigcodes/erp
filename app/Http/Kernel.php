@@ -37,7 +37,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             //            \App\Http\Middleware\LogLastUserActivity::class,
-           \App\Http\Middleware\CheckDailyPlanner::class,
+            \App\Http\Middleware\CheckDailyPlanner::class,
             \PragmaRX\Tracker\Vendor\Laravel\Middlewares\Tracker::class,
         ],
 
@@ -63,8 +63,9 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-  	    'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
-  	    'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
+        'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
+        'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
+        'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
         'optimizeImages' => \Spatie\LaravelImageOptimizer\Middlewares\OptimizeImages::class,
         'affiliates' => AffiliateMiddleware::class,
     ];

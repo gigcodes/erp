@@ -1050,6 +1050,9 @@
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('deploy-node') }}">Deploy Node</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
