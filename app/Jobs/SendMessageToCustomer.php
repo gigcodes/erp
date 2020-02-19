@@ -75,6 +75,9 @@ class SendMessageToCustomer implements ShouldQueue
         }
         //}
 
+        if(isset($params["images"]) && is_array($params["images"])) {
+            $medias = Media::whereIn("id", $params["images"])->get();
+        }
         // attach to the customer
         $customerIds = !empty($params["customer_ids"]) ? $params["customer_ids"] : explode(",", $params["customers_id"]);
 
@@ -88,6 +91,7 @@ class SendMessageToCustomer implements ShouldQueue
             "group_id" => isset($params["group_id"]) ? $params["group_id"] : null,
             "user_id"  => isset($params["user_id"]) ? $params["user_id"] : null,
             "number"   => null,
+            "is_chatbot" => isset($params["is_chatbot"]) ? $params["is_chatbot"] : 0,
         ];
 
         $allMediaIds = ($haveMedia) ? $medias->pluck("id")->toArray() : [];
@@ -136,27 +140,34 @@ class SendMessageToCustomer implements ShouldQueue
 
                 }
             }
-            if (!$customers->isEmpty()) {
-                foreach ($customers as $customer) {
-                    $insertParams["customer_id"] = $customer->id;
-                    $chatMessage                 = ChatMessage::create($insertParams);
-                    if (!$medias->isEmpty()) {
+        }
 
-                        if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
-                            // send pdf
-                            if (!empty($allpdf)) {
-                                foreach ($allpdf as $no => $file) {
-                                    // if first file then send direct into queue and if then send after it
-                                    if ($no == 0) {
-                                        $chatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
-                                    } else {
-                                        // attach to customer so we can send later after approval
-                                        $extradata             = $insertParams;
-                                        $extradata['is_queue'] = 0;
-                                        $extraChatMessage      = ChatMessage::create($extradata);
-                                        $extraChatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
+        if (!$customers->isEmpty()) {
+            foreach ($customers as $customer) {
+                $insertParams["customer_id"] = $customer->id;
+                $chatMessage                 = ChatMessage::create($insertParams);
+                if($chatMessage->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
+                    \App\ChatbotReply::create([
+                        "chat_id" => $chatMessage->id,
+                        "reply"   => isset($params["chatbot_response"]) ? json_encode($params["chatbot_response"]) : json_encode([])
+                    ]);
+                }
 
-                                    }
+                if (!$medias->isEmpty()) {
+
+                    if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
+                        // send pdf
+                        if (!empty($allpdf)) {
+                            foreach ($allpdf as $no => $file) {
+                                // if first file then send direct into queue and if then send after it
+                                if ($no == 0) {
+                                    $chatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
+                                } else {
+                                    // attach to customer so we can send later after approval
+                                    $extradata             = $insertParams;
+                                    $extradata['is_queue'] = 0;
+                                    $extraChatMessage      = ChatMessage::create($extradata);
+                                    $extraChatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
                                 }
                             }
 

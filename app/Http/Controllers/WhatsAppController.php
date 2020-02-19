@@ -1509,23 +1509,27 @@ class WhatsAppController extends FindByNumberController
                 if(!empty($params['message'])) {
                     if ($customer && $params[ 'message' ] != '') {
                         $chatbotReply = WatsonManager::sendMessage($customer,$params['message']);
-                        if(!empty($chatbotReply["reply_text"])
-                            && !empty($chatbotReply["reply_text"]->text)
-                            && !empty($chatbotReply["reply_text"]->response_type)
-                            && $chatbotReply["reply_text"]->response_type == "text"
-                        ) {
-                            $temp_params = $params;
-                            $temp_params['message']    = $chatbotReply["reply_text"]->text;
-                            $temp_params['media_url']  = null;
-                            $temp_params['status']     = 11;
-                            $temp_params['number']     = "";
-                            $temp_params['is_chatbot'] = 1;
-                            // Create new message
-                            $message = ChatMessage::create($temp_params);
-                            \App\ChatbotReply::create([
-                                "chat_id" => $message->id,
-                                "reply"   => $chatbotReply["response"],
-                            ]);
+
+                        if(!empty($chatbotReply["action"])) {
+                            // assign params
+                            $params = [
+                               "is_queue"         => 0,
+                               "status"           => \App\ChatMessage::CHAT_AUTO_WATSON_REPLY,
+                               "customer_ids"     => [$customer->id],
+                               "message"          => $chatbotReply["reply_text"],
+                               "is_chatbot"       => true,
+                               "chatbot_response" => $chatbotReply,
+                            ];
+                            
+                            switch ($chatbotReply["action"]) {
+                                case 'send_product_images':
+                                    $params["images"] = $chatbotReply["medias"];
+                                    \App\Jobs\SendMessageToCustomer::dispatch($params);
+                                break;
+                                case 'send_text_only':
+                                    \App\Jobs\SendMessageToCustomer::dispatch($params);
+                                break;
+                            }
                         }
                     }
                 }

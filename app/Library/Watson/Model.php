@@ -8,6 +8,8 @@ use \App\ChatbotKeywordValue;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionExample;
 use App\Customer;
+use App\Brand;
+use App\Image;
 use App\Library\Watson\Language\Assistant\V2\AssistantService;
 use App\Library\Watson\Language\Workspaces\V1\DialogService;
 use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
@@ -25,9 +27,9 @@ class Model
     const API_KEY = "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC";
 
     public static function getWorkspaceId()
-{
-    return "19cf3225-f007-4332-8013-74443d36a3f7";
-}
+    {
+        return "19cf3225-f007-4332-8013-74443d36a3f7";
+    }
 
     public static function getAssistantId()
     {
@@ -353,16 +355,41 @@ class Model
                 }
             }
 
-            if (isset($result->output) && isset($result->output->generic)) {
+            $chatResponse = new ResponsePurify($result->output,$customer);
+            // if response is valid then check ahead
+            if($chatResponse->isValid()) {
+                $result = $chatResponse->assignAction();
+                if(!empty($result)) {
+                    return $result;
+                }
+            }
+            /*if (isset($result->output) && isset($result->output->generic)) {
 
                 $textMessage = reset($result->output->generic);
+                if(isset($result->output->entities)) {
+                    $entities = $result->output->entities;
+                    $imageFiles = [];
+                    foreach($entities as $entity) {
+                        // if a entity keyword is product then find image matching it brand and category
+                        if( $entity->entity == "product") {
+                            $value = strtoupper($entity->value);
+                            $brand = explode(" ", $value);
+                            $brand = Brand::where('name', 'LIKE',"%".$brand[0]."%")->first();
+                            $category = trim(str_replace($brand->name,"", $value));
+                            $images = Image::where('brand','LIKE',"%".$brand->name."%")->where('category','LIKE',"%".$category."%")->get();
+                            foreach($images as $image) {
+                                array_push($imageFiles, $image->filename);
+                            }
+                        }
+                    }
+                }
 
                 if (isset($textMessage->text)) {
                     if (!in_array($textMessage->text, self::EXCLUDED_REPLY)) {
-                        return ["reply_text" => $textMessage, "response" => json_encode($result)];
+                        return ["reply_text" => $textMessage, "response" => json_encode($result), "imageFiles"=>$imageFiles];
                     }
                 }
-            }
+            }*/
 
             return false;
         }
