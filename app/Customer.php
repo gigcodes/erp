@@ -154,7 +154,9 @@ class Customer extends Model
     public function whatsappAll($needBroadcast = false)
     {
         if($needBroadcast) {
-            return $this->hasMany('App\ChatMessage', 'customer_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
+            return $this->hasMany('App\ChatMessage', 'customer_id')->where(function($q){
+                $q->whereIn('status', ['7', '8', '9', '10'])->orWhere("group_id",">",0);
+            })->latest();
         }else{
             return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
         }
