@@ -95,7 +95,7 @@ class CacheMasterControl extends Command
             Cache::remember('result_scraped_product_in_stock', 15, function () {
                 $sqlScrapedProductsInStock = "
                     SELECT
-                        COUNT(DISTINCT(ls.sku)) as ttl
+                        COUNT(DISTINCT(sp.sku)) as ttl
                     FROM
                         suppliers s
                     JOIN
