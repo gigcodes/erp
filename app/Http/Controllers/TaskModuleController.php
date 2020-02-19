@@ -1118,11 +1118,21 @@ class TaskModuleController extends Controller {
 
 		$id   = $request->input( 'id' );
 		$task = Task::find( $id );
+		
+		if($task ) {
+			
+			$task->remark = $request->input( 'comment' );
+			$task->save();
 
-		$task->remark = $request->input( 'comment' );
-		$task->save();
+			$task->delete();
 
-		$task->delete();
+		}
+
+
+		if ($request->ajax()) {
+			return response()->json(["code" => 200]);
+		}
+
 	}
 
 	public function archiveTask($id)

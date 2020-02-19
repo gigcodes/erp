@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\InventoryImport;
 use Carbon\Carbon;
+use App\ColorReference;
 use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -34,7 +35,7 @@ class ProductInventoryController extends Controller
 											->where('stock', '>=', 1)
 //		                   ->where('stage','>=',$stage->get('Approver') )
 		                   ->whereNull('dnf')
-											 ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
+											 ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at','category','color']);
 
                         $products_count = $products->count();
 		                   $products = $products->paginate(Setting::get('pagination'));
@@ -45,7 +46,24 @@ class ProductInventoryController extends Controller
 		                                        ->selected(1)
 		                                        ->renderAsDropdown();
 
-		return view('partials.grid',compact('products', 'products_count', 'roletype', 'category_selection'))
+		$categoryAll = Category::where('parent_id',0)->get();
+        foreach ($categoryAll as $category) {
+            $categoryArray[] = array('id' => $category->id , 'value' => $category->title); 
+            $childs = Category::where('parent_id',$category->id)->get();
+            foreach ($childs as $child) {
+                $categoryArray[] = array('id' => $child->id , 'value' => $category->title.' '.$child->title);
+                $grandChilds = Category::where('parent_id',$child->id)->get();
+                if($grandChilds != null){
+                    foreach ($grandChilds as $grandChild) {
+                        $categoryArray[] = array('id' => $grandChild->id , 'value' => $category->title.' '.$child->title .' '.$grandChild->title);
+                    }
+                } 
+            }
+        }
+
+        $sampleColors = ColorReference::select('erp_color')->groupBy('erp_color')->get(); 
+
+        return view('partials.grid',compact('products', 'products_count', 'roletype', 'category_selection','categoryArray','sampleColors'))
 			->with('i', (request()->input('page', 1) - 1) * 10);
 
 	}

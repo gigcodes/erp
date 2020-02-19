@@ -1084,10 +1084,16 @@ class WhatsAppController extends FindByNumberController
                 'customer_id' => null,
             ];
 
-            // check if time exist then convert and assign it
-            if(isset($chatapiMessage[ 'time' ])) {
-                $params['created_at'] = date("Y-m-d H:i:s",$chatapiMessage[ 'time' ]);
+            try {
+                // check if time exist then convert and assign it
+                if(isset($chatapiMessage[ 'time' ])) {
+                    $params['created_at'] = date("Y-m-d H:i:s",$chatapiMessage[ 'time' ]);
+                } 
+            } catch (\Exception $e) {
+                //If the date format is causing issue from whats app script messages
+                $params['created_at'] = $chatapiMessage[ 'time' ];
             }
+            
 
             // Check if the message is a URL
             if (filter_var($text, FILTER_VALIDATE_URL)) {
@@ -1156,10 +1162,60 @@ class WhatsAppController extends FindByNumberController
                 continue;
             }
 
+            if($user != null){
+                $userId = $user->id;
+            }else{
+                $userId = null;
+            }
+
+            if($contact != null){
+                $contactId = $contact->id;
+            }else{
+                $contactId = null;
+            }
+
+            if($supplier != null){
+                $supplierId = $supplier->id;
+            }else{
+                 $supplierId = null;
+            }
+
+            if($vendor != null){
+                $vendorId = $vendor->id;
+            }else{
+                $vendorId = null;
+            }
+
+            if($dubbizle != null){
+                $dubbizleId = $dubbizle->id;
+            }else{
+                $dubbizleId = null;
+            }
+
+            if($customer != null){
+                $customerId = $customer->id;
+            }else{
+                $customerId = null;
+            }
+
+            $params[ 'user_id' ] = $userId;
+            $params[ 'contact_id' ] = $contactId;
+            $params[ 'supplier_id' ] = $supplierId;
+            $params[ 'vendor_id' ] = $vendorId;
+            $params[ 'dubbizle_id' ] = $dubbizleId;
+            $params[ 'customer_id' ] = $customerId;
+
+            if(empty($user) && empty($contact) && empty($contact) && empty($supplier) && empty($vendor) && empty($dubbizle) && empty($customer)){
+               
+            }else{
+               $message = ChatMessage::create($params);  
+            }
+            
+
             // Is there a user linked to this number?
             if ($user) {
                 // Add user ID to params
-                $params[ 'user_id' ] = $user->id;
+                
                 //dd($params[ 'message' ]);
                 // Check for task
                 if ($params[ 'message' ] != '' && (preg_match_all("/#([\d]+)/i", $params[ 'message' ], $match))) {
@@ -1193,8 +1249,7 @@ class WhatsAppController extends FindByNumberController
                     $params[ 'media_url' ] = $media->getUrl();
                 }
 
-                // Create chat message
-                $message = ChatMessage::create($params);
+                
 
                 // Attach media to message
                 if (isset($media)) {
@@ -1211,17 +1266,12 @@ class WhatsAppController extends FindByNumberController
 
             // Is there a contact linked to this number?
             if ($contact) {
-                // Set contact_id parameter
-                $params[ 'user_id' ] = null;
-                $params[ 'contact_id' ] = $contact->id;
+                
 
                 // Check for task ID
                 if ($params[ 'message' ] != '' && (preg_match_all("/#([\d]+)/i", $params[ 'message' ], $match))) {
                     $params[ 'task_id' ] = $match[ 1 ][ 0 ];
                 }
-
-                // Create chat message
-                $message = ChatMessage::create($params);
 
                 if (array_key_exists('task_id', $params) && !empty($params[ 'task_id' ])) {
                     $this->sendRealTime($message, 'task_' . $match[ 1 ][ 0 ], $client);
@@ -1231,28 +1281,14 @@ class WhatsAppController extends FindByNumberController
             }
 
             if ($supplier) {
-                $params[ 'user_id' ] = null;
-                $params[ 'contact_id' ] = null;
-                $params[ 'supplier_id' ] = $supplier->id;
+                
                 if ($params[ 'media_url' ] != null) {
                     self::saveProductFromSupplierIncomingImages($supplier->id, $params[ 'media_url' ]);
                 }
-
-                $message = ChatMessage::create($params);
             }
 
             // Check for vendor
             if ($vendor) {
-                // Set vendor_id param and remove others
-                $params[ 'user_id' ] = null;
-                $params[ 'contact_id' ] = null;
-                $params[ 'supplier_id' ] = null;
-                $params[ 'customer_id' ] = null;
-                $params[ 'vendor_id' ] = $vendor->id;
-
-                // Create new message
-                $message = ChatMessage::create($params);
-
                 // Set vendor category
                 $category = $vendor->category;
 
@@ -1268,13 +1304,7 @@ class WhatsAppController extends FindByNumberController
             }
 
             if ($dubbizle) {
-                $params[ 'user_id' ] = null;
-                $params[ 'contact_id' ] = null;
-                $params[ 'supplier_id' ] = null;
-                $params[ 'vendor_id' ] = null;
-                $params[ 'dubbizle_id' ] = $dubbizle->id;
-
-                $message = ChatMessage::create($params);
+                
                 $model_type = 'dubbizle';
                 $model_id = $dubbizle->id;
 
@@ -1321,15 +1351,7 @@ class WhatsAppController extends FindByNumberController
 
             // Is this message from a customer?
             if ($customer && $isCustomerNumber) {
-                $params[ 'user_id' ] = null;
-                $params[ 'contact_id' ] = null;
-                $params[ 'supplier_id' ] = null;
-                $params[ 'vendor_id' ] = null;
-                $params[ 'dubizzle_id' ] = null;
-                $params[ 'customer_id' ] = $customer->id;
-
-                $message = ChatMessage::create($params);
-
+                
                 if ($params[ 'message' ]) {
                     (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params[ 'message' ], $customer);
                 }

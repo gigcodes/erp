@@ -953,14 +953,22 @@ class ProductController extends Controller
             }
         }
 
-        foreach ($product->suppliers_info as $key => $pr) {
+        /*foreach ($product->suppliers_info as $key => $pr) {
             if($pr->stock > 0) {
                 $data[ 'more_suppliers' ][] = [
                     "name" => $pr->supplier->supplier,
                     "link" => $pr->supplier_link
                 ] ;  
             }
-        }
+        }*/
+
+        $data[ 'more_suppliers' ] = DB::select('SELECT sp.url as link,s.supplier as name
+                            FROM `scraped_products` sp 
+                            JOIN scrapers sc on sc.scraper_name=sp.website 
+                            JOIN suppliers s ON s.id=sc.supplier_id 
+                            WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY) and sp.sku = :sku', ['sku' => $product->sku]);
+        
+
 
         $data[ 'images' ] = $product->getMedia(config('constants.media_tags'));
 
@@ -1968,7 +1976,31 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
         
-        return view('partials.image-grid', compact('products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups','countBrands','countCategory', 'countSuppliers','customerId','categoryArray'));
+        return view('partials.image-grid', compact(
+            'products',
+            'products_count',
+            'roletype',
+            'model_id',
+            'selected_products',
+            'model_type',
+            'status',
+            'assigned_user',
+            'category_selection',
+            'brand',
+            'filtered_category',
+            'message_body',
+            'sending_time',
+            'locations',
+            'suppliers',
+            'all_product_ids',
+            'quick_sell_groups',
+            'countBrands',
+            'countCategory',
+            'countSuppliers',
+            'customerId',
+            'categoryArray',
+            'term'
+        ));
     }
 
 
@@ -3033,5 +3065,127 @@ class ProductController extends Controller
         $group->save();
 
         return response()->json(['success' => 'success'], 200);
+    }
+
+    public function originalColor($id)
+    {
+        $product = Product::find($id);
+        $referencesColor = "";
+        if(isset($product->scraped_products)){
+            
+            // starting to see that howmany color we going to update
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['colors']) != null){
+                $color = $product->scraped_products->properties['colors'];
+                if(is_array($color)) {
+                    $referencesColor = implode(' > ',$color);
+                }else{
+                   $referencesColor = $color;
+                }
+            }
+
+            // starting to see that howmany color we going to update
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['color']) != null){
+                $color = $product->scraped_products->properties['color'];
+                if(is_array($color)) {
+                    $referencesColor = implode(' > ',$color);
+                }else{
+                   $referencesColor = $color;
+                }
+            }
+            
+            $scrapedProductSkuArray = [];
+
+            if(!empty($referencesColor)){
+                $productSupplier = $product->supplier;
+                $supplier = Supplier::where('supplier',$productSupplier)->first();
+                if($supplier && $supplier->scraper) {
+                    $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
+                    foreach ($scrapedProducts as $scrapedProduct) {
+                        if(isset($scrapedProduct->properties['color'])){
+                           $products = $scrapedProduct->properties['color'];
+                            if(!empty($products)){
+                                $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                            } 
+                        }
+                        
+                        if (isset($scrapedProduct->properties['colors'])) {
+                            $products = $scrapedProduct->properties['colors'];
+                            if(!empty($products)){
+                                $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                            }
+                        }
+                        
+                    }
+                }
+            }
+            
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['colors']) != null){
+                return response()->json(['success',$referencesColor,count($scrapedProductSkuArray)]);
+            }else{
+                return response()->json(['message','Color Is Not Present']); 
+            }
+            
+        }else{
+            return response()->json(['message','Color Is Not Present']); 
+        }
+    }
+
+     public function changeAllColorForAllSupplierProducts(Request $request, $id)
+    {
+        $cat = $request->color;
+        
+        $product = Product::find($id);
+        if($product->scraped_products){
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['colors']) != null){
+                $color = $product->scraped_products->properties['colors'];
+                $referencesColor = $color;
+            }
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['color']) != null){
+                $color = $product->scraped_products->properties['color'];
+                $referencesColor = $color;
+            }
+        }else{
+            return response()->json(['success','Scrapped Product Doesnt Not Exist']); 
+        }
+
+        if(isset($referencesColor)){
+
+            $productSupplier = $product->supplier;
+            $supplier = Supplier::where('supplier',$productSupplier)->first();
+            $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
+
+            foreach ($scrapedProducts as $scrapedProduct) {
+                if(isset($scrapedProduct->properties['colors'])) {
+                    $colors = $scrapedProduct->properties['colors'];
+                    if(strtolower($referencesColor) == strtolower($colors)){
+                        $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                    }
+                    
+                }
+                if(isset($scrapedProduct->properties['color'])) {
+                    $colors = $scrapedProduct->properties['color'];
+                    if(strtolower($referencesColor) == strtolower($colors)){
+                        $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                    }
+                }
+            }
+
+            if(!isset($scrapedProductSkuArray)){
+                $scrapedProductSkuArray = [];
+            }
+
+            //Update products with sku 
+            if(count($scrapedProductSkuArray) != 0){
+                foreach ($scrapedProductSkuArray as $productSku) {
+                    $oldProduct = Product::where('sku',$productSku)->first();
+                    if($oldProduct != null){
+                        $oldProduct->color = $cat;
+                        $oldProduct->save();
+                    }
+                }
+            }
+
+            return response()->json(['success','Product Got Updated']); 
+        }
     }
 }

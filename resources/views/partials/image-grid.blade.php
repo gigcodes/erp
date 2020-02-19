@@ -82,10 +82,8 @@
             <!--Product Search Input -->
                 <form action="{{ url()->current() }}" method="GET" id="searchForm" class="form-inline align-items-start">
                     <input type="hidden" name="source_of_search" value="attach_media">
-                    @csrf
-                    {{-- <div class="form-group">
-                        <div class="row"> --}}
-                    <input type="hidden" name="selected_products" id="selected_products" value="">
+                    <input type="hidden" name="return_url" value="{{ request('return_url') }}">
+                    <input type="hidden" name="selected_products" id="selected_products" value="{{ request('selected_products') }}">
                     <div class="form-group mr-3 mb-3">
                         <input name="term" type="text" class="form-control" id="product-search"
                                value="{{ isset($term) ? $term : '' }}"
@@ -113,7 +111,7 @@
                         <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brands...">
                             <optgroup label="Brands">
                                 @foreach ($brands as $key => $name)
-                                    <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
+                                    <option value="{{ $key }}" {{ isset($brand) && is_array($brand) && in_array($key,$brand) ? 'selected' : '' }}>{{ $name }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
@@ -121,35 +119,42 @@
 
                     <div class="form-group mr-3">
                         {{-- <strong>Color</strong> --}}
-                        @php $colors = new \App\Colors(); @endphp
+                        @php 
+                            $color  = request('color',[]);  
+                            $colors = new \App\Colors(); 
+                        @endphp
                         {{-- {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                         <select class="form-control select-multiple" name="color[]" multiple data-placeholder="Colors...">
                             <optgroup label="Colors">
                                 @foreach ($colors->all() as $key => $col)
-                                    <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
+                                    <option value="{{ $key }}" {{ isset($color) && is_array($color) && in_array($key, $color) ? 'selected' : '' }}>{{ $col }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
                     </div>
 
                     <div class="form-group mr-3">
-                        {{-- @php $suppliers = new \App\ReadOnly\SupplierList(); @endphp --}}
-                        {{-- {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
+                        @php 
+                            $supplier  = request('supplier',[]);
+                        @endphp
                         <select class="form-control select-multiple" name="supplier[]" multiple data-placeholder="Supplier...">
                             <optgroup label="Suppliers">
                                 @foreach ($suppliers as $key => $supp)
-                                    <option value="{{ $supp->id }}" {{ isset($supplier) && $supplier == $supp->id ? 'selected' : '' }}>{{ $supp->supplier }}</option>
+                                    <option value="{{ $supp->id }}" {{ isset($supplier) && is_array($supplier) && in_array($supp->id, $supplier)  ? 'selected' : '' }}>{{ $supp->supplier }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
                     </div>
 
                     @if (Auth::user()->hasRole('Admin'))
+                        @php
+                            $location  = request('location',[]);  
+                        @endphp
                         <div class="form-group mr-3">
                             <select class="form-control select-multiple" name="location[]" multiple data-placeholder="Location...">
                                 <optgroup label="Locations">
                                     @foreach ($locations as $name)
-                                        <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
+                                        <option value="{{ $name }}" {{ isset($location) && is_array($location) && in_array($name,$location) ? 'selected' : '' }}>{{ $name }}</option>
                                     @endforeach
                                 </optgroup>
                             </select>
@@ -158,7 +163,7 @@
 
                     <div class="form-group mr-3">
                         <input name="size" type="text" class="form-control"
-                               value="{{ isset($size) ? $size : '' }}"
+                               value="{{ request('size') }}"
                                placeholder="Size">
                     </div>
                      <div class="form-group mr-3">
@@ -178,7 +183,7 @@
                     </div>
                     <div class="form-group mr-3">
                         <strong class="mr-3">Price</strong>
-                        <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '400000' }}]"/>
+                        <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{ request('price') }}]"/>
                     </div>
 
 
@@ -186,17 +191,13 @@
                     <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : 'nothing' }}" value="{{ $model_id }}" id="attach_all_model_id">
                     <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">
                     &nbsp;
-                    <input type="checkbox" class="is_on_sale" id="is_on_sale" name="is_on_sale"><label
+                    <input type="checkbox" class="is_on_sale" {{ (request('is_on_sale')) == 'on' ? 'checked' : '' }} id="is_on_sale" name="is_on_sale"><label
                             for="is_on_sale">Sale Products</label>
-                    <input type="checkbox" class="random" id="random" name="random"><label
+                    <input type="checkbox" class="random" {{ (request('random')) == 'on' ? 'checked' : '' }} id="random" name="random"><label
                             for="random">Random</label>
-                    <input type="checkbox" class="unsupported" id="unsupported" name="unsupported"><label
-                            for="unsupported">Unsupported Images</label>        
-
-
+                    <input type="checkbox" class="unsupported" id="unsupported" {{ (request('unsupported')) == 'on' ? 'checked' : '' }} name="unsupported"><label
+                            for="unsupported">Unsupported Images</label>
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
-                    {{-- </div>
-                </div> --}}
                 </form>
 
                 <form action="{{ url()->current() }}" method="GET" id="quickProducts" class="form-inline align-items-start my-3">
@@ -620,8 +621,9 @@
 
             var url = "{{ url()->current() }}";
             var formData = $('#searchForm').serialize();
+            $('#searchForm').submit();
 
-            $.ajax({
+            /*$.ajax({
                 url: url,
                 data: formData
             }).done(function (data) {
@@ -635,7 +637,7 @@
 
             }).fail(function () {
                 alert('Error searching for products');
-            });
+            });*/
         });
         var isQuickProductsFrom = false;
         $('#quickProducts').on('submit', function (e) {

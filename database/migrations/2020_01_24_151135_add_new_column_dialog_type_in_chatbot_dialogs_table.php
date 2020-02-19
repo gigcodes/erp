@@ -13,7 +13,7 @@ class AddNewColumnDialogTypeInChatbotDialogsTable extends Migration
      */
     public function up()
     {
-        Schema::create('chatbot_dailogs', function (Blueprint $table) {
+        Schema::table('chatbot_dialogs', function (Blueprint $table) {
             $table->enum('dialog_type',['node', 'folder']);
         });
     }
@@ -25,7 +25,7 @@ class AddNewColumnDialogTypeInChatbotDialogsTable extends Migration
      */
     public function down()
     {
-        Schema::create('chatbot_dailogs', function (Blueprint $table) {
+        Schema::table('chatbot_dialogs', function (Blueprint $table) {
             $table->dropColumn('dialog_type');
         });
     }

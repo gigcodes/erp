@@ -175,7 +175,7 @@
                         <?php if(!empty($more_suppliers)) { ?>
                             <?php foreach ($more_suppliers as $more_supplier)  { ?>    
                                 <br>
-                                <a target="_new" href="{{ $more_supplier['link'] }}"><strong>{{ $more_supplier['name'] }}</strong></a>
+                                <a target="_new" href="{{ $more_supplier->link }}"><strong>{{ $more_supplier->name }}</strong></a>
                             <?php } ?>
                         <?php } ?>
                     </td>

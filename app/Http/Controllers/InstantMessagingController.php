@@ -248,7 +248,17 @@ class InstantMessagingController extends Controller
 
         //Adding Last Login
         $whatsappConfig->last_online = Carbon::now();
-        $whatsappConfig->is_connected = $request->status;
+        if($request->status == 1){
+            $whatsappConfig->is_connected = 1;
+        }
+
+        if($request->status == 0){
+            $whatsappConfig->is_connected = 0;
+        }
+
+
+        $whatsappConfig->status = $request->status;
+
 
         //Updating Whats App Config details
         $whatsappConfig->update();

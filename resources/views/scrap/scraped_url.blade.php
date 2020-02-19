@@ -149,7 +149,7 @@
             <tr>
                 <th width="30%">
                     @php 
-                    $websites = \App\Loggers\LogScraper::select('id','website')->groupBy('website')->get();
+                    $websites = \App\ScrapedProducts::select('id','website')->groupBy('website')->get();
                     @endphp
                     <select class="form-control select-multiple2" data-placeholder="Select websites.." multiple id="website">
                                 <optgroup label="Websites">
