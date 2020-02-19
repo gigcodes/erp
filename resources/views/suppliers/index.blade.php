@@ -78,7 +78,7 @@
                       </div>
 
                       <div class="form-group mr-3" style="padding-top: 10px">
-                        <select class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
+                        <select style="width: 250px !important;" class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
                           <optgroup label="Brands">
                             @foreach ($scrapedBrands as $key => $value)
                               @if(!in_array($value, $selectedBrands))
