@@ -406,7 +406,7 @@
               'sku': '{{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}',
               'id': '{{ $product->id }}',
               'size': '{{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}',
-              'price': '{{ $product->price_special }}',
+              'price': '{{ $product->price_inr_special }}',
               'brand': '{{ \App\Http\Controllers\BrandController::getBrandName($product->brand ) }}',
               'image': '{{ $product->getMedia(config('constants.media_tags'))->first()
                             ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
