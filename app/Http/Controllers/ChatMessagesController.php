@@ -64,13 +64,23 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
-        $chatMessages = $object
-            ->whatsappAll()
-            ->whereRaw($rawWhere)
-            ->where('status', '!=', 10)
-            ->skip(0)->take($limit);
+        $loadType       = $request->get('load_type');
+        $onlyBroadcast  = false;
+        
+        //  if loadtype is brodcast then get the images only
+        if($loadType == "broadcast") {
+           $onlyBroadcast   = true;
+           $loadType        = "images"; 
+        }
 
-        $loadType = $request->get('load_type');
+        $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
+        
+        if(!$onlyBroadcast){
+           $chatMessages = $chatMessages->where('status', '!=', 10);
+        }
+
+        $chatMessages =  $chatMessages->skip(0)->take($limit);   
+
         switch ($loadType) {
             case 'text':
                 $chatMessages = $chatMessages->whereNotNull("message")

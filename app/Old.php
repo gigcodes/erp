@@ -66,9 +66,13 @@ class Old extends Model
         return $this->hasMany(OldPayment::class,'old_id','serial_no');
     }
 
-    public function whatsappAll()
+    public function whatsappAll($needBroadCast = false)
     {
-        return $this->hasMany('App\ChatMessage', 'old_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+        if($needBroadCast) {
+            return $this->hasMany('App\ChatMessage', 'old_id')->whereIn('status', ['7', '8', '9', '10'])->latest();    
+        }
+
+        return $this->hasMany('App\ChatMessage', 'old_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function agents()
