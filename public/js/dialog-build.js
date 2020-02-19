@@ -190,7 +190,11 @@ var searchForDialog = function(ele) {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     url: isEntity ? "/chatbot/keyword" : "/chatbot/question",
-                    data: isEntity ? { keyword: selectedIntentOrEntity } : { value: selectedIntentOrEntity },
+                    data: isEntity ? { 
+                        keyword: selectedIntentOrEntity , value : $(".question-insert").val() 
+                    } : { 
+                        value: selectedIntentOrEntity , question : $(".question-insert").val() 
+                    },
                     dataType: "json",
                     success: function(response) {
                         var successMessage = isEntity ? "Entity Created Successfully" : "Intent Created SuccessFully"
@@ -328,6 +332,10 @@ $(document).on("click", "#create-dialog-btn-open", function() {
 $(document).on("click", "#create-dialog-folder-btn-rest", function(e) {
     e.preventDefault();
     var previous_node = 0;
+    var previous = $("#dialog-tree").find("li").last();
+    if (previous.length > 0) {
+        previous_node = previous.data("id");
+    }
     $.ajax({
         type: "get",
         url: "/chatbot/rest/dialog/create",
@@ -342,7 +350,7 @@ $(document).on("click", "#create-dialog-folder-btn-rest", function(e) {
             }
         },
         error: function() {
-            toastr['error']('Could not change module!');
+            toastr['error']('Could not create dialog folder!');
         }
     });
 });

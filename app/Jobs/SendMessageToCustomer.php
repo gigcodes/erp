@@ -53,16 +53,27 @@ class SendMessageToCustomer implements ShouldQueue
         $mediaImages = [];
         $params      = $this->params;
         $this->type  = "by_product";
+        $haveMedia = false;
+
 
         // query section
 
         if ($this->type == "by_product") {
             $mediaImages = ProductHelper::getImagesByProduct($params);
             if (!empty($mediaImages)) {
+                $haveMedia = true;
                 $medias = Media::whereIn("id", $mediaImages)->get();
             }
-
         }
+
+        // if we need to send by images id  direct then use this one
+        //if ($this->type == "by_images") {
+        if(!empty($params["images"])) {
+            $ids = is_array($params["images"]) ? $params["images"] : json_decode($params["images"]);
+            $haveMedia = true;
+            $medias = Media::whereIn("id", $ids)->get();
+        }
+        //}
 
         if(isset($params["images"]) && is_array($params["images"])) {
             $medias = Media::whereIn("id", $params["images"])->get();
@@ -83,7 +94,7 @@ class SendMessageToCustomer implements ShouldQueue
             "is_chatbot" => isset($params["is_chatbot"]) ? $params["is_chatbot"] : 0,
         ];
 
-        $allMediaIds = (!$medias->isEmpty()) ? $medias->pluck("id")->toArray() : [];
+        $allMediaIds = ($haveMedia) ? $medias->pluck("id")->toArray() : [];
         $mediable    = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', 'App\Product')->get();
 
         $availableMedia = [];
@@ -100,32 +111,34 @@ class SendMessageToCustomer implements ShouldQueue
         // check first if the media needs to be handled by pdf then first create the images of it
         $allpdf   = [];
         $allMedia = [];
-        if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
-            $chunkedMedia = $medias->chunk(self::MEDIA_PDF_CHUNKS);
-            foreach ($chunkedMedia as $key => $medias) {
+        if(!empty($medias)) {
+            if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
+                $chunkedMedia = $medias->chunk(self::MEDIA_PDF_CHUNKS);
+                foreach ($chunkedMedia as $key => $medias) {
 
-                $pdfView = (string) view('pdf_views.images_customer', compact('medias', 'availableMedia', 'products'));
+                    $pdfView = (string) view('pdf_views.images_customer', compact('medias', 'availableMedia', 'products'));
 
-                // based on view create a pdf
-                $pdf = new Dompdf();
-                $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
-                $pdf->loadHtml($pdfView);
+                    // based on view create a pdf
+                    $pdf = new Dompdf();
+                    $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
+                    $pdf->loadHtml($pdfView);
 
-                if (!empty($params["pdf_file_name"])) {
-                    $random = str_replace(" ", "-", $params["pdf_file_name"] . "-" . ($key + 1) . "-" . date("Y-m-d-H-i-s-") . rand());
-                } else {
-                    $random = uniqid('sololuxury_', true);
+                    if (!empty($params["pdf_file_name"])) {
+                        $random = str_replace(" ", "-", $params["pdf_file_name"] . "-" . ($key + 1) . "-" . date("Y-m-d-H-i-s-") . rand());
+                    } else {
+                        $random = uniqid('sololuxury_', true);
+                    }
+
+                    $fileName = public_path() . '/' . $random . '.pdf';
+                    $pdf->render();
+
+                    File::put($fileName, $pdf->output());
+
+                    $allpdf[]            = $fileName;
+                    $media               = MediaUploader::fromSource($fileName)->toDirectory('chatmessage/0')->upload();
+                    $allMedia[$fileName] = $media;
+
                 }
-
-                $fileName = public_path() . '/' . $random . '.pdf';
-                $pdf->render();
-
-                File::put($fileName, $pdf->output());
-
-                $allpdf[]            = $fileName;
-                $media               = MediaUploader::fromSource($fileName)->toDirectory('chatmessage/0')->upload();
-                $allMedia[$fileName] = $media;
-
             }
         }
 
@@ -155,21 +168,20 @@ class SendMessageToCustomer implements ShouldQueue
                                     $extradata['is_queue'] = 0;
                                     $extraChatMessage      = ChatMessage::create($extradata);
                                     $extraChatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
+                                }
+                            }
 
+                        } else {
+                            foreach ($medias as $media) {
+                                try {
+                                    $chatMessage->attachMedia($media, config('constants.media_tags'));
+                                } catch (\Exception $e) {
+                                    \Log::error($e);
                                 }
                             }
                         }
 
-                    } else {
-                        foreach ($medias as $media) {
-                            try {
-                                $chatMessage->attachMedia($media, config('constants.media_tags'));
-                            } catch (\Exception $e) {
-                                \Log::error($e);
-                            }
-                        }
                     }
-
                 }
             }
         }

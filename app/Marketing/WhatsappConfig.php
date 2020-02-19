@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class WhatsappConfig extends Model
 {
-    protected $fillable = ['number', 'provider', 'username', 'password', 'is_customer_support','frequency','send_start','send_end','device_name','simcard_number','simcard_owner','payment','recharge_date','status','sim_card_type'];
+    protected $fillable = ['number', 'provider', 'username', 'password', 'is_customer_support','frequency','send_start','send_end','device_name','simcard_number','simcard_owner','payment','recharge_date','status','sim_card_type','instance_id' , 'token', 'is_default'];
 
     public function customer()
     {
@@ -24,7 +24,7 @@ class WhatsappConfig extends Model
 
     public function imQueueCurrentDateMessageSend()
     {
-    	return $this->hasMany(ImQueue::class,'number_from','number')->whereDate('created_at', Carbon::today())->whereNotNull('sent_at');
+    	return $this->hasMany(ImQueue::class,'number_from','number')->whereDate('sent_at', Carbon::today())->whereNotNull('sent_at');
     }
 
     public function  imQueueLastMessageSend()

@@ -270,6 +270,7 @@ class Model
             $storeParams["conditions"]  = $dialog->match_condition;
             $storeParams["title"]       = $dialog->title;
             $values                     = $dialog->response()->get();
+            $storeParams["type"]        = ($dialog->type == "folder") ? "folder" : "standard";
 
             $genericOutput = [];
             foreach ($values as $value) {
@@ -438,7 +439,7 @@ class Model
     public static function newPushDialog($id)
     {
         if(env("PUSH_WATSON",true) == false) {
-            return true;
+            return ["code" => 500 , "error" => "Sorry, Watson push is not activated"];
         }
 
         $dialog      = ChatbotDialog::where("id", $id)->first();
@@ -451,11 +452,11 @@ class Model
             $storeParams["conditions"]       = $dialog->match_condition;
             $storeParams["title"]            = $dialog->title;
             $storeParams["previous_sibling"] = $dialog->getPreviousSiblingName();
-            $storeParams["type"]             = $dialog->response_type;
+            $storeParams["type"]             = ($dialog->dialog_type == "folder") ? $dialog->dialog_type : $dialog->response_type;
             $storeParams["parent"]           = $dialog->getParentName();
 
             $multipleResponse = false;
-            if (!empty($dialog->metadata)) {
+            if (!empty($dialog->metadata) && $storeParams["type"] != "folder") {
                 $multipleResponse = true;
             }
 
@@ -473,14 +474,21 @@ class Model
                 self::API_KEY
             );
 
-            if(!empty($genericOutput)) {
+            if(!empty($genericOutput) && $storeParams["type"] != "folder") {
                 $storeParams["output"]["generic"][] = $genericOutput;
             }
+
             if (!empty($dialog->workspace_id)) {
                 $result                             = $watson->update($dialog->workspace_id, $dialog->name, $storeParams);
             } else {
                 $result               = $watson->create($workSpaceId, $storeParams);
-                $dialog->workspace_id = $workSpaceId;
+                if($result->getStatusCode() !=  200) {
+                    $error = json_decode($result->getContent());
+                    if(isset($error->error)) {
+                       return ["code" => 500 , "error" => $error->error];
+                    }
+                } 
+                $dialog->workspace_id = $workSpaceId; 
                 $dialog->save();
             }
 
@@ -520,12 +528,18 @@ class Model
                         }
 
                         if($result->getStatusCode() !=  200) {
-                            \Log::info(print_r($result,true));
+                            $error = json_decode($result->getContent());
+                            if(isset($error->error)) {
+                               return ["code" => 500 , "error" => $error->error];
+                            }
+                        }else{
+                            return ["code" => 200 , "error" => false];
                         }
                     }
                 }
             }
 
+            return ["code" => 200 , "error" => false];
         }
 
     }

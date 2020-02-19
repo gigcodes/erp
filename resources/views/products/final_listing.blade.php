@@ -417,7 +417,7 @@
                                             <input class="form-control send-message" data-sku="{{$product->sku}}" type="text" placeholder="Message..." id="message_{{$product->approved_by}}" data-id="{{$product->approved_by}}">
                                         </div>
                                         @php
-                                            $logScrapers = \App\Loggers\LogScraper::where('sku', $product->sku)->where('validated', 1)->get();
+                                            $logScrapers = \App\ScrapedProducts::where('sku', $product->sku)->where('validated', 1)->get();
                                         @endphp
                                         @if ($logScrapers)
                                             <div>
@@ -426,7 +426,7 @@
                                                 <ul>
                                                     @foreach($logScrapers as $logScraper)
                                                         @if($logScraper->url != "N/A")
-                                                            <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a> ( <?= $logScraper->updated_at ?> )</li>
+                                                            <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a> ( <?= $logScraper->last_inventory_at ?> )</li>
                                                         @else
                                                             <li><?= $logScraper->website ?></li>
                                                         @endif

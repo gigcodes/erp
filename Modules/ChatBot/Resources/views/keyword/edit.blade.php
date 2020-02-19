@@ -56,6 +56,8 @@
 				    <tr>
 				      <th class="th-sm">Id</th>
 				      <th class="th-sm">Value</th>
+				      <th class="th-sm">Type</th>
+				      <th class="th-sm">Extra Values</th>
 				      <th class="th-sm">Action</th>
 				    </tr>
 				  </thead>
@@ -64,6 +66,17 @@
 					    <tr>
 					      <td><?php echo $value->id; ?></td>
 					      <td><?php echo $value->value; ?></td>
+					      <td><?php echo $value->types; ?></td>
+					      <td><?php 
+					      	$insertKeywords = [];
+					      	if(!$value->chatbotKeywordValueTypes->isEmpty()) {
+					      		foreach($value->chatbotKeywordValueTypes as $chWordVal) {
+					      			$insertKeywords[] = $chWordVal->type;
+					      		}
+					      	}
+					      	echo implode(",", $insertKeywords);
+				       		?>
+				       	 </td>	
 					      <td>
 	                        <a class="btn btn-image delete-button" data-id="<?php echo $value->id; ?>" href="<?php echo route("chatbot.value.delete", [$chatbotKeyword->id, $value->id]); ?>">
 	                        	<img src="/images/delete.png">
@@ -76,6 +89,8 @@
 				    <tr>
 				      <th>Id</th>
 				      <th>Value</th>
+				      <th>Type</th>
+				      <th>Extra Values</th>
 				      <th>Action</th>
 				    </tr>
 				  </tfoot>

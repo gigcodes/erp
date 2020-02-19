@@ -1869,6 +1869,34 @@
             }).fail(function (response) {
                 alert('Could not update!!');
             });
-        });    
+        });
+
+        $(document).on("click",".delete-task-btn",function() {
+            var $this = $(this);
+            var taskId = $this.data("id");
+
+            if(taskId > 0) {
+                $.ajax({
+                    beforeSend : function() {
+                        $("#loading-image").show();
+                    },
+                    type: 'POST',
+                    url: "/tasks/deleteTask",
+                    headers: {'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')},
+                    data: {id : taskId},
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if(response.code == 200) {
+                        $this.closest("td").remove();
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    alert('Could not update!!');
+                });
+            }
+
+        });
+
     </script>
 @endsection

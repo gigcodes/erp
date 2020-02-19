@@ -54,6 +54,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 
 Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
+    Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.laravel.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
@@ -149,7 +150,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/updateMagentoProduct', 'ProductController@updateMagentoProduct')->name('product.update.magento');
     Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
     Route::post('products/{id}/originalCategory', 'ProductController@originalCategory');
+    Route::post('products/{id}/originalColor', 'ProductController@originalColor');
+    
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
+    Route::post('products/{id}/changeColorSupplier', 'ProductController@changeAllColorForAllSupplierProducts');
     Route::resource('products', 'ProductController');
     Route::resource('attribute-replacements', 'AttributeReplacementController');
     Route::post('products/bulk/update', 'ProductController@bulkUpdate')->name('products.bulk.update');
@@ -1384,15 +1388,16 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::post('whatsapp-config/store', 'WhatsappConfigController@store')->name('whatsapp.config.store');
     Route::post('whatsapp-config/edit', 'WhatsappConfigController@edit')->name('whatsapp.config.edit');
     Route::post('whatsapp-config/delete', 'WhatsappConfigController@destroy')->name('whatsapp.config.delete');
-    Route::get('whatsapp-queue/{id}','WhatsappConfigController@queue')->name('whatsapp.config.queue');
-    Route::post('whatsapp-queue/delete','WhatsappConfigController@destroyQueue')->name('whatsapp.config.delete_queue');
-    Route::post('whatsapp-queue/delete_all/','WhatsappConfigController@destroyQueueAll')->name('whatsapp.config.delete_all');
-    Route::get('whatsapp-queue/delete_queues/{id}','WhatsappConfigController@clearMessagesQueue')->name('whatsapp.config.delete_all_queues');
+    Route::get('whatsapp-queue/{id}', 'WhatsappConfigController@queue')->name('whatsapp.config.queue');
+    Route::post('whatsapp-queue/delete', 'WhatsappConfigController@destroyQueue')->name('whatsapp.config.delete_queue');
+    Route::post('whatsapp-queue/delete_all/', 'WhatsappConfigController@destroyQueueAll')->name('whatsapp.config.delete_all');
+    Route::get('whatsapp-queue/delete_queues/{id}', 'WhatsappConfigController@clearMessagesQueue')->name('whatsapp.config.delete_all_queues');
     Route::get('whatsapp-config/get-barcode', 'WhatsappConfigController@getBarcode')->name('whatsapp.config.barcode');
     Route::get('whatsapp-config/get-screen', 'WhatsappConfigController@getScreen')->name('whatsapp.config.screen');
     Route::get('whatsapp-config/delete-chrome', 'WhatsappConfigController@deleteChromeData')->name('whatsapp.config.delete');
+    Route::get('whatsapp-config/restart-script', 'WhatsappConfigController@restartScript')->name('whatsapp.restart.script');
 
-    Route::post('whatsapp-queue/switchBroadcast','BroadcastController@switchBroadcast')->name('whatsapp.config.switchBroadcast');
+    Route::post('whatsapp-queue/switchBroadcast', 'BroadcastController@switchBroadcast')->name('whatsapp.config.switchBroadcast');
 
 
     // Marketing Platform
