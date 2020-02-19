@@ -183,14 +183,14 @@ class ActivityConroller extends Controller
                 ON 
                     s.id=sc.supplier_id    
                 JOIN 
-                    log_scraper ls 
+                    scraped_products ls 
                 ON 
                     ls.website=sc.scraper_name
                 WHERE
                     s.supplier_status_id=1 AND 
                     ls.validated=1 AND
                     ls.website!='internal_scraper' AND
-                    ls.updated_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY) 
+                    ls.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY) 
             ";
         $resultScrapedProductsInStock = DB::select($sqlScrapedProductsInStock);
 
