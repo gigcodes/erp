@@ -11,7 +11,9 @@ class LaravelGithubLog extends Model
         'log_file_name',
         'file',
         'author',
-        'commit_time'
+        'commit_time',
+        'commit',
+        'stacktrace'
     ];
 
     
