@@ -51,7 +51,7 @@ return [
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
             'strict' => false,
-            'engine' => null,
+            'engine' => 'MyISAM',
             'options' => [
                 \PDO::ATTR_PERSISTENT => true
             ]
@@ -64,8 +64,11 @@ return [
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'strict' => false,    // to avoid problems on some MySQL installs
+            'engine' => 'MyISAM',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
         ],
-        
+
 
 
         'pgsql' => [
@@ -79,6 +82,7 @@ return [
             'prefix' => '',
             'schema' => 'public',
             'sslmode' => 'prefer',
+            'engine' => 'MyISAM',
         ],
 
         'sqlsrv' => [
@@ -90,6 +94,7 @@ return [
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
+            'engine' => 'MyISAM',
         ],
 
     ],

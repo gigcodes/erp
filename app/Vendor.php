@@ -80,8 +80,12 @@ class Vendor extends Model
         return $this->morphMany(CashFlow::class, 'cash_flow_able');
     }
 
-    public function whatsappAll()
+    public function whatsappAll($needBroadCast = false)
     {
+        if($needBroadCast) {
+            return $this->hasMany('App\ChatMessage', 'vendor_id')->whereIn('status', ['7', '8', '9', '10'])->latest();    
+        }
+
         return $this->hasMany('App\ChatMessage', 'vendor_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 

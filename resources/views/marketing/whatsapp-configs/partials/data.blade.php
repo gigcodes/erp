@@ -37,8 +37,10 @@
     <button class="btn btn-link" onclick="getBarcode({{ $whatsAppConfig->id }})" data-toggle="tooltip" data-placement="top" title="Barcode For Whatsapp"><i class="fa fa-barcode"></i></button>
     @elseif($whatsAppConfig->status == 1)
     <button class="btn btn-link" onclick="getScreen({{ $whatsAppConfig->id }})" data-toggle="tooltip" data-placement="top" title="WhatsApp Screen"><i class="fa fa-desktop"></i></button>
-    <button class="btn btn-link" onclick="deleteChrome({{ $whatsAppConfig->id }})" data-toggle="tooltip" data-placement="top" title="Delete Chrome Config"><i class="fa fa-trash"></i></button>
     @endif
+    <button class="btn btn-link" onclick="deleteChrome({{ $whatsAppConfig->id }})" data-toggle="tooltip" data-placement="top" title="Delete Chrome Config"><i class="fa fa-trash"></i></button>
+    <button class="btn btn-link" onclick="restartScript({{ $whatsAppConfig->id }})" data-toggle="tooltip" data-placement="top" title="Delete Chrome Config"><i class="fa fa-refresh"></i></button>
+    
     
   </td>
 </tr>

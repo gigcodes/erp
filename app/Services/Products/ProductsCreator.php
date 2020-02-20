@@ -238,7 +238,7 @@ class ProductsCreator
                 'status' => 1
             ];
 
-            ScrapActivity::create($params);
+            //ScrapActivity::create($params);
 
             Log::channel('productUpdates')->debug("[Success] Updated product");
 
