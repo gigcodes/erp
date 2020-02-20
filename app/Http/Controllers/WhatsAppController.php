@@ -1519,6 +1519,7 @@ class WhatsAppController extends FindByNumberController
                                "message"          => $chatbotReply["reply_text"],
                                "is_chatbot"       => true,
                                "chatbot_response" => $chatbotReply,
+                               "chatbot_question" => $params['message']
                             ];
                             
                             switch ($chatbotReply["action"]) {
