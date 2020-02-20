@@ -82,7 +82,7 @@ class ChatMessagesController extends Controller
            $chatMessages = $chatMessages->where('status', '!=', 10);
         }
 
-        $chatMessages =  $chatMessages->skip(0)->take($limit);   
+        $chatMessages =  $chatMessages->skip($skip)->take($limit);   
 
         switch ($loadType) {
             case 'text':
