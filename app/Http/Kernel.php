@@ -38,7 +38,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             //            \App\Http\Middleware\LogLastUserActivity::class,
            \App\Http\Middleware\CheckDailyPlanner::class,
-            \PragmaRX\Tracker\Vendor\Laravel\Middlewares\Tracker::class,
+            //\PragmaRX\Tracker\Vendor\Laravel\Middlewares\Tracker::class,
         ],
 
         'api' => [

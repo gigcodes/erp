@@ -62,7 +62,7 @@ class SendQueuePendingChatMessages extends Command
      */
     public function handle()
     {
-        try {
+        //try {
 
             $report = \App\CronJobReport::create([
                 'signature'  => $this->signature,
@@ -135,8 +135,8 @@ class SendQueuePendingChatMessages extends Command
                                 } else {
 
                                     // check message is full or not
-                                    $isSendingLimitFull = isset($this->waitingMessage[$value->customer->whatsapp_number])
-                                    ? $this->waitingMessage[$value->customer->whatsapp_number] : 0;
+                                    $isSendingLimitFull = isset($this->waitingMessages[$value->customer->whatsapp_number])
+                                    ? $this->waitingMessages[$value->customer->whatsapp_number] : 0;
                                     // if message queue is full then go for the next;
                                     if ($isSendingLimitFull >= config("apiwha.message_queue_limit",100)) {
                                         continue;
@@ -155,9 +155,9 @@ class SendQueuePendingChatMessages extends Command
 
             }
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        }
+        }*/
 
     }
 }
