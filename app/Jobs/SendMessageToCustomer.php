@@ -148,12 +148,13 @@ class SendMessageToCustomer implements ShouldQueue
                 $chatMessage                 = ChatMessage::create($insertParams);
                 if($chatMessage->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
                     \App\ChatbotReply::create([
-                        "chat_id" => $chatMessage->id,
-                        "reply"   => isset($params["chatbot_response"]) ? json_encode($params["chatbot_response"]) : json_encode([])
+                        "chat_id"  => $chatMessage->id,
+                        "question" => isset($params["chatbot_question"]) ? $params["chatbot_question"] : null,
+                        "reply"    => isset($params["chatbot_response"]) ? json_encode($params["chatbot_response"]) : json_encode([]),
                     ]);
                 }
 
-                if (!$medias->isEmpty()) {
+                if (!empty($medias) && !$medias->isEmpty()) {
 
                     if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
                         // send pdf
@@ -171,16 +172,15 @@ class SendMessageToCustomer implements ShouldQueue
                                 }
                             }
 
-                        } else {
-                            foreach ($medias as $media) {
-                                try {
-                                    $chatMessage->attachMedia($media, config('constants.media_tags'));
-                                } catch (\Exception $e) {
-                                    \Log::error($e);
-                                }
+                        }
+                    }else {
+                        foreach ($medias as $media) {
+                            try {
+                                $chatMessage->attachMedia($media, config('constants.media_tags'));
+                            } catch (\Exception $e) {
+                                \Log::error($e);
                             }
                         }
-
                     }
                 }
             }

@@ -1,9 +1,21 @@
 @extends('layouts.app')
 
 @section('content')
+ <?php
+            $query = http_build_query(Request::except('page'));
+            $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query . '&page=');
+            ?>
+            <div class="form-group position-fixed hidden-xs hidden-sm" style="top: 50px; left: 20px;">
+            Goto :
+            <select onchange="location.href = this.value;" class="form-control" id="page-goto">
+                @for($i = 1 ; $i <= $brands->lastPage() ; $i++ )
+                    <option value="{{ $query.$i }}" {{ ($i == $brands->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
+                @endfor
+            </select>
+    </div> 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Brand List</h2>
+            <h2 class="page-heading">Brand List (<span>{{ $brands->total() }}</span>) </h2>
             <div class="pull-left">
             </div>
             <div class="pull-right">
@@ -41,6 +53,8 @@
             </div>
         </div>
     </div>
+    <br>
+    {!! $brands->links() !!}
 
     <div class="table-responsive mt-3">
         <table class="table table-bordered">
@@ -71,8 +85,6 @@
             @endforeach
         </table>
     </div>
-
-    {!! $brands->links() !!}
 
 @endsection
 
