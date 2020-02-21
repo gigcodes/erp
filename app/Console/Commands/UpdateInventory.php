@@ -74,7 +74,8 @@ class UpdateInventory extends Command
 
             foreach ($arrInventory as $sku => $cnt) {
                 // Find product
-                Product::where('sku', $sku)->update(['stock' => 0]);
+                //Product::where('sku', $sku)->update(['stock' => 0]);
+                \DB::statement("update LOW_PRIORITY `products` set `stock` = 0, `updated_at` = '".date("Y-m-d H:i:s")."' where `sku` = '".$sku."' and `products`.`deleted_at` is null");
                 echo "Updated " . $sku . "\n";
             }
 
