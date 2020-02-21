@@ -30,11 +30,12 @@
 
 <div class="row">
   <div class="col-md-12">
-    <div class="table-responsive-lg">
-      <table class="table">
+    <div class="table-responsive-lg" id="page-view-result">
+      <table class="table page-template-1">
         <thead>
           <tr>
           	<th width="2%">Customer #</th>
+            <th width="2%">Name</th>
             <th width="15%">User input</th>
             <th width="15%">Bot Replied</th>
             <th width="30%">Images</th>
@@ -46,6 +47,7 @@
     	  		<?php foreach($pendingApprovalMsg as $pam) { ?>
 	              <tr>
 	                <td>{{ $pam->customer_id }}</td>
+                  <td>{{ $pam->customer_name }}</td>
 	                <td>{{ $pam->question }}</td>
 	                <td>{{ $pam->message }}</td>
 	                <td>
@@ -64,8 +66,12 @@
 	          	<?php } ?>
           <?php } ?>
         </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="6"><?php echo $pendingApprovalMsg->appends(request()->except("page"))->links(); ?></td>
+          </tr>
+        </tfoot>
       </table>
-     <?php echo $pendingApprovalMsg->links(); ?>
     </div>
   </div>
 </div>
@@ -98,5 +104,54 @@
           console.log("Sorry, something went wrong");
         }); 
   });
+ 
+  var getResults = function(href) {
+    $.ajax({
+        type: 'GET',
+        url: href,
+        beforeSend : function() {
+          $("#loading-image").show();
+        },
+        dataType:"json"
+      }).done(function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200) {
+          var removePage = response.page;
+           if(removePage > 0) {
+              var pageList = $("#page-view-result").find(".page-template-"+removePage);
+              pageList.nextAll().remove();
+              pageList.remove();
+           }
+           if(removePage > 1) {
+             $("#page-view-result").find(".pagination").first().remove();
+           }
+          $("#page-view-result").append(response.tpl);
+        }
+      }).fail(function(response) {
+        $("#loading-image").hide();
+        console.log("Sorry, something went wrong");
+      });
+  };
+
+  $("#page-view-result").on("click",".page-link",function(e) {
+      e.preventDefault();
+        
+        var activePage = $(this).closest(".pagination").find(".active").text();
+        var clickedPage = $(this).text();
+        if(clickedPage == "‹" || clickedPage < activePage) {
+            $('html, body').animate({scrollTop: ($(window).scrollTop() - 50) + "px"}, 200);
+            getResults($(this).attr("href"));
+        }else{
+            getResults($(this).attr("href"));
+        }
+
+    });
+
+  $(window).scroll(function() {
+      if($(window).scrollTop() > ($(document).height() - $(window).height() - 10)) {
+          $("#page-view-result").find(".pagination").find(".active").next().find("a").click();
+      }
+  });
+
 </script>
 @endsection
