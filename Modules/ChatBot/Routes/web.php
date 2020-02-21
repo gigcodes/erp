@@ -75,6 +75,11 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::get('/', 'AnalyticsController@index')->name("chatbot.analytics.list");
     });
 
+    Route::prefix('messages')->group(function () {
+        Route::get('/', 'MessageController@index')->name("chatbot.messages.list");
+        Route::post('/approve', 'MessageController@approve')->name("chatbot.messages.list");
+    });
+
     Route::prefix('rest/dialog')->group(function () {
         Route::get('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
         Route::post('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
