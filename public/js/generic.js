@@ -44,10 +44,10 @@ var getMoreChatConvo = function(params) {
 
 var getHtml = function(response) {
     var j = 0;
-    var classMaster = (load_type == "broadcast") ? "full-match-img" : "";
+    var classMaster = (load_type == "broadcast" || load_type == "images") ? "full-match-img" : "";
     var li = '<div class="speech-wrapper '+classMaster+'">';
 
-    if(load_type == "broadcast") {
+    if(load_type == "broadcast" || load_type == "images") {
         $("#chat-list-history").find(".modal-dialog").addClass("modal-lg");
     }else{
         $("#chat-list-history").find(".modal-dialog").removeClass("modal-lg");
@@ -74,7 +74,7 @@ var getHtml = function(response) {
         }
 
         // check for media with details
-        var classFive = (load_type == "broadcast") ? "col-md-4" : "col-12";
+        var classFive = (load_type == "broadcast" || load_type == "images") ? "col-md-4" : "col-12";
         if (currentChatParams.data.load_attached == 1 && message.media && message.media.length > 0) {
             for (var i = 0; i < message.media.length; i++) {
                 // Get image to display
