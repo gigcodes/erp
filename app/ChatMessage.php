@@ -252,4 +252,11 @@ class ChatMessage extends Model
         return ($limit) ? $limit->val : 0;
     }
 
+    public static function getSupplierForwardTo()
+    {
+        $no  = \App\Setting::where("name","supplier_forward_message_no")->first();
+        
+        return ($no) ? $no->val : 0;
+    }
+
 }
