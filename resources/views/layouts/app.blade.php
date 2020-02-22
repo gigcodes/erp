@@ -480,6 +480,9 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/magento/status">Order Status Mapping</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/languages">Language</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
