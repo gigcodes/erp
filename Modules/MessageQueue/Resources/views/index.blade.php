@@ -86,7 +86,7 @@
 				                                <?php echo $no; ?>
 				                              </div>
 				                              <div class="card-body">
-				                                  <?php if($queue > 200) { ?>
+				                                  <?php if($queue > config("apiwha.message_queue_limit")) { ?>
 					                                  <a class="recall-api" data-no="<?php echo $no; ?>" href="javascript:;"><img title="Recall" src="/images/icons-refresh.png"></img></a>&nbsp;
 					                              <?php } ?>
 				                                  <?php echo $queue; ?>
