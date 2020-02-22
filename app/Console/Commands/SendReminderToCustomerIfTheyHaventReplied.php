@@ -94,6 +94,8 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
                 //sends messahe
                 $this->sendMessage($customer->id, $templateMessage);
             }
+
+            $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
@@ -124,7 +126,5 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
         $myRequest->request->add(['messageId' => $chat_message->id]);
 
         app(WhatsAppController::class)->approveMessage('customer', $myRequest);
-
-        $report->update(['end_time' => Carbon::now()]);
     }
 }

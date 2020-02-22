@@ -244,7 +244,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('category:fix-by-supplier')->twiceDaily();
 
 
-        $schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
+        //$schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
 
 
         $schedule->call(function () {
