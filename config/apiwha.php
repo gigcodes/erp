@@ -66,5 +66,5 @@ return [
 //            "token" => "3b92u5cbg215c718"
 //        ],
     ],
-    "message_queue_limit" => 100
+    "message_queue_limit" => 300
 ];
