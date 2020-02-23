@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\UserEvent\UserEvent;
 use Auth;
-use Request;
+use Illuminate\Http\Request;
 
 class UserEventController extends Controller
 {
@@ -126,32 +126,65 @@ class UserEventController extends Controller
             );
         }
 
-        $title = $request->get('title');
-        $start = $request->get('start');
 
-        if (!$title || !$start) {
-            return response()->json(['message' => 'invalid'], 400);
+
+        $date = $request->get('date');
+        $time = $request->get('time');
+        $subject = $request->get('subject');
+        $description = $request->get('description');
+        $contactsString = $request->get('contacts');
+
+        $errors = array();
+
+        // date validations
+        if (!$date) {
+            $errors['date'][] = 'Date is missing';
+        } else if (!preg_match('/^[0-9]{4}-((0[1-9])|(1[0|1|2]))-(0|1|2|3)[0-9]$/', $date)) {
+            $errors['date'][] = 'Invalid date format';
+        } else if (!validateDate($date)) {
+            $errors['date'][] = 'Invalid date';
         }
 
+        if (isset($time)) {
+            if (!preg_match('/^(([0-1][0-9])|(2[0-3])):[0-5][0-9]$/', $time)) {
+                $errors['time'] = 'Invalid time format';
+            }
+        }
+
+        if (empty(trim($subject))) {
+            $errors['subject'][] = 'Subject is required';
+        }
+
+        if (!empty($errors)) {
+            return response()->json($errors, 400);
+        }
+
+
+        $start = $date . ' ' . $time;
         $end = strtotime($start . ' + 1 hour');
         $start = strtotime($start);
 
 
         $userEvent = new UserEvent;
         $userEvent->user_id = $userId;
-        $userEvent->title = $title;
-        $userEvent->start = date('Y-m-d H:i:s', $start);
-        $userEvent->end = date('Y-m-d H:i:s', $end);
+        $userEvent->subject = $subject;
+        $userEvent->description = $description;
+        $userEvent->date = $date;
+
+        if (isset($time)) {
+            $start = strtotime($date . ' ' . $time);
+            $end = strtotime($date . ' ' . $time . ' + 1 hour');
+            $userEvent->start = date('Y-m-d H:i:s', $start);
+            $userEvent->end = date('Y-m-d H:i:s', $end);
+        }
+
+
+
         $userEvent->save();
 
         return response()->json([
             'message' => 'Event added successfully',
-            'event' => [
-                'id' =>  $userEvent->id,
-                'title' =>  $userEvent->title,
-                'start' =>  $userEvent->start,
-                'end' => $userEvent->end
-            ],
+            'event' => $userEvent->toArray(),
             'attendees' => []
         ]);
     }

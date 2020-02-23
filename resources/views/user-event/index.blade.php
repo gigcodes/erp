@@ -7,6 +7,12 @@
 <link rel="stylesheet" href="{{ URL::asset('libs/fullcalendar/timegrid/main.css') }}" />
 <link rel="stylesheet" href="{{ URL::asset('css/user-calendar.css') }}" />
 
+<div class="row">
+    <div class="col-lg-12 margin-tb page-heading">
+        <h2 class="page-heading">User Events</h2>
+    </div>
+</div>
+
 <div class="user-calendar">
     <div id="calendar" style="position: relative;"></div>
     <div id="create-overlay" style="pointer-events: none" onclick="closeCreateNewEventOverlay()">

@@ -7,7 +7,7 @@
                 <h4 class="modal-title">User Event</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <form>
+            <form id="create_event_form" action="/calendar/events" method="POST">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="date">Date</label>
@@ -31,7 +31,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Save</button>
+                    <input onclick="form_submit()" type="submit" class="btn btn-default" data-dismiss="modal" value="Save" />
                 </div>
             </form>
         </div>
@@ -50,4 +50,29 @@
         });
 
     })
+
+    function form_submit() {
+
+        const modal = document.getElementById('user-event-model');
+
+
+        const date = modal.querySelector('#date').value;
+        const time = modal.querySelector('#time').value;
+        const subject = modal.querySelector('#subject').value;
+        const description = modal.querySelector('#description').value;
+        const contacts = modal.querySelector('#contacts').value;
+
+        $.post(
+            '/calendar/events', {
+                date,
+                time,
+                subject,
+                description,
+                contacts
+            },
+            function(result) {
+                console.log(reuslt);
+            }
+        );
+    }
 </script>

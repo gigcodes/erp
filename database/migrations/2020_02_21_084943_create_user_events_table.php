@@ -19,8 +19,8 @@ class CreateUserEventsTable extends Migration
             $table->string('subject');
             $table->string('description');
             $table->date('date');
-            $table->dateTime('start');
-            $table->dateTime('end');
+            $table->dateTime('start')->nullable();
+            $table->dateTime('end')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
