@@ -340,18 +340,24 @@ class HashtagController extends Controller
         $acc = Account::findOrFail($request->get('account_id'));
         $acc->comment_pending = 1;
         $acc->save();
+        
+        
         // $instagram = new Instagram();
+        
         // try {
 
-        //     $instagram->login($acc->last_name, $acc->password);
-
+        //     $instagramAdmin = Config('instagram');
+        //     $senderUsername = $instagramAdmin['admin_account'];
+        //     $password = $instagramAdmin['admin_password'];
+        //     $instagram->login($senderUsername, $password);
+        
         // } catch (\Exception $e) {
         //     $acc->last_name = env('IG_USERNAME');
         //     $instagram->login(env('IG_USERNAME'), env('IG_PASSWORD'));
         // }
         
-        //$instagram->media->comment($request->get('post_id'), $request->get('message'));
-        //$post = InstagramPosts::find($request->get('id'));
+        // $instagram->media->comment($request->get('post_id'), $request->get('message'));
+        // $post = InstagramPosts::find($request->get('id'));
 
         InstagramComment::dispatchNow($request);
         
@@ -424,6 +430,12 @@ class HashtagController extends Controller
 
                  $influencers  = ScrapInfluencer::query()
                         ->where('name', 'LIKE', "%{$request->term}%")
+                        ->orWhere('phone', 'LIKE', "%{$request->term}%")
+                        ->orWhere('website', 'LIKE', "%{$request->term}%")
+                        ->orWhere('twitter', 'LIKE', "%{$request->term}%")
+                        ->orWhere('facebook', 'LIKE', "%{$request->term}%")
+                        ->orWhere('country', 'LIKE', "%{$request->term}%")
+                        ->orWhere('email', 'LIKE', "%{$request->term}%")
                         ->paginate(25);
                
         }else{

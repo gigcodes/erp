@@ -86,7 +86,7 @@
                                         <div class="col-md-8">
                                             <textarea type="text" rows="4" class="form-control"   placeholder="Type comment..." id="textbox_{{$post['id']}}"></textarea>
                                             <div class="pull-right">
-                                                <button type="button" class="btn btn-xs btn-image comment-it" data-id="{{$post['id']}}"><img src="/images/filled-sent.png" ></button>
+                                                <button type="button" class="btn btn-xs btn-image comment-it" data-id="{{$post['id']}}" data-post-id="{{$post['post_id']}}"><img src="/images/filled-sent.png" ></button>
                                             </div>
                                             
                                         </div>

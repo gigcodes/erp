@@ -142,6 +142,7 @@ class ColdLeadsController extends Controller
     }
 
     public function sendMessage($leadId, Request $request) {
+        
         $this->validate($request, [
             'account_id' => 'required'
         ]);
@@ -149,9 +150,19 @@ class ColdLeadsController extends Controller
         $lead = ColdLeads::find($leadId);
 
         $account = Account::find($request->get('account_id'));
-        $senderUsername = $account->last_name;
+
+        //Commenting to sending from other accounts now will only be sending from admin
+        //$senderUsername = $account->last_name;
+        //$password = $account->password;
+        
+        $instagramAdmin = Config('instagram');
+
+        $senderUsername = $instagramAdmin['admin_account'];
+        $password = $instagramAdmin['admin_password'];
+
+        
         $receiverId = $lead->platform_id;
-        $password = $account->password;
+        
         $message = $request->get('message');
 
         if (strlen($receiverId) < 5) {
@@ -230,6 +241,7 @@ class ColdLeadsController extends Controller
     }
 
     private function sendMessageToInstagramUser($sender, $password,  $receiver, $message, $lead) {
+
         $i = new Instagram();
 
         try {
