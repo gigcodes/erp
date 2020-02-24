@@ -19,15 +19,22 @@
           <td>{{ $pam->message }}</td>
           <td>
             @if($pam->hasMedia(config('constants.media_tags')))
-              @foreach($pam->getMedia(config('constants.media_tags')) as $medias)
-                <img width="75px" heigh="75px" src="{{ $medias->getUrl() }}">
-              @endforeach
+              <form class="remove-images-form" action="{{ route('chatbot.messages.remove-images') }}" method="post">
+                {{ csrf_field() }}  
+                @foreach($pam->getMedia(config('constants.media_tags')) as $medias)
+                  <div class="panel-img-shorts">
+                    <input type="checkbox" name="delete_images[]" value="{{ $medias->pivot->mediable_id.'_'.$medias->id }}" class="close" data-media-id="{{ $medias->id }}" data-mediable-id="{{ $medias->pivot->mediable_id }}">
+                    <img width="75px" heigh="75px" src="{{ $medias->getUrl() }}">
+                  </div>
+                @endforeach
+              </form>
             @endif
           </td>
           <td>
             <a href="javascript:;" class="approve-message" data-id="{{ $pam->chat_id }}">
               <img width="15px" height="15px" src="/images/completed-green.png">
             </a>
+            <button class="btn-secondary delete-images">Remove Images</button>
           </td>
         </tr>
       <?php }?>

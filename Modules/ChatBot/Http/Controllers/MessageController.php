@@ -63,4 +63,26 @@ class MessageController extends Controller
 
     }
 
+    /**
+     * [removeImages description]
+     * @return [type] [description]
+     * 
+     */
+    public function removeImages(Request $request)
+    {
+      $deleteImages = $request->get("delete_images",[]);
+
+      if(!empty($deleteImages)) {
+        foreach($deleteImages as $image) {
+            list($mediableId,$mediaId) = explode("_",$image);
+            if(!empty($mediaId) && !empty($mediableId)) {
+               \Db::statement("delete from mediables where mediable_id = ? and media_id = ? limit 1",[$mediableId,$mediaId]);
+            }
+        }
+      }
+
+      return response()->json(["code" => 200 , "data" => [], "message" => "Image has been removed now"]);
+      
+    }
+
 }
