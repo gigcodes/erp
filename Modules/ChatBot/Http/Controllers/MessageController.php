@@ -85,4 +85,27 @@ class MessageController extends Controller
       
     }
 
+
+    public function attachImages(Request $request)
+    {
+       $id = $request->get("id",0);
+
+       if($id > 0) {
+          // find the chat message
+          $chatMessages = ChatMessage::where("id",$id)->first();
+          
+          if($chatMessages) {
+             $chatWatsonReply = $chatMessages->chatBotReply;
+             if($chatWatsonReply) {
+                // now update the
+                $reply = json_decode($chatWatsonReply->reply,true);
+                if(!empty($reply)) {
+                  
+                }
+             }
+          }
+       }
+
+    }
+
 }

@@ -150,7 +150,9 @@ class SendMessageToCustomer implements ShouldQueue
                     \App\ChatbotReply::create([
                         "chat_id"  => $chatMessage->id,
                         "question" => isset($params["chatbot_question"]) ? $params["chatbot_question"] : null,
-                        "reply"    => isset($params["chatbot_response"]) ? json_encode($params["chatbot_response"]) : json_encode([]),
+                        "reply"    => isset($params["chatbot_response"]) ? json_encode(
+                            $params["chatbot_response"] + ["params" => isset($params["chatbot_params"]) ? $params["chatbot_params"] : []]
+                            )  : json_encode([]),
                     ]);
                 }
 

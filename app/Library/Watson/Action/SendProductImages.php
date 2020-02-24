@@ -12,7 +12,7 @@
  class SendProductImages
  {
 
- 	CONST SENDING_LIMIT = 10; 
+ 	CONST SENDING_LIMIT = 30; 
  	CONST FEMALE_CATEGORY = 2;
  	CONST MALE_CATEGORY = 3;
 
@@ -54,8 +54,10 @@
  		->limit(self::SENDING_LIMIT)
  		->get();
 
+ 		$ids = [];
  		if($products) {
  			foreach($products as $product) {
+ 				$ids[] = $product->id;
  				if($product->hasMedia(config("constants.attach_image_tag"))){
  					$media = $product->getMedia(config("constants.attach_image_tag"))->first();
  					if ($media) {
@@ -65,7 +67,14 @@
  			}
  		}
 
- 		return $images;
+ 		return [
+ 			"media_ids" => $images , 
+ 			"params" => [
+	 			"brands" => [$this->brand->id],
+	 			"category" => [$this->category->id],
+	 			"products" => $ids
+	 		]
+ 		];
 
  	}
 

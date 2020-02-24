@@ -8,16 +8,15 @@
 <link rel="stylesheet" type="text/css" href="/css/dialog-node-editor.css">
 <style type="text/css">
   .panel-img-shorts{
-      width:100px;
-      height:100px;
+      width:80px;
+      height:80px;
       display: inline-block;
   }
-  .panel-img-shorts .close{
+  .panel-img-shorts .remove-img{
       display:block;
       float:right;
       width:15px;
       height:15px;
-      background:url(https://web.archive.org/web/20110126035650/http://digitalsbykobke.com/images/close.png) no-repeat center center;
   }
 </style>
 <div class="row">
@@ -134,6 +133,29 @@
      $.ajax({
         type: 'POST',
         url: form.attr("action"),
+        data: form.serialize(),
+        beforeSend : function() {
+          $("#loading-image").show();
+        },
+        dataType:"json"
+      }).done(function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200) {
+            $.each(checkedImages, function(k, e){
+                $(e).remove();
+            });
+            toastr['success'](response.message, 'success');
+        }
+      }).fail(function(response) {
+        $("#loading-image").hide();
+        console.log("Sorry, something went wrong");
+      });
+  });
+
+  $(document).on("click",".add-more-images",function() {
+      $.ajax({
+        type: 'POST',
+        url: "",
         data: form.serialize(),
         beforeSend : function() {
           $("#loading-image").show();

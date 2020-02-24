@@ -240,4 +240,9 @@ class ChatMessagesController extends Controller
         return $size;
 
     }
+
+    public function chatBotReply()
+    {
+        return $this->hasOne("\App\ChatBotReply","chat_id", "id");
+    }
 }
