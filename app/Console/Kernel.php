@@ -237,7 +237,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('whatsapp:check')->everyFifteenMinutes();
 
         //assign the category to products, runs twice daily...
-        $schedule->command('category:fix-by-supplier')->twiceDaily();
+        //$schedule->command('category:fix-by-supplier')->twiceDaily();
 
 
         //$schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
