@@ -246,4 +246,8 @@ class RepositoryController extends Controller
             ]
         );
     }
+
+    function deployNodeScrapers(){
+        return $this->getRepositoryDetails(231924853);
+    }
 }

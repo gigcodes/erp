@@ -1501,7 +1501,7 @@ Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list'
 
 Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->name('manageScrapedBrands');
 
-Route::group(['middleware' => 'auth'], function () {
+Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], function () {
     Route::prefix('github')->group(function () {
         Route::get('/repos', 'Github\RepositoryController@listRepositories');
         Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
@@ -1529,6 +1529,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/pullRequests', 'Github\RepositoryController@listAllPullRequests');
     });
 });
+
+Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], function () {
+    Route::get('/deploy-node', 'Github\RepositoryController@deployNodeScrapers');
+});
+
 
 Route::put('customer/language-translate/{id}', 'CustomerController@languageTranslate');
 Route::get('get-language', 'CustomerController@getLanguage')->name('livechat.customer.language');
